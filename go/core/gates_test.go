@@ -167,4 +167,5 @@ var vocabulary = map[string]string{
 	"Session":                    string(rules.Session),
 	"SessionRule":                string(rules.SessionRule),
 	"ViaGuestSessionID":          string(rules.ViaGuestSessionID),
+	"SessionPrompts":             string(rules.SessionPrompts),
 }

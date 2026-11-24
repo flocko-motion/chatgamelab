@@ -21,7 +21,7 @@ type Gate struct {
 	// initPrompt is sent once the gate opens, which is how a genre starts the
 	// game rather than waiting to be spoken to. Empty means the gate only
 	// releases and says nothing.
-	initPrompt string
+	initPrompt tunable[string]
 
 	in    ports.StateInput
 	state ports.StateBroadcast
@@ -100,7 +100,7 @@ func (b *Gate) Reopen() {
 func NewGate(name, initPrompt string) *Gate {
 	return &Gate{
 		name:       name,
-		initPrompt: initPrompt,
+		initPrompt: newTunable(initPrompt),
 		in:         make(ports.StateInput, 16),
 		worked:     map[string]bool{},
 		finished:   map[string]bool{},
@@ -108,7 +108,12 @@ func NewGate(name, initPrompt string) *Gate {
 	}
 }
 
-func (b *Gate) NodeName() string                { return b.name }
+func (b *Gate) NodeName() string { return b.name }
+
+// SetInitPrompt changes what it sends when it opens; a gate already open
+// sends it on its next opening, as after a resume.
+func (b *Gate) SetInitPrompt(prompt string) { b.initPrompt.set(prompt) }
+
 func (b *Gate) StateInPort() chan<- ports.State { return b.in }
 
 // TextOutPort carries the init prompt. Wiring it is what turns "the game may
@@ -152,8 +157,8 @@ func (b *Gate) openLocked() {
 		// Released first, so a player who was already typing is not beaten to
 		// the conversation by the character's greeting.
 		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
-		if b.initPrompt != "" {
-			b.text.Send(b.initPrompt)
+		if prompt := b.initPrompt.get(); prompt != "" {
+			b.text.Send(prompt)
 		}
 	}()
 }

@@ -5,7 +5,10 @@ import { queryKeys } from "../queryKeys";
 import type { CreateRequest, GuestGameInfoResp } from "../generated/api.gen";
 
 /** What a new session is for: a game, or a share link's token. */
-export type NewSession = { readonly game: string } | { readonly share: string };
+/** A session to create: a game's, its prompts adapted where prompts says, or a share link's. */
+export type NewSession =
+  | { readonly game: string; readonly prompts?: Record<string, string> }
+  | { readonly share: string };
 
 const ONCE_PREFIX = "cgl.once.";
 
@@ -26,7 +29,10 @@ export function useCreateSession() {
       const once = tabStorage.get(slot) ?? randomKey();
       tabStorage.set(slot, once);
       try {
-        const request: CreateRequest = { ...what, language, once };
+        const request: CreateRequest =
+          "game" in what
+            ? { game: what.game, promptOverride: what.prompts, language, once }
+            : { share: what.share, language, once };
         const { data } = await api.postApiEngineSessions(request);
         tabStorage.remove(slot);
         return data.id;

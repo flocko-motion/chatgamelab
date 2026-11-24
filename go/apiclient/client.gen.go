@@ -813,6 +813,20 @@ type BeatRequest struct {
 	Ms int `json:"ms"`
 }
 
+// BlockFrequency defines model for BlockFrequency.
+type BlockFrequency struct {
+	Block     string `json:"block"`
+	Frequency int    `json:"frequency"`
+}
+
+// BlockPrompt defines model for BlockPrompt.
+type BlockPrompt struct {
+	Default string `json:"default"`
+	Edited  bool   `json:"edited"`
+	Name    string `json:"name"`
+	Text    string `json:"text"`
+}
+
 // CheckNameResp defines model for CheckNameResp.
 type CheckNameResp struct {
 	Available bool  `json:"available"`
@@ -934,12 +948,13 @@ type CreateInstitutionReq struct {
 
 // CreateRequest defines model for CreateRequest.
 type CreateRequest struct {
-	Game     *string `json:"game,omitempty"`
-	Language *string `json:"language,omitempty"`
-	Once     string  `json:"once"`
-	Player   *string `json:"player,omitempty"`
-	Request  *string `json:"request,omitempty"`
-	Share    *string `json:"share,omitempty"`
+	Game           *string            `json:"game,omitempty"`
+	Language       *string            `json:"language,omitempty"`
+	Once           string             `json:"once"`
+	Player         *string            `json:"player,omitempty"`
+	PromptOverride *map[string]string `json:"promptOverride,omitempty"`
+	Request        *string            `json:"request,omitempty"`
+	Share          *string            `json:"share,omitempty"`
 }
 
 // CreateResponse defines model for CreateResponse.
@@ -1187,6 +1202,7 @@ type GameView struct {
 	MayEditCard                  bool                `json:"mayEditCard"`
 	MayEditContent               bool                `json:"mayEditContent"`
 	MayEditSettings              bool                `json:"mayEditSettings"`
+	MayPresetPrompts             bool                `json:"mayPresetPrompts"`
 	MayPublish                   bool                `json:"mayPublish"`
 	MayShare                     bool                `json:"mayShare"`
 	Meta                         GameMeta            `json:"meta"`
@@ -1216,10 +1232,17 @@ type Genre string
 
 // GenreInfo defines model for GenreInfo.
 type GenreInfo struct {
-	Fields      []GameField `json:"fields"`
-	Id          Genre       `json:"id"`
-	MakesVoices bool        `json:"makesVoices"`
-	Needs       []Toggle    `json:"needs"`
+	Fields      []GameField   `json:"fields"`
+	Id          Genre         `json:"id"`
+	MakesVoices bool          `json:"makesVoices"`
+	Needs       []Toggle      `json:"needs"`
+	Prompts     []GenrePrompt `json:"prompts"`
+}
+
+// GenrePrompt defines model for GenrePrompt.
+type GenrePrompt struct {
+	Name string `json:"name"`
+	Text string `json:"text"`
 }
 
 // GetCurrentUserResp defines model for GetCurrentUserResp.
@@ -1239,6 +1262,28 @@ type GetVersionResp struct {
 // GraphResponse defines model for GraphResponse.
 type GraphResponse struct {
 	Graph string `json:"graph"`
+}
+
+// GuardrailEditRequest defines model for GuardrailEditRequest.
+type GuardrailEditRequest struct {
+	Text string `json:"text"`
+}
+
+// GuardrailReport defines model for GuardrailReport.
+type GuardrailReport struct {
+	Edited      bool             `json:"edited"`
+	Frequencies []BlockFrequency `json:"frequencies"`
+	MayEdit     bool             `json:"mayEdit"`
+	ReadBy      []string         `json:"readBy"`
+	Resolved    string           `json:"resolved"`
+	Source      *GuardrailSource `json:"source,omitempty"`
+	Text        string           `json:"text"`
+}
+
+// GuardrailSource defines model for GuardrailSource.
+type GuardrailSource struct {
+	Level string  `json:"level"`
+	Name  *string `json:"name,omitempty"`
 }
 
 // GuestGameInfoResp defines model for GuestGameInfoResp.
@@ -1471,6 +1516,7 @@ type NodeDetail struct {
 	Observer   *ObserverState    `json:"observer,omitempty"`
 	Outputs    []Sample          `json:"outputs"`
 	Phase      string            `json:"phase"`
+	Prompts    *[]BlockPrompt    `json:"prompts,omitempty"`
 	Role       string            `json:"role"`
 	Thread     *ThreadFill       `json:"thread,omitempty"`
 	Transcript *[]TranscriptLine `json:"transcript,omitempty"`
@@ -1715,6 +1761,11 @@ type Price struct {
 // PrivateShareStatusResp defines model for PrivateShareStatusResp.
 type PrivateShareStatusResp struct {
 	Shares []ShareLinkView `json:"shares"`
+}
+
+// PromptEditRequest defines model for PromptEditRequest.
+type PromptEditRequest struct {
+	Text string `json:"text"`
 }
 
 // PublicWorkshopGame defines model for PublicWorkshopGame.
@@ -2664,6 +2715,9 @@ type PostApiEngineSessionsIdConnectJSONRequestBody = ConnectRequest
 // PostApiEngineSessionsIdConstraintFrequencyJSONRequestBody defines body for PostApiEngineSessionsIdConstraintFrequency for application/json ContentType.
 type PostApiEngineSessionsIdConstraintFrequencyJSONRequestBody = ConstraintFrequencyRequest
 
+// PutApiEngineSessionsIdGuardrailJSONRequestBody defines body for PutApiEngineSessionsIdGuardrail for application/json ContentType.
+type PutApiEngineSessionsIdGuardrailJSONRequestBody = GuardrailEditRequest
+
 // PostApiEngineSessionsIdInputJSONRequestBody defines body for PostApiEngineSessionsIdInput for application/json ContentType.
 type PostApiEngineSessionsIdInputJSONRequestBody = InputRequest
 
@@ -2672,6 +2726,9 @@ type PostApiEngineSessionsIdNodesNodeBeatJSONRequestBody = BeatRequest
 
 // PostApiEngineSessionsIdNodesNodeInjectJSONRequestBody defines body for PostApiEngineSessionsIdNodesNodeInject for application/json ContentType.
 type PostApiEngineSessionsIdNodesNodeInjectJSONRequestBody = InjectionRequest
+
+// PutApiEngineSessionsIdPromptsNameJSONRequestBody defines body for PutApiEngineSessionsIdPromptsName for application/json ContentType.
+type PutApiEngineSessionsIdPromptsNameJSONRequestBody = PromptEditRequest
 
 // PostApiEngineSessionsIdTogglesJSONRequestBody defines body for PostApiEngineSessionsIdToggles for application/json ContentType.
 type PostApiEngineSessionsIdTogglesJSONRequestBody = ToggleRequest
@@ -3271,6 +3328,39 @@ type ClientInterface interface {
 	// Corresponds with GET /api/engine/sessions/{id}/graph (the `GetApiEngineSessionsIdGraph` operationId).
 	GetApiEngineSessionsIdGraph(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetApiEngineSessionsIdGuardrail Answers a session's guardrail, the youth-protection
+	//
+	// rule its blocks keep to: the one now and the one resolved, where it came
+	// from, which blocks keep to it and how often each repeats it. mayEdit says
+	// whether the caller may change it: staff and heads, in their own session.
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/guardrail (the `GetApiEngineSessionsIdGuardrail` operationId).
+	GetApiEngineSessionsIdGuardrail(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutApiEngineSessionsIdGuardrailWithBody Changes a session's guardrail during play.
+	//
+	// Staff and heads only, in their own session: a lab experiment with
+	// guardrails, looser or stricter. The blocks that keep to it take the new one
+	// from their next call; what was done stays. The resolved guardrail clears
+	// the edit.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PUT /api/engine/sessions/{id}/guardrail (the `PutApiEngineSessionsIdGuardrail` operationId).
+	PutApiEngineSessionsIdGuardrailWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutApiEngineSessionsIdGuardrail Changes a session's guardrail during play.
+	//
+	// Staff and heads only, in their own session: a lab experiment with
+	// guardrails, looser or stricter. The blocks that keep to it take the new one
+	// from their next call; what was done stays. The resolved guardrail clears
+	// the edit.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PUT /api/engine/sessions/{id}/guardrail (the `PutApiEngineSessionsIdGuardrail` operationId).
+	PutApiEngineSessionsIdGuardrail(ctx context.Context, id string, body PutApiEngineSessionsIdGuardrailJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetApiEngineSessionsIdHistory Answers a session's conversation so far, in order.
 	//
 	// Corresponds with GET /api/engine/sessions/{id}/history (the `GetApiEngineSessionsIdHistory` operationId).
@@ -3388,6 +3478,30 @@ type ClientInterface interface {
 	//
 	// Corresponds with GET /api/engine/sessions/{id}/prompts (the `GetApiEngineSessionsIdPrompts` operationId).
 	GetApiEngineSessionsIdPrompts(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutApiEngineSessionsIdPromptsNameWithBody Changes one of a session's prompts during play.
+	//
+	// Every player of the session may, to see how the AI's answers change: the
+	// youth-protection rule travels with the calls on its own, so no prompt can
+	// drop it. The blocks that run on the prompt take the new text from their
+	// next call; the session keeps it, also across a resume.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PUT /api/engine/sessions/{id}/prompts/{name} (the `PutApiEngineSessionsIdPromptsName` operationId).
+	PutApiEngineSessionsIdPromptsNameWithBody(ctx context.Context, id string, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutApiEngineSessionsIdPromptsName Changes one of a session's prompts during play.
+	//
+	// Every player of the session may, to see how the AI's answers change: the
+	// youth-protection rule travels with the calls on its own, so no prompt can
+	// drop it. The blocks that run on the prompt take the new text from their
+	// next call; the session keeps it, also across a resume.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PUT /api/engine/sessions/{id}/prompts/{name} (the `PutApiEngineSessionsIdPromptsName` operationId).
+	PutApiEngineSessionsIdPromptsName(ctx context.Context, id string, name string, body PutApiEngineSessionsIdPromptsNameJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiEngineSessionsIdState Answers where a session stands now.
 	//
@@ -5671,6 +5785,69 @@ func (c *Client) GetApiEngineSessionsIdGraph(ctx context.Context, id string, req
 	return c.Client.Do(req)
 }
 
+// GetApiEngineSessionsIdGuardrail Answers a session's guardrail, the youth-protection
+//
+// rule its blocks keep to: the one now and the one resolved, where it came
+// from, which blocks keep to it and how often each repeats it. mayEdit says
+// whether the caller may change it: staff and heads, in their own session.
+//
+// Corresponds with GET /api/engine/sessions/{id}/guardrail (the `GetApiEngineSessionsIdGuardrail` operationId).
+func (c *Client) GetApiEngineSessionsIdGuardrail(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiEngineSessionsIdGuardrailRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PutApiEngineSessionsIdGuardrailWithBody Changes a session's guardrail during play.
+//
+// Staff and heads only, in their own session: a lab experiment with
+// guardrails, looser or stricter. The blocks that keep to it take the new one
+// from their next call; what was done stays. The resolved guardrail clears
+// the edit.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PUT /api/engine/sessions/{id}/guardrail (the `PutApiEngineSessionsIdGuardrail` operationId).
+func (c *Client) PutApiEngineSessionsIdGuardrailWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiEngineSessionsIdGuardrailRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PutApiEngineSessionsIdGuardrail Changes a session's guardrail during play.
+//
+// Staff and heads only, in their own session: a lab experiment with
+// guardrails, looser or stricter. The blocks that keep to it take the new one
+// from their next call; what was done stays. The resolved guardrail clears
+// the edit.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PUT /api/engine/sessions/{id}/guardrail (the `PutApiEngineSessionsIdGuardrail` operationId).
+func (c *Client) PutApiEngineSessionsIdGuardrail(ctx context.Context, id string, body PutApiEngineSessionsIdGuardrailJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiEngineSessionsIdGuardrailRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 // GetApiEngineSessionsIdHistory Answers a session's conversation so far, in order.
 //
 // Corresponds with GET /api/engine/sessions/{id}/history (the `GetApiEngineSessionsIdHistory` operationId).
@@ -5919,6 +6096,50 @@ func (c *Client) PostApiEngineSessionsIdPause(ctx context.Context, id string, re
 // Corresponds with GET /api/engine/sessions/{id}/prompts (the `GetApiEngineSessionsIdPrompts` operationId).
 func (c *Client) GetApiEngineSessionsIdPrompts(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetApiEngineSessionsIdPromptsRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PutApiEngineSessionsIdPromptsNameWithBody Changes one of a session's prompts during play.
+//
+// Every player of the session may, to see how the AI's answers change: the
+// youth-protection rule travels with the calls on its own, so no prompt can
+// drop it. The blocks that run on the prompt take the new text from their
+// next call; the session keeps it, also across a resume.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PUT /api/engine/sessions/{id}/prompts/{name} (the `PutApiEngineSessionsIdPromptsName` operationId).
+func (c *Client) PutApiEngineSessionsIdPromptsNameWithBody(ctx context.Context, id string, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiEngineSessionsIdPromptsNameRequestWithBody(c.Server, id, name, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PutApiEngineSessionsIdPromptsName Changes one of a session's prompts during play.
+//
+// Every player of the session may, to see how the AI's answers change: the
+// youth-protection rule travels with the calls on its own, so no prompt can
+// drop it. The blocks that run on the prompt take the new text from their
+// next call; the session keeps it, also across a resume.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PUT /api/engine/sessions/{id}/prompts/{name} (the `PutApiEngineSessionsIdPromptsName` operationId).
+func (c *Client) PutApiEngineSessionsIdPromptsName(ctx context.Context, id string, name string, body PutApiEngineSessionsIdPromptsNameJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiEngineSessionsIdPromptsNameRequest(c.Server, id, name, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10128,6 +10349,87 @@ func NewGetApiEngineSessionsIdGraphRequest(server string, id string) (*http.Requ
 	return req, nil
 }
 
+// NewGetApiEngineSessionsIdGuardrailRequest constructs an http.Request for the GetApiEngineSessionsIdGuardrail method
+func NewGetApiEngineSessionsIdGuardrailRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/guardrail", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPutApiEngineSessionsIdGuardrailRequest calls the generic PutApiEngineSessionsIdGuardrail builder with application/json body
+func NewPutApiEngineSessionsIdGuardrailRequest(server string, id string, body PutApiEngineSessionsIdGuardrailJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutApiEngineSessionsIdGuardrailRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPutApiEngineSessionsIdGuardrailRequestWithBody constructs an http.Request for the PutApiEngineSessionsIdGuardrail method, with any body, and a specified content type
+func NewPutApiEngineSessionsIdGuardrailRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/guardrail", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewGetApiEngineSessionsIdHistoryRequest constructs an http.Request for the GetApiEngineSessionsIdHistory method
 func NewGetApiEngineSessionsIdHistoryRequest(server string, id string) (*http.Request, error) {
 	var err error
@@ -10565,6 +10867,60 @@ func NewGetApiEngineSessionsIdPromptsRequest(server string, id string) (*http.Re
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewPutApiEngineSessionsIdPromptsNameRequest calls the generic PutApiEngineSessionsIdPromptsName builder with application/json body
+func NewPutApiEngineSessionsIdPromptsNameRequest(server string, id string, name string, body PutApiEngineSessionsIdPromptsNameJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutApiEngineSessionsIdPromptsNameRequestWithBody(server, id, name, "application/json", bodyReader)
+}
+
+// NewPutApiEngineSessionsIdPromptsNameRequestWithBody constructs an http.Request for the PutApiEngineSessionsIdPromptsName method, with any body, and a specified content type
+func NewPutApiEngineSessionsIdPromptsNameRequestWithBody(server string, id string, name string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/engine/sessions/%s/prompts/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -16056,6 +16412,41 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/engine/sessions/{id}/graph (the `GetApiEngineSessionsIdGraph` operationId).
 	GetApiEngineSessionsIdGraphWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdGraphResponse, error)
 
+	// GetApiEngineSessionsIdGuardrailWithResponse Answers a session's guardrail, the youth-protection
+	//
+	// rule its blocks keep to: the one now and the one resolved, where it came
+	// from, which blocks keep to it and how often each repeats it. mayEdit says
+	// whether the caller may change it: staff and heads, in their own session.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/engine/sessions/{id}/guardrail (the `GetApiEngineSessionsIdGuardrail` operationId).
+	GetApiEngineSessionsIdGuardrailWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdGuardrailResponse, error)
+
+	// PutApiEngineSessionsIdGuardrailWithBodyWithResponse Changes a session's guardrail during play.
+	//
+	// Staff and heads only, in their own session: a lab experiment with
+	// guardrails, looser or stricter. The blocks that keep to it take the new one
+	// from their next call; what was done stays. The resolved guardrail clears
+	// the edit.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PUT /api/engine/sessions/{id}/guardrail (the `PutApiEngineSessionsIdGuardrail` operationId).
+	PutApiEngineSessionsIdGuardrailWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiEngineSessionsIdGuardrailResponse, error)
+
+	// PutApiEngineSessionsIdGuardrailWithResponse Changes a session's guardrail during play.
+	//
+	// Staff and heads only, in their own session: a lab experiment with
+	// guardrails, looser or stricter. The blocks that keep to it take the new one
+	// from their next call; what was done stays. The resolved guardrail clears
+	// the edit.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PUT /api/engine/sessions/{id}/guardrail (the `PutApiEngineSessionsIdGuardrail` operationId).
+	PutApiEngineSessionsIdGuardrailWithResponse(ctx context.Context, id string, body PutApiEngineSessionsIdGuardrailJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiEngineSessionsIdGuardrailResponse, error)
+
 	// GetApiEngineSessionsIdHistoryWithResponse Answers a session's conversation so far, in order.
 	//
 	// Returns a wrapper object for the known response body format(s).
@@ -16189,6 +16580,30 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with GET /api/engine/sessions/{id}/prompts (the `GetApiEngineSessionsIdPrompts` operationId).
 	GetApiEngineSessionsIdPromptsWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdPromptsResponse, error)
+
+	// PutApiEngineSessionsIdPromptsNameWithBodyWithResponse Changes one of a session's prompts during play.
+	//
+	// Every player of the session may, to see how the AI's answers change: the
+	// youth-protection rule travels with the calls on its own, so no prompt can
+	// drop it. The blocks that run on the prompt take the new text from their
+	// next call; the session keeps it, also across a resume.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PUT /api/engine/sessions/{id}/prompts/{name} (the `PutApiEngineSessionsIdPromptsName` operationId).
+	PutApiEngineSessionsIdPromptsNameWithBodyWithResponse(ctx context.Context, id string, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiEngineSessionsIdPromptsNameResponse, error)
+
+	// PutApiEngineSessionsIdPromptsNameWithResponse Changes one of a session's prompts during play.
+	//
+	// Every player of the session may, to see how the AI's answers change: the
+	// youth-protection rule travels with the calls on its own, so no prompt can
+	// drop it. The blocks that run on the prompt take the new text from their
+	// next call; the session keeps it, also across a resume.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PUT /api/engine/sessions/{id}/prompts/{name} (the `PutApiEngineSessionsIdPromptsName` operationId).
+	PutApiEngineSessionsIdPromptsNameWithResponse(ctx context.Context, id string, name string, body PutApiEngineSessionsIdPromptsNameJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiEngineSessionsIdPromptsNameResponse, error)
 
 	// GetApiEngineSessionsIdStateWithResponse Answers where a session stands now.
 	//
@@ -19178,6 +19593,95 @@ func (r GetApiEngineSessionsIdGraphResponse) ContentType() string {
 	return ""
 }
 
+type GetApiEngineSessionsIdGuardrailResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *GuardrailReport
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiEngineSessionsIdGuardrailResponse) GetJSON200() *GuardrailReport {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiEngineSessionsIdGuardrailResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiEngineSessionsIdGuardrailResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiEngineSessionsIdGuardrailResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiEngineSessionsIdGuardrailResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiEngineSessionsIdGuardrailResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PutApiEngineSessionsIdGuardrailResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PutApiEngineSessionsIdGuardrailResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PutApiEngineSessionsIdGuardrailResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PutApiEngineSessionsIdGuardrailResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutApiEngineSessionsIdGuardrailResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PutApiEngineSessionsIdGuardrailResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetApiEngineSessionsIdHistoryResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -19658,6 +20162,47 @@ func (r GetApiEngineSessionsIdPromptsResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetApiEngineSessionsIdPromptsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PutApiEngineSessionsIdPromptsNameResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PutApiEngineSessionsIdPromptsNameResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PutApiEngineSessionsIdPromptsNameResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PutApiEngineSessionsIdPromptsNameResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutApiEngineSessionsIdPromptsNameResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PutApiEngineSessionsIdPromptsNameResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -25808,6 +26353,59 @@ func (c *ClientWithResponses) GetApiEngineSessionsIdGraphWithResponse(ctx contex
 	return ParseGetApiEngineSessionsIdGraphResponse(rsp)
 }
 
+// GetApiEngineSessionsIdGuardrailWithResponse Answers a session's guardrail, the youth-protection
+//
+// rule its blocks keep to: the one now and the one resolved, where it came
+// from, which blocks keep to it and how often each repeats it. mayEdit says
+// whether the caller may change it: staff and heads, in their own session.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/engine/sessions/{id}/guardrail (the `GetApiEngineSessionsIdGuardrail` operationId).
+func (c *ClientWithResponses) GetApiEngineSessionsIdGuardrailWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiEngineSessionsIdGuardrailResponse, error) {
+	rsp, err := c.GetApiEngineSessionsIdGuardrail(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiEngineSessionsIdGuardrailResponse(rsp)
+}
+
+// PutApiEngineSessionsIdGuardrailWithBodyWithResponse Changes a session's guardrail during play.
+//
+// Staff and heads only, in their own session: a lab experiment with
+// guardrails, looser or stricter. The blocks that keep to it take the new one
+// from their next call; what was done stays. The resolved guardrail clears
+// the edit.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PUT /api/engine/sessions/{id}/guardrail (the `PutApiEngineSessionsIdGuardrail` operationId).
+func (c *ClientWithResponses) PutApiEngineSessionsIdGuardrailWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiEngineSessionsIdGuardrailResponse, error) {
+	rsp, err := c.PutApiEngineSessionsIdGuardrailWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiEngineSessionsIdGuardrailResponse(rsp)
+}
+
+// PutApiEngineSessionsIdGuardrailWithResponse Changes a session's guardrail during play.
+//
+// Staff and heads only, in their own session: a lab experiment with
+// guardrails, looser or stricter. The blocks that keep to it take the new one
+// from their next call; what was done stays. The resolved guardrail clears
+// the edit.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PUT /api/engine/sessions/{id}/guardrail (the `PutApiEngineSessionsIdGuardrail` operationId).
+func (c *ClientWithResponses) PutApiEngineSessionsIdGuardrailWithResponse(ctx context.Context, id string, body PutApiEngineSessionsIdGuardrailJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiEngineSessionsIdGuardrailResponse, error) {
+	rsp, err := c.PutApiEngineSessionsIdGuardrail(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiEngineSessionsIdGuardrailResponse(rsp)
+}
+
 // GetApiEngineSessionsIdHistoryWithResponse Answers a session's conversation so far, in order.
 //
 // Returns a wrapper object for the known response body format(s).
@@ -26024,6 +26622,42 @@ func (c *ClientWithResponses) GetApiEngineSessionsIdPromptsWithResponse(ctx cont
 		return nil, err
 	}
 	return ParseGetApiEngineSessionsIdPromptsResponse(rsp)
+}
+
+// PutApiEngineSessionsIdPromptsNameWithBodyWithResponse Changes one of a session's prompts during play.
+//
+// Every player of the session may, to see how the AI's answers change: the
+// youth-protection rule travels with the calls on its own, so no prompt can
+// drop it. The blocks that run on the prompt take the new text from their
+// next call; the session keeps it, also across a resume.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PUT /api/engine/sessions/{id}/prompts/{name} (the `PutApiEngineSessionsIdPromptsName` operationId).
+func (c *ClientWithResponses) PutApiEngineSessionsIdPromptsNameWithBodyWithResponse(ctx context.Context, id string, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiEngineSessionsIdPromptsNameResponse, error) {
+	rsp, err := c.PutApiEngineSessionsIdPromptsNameWithBody(ctx, id, name, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiEngineSessionsIdPromptsNameResponse(rsp)
+}
+
+// PutApiEngineSessionsIdPromptsNameWithResponse Changes one of a session's prompts during play.
+//
+// Every player of the session may, to see how the AI's answers change: the
+// youth-protection rule travels with the calls on its own, so no prompt can
+// drop it. The blocks that run on the prompt take the new text from their
+// next call; the session keeps it, also across a resume.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PUT /api/engine/sessions/{id}/prompts/{name} (the `PutApiEngineSessionsIdPromptsName` operationId).
+func (c *ClientWithResponses) PutApiEngineSessionsIdPromptsNameWithResponse(ctx context.Context, id string, name string, body PutApiEngineSessionsIdPromptsNameJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiEngineSessionsIdPromptsNameResponse, error) {
+	rsp, err := c.PutApiEngineSessionsIdPromptsName(ctx, id, name, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiEngineSessionsIdPromptsNameResponse(rsp)
 }
 
 // GetApiEngineSessionsIdStateWithResponse Answers where a session stands now.
@@ -29469,6 +30103,68 @@ func ParseGetApiEngineSessionsIdGraphResponse(rsp *http.Response) (*GetApiEngine
 	return response, nil
 }
 
+// ParseGetApiEngineSessionsIdGuardrailResponse parses an HTTP response from a GetApiEngineSessionsIdGuardrailWithResponse call
+func ParseGetApiEngineSessionsIdGuardrailResponse(rsp *http.Response) (*GetApiEngineSessionsIdGuardrailResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiEngineSessionsIdGuardrailResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest GuardrailReport
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutApiEngineSessionsIdGuardrailResponse parses an HTTP response from a PutApiEngineSessionsIdGuardrailWithResponse call
+func ParsePutApiEngineSessionsIdGuardrailResponse(rsp *http.Response) (*PutApiEngineSessionsIdGuardrailResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutApiEngineSessionsIdGuardrailResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetApiEngineSessionsIdHistoryResponse parses an HTTP response from a GetApiEngineSessionsIdHistoryWithResponse call
 func ParseGetApiEngineSessionsIdHistoryResponse(rsp *http.Response) (*GetApiEngineSessionsIdHistoryResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -29795,6 +30491,35 @@ func ParseGetApiEngineSessionsIdPromptsResponse(rsp *http.Response) (*GetApiEngi
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutApiEngineSessionsIdPromptsNameResponse parses an HTTP response from a PutApiEngineSessionsIdPromptsNameWithResponse call
+func ParsePutApiEngineSessionsIdPromptsNameResponse(rsp *http.Response) (*PutApiEngineSessionsIdPromptsNameResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutApiEngineSessionsIdPromptsNameResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Error

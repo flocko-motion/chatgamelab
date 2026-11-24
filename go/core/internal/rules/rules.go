@@ -60,6 +60,7 @@ var Rules = map[Role]Grants{
 			{Edit, GameSettings, Everywhere},
 			{Delete, GameCard, Everywhere},
 			{Play, GameCard, Everywhere},    // with their own money: they read every game already
+			{Edit, SessionPrompts, Own},     // adapting the prompts of a session they start, as an experiment
 			{Publish, GameCard, Everywhere}, // the admin is liable for what is public, so controls it both ways; v1: only workshop games and the admin's own
 			{Copy, GameContent, Everywhere},
 
@@ -147,7 +148,8 @@ var Rules = map[Role]Grants{
 			{Share, GameCard, OfOwnOrganisation}, // embedding included
 			{Copy, GameContent, OfOwnOrganisation},
 			{Delete, GameCard, OfOwnOrganisationsWorkshop}, // moderating what is made there; a colleague's own game only its designer deletes
-			{Edit, SessionRule, Own},                       // tuning how often their session repeats the rule // they run the workshops: in workshop mode or not
+			{Edit, SessionRule, Own},                       // changing their session's guardrail during play, its text and how often it repeats // they run the workshops: in workshop mode or not
+			{Edit, SessionPrompts, Own},                    // adapting the prompts of a session they start, as an experiment
 
 			{Share, GameCard, Own}, // if sharing is possible at all: who pays is the key share's (#451)
 			{Share, GameCard, Public},
@@ -239,7 +241,8 @@ var Rules = map[Role]Grants{
 			{Share, GameCard, OfOwnOrganisation}, // embedding included
 			{Copy, GameContent, OfOwnOrganisation},
 			{Delete, GameCard, OfOwnOrganisationsWorkshop}, // moderating what is made there; a colleague's own game only its designer deletes
-			{Edit, SessionRule, Own},                       // tuning how often their session repeats the rule // they run the workshops: in workshop mode or not
+			{Edit, SessionRule, Own},                       // changing their session's guardrail during play, its text and how often it repeats // they run the workshops: in workshop mode or not
+			{Edit, SessionPrompts, Own},                    // adapting the prompts of a session they start, as an experiment
 
 			{Share, GameCard, Own}, // if sharing is possible at all: who pays is the key share's (#451)
 			{Share, GameCard, Public},

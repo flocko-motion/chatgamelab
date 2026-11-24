@@ -154,6 +154,42 @@ func (s *Session) SetConstraintFrequency(block string, n int) error {
 	return nil
 }
 
+// SetGuardrail changes the session's guardrail during play, as a lab
+// experiment: every block that keeps to it takes the new one from its next
+// call, and what was done stays. It is stored with the spec, so a resumed
+// session keeps it; the resolved guardrail clears the edit.
+func (s *Session) SetGuardrail(text string) error {
+	s.wiring.SetGuardrail(text)
+	s.mu.Lock()
+	if text == s.spec.Guardrail {
+		s.spec.GuardrailEdit = nil
+	} else {
+		s.spec.GuardrailEdit = &text
+	}
+	s.mu.Unlock()
+	s.checkpoint()
+	return nil
+}
+
+// SetPrompt changes one of the genre's prompts during play: the blocks that
+// run on it take the new text from their next call. The text is stored with
+// the spec as an override, so a resumed session runs on it.
+func (s *Session) SetPrompt(name, text string) error {
+	if err := s.wiring.SetPrompt(name, text); err != nil {
+		return err
+	}
+	s.mu.Lock()
+	overrides := maps.Clone(s.spec.PromptOverride)
+	if overrides == nil {
+		overrides = map[string]string{}
+	}
+	overrides[name] = text
+	s.spec.PromptOverride = overrides
+	s.mu.Unlock()
+	s.checkpoint()
+	return nil
+}
+
 // Adapt takes the platform's current offers, as a share changed while the game
 // runs. Offers with errors are left out. The stored preference is fitted to the
 // rest: a tier or toggle no longer allowed gives way, and the player is told

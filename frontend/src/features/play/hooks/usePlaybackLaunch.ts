@@ -17,6 +17,8 @@ import type { PlaybackTarget } from "../playback";
 /** What a play route shows while the platform comes to a session, and once it has one. */
 export type LaunchView =
   | { readonly kind: "working"; readonly text: "starting" | "opening" }
+  /** The starter adapts the game's prompts before the session starts. */
+  | { readonly kind: "advanced"; readonly game: string }
   | {
       readonly kind: "refused";
       readonly problem: Problem | "offline";
@@ -50,6 +52,8 @@ export function usePlaybackLaunch(
   ready: boolean,
 ) {
   const navigate = useNavigate();
+  // A game started with advanced settings waits for its prompts.
+  const advanced = target.kind === "game" && !!target.advanced;
   const { mutateAsync: create } = useCreateSession();
   const { mutateAsync: open } = useOpenSession();
   const fetchShareInfo = useFetchShareInfo();
@@ -182,7 +186,9 @@ export function usePlaybackLaunch(
 
     switch (target.kind) {
       case "game":
-        void start({ game: target.id }).then(show);
+        // With advanced settings, the session starts once the prompts are set.
+        if (advanced) show({ kind: "advanced", game: target.id });
+        else void start({ game: target.id }).then(show);
         break;
       case "session":
         void launchSession(target.id);
@@ -197,6 +203,7 @@ export function usePlaybackLaunch(
   }, [
     target.kind,
     target.id,
+    advanced,
     ready,
     attempt,
     start,
@@ -215,6 +222,13 @@ export function usePlaybackLaunch(
       );
     },
     tryAgain: () => setAttempt((n) => n + 1),
+    /** Starts the game with its prompts adapted, from the advanced settings. */
+    startWithPrompts: (prompts: Record<string, string>) => {
+      setView({ kind: "working", text: "starting" });
+      void start({ game: target.id, prompts }).then(
+        (refused) => refused && setView(refused),
+      );
+    },
   };
 }
 

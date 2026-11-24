@@ -1,20 +1,22 @@
 /**
- * The tabs of the insights' lower pane: the session's usage, what is
- * selected, what happened, and the problems blocks reported. Which one is open
+ * The tabs of the insights' lower pane: the session's usage, its guardrail,
+ * what is selected, what happened, and the problems blocks reported. Which one is open
  * is remembered; picking a block opens its tab, the background goes back to
  * usage. Which panel shows is the stylesheet's business, by the pane's
  * data-tab; on a phone there are no tabs, only the feed.
  */
 import { text, type TextKey } from "../texts.js";
 
-export type Tab = "block" | "usage" | "feed" | "problems";
+export type Tab = "block" | "usage" | "guardrail" | "feed" | "problems";
 
-// Usage first: it is what the pane shows when nothing is selected.
-const TABS: readonly Tab[] = ["usage", "block", "feed", "problems"];
+// Usage first: it is what the pane shows when nothing is selected. The
+// guardrail beside it: like usage, it belongs to the whole session.
+const TABS: readonly Tab[] = ["usage", "guardrail", "block", "feed", "problems"];
 
 const LABELS: Record<Tab, TextKey> = {
   block: "insights.tabSelected",
   usage: "insights.tabUsage",
+  guardrail: "insights.tabGuardrail",
   feed: "insights.feed",
   problems: "insights.tabProblems",
 };

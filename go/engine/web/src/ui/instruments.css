@@ -173,6 +173,7 @@ aside > .insights-details { flex: 1 1 0; }
 .tab-panel { display: none; flex: 1; min-height: 0; flex-direction: column; overflow-y: auto; scrollbar-width: thin; }
 .insights-details[data-tab="block"] #panel-block,
 .insights-details[data-tab="usage"] #panel-usage,
+.insights-details[data-tab="guardrail"] #panel-guardrail,
 .insights-details[data-tab="feed"] #panel-feed,
 .insights-details[data-tab="problems"] #panel-problems { display: flex; }
 /* The tab already names the feed on a wide screen. */
@@ -199,6 +200,7 @@ aside > .insights-details { flex: 1 1 0; }
   /* Whatever tab a wide screen left open, the phone shows the feed… (as
      specific as the tab rules above, and later, so these win) */
   .insights-details[data-tab] #panel-usage,
+  .insights-details[data-tab] #panel-guardrail,
   .insights-details[data-tab] #panel-block,
   .insights-details[data-tab] #panel-problems { display: none; }
   .insights-details[data-tab] #panel-feed { display: flex; }
@@ -468,6 +470,23 @@ aside h2 {
 }
 .injection-send:hover:not([disabled]) { border-color: var(--accent); }
 .injection .meta { margin: 0; min-height: 1em; }
+
+/* The prompts a block runs on, and the session's guardrail: each open to a
+   change during play. */
+.prompts { margin-top: 0.75rem; }
+.prompts details { margin-top: 0.4rem; }
+.prompts summary { cursor: pointer; font-size: 0.8125rem; color: var(--gray-9); }
+.prompts .injection textarea { font-family: var(--font-mono, monospace); font-size: 0.75rem; }
+.prompt-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.edited-mark {
+  padding: 0 0.35rem;
+  font-size: 0.6875rem;
+  color: #ffffff;
+  background: var(--accent);
+  border-radius: var(--radius-md);
+}
+.guardrail-text { white-space: pre-wrap; margin: 0.25rem 0 0.75rem; }
+.guardrail-blocks { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.4rem; }
 
 /* A conversation in a block's details: newest at the bottom, the player's
    lines set apart from the character's. */

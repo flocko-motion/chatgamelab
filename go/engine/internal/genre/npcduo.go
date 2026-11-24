@@ -1,6 +1,7 @@
 package genre
 
 import (
+	"maps"
 	"strings"
 	"sync"
 	"time"
@@ -153,22 +154,22 @@ func NewNPCDuo(cfg NPCDuoConfig) (*Wiring, error) {
 	if second == "" {
 		second = "Someone who happens to be there: curious, talkative, and with opinions of their own."
 	}
-	scene := ""
-	if strings.TrimSpace(cfg.GameStart) != "" {
-		scene = "\n\n" + prompts[PromptDuoSceneLead] + "\n" + strings.TrimSpace(cfg.GameStart)
-	}
-	character := func(self, other string) string {
+	character := func(p Prompts, self, other string) string {
+		scene := ""
+		if strings.TrimSpace(cfg.GameStart) != "" {
+			scene = "\n\n" + p[PromptDuoSceneLead] + "\n" + strings.TrimSpace(cfg.GameStart)
+		}
 		return self + scene + "\n\nThe other character in the conversation:\n" + other +
-			prompts[PromptDuoPolicy] + speakClause(cfg.Language)
+			p[PromptDuoPolicy] + speakClause(cfg.Language)
 	}
 
 	// The second character's voice differs from the first's by default, so
 	// the two are told apart even when no cast comes.
 	liveA := blocks.NewLiveSession("live-a", cfg.Live, adapters.LiveConfig{
-		Voice: "marin", Scenario: character(first, second), Guardrail: cfg.Guardrail,
+		Voice: "marin", Scenario: character(prompts, first, second), Guardrail: cfg.Guardrail,
 	}, cfg.IdleAfter)
 	liveB := blocks.NewLiveSession("live-b", cfg.Live, adapters.LiveConfig{
-		Voice: "cedar", Scenario: character(second, first), Guardrail: cfg.Guardrail,
+		Voice: "cedar", Scenario: character(prompts, second, first), Guardrail: cfg.Guardrail,
 	}, cfg.IdleAfter)
 	liveA.Seat, liveB.Seat = SeatFirst, SeatSecond
 	floor := &duoFloor{spoke: map[string]time.Time{}}
@@ -230,11 +231,47 @@ func NewNPCDuo(cfg NPCDuoConfig) (*Wiring, error) {
 	g.ConnectState(greeting, gate)
 	g.ConnectFailure(greeting, blocks.NewFailureDrop("greeting-failed"))
 
+	// Each prompt reaches its blocks again when it changes during play.
+	characters := func(c Current) {
+		liveA.SetScenario(character(c.Prompts, first, second))
+		liveB.SetScenario(character(c.Prompts, second, first))
+	}
+	lives := []string{liveA.NodeName(), liveB.NodeName()}
+	director := func(c Current) {
+		observer.SetBrief(duoBrief(c.Prompts[PromptDuoDirector], first, second, cfg.GameStart, c.Guardrail, cfg.Language))
+	}
+	uses := map[string]PromptUse{
+		PromptDuoPolicy:    {lives, characters},
+		PromptDuoSceneLead: {lives, characters},
+		PromptDuoDirector:  {[]string{observer.NodeName()}, director},
+		PromptCast: {[]string{cast.NodeName()}, func(c Current) {
+			cast.SetSystem(c.Prompts[PromptCast] + castTail(cfg.BuiltinVoices, cfg.Language))
+		}},
+		PromptDuoGreeting: {[]string{greeting.NodeName()}, func(c Current) {
+			greeting.SetSystem(c.Prompts[PromptDuoGreeting] + languageClause(cfg.Language))
+		}},
+		PromptDuoCue: {[]string{gate.NodeName()}, func(c Current) {
+			gate.SetInitPrompt(c.Prompts[PromptDuoCue])
+		}},
+	}
+	// Both live sessions take the guardrail on their own channel, the
+	// director judges by it and reminds them of it.
+	guardrailUse := PromptUse{append(lives, observer.NodeName()), func(c Current) {
+		liveA.SetGuardrail(c.Guardrail)
+		liveB.SetGuardrail(c.Guardrail)
+		director(c)
+		observer.SetRules(c.Guardrail)
+	}}
+
 	w := &Wiring{
-		Graph:   g,
-		Prompts: prompts,
-		Inputs:  []ports.InputMode{ports.InputAudioFullDuplex},
-		Imagery: ports.ImageryStanding,
+		Graph:        g,
+		Prompts:      prompts,
+		Defaults:     maps.Clone(NPCDuoPrompts),
+		PromptUses:   uses,
+		Guardrail:    cfg.Guardrail,
+		GuardrailUse: guardrailUse,
+		Inputs:       []ports.InputMode{ports.InputAudioFullDuplex},
+		Imagery:      ports.ImageryStanding,
 	}
 
 	// The player's voice reaches both: the browser mixes it into each.

@@ -25,6 +25,9 @@ type CreateRequest struct {
 	// Once is a key the playback-engine makes for one intent to start, so a
 	// repeat within OnceWindow answers the same session.
 	Once string `json:"once"`
+	// PromptOverride adapts the genre's prompts by name before the session
+	// starts; whoever serves the engine decides who may.
+	PromptOverride map[string]string `json:"promptOverride,omitempty"`
 }
 
 // CreateResponse names the session created.
@@ -453,6 +456,77 @@ func (e PromptsEndpoint) Handle(ctx context.Context, req SessionRequest) (Prompt
 		return nil, err
 	}
 	return s.Prompts(), nil
+}
+
+// PromptEditRequest changes one of a session's prompts during play.
+type PromptEditRequest struct {
+	ID string `path:"id"`
+	// Name is the prompt's, as the session lists them, such as "expand".
+	Name string `path:"name"`
+	// Text is the new prompt. A genre with templated prompts fills it like
+	// its own.
+	Text string `json:"text"`
+}
+
+// PromptEditEndpoint changes one of a session's prompts during play: the
+// blocks that run on it take the new text from their next call, and the
+// session keeps it, also across a resume.
+type PromptEditEndpoint struct{ API *API }
+
+func (PromptEditEndpoint) Method() string             { return "PUT" }
+func (PromptEditEndpoint) Path() string               { return "/api/engine/sessions/{id}/prompts/{name}" }
+func (PromptEditEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
+func (e PromptEditEndpoint) Handle(ctx context.Context, req PromptEditRequest) (Accepted, error) {
+	s, err := e.API.Session(ctx, req.ID)
+	if err != nil {
+		return Accepted{}, err
+	}
+	if err := s.SetPrompt(req.Name, req.Text); err != nil {
+		return Accepted{}, rejected(err)
+	}
+	return Accepted{}, nil
+}
+
+// GuardrailEndpoint is a session's guardrail: the one its blocks keep to,
+// the one resolved, where it came from, which blocks keep to it and how often
+// each threaded block repeats it.
+type GuardrailEndpoint struct{ API *API }
+
+func (GuardrailEndpoint) Method() string             { return "GET" }
+func (GuardrailEndpoint) Path() string               { return "/api/engine/sessions/{id}/guardrail" }
+func (GuardrailEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
+func (e GuardrailEndpoint) Handle(ctx context.Context, req SessionRequest) (engine.GuardrailReport, error) {
+	s, err := e.API.Session(ctx, req.ID)
+	if err != nil {
+		return engine.GuardrailReport{}, err
+	}
+	return s.Guardrail(), nil
+}
+
+// GuardrailEditRequest changes a session's guardrail during play.
+type GuardrailEditRequest struct {
+	ID string `path:"id"`
+	// Text is the new guardrail; the resolved one clears the edit.
+	Text string `json:"text"`
+}
+
+// GuardrailEditEndpoint changes a session's guardrail during play, as a lab
+// experiment: the blocks that keep to it take the new one from their next
+// call, and the session keeps it, also across a resume.
+type GuardrailEditEndpoint struct{ API *API }
+
+func (GuardrailEditEndpoint) Method() string             { return "PUT" }
+func (GuardrailEditEndpoint) Path() string               { return "/api/engine/sessions/{id}/guardrail" }
+func (GuardrailEditEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
+func (e GuardrailEditEndpoint) Handle(ctx context.Context, req GuardrailEditRequest) (Accepted, error) {
+	s, err := e.API.Session(ctx, req.ID)
+	if err != nil {
+		return Accepted{}, err
+	}
+	if err := s.SetGuardrail(req.Text); err != nil {
+		return Accepted{}, rejected(err)
+	}
+	return Accepted{}, nil
 }
 
 // GraphResponse is the running wiring as text.

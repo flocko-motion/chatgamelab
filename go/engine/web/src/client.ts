@@ -7,7 +7,11 @@ import { Api, type HttpResponse } from "../../../../frontend/src/api/generated/a
 import { PROBLEMS, type Problem, type Refusal } from "./protocol.js";
 
 export type {
+  BlockFrequency,
+  BlockPrompt,
   Choice,
+  GuardrailReport,
+  GuardrailSource,
   CreateRequest,
   EdgeDetail,
   JournalEntry,

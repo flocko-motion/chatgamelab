@@ -134,7 +134,7 @@ export function useGameColumns(state: GamesTableState): GameColumn[] {
                 game={game}
                 hasSession={hasSession}
                 session={session}
-                onPlay={state.playGame}
+                onPlay={(game) => state.openGame(game, undefined, true)}
                 onContinue={state.continueGame}
                 onRestart={state.restartGame}
                 labels={{

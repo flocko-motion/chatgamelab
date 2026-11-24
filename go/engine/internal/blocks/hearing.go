@@ -32,10 +32,11 @@ var errNothingHeard = errors.New("nothing was heard in the clip")
 type HearingCall struct {
 	Switch
 	failing
-	name, system string
-	hearing      adapters.Hearing
-	schema       adapters.Schema
-	result       Result
+	name    string
+	system  tunable[string]
+	hearing adapters.Hearing
+	schema  adapters.Schema
+	result  Result
 
 	// Backoff is the wait before each retry of a failure that may pass. Set
 	// before Start.
@@ -59,7 +60,7 @@ func NewHearingCall(name string, hearing adapters.Hearing, system string, schema
 	}
 	return &HearingCall{
 		name:     name,
-		system:   system,
+		system:   newTunable(system),
 		hearing:  hearing,
 		schema:   schema,
 		result:   result,
@@ -70,7 +71,11 @@ func NewHearingCall(name string, hearing adapters.Hearing, system string, schema
 	}
 }
 
-func (b *HearingCall) NodeName() string                     { return b.name }
+func (b *HearingCall) NodeName() string { return b.name }
+
+// SetSystem changes its system message from the next clip on.
+func (b *HearingCall) SetSystem(system string) { b.system.set(system) }
+
 func (b *HearingCall) AudioInPort() chan<- ports.AudioChunk { return b.in }
 func (b *HearingCall) RequiredInputs() []ports.Kind         { return []ports.Kind{ports.KindAudio} }
 
@@ -135,7 +140,7 @@ func (b *HearingCall) hear(ctx context.Context, clip adapters.Clip) (text, secon
 	}
 	bad, retries := 0, 0
 	for {
-		reply, used, err := b.hearing.Hear(ctx, b.system, clip, b.schema)
+		reply, used, err := b.hearing.Hear(ctx, b.system.get(), clip, b.schema)
 		// A bad reply is billed all the same.
 		if used != (adapters.Usage{}) {
 			b.meter.bill(used)

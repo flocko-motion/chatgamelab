@@ -85,3 +85,13 @@ That floor is enforced automatically.
   it and reading its game's content; the session guard (`core.OpenSession`
   with `InspectSession`) checks both. Insights show in production as in dev
   mode.
+- **Changing what a session runs on is playing it.** Any player of the
+  session edits its prompts (`core.OpenSession` with `PlaySession`). Its
+  guardrail only staff and heads edit, in their own session
+  (`core.MayEditGuardrail`); the guardrail's route hands the page that right
+  as `mayEdit`, and the edit route checks it again.
+- **Adapting the prompts before a session starts** is for admins, heads and
+  staff (`core.MayPresetPrompts`): a game's view says so as
+  `mayPresetPrompts`, the portal's start choice then offers its advanced
+  settings beside starting and continuing, and the session's creation
+  refuses adapted prompts to anyone else.
