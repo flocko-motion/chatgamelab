@@ -74,6 +74,11 @@ continue it later under that ID, for as long as the session is kept.
 #todo[How long a session is kept.] A finished session can be read back as it
 was played.
 
+A session meets *problems*, such as a lost connection; it resolves them by
+itself where it can. A session can also be *over*, for instance when the AI
+provider's safety filter stops it. That is final: the session stays readable,
+and its last line tells the player why.
+
 A session plays on one AI platform at one quality tier (@platforms). The
 optional features *images*, *audio-in* and *audio-out* can be switched off or on
 at any time during play, if available. 
@@ -121,7 +126,8 @@ The player talks by voice with one character.
   starts to drift or give way, it is pulled back.
 - *The conversation is a transcript* of what the character says; the player's
   own words are heard, and only the character's appear.
-- *An idle conversation pauses* after a minute of silence. The player resumes it
+- *An idle conversation pauses* once the player has said nothing for a while.
+  The player resumes it
   with one press, and the character carries on where it left off. Reloading the
   page carries on too, and so does a dropped connection, by itself.
 - *Playing takes a microphone.* The player speaks and the character listens.

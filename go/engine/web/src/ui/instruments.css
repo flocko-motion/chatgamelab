@@ -513,3 +513,4 @@ aside h2 {
 .observer-entry.error { border-left-color: #d97706; }
 .observer-beat { display: flex; gap: 0.5rem; align-items: center; }
 .observer-beat input { width: 6rem; }
+.observer-entry.rules { border-left-color: #dc2626; background: color-mix(in srgb, #dc2626 8%, transparent); }

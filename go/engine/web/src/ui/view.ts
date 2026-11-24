@@ -7,6 +7,7 @@ import {
   audioState,
   hasStandingImage,
   holdsToTalk,
+  overText,
   voiceMode,
   type AudioState,
   type PlaybackEngineState,
@@ -121,6 +122,8 @@ export class View {
   #sent = false;
   /** The bubble standing for a spoken line until what was heard comes back. */
   #pendingLine: HTMLElement | null = null;
+  /** The line saying why the game is over, kept last in the feed. */
+  #overLine: HTMLElement | null = null;
   #theme: GameTheme = mergeTheme(undefined);
   #stopBackground: () => void = () => {};
   #last: PlaybackEngineState | null = null;
@@ -225,6 +228,7 @@ export class View {
     this.#shownImage = null;
     this.#pendingImage = null;
     this.#pendingLine = null;
+    this.#overLine = null;
   }
 
   /** Shows that a reply is coming, from the moment the player hands over. */
@@ -406,6 +410,12 @@ export class View {
       this.#append(element("div", "system-message", String(state.notes[i])));
     }
     this.#renderedNotes = state.notes.length;
+
+    // Why the game is over, always the last line, after anything still arriving.
+    if (state.over) {
+      this.#overLine ??= element("div", "system-message over", text(overText(state.over)));
+      if (this.elements.feed.lastElementChild !== this.#overLine) this.#append(this.#overLine);
+    }
   }
 
   /** A coming reply, or a fault that leaves the controls working, shown just above the bar. */
@@ -436,6 +446,8 @@ export class View {
       case "closed":
         return stopped(text("status.ended"));
     }
+    // Over: no controls at all; the feed's last line says why.
+    if (state.over) return stopped(text("status.over"));
     if (state.choosing) return stopped(text("status.choose"));
     if (!state.started) return waiting(text("status.settingScene"));
     // A live genre waits for the player's audio connection; once its control exists, that speaks.

@@ -31,7 +31,7 @@ import {
   type SessionEvent,
 } from "./protocol.js";
 import type { Conversation, ToggleName } from "./state.js";
-import { emptyState, explain, type PlaybackEngineState } from "./state.js";
+import { emptyState, explain, overReason, type PlaybackEngineState } from "./state.js";
 import { notice, type Notice, type TextKey } from "./texts.js";
 import type { Transport, TransportMessage } from "./transport.js";
 import type { Speaker } from "./speaker.js";
@@ -324,6 +324,16 @@ export class PlaybackEngine {
       case "heartbeat":
         // Only proof the socket lives, which the transport has already taken.
         return;
+      case "over":
+        // Final: the conversation is let go for good, and nothing offers to resume it.
+        this.state.over = overReason(event.Value);
+        this.state.paused = false;
+        this.state.pausing = false;
+        this.state.resuming = false;
+        this.state.invited = false;
+        this.state.voice = "idle";
+        this.voice?.close();
+        break;
       case "pause":
         // Let go for silence or on request; the session itself stays.
         this.state.paused = true;
@@ -376,7 +386,7 @@ export class PlaybackEngine {
     await this.#loadJournal(session);
 
     // Audio opens here from where the session stands, so replay never resumes a pause.
-    if (this.state.invited && !this.state.paused && this.state.voice === "idle") {
+    if (this.state.invited && !this.state.paused && !this.state.over && this.state.voice === "idle") {
       void this.#openVoice();
     }
   }
@@ -394,6 +404,7 @@ export class PlaybackEngine {
     this.state.started = snapshot.started;
     this.state.choosing = snapshot.choosing;
     this.state.settled = snapshot.settled ?? null;
+    if (snapshot.over) this.state.over = overReason(snapshot.over.reason);
     // The invitation predates a reloaded page, so it asks where the conversation stands.
     // "open" is a conversation this page lost, so it offers again.
     switch (snapshot.conversation as Conversation | undefined) {

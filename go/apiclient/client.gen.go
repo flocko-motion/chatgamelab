@@ -323,6 +323,21 @@ func (e OrganisationSort) Valid() bool {
 	}
 }
 
+// Defines values for OverReason.
+const (
+	OverReasonContentPolicy OverReason = "content_policy"
+)
+
+// Valid indicates whether the value is a known member of the OverReason enum.
+func (e OverReason) Valid() bool {
+	switch e {
+	case OverReasonContentPolicy:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for OwnApiKeySort.
 const (
 	OwnApiKeySortCreatedAt OwnApiKeySort = "createdAt"
@@ -1407,11 +1422,13 @@ type ObserverFigures struct {
 	Late           int `json:"late"`
 	Lines          int `json:"lines"`
 	Quiet          int `json:"quiet"`
+	Reminders      int `json:"reminders"`
 	SilenceNotices int `json:"silenceNotices"`
 }
 
 // ObserverState defines model for ObserverState.
 type ObserverState struct {
+	AbsentMs       int             `json:"absentMs"`
 	Awaiting       bool            `json:"awaiting"`
 	BeatMs         int             `json:"beatMs"`
 	CharacterAgoMs int             `json:"characterAgoMs"`
@@ -1426,6 +1443,7 @@ type ObserverState struct {
 	Pool           int             `json:"pool"`
 	QuietForMs     int             `json:"quietForMs"`
 	QuietMs        int             `json:"quietMs"`
+	StandingDown   bool            `json:"standingDown"`
 	Thinking       bool            `json:"thinking"`
 	ThinkingForMs  int             `json:"thinkingForMs"`
 }
@@ -1540,6 +1558,15 @@ type OrganisationViewPage struct {
 	Items []OrganisationView `json:"items"`
 	Total int                `json:"total"`
 }
+
+// Over defines model for Over.
+type Over struct {
+	At     time.Time  `json:"at"`
+	Reason OverReason `json:"reason"`
+}
+
+// OverReason defines model for OverReason.
+type OverReason string
 
 // OwnApiKeySort defines model for OwnApiKeySort.
 type OwnApiKeySort string
@@ -1845,6 +1872,7 @@ type ShareLinkView struct {
 type Snapshot struct {
 	Choosing     bool              `json:"choosing"`
 	Conversation *string           `json:"conversation,omitempty"`
+	Over         *Over             `json:"over,omitempty"`
 	Phases       map[string]string `json:"phases"`
 	Props        map[string]string `json:"props"`
 	Settled      *Settled          `json:"settled,omitempty"`

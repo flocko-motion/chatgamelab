@@ -261,6 +261,12 @@ director listens and does nothing. It fits any live pipeline.
   twice as long, until someone speaks. The observer judges from it: the
   player spoke last and nothing followed, or both are quiet, or the
   character spoke last and the player is thinking.
+- **It stands down for a gone player.** A player who has said nothing for as
+  long as the live session waits before letting a silent conversation go (a
+  minute by default), counted from their last words or from the opening, may
+  be gone. The observer stops nudging: no notices, no calls, nothing sent. The
+  conversation falls quiet, and the live session's idle close pauses the game.
+  The player's next words end it.
 - **It thinks aloud and directs by prefix.** It runs on the tier's tooling
   model, fast and without reasoning, one call at a time, on a log of its own:
   the transcript, the notices, what the player injected and its own earlier
@@ -279,6 +285,14 @@ director listens and does nothing. It fits any live pipeline.
   knowledge the character may use without saying it now; and *speech*, a line
   the character says in its own words. On GPT-Live they are the session's
   instructions, thinking and commentary, each up to 500 tokens.
+- **It carries the rules where a call cannot.** In Adventure the
+  youth-protection rule goes with each call; a live conversation has no
+  calls to attach it to, so the director does it: when it marks the rules
+  at risk (`[RULES]`), the observer sends the platform's rule whole to the
+  character as background, its own knowledge, which does not interrupt it,
+  at most once every two minutes. It never words such a correction itself:
+  the live model keeps rules as well as the director would; it only needs
+  them brought back to mind.
 - **Its system message** is the genre's observer prompt, the platform's
   guardrail and the designer's scenario, each labelled by its author.
 - **A player can inject by hand.** In insights, the observer takes text typed
@@ -761,6 +775,18 @@ wants to own when things render.
   to continue or start anew. Every launch error is shown on its launch panel,
   with a way to try again or start anew. The headless playback-engine follows the same
   flow.
+
+## A game's end
+
+A game can be over: final, for a reason (`OverReason`), unlike a problem, which
+the session gets past by itself or once someone fixes it. A block that must end
+the game says so with the reason, as the live session does when the
+provider's safety filter closes the conversation (`content_policy`). The
+session stores the end with its state, puts the reason on the `over` stream
+and into the history, kept as its last line, and refuses play from then on
+(`over`). A resumed game that is over restores its history and starts nothing.
+The playback-engine draws no controls for it and ends the feed with the
+reason in the player's language.
 
 ## Testing
 

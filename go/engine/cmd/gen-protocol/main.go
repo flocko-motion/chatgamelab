@@ -119,6 +119,18 @@ func generate() []byte {
 		fmt.Fprintf(&b, "  %q,\n", problem)
 	}
 	b.WriteString("];\n\n")
+	b.WriteString("/** Why a game is over: an `over` event's value, and the snapshot's. */\n")
+	b.WriteString("export type OverReason =\n")
+	for _, reason := range engine.OverReasons() {
+		fmt.Fprintf(&b, "  | %q\n", reason)
+	}
+	b.WriteString("  ;\n\n")
+	b.WriteString("/** Every reason; any other `over` value is told as an end without one. */\n")
+	b.WriteString("export const OVER_REASONS: readonly OverReason[] = [\n")
+	for _, reason := range engine.OverReasons() {
+		fmt.Fprintf(&b, "  %q,\n", reason)
+	}
+	b.WriteString("];\n\n")
 	b.WriteString("/** An error the game goes on after, named by an `error` event's report. */\n")
 	b.WriteString("export type ErrorCode =\n")
 	for _, code := range engine.ErrorCodes() {

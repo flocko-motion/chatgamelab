@@ -52,6 +52,8 @@ type LiveSession struct {
 	// invite and paused are lifecycle signals the client reads directly.
 	invite ports.StateBroadcast
 	paused ports.StateBroadcast
+	// stopped says the game must end, for the reason it carries.
+	stopped ports.StateBroadcast
 
 	// idleAfter closes a silent conversation; zero never does. Keep it above the
 	// 15 s each new session bills up front, or pausing costs more than it saves.
@@ -234,6 +236,14 @@ func (b *LiveSession) Pause() {
 
 // Pauses reports the conversation being let go, so a client can show it.
 func (b *LiveSession) Pauses() <-chan ports.State { return b.paused.Subscribe() }
+
+// Stops reports that the game must end, with the reason: the provider's
+// safety filter ended the conversation (StopContentPolicy).
+func (b *LiveSession) Stops() <-chan ports.State { return b.stopped.Subscribe() }
+
+// StopContentPolicy is the reason on a stop when the provider's safety filter
+// ended the conversation.
+const StopContentPolicy = "content_policy"
 
 // Standing answers a page that loaded after the invitation was sent.
 func (b *LiveSession) Standing() string {
@@ -801,15 +811,25 @@ func (b *LiveSession) handle(e adapters.LiveEvent) {
 	case adapters.EventClosed:
 		b.stopCloser()
 		b.flush()
+		// GPT-Live says why it closed (session.closed's reason); only a lost
+		// connection is a problem. It never closes for silence: letting a quiet
+		// conversation go is the idle timeout's, here.
 		switch e.CloseReason {
 		case "", "close_requested":
 			b.journal.Note(b.name, "closed", "the provider closed it as asked ("+e.CloseReason+")")
+		case "remote_hangup":
+			b.journal.Note(b.name, "closed", "the player's connection ended (remote_hangup): a reload or a closed page; a new page carries on")
+		case "expired":
+			b.journal.Note(b.name, "closed", "the conversation reached the provider's duration limit (expired); a new one carries on")
+		case "content":
+			b.journal.Warn(b.name, "closed", "the provider's safety filter ended the conversation (content)")
 		default:
-			b.journal.Warn(b.name, "closed", "the provider closed the conversation: "+e.CloseReason)
+			b.journal.Warn(b.name, "closed", "the connection to the provider was lost ("+e.CloseReason+")")
 		}
 		if e.CloseReason == "content" {
-			// Youth protection fired inside the model; say so plainly.
-			b.notice("[engine] the conversation was ended by the model's safety filter")
+			// Youth protection fired inside the model: the provider's decision,
+			// which ends the game. The session tells the player why.
+			b.stopped.Send(ports.State{Node: b.name, Phase: ports.PhaseReady, Reason: StopContentPolicy})
 			return
 		}
 		// Any other close is carried on from with a new conversation, which the
@@ -945,6 +965,7 @@ func (b *LiveSession) closeAll() {
 	b.usage.Close()
 	b.invite.Close()
 	b.paused.Close()
+	b.stopped.Close()
 }
 
 // told says an error is one the session tells the player in its own words, a
@@ -954,9 +975,13 @@ func told(err error) bool {
 	return errors.Is(err, adapters.ErrNoCredit) || errors.Is(err, adapters.ErrKeyRejected)
 }
 
-// closing says what follows a conversation the provider closed: nothing
-// after one closed as asked, or by the model's safety filter; a new one after
-// any other reason, such as a lost connection.
+// closing says what follows a conversation the provider closed, by GPT-Live's
+// reason: nothing after one closed as asked (close_requested) or by the
+// model's safety filter (content); a new one after the others. A lost
+// connection (connection_lost) is a drop; a reload ends the old page's
+// connection gracefully (remote_hangup), and the new page carries on; a
+// conversation at the duration limit (expired) was active, since a quiet one
+// is let go by the idle timeout long before.
 func closing(reason string) ending {
 	switch reason {
 	case "", "close_requested", "content":

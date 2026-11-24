@@ -20,6 +20,7 @@ export type StreamName =
   | "error"
   | "problem"
   | "journal"
+  | "over"
   | "heartbeat"
   ;
 
@@ -74,6 +75,7 @@ export type Problem =
   | "denied"
   | "paused"
   | "failed"
+  | "over"
   ;
 
 /** Every problem; an error code outside it is a failure. */
@@ -89,6 +91,17 @@ export const PROBLEMS: readonly Problem[] = [
   "denied",
   "paused",
   "failed",
+  "over",
+];
+
+/** Why a game is over: an `over` event's value, and the snapshot's. */
+export type OverReason =
+  | "content_policy"
+  ;
+
+/** Every reason; any other `over` value is told as an end without one. */
+export const OVER_REASONS: readonly OverReason[] = [
+  "content_policy",
 ];
 
 /** An error the game goes on after, named by an `error` event's report. */

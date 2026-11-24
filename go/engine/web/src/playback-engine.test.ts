@@ -230,6 +230,58 @@ test("an invitation that waits for the press does not connect", () => {
   assert.equal(playback.state.invited, true);
 });
 
+test("a conversation let go for silence shows paused, and the press picks it up", async () => {
+  const transport = new FakeTransport();
+  const voice = new RecordingVoice();
+  const playback = new PlaybackEngine(transport, voice, new RecordingSpeaker());
+  playback.connect();
+
+  transport.receive(invitation());
+  await playback.until((s) => s.voice === "live", 1000);
+  // The engine let the conversation go: nobody had spoken for a while.
+  transport.receive(JSON.stringify({ Stream: "pause", Value: "" }));
+
+  assert.equal(playback.state.paused, true, "the game shows paused");
+  assert.equal(playback.state.voice, "idle");
+  assert.deepEqual(voice.calls, ["connect", "close"], "the audio is let go with it");
+
+  // It waits for the press, then carries on.
+  transport.receive(invitation("press"));
+  assert.deepEqual(voice.calls, ["connect", "close"], "nothing connects before the press");
+  playback.resume();
+  await playback.until((s) => s.voice === "live", 1000);
+  assert.equal(playback.state.paused, false);
+  assert.deepEqual(voice.calls, ["connect", "close", "connect"]);
+});
+
+test("a game that is over lets the conversation go and offers nothing to press", async () => {
+  const { audioState, acceptsTypedInput, holdsToTalk } = await import("./state.js");
+  const transport = new FakeTransport();
+  const voice = new RecordingVoice();
+  const playback = new PlaybackEngine(transport, voice, new RecordingSpeaker());
+  playback.connect();
+
+  transport.receive(invitation());
+  await playback.until((s) => s.voice === "live", 1000);
+  transport.receive(JSON.stringify({ Stream: "over", Value: "content_policy" }));
+
+  assert.equal(playback.state.over, "content_policy");
+  assert.deepEqual(voice.calls, ["connect", "close"], "the audio is let go for good");
+  assert.equal(audioState(playback.state), null, "no pause or resume control");
+  assert.equal(acceptsTypedInput(playback.state), false);
+  assert.equal(holdsToTalk(playback.state), false);
+
+  // A late invitation does not bring the controls back.
+  playback.resume();
+  assert.deepEqual(voice.calls, ["connect", "close"]);
+});
+
+test("an end this page does not know is told as an end without a reason", async () => {
+  const { overReason } = await import("./state.js");
+  assert.equal(overReason("content_policy"), "content_policy");
+  assert.equal(overReason("something_new"), "unknown");
+});
+
 test("a toggle is worth offering only where it switches a block of the wiring", async () => {
   const { switches } = await import("./state.js");
   const playback = new PlaybackEngine(new FakeTransport(), undefined, new RecordingSpeaker());

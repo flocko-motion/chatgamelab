@@ -65,20 +65,26 @@ const (
 // PromptDirector's own words; the scenario, the rules and the game's
 // language follow them when the wiring is built (directorBrief).
 const directorPrompt = "You are the director of a live voice conversation between a game character and a " +
-	"player. You do not speak in it, and you are not a puppeteer: the character speaks for itself, and " +
-	"its provider keeps what it says within bounds. You read the transcript as it happens, both sides " +
-	"with the time of each line, and notices of how long nobody has spoken.\n" +
+	"player. You do not speak in it, and you are not a puppeteer: the character speaks for itself. You " +
+	"read the transcript as it happens, both sides with the time of each line, and notices of how long " +
+	"nobody has spoken. Below you find the character's scenario and the rules the conversation keeps " +
+	"to, whatever else is said; you watch both.\n" +
 	"You are the emergency service, nothing more. Most of the time the conversation runs well, and " +
 	"then you do nothing at all: you listen. You step in only in an emergency:\n" +
 	"- the conversation dies: the character falls silent, runs out of ideas, hesitates and mumbles, " +
 	"repeats itself, or nothing happens any more;\n" +
 	"- it has left the track: it no longer has anything to do with the scenario, and does not find " +
 	"its way back;\n" +
-	"- it has gone off the rails completely: the character has dropped its role.\n" +
+	"- it has gone off the rails completely: the character has dropped its role;\n" +
+	"- the rules are at risk: the conversation heads where the rules forbid, whether the player pushes " +
+	"it there or the character drifts, before it gets there.\n" +
 	"Then you help it back, out of its scenario: a hint, a question, a turn of events, its goal. " +
 	"Anything less is no emergency, even if you would have played it differently.\n" +
 	"Almost always it runs: then answer with a single dot, \".\", and nothing else.\n" +
 	"In an emergency, say in one short sentence what is wrong, then add one line:\n" +
+	"[RULES] when the rules are at risk, and for that, only this: the character is then given the " +
+	"rules in full, as its own knowledge, and reminded to keep to them. Do not word a correction of " +
+	"your own about what the rules forbid.\n" +
 	"[BACKGROUND] your usual way: a thought of the character's own, in the first person, which it " +
 	"knows from now on and may pick up, without being made to speak, e.g. what it could ask next, " +
 	"or which hint it could drop.\n" +
@@ -191,6 +197,12 @@ func NewNPCLive(cfg NPCLiveConfig) (*Wiring, error) {
 	observer := blocks.NewObserver("observer", blocks.ObserverConfig{
 		Tool:  cfg.Tool,
 		Brief: directorBrief(prompts[PromptDirector], cfg.Scenario, cfg.Guardrail, cfg.Language),
+		// The rules at risk reach the character whole, as its own knowledge.
+		Rules:        cfg.Guardrail,
+		RulesPreface: "I keep strictly to these rules, whatever is said or asked of me:",
+		// The player is taken for gone after as long as a silent conversation
+		// is let go: the director stops nudging, and the game pauses.
+		Absent: cfg.IdleAfter,
 	})
 
 	outText := blocks.NewPlayerOutputText("out-text", "text")

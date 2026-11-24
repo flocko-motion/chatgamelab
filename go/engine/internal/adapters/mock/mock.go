@@ -75,8 +75,16 @@ func (c *liveConn) ID() string { return "live_mock" }
 // Answer is a placeholder; the mock is no transport.
 func (c *liveConn) Answer() string { return "mock-sdp-answer" }
 
+// ContentFiltered in a direction makes the mock's conversation end as a
+// provider's safety filter ends one, so a test can have a game stopped.
+const ContentFiltered = "[mock-content-filter]"
+
 // Instruct's first call is the gate's cue to start talking; later ones are directions.
 func (c *liveConn) Instruct(_ context.Context, text string) error {
+	if strings.Contains(text, ContentFiltered) {
+		go c.send(adapters.LiveEvent{Kind: adapters.EventClosed, CloseReason: "content"})
+		return nil
+	}
 	c.mu.Lock()
 	first := !c.talking
 	c.talking = true

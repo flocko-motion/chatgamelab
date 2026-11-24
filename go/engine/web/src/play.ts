@@ -157,10 +157,15 @@ function spokenClip(seconds: number): ArrayBuffer {
   return samples.buffer;
 }
 
+/** Says a text names one of the engine's tiers. */
+function isTier(text: string | undefined): text is Choice["tier"] {
+  return text === "low" || text === "medium" || text === "high";
+}
+
 /** Reads "own-key:low:images,audio-live" as that offer at low with those toggles on. */
 function parseChoice(text: string): [string, Choice | undefined] {
   const [offer, tier, toggles] = text.split(":");
-  if (!tier) return [offer ?? "", undefined];
+  if (!isTier(tier)) return [offer ?? "", undefined];
   const on = new Set((toggles ?? "").split(",").filter(Boolean));
   return [
     offer ?? "",

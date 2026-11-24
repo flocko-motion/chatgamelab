@@ -36,6 +36,8 @@ const (
 	ProblemPaused Problem = "paused"
 	// ProblemFailed: anything else.
 	ProblemFailed Problem = "failed"
+	// ProblemOver: the game is over; it is read back, never played on.
+	ProblemOver Problem = "over"
 )
 
 // Problems is every problem, the source of the generated TypeScript union.
@@ -43,6 +45,7 @@ func Problems() []Problem {
 	return []Problem{
 		ProblemNoKey, ProblemGenre, ProblemNoPlays, ProblemKeyRejected, ProblemUnreachable,
 		ProblemNoCredit, ProblemStale, ProblemUnknown, ProblemDenied, ProblemPaused, ProblemFailed,
+		ProblemOver,
 	}
 }
 

@@ -801,7 +801,7 @@
       },
       "genres": {
         "adventure": "Adventure",
-        "npc-live": "NPC-Live"
+        "npc-live": "Encounter"
       },
       "features": {
         "images": "pictures",
@@ -1577,6 +1577,10 @@
     "workshopSettings": "Workshop Settings"
   },
   "playbackEngine": {
+    "over": {
+      "contentPolicy": "This game was stopped by the AI provider: the conversation went somewhere its safety rules do not allow. You can still read everything that was said, and start a new game whenever you like.",
+      "unknown": "This game is over. You can still read everything that was said, and start a new game whenever you like."
+    },
     "problems": {
       "noKey": "There is no AI key available to play this game.",
       "genre": "The available AI key cannot run this kind of game.",
@@ -1588,7 +1592,8 @@
       "unknown": "This game session does not exist.",
       "denied": "You may not play this game.",
       "paused": "The workshop is paused. The game goes on when it resumes.",
-      "failed": "Something went wrong, and the game cannot go on."
+      "failed": "Something went wrong, and the game cannot go on.",
+      "over": "This game is over, so it cannot go on."
     },
     "errors": {
       "serverUnreachable": "Cannot reach the game server.",
@@ -1611,6 +1616,7 @@
       "connecting": "Connecting…",
       "reconnecting": "Reconnecting…",
       "ended": "The game has ended.",
+      "over": "The game is over.",
       "choose": "Choose how to play to begin.",
       "settingScene": "Setting the scene…",
       "wakingCharacter": "Waking the character…"
@@ -1661,6 +1667,7 @@
       "log": "director log",
       "doing": "doing",
       "listening": "listening",
+      "standingDown": "stood down · the player has said nothing for {{s}}",
       "thinking": "thinking · {{s}}",
       "characterSpoke": "character spoke",
       "playerSpoke": "player spoke",
@@ -1703,8 +1710,11 @@
       "entryDropped": "dropped",
       "entryError": "error",
       "entryConversation": "conversation",
+      "entryAbsent": "player away",
       "quietReplies": "nothing to do",
-      "gap": "calls at most every"
+      "gap": "calls at most every",
+      "reminders": "reminded of the rules",
+      "entryRules": "rules sent"
     },
     "relay": {
       "connecting": "Relay: not running",
