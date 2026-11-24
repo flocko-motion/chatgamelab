@@ -116,7 +116,7 @@ export function GamesTable(props: GamesTableProps) {
           type="file"
           ref={fileInputRef}
           onChange={state.importFile}
-          accept=".zip,.yaml,.yml"
+          accept=".cgl,.yaml,.yml"
           style={{ display: "none" }}
         />
       )}

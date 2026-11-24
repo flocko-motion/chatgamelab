@@ -36,8 +36,8 @@ export function downloadBlob(blob: Blob, fileName: string) {
 }
 
 /**
- * Saves a game's zip, its YAML and its cover, under the game's name.
+ * Saves a game's .cgl file, its YAML and its cover, under the game's name.
  */
-export function downloadGameZip(zip: Blob, gameName: string | undefined) {
-  downloadBlob(zip, `${gameName || "game"}.zip`);
+export function downloadGameFile(file: Blob, gameName: string | undefined) {
+  downloadBlob(file, `${gameName || "game"}.cgl`);
 }

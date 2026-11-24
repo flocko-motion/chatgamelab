@@ -3,14 +3,14 @@ import type { CreateGameFormData } from "../types";
 import { parseGameYaml } from "./parseGameYaml";
 
 /**
- * The largest game file taken, zip or YAML, as the server takes a cover: a
+ * The largest game file taken, .cgl or YAML, as the server takes a cover: a
  * stored cover is tens of kilobytes and a game file a few, so a megabyte is
  * ample and turns away what is no game file.
  */
 export const MAX_GAME_FILE_BYTES = 1024 * 1024;
 
 /**
- * A game file read: the form's fields, and the cover a zip brought along
+ * A game file read: the form's fields, and the cover a .cgl file brought along
  * with the signature the exporting server gave it (cover.sig), which the
  * server asks for to take the cover back.
  */
@@ -19,7 +19,7 @@ export interface GameFileContents {
   cover?: ImportedCover;
 }
 
-/** A cover from a game's zip and its signature; empty when the zip had none. */
+/** A cover from a game's .cgl file and its signature; empty when the file had none. */
 export interface ImportedCover {
   picture: Blob;
   signature: string;
@@ -34,7 +34,7 @@ export class GameFileError extends Error {
   }
 }
 
-/** A zip starts with a local file header, whatever the file is called. */
+/** A .cgl file is a zip, and a zip starts with a local file header, whatever the file is called. */
 function isZip(bytes: Uint8Array): boolean {
   return bytes.length >= 4 && bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 0x03 && bytes[3] === 0x04;
 }
@@ -57,8 +57,8 @@ function pick(entries: Record<string, Uint8Array>, names: string[], suffixes: st
 }
 
 /**
- * Reads a game file: a zip holding the game's YAML and its cover, as the
- * export writes it, or the YAML alone, as older exports are.
+ * Reads a game file: a .cgl file (a zip) holding the game's YAML and its
+ * cover, as the export writes it, or the YAML alone, as older exports are.
  */
 export async function readGameFile(file: File): Promise<GameFileContents> {
   if (file.size > MAX_GAME_FILE_BYTES) {
@@ -77,7 +77,7 @@ export async function readGameFile(file: File): Promise<GameFileContents> {
   }
   const yaml = pick(entries, ["game.yaml", "game.yml"], [".yaml", ".yml"]);
   if (!yaml) {
-    throw new GameFileError("games.importExport.errors.noGameInZip");
+    throw new GameFileError("games.importExport.errors.noGame");
   }
   const data = parseGameYaml(new TextDecoder().decode(yaml));
   const picture = pick(entries, ["cover.jpg", "cover.jpeg", "cover.png"], [".jpg", ".jpeg", ".png"]);

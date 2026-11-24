@@ -469,6 +469,7 @@
       "filters": {
         "all": "Alle Spiele",
         "favorites": "Favoriten",
+        "genre": "Genre",
         "own": "Meine Spiele",
         "public": "Öffentlich",
         "sponsored": "G'sponsert"
@@ -477,6 +478,12 @@
       "play": "Spuin",
       "reportGame": "Spui melden",
       "restart": "Neu startn",
+      "resumeChoice": {
+        "continue": "Weiterspui",
+        "message": "Du host „{{game}}“ scho o'fangen. Wuißt du dort weitermacha, wo'd aufgehört host, oder ganz neu o'fangen? Wennst neu o'fangst, wird dei bisherige Sitzung ersetzt.",
+        "startNew": "Neu o'fangen",
+        "title": "Weiterspui'n oder neu o'fangen?"
+      },
       "title": "Spiele",
       "unfavorite": "Aus Favoriten entferna",
       "workshop": "Workshop / Org"
@@ -491,6 +498,7 @@
       "aiQualityTier": {
         "description": "Wähle d'KI-Qualitätsstufn fia dei Spiele, wennst an eigenen API-Schlüssl nutzt. Höhere Stufn kostn mehr, san aber oft besser. Lass leer, wenn da Server-Standard ziagn soi."
       },
+      "check": "Schlüssl prüfen",
       "createModal": {
         "keyDescription": "Dei Schlüssl werd verschlüsselt und sicha gspeichat.",
         "keyLabel": "API-Schlüssl",
@@ -521,6 +529,7 @@
         "platformRequired": "Plattform is Pflicht"
       },
       "key": "Schlüssl",
+      "keyEndsWith": "Der Schlüssl endet mit deisen Zeichen",
       "keys": "Schlüssel",
       "noResults": "Koa Schlüssel passt zu deiner Suche oder deinem Filter.",
       "platform": "Plattform",
@@ -558,8 +567,15 @@
         "status-asc": "Funktionierende Schlüssel zuerst"
       },
       "status": {
+        "checking": "Wird grad geprüft…",
         "failed": "Schlüssl funktioniert ned",
-        "unknown": "Schlüssl no ned verwendet",
+        "reasons": {
+          "key_rejected": "Der Anbieter nimmt den Schlüssl ned an. Schau, ob er vollständig kopiert worn is und no gültig is.",
+          "no_credit": "Aufm Konto zu dem Schlüssl is koa Guthaben mehr. Lad beim Anbieter wos auf.",
+          "no_key": "Der Schlüssl konnt ned glesn wern.",
+          "unreachable": "Der Anbieter hot ned antwortet. Probier's glei no amoi."
+        },
+        "unknown": "No ned geprüft",
         "working": "Schlüssl funktioniert"
       },
       "statusColumn": "Status",
@@ -673,12 +689,18 @@
         "statusFieldsHint": "Was soi des Spui im Blick behaltn? Z. B. Gsundheit, Punkte oder Munition. Des Spui merkt si de Werte und aktualisiert's während dem Spuin.",
         "theme": "Aussegn",
         "themeDefault": "Standard-Aussegn",
-        "themeHint": "Des Aussegn, in dem ma des Spui spuit."
+        "themeHint": "Des Aussegn, in dem ma des Spui spuit.",
+        "voiceStyle": "Stimm",
+        "voiceStyleHint": "Wie de Stimm klingt: de von da Figur oder de von da Erzählstimm, wenn de Gschicht vorglesn wird.",
+        "voiceStylePlaceholder": "z. B. tief, langsam und a bissl heiser, a oida Mo"
       },
       "editModal": {
         "adminActionTitle": "Admin-Aktion",
         "adminActionWarning": "Du bearbeitst grad a Spui, des da ned gheat. Des soi nur fia Moderation nutzt wern.",
         "gameDesignSection": "Spieldesign",
+        "othersGameNotice": "Des Spui is von jemand anderem. Du konnst ois ändern: Beim Speichern wird's dei eigenes Spui, und s'Original bleibt, wia's is.",
+        "saveAsOwn": "Als mei Spui speichern",
+        "savedAsOwn": "Als dei Spui gspeichert",
         "title": "Spui bearbeitn",
         "unsavedChanges": {
           "discard": "Änderungen verwerfn",
@@ -716,6 +738,15 @@
         "npc-live": "NPC-Live"
       },
       "importExport": {
+        "coverFailed": "Des Spui is importiert worn, oba s'Titelbild konnt ned geprüft wern. Im Editor konnst a neues zeichnen lassen.",
+        "coverNoKey": "Des Spui is ohne Titelbild importiert worn: Zum Prüfen vom Titelbild braucht ma an API-Schlüssl.",
+        "coverRefused": "Des Spui is ohne Titelbild importiert worn: Des Bild hält de Jugendschutzregel ned ein.",
+        "coverUnsigned": "Des Spui is ohne Titelbild importiert worn: Des Bild is ned von ChatGameLab exportiert worn oder seitdem verändert worn.",
+        "errors": {
+          "noGame": "In der .cgl-Datei is koa Spui drin.",
+          "tooLarge": "De Datei is größer ois 1 MB und damit z'groß für a Spuidatei.",
+          "unreadable": "De Datei konnt ned als Spui glesn wern."
+        },
         "exportButton": "Spui exportiern",
         "importButton": "Spui importiern"
       },
@@ -990,6 +1021,7 @@
     "leaveTitle": "Organisation verlaffa",
     "leaveWarning": "Du verlierst den Zugriff auf oise Ressourcen und Mitglida.",
     "list": {
+      "clearPicks": "Ois zoang",
       "clearSearch": "Suche leeren",
       "filter": "Filter",
       "hideDetails": "Details ausblenden",
@@ -1354,6 +1386,7 @@
         "failed": "Ko grad ned gspuit werdn",
         "genre": "Der KI-Schlüssl ko diese Spuiart ned ausführen",
         "key_rejected": "Der KI-Schlüssl is abglehnt worn",
+        "no_credit": "Koa KI-Guthaben mehr",
         "no_key": "Koan KI-Schlüssl verfügbar",
         "no_plays": "Koa Spui mehr übrig",
         "paused": "Die Werkstatt is pausiert",
@@ -1711,18 +1744,74 @@
       "condense-scenario": "Szenario kürzen",
       "condensed-scenario": "Szenario",
       "expand": "Erzählen",
+      "gallery-image": "Galeriebild",
+      "greeting": "Text erzeugen",
       "image": "Bild malen",
       "image-prompt": "Bild beschreiben",
       "image-style": "Stil anpassen",
       "live-session": "Figur",
-      "observer": "Beobachter",
+      "observer": "Regie",
+      "opening-brief": "Spui-Beginn",
       "outline": "Szene planen",
       "portrait": "Porträt malen",
       "portrait-prompt": "Porträt beschreiben",
       "props-store": "Spielstand",
       "rephrase": "Aktion umformulieren",
       "rephrase-audio": "Sprache verstehen",
-      "start-game": "Start"
+      "start-game": "Start",
+      "voice": "Stimm erzeugen",
+      "voice-brief": "Stimm beschreiben"
+    },
+    "director": {
+      "ago": "vor {{s}}",
+      "beatRefused": "abglehnt",
+      "beatSet": "gsetzt",
+      "beats": "Takte mit Zeilen",
+      "beatsValue": "{{n}} · {{lines}} Zeilen",
+      "calls": "Modellaufrufe",
+      "callsValue": "{{n}} · zletzt {{s}}",
+      "character": "Figur",
+      "characterSpoke": "Figur hot gredt",
+      "counted": "Gezählt",
+      "doing": "duat grad",
+      "dropped": "verworfa",
+      "droppedValue": "{{n}} (z'vui hintereinander)",
+      "empty": "no nix",
+      "entryBackground": "Hintergrund gschickt",
+      "entryConversation": "Gspräch",
+      "entryDirection": "Anweisung gschickt",
+      "entryDropped": "verworfa",
+      "entryError": "Fehler",
+      "entryInjection": "eingegeben",
+      "entryLine": "gsagt",
+      "entrySilence": "Stille",
+      "entryThought": "denkt",
+      "failed": "{{n}} fehlgschlagn",
+      "fragments": "Fragmente",
+      "gap": "Aufrufe höchstens alle",
+      "inARow": "Anweisungen hintereinander",
+      "injected": "von Hand eingegeben",
+      "late": "verspätete Fragmente",
+      "lateMark": "verspätet",
+      "lateValue": "{{n}} · bis zu {{ms}} ms",
+      "lines": "{{n}} Zeilen",
+      "listening": "hört zua",
+      "log": "Regie-Protokoll",
+      "notYet": "no ned",
+      "notices": "Stille-Hinweise",
+      "now": "Regie jetzt",
+      "ofLimit": "{{n}} von {{limit}}",
+      "player": "Spuier",
+      "playerSpoke": "Spuier hot gredt",
+      "pool": "im Pool",
+      "poolValue": "{{n}} Fragmente · Takt {{ms}} ms",
+      "quietFor": "still seit",
+      "quietReplies": "nix zum doa",
+      "sent": "gschickt",
+      "sentValue": "{{d}} Anweisungen · {{b}} Hintergrund",
+      "setBeat": "Takt setzen (ms)",
+      "thinking": "denkt nach · {{s}}",
+      "waiting": "wartet drauf"
     },
     "errors": {
       "connectionLost": "Die Verbindung zum Spui is abbrocha. Lad d Seitn neu, dass'd es no amoi probiern kannst.",
@@ -1739,11 +1828,19 @@
     },
     "insights": {
       "close": "Zua",
+      "collapse": "Einklappen",
       "empty": "Bis jetzt is no nix glaufen.",
-      "feed": "Wos passiert is",
+      "expand": "Aufklappen",
+      "feed": "Verlauf",
       "hide": "Einblicke ausblenden",
       "label": "Einblicke",
-      "show": "Einblicke o'zeigen"
+      "noProblems": "Bis jetzt koa Probleme.",
+      "pickBlock": "Klick im Ablauf auf an Baustein oder a Verbindung, damitst siehst, wos dort passiert is.",
+      "settingEmpty": "Des Spui lasst des leer.",
+      "show": "Einblicke o'zeigen",
+      "tabProblems": "Probleme",
+      "tabSelected": "Ausgwählt",
+      "tabUsage": "Verbrauch"
     },
     "launch": {
       "noGame": "De Seitn braucht a Spui: Mach's über de Seitn von am Spui auf.",
@@ -1755,13 +1852,25 @@
       "compacting": "Wird komprimiert…",
       "copied": "Layout kopiert",
       "copyFailed": "Koa Zwischenablage: Layout in da Konsole ausgegeben",
-      "copyLayout": "Layout kopieren"
+      "copyLayout": "Layout kopieren",
+      "injectBackground": "wissen",
+      "injectBackgroundHint": "Wos de Figur still für si denkt, mit ihre eigenen Worte, ohne dass sie's glei sagt, z. B. „I bin a Werwolf und wui, dass sie's langsam rausfindet.“",
+      "injectDirection": "doa",
+      "injectDirectionHint": "Wos de Figur doa soi, z. B. „Sei grantig, du traust dem Spuier ned.“",
+      "injectSpeech": "sagen",
+      "injectSpeechHint": "Wos de Figur sagen soi, mit ihre eigenen Worte, z. B. „Halt! Wer is do?“",
+      "injection": "Sag da Figur, dass sie …",
+      "injectionFailed": "Konnt ned gschickt wern",
+      "injectionSend": "Schicka",
+      "injectionSending": "Wird gschickt…",
+      "injectionSent": "Ans Gspräch gschickt"
     },
     "problems": {
       "denied": "Du derfst des Spui ned spuiln.",
       "failed": "Da is wos schiefganga, des Spui kann ned weitagehn.",
       "genre": "Da verfügbare KI-Schlüssel kann so a Art Spui ned ausfüahn.",
       "keyRejected": "Da KI-Anbieter hod den Schlüssel von dem Spui abglehnt, drum geht's ned weida. Wer des Spui eingerichtet hod, muaß den Schlüssel prüfen.",
+      "noCredit": "Leider is des KI-Guthaben aufbraucht, drum geht des Spui grad ned weiter.",
       "noKey": "Für des Spui gibt's koan verfügbaren KI-Schlüssel.",
       "noPlays": "Für des geteilte Spui san koane Spielrunden mehr übrig.",
       "paused": "Da Workshop is pausiert. Des Spiel geht weiter, sobald er fortgesetzt wird.",
@@ -1773,6 +1882,15 @@
       "busy": "Relay: vo am andern Tab belegt",
       "connected": "Relay: verbundn",
       "connecting": "Relay: lafft ned"
+    },
+    "settings": {
+      "cover": "Galeriebild",
+      "description": "Beschreibung",
+      "gameStart": "Spui-Beginn",
+      "imageStyle": "Bildstil",
+      "scenario": "Szenario",
+      "statusFields": "Statusfelder",
+      "voiceStyle": "Stimmbeschreibung"
     },
     "status": {
       "choose": "Wähl aus, wia'd spuiln mechtst, damit's losgehn kann.",
@@ -1795,10 +1913,14 @@
       "condensed-scenario\u0003econdense-scenario": "Anfrage",
       "condensed-scenario\u0003eimage-prompt": "Szenario",
       "condensed-scenario\u0003estart-game": "fertig",
+      "gallery-image\u0003estart-game": "fertig",
+      "greeting\u0003elive-session": "erste Worte",
+      "greeting\u0003estart-game": "fertig",
       "image-prompt\u0003eimage": "Prompt",
       "image-style\u0003eadapted-style": "Antwort",
       "live-session\u0003eobserver": "Mitschrift",
-      "observer\u0003elive-session": "Hinweis",
+      "observer\u0003elive-session": "Einspeisung",
+      "opening-brief\u0003egreeting": "Vorgabe",
       "outline\u0003eexpand": "Plan",
       "outline\u0003eimage-prompt": "Szene",
       "outline\u0003eprops-store": "Änderungen",
@@ -1811,7 +1933,12 @@
       "rephrase\u0003eoutline": "Aktion",
       "rephrase-audio\u0003eoutline": "Aktion",
       "start-game\u0003elive-session": "Einstieg",
-      "start-game\u0003eoutline": "Prompt"
+      "start-game\u0003eoutline": "Prompt",
+      "voice\u0003elive-session:secondary": "Stimmbeschreibung",
+      "voice\u0003elive-session:voice": "Stimm",
+      "voice\u0003estart-game": "fertig",
+      "voice-brief\u0003evoice:description": "Beschreibung",
+      "voice-brief\u0003evoice:voice": "Ersatzstimm"
     }
   }
 }

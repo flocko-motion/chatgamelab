@@ -469,6 +469,7 @@
       "filters": {
         "all": "ټولې لوبې",
         "favorites": "مینه وال",
+        "genre": "ژانر",
         "own": "زما لوبې",
         "public": "عامه",
         "sponsored": "سپانسر شوې"
@@ -477,6 +478,12 @@
       "play": "ولوبئ",
       "reportGame": "لوبه راپور کړئ",
       "restart": "بیا پیلول",
+      "resumeChoice": {
+        "continue": "ادامه ورکول",
+        "message": "تاسو لا دمخه «{{game}}» پیل کړی دی. له هغه ځایه ادامه ورکړئ چې درېدلي وئ، که له سره یې پیل کړئ؟ له سره پیل کول ستاسو پخوانۍ ناسته بدلوي.",
+        "startNew": "له سره پیل کول",
+        "title": "ادامه ورکړئ که له سره یې پیل کړئ؟"
+      },
       "title": "لوبې",
       "unfavorite": "له مینه والو لرې کړئ",
       "workshop": "کارګاه / سازمان"
@@ -491,6 +498,7 @@
       "aiQualityTier": {
         "description": "کله چې خپله API کیلي کاروئ، د لوبو لپاره د AI کیفیت کچه وټاکئ. لوړې کچې زیات لګښت لري خو ښايي کیفیت یې ښه وي. تش پرېږدئ تر څو د سرور اصلي وکارول شي."
       },
+      "check": "کیلي وکتل شي",
       "createModal": {
         "keyDescription": "ستاسو کیلي به کوډ او خوندي وساتل شي.",
         "keyLabel": "API کیلي",
@@ -521,6 +529,7 @@
         "platformRequired": "پلاتفورم اړین دی"
       },
       "key": "کیلي",
+      "keyEndsWith": "کیلي په دې تورو پای ته رسېږي",
       "keys": "کیلي",
       "noResults": "ستاسو له لټون یا فلټر سره هېڅ کیلي سمون نه لري.",
       "platform": "پلاتفورم",
@@ -558,8 +567,15 @@
         "status-asc": "کارکوونکې کیلي لومړی"
       },
       "status": {
+        "checking": "کتل کېږي…",
         "failed": "کیلي کار نه کوي",
-        "unknown": "کیلي تر اوسه نه ده کارول شوې",
+        "reasons": {
+          "key_rejected": "چمتوکوونکی دا کیلي نه مني. وګورئ چې کیلي په بشپړه توګه کاپي شوې وي او لا هم فعاله وي.",
+          "no_credit": "د دې کیلي اړوند حساب نور کریډیټ نه لري. له چمتوکوونکي سره یې چارج کړئ.",
+          "no_key": "کیلي ونه لوستل شوه.",
+          "unreachable": "چمتوکوونکي ځواب ورنه کړ. لږ وروسته بیا هڅه وکړئ."
+        },
+        "unknown": "لا تر اوسه نه ده کتل شوې",
         "working": "کیلي سم کار کوي"
       },
       "statusColumn": "حالت",
@@ -673,12 +689,18 @@
         "statusFieldsHint": "لوبه څه باید وساتي؟ لکه روغتیا، نمرې یا مهمات. لوبه دا ارزښتونه یاد ساتي او د لوبې پر مهال یې نوي کوي.",
         "theme": "بڼه",
         "themeDefault": "اصلي بڼه",
-        "themeHint": "هغه بڼه چې لوبه پکې ترسره کېږي."
+        "themeHint": "هغه بڼه چې لوبه پکې ترسره کېږي.",
+        "voiceStyle": "د غږ بڼه",
+        "voiceStyleHint": "غږ څنګه اورېدل کېږي: د کرکټر غږ، یا د راوي غږ کله چې کیسه په لوړ غږ لوستل کېږي.",
+        "voiceStylePlaceholder": "لکه: ژور، ورو او لږ څه خشن، د یوه بوډا سړي غږ"
       },
       "editModal": {
         "adminActionTitle": "د اډمین کړنه",
         "adminActionWarning": "تاسو داسې لوبه سموي چې ستاسو نه ده. دا یو اداري ګام دی او باید یوازې د منځګړتوب لپاره وکارول شي.",
         "gameDesignSection": "د لوبې ډيزاین",
+        "othersGameNotice": "دا لوبه د بل چا ده. تاسو هر څه بدلولی شئ: په خوندي کولو سره به دا ستاسو خپله لوبه شي، او اصلي لوبه به هماغسې پاتې شي.",
+        "saveAsOwn": "زما د لوبې په توګه خوندي کول",
+        "savedAsOwn": "ستاسو د لوبې په توګه خوندي شوه",
         "title": "لوبه سمول",
         "unsavedChanges": {
           "discard": "بدلونونه پرېږدئ",
@@ -716,6 +738,15 @@
         "npc-live": "NPC-ژوندی"
       },
       "importExport": {
+        "coverFailed": "لوبه وارد شوه، خو د هغې پوښ انځور ونه کتل شو. په سمونګر کې نوی انځور رسمولی شئ.",
+        "coverNoKey": "لوبه له پوښ انځور پرته وارد شوه: د پوښ د کتلو لپاره API کیلي اړینه ده.",
+        "coverRefused": "لوبه له پوښ انځور پرته وارد شوه: انځور د ماشومانو د ساتنې اصول نه مراعتوي.",
+        "coverUnsigned": "لوبه له پوښ انځور پرته وارد شوه: انځور د ChatGameLab له خوا صادر شوی نه و، یا له هغه وروسته بدل شوی و.",
+        "errors": {
+          "noGame": "دا .cgl فایل هېڅ لوبه نه لري.",
+          "tooLarge": "دا فایل له ۱ MB څخه لوی دی؛ د لوبې د فایل لپاره ډېر لوی دی.",
+          "unreadable": "دا فایل د لوبې په توګه ونه لوستل شو."
+        },
         "exportButton": "لوبه صادر کړئ",
         "importButton": "لوبه وارد کړئ"
       },
@@ -990,6 +1021,7 @@
     "leaveTitle": "سازمان پرېږدئ",
     "leaveWarning": "د سازمان له ټولو سرچینو او غړو څخه لاس ته کوئ.",
     "list": {
+      "clearPicks": "ټولې وښایئ",
       "clearSearch": "لټون پاکول",
       "filter": "فلټر",
       "hideDetails": "جزئیات پټول",
@@ -1354,6 +1386,7 @@
         "failed": "اوس مهال لوبېدای نه شي",
         "genre": "د AI کیلي دا ډول لوبه نه شي چلولی",
         "key_rejected": "د AI کیلي رد شوه",
+        "no_credit": "د AI کریډیټ نور نشته",
         "no_key": "د AI هېڅ کیلي شتون نه لري",
         "no_plays": "د لوبولو هېڅ فرصت نه دی پاتې",
         "paused": "ورکشاپ درول شوی",
@@ -1711,18 +1744,74 @@
       "condense-scenario": "سناریو لنډول",
       "condensed-scenario": "سناریو",
       "expand": "کیسه کول",
+      "gallery-image": "د ګالري انځور",
+      "greeting": "متن تولیدول",
       "image": "انځور رسمول",
       "image-prompt": "انځور تشریح کول",
       "image-style": "سټایل سمول",
       "live-session": "کرکټر",
-      "observer": "کتونکی",
+      "observer": "ډایرکټر",
+      "opening-brief": "لوبه څنګه پیلېږي",
       "outline": "صحنه پلانول",
       "portrait": "انځور رسمول",
       "portrait-prompt": "څېره تشریح کول",
       "props-store": "د لوبې حالت",
       "rephrase": "کړنه بیا بیانول",
       "rephrase-audio": "خبره پوهېدل",
-      "start-game": "پیل"
+      "start-game": "پیل",
+      "voice": "غږ تولیدول",
+      "voice-brief": "غږ تشریح کول"
+    },
+    "director": {
+      "ago": "{{s}} مخکې",
+      "beatRefused": "رد شوی",
+      "beatSet": "ټاکل شوی",
+      "beats": "د کرښو لرونکي ضربان",
+      "beatsValue": "{{n}} · {{lines}} کرښې",
+      "calls": "د ماډل غوښتنې",
+      "callsValue": "{{n}} · وروستی {{s}} مخکې",
+      "character": "کرکټر",
+      "characterSpoke": "کرکټر خبرې وکړې",
+      "counted": "وشمېرل شول",
+      "doing": "ترسره کوي",
+      "dropped": "لرې کړل شول",
+      "droppedValue": "{{n}} (پرله‌پسې ډېر)",
+      "empty": "تر اوسه هېڅ نه شته",
+      "entryBackground": "شالید ولېږل شو",
+      "entryConversation": "خبرې اترې",
+      "entryDirection": "لارښوونه ولېږل شوه",
+      "entryDropped": "لرې کړل شو",
+      "entryError": "تېروتنه",
+      "entryInjection": "په لاس داخل شو",
+      "entryLine": "وویل",
+      "entrySilence": "چوپتیا",
+      "entryThought": "فکر کوي",
+      "failed": "{{n}} ناکام شول",
+      "fragments": "ټوټې",
+      "gap": "د غوښتنو ترمنځ لږ تر لږه وقفه",
+      "inARow": "پرله‌پسې لارښوونې",
+      "injected": "په لاس داخل شوي",
+      "late": "ناوخته ټوټې",
+      "lateMark": "ناوخته",
+      "lateValue": "{{n}} · تر {{ms}} ms پورې",
+      "lines": "{{n}} کرښې",
+      "listening": "غوږ نیسي",
+      "log": "د ډایرکټر ثبت",
+      "notYet": "لا نه دي",
+      "notices": "د چوپتیا خبرتیاوې",
+      "now": "اوسنی ډایرکټر",
+      "ofLimit": "{{n}} له {{limit}} څخه",
+      "player": "لوبغاړی",
+      "playerSpoke": "لوبغاړي خبرې وکړې",
+      "pool": "په زېرمه کې",
+      "poolValue": "{{n}} ټوټې · ضربان {{ms}} ms",
+      "quietFor": "له دې مودې راهیسې چوپ",
+      "quietReplies": "د ترسره کولو لپاره هېڅ نشته",
+      "sent": "ولېږل شول",
+      "sentValue": "{{d}} لارښوونې · {{b}} شالید",
+      "setBeat": "ضربان ټاکل (ms)",
+      "thinking": "فکر کوي · {{s}}",
+      "waiting": "د هغې په تمه دی"
     },
     "errors": {
       "connectionLost": "له لوبې سره اړیکه پرې شوه. پاڼه بیا پورته کړه او بیا هڅه وکړه.",
@@ -1739,11 +1828,19 @@
     },
     "insights": {
       "close": "تړل",
+      "collapse": "راټولول",
       "empty": "تر اوسه هېڅ شی نه دی ترسره شوی.",
-      "feed": "څه پېښ شول",
+      "expand": "پراخول",
+      "feed": "تاریخچه",
       "hide": "معلومات پټول",
       "label": "معلومات",
-      "show": "معلومات ښودل"
+      "noProblems": "تر اوسه هېڅ ستونزه نشته.",
+      "pickBlock": "په بهیر کې پر یوه برخه یا اړیکه کلیک وکړئ، څو وګورئ چې څه یې ترسره کړي.",
+      "settingEmpty": "لوبه دا تش پرېږدي.",
+      "show": "معلومات ښودل",
+      "tabProblems": "ستونزې",
+      "tabSelected": "ټاکل شوی",
+      "tabUsage": "کارونه"
     },
     "launch": {
       "noGame": "دا پاڼه د لوبې لپاره یوې لوبې ته اړتیا لري: د یوې لوبې له پاڼې څخه یې پرانیزه.",
@@ -1755,13 +1852,25 @@
       "compacting": "لنډول روان دي…",
       "copied": "لېاوت کاپي شو",
       "copyFailed": "کلیپ‌بورډ نشته: لېاوت کنسول ته ثبت شو",
-      "copyLayout": "لېاوت کاپي کول"
+      "copyLayout": "لېاوت کاپي کول",
+      "injectBackground": "پوهېدل",
+      "injectBackgroundHint": "هغه څه چې کرکټر یې په زړه کې، په خپلو الفاظو، په چوپتیا کې فکر کوي؛ پرته له دې چې همدا اوس یې ووایي، لکه: «زه یو لېوه‌انسان یم او غواړم هغه ورو ورو پرې پوهه شي.»",
+      "injectDirection": "ترسره کول",
+      "injectDirectionHint": "کرکټر باید څه وکړي، لکه: «توند مزاجه اوسه، ته پر لوبغاړي باور نه لرې.»",
+      "injectSpeech": "ویل",
+      "injectSpeechHint": "کرکټر باید څه ووایي، په خپلو الفاظو، لکه: «ودرېږه! څوک هلته دی؟»",
+      "injection": "کرکټر ته ووایئ چې …",
+      "injectionFailed": "ولېږل نه شول",
+      "injectionSend": "لېږل",
+      "injectionSending": "لېږل کېږي…",
+      "injectionSent": "خبرې اترې ته ولېږل شول"
     },
     "problems": {
       "denied": "ته د دې لوبې اجازه نه لرې.",
       "failed": "یو څه ستونزه رامنځته شوه، لوبه نه شي دوام کولی.",
       "genre": "موجوده د مصنوعي ځیرکتیا کیلي دا ډول لوبه نه شي چلولای.",
       "keyRejected": "د مصنوعي ځیرکتیا چمتوکوونکي د دې لوبې کیلي رد کړه، نو لوبه نه شي دوام کولی. هغه څوک چې لوبه یې جوړه کړې، باید کیلي وګوري.",
+      "noCredit": "بښنه غواړو، د AI کریډیټ ختم شوی، نو لوبه اوس مهال دوام نه شي کولی.",
       "noKey": "د دې لوبې لپاره د مصنوعي ځیرکتیا هېڅ کیلي نشته.",
       "noPlays": "په دې شریکه شوې لوبه کې نورې لوبې نه دي پاتې.",
       "paused": "ورکشاپ درول شوی دی. کله چې بېرته پیل شي، لوبه به دوام وکړي.",
@@ -1773,6 +1882,15 @@
       "busy": "رلې: د بل ټب له خوا کارول کېږي",
       "connected": "رلې: وصل شو",
       "connecting": "رلې: روان نه دی"
+    },
+    "settings": {
+      "cover": "د ګالري انځور",
+      "description": "تشریح",
+      "gameStart": "د لوبې پیل",
+      "imageStyle": "د انځور بڼه",
+      "scenario": "سناریو",
+      "statusFields": "د حالت برخې",
+      "voiceStyle": "د غږ بڼه"
     },
     "status": {
       "choose": "د پیل لپاره وټاکه چې څنګه لوبه کول غواړې.",
@@ -1795,10 +1913,14 @@
       "condensed-scenario\u0003econdense-scenario": "غوښتنه",
       "condensed-scenario\u0003eimage-prompt": "سناریو",
       "condensed-scenario\u0003estart-game": "چمتو",
+      "gallery-image\u0003estart-game": "چمتو",
+      "greeting\u0003elive-session": "لومړنۍ خبرې",
+      "greeting\u0003estart-game": "چمتو",
       "image-prompt\u0003eimage": "پرامپټ",
       "image-style\u0003eadapted-style": "ځواب",
       "live-session\u0003eobserver": "لیکل شوی متن",
-      "observer\u0003elive-session": "اشاره",
+      "observer\u0003elive-session": "داخلونه",
+      "opening-brief\u0003egreeting": "لنډه لارښوونه",
       "outline\u0003eexpand": "پلان",
       "outline\u0003eimage-prompt": "صحنه",
       "outline\u0003eprops-store": "بدلونونه",
@@ -1811,7 +1933,12 @@
       "rephrase\u0003eoutline": "کړنه",
       "rephrase-audio\u0003eoutline": "کړنه",
       "start-game\u0003elive-session": "پیل‌نښه",
-      "start-game\u0003eoutline": "پرامپټ"
+      "start-game\u0003eoutline": "پرامپټ",
+      "voice\u0003elive-session:secondary": "د غږ بڼه",
+      "voice\u0003elive-session:voice": "غږ",
+      "voice\u0003estart-game": "چمتو",
+      "voice-brief\u0003evoice:description": "تشریح",
+      "voice-brief\u0003evoice:voice": "بدیل غږ"
     }
   }
 }

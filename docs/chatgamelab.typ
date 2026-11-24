@@ -41,8 +41,14 @@ called the *player*.
 
 A game has a *cover*: one picture of it, drawn in its image style under the
 youth-protection rule for the youngest players, since anyone who sees the game
-sees its cover. A cover can also come with the game's file, a zip of the game
-and its cover; it is checked against the same rule before it is kept.
+sees its cover. A cover can also come with a game file; it is checked
+against the same rule before it is kept.
+
+A game travels as a *game file*, a `.cgl` file: a zip that holds
+
+- `game.yaml`, the game's fields;
+- `cover.jpg`, its cover, when it has one;
+- `cover.sig`, the cover's signature from the ChatGameLab that exported it.
 
 == Sessions
 

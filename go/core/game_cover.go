@@ -19,7 +19,7 @@ import (
 
 // A game's cover is part of its card: whoever may read the card sees it, and
 // whoever may edit the card sets it. It is drawn under the youth-protection
-// rule, or brought in from a game's zip, signed by a ChatGameLab server and
+// rule, or brought in from a game's .cgl file, signed by a ChatGameLab server and
 // checked against that rule before it is kept, so the rule binds every
 // picture (session/cover.go). SetGameCover stores what those two hand it.
 

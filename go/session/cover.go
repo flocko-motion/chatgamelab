@@ -66,7 +66,7 @@ func MakeGameCover(ctx context.Context, gameID uuid.UUID, hint string) (*core.Ga
 	return core.SetGameCover(ctx, gameID, image)
 }
 
-// ImportGameCover makes a picture brought in from a game's zip a game's
+// ImportGameCover makes a picture brought in from a game's .cgl file a game's
 // cover, and returns the card as it now is. Changing the cover takes what
 // drawing one does ({Edit, GameCard}). The picture must carry the signature a
 // ChatGameLab server gave it on export (cover_unsigned otherwise, before

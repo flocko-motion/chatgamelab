@@ -10,7 +10,7 @@ import (
 	"encoding/hex"
 )
 
-// signingKey is the same on every ChatGameLab server, so a game's zip made
+// signingKey is the same on every ChatGameLab server, so a game's .cgl file made
 // by one is taken by any other. Anyone who reads the source can sign a
 // picture; a signature only says the picture was not swapped by chance.
 //
@@ -18,7 +18,7 @@ import (
 // nothing; the youth-protection check does. Secret scanners: ignore it.
 var signingKey = []byte("chatgamelab cover v1") // gitleaks:allow (public by design)
 
-// Sign is a cover's signature, as a game's zip carries it beside the cover.
+// Sign is a cover's signature, as a game's .cgl file carries it beside the cover.
 func Sign(cover []byte) string {
 	mac := hmac.New(sha256.New, signingKey)
 	mac.Write(cover)

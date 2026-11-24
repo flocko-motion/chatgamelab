@@ -469,6 +469,7 @@
       "filters": {
         "all": "すべてのゲーム",
         "favorites": "お気に入り",
+        "genre": "ジャンル",
         "own": "自分のゲーム",
         "public": "公開",
         "sponsored": "スポンサー付き"
@@ -477,6 +478,12 @@
       "play": "プレイ",
       "reportGame": "ゲームを報告",
       "restart": "リスタート",
+      "resumeChoice": {
+        "continue": "続ける",
+        "message": "「{{game}}」はすでに始めています。前回の続きから再開しますか、それとも最初から始めますか？最初から始めると、以前のセッションは置き換えられます。",
+        "startNew": "最初から始める",
+        "title": "続けますか、それとも最初から始めますか？"
+      },
       "title": "ゲーム",
       "unfavorite": "お気に入りから削除",
       "workshop": "ワークショップ／組織"
@@ -491,6 +498,7 @@
       "aiQualityTier": {
         "description": "独自のAPIキーを使う際に、ゲーム用のAI品質レベルを選択します。ティアが高いほどコストがかかりますが品質が向上する場合があります。空欄の場合はサーバーデフォルトを使用します。"
       },
+      "check": "キーを確認",
       "createModal": {
         "keyDescription": "キーは暗号化され、安全に保管されます。",
         "keyLabel": "APIキー",
@@ -521,6 +529,7 @@
         "platformRequired": "プラットフォームは必須です"
       },
       "key": "キー",
+      "keyEndsWith": "キーの末尾の文字",
       "keys": "キー",
       "noResults": "検索またはフィルターに一致するキーはありません。",
       "platform": "プラットフォーム",
@@ -558,8 +567,15 @@
         "status-asc": "動作するキーを優先"
       },
       "status": {
+        "checking": "確認中…",
         "failed": "キーが機能していません",
-        "unknown": "キーはまだ使用されていません",
+        "reasons": {
+          "key_rejected": "プロバイダーがこのキーを拒否しました。キー全体がコピーされているか、まだ有効かを確認してください。",
+          "no_credit": "このキーに紐づくアカウントのクレジットが残っていません。プロバイダーでチャージしてください。",
+          "no_key": "キーを読み取れませんでした。",
+          "unreachable": "プロバイダーから応答がありません。しばらくしてからもう一度確認してください。"
+        },
+        "unknown": "まだ確認していません",
         "working": "キーは動作しています"
       },
       "statusColumn": "ステータス",
@@ -673,12 +689,18 @@
         "statusFieldsHint": "何を記録しますか？例：体力、ポイント、弾薬など。ゲームはこれらの値を覚えてプレイ中に更新します。",
         "theme": "テーマ",
         "themeDefault": "デフォルトの外観",
-        "themeHint": "ゲームのプレイ時に使用される外観です。"
+        "themeHint": "ゲームのプレイ時に使用される外観です。",
+        "voiceStyle": "声のスタイル",
+        "voiceStyleHint": "声の雰囲気。物語を読み上げるときの、キャラクターの声またはナレーターの声です。",
+        "voiceStylePlaceholder": "例：低く、ゆっくりで少しかすれた声、年配の男性"
       },
       "editModal": {
         "adminActionTitle": "管理者アクション",
         "adminActionWarning": "あなたが所有していないゲームを編集しています。これは管理目的でのみ使用するべき操作です。",
         "gameDesignSection": "ゲームデザイン",
+        "othersGameNotice": "このゲームは他の人が作ったものです。何でも変更できます。保存すると自分のゲームになり、元のゲームはそのまま残ります。",
+        "saveAsOwn": "自分のゲームとして保存",
+        "savedAsOwn": "あなたのゲームとして保存しました",
         "title": "ゲームを編集",
         "unsavedChanges": {
           "discard": "変更を破棄",
@@ -716,6 +738,15 @@
         "npc-live": "NPCライブ"
       },
       "importExport": {
+        "coverFailed": "ゲームはインポートされましたが、カバー画像を確認できませんでした。エディターで新しい画像を描かせることができます。",
+        "coverNoKey": "カバー画像なしでゲームをインポートしました。カバー画像の確認にはAPIキーが必要です。",
+        "coverRefused": "カバー画像なしでゲームをインポートしました。画像が青少年保護のルールに適合していません。",
+        "coverUnsigned": "カバー画像なしでゲームをインポートしました。画像がChatGameLabからエクスポートされたものではないか、エクスポート後に変更されています。",
+        "errors": {
+          "noGame": "この.cglファイルにはゲームが含まれていません。",
+          "tooLarge": "このファイルは1MBを超えており、ゲームファイルとして大きすぎます。",
+          "unreadable": "このファイルをゲームとして読み取れませんでした。"
+        },
         "exportButton": "ゲームをエクスポート",
         "importButton": "ゲームをインポート"
       },
@@ -990,6 +1021,7 @@
     "leaveTitle": "組織を退出",
     "leaveWarning": "組織のすべてのリソースとメンバーへのアクセスを失います。",
     "list": {
+      "clearPicks": "すべて表示",
       "clearSearch": "検索をクリア",
       "filter": "フィルター",
       "hideDetails": "詳細を隠す",
@@ -1354,6 +1386,7 @@
         "failed": "現在プレイできません",
         "genre": "AIキーではこの種類のゲームを実行できません",
         "key_rejected": "AIキーが拒否されました",
+        "no_credit": "AIクレジットが残っていません",
         "no_key": "利用可能なAIキーがありません",
         "no_plays": "プレイ回数が残っていません",
         "paused": "ワークショップは一時停止中です",
@@ -1711,18 +1744,74 @@
       "condense-scenario": "シナリオを短縮",
       "condensed-scenario": "シナリオ",
       "expand": "ナレーション",
+      "gallery-image": "ギャラリー画像",
+      "greeting": "テキストを生成",
       "image": "画像を描く",
       "image-prompt": "画像を説明",
       "image-style": "スタイルを調整",
       "live-session": "キャラクター",
-      "observer": "オブザーバー",
+      "observer": "ディレクター",
+      "opening-brief": "始まり方",
       "outline": "シーンを計画",
       "portrait": "肖像画を描く",
       "portrait-prompt": "肖像画を説明",
       "props-store": "ゲーム状態",
       "rephrase": "アクションを言い換え",
       "rephrase-audio": "音声を理解",
-      "start-game": "開始"
+      "start-game": "開始",
+      "voice": "音声を生成",
+      "voice-brief": "声を説明"
+    },
+    "director": {
+      "ago": "{{s}}前",
+      "beatRefused": "拒否",
+      "beatSet": "設定済み",
+      "beats": "セリフのあるビート",
+      "beatsValue": "{{n}} · {{lines}}行",
+      "calls": "モデル呼び出し",
+      "callsValue": "{{n}} · 最後は{{s}}",
+      "character": "キャラクター",
+      "characterSpoke": "キャラクターが発話",
+      "counted": "カウント済み",
+      "doing": "実行中",
+      "dropped": "破棄",
+      "droppedValue": "{{n}}（連続しすぎ）",
+      "empty": "まだ何もありません",
+      "entryBackground": "背景を送信",
+      "entryConversation": "会話",
+      "entryDirection": "指示を送信",
+      "entryDropped": "破棄",
+      "entryError": "エラー",
+      "entryInjection": "手動入力",
+      "entryLine": "発言",
+      "entrySilence": "沈黙",
+      "entryThought": "思考",
+      "failed": "{{n}}件失敗",
+      "fragments": "フラグメント",
+      "gap": "呼び出し間隔（最短）",
+      "inARow": "連続した指示",
+      "injected": "手動で入力",
+      "late": "遅延したフラグメント",
+      "lateMark": "遅延",
+      "lateValue": "{{n}} · 最大{{ms}}ms",
+      "lines": "{{n}}行",
+      "listening": "待機中",
+      "log": "ディレクターログ",
+      "notYet": "まだ",
+      "notices": "沈黙に関する通知",
+      "now": "現在のディレクター",
+      "ofLimit": "{{limit}}件中{{n}}件",
+      "player": "プレイヤー",
+      "playerSpoke": "プレイヤーが発話",
+      "pool": "プール内",
+      "poolValue": "{{n}}フラグメント · ビート{{ms}}ms",
+      "quietFor": "沈黙時間",
+      "quietReplies": "することなし",
+      "sent": "送信済み",
+      "sentValue": "{{d}}指示 · {{b}}背景",
+      "setBeat": "ビートを設定（ms）",
+      "thinking": "思考中 · {{s}}",
+      "waiting": "応答待ち"
     },
     "errors": {
       "connectionLost": "ゲームとの接続が失われました。再試行するには再読み込みしてください。",
@@ -1739,11 +1828,19 @@
     },
     "insights": {
       "close": "閉じる",
+      "collapse": "折りたたむ",
       "empty": "まだ何も実行されていません。",
-      "feed": "起きたこと",
+      "expand": "展開",
+      "feed": "履歴",
       "hide": "インサイトを隠す",
       "label": "インサイト",
-      "show": "インサイトを表示"
+      "noProblems": "今のところ問題はありません。",
+      "pickBlock": "パイプライン内のブロックまたは接続線をクリックすると、その処理内容を確認できます。",
+      "settingEmpty": "ゲームでは空欄になっています。",
+      "show": "インサイトを表示",
+      "tabProblems": "問題",
+      "tabSelected": "選択中",
+      "tabUsage": "使用状況"
     },
     "launch": {
       "noGame": "このページで遊ぶにはゲームが必要です。ゲームのページから開いてください。",
@@ -1755,13 +1852,25 @@
       "compacting": "圧縮中…",
       "copied": "レイアウトをコピーしました",
       "copyFailed": "クリップボードがありません。レイアウトをコンソールに出力しました",
-      "copyLayout": "レイアウトをコピー"
+      "copyLayout": "レイアウトをコピー",
+      "injectBackground": "知る",
+      "injectBackgroundHint": "キャラクターが今は口に出さず、自分の言葉でひそかに考えていること。例：「私は狼男で、彼女には少しずつ気づいてほしい。」",
+      "injectDirection": "する",
+      "injectDirectionHint": "キャラクターがすべきこと。例：「不機嫌に振る舞って。プレイヤーを信用していない。」",
+      "injectSpeech": "言う",
+      "injectSpeechHint": "キャラクターが自分の言葉で言うべきこと。例：「止まれ！そこにいるのは誰だ？」",
+      "injection": "キャラクターに伝える…",
+      "injectionFailed": "送信できませんでした",
+      "injectionSend": "送信",
+      "injectionSending": "送信中…",
+      "injectionSent": "会話に送信しました"
     },
     "problems": {
       "denied": "このゲームをプレイすることはできません。",
       "failed": "問題が発生したため、ゲームを続けられません。",
       "genre": "利用可能なAIキーでは、この種類のゲームを実行できません。",
       "keyRejected": "AIプロバイダーがこのゲームのキーを拒否したため、ゲームを続けられません。ゲームを設定した人がキーを確認する必要があります。",
+      "noCredit": "申し訳ありません。AIクレジットを使い切ったため、現在ゲームを続行できません。",
       "noKey": "このゲームをプレイするためのAIキーがありません。",
       "noPlays": "この共有ゲームのプレイ回数が残っていません。",
       "paused": "ワークショップは一時停止中です。再開するとゲームが続行されます。",
@@ -1773,6 +1882,15 @@
       "busy": "Relay: 別のタブで使用中",
       "connected": "Relay: 接続済み",
       "connecting": "Relay: 実行されていません"
+    },
+    "settings": {
+      "cover": "ギャラリー画像",
+      "description": "説明",
+      "gameStart": "ゲーム開始",
+      "imageStyle": "画像スタイル",
+      "scenario": "シナリオ",
+      "statusFields": "ステータス項目",
+      "voiceStyle": "声のスタイル"
     },
     "status": {
       "choose": "遊び方を選ぶと開始できます。",
@@ -1795,10 +1913,14 @@
       "condensed-scenario\u0003econdense-scenario": "リクエスト",
       "condensed-scenario\u0003eimage-prompt": "シナリオ",
       "condensed-scenario\u0003estart-game": "準備完了",
+      "gallery-image\u0003estart-game": "準備完了",
+      "greeting\u0003elive-session": "最初の言葉",
+      "greeting\u0003estart-game": "準備完了",
       "image-prompt\u0003eimage": "プロンプト",
       "image-style\u0003eadapted-style": "回答",
       "live-session\u0003eobserver": "文字起こし",
-      "observer\u0003elive-session": "ヒント",
+      "observer\u0003elive-session": "入力",
+      "opening-brief\u0003egreeting": "概要",
       "outline\u0003eexpand": "計画",
       "outline\u0003eimage-prompt": "シーン",
       "outline\u0003eprops-store": "変更",
@@ -1811,7 +1933,12 @@
       "rephrase\u0003eoutline": "アクション",
       "rephrase-audio\u0003eoutline": "アクション",
       "start-game\u0003elive-session": "導入",
-      "start-game\u0003eoutline": "プロンプト"
+      "start-game\u0003eoutline": "プロンプト",
+      "voice\u0003elive-session:secondary": "声のスタイル",
+      "voice\u0003elive-session:voice": "音声",
+      "voice\u0003estart-game": "準備完了",
+      "voice-brief\u0003evoice:description": "説明",
+      "voice-brief\u0003evoice:voice": "代替音声"
     }
   }
 }

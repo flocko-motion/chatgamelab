@@ -469,6 +469,7 @@
       "filters": {
         "all": "Toate jocurile",
         "favorites": "Favorite",
+        "genre": "Gen",
         "own": "Jocurile mele",
         "public": "Publice",
         "sponsored": "Sponsorizate"
@@ -477,6 +478,12 @@
       "play": "Joacă",
       "reportGame": "Raportează jocul",
       "restart": "Repornește",
+      "resumeChoice": {
+        "continue": "Continuă",
+        "message": "Ai început deja „{{game}}”. Continui de unde ai rămas sau începi din nou? Începerea unei sesiuni noi o înlocuiește pe cea anterioară.",
+        "startNew": "Începe din nou",
+        "title": "Continui sau începi din nou?"
+      },
       "title": "Jocuri",
       "unfavorite": "Elimină din favorite",
       "workshop": "Atelier / Org"
@@ -491,6 +498,7 @@
       "aiQualityTier": {
         "description": "Alege nivelul de calitate AI pentru jocurile tale atunci când folosești propria cheie API. Nivelurile mai înalte costă mai mult, dar pot oferi calitate superioară. Lasă gol pentru a folosi setarea implicită a serverului."
       },
+      "check": "Verifică cheia",
       "createModal": {
         "keyDescription": "Cheia ta va fi criptată și stocată în siguranță.",
         "keyLabel": "Cheie API",
@@ -521,6 +529,7 @@
         "platformRequired": "Platforma este obligatorie"
       },
       "key": "cheie",
+      "keyEndsWith": "Cheia se termină cu aceste caractere",
       "keys": "chei",
       "noResults": "Nicio cheie nu corespunde căutării sau filtrului tău.",
       "platform": "Platformă",
@@ -558,8 +567,15 @@
         "status-asc": "Cheile funcționale mai întâi"
       },
       "status": {
+        "checking": "Se verifică…",
         "failed": "Cheia nu funcționează",
-        "unknown": "Cheia nu a fost încă folosită",
+        "reasons": {
+          "key_rejected": "Furnizorul refuză această cheie. Verifică dacă a fost copiată integral și dacă este încă activă.",
+          "no_credit": "Contul asociat acestei chei nu mai are credit. Reîncarcă-l la furnizor.",
+          "no_key": "Cheia nu a putut fi citită.",
+          "unreachable": "Furnizorul nu a răspuns. Verifică din nou peste puțin timp."
+        },
+        "unknown": "Nu a fost verificată încă",
         "working": "Cheia funcționează"
       },
       "statusColumn": "Stare",
@@ -673,12 +689,18 @@
         "statusFieldsHint": "Ce ar trebui să urmărească jocul? De exemplu viață, puncte sau muniție. Jocul își amintește aceste valori și le actualizează în timpul jocului.",
         "theme": "Temă",
         "themeDefault": "Aspect implicit",
-        "themeHint": "Aspectul în care se joacă jocul."
+        "themeHint": "Aspectul în care se joacă jocul.",
+        "voiceStyle": "Stilul vocii",
+        "voiceStyleHint": "Cum sună vocea: vocea personajului sau a naratorului atunci când povestea este citită cu voce tare.",
+        "voiceStylePlaceholder": "de ex., gravă, lentă și puțin răgușită, un bătrân"
       },
       "editModal": {
         "adminActionTitle": "Acțiune de administrator",
         "adminActionWarning": "Editezi un joc care nu îți aparține. Aceasta este o acțiune administrativă și ar trebui folosită doar în scopuri de moderare.",
         "gameDesignSection": "Designul jocului",
+        "othersGameNotice": "Acest joc aparține altcuiva. Poți schimba orice: salvarea îl transformă în jocul tău, iar originalul rămâne neschimbat.",
+        "saveAsOwn": "Salvează ca jocul meu",
+        "savedAsOwn": "Salvat ca jocul tău",
         "title": "Editează jocul",
         "unsavedChanges": {
           "discard": "Renunță la modificări",
@@ -716,6 +738,15 @@
         "npc-live": "NPC-Live"
       },
       "importExport": {
+        "coverFailed": "Jocul a fost importat, dar coperta nu a putut fi verificată. Poți desena una nouă în editor.",
+        "coverNoKey": "Jocul a fost importat fără copertă: verificarea unei coperți necesită o cheie API.",
+        "coverRefused": "Jocul a fost importat fără copertă: imaginea nu respectă regula de protecție a minorilor.",
+        "coverUnsigned": "Jocul a fost importat fără copertă: imaginea nu a fost exportată de ChatGameLab sau a fost modificată ulterior.",
+        "errors": {
+          "noGame": "Acest fișier .cgl nu conține niciun joc.",
+          "tooLarge": "Acest fișier este mai mare de 1 MB, prea mare pentru un fișier de joc.",
+          "unreadable": "Acest fișier nu a putut fi citit ca joc."
+        },
         "exportButton": "Exportă jocul",
         "importButton": "Importă joc"
       },
@@ -993,6 +1024,7 @@
     "leaveTitle": "Părăsește organizația",
     "leaveWarning": "Vei pierde accesul la toate resursele și membrii organizației.",
     "list": {
+      "clearPicks": "Afișează tot",
       "clearSearch": "Șterge căutarea",
       "filter": "Filtru",
       "hideDetails": "Ascunde detaliile",
@@ -1352,6 +1384,7 @@
         "failed": "Jocul nu poate fi jucat momentan",
         "genre": "Cheia AI nu poate rula acest tip de joc",
         "key_rejected": "Cheia AI a fost refuzată",
+        "no_credit": "Nu mai există credit AI",
         "no_key": "Nu este disponibilă nicio cheie AI",
         "no_plays": "Nu mai sunt jocuri disponibile",
         "paused": "Atelierul este pus pe pauză",
@@ -1708,18 +1741,74 @@
       "condense-scenario": "Scurtează scenariul",
       "condensed-scenario": "Scenariu",
       "expand": "Povestește",
+      "gallery-image": "Imagine din galerie",
+      "greeting": "Generează text",
       "image": "Desenează imaginea",
       "image-prompt": "Descrie imaginea",
       "image-style": "Adaptează stilul",
       "live-session": "Personaj",
-      "observer": "Observator",
+      "observer": "Regizor",
+      "opening-brief": "Cum începe",
       "outline": "Planifică scena",
       "portrait": "Desenează portretul",
       "portrait-prompt": "Descrie portretul",
       "props-store": "Starea jocului",
       "rephrase": "Reformulează acțiunea",
       "rephrase-audio": "Înțelege vorbirea",
-      "start-game": "Start"
+      "start-game": "Start",
+      "voice": "Generează voce",
+      "voice-brief": "Descrie vocea"
+    },
+    "director": {
+      "ago": "acum {{s}}",
+      "beatRefused": "refuzat",
+      "beatSet": "setat",
+      "beats": "secvențe cu replici",
+      "beatsValue": "{{n}} · {{lines}} replici",
+      "calls": "apeluri ale modelului",
+      "callsValue": "{{n}} · ultima acum {{s}}",
+      "character": "personaj",
+      "characterSpoke": "personajul a vorbit",
+      "counted": "numărat",
+      "doing": "face",
+      "dropped": "eliminat",
+      "droppedValue": "{{n}} (prea multe la rând)",
+      "empty": "încă nimic",
+      "entryBackground": "context trimis",
+      "entryConversation": "conversație",
+      "entryDirection": "instrucțiune trimisă",
+      "entryDropped": "eliminat",
+      "entryError": "eroare",
+      "entryInjection": "inserat",
+      "entryLine": "a spus",
+      "entrySilence": "tăcere",
+      "entryThought": "se gândește",
+      "failed": "{{n}} nereușite",
+      "fragments": "fragmente",
+      "gap": "apeluri cel mult la fiecare",
+      "inARow": "instrucțiuni la rând",
+      "injected": "inserat manual",
+      "late": "fragmente întârziate",
+      "lateMark": "întârziat",
+      "lateValue": "{{n}} · până la {{ms}} ms",
+      "lines": "{{n}} replici",
+      "listening": "ascultă",
+      "log": "jurnalul regizorului",
+      "notYet": "încă nu",
+      "notices": "notificări de tăcere",
+      "now": "regizorul acum",
+      "ofLimit": "{{n}} din {{limit}}",
+      "player": "jucător",
+      "playerSpoke": "jucătorul a vorbit",
+      "pool": "în grup",
+      "poolValue": "{{n}} fragmente · secvență de {{ms}} ms",
+      "quietFor": "liniște de",
+      "quietReplies": "nimic de făcut",
+      "sent": "trimis",
+      "sentValue": "{{d}} instrucțiuni · {{b}} contexte",
+      "setBeat": "setează secvența (ms)",
+      "thinking": "se gândește · {{s}}",
+      "waiting": "așteaptă răspunsul"
     },
     "errors": {
       "connectionLost": "Conexiunea cu jocul s-a pierdut. Reîncarcă pagina pentru a încerca din nou.",
@@ -1736,11 +1825,19 @@
     },
     "insights": {
       "close": "Închide",
+      "collapse": "Restrânge",
       "empty": "Încă nu s-a executat nimic.",
-      "feed": "Ce s-a întâmplat",
+      "expand": "Extinde",
+      "feed": "Istoric",
       "hide": "Ascunde informațiile",
       "label": "Informații",
-      "show": "Afișează informațiile"
+      "noProblems": "Nicio problemă până acum.",
+      "pickBlock": "Fă clic pe un bloc sau pe o conexiune din flux pentru a vedea ce a făcut.",
+      "settingEmpty": "Jocul lasă acest câmp gol.",
+      "show": "Afișează informațiile",
+      "tabProblems": "Probleme",
+      "tabSelected": "Selectat",
+      "tabUsage": "Utilizare"
     },
     "launch": {
       "noGame": "Această pagină are nevoie de un joc: deschide-o din pagina unui joc.",
@@ -1752,13 +1849,25 @@
       "compacting": "Se compactează…",
       "copied": "Configurație copiată",
       "copyFailed": "Fără clipboard: configurația a fost înregistrată în consolă",
-      "copyLayout": "Copiază configurația"
+      "copyLayout": "Copiază configurația",
+      "injectBackground": "gândește",
+      "injectBackgroundHint": "Ce gândește personajul în sinea lui, în propriile cuvinte, fără să spună asta acum, de ex. „Sunt un vârcolac și vreau ca ea să descopere asta treptat.”",
+      "injectDirection": "acționează",
+      "injectDirectionHint": "Ce ar trebui să facă personajul, de ex. „Fii morocănos, nu ai încredere în jucător.”",
+      "injectSpeech": "spune",
+      "injectSpeechHint": "Ce ar trebui să spună personajul, în propriile cuvinte, de ex. „Stai! Cine-i acolo?”",
+      "injection": "Spune-i personajului să …",
+      "injectionFailed": "Nu a putut fi trimis",
+      "injectionSend": "Trimite",
+      "injectionSending": "Se trimite…",
+      "injectionSent": "Trimis în conversație"
     },
     "problems": {
       "denied": "Nu ai voie să joci acest joc.",
       "failed": "Ceva nu a mers bine, iar jocul nu poate continua.",
       "genre": "Cheia AI disponibilă nu poate rula acest tip de joc.",
       "keyRejected": "Furnizorul AI a respins cheia acestui joc, așa că jocul nu poate continua. Persoana care a configurat jocul trebuie să verifice cheia.",
+      "noCredit": "Ne pare rău, creditul AI s-a epuizat, așa că jocul nu poate continua momentan.",
       "noKey": "Nu există nicio cheie AI disponibilă pentru a juca acest joc.",
       "noPlays": "Acest joc distribuit nu mai are runde disponibile.",
       "paused": "Atelierul este pus pe pauză. Jocul continuă când este reluat.",
@@ -1770,6 +1879,15 @@
       "busy": "Relay: utilizat de o altă filă",
       "connected": "Relay: conectat",
       "connecting": "Relay: nu rulează"
+    },
+    "settings": {
+      "cover": "Imagine din galerie",
+      "description": "Descriere",
+      "gameStart": "Începutul jocului",
+      "imageStyle": "Stilul imaginii",
+      "scenario": "Scenariu",
+      "statusFields": "Câmpuri de stare",
+      "voiceStyle": "Stilul vocii"
     },
     "status": {
       "choose": "Alege cum vrei să joci pentru a începe.",
@@ -1792,10 +1910,14 @@
       "condensed-scenario\u0003econdense-scenario": "solicitare",
       "condensed-scenario\u0003eimage-prompt": "scenariu",
       "condensed-scenario\u0003estart-game": "gata",
+      "gallery-image\u0003estart-game": "gata",
+      "greeting\u0003elive-session": "primele cuvinte",
+      "greeting\u0003estart-game": "gata",
       "image-prompt\u0003eimage": "instrucțiune",
       "image-style\u0003eadapted-style": "răspuns",
       "live-session\u0003eobserver": "transcriere",
-      "observer\u0003elive-session": "indiciu",
+      "observer\u0003elive-session": "inserare",
+      "opening-brief\u0003egreeting": "indicații",
       "outline\u0003eexpand": "plan",
       "outline\u0003eimage-prompt": "scenă",
       "outline\u0003eprops-store": "modificări",
@@ -1808,7 +1930,12 @@
       "rephrase\u0003eoutline": "acțiune",
       "rephrase-audio\u0003eoutline": "acțiune",
       "start-game\u0003elive-session": "indicație",
-      "start-game\u0003eoutline": "instrucțiune"
+      "start-game\u0003eoutline": "instrucțiune",
+      "voice\u0003elive-session:secondary": "stilul vocii",
+      "voice\u0003elive-session:voice": "voce",
+      "voice\u0003estart-game": "gata",
+      "voice-brief\u0003evoice:description": "descriere",
+      "voice-brief\u0003evoice:voice": "voce de rezervă"
     }
   }
 }

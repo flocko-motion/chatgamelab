@@ -469,6 +469,7 @@
       "filters": {
         "all": "Összes játék",
         "favorites": "Kedvencek",
+        "genre": "Műfaj",
         "own": "Saját játékaim",
         "public": "Nyilvános",
         "sponsored": "Szponzorált"
@@ -477,6 +478,12 @@
       "play": "Játék",
       "reportGame": "Játék jelentése",
       "restart": "Újrakezdés",
+      "resumeChoice": {
+        "continue": "Folytatás",
+        "message": "Már elkezdted a(z) „{{game}}” játékot. Ott folytatod, ahol abbahagytad, vagy újrakezded? Az újrakezdés felülírja a korábbi játékmenetedet.",
+        "startNew": "Újrakezdés",
+        "title": "Folytatod vagy újrakezded?"
+      },
       "title": "Játékok",
       "unfavorite": "Eltávolítás a kedvencekből",
       "workshop": "Műhely / szervezet"
@@ -491,6 +498,7 @@
       "aiQualityTier": {
         "description": "Válaszd ki az MI minőségi szintjét, amikor a saját API-kulcsod használod. A magasabb szintek többe kerülnek, de jobb minőséget adhatnak. Hagyd üresen a szerver alapértelmezett használatához."
       },
+      "check": "Kulcs ellenőrzése",
       "createModal": {
         "keyDescription": "A kulcsod titkosítva, biztonságosan kerül tárolásra.",
         "keyLabel": "API-kulcs",
@@ -521,6 +529,7 @@
         "platformRequired": "Platform megadása kötelező"
       },
       "key": "kulcs",
+      "keyEndsWith": "A kulcs ezekkel a karakterekkel végződik",
       "keys": "kulcs",
       "noResults": "Egyetlen kulcs sem felel meg a keresésnek vagy a szűrőnek.",
       "platform": "Platform",
@@ -558,8 +567,15 @@
         "status-asc": "Működő kulcsok elöl"
       },
       "status": {
+        "checking": "Ellenőrzés…",
         "failed": "A kulcs nem működik",
-        "unknown": "A kulcsot még nem használták",
+        "reasons": {
+          "key_rejected": "A szolgáltató elutasítja ezt a kulcsot. Ellenőrizd, hogy teljes egészében másoltad-e ki, és még aktív-e.",
+          "no_credit": "A kulcshoz tartozó fiókon nincs több kredit. Töltsd fel a szolgáltatónál.",
+          "no_key": "A kulcsot nem sikerült beolvasni.",
+          "unreachable": "A szolgáltató nem válaszolt. Próbáld meg újra egy kis idő múlva."
+        },
+        "unknown": "Még nincs ellenőrizve",
         "working": "A kulcs működik"
       },
       "statusColumn": "Állapot",
@@ -673,12 +689,18 @@
         "statusFieldsHint": "Mit kövessen a játék? Például élet, pontok vagy lőszer. A játék megjegyzi és frissíti ezeket az értékeket játék közben.",
         "theme": "Téma",
         "themeDefault": "Alapértelmezett megjelenés",
-        "themeHint": "A játék megjelenése."
+        "themeHint": "A játék megjelenése.",
+        "voiceStyle": "Hangstílus",
+        "voiceStyleHint": "Hogyan szóljon a hang: a karakter hangja, vagy a narrátoré, amikor a történetet felolvassák.",
+        "voiceStylePlaceholder": "pl. mély, lassú és kissé rekedtes, idős férfi"
       },
       "editModal": {
         "adminActionTitle": "Adminisztrátori művelet",
         "adminActionWarning": "Olyan játékot szerkesztesz, amely nem a tiéd. Ez adminisztrátori művelet, és csak moderációs célból használd.",
         "gameDesignSection": "Játéktervezés",
+        "othersGameNotice": "Ez a játék valaki másé. Bármit megváltoztathatsz: mentéskor a saját játékoddá válik, az eredeti pedig változatlan marad.",
+        "saveAsOwn": "Mentés saját játékként",
+        "savedAsOwn": "Saját játékodként mentve",
         "title": "Játék szerkesztése",
         "unsavedChanges": {
           "discard": "Változtatások eldobása",
@@ -716,6 +738,15 @@
         "npc-live": "NPC-Live"
       },
       "importExport": {
+        "coverFailed": "A játék importálása sikerült, de a borítóját nem sikerült ellenőrizni. A szerkesztőben újat rajzoltathatsz.",
+        "coverNoKey": "A játék borító nélkül lett importálva: a borító ellenőrzéséhez API-kulcs szükséges.",
+        "coverRefused": "A játék borító nélkül lett importálva: a kép nem felel meg a fiatalkorúak védelmére vonatkozó szabálynak.",
+        "coverUnsigned": "A játék borító nélkül lett importálva: a képet nem a ChatGameLab exportálta, vagy azóta módosították.",
+        "errors": {
+          "noGame": "Ez a .cgl-fájl nem tartalmaz játékot.",
+          "tooLarge": "Ez a fájl nagyobb 1 MB-nál, ezért túl nagy játékfájlnak.",
+          "unreadable": "Ezt a fájlt nem sikerült játékként beolvasni."
+        },
         "exportButton": "Játék exportálása",
         "importButton": "Játék importálása"
       },
@@ -990,6 +1021,7 @@
     "leaveTitle": "Szervezet elhagyása",
     "leaveWarning": "Elveszíted a szervezet erőforrásaihoz és tagjaihoz való hozzáférést.",
     "list": {
+      "clearPicks": "Összes megjelenítése",
       "clearSearch": "Keresés törlése",
       "filter": "Szűrő",
       "hideDetails": "Részletek elrejtése",
@@ -1349,6 +1381,7 @@
         "failed": "Jelenleg nem játszható",
         "genre": "Az MI-kulcs nem tudja futtatni ezt a játéktípust",
         "key_rejected": "Az MI-kulcsot elutasították",
+        "no_credit": "Elfogyott az AI-kredit",
         "no_key": "Nem áll rendelkezésre MI-kulcs",
         "no_plays": "Nincs több játékalkalom",
         "paused": "A műhely szünetel",
@@ -1705,18 +1738,74 @@
       "condense-scenario": "Forgatókönyv rövidítése",
       "condensed-scenario": "Forgatókönyv",
       "expand": "Elbeszélés",
+      "gallery-image": "Galériakép",
+      "greeting": "Szöveg generálása",
       "image": "Kép készítése",
       "image-prompt": "Kép leírása",
       "image-style": "Stílus módosítása",
       "live-session": "Karakter",
-      "observer": "Megfigyelő",
+      "observer": "Rendező",
+      "opening-brief": "Így kezdődik",
       "outline": "Jelenet megtervezése",
       "portrait": "Portré készítése",
       "portrait-prompt": "Portré leírása",
       "props-store": "Játékállás",
       "rephrase": "Cselekvés újrafogalmazása",
       "rephrase-audio": "Beszéd megértése",
-      "start-game": "Indítás"
+      "start-game": "Indítás",
+      "voice": "Hang generálása",
+      "voice-brief": "Hang leírása"
+    },
+    "director": {
+      "ago": "{{s}} ezelőtt",
+      "beatRefused": "elutasítva",
+      "beatSet": "beállítva",
+      "beats": "sorokat tartalmazó ütemek",
+      "beatsValue": "{{n}} · {{lines}} sor",
+      "calls": "modellhívás",
+      "callsValue": "{{n}} · legutóbb {{s}}",
+      "character": "karakter",
+      "characterSpoke": "a karakter megszólalt",
+      "counted": "megszámolva",
+      "doing": "ezt teszi",
+      "dropped": "eldobva",
+      "droppedValue": "{{n}} (túl sok egymás után)",
+      "empty": "még semmi",
+      "entryBackground": "háttér elküldve",
+      "entryConversation": "beszélgetés",
+      "entryDirection": "utasítás elküldve",
+      "entryDropped": "eldobva",
+      "entryError": "hiba",
+      "entryInjection": "kézzel megadva",
+      "entryLine": "ezt mondta",
+      "entrySilence": "csend",
+      "entryThought": "ezt gondolja",
+      "failed": "{{n}} sikertelen",
+      "fragments": "töredék",
+      "gap": "hívások legfeljebb ennyi időnként",
+      "inARow": "egymás utáni utasítás",
+      "injected": "kézzel megadva",
+      "late": "késő töredék",
+      "lateMark": "késő",
+      "lateValue": "{{n}} · legfeljebb {{ms}} ms",
+      "lines": "{{n}} sor",
+      "listening": "figyel",
+      "log": "rendezői napló",
+      "notYet": "még nem",
+      "notices": "csendjelzések",
+      "now": "a rendező jelenleg",
+      "ofLimit": "{{n}} / {{limit}}",
+      "player": "játékos",
+      "playerSpoke": "a játékos megszólalt",
+      "pool": "a készletben",
+      "poolValue": "{{n}} töredék · {{ms}} ms/ütem",
+      "quietFor": "ennyi ideje csend van",
+      "quietReplies": "nincs teendő",
+      "sent": "elküldve",
+      "sentValue": "{{d}} utasítás · {{b}} háttér",
+      "setBeat": "ütem beállítása (ms)",
+      "thinking": "gondolkodik · {{s}}",
+      "waiting": "válaszra vár"
     },
     "errors": {
       "connectionLost": "Megszakadt a kapcsolat a játékkal. Töltsd újra az oldalt, és próbáld meg újra.",
@@ -1733,11 +1822,19 @@
     },
     "insights": {
       "close": "Bezárás",
+      "collapse": "Összecsukás",
       "empty": "Eddig még semmi sem futott le.",
-      "feed": "Mi történt",
+      "expand": "Kibontás",
+      "feed": "Előzmények",
       "hide": "Betekintések elrejtése",
       "label": "Betekintések",
-      "show": "Betekintések megjelenítése"
+      "noProblems": "Eddig nincs probléma.",
+      "pickBlock": "Kattints egy blokkra vagy kapcsolatra a folyamatban, hogy lásd, mit csinált.",
+      "settingEmpty": "A játék üresen hagyja ezt.",
+      "show": "Betekintések megjelenítése",
+      "tabProblems": "Problémák",
+      "tabSelected": "Kiválasztva",
+      "tabUsage": "Használat"
     },
     "launch": {
       "noGame": "Ennek az oldalnak szüksége van egy játékra: nyisd meg egy játék oldaláról.",
@@ -1749,13 +1846,25 @@
       "compacting": "Tömörítés…",
       "copied": "Elrendezés másolva",
       "copyFailed": "Nincs vágólap: az elrendezés a konzolban naplózva",
-      "copyLayout": "Elrendezés másolása"
+      "copyLayout": "Elrendezés másolása",
+      "injectBackground": "Tudd",
+      "injectBackgroundHint": "Amit a karakter magában gondol, a saját szavaival, anélkül hogy ezt most kimondaná, pl. „Vérfarkas vagyok, és azt akarom, hogy lassan jöjjön rá.”",
+      "injectDirection": "Tedd",
+      "injectDirectionHint": "Amit a karakternek tennie kell, pl. „Légy mogorva, nem bízol a játékosban.”",
+      "injectSpeech": "Mondd",
+      "injectSpeechHint": "Amit a karakternek mondania kell, a saját szavaival, pl. „Állj! Ki van ott?”",
+      "injection": "Mondd meg a karakternek, hogy …",
+      "injectionFailed": "Nem sikerült elküldeni",
+      "injectionSend": "Küldés",
+      "injectionSending": "Küldés…",
+      "injectionSent": "Elküldve a beszélgetésbe"
     },
     "problems": {
       "denied": "Nem játszhatsz ezzel a játékkal.",
       "failed": "Valami hiba történt, a játék nem folytatódhat.",
       "genre": "A rendelkezésre álló API-kulcs nem tudja futtatni ezt a játéktípust.",
       "keyRejected": "A mesterségesintelligencia-szolgáltató elutasította ennek a játéknak a kulcsát, ezért a játék nem folytatódhat. A játékot beállító személynek ellenőriznie kell a kulcsot.",
+      "noCredit": "Sajnáljuk, az AI-kredit elfogyott, ezért a játék most nem folytatható.",
       "noKey": "Nincs elérhető API-kulcs a játékhoz.",
       "noPlays": "Ehhez a megosztott játékhoz már nem maradt több játéklehetőség.",
       "paused": "A műhely szünetel. A játék a folytatásakor megy tovább.",
@@ -1767,6 +1876,15 @@
       "busy": "Relay: egy másik lap használja",
       "connected": "Relay: csatlakoztatva",
       "connecting": "Relay: nem fut"
+    },
+    "settings": {
+      "cover": "Galériakép",
+      "description": "Leírás",
+      "gameStart": "Játék kezdete",
+      "imageStyle": "Képstílus",
+      "scenario": "Forgatókönyv",
+      "statusFields": "Állapotmezők",
+      "voiceStyle": "Hangstílus"
     },
     "status": {
       "choose": "A kezdéshez válaszd ki, hogyan szeretnél játszani.",
@@ -1789,10 +1907,15 @@
       "condensed-scenario\u00003econdense-scenario": "kérés",
       "condensed-scenario\u00003eimage-prompt": "forgatókönyv",
       "condensed-scenario\u00003estart-game": "kész",
+      "gallery-image\u0003estart-game": "kész",
+      "greeting\u0003elive-session": "első szavak",
+      "greeting\u0003estart-game": "kész",
       "image-prompt\u00003eimage": "prompt",
       "image-style\u00003eadapted-style": "válasz",
       "live-session\u00003eobserver": "átirat",
       "observer\u00003elive-session": "tipp",
+      "observer\u0003elive-session": "beadás",
+      "opening-brief\u0003egreeting": "útmutató",
       "outline\u00003eexpand": "terv",
       "outline\u00003eimage-prompt": "jelenet",
       "outline\u00003eprops-store": "változások",
@@ -1805,7 +1928,12 @@
       "rephrase\u00003eoutline": "cselekvés",
       "rephrase-audio\u00003eoutline": "cselekvés",
       "start-game\u00003elive-session": "felvezetés",
-      "start-game\u00003eoutline": "prompt"
+      "start-game\u00003eoutline": "prompt",
+      "voice\u0003elive-session:secondary": "hangstílus",
+      "voice\u0003elive-session:voice": "hang",
+      "voice\u0003estart-game": "kész",
+      "voice-brief\u0003evoice:description": "leírás",
+      "voice-brief\u0003evoice:voice": "helyettesítő hang"
     }
   }
 }

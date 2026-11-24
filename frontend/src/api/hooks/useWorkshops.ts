@@ -372,11 +372,11 @@ export function usePublicWorkshop(slug: string) {
   });
 }
 
-/** A game on a public workshop page as a zip, its YAML and cover; errors are the caller's. */
-export function usePublicWorkshopGameZip() {
+/** A game on a public workshop page as a .cgl file, its YAML and cover; errors are the caller's. */
+export function usePublicWorkshopGameFile() {
   return useMutation<Blob, ApiError, { slug: string; gameId: string }>({
     mutationFn: ({ slug, gameId }) =>
-      rawRequest(`/api/public/workshops/${encodeURIComponent(slug)}/games/${gameId}/zip`).then((r) => r.blob()),
+      rawRequest(`/api/public/workshops/${encodeURIComponent(slug)}/games/${gameId}/cgl`).then((r) => r.blob()),
     retry: false,
   });
 }

@@ -109,7 +109,7 @@ func (s *GameCoverTestSuite) TestDeletingAnAccountTakesItsCovers() {
 	s.NoError(s.DevUser().DeleteUser(designer.ID), "an account with a covered game is deleted")
 }
 
-// A picture brought in from a game's zip becomes the cover once it passes
+// A picture brought in from a game's .cgl file becomes the cover once it passes
 // the youth-protection check, stored at cover size as a JPEG.
 func (s *GameCoverTestSuite) TestABroughtInPictureBecomesTheCover() {
 	user, gameID := s.designer("cover-upload")
@@ -169,24 +169,24 @@ func (s *GameCoverTestSuite) TestAnUnsignedPictureIsRefused() {
 	s.Nil(Must(user.ReadGame(gameID)).CoverAt)
 }
 
-// A cover exported in a game's zip is taken back by its signature.
+// A cover exported in a game's .cgl file is taken back by its signature.
 func (s *GameCoverTestSuite) TestAnExportedCoverComesBack() {
 	user, gameID := s.designer("cover-roundtrip")
 	Must(user.MakeCover(gameID, ""))
-	files := zipFiles(Must(user.GetGameZip(gameID)))
+	files := zipFiles(Must(user.GetGameCgl(gameID)))
 
 	game := Must(user.SetCover(gameID, files["cover.jpg"], string(files["cover.sig"])))
 	s.NotNil(game.CoverAt)
 }
 
-// A game's zip holds its game file and its cover; without a cover, the
+// A game's .cgl file holds its game file and its cover; without a cover, the
 // file alone.
-func (s *GameCoverTestSuite) TestTheZipHoldsTheGameAndItsCover() {
+func (s *GameCoverTestSuite) TestTheCglFileHoldsTheGameAndItsCover() {
 	user, gameID := s.designer("cover-zip")
 
-	s.Equal([]string{"game.yaml"}, zipNames(Must(user.GetGameZip(gameID))))
+	s.Equal([]string{"game.yaml"}, zipNames(Must(user.GetGameCgl(gameID))))
 	Must(user.MakeCover(gameID, ""))
-	s.Equal([]string{"game.yaml", "cover.jpg", "cover.sig"}, zipNames(Must(user.GetGameZip(gameID))))
+	s.Equal([]string{"game.yaml", "cover.jpg", "cover.sig"}, zipNames(Must(user.GetGameCgl(gameID))))
 }
 
 // zipFiles reads a zip's files by name.

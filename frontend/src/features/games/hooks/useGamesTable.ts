@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 import {
   useCreateGame,
   useDeleteGame,
-  useExportGameZip,
+  useExportGameFile,
   useFetchGame,
   useGame,
   useGames,
@@ -25,7 +25,7 @@ import type { CreateGameReq, GameView } from "@/api/types";
 import { useAuth } from "@/providers/AuthProvider";
 import type { CreateGameFormData } from "../types";
 import {
-  downloadGameZip,
+  downloadGameFile,
   gameToFormData,
   GameFileError,
   readGameFile,
@@ -152,7 +152,7 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
   const createGame = useCreateGame();
   const fetchGame = useFetchGame();
   // copy: the form holds someone else's game, which saving makes the caller's own.
-  // cover: the picture an imported zip brought along, made the new game's cover once it exists.
+  // cover: the picture an imported .cgl file brought along, made the new game's cover once it exists.
   const [creating, setCreating] = useState<{
     initialData: Partial<CreateGameFormData> | null;
     copy?: boolean;
@@ -268,10 +268,10 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
   }, [autoImport, fileInputRef]);
 
   // ── Exporting ───────────────────────────────────────────────────────────
-  const exportZip = useExportGameZip();
+  const exportFile = useExportGameFile();
   const exportGame = async (game: GameView) => {
     try {
-      downloadGameZip(await exportZip.mutateAsync(game.id), game.name);
+      downloadGameFile(await exportFile.mutateAsync(game.id), game.name);
     } catch {
       // shown by the mutation's error handler
     }

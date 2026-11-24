@@ -7481,6 +7481,46 @@
         "summary": "Lists the keys that would pay for the"
       }
     },
+    "/api/games/{id}/cgl": {
+      "get": {
+        "description": "A .cgl file is a zip. It holds game.yaml, the game file as the YAML export\nwrites it, and,\nwhen the game has a cover, cover.jpg and cover.sig, the signature an import\nasks for. It takes seeing the game's content (hasContent; 403 otherwise).",
+        "operationId": "getApiGamesIdCgl",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Exports a game as a .cgl file with its cover."
+      }
+    },
     "/api/games/{id}/clone": {
       "post": {
         "description": "and answers with the copy. It takes mayCopy (403 otherwise); the copy has\nthe game's card and content, not its images.",
@@ -7623,7 +7663,7 @@
         "summary": "Draws a new cover for a game, replacing the one it"
       },
       "put": {
-        "description": "It answers with the game as it now is (coverAt set). The body is the picture, PNG or JPEG, at most 1 MB (413 file_too_large\notherwise), and the X-Cover-Signature header the zip's cover.sig; one\nwithout a fitting signature is 422 cover_unsigned, one that is no picture\n400 not_a_picture.\n\nIt takes mayEditCard (403 otherwise). The picture is checked against the\nyouth-protection rule for the youngest players, as a drawn cover keeps to\nit, and the caller pays for the check as for drawing a cover: no key, 400\nno_api_key; a key its provider rejects, 400 invalid_api_key; a provider\nthat fails, 503 ai_error. A picture that does not keep to the rule is 422\ncover_refused, and the game keeps the cover it had.",
+        "description": "It answers with the game as it now is (coverAt set). The body is the picture, PNG or JPEG, at most 1 MB (413 file_too_large\notherwise), and the X-Cover-Signature header the file's cover.sig; one\nwithout a fitting signature is 422 cover_unsigned, one that is no picture\n400 not_a_picture.\n\nIt takes mayEditCard (403 otherwise). The picture is checked against the\nyouth-protection rule for the youngest players, as a drawn cover keeps to\nit, and the caller pays for the check as for drawing a cover: no key, 400\nno_api_key; a key its provider rejects, 400 invalid_api_key; a provider\nthat fails, 503 ai_error. A picture that does not keep to the rule is 422\ncover_refused, and the game keeps the cover it had.",
         "operationId": "putApiGamesIdCover",
         "parameters": [
           {
@@ -7658,7 +7698,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Takes a game's cover from its zip."
+        "summary": "Takes a game's cover from its .cgl file."
       }
     },
     "/api/games/{id}/favourite": {
@@ -8237,46 +8277,6 @@
           }
         ],
         "summary": "Updates a game from a game file, YAML or JSON, and"
-      }
-    },
-    "/api/games/{id}/zip": {
-      "get": {
-        "description": "The zip holds game.yaml, the game file as the YAML export writes it, and,\nwhen the game has a cover, cover.jpg and cover.sig, the signature an import\nasks for. It takes seeing the game's content (hasContent; 403 otherwise).",
-        "operationId": "getApiGamesIdZip",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            },
-            "description": "Error"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "summary": "Exports a game as a zip with its cover."
       }
     },
     "/api/genres": {
@@ -9989,6 +9989,46 @@
         "summary": "Returns a public workshop's name, description"
       }
     },
+    "/api/public/workshops/{slug}/games/{id}/cgl": {
+      "get": {
+        "description": "The file is the one GetGameCglEndpoint answers, for a game listed on a\npublic workshop page.",
+        "operationId": "getApiPublicWorkshopsSlugGamesIdCgl",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Exports a public workshop's game as a .cgl file."
+      }
+    },
     "/api/public/workshops/{slug}/games/{id}/yaml": {
       "get": {
         "description": "page as a game file, YAML by default.",
@@ -10039,46 +10079,6 @@
           }
         },
         "summary": "Exports a game listed on a public workshop"
-      }
-    },
-    "/api/public/workshops/{slug}/games/{id}/zip": {
-      "get": {
-        "description": "The zip is the one GetGameZipEndpoint answers, for a game listed on a\npublic workshop page.",
-        "operationId": "getApiPublicWorkshopsSlugGamesIdZip",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "slug",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            },
-            "description": "Error"
-          }
-        },
-        "summary": "Exports a public workshop's game as a zip."
       }
     },
     "/api/restart": {

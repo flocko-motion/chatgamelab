@@ -469,6 +469,7 @@
       "filters": {
         "all": "Todos os Jogos",
         "favorites": "Favoritos",
+        "genre": "Gênero",
         "own": "Meus Jogos",
         "public": "Público",
         "sponsored": "Patrocinados"
@@ -477,6 +478,12 @@
       "play": "Jogar",
       "reportGame": "Denunciar jogo",
       "restart": "Reiniciar",
+      "resumeChoice": {
+        "continue": "Continuar",
+        "message": "Você já começou \"{{game}}\". Quer continuar de onde parou ou começar de novo? Começar de novo substitui sua sessão anterior.",
+        "startNew": "Começar de novo",
+        "title": "Continuar ou começar de novo?"
+      },
       "title": "Jogos",
       "unfavorite": "Remover dos favoritos",
       "workshop": "Workshop / Org"
@@ -491,6 +498,7 @@
       "aiQualityTier": {
         "description": "Escolha o nível de qualidade da IA para seus jogos ao usar sua própria chave de API. Níveis mais altos custam mais, mas podem ter qualidade superior. Deixe vazio para usar o padrão do servidor."
       },
+      "check": "Verificar chave",
       "createModal": {
         "keyDescription": "Sua chave será criptografada e armazenada com segurança.",
         "keyLabel": "Chave de API",
@@ -521,6 +529,7 @@
         "platformRequired": "Plataforma é obrigatória"
       },
       "key": "Chave",
+      "keyEndsWith": "A chave termina com estes caracteres",
       "keys": "Chaves",
       "noResults": "Nenhuma chave corresponde à sua busca ou filtro.",
       "platform": "Plataforma",
@@ -558,8 +567,15 @@
         "status-asc": "Chaves funcionais primeiro"
       },
       "status": {
+        "checking": "Verificando…",
         "failed": "A chave não está funcionando",
-        "unknown": "Chave ainda não usada",
+        "reasons": {
+          "key_rejected": "O provedor recusou esta chave. Verifique se ela foi copiada por inteiro e ainda está ativa.",
+          "no_credit": "A conta associada a esta chave não tem mais créditos. Recarregue-a com o provedor.",
+          "no_key": "Não foi possível ler a chave.",
+          "unreachable": "O provedor não respondeu. Tente novamente daqui a pouco."
+        },
+        "unknown": "Ainda não verificada",
         "working": "A chave está funcionando"
       },
       "statusColumn": "Status",
@@ -673,12 +689,18 @@
         "statusFieldsHint": "O que o jogo deve acompanhar? Por exemplo vida, pontos ou munição. O jogo lembra desses valores e os atualiza enquanto joga.",
         "theme": "Tema",
         "themeDefault": "Aparência padrão",
-        "themeHint": "A aparência do jogo."
+        "themeHint": "A aparência do jogo.",
+        "voiceStyle": "Estilo de voz",
+        "voiceStyleHint": "Como a voz soa: a da personagem ou a do narrador quando a história é lida em voz alta.",
+        "voiceStylePlaceholder": "ex.: grave, lenta e um pouco rouca, um homem idoso"
       },
       "editModal": {
         "adminActionTitle": "Ação administrativa",
         "adminActionWarning": "Você está editando um jogo que não é seu. Esta é uma ação administrativa e deve ser usada apenas para fins de moderação.",
         "gameDesignSection": "Design do jogo",
+        "othersGameNotice": "Este jogo é de outra pessoa. Você pode mudar qualquer coisa: ao salvar, ele se torna seu jogo, e o original permanece como está.",
+        "saveAsOwn": "Salvar como meu jogo",
+        "savedAsOwn": "Salvo como seu jogo",
         "title": "Editar Jogo",
         "unsavedChanges": {
           "discard": "Descartar Alterações",
@@ -716,6 +738,15 @@
         "npc-live": "NPC ao vivo"
       },
       "importExport": {
+        "coverFailed": "O jogo foi importado, mas não foi possível verificar sua capa. Você pode criar uma nova no editor.",
+        "coverNoKey": "O jogo foi importado sem sua capa: para verificar uma capa, é necessária uma chave de API.",
+        "coverRefused": "O jogo foi importado sem sua capa: a imagem não respeita a regra de proteção de menores.",
+        "coverUnsigned": "O jogo foi importado sem sua capa: a imagem não foi exportada pelo ChatGameLab ou foi alterada desde então.",
+        "errors": {
+          "noGame": "Este arquivo .cgl não contém nenhum jogo.",
+          "tooLarge": "Este arquivo é maior que 1 MB, grande demais para um arquivo de jogo.",
+          "unreadable": "Não foi possível ler este arquivo como um jogo."
+        },
         "exportButton": "Exportar Jogo",
         "importButton": "Importar Jogo"
       },
@@ -990,6 +1021,7 @@
     "leaveTitle": "Sair da Organização",
     "leaveWarning": "Você perderá acesso a todos os recursos e membros da organização.",
     "list": {
+      "clearPicks": "Mostrar todos",
       "clearSearch": "Limpar busca",
       "filter": "Filtrar",
       "hideDetails": "Ocultar detalhes",
@@ -1349,6 +1381,7 @@
         "failed": "Não é possível jogar no momento",
         "genre": "A chave de IA não pode executar este tipo de jogo",
         "key_rejected": "A chave de IA foi recusada",
+        "no_credit": "Não há mais créditos de IA",
         "no_key": "Nenhuma chave de IA disponível",
         "no_plays": "Nenhuma jogada restante",
         "paused": "O workshop está pausado",
@@ -1705,18 +1738,74 @@
       "condense-scenario": "Resumir cenário",
       "condensed-scenario": "Cenário",
       "expand": "Narrar",
+      "gallery-image": "Imagem da galeria",
+      "greeting": "Gerar texto",
       "image": "Desenhar imagem",
       "image-prompt": "Descrever imagem",
       "image-style": "Adaptar estilo",
       "live-session": "Personagem",
-      "observer": "Observador",
+      "observer": "Direção",
+      "opening-brief": "Como começa",
       "outline": "Planejar cena",
       "portrait": "Desenhar retrato",
       "portrait-prompt": "Descrever retrato",
       "props-store": "Estado do jogo",
       "rephrase": "Reformular ação",
       "rephrase-audio": "Compreender fala",
-      "start-game": "Iniciar"
+      "start-game": "Iniciar",
+      "voice": "Gerar voz",
+      "voice-brief": "Descrever voz"
+    },
+    "director": {
+      "ago": "há {{s}}",
+      "beatRefused": "recusado",
+      "beatSet": "definido",
+      "beats": "batidas com falas",
+      "beatsValue": "{{n}} · {{lines}} falas",
+      "calls": "chamadas ao modelo",
+      "callsValue": "{{n}} · última há {{s}}",
+      "character": "personagem",
+      "characterSpoke": "personagem falou",
+      "counted": "contados",
+      "doing": "fazendo",
+      "dropped": "descartado",
+      "droppedValue": "{{n}} (muitos seguidos)",
+      "empty": "nada ainda",
+      "entryBackground": "contexto enviado",
+      "entryConversation": "conversa",
+      "entryDirection": "instrução enviada",
+      "entryDropped": "descartado",
+      "entryError": "erro",
+      "entryInjection": "inserido",
+      "entryLine": "disse",
+      "entrySilence": "silêncio",
+      "entryThought": "pensa",
+      "failed": "{{n}} falharam",
+      "fragments": "fragmentos",
+      "gap": "chamadas no máximo a cada",
+      "inARow": "instruções seguidas",
+      "injected": "inserido manualmente",
+      "late": "fragmentos atrasados",
+      "lateMark": "atrasado",
+      "lateValue": "{{n}} · até {{ms}} ms",
+      "lines": "{{n}} falas",
+      "listening": "ouvindo",
+      "log": "registro da direção",
+      "notYet": "ainda não",
+      "notices": "avisos de silêncio",
+      "now": "direção agora",
+      "ofLimit": "{{n}} de {{limit}}",
+      "player": "jogador",
+      "playerSpoke": "jogador falou",
+      "pool": "no conjunto",
+      "poolValue": "{{n}} fragmentos · batida de {{ms}} ms",
+      "quietFor": "em silêncio há",
+      "quietReplies": "nada a fazer",
+      "sent": "enviado",
+      "sentValue": "{{d}} instruções · {{b}} contexto",
+      "setBeat": "definir batida (ms)",
+      "thinking": "pensando · {{s}}",
+      "waiting": "aguardando"
     },
     "errors": {
       "connectionLost": "A conexão com o jogo foi perdida. Recarregue a página para tentar novamente.",
@@ -1733,11 +1822,19 @@
     },
     "insights": {
       "close": "Fechar",
+      "collapse": "Recolher",
       "empty": "Nada foi executado ainda.",
-      "feed": "O que aconteceu",
+      "expand": "Expandir",
+      "feed": "Histórico",
       "hide": "Ocultar informações",
       "label": "Informações",
-      "show": "Mostrar informações"
+      "noProblems": "Nenhum problema até agora.",
+      "pickBlock": "Clique em um bloco ou conexão do fluxo para ver o que ele fez.",
+      "settingEmpty": "O jogo deixa isso vazio.",
+      "show": "Mostrar informações",
+      "tabProblems": "Problemas",
+      "tabSelected": "Selecionado",
+      "tabUsage": "Uso"
     },
     "launch": {
       "noGame": "Esta página precisa de um jogo para jogar: abra-a pela página de um jogo.",
@@ -1749,13 +1846,25 @@
       "compacting": "Compactando…",
       "copied": "Layout copiado",
       "copyFailed": "Sem área de transferência: layout registrado no console",
-      "copyLayout": "Copiar layout"
+      "copyLayout": "Copiar layout",
+      "injectBackground": "Saber",
+      "injectBackgroundHint": "O que a personagem pensa consigo mesma, com suas próprias palavras, sem dizer isso agora, por exemplo: \"Sou um lobisomem e quero que ela descubra aos poucos.\"",
+      "injectDirection": "Fazer",
+      "injectDirectionHint": "O que a personagem deve fazer, por exemplo: \"Seja mal-humorada, você não confia no jogador.\"",
+      "injectSpeech": "Dizer",
+      "injectSpeechHint": "O que a personagem deve dizer, com suas próprias palavras, por exemplo: \"Pare! Quem vem lá?\"",
+      "injection": "Diga à personagem para …",
+      "injectionFailed": "Não foi possível enviar",
+      "injectionSend": "Enviar",
+      "injectionSending": "Enviando…",
+      "injectionSent": "Enviado para a conversa"
     },
     "problems": {
       "denied": "Você não pode jogar este jogo.",
       "failed": "Algo deu errado, e o jogo não pode continuar.",
       "genre": "A chave de IA disponível não pode executar este tipo de jogo.",
       "keyRejected": "O provedor de IA recusou a chave deste jogo, portanto ele não pode continuar. Quem configurou o jogo precisa verificar a chave.",
+      "noCredit": "Desculpe, os créditos de IA acabaram, então o jogo não pode continuar por enquanto.",
       "noKey": "Não há nenhuma chave de IA disponível para jogar este jogo.",
       "noPlays": "Este jogo compartilhado não tem mais partidas disponíveis.",
       "paused": "O workshop está pausado. O jogo continuará quando ele for retomado.",
@@ -1767,6 +1876,15 @@
       "busy": "Relay: em uso por outra aba",
       "connected": "Relay: conectado",
       "connecting": "Relay: não está em execução"
+    },
+    "settings": {
+      "cover": "Imagem da galeria",
+      "description": "Descrição",
+      "gameStart": "Início do jogo",
+      "imageStyle": "Estilo da imagem",
+      "scenario": "Cenário",
+      "statusFields": "Campos de status",
+      "voiceStyle": "Estilo de voz"
     },
     "status": {
       "choose": "Escolha como jogar para começar.",
@@ -1789,10 +1907,15 @@
       "condensed-scenario\u0003econdense-scenario": "solicitação",
       "condensed-scenario\u0003eimage-prompt": "cenário",
       "condensed-scenario\u0003estart-game": "pronto",
+      "gallery-image\u001estart-game": "pronto",
+      "greeting\u001elive-session": "primeiras palavras",
+      "greeting\u001estart-game": "pronto",
       "image-prompt\u0003eimage": "prompt",
       "image-style\u0003eadapted-style": "resposta",
       "live-session\u0003eobserver": "transcrição",
       "observer\u0003elive-session": "dica",
+      "observer\u001elive-session": "inserção",
+      "opening-brief\u001egreeting": "instrução",
       "outline\u0003eexpand": "plano",
       "outline\u0003eimage-prompt": "cena",
       "outline\u0003eprops-store": "alterações",
@@ -1805,7 +1928,12 @@
       "rephrase\u0003eoutline": "ação",
       "rephrase-audio\u0003eoutline": "ação",
       "start-game\u0003elive-session": "entrada",
-      "start-game\u0003eoutline": "prompt"
+      "start-game\u0003eoutline": "prompt",
+      "voice\u001elive-session:secondary": "estilo de voz",
+      "voice\u001elive-session:voice": "voz",
+      "voice\u001estart-game": "pronto",
+      "voice-brief\u001evoice:description": "descrição",
+      "voice-brief\u001evoice:voice": "voz alternativa"
     }
   }
 }

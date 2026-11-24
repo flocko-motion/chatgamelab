@@ -3303,6 +3303,16 @@ type ClientInterface interface {
 	// Corresponds with GET /api/games/{id}/available-keys (the `GetApiGamesIdAvailableKeys` operationId).
 	GetApiGamesIdAvailableKeys(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetApiGamesIdCgl Exports a game as a .cgl file with its cover.
+	//
+	// A .cgl file is a zip. It holds game.yaml, the game file as the YAML export
+	// writes it, and,
+	// when the game has a cover, cover.jpg and cover.sig, the signature an import
+	// asks for. It takes seeing the game's content (hasContent; 403 otherwise).
+	//
+	// Corresponds with GET /api/games/{id}/cgl (the `GetApiGamesIdCgl` operationId).
+	GetApiGamesIdCgl(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// PostApiGamesIdClone Copies a game into a new private game of the caller's
 	//
 	// and answers with the copy. It takes mayCopy (403 otherwise); the copy has
@@ -3351,10 +3361,10 @@ type ClientInterface interface {
 	// Corresponds with POST /api/games/{id}/cover (the `PostApiGamesIdCover` operationId).
 	PostApiGamesIdCover(ctx context.Context, id string, body PostApiGamesIdCoverJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PutApiGamesIdCover Takes a game's cover from its zip.
+	// PutApiGamesIdCover Takes a game's cover from its .cgl file.
 	//
 	// It answers with the game as it now is (coverAt set). The body is the picture, PNG or JPEG, at most 1 MB (413 file_too_large
-	// otherwise), and the X-Cover-Signature header the zip's cover.sig; one
+	// otherwise), and the X-Cover-Signature header the file's cover.sig; one
 	// without a fitting signature is 422 cover_unsigned, one that is no picture
 	// 400 not_a_picture.
 	//
@@ -3507,15 +3517,6 @@ type ClientInterface interface {
 	//
 	// Corresponds with PUT /api/games/{id}/yaml (the `PutApiGamesIdYaml` operationId).
 	PutApiGamesIdYaml(ctx context.Context, id string, body PutApiGamesIdYamlJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// GetApiGamesIdZip Exports a game as a zip with its cover.
-	//
-	// The zip holds game.yaml, the game file as the YAML export writes it, and,
-	// when the game has a cover, cover.jpg and cover.sig, the signature an import
-	// asks for. It takes seeing the game's content (hasContent; 403 otherwise).
-	//
-	// Corresponds with GET /api/games/{id}/zip (the `GetApiGamesIdZip` operationId).
-	GetApiGamesIdZip(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiGenres Lists every genre the engine runs.
 	//
@@ -3905,20 +3906,20 @@ type ClientInterface interface {
 	// Corresponds with GET /api/public/workshops/{slug} (the `GetApiPublicWorkshopsSlug` operationId).
 	GetApiPublicWorkshopsSlug(ctx context.Context, slug string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetApiPublicWorkshopsSlugGamesIdCgl Exports a public workshop's game as a .cgl file.
+	//
+	// The file is the one GetGameCglEndpoint answers, for a game listed on a
+	// public workshop page.
+	//
+	// Corresponds with GET /api/public/workshops/{slug}/games/{id}/cgl (the `GetApiPublicWorkshopsSlugGamesIdCgl` operationId).
+	GetApiPublicWorkshopsSlugGamesIdCgl(ctx context.Context, slug string, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetApiPublicWorkshopsSlugGamesIdYaml Exports a game listed on a public workshop
 	//
 	// page as a game file, YAML by default.
 	//
 	// Corresponds with GET /api/public/workshops/{slug}/games/{id}/yaml (the `GetApiPublicWorkshopsSlugGamesIdYaml` operationId).
 	GetApiPublicWorkshopsSlugGamesIdYaml(ctx context.Context, slug string, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// GetApiPublicWorkshopsSlugGamesIdZip Exports a public workshop's game as a zip.
-	//
-	// The zip is the one GetGameZipEndpoint answers, for a game listed on a
-	// public workshop page.
-	//
-	// Corresponds with GET /api/public/workshops/{slug}/games/{id}/zip (the `GetApiPublicWorkshopsSlugGamesIdZip` operationId).
-	GetApiPublicWorkshopsSlugGamesIdZip(ctx context.Context, slug string, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiRestart Has the server restart; admins only.
 	//
@@ -5792,6 +5793,26 @@ func (c *Client) GetApiGamesIdAvailableKeys(ctx context.Context, id string, reqE
 	return c.Client.Do(req)
 }
 
+// GetApiGamesIdCgl Exports a game as a .cgl file with its cover.
+//
+// A .cgl file is a zip. It holds game.yaml, the game file as the YAML export
+// writes it, and,
+// when the game has a cover, cover.jpg and cover.sig, the signature an import
+// asks for. It takes seeing the game's content (hasContent; 403 otherwise).
+//
+// Corresponds with GET /api/games/{id}/cgl (the `GetApiGamesIdCgl` operationId).
+func (c *Client) GetApiGamesIdCgl(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiGamesIdCglRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 // PostApiGamesIdClone Copies a game into a new private game of the caller's
 //
 // and answers with the copy. It takes mayCopy (403 otherwise); the copy has
@@ -5880,10 +5901,10 @@ func (c *Client) PostApiGamesIdCover(ctx context.Context, id string, body PostAp
 	return c.Client.Do(req)
 }
 
-// PutApiGamesIdCover Takes a game's cover from its zip.
+// PutApiGamesIdCover Takes a game's cover from its .cgl file.
 //
 // It answers with the game as it now is (coverAt set). The body is the picture, PNG or JPEG, at most 1 MB (413 file_too_large
-// otherwise), and the X-Cover-Signature header the zip's cover.sig; one
+// otherwise), and the X-Cover-Signature header the file's cover.sig; one
 // without a fitting signature is 422 cover_unsigned, one that is no picture
 // 400 not_a_picture.
 //
@@ -6187,25 +6208,6 @@ func (c *Client) PutApiGamesIdYamlWithBody(ctx context.Context, id string, conte
 // Corresponds with PUT /api/games/{id}/yaml (the `PutApiGamesIdYaml` operationId).
 func (c *Client) PutApiGamesIdYaml(ctx context.Context, id string, body PutApiGamesIdYamlJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPutApiGamesIdYamlRequest(c.Server, id, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// GetApiGamesIdZip Exports a game as a zip with its cover.
-//
-// The zip holds game.yaml, the game file as the YAML export writes it, and,
-// when the game has a cover, cover.jpg and cover.sig, the signature an import
-// asks for. It takes seeing the game's content (hasContent; 403 otherwise).
-//
-// Corresponds with GET /api/games/{id}/zip (the `GetApiGamesIdZip` operationId).
-func (c *Client) GetApiGamesIdZip(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiGamesIdZipRequest(c.Server, id)
 	if err != nil {
 		return nil, err
 	}
@@ -7004,13 +7006,14 @@ func (c *Client) GetApiPublicWorkshopsSlug(ctx context.Context, slug string, req
 	return c.Client.Do(req)
 }
 
-// GetApiPublicWorkshopsSlugGamesIdYaml Exports a game listed on a public workshop
+// GetApiPublicWorkshopsSlugGamesIdCgl Exports a public workshop's game as a .cgl file.
 //
-// page as a game file, YAML by default.
+// The file is the one GetGameCglEndpoint answers, for a game listed on a
+// public workshop page.
 //
-// Corresponds with GET /api/public/workshops/{slug}/games/{id}/yaml (the `GetApiPublicWorkshopsSlugGamesIdYaml` operationId).
-func (c *Client) GetApiPublicWorkshopsSlugGamesIdYaml(ctx context.Context, slug string, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiPublicWorkshopsSlugGamesIdYamlRequest(c.Server, slug, id)
+// Corresponds with GET /api/public/workshops/{slug}/games/{id}/cgl (the `GetApiPublicWorkshopsSlugGamesIdCgl` operationId).
+func (c *Client) GetApiPublicWorkshopsSlugGamesIdCgl(ctx context.Context, slug string, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiPublicWorkshopsSlugGamesIdCglRequest(c.Server, slug, id)
 	if err != nil {
 		return nil, err
 	}
@@ -7021,14 +7024,13 @@ func (c *Client) GetApiPublicWorkshopsSlugGamesIdYaml(ctx context.Context, slug 
 	return c.Client.Do(req)
 }
 
-// GetApiPublicWorkshopsSlugGamesIdZip Exports a public workshop's game as a zip.
+// GetApiPublicWorkshopsSlugGamesIdYaml Exports a game listed on a public workshop
 //
-// The zip is the one GetGameZipEndpoint answers, for a game listed on a
-// public workshop page.
+// page as a game file, YAML by default.
 //
-// Corresponds with GET /api/public/workshops/{slug}/games/{id}/zip (the `GetApiPublicWorkshopsSlugGamesIdZip` operationId).
-func (c *Client) GetApiPublicWorkshopsSlugGamesIdZip(ctx context.Context, slug string, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiPublicWorkshopsSlugGamesIdZipRequest(c.Server, slug, id)
+// Corresponds with GET /api/public/workshops/{slug}/games/{id}/yaml (the `GetApiPublicWorkshopsSlugGamesIdYaml` operationId).
+func (c *Client) GetApiPublicWorkshopsSlugGamesIdYaml(ctx context.Context, slug string, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiPublicWorkshopsSlugGamesIdYamlRequest(c.Server, slug, id)
 	if err != nil {
 		return nil, err
 	}
@@ -10290,6 +10292,40 @@ func NewGetApiGamesIdAvailableKeysRequest(server string, id string) (*http.Reque
 	return req, nil
 }
 
+// NewGetApiGamesIdCglRequest constructs an http.Request for the GetApiGamesIdCgl method
+func NewGetApiGamesIdCglRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/games/%s/cgl", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewPostApiGamesIdCloneRequest constructs an http.Request for the PostApiGamesIdClone method
 func NewPostApiGamesIdCloneRequest(server string, id string) (*http.Request, error) {
 	var err error
@@ -10875,40 +10911,6 @@ func NewPutApiGamesIdYamlRequestWithBody(server string, id string, contentType s
 	}
 
 	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewGetApiGamesIdZipRequest constructs an http.Request for the GetApiGamesIdZip method
-func NewGetApiGamesIdZipRequest(server string, id string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/games/%s/zip", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
 
 	return req, nil
 }
@@ -12463,6 +12465,47 @@ func NewGetApiPublicWorkshopsSlugRequest(server string, slug string) (*http.Requ
 	return req, nil
 }
 
+// NewGetApiPublicWorkshopsSlugGamesIdCglRequest constructs an http.Request for the GetApiPublicWorkshopsSlugGamesIdCgl method
+func NewGetApiPublicWorkshopsSlugGamesIdCglRequest(server string, slug string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "slug", slug, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/public/workshops/%s/games/%s/cgl", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetApiPublicWorkshopsSlugGamesIdYamlRequest constructs an http.Request for the GetApiPublicWorkshopsSlugGamesIdYaml method
 func NewGetApiPublicWorkshopsSlugGamesIdYamlRequest(server string, slug string, id string) (*http.Request, error) {
 	var err error
@@ -12487,47 +12530,6 @@ func NewGetApiPublicWorkshopsSlugGamesIdYamlRequest(server string, slug string, 
 	}
 
 	operationPath := fmt.Sprintf("/api/public/workshops/%s/games/%s/yaml", pathParam0, pathParam1)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewGetApiPublicWorkshopsSlugGamesIdZipRequest constructs an http.Request for the GetApiPublicWorkshopsSlugGamesIdZip method
-func NewGetApiPublicWorkshopsSlugGamesIdZipRequest(server string, slug string, id string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "slug", slug, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam1 string
-
-	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/public/workshops/%s/games/%s/zip", pathParam0, pathParam1)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -14998,6 +15000,18 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/games/{id}/available-keys (the `GetApiGamesIdAvailableKeys` operationId).
 	GetApiGamesIdAvailableKeysWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiGamesIdAvailableKeysResponse, error)
 
+	// GetApiGamesIdCglWithResponse Exports a game as a .cgl file with its cover.
+	//
+	// A .cgl file is a zip. It holds game.yaml, the game file as the YAML export
+	// writes it, and,
+	// when the game has a cover, cover.jpg and cover.sig, the signature an import
+	// asks for. It takes seeing the game's content (hasContent; 403 otherwise).
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/games/{id}/cgl (the `GetApiGamesIdCgl` operationId).
+	GetApiGamesIdCglWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiGamesIdCglResponse, error)
+
 	// PostApiGamesIdCloneWithResponse Copies a game into a new private game of the caller's
 	//
 	// and answers with the copy. It takes mayCopy (403 otherwise); the copy has
@@ -15050,10 +15064,10 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /api/games/{id}/cover (the `PostApiGamesIdCover` operationId).
 	PostApiGamesIdCoverWithResponse(ctx context.Context, id string, body PostApiGamesIdCoverJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiGamesIdCoverResponse, error)
 
-	// PutApiGamesIdCoverWithResponse Takes a game's cover from its zip.
+	// PutApiGamesIdCoverWithResponse Takes a game's cover from its .cgl file.
 	//
 	// It answers with the game as it now is (coverAt set). The body is the picture, PNG or JPEG, at most 1 MB (413 file_too_large
-	// otherwise), and the X-Cover-Signature header the zip's cover.sig; one
+	// otherwise), and the X-Cover-Signature header the file's cover.sig; one
 	// without a fitting signature is 422 cover_unsigned, one that is no picture
 	// 400 not_a_picture.
 	//
@@ -15222,17 +15236,6 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with PUT /api/games/{id}/yaml (the `PutApiGamesIdYaml` operationId).
 	PutApiGamesIdYamlWithResponse(ctx context.Context, id string, body PutApiGamesIdYamlJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiGamesIdYamlResponse, error)
-
-	// GetApiGamesIdZipWithResponse Exports a game as a zip with its cover.
-	//
-	// The zip holds game.yaml, the game file as the YAML export writes it, and,
-	// when the game has a cover, cover.jpg and cover.sig, the signature an import
-	// asks for. It takes seeing the game's content (hasContent; 403 otherwise).
-	//
-	// Returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with GET /api/games/{id}/zip (the `GetApiGamesIdZip` operationId).
-	GetApiGamesIdZipWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiGamesIdZipResponse, error)
 
 	// GetApiGenresWithResponse Lists every genre the engine runs.
 	//
@@ -15670,6 +15673,16 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/public/workshops/{slug} (the `GetApiPublicWorkshopsSlug` operationId).
 	GetApiPublicWorkshopsSlugWithResponse(ctx context.Context, slug string, reqEditors ...RequestEditorFn) (*GetApiPublicWorkshopsSlugResponse, error)
 
+	// GetApiPublicWorkshopsSlugGamesIdCglWithResponse Exports a public workshop's game as a .cgl file.
+	//
+	// The file is the one GetGameCglEndpoint answers, for a game listed on a
+	// public workshop page.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/public/workshops/{slug}/games/{id}/cgl (the `GetApiPublicWorkshopsSlugGamesIdCgl` operationId).
+	GetApiPublicWorkshopsSlugGamesIdCglWithResponse(ctx context.Context, slug string, id string, reqEditors ...RequestEditorFn) (*GetApiPublicWorkshopsSlugGamesIdCglResponse, error)
+
 	// GetApiPublicWorkshopsSlugGamesIdYamlWithResponse Exports a game listed on a public workshop
 	//
 	// page as a game file, YAML by default.
@@ -15678,16 +15691,6 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with GET /api/public/workshops/{slug}/games/{id}/yaml (the `GetApiPublicWorkshopsSlugGamesIdYaml` operationId).
 	GetApiPublicWorkshopsSlugGamesIdYamlWithResponse(ctx context.Context, slug string, id string, reqEditors ...RequestEditorFn) (*GetApiPublicWorkshopsSlugGamesIdYamlResponse, error)
-
-	// GetApiPublicWorkshopsSlugGamesIdZipWithResponse Exports a public workshop's game as a zip.
-	//
-	// The zip is the one GetGameZipEndpoint answers, for a game listed on a
-	// public workshop page.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with GET /api/public/workshops/{slug}/games/{id}/zip (the `GetApiPublicWorkshopsSlugGamesIdZip` operationId).
-	GetApiPublicWorkshopsSlugGamesIdZipWithResponse(ctx context.Context, slug string, id string, reqEditors ...RequestEditorFn) (*GetApiPublicWorkshopsSlugGamesIdZipResponse, error)
 
 	// PostApiRestartWithResponse Has the server restart; admins only.
 	//
@@ -18705,6 +18708,47 @@ func (r GetApiGamesIdAvailableKeysResponse) ContentType() string {
 	return ""
 }
 
+type GetApiGamesIdCglResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiGamesIdCglResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiGamesIdCglResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiGamesIdCglResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiGamesIdCglResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiGamesIdCglResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type PostApiGamesIdCloneResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -19412,47 +19456,6 @@ func (r PutApiGamesIdYamlResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r PutApiGamesIdYamlResponse) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type GetApiGamesIdZipResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	// JSONDefault the response for an HTTP default `application/json` response
-	JSONDefault *Error
-}
-
-// GetJSONDefault returns the response for an HTTP default `application/json` response
-func (r GetApiGamesIdZipResponse) GetJSONDefault() *Error {
-	return r.JSONDefault
-}
-
-// GetBody returns the raw response body bytes
-func (r GetApiGamesIdZipResponse) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r GetApiGamesIdZipResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetApiGamesIdZipResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r GetApiGamesIdZipResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -21002,6 +21005,47 @@ func (r GetApiPublicWorkshopsSlugResponse) ContentType() string {
 	return ""
 }
 
+type GetApiPublicWorkshopsSlugGamesIdCglResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiPublicWorkshopsSlugGamesIdCglResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiPublicWorkshopsSlugGamesIdCglResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiPublicWorkshopsSlugGamesIdCglResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiPublicWorkshopsSlugGamesIdCglResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiPublicWorkshopsSlugGamesIdCglResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetApiPublicWorkshopsSlugGamesIdYamlResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -21051,47 +21095,6 @@ func (r GetApiPublicWorkshopsSlugGamesIdYamlResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r GetApiPublicWorkshopsSlugGamesIdYamlResponse) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type GetApiPublicWorkshopsSlugGamesIdZipResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	// JSONDefault the response for an HTTP default `application/json` response
-	JSONDefault *Error
-}
-
-// GetJSONDefault returns the response for an HTTP default `application/json` response
-func (r GetApiPublicWorkshopsSlugGamesIdZipResponse) GetJSONDefault() *Error {
-	return r.JSONDefault
-}
-
-// GetBody returns the raw response body bytes
-func (r GetApiPublicWorkshopsSlugGamesIdZipResponse) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r GetApiPublicWorkshopsSlugGamesIdZipResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetApiPublicWorkshopsSlugGamesIdZipResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r GetApiPublicWorkshopsSlugGamesIdZipResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -24183,6 +24186,24 @@ func (c *ClientWithResponses) GetApiGamesIdAvailableKeysWithResponse(ctx context
 	return ParseGetApiGamesIdAvailableKeysResponse(rsp)
 }
 
+// GetApiGamesIdCglWithResponse Exports a game as a .cgl file with its cover.
+//
+// A .cgl file is a zip. It holds game.yaml, the game file as the YAML export
+// writes it, and,
+// when the game has a cover, cover.jpg and cover.sig, the signature an import
+// asks for. It takes seeing the game's content (hasContent; 403 otherwise).
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/games/{id}/cgl (the `GetApiGamesIdCgl` operationId).
+func (c *ClientWithResponses) GetApiGamesIdCglWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiGamesIdCglResponse, error) {
+	rsp, err := c.GetApiGamesIdCgl(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiGamesIdCglResponse(rsp)
+}
+
 // PostApiGamesIdCloneWithResponse Copies a game into a new private game of the caller's
 //
 // and answers with the copy. It takes mayCopy (403 otherwise); the copy has
@@ -24259,10 +24280,10 @@ func (c *ClientWithResponses) PostApiGamesIdCoverWithResponse(ctx context.Contex
 	return ParsePostApiGamesIdCoverResponse(rsp)
 }
 
-// PutApiGamesIdCoverWithResponse Takes a game's cover from its zip.
+// PutApiGamesIdCoverWithResponse Takes a game's cover from its .cgl file.
 //
 // It answers with the game as it now is (coverAt set). The body is the picture, PNG or JPEG, at most 1 MB (413 file_too_large
-// otherwise), and the X-Cover-Signature header the zip's cover.sig; one
+// otherwise), and the X-Cover-Signature header the file's cover.sig; one
 // without a fitting signature is 422 cover_unsigned, one that is no picture
 // 400 not_a_picture.
 //
@@ -24526,23 +24547,6 @@ func (c *ClientWithResponses) PutApiGamesIdYamlWithResponse(ctx context.Context,
 		return nil, err
 	}
 	return ParsePutApiGamesIdYamlResponse(rsp)
-}
-
-// GetApiGamesIdZipWithResponse Exports a game as a zip with its cover.
-//
-// The zip holds game.yaml, the game file as the YAML export writes it, and,
-// when the game has a cover, cover.jpg and cover.sig, the signature an import
-// asks for. It takes seeing the game's content (hasContent; 403 otherwise).
-//
-// Returns a wrapper object for the known response body format(s).
-//
-// Corresponds with GET /api/games/{id}/zip (the `GetApiGamesIdZip` operationId).
-func (c *ClientWithResponses) GetApiGamesIdZipWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiGamesIdZipResponse, error) {
-	rsp, err := c.GetApiGamesIdZip(ctx, id, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetApiGamesIdZipResponse(rsp)
 }
 
 // GetApiGenresWithResponse Lists every genre the engine runs.
@@ -25221,6 +25225,22 @@ func (c *ClientWithResponses) GetApiPublicWorkshopsSlugWithResponse(ctx context.
 	return ParseGetApiPublicWorkshopsSlugResponse(rsp)
 }
 
+// GetApiPublicWorkshopsSlugGamesIdCglWithResponse Exports a public workshop's game as a .cgl file.
+//
+// The file is the one GetGameCglEndpoint answers, for a game listed on a
+// public workshop page.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/public/workshops/{slug}/games/{id}/cgl (the `GetApiPublicWorkshopsSlugGamesIdCgl` operationId).
+func (c *ClientWithResponses) GetApiPublicWorkshopsSlugGamesIdCglWithResponse(ctx context.Context, slug string, id string, reqEditors ...RequestEditorFn) (*GetApiPublicWorkshopsSlugGamesIdCglResponse, error) {
+	rsp, err := c.GetApiPublicWorkshopsSlugGamesIdCgl(ctx, slug, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiPublicWorkshopsSlugGamesIdCglResponse(rsp)
+}
+
 // GetApiPublicWorkshopsSlugGamesIdYamlWithResponse Exports a game listed on a public workshop
 //
 // page as a game file, YAML by default.
@@ -25234,22 +25254,6 @@ func (c *ClientWithResponses) GetApiPublicWorkshopsSlugGamesIdYamlWithResponse(c
 		return nil, err
 	}
 	return ParseGetApiPublicWorkshopsSlugGamesIdYamlResponse(rsp)
-}
-
-// GetApiPublicWorkshopsSlugGamesIdZipWithResponse Exports a public workshop's game as a zip.
-//
-// The zip is the one GetGameZipEndpoint answers, for a game listed on a
-// public workshop page.
-//
-// Returns a wrapper object for the known response body format(s).
-//
-// Corresponds with GET /api/public/workshops/{slug}/games/{id}/zip (the `GetApiPublicWorkshopsSlugGamesIdZip` operationId).
-func (c *ClientWithResponses) GetApiPublicWorkshopsSlugGamesIdZipWithResponse(ctx context.Context, slug string, id string, reqEditors ...RequestEditorFn) (*GetApiPublicWorkshopsSlugGamesIdZipResponse, error) {
-	rsp, err := c.GetApiPublicWorkshopsSlugGamesIdZip(ctx, slug, id, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetApiPublicWorkshopsSlugGamesIdZipResponse(rsp)
 }
 
 // PostApiRestartWithResponse Has the server restart; admins only.
@@ -27802,6 +27806,35 @@ func ParseGetApiGamesIdAvailableKeysResponse(rsp *http.Response) (*GetApiGamesId
 	return response, nil
 }
 
+// ParseGetApiGamesIdCglResponse parses an HTTP response from a GetApiGamesIdCglWithResponse call
+func ParseGetApiGamesIdCglResponse(rsp *http.Response) (*GetApiGamesIdCglResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiGamesIdCglResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParsePostApiGamesIdCloneResponse parses an HTTP response from a PostApiGamesIdCloneWithResponse call
 func ParsePostApiGamesIdCloneResponse(rsp *http.Response) (*PostApiGamesIdCloneResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -28283,35 +28316,6 @@ func ParsePutApiGamesIdYamlResponse(rsp *http.Response) (*PutApiGamesIdYamlRespo
 			return nil, err
 		}
 		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSONDefault = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetApiGamesIdZipResponse parses an HTTP response from a GetApiGamesIdZipWithResponse call
-func ParseGetApiGamesIdZipResponse(rsp *http.Response) (*GetApiGamesIdZipResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetApiGamesIdZipResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case rsp.StatusCode == 200:
-		break // No content-type
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Error
@@ -29388,6 +29392,35 @@ func ParseGetApiPublicWorkshopsSlugResponse(rsp *http.Response) (*GetApiPublicWo
 	return response, nil
 }
 
+// ParseGetApiPublicWorkshopsSlugGamesIdCglResponse parses an HTTP response from a GetApiPublicWorkshopsSlugGamesIdCglWithResponse call
+func ParseGetApiPublicWorkshopsSlugGamesIdCglResponse(rsp *http.Response) (*GetApiPublicWorkshopsSlugGamesIdCglResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiPublicWorkshopsSlugGamesIdCglResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetApiPublicWorkshopsSlugGamesIdYamlResponse parses an HTTP response from a GetApiPublicWorkshopsSlugGamesIdYamlWithResponse call
 func ParseGetApiPublicWorkshopsSlugGamesIdYamlResponse(rsp *http.Response) (*GetApiPublicWorkshopsSlugGamesIdYamlResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -29415,35 +29448,6 @@ func ParseGetApiPublicWorkshopsSlugGamesIdYamlResponse(rsp *http.Response) (*Get
 			return nil, err
 		}
 		response.YAML200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSONDefault = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetApiPublicWorkshopsSlugGamesIdZipResponse parses an HTTP response from a GetApiPublicWorkshopsSlugGamesIdZipWithResponse call
-func ParseGetApiPublicWorkshopsSlugGamesIdZipResponse(rsp *http.Response) (*GetApiPublicWorkshopsSlugGamesIdZipResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetApiPublicWorkshopsSlugGamesIdZipResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case rsp.StatusCode == 200:
-		break // No content-type
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
 		var dest Error

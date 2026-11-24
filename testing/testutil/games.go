@@ -328,17 +328,17 @@ func (c caller) GetCover(gameID string) ([]byte, error) {
 	return r.Body, nil
 }
 
-// SetCover makes a picture, as a game's zip brings it, a game's cover, with
-// the signature the zip's cover.sig holds, and answers with the game as it
+// SetCover makes a picture, as a game's .cgl file brings it, a game's cover, with
+// the signature the file's cover.sig holds, and answers with the game as it
 // now is.
 func (c caller) SetCover(gameID string, picture []byte, signature string) (GameView, error) {
 	return decode[GameView](c.api.PutApiGamesIdCoverWithResponse(ctx(), gameID,
 		body("image/png", picture), header("X-Cover-Signature", signature)))
 }
 
-// GetGameZip exports a game as a zip: its game file and its cover.
-func (c caller) GetGameZip(gameID string) ([]byte, error) {
-	r, err := c.api.GetApiGamesIdZipWithResponse(ctx(), gameID)
+// GetGameCgl exports a game as a .cgl file, a zip of its game file and its cover.
+func (c caller) GetGameCgl(gameID string) ([]byte, error) {
+	r, err := c.api.GetApiGamesIdCglWithResponse(ctx(), gameID)
 	if err := done(r, err); err != nil {
 		return nil, err
 	}
@@ -356,7 +356,7 @@ func body(contentType string, data []byte) apiclient.RequestEditorFn {
 	}
 }
 
-// PNG is a picture of w×h pixels, as a game's zip may bring one.
+// PNG is a picture of w×h pixels, as a game's .cgl file may bring one.
 func PNG(w, h int) []byte {
 	img := image.NewRGBA(image.Rect(0, 0, w, h))
 	for y := 0; y < h; y++ {

@@ -31,7 +31,7 @@ var openEndpoints = map[string]schemafapi.AuthLevel{
 	"GET /api/play/{token}/info":                       schemafapi.AuthNone,
 	"GET /api/public/workshops/{slug}":                 schemafapi.AuthNone,
 	"GET /api/public/workshops/{slug}/games/{id}/yaml": schemafapi.AuthNone,
-	"GET /api/public/workshops/{slug}/games/{id}/zip":  schemafapi.AuthNone,
+	"GET /api/public/workshops/{slug}/games/{id}/cgl":  schemafapi.AuthNone,
 
 	// the engine: guests play too
 	"POST /api/engine/sessions":                              schemafapi.AuthOptional,

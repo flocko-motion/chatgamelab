@@ -217,16 +217,16 @@ export function useDeleteGame() {
   });
 }
 
-/** A game as a zip: its YAML and its cover. */
-export function useExportGameZip() {
+/** A game as a .cgl file: its YAML and its cover. */
+export function useExportGameFile() {
   return useMutation<Blob, ApiError, string>({
-    mutationFn: (id) => rawRequest(`/api/games/${id}/zip`).then((response) => response.blob()),
+    mutationFn: (id) => rawRequest(`/api/games/${id}/cgl`).then((response) => response.blob()),
     onError: handleApiError,
   });
 }
 
 /**
- * Makes a picture brought in from a game's zip the game's cover. The server
+ * Makes a picture brought in from a game's .cgl file the game's cover. The server
  * takes only a cover a ChatGameLab server signed (cover_unsigned otherwise),
  * then checks it against the youth-protection rule, so it takes a moment,
  * and refuses one that fails (cover_refused). Its errors are the caller's.
@@ -240,7 +240,7 @@ export function useImportGameCover() {
         method: "PUT",
         headers: {
           "Content-Type": picture.type || "application/octet-stream",
-          // the signature the exporting server gave the cover, from the zip's cover.sig
+          // the signature the exporting server gave the cover, from the file's cover.sig
           "X-Cover-Signature": signature,
         },
         body: picture,

@@ -1,6 +1,6 @@
 // package: api / schemaf endpoints
 // type:    logic
-// job:     serves a game as a zip (its game file and its cover) and takes a cover brought in from one
+// job:     serves a game as a .cgl file (a zip of its game file and its cover) and takes a cover brought in from one
 // limits:  the file's shape lives in obj (GameFile); rights and storage in the core; checking a brought-in cover is session/cover.go's
 package api
 
@@ -23,13 +23,13 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// MaxGameFileBytes caps an uploaded game file, zip or YAML, and a cover
+// MaxGameFileBytes caps an uploaded game file, .cgl or YAML, and a cover
 // brought in from one. A stored cover is a JPEG of tens of kilobytes and a
 // game file a few, so a megabyte leaves ample room and turns away what is no
 // game file.
 const MaxGameFileBytes = 1 << 20
 
-// The names inside a game's zip.
+// The names inside a game's .cgl file.
 const (
 	zipGameFile = "game.yaml"
 	zipCover    = "cover.jpg"
@@ -38,52 +38,53 @@ const (
 	zipCoverSig = "cover.sig"
 )
 
-// CoverSignatureHeader carries a brought-in cover's signature, as its zip
+// CoverSignatureHeader carries a brought-in cover's signature, as its file
 // held it in cover.sig.
 const CoverSignatureHeader = "X-Cover-Signature"
 
-// GetGameZipEndpoint exports a game as a zip with its cover.
+// GetGameCglEndpoint exports a game as a .cgl file with its cover.
 //
-// The zip holds game.yaml, the game file as the YAML export writes it, and,
+// A .cgl file is a zip. It holds game.yaml, the game file as the YAML export
+// writes it, and,
 // when the game has a cover, cover.jpg and cover.sig, the signature an import
 // asks for. It takes seeing the game's content (hasContent; 403 otherwise).
-type GetGameZipEndpoint struct{}
+type GetGameCglEndpoint struct{}
 
-func (GetGameZipEndpoint) Method() string             { return "GET" }
-func (GetGameZipEndpoint) Path() string               { return "/api/games/{id}/zip" }
-func (GetGameZipEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
-func (GetGameZipEndpoint) HandleRaw(w http.ResponseWriter, r *http.Request) error {
+func (GetGameCglEndpoint) Method() string             { return "GET" }
+func (GetGameCglEndpoint) Path() string               { return "/api/games/{id}/cgl" }
+func (GetGameCglEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
+func (GetGameCglEndpoint) HandleRaw(w http.ResponseWriter, r *http.Request) error {
 	gameID, err := parseID(r.PathValue("id"), "Invalid game ID")
 	if err != nil {
 		return err
 	}
 	card, err := core.ReadGameCard(r.Context(), gameID)
-	return writeGameZip(w, r, card, err)
+	return writeGameCgl(w, r, card, err)
 }
 
-// GetPublicWorkshopGameZipEndpoint exports a public workshop's game as a zip.
+// GetPublicWorkshopGameCglEndpoint exports a public workshop's game as a .cgl file.
 //
-// The zip is the one GetGameZipEndpoint answers, for a game listed on a
+// The file is the one GetGameCglEndpoint answers, for a game listed on a
 // public workshop page.
-type GetPublicWorkshopGameZipEndpoint struct{}
+type GetPublicWorkshopGameCglEndpoint struct{}
 
-func (GetPublicWorkshopGameZipEndpoint) Method() string { return "GET" }
-func (GetPublicWorkshopGameZipEndpoint) Path() string {
-	return "/api/public/workshops/{slug}/games/{id}/zip"
+func (GetPublicWorkshopGameCglEndpoint) Method() string { return "GET" }
+func (GetPublicWorkshopGameCglEndpoint) Path() string {
+	return "/api/public/workshops/{slug}/games/{id}/cgl"
 }
-func (GetPublicWorkshopGameZipEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
-func (GetPublicWorkshopGameZipEndpoint) HandleRaw(w http.ResponseWriter, r *http.Request) error {
+func (GetPublicWorkshopGameCglEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthNone }
+func (GetPublicWorkshopGameCglEndpoint) HandleRaw(w http.ResponseWriter, r *http.Request) error {
 	gameID, err := parseID(r.PathValue("id"), "Invalid game ID")
 	if err != nil {
 		return err
 	}
 	card, err := core.PublicWorkshopGame(r.Context(), r.PathValue("slug"), gameID)
-	return writeGameZip(w, r, card, err)
+	return writeGameCgl(w, r, card, err)
 }
 
-// writeGameZip answers with the game's zip, built whole before the first
+// writeGameCgl answers with the game's .cgl file, built whole before the first
 // byte, so a failure is still an error answer.
-func writeGameZip(w http.ResponseWriter, r *http.Request, card *core.GameCard, err error) error {
+func writeGameCgl(w http.ResponseWriter, r *http.Request, card *core.GameCard, err error) error {
 	file, err := wire.GameFileOf(card, err)
 	if err != nil {
 		return err
@@ -100,7 +101,7 @@ func writeGameZip(w http.ResponseWriter, r *http.Request, card *core.GameCard, e
 		return err
 	}
 	w.Header().Set("Content-Type", "application/zip")
-	w.Header().Set("Content-Disposition", `attachment; filename="game.zip"`)
+	w.Header().Set("Content-Disposition", `attachment; filename="game.cgl"`)
 	w.Header().Set("Content-Length", strconv.Itoa(len(body)))
 	_, err = w.Write(body)
 	return err
@@ -175,10 +176,10 @@ func gameFileYAML(file obj.GameFile) ([]byte, error) {
 	return out.Bytes(), nil
 }
 
-// SetGameCoverEndpoint takes a game's cover from its zip.
+// SetGameCoverEndpoint takes a game's cover from its .cgl file.
 //
 // It answers with the game as it now is (coverAt set). The body is the picture, PNG or JPEG, at most 1 MB (413 file_too_large
-// otherwise), and the X-Cover-Signature header the zip's cover.sig; one
+// otherwise), and the X-Cover-Signature header the file's cover.sig; one
 // without a fitting signature is 422 cover_unsigned, one that is no picture
 // 400 not_a_picture.
 //

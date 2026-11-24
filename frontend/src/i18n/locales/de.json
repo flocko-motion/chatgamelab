@@ -626,7 +626,7 @@
         "coverRefused": "Das Spiel wurde ohne Titelbild importiert: Das Bild hält die Jugendschutzregel nicht ein.",
         "coverUnsigned": "Das Spiel wurde ohne Titelbild importiert: Das Bild wurde nicht von ChatGameLab exportiert oder seitdem verändert.",
         "errors": {
-          "noGameInZip": "Diese ZIP-Datei enthält keine Spieldatei.",
+          "noGame": "Diese .cgl-Datei enthält kein Spiel.",
           "tooLarge": "Diese Datei ist größer als 1 MB, zu groß für eine Spieldatei.",
           "unreadable": "Diese Datei konnte nicht als Spiel gelesen werden."
         },

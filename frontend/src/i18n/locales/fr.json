@@ -469,6 +469,7 @@
       "filters": {
         "all": "Tous les jeux",
         "favorites": "Favoris",
+        "genre": "Genre",
         "own": "Mes jeux",
         "public": "Public",
         "sponsored": "Sponsorisé"
@@ -477,6 +478,12 @@
       "play": "Jouer",
       "reportGame": "Signaler le jeu",
       "restart": "Recommencer",
+      "resumeChoice": {
+        "continue": "Continuer",
+        "message": "Vous avez déjà commencé « {{game}} ». Voulez-vous reprendre là où vous vous êtes arrêté·e ou recommencer ? Recommencer remplacera votre session précédente.",
+        "startNew": "Recommencer",
+        "title": "Continuer ou recommencer ?"
+      },
       "title": "Jeux",
       "unfavorite": "Retirer des favoris",
       "workshop": "Atelier / Org."
@@ -491,6 +498,7 @@
       "aiQualityTier": {
         "description": "Choisissez le niveau de qualité IA pour vos jeux lorsque vous utilisez votre propre clé API. Les niveaux supérieurs coûtent plus cher mais peuvent offrir une meilleure qualité. Laissez vide pour utiliser la valeur par défaut du serveur."
       },
+      "check": "Vérifier la clé",
       "createModal": {
         "keyDescription": "Votre clé sera chiffrée et stockée en toute sécurité.",
         "keyLabel": "Clé API",
@@ -521,6 +529,7 @@
         "platformRequired": "La plateforme est requise"
       },
       "key": "clé",
+      "keyEndsWith": "La clé se termine par ces caractères",
       "keys": "clés",
       "noResults": "Aucune clé ne correspond à votre recherche ou à votre filtre.",
       "platform": "Plateforme",
@@ -558,8 +567,15 @@
         "status-asc": "Clés fonctionnelles d’abord"
       },
       "status": {
+        "checking": "Vérification…",
         "failed": "La clé ne fonctionne pas",
-        "unknown": "Clé pas encore utilisée",
+        "reasons": {
+          "key_rejected": "Le fournisseur refuse cette clé. Vérifiez qu’elle a été copiée en entier et qu’elle est toujours active.",
+          "no_credit": "Le compte associé à cette clé n’a plus de crédit. Rechargez-le auprès du fournisseur.",
+          "no_key": "La clé n’a pas pu être lue.",
+          "unreachable": "Le fournisseur n’a pas répondu. Réessayez dans un instant."
+        },
+        "unknown": "Pas encore vérifiée",
         "working": "La clé fonctionne"
       },
       "statusColumn": "Statut",
@@ -673,12 +689,18 @@
         "statusFieldsHint": "Que doit suivre le jeu ? Par exemple santé, points ou munitions. Le jeu mémorise et met à jour ces valeurs pendant la partie.",
         "theme": "Thème",
         "themeDefault": "Apparence par défaut",
-        "themeHint": "L’apparence dans laquelle le jeu se joue."
+        "themeHint": "L’apparence dans laquelle le jeu se joue.",
+        "voiceStyle": "Style de voix",
+        "voiceStyleHint": "La façon dont la voix sonne : celle du personnage ou celle du narrateur lorsque l’histoire est lue à voix haute.",
+        "voiceStylePlaceholder": "p. ex. grave, lente et un peu rauque, un vieil homme"
       },
       "editModal": {
         "adminActionTitle": "Action d'administration",
         "adminActionWarning": "Vous modifiez un jeu qui ne vous appartient pas. Il s'agit d'une action administrative et elle ne doit être utilisée qu'à des fins de modération.",
         "gameDesignSection": "Conception du jeu",
+        "othersGameNotice": "Ce jeu appartient à quelqu’un d’autre. Vous pouvez tout modifier : l’enregistrer en fera votre propre jeu, tandis que l’original restera inchangé.",
+        "saveAsOwn": "Enregistrer comme mon jeu",
+        "savedAsOwn": "Enregistré comme votre jeu",
         "title": "Modifier le jeu",
         "unsavedChanges": {
           "discard": "Annuler les modifications",
@@ -716,6 +738,15 @@
         "npc-live": "PNJ en direct"
       },
       "importExport": {
+        "coverFailed": "Le jeu a été importé, mais son image de couverture n’a pas pu être vérifiée. Vous pouvez en faire dessiner une nouvelle dans l’éditeur.",
+        "coverNoKey": "Le jeu a été importé sans son image de couverture : sa vérification nécessite une clé API.",
+        "coverRefused": "Le jeu a été importé sans son image de couverture : l’image ne respecte pas la règle de protection des mineurs.",
+        "coverUnsigned": "Le jeu a été importé sans son image de couverture : l’image n’a pas été exportée par ChatGameLab ou a été modifiée depuis.",
+        "errors": {
+          "noGame": "Ce fichier .cgl ne contient aucun jeu.",
+          "tooLarge": "Ce fichier fait plus de 1 Mo, ce qui est trop volumineux pour un fichier de jeu.",
+          "unreadable": "Ce fichier n’a pas pu être lu comme un jeu."
+        },
         "exportButton": "Exporter le jeu",
         "importButton": "Importer un jeu"
       },
@@ -990,6 +1021,7 @@
     "leaveTitle": "Quitter l’organisation",
     "leaveWarning": "Vous perdrez l’accès aux ressources et aux membres de l’organisation.",
     "list": {
+      "clearPicks": "Tout afficher",
       "clearSearch": "Effacer la recherche",
       "filter": "Filtrer",
       "hideDetails": "Masquer les détails",
@@ -1349,6 +1381,7 @@
         "failed": "Impossible d'y jouer pour le moment",
         "genre": "La clé d'IA ne peut pas exécuter ce type de jeu",
         "key_rejected": "La clé d'IA a été refusée",
+        "no_credit": "Plus de crédit IA",
         "no_key": "Aucune clé d'IA disponible",
         "no_plays": "Plus aucune partie disponible",
         "paused": "L'atelier est en pause",
@@ -1705,18 +1738,74 @@
       "condense-scenario": "Raccourcir le scénario",
       "condensed-scenario": "Scénario",
       "expand": "Raconter",
+      "gallery-image": "Image de galerie",
+      "greeting": "Générer du texte",
       "image": "Dessiner une image",
       "image-prompt": "Décrire l’image",
       "image-style": "Adapter le style",
       "live-session": "Personnage",
-      "observer": "Observateur",
+      "observer": "Mise en scène",
+      "opening-brief": "Début du jeu",
       "outline": "Planifier la scène",
       "portrait": "Dessiner un portrait",
       "portrait-prompt": "Décrire le portrait",
       "props-store": "État du jeu",
       "rephrase": "Reformuler l’action",
       "rephrase-audio": "Comprendre la parole",
-      "start-game": "Démarrer"
+      "start-game": "Démarrer",
+      "voice": "Générer la voix",
+      "voice-brief": "Décrire la voix"
+    },
+    "director": {
+      "ago": "il y a {{s}}",
+      "beatRefused": "refusé",
+      "beatSet": "défini",
+      "beats": "temps avec répliques",
+      "beatsValue": "{{n}} · {{lines}} répliques",
+      "calls": "appels au modèle",
+      "callsValue": "{{n}} · dernier il y a {{s}}",
+      "character": "personnage",
+      "characterSpoke": "le personnage a parlé",
+      "counted": "comptés",
+      "doing": "en cours",
+      "dropped": "abandonnés",
+      "droppedValue": "{{n}} (trop à la suite)",
+      "empty": "rien pour l’instant",
+      "entryBackground": "contexte envoyé",
+      "entryConversation": "conversation",
+      "entryDirection": "instruction envoyée",
+      "entryDropped": "abandonné",
+      "entryError": "erreur",
+      "entryInjection": "injecté",
+      "entryLine": "a dit",
+      "entrySilence": "silence",
+      "entryThought": "pense",
+      "failed": "{{n}} échecs",
+      "fragments": "fragments",
+      "gap": "appels au maximum toutes les",
+      "inARow": "instructions à la suite",
+      "injected": "injectés manuellement",
+      "late": "fragments en retard",
+      "lateMark": "en retard",
+      "lateValue": "{{n}} · jusqu’à {{ms}} ms",
+      "lines": "{{n}} répliques",
+      "listening": "écoute",
+      "log": "journal de la mise en scène",
+      "notYet": "pas encore",
+      "notices": "notifications de silence",
+      "now": "mise en scène actuelle",
+      "ofLimit": "{{n}} sur {{limit}}",
+      "player": "joueur·euse",
+      "playerSpoke": "le joueur ou la joueuse a parlé",
+      "pool": "dans la file",
+      "poolValue": "{{n}} fragments · temps de {{ms}} ms",
+      "quietFor": "silencieux depuis",
+      "quietReplies": "rien à faire",
+      "sent": "envoyé",
+      "sentValue": "{{d}} instructions · {{b}} contextes",
+      "setBeat": "définir le temps (ms)",
+      "thinking": "réfléchit · {{s}}",
+      "waiting": "attend la mise en scène"
     },
     "errors": {
       "connectionLost": "La connexion au jeu a été perdue. Recharge la page pour réessayer.",
@@ -1733,11 +1822,19 @@
     },
     "insights": {
       "close": "Fermer",
+      "collapse": "Réduire",
       "empty": "Rien ne s'est encore exécuté.",
-      "feed": "Ce qui s'est passé",
+      "expand": "Développer",
+      "feed": "Historique",
       "hide": "Masquer les informations",
       "label": "Informations",
-      "show": "Afficher les informations"
+      "noProblems": "Aucun problème pour le moment.",
+      "pickBlock": "Cliquez sur un bloc ou une connexion dans le pipeline pour voir ce qu’il a fait.",
+      "settingEmpty": "Le jeu laisse ce champ vide.",
+      "show": "Afficher les informations",
+      "tabProblems": "Problèmes",
+      "tabSelected": "Sélection",
+      "tabUsage": "Utilisation"
     },
     "launch": {
       "noGame": "Cette page nécessite un jeu : ouvre-la depuis la page d'un jeu.",
@@ -1749,13 +1846,25 @@
       "compacting": "Condensation en cours…",
       "copied": "Mise en page copiée",
       "copyFailed": "Pas de presse-papiers : la mise en page a été enregistrée dans la console",
-      "copyLayout": "Copier la mise en page"
+      "copyLayout": "Copier la mise en page",
+      "injectBackground": "Savoir",
+      "injectBackgroundHint": "Ce que le personnage pense intérieurement, avec ses propres mots, sans le dire maintenant, par ex. « Je suis un loup-garou et je veux qu’elle le découvre peu à peu. »",
+      "injectDirection": "Faire",
+      "injectDirectionHint": "Ce que le personnage devrait faire, par ex. « Sois grognon, tu ne fais pas confiance au joueur ou à la joueuse. »",
+      "injectSpeech": "Dire",
+      "injectSpeechHint": "Ce que le personnage devrait dire, avec ses propres mots, par ex. « Halte ! Qui va là ? »",
+      "injection": "Dire au personnage de…",
+      "injectionFailed": "Impossible de l’envoyer",
+      "injectionSend": "Envoyer",
+      "injectionSending": "Envoi…",
+      "injectionSent": "Envoyé à la conversation"
     },
     "problems": {
       "denied": "Tu n'es pas autorisé à jouer à ce jeu.",
       "failed": "Un problème est survenu et le jeu ne peut pas continuer.",
       "genre": "La clé d'IA disponible ne peut pas exécuter ce type de jeu.",
       "keyRejected": "Le fournisseur d'IA a refusé la clé de ce jeu, qui ne peut donc pas continuer. La personne qui a configuré le jeu doit vérifier la clé.",
+      "noCredit": "Désolé, le crédit IA est épuisé, le jeu ne peut donc pas continuer pour le moment.",
       "noKey": "Aucune clé d'IA n'est disponible pour jouer à ce jeu.",
       "noPlays": "Il ne reste plus de parties pour ce jeu partagé.",
       "paused": "L’atelier est en pause. Le jeu reprendra lorsqu’il sera relancé.",
@@ -1767,6 +1876,15 @@
       "busy": "Relais : utilisé par un autre onglet",
       "connected": "Relais : connecté",
       "connecting": "Relais : non démarré"
+    },
+    "settings": {
+      "cover": "Image de galerie",
+      "description": "Description",
+      "gameStart": "Début du jeu",
+      "imageStyle": "Style d’image",
+      "scenario": "Scénario",
+      "statusFields": "Champs d’état",
+      "voiceStyle": "Style de voix"
     },
     "status": {
       "choose": "Choisis comment jouer pour commencer.",
@@ -1789,10 +1907,15 @@
       "condensed-scenario\u0000condense-scenario": "demande",
       "condensed-scenario\u0000image-prompt": "scénario",
       "condensed-scenario\u0000start-game": "prêt",
+      "gallery-image\u0003estart-game": "prêt",
+      "greeting\u0003elive-session": "premiers mots",
+      "greeting\u0003estart-game": "prêt",
       "image-prompt\u0000image": "prompt",
       "image-style\u0000adapted-style": "réponse",
       "live-session\u0000observer": "transcription",
       "observer\u0000live-session": "indice",
+      "observer\u0003elive-session": "injection",
+      "opening-brief\u0003egreeting": "consigne",
       "outline\u0000expand": "plan",
       "outline\u0000image-prompt": "scène",
       "outline\u0000props-store": "modifications",
@@ -1805,7 +1928,12 @@
       "rephrase\u0000outline": "action",
       "rephrase-audio\u0000outline": "action",
       "start-game\u0000live-session": "indication",
-      "start-game\u0000outline": "prompt"
+      "start-game\u0000outline": "prompt",
+      "voice\u0003elive-session:secondary": "style de voix",
+      "voice\u0003elive-session:voice": "voix",
+      "voice\u0003estart-game": "prêt",
+      "voice-brief\u0003evoice:description": "description",
+      "voice-brief\u0003evoice:voice": "voix de secours"
     }
   }
 }
