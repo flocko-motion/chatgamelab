@@ -621,6 +621,15 @@
         "visibility": "Sichtbarkeit"
       },
       "importExport": {
+        "coverFailed": "Das Spiel wurde importiert, aber sein Titelbild konnte nicht geprüft werden. Im Editor kannst du ein neues zeichnen lassen.",
+        "coverNoKey": "Das Spiel wurde ohne Titelbild importiert: Zum Prüfen eines Titelbilds braucht es einen API-Schlüssel.",
+        "coverRefused": "Das Spiel wurde ohne Titelbild importiert: Das Bild hält die Jugendschutzregel nicht ein.",
+        "coverUnsigned": "Das Spiel wurde ohne Titelbild importiert: Das Bild wurde nicht von ChatGameLab exportiert oder seitdem verändert.",
+        "errors": {
+          "noGameInZip": "Diese ZIP-Datei enthält keine Spieldatei.",
+          "tooLarge": "Diese Datei ist größer als 1 MB, zu groß für eine Spieldatei.",
+          "unreadable": "Diese Datei konnte nicht als Spiel gelesen werden."
+        },
         "exportButton": "Spiel exportieren",
         "importButton": "Spiel importieren"
       },

@@ -2,6 +2,7 @@ package engine
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -159,4 +160,71 @@ func withRetry[T any](ctx context.Context, call func() (T, adapters.Usage, error
 		}
 	}
 	return out, total, err
+}
+
+// CoverCheckSpec is a picture brought in as a game's cover, and the
+// youth-protection rule it must keep to.
+type CoverCheckSpec struct {
+	Image []byte
+	// Guardrail is the youth-protection rule, already resolved.
+	Guardrail  string
+	MockPaceMs int
+}
+
+// CoverCheck is the verdict on a picture: whether it keeps to the rule, why,
+// and what asking cost.
+type CoverCheck struct {
+	Complies bool
+	Reason   string
+	Usage    UsageReport
+}
+
+// coverNodeCheck is the name a cover check is billed under.
+const coverNodeCheck = "cover-check"
+
+// CheckCover has the offer's tooling model look at a picture and say whether
+// it keeps to the rule, so a picture that was not drawn under the rule may
+// still become a cover. A platform whose tooling cannot look at pictures is
+// refused with ProblemNoKey. It blocks until the verdict is in.
+func CheckCover(ctx context.Context, spec CoverCheckSpec, offer Offer) (CoverCheck, error) {
+	for _, issue := range offerIssues("offer", offer) {
+		if issue.Severity == SeverityError {
+			return CoverCheck{}, fmt.Errorf("%s", issue)
+		}
+	}
+	tiers := offer.Caveats.tiers()
+	if len(tiers) == 0 {
+		return CoverCheck{}, Refuse(ProblemNoKey, fmt.Sprintf("offer %q has no tier", offer.ID))
+	}
+	toggles, _ := offer.Caveats.allowed(tiers[0])
+	kit, err := SessionSpec{MockPaceMs: spec.MockPaceMs}.adapters(settlement{offer: offer, Choice: Choice{Tier: tiers[0], Toggles: toggles}})
+	if err != nil {
+		return CoverCheck{}, err
+	}
+	defer kit.close()
+	looker, ok := kit.tool.(adapters.ImageTool)
+	if !ok {
+		return CoverCheck{}, Refuse(ProblemNoKey, fmt.Sprintf("platform %q cannot look at pictures", offer.Platform))
+	}
+
+	ledger := newUsageLedger()
+	ledger.price(offer.Platform)
+	reply, used, err := withRetry(ctx, func() (string, adapters.Usage, error) {
+		return looker.QueryImage(ctx, genre.CoverCheckPrompt(), genre.CoverCheckMessage(spec.Guardrail), spec.Image, genre.CoverCheckSchema())
+	})
+	ledger.record(ports.Usage{
+		Node: coverNodeCheck, Model: used.Model,
+		InputTokens: used.InputTokens, CachedInputTokens: used.CachedInputTokens, OutputTokens: used.OutputTokens,
+	})
+	if err != nil {
+		return CoverCheck{Usage: ledger.report()}, coverFailure("checking the picture", err)
+	}
+	var verdict struct {
+		Complies bool   `json:"complies"`
+		Reason   string `json:"reason"`
+	}
+	if err := json.Unmarshal([]byte(reply), &verdict); err != nil {
+		return CoverCheck{Usage: ledger.report()}, coverFailure("checking the picture", fmt.Errorf("%w: %v", adapters.ErrBadReply, err))
+	}
+	return CoverCheck{Complies: verdict.Complies, Reason: verdict.Reason, Usage: ledger.report()}, nil
 }

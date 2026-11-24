@@ -192,6 +192,10 @@ type Session struct {
 
 	// logMu keeps the stored history in the order the recorder holds it.
 	logMu sync.Mutex
+	// saveMu lets one event at a time into the store: a platform numbers a
+	// session's events by reading the last number, so two writes at once would
+	// take the same one and lose an event.
+	saveMu sync.Mutex
 	// dirty asks the keeper for a checkpoint; kept closes once its last one is written.
 	dirty chan struct{}
 	kept  chan struct{}

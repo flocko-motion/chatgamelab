@@ -621,6 +621,15 @@
         "visibility": "Visibility"
       },
       "importExport": {
+        "coverFailed": "The game was imported, but its cover could not be checked. You can draw a new one in the editor.",
+        "coverNoKey": "The game was imported without its cover: checking a cover needs an API key.",
+        "coverRefused": "The game was imported without its cover: the picture does not keep to the youth-protection rule.",
+        "coverUnsigned": "The game was imported without its cover: the picture was not exported by ChatGameLab, or was changed since.",
+        "errors": {
+          "noGameInZip": "This zip holds no game file.",
+          "tooLarge": "This file is larger than 1 MB, too large for a game file.",
+          "unreadable": "This file could not be read as a game."
+        },
         "exportButton": "Export Game",
         "importButton": "Import Game"
       },

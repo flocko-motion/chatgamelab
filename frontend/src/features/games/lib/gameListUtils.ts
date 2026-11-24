@@ -22,16 +22,22 @@ export function gameListDate(
 }
 
 /**
- * Trigger a YAML file download in the browser.
+ * Hands the browser a file to save.
  */
-export function downloadYamlFile(yaml: string, gameName: string | undefined) {
-  const blob = new Blob([yaml], { type: "application/x-yaml" });
+export function downloadBlob(blob: Blob, fileName: string) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `${gameName || "game"}.yaml`;
+  link.download = fileName;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
+}
+
+/**
+ * Saves a game's zip, its YAML and its cover, under the game's name.
+ */
+export function downloadGameZip(zip: Blob, gameName: string | undefined) {
+  downloadBlob(zip, `${gameName || "game"}.zip`);
 }

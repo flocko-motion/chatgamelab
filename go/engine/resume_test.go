@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -449,4 +450,50 @@ func gateOpened(journal []engine.JournalEntry) bool {
 		}
 	}
 	return false
+}
+
+// overlapWatch is a store that notes when two saves of a session overlap, as
+// a store that numbers events in order cannot take.
+type overlapWatch struct {
+	engine.MemoryPersist
+	busy    atomic.Int32
+	overlap atomic.Bool
+}
+
+func (w *overlapWatch) SaveEvent(ctx context.Context, id string, e engine.SessionEvent) error {
+	if w.busy.Add(1) > 1 {
+		w.overlap.Store(true)
+	}
+	defer w.busy.Add(-1)
+	time.Sleep(time.Millisecond) // a store's round trip, so overlaps show
+	return w.MemoryPersist.SaveEvent(ctx, id, e)
+}
+
+// A session's saves never overlap: the history and the journal go to the
+// store one at a time, so a store numbering them in order loses nothing,
+// the gallery image saved at launch included.
+func TestSavesOfASessionNeverOverlap(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	store := &overlapWatch{}
+	s, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre: engine.GenreNPCLive, ID: "ordered", Persist: store,
+		Scenario: "You keep a bridge.", GalleryImage: mock.GalleryImage("bridge"),
+	}, mockOffers())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := awaitConnection(ctx, s); err != nil {
+		t.Fatal(err)
+	}
+	waitFor(t, s, "text", "")
+	s.Close()
+
+	if store.overlap.Load() {
+		t.Error("two saves of the session overlapped")
+	}
+	if countStream(store.Events("ordered"), "image") != 1 {
+		t.Error("the gallery image was not stored")
+	}
 }

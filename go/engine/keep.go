@@ -17,10 +17,22 @@ func (s *Session) log(ev SessionEvent) {
 	defer s.logMu.Unlock()
 	kept := s.recorder.record(ev)
 	for _, e := range kept {
-		_ = s.spec.Persist.SaveEvent(s.ctx, s.spec.ID, e)
+		s.saveEvent(s.ctx, e)
 	}
 	if len(kept) > 0 {
 		s.checkpoint()
+	}
+}
+
+// saveEvent stores one event, the history's or the journal's, one at a time.
+func (s *Session) saveEvent(ctx context.Context, e SessionEvent) {
+	s.saveMu.Lock()
+	err := s.spec.Persist.SaveEvent(ctx, s.spec.ID, e)
+	s.saveMu.Unlock()
+	// A lost event is a problem to see, not to swallow; a journal entry that
+	// could not be stored is not noted again, or a failing store would loop.
+	if err != nil && e.Stream != "journal" {
+		s.journal.Warn(JournalSession, "save-failed", e.Stream+": "+err.Error())
 	}
 }
 

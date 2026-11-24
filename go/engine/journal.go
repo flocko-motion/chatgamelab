@@ -60,7 +60,7 @@ func (s *Session) keepJournal() {
 	save := func(ev SessionEvent) {
 		ctx, cancel := context.WithTimeout(context.WithoutCancel(s.ctx), saveTimeout)
 		defer cancel()
-		_ = s.spec.Persist.SaveEvent(ctx, s.spec.ID, ev)
+		s.saveEvent(ctx, ev)
 	}
 	for {
 		select {

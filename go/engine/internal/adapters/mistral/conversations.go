@@ -25,8 +25,9 @@ type client struct {
 }
 
 type input struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
+	Role string `json:"role"`
+	// Content is plain words, or a list of chunks, a picture among them.
+	Content any `json:"content"`
 }
 
 // start is a new conversation. Store is always false: every call is one-shot,

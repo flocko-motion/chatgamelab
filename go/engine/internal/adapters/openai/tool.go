@@ -33,13 +33,27 @@ func (t *Tool) Query(ctx context.Context, system, user string) (string, adapters
 	return t.query(ctx, system, user, nil)
 }
 
+// QueryImage shows the model a picture after the user's words, and asks for
+// JSON of the schema.
+func (t *Tool) QueryImage(ctx context.Context, system, user string, image []byte, schema adapters.Schema) (string, adapters.Usage, error) {
+	input := []map[string]any{{
+		"role": "user",
+		"content": []map[string]any{
+			{"type": "input_text", "text": user},
+			{"type": "input_image", "image_url": adapters.DataURL(image)},
+		},
+	}}
+	return t.query(ctx, system, input, &schema)
+}
+
 // QuerySchema asks for JSON of the schema, which the Responses API holds the
 // model to in strict mode.
 func (t *Tool) QuerySchema(ctx context.Context, system, user string, schema adapters.Schema) (string, adapters.Usage, error) {
 	return t.query(ctx, system, user, &schema)
 }
 
-func (t *Tool) query(ctx context.Context, system, user string, schema *adapters.Schema) (string, adapters.Usage, error) {
+// query sends one input: plain words, or a list of messages with parts.
+func (t *Tool) query(ctx context.Context, system string, user any, schema *adapters.Schema) (string, adapters.Usage, error) {
 	var used adapters.Usage
 
 	key, err := t.keys(ctx)

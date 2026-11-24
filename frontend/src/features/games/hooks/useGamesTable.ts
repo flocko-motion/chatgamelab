@@ -13,19 +13,23 @@ import { useTranslation } from "react-i18next";
 import {
   useCreateGame,
   useDeleteGame,
-  useExportGameYaml,
+  useExportGameZip,
   useFetchGame,
   useGame,
   useGames,
   useGenres,
+  useImportGameCover,
 } from "@/api/hooks";
+import { extractRawErrorCode } from "@/common/types/errorCodes";
 import type { CreateGameReq, GameView } from "@/api/types";
 import { useAuth } from "@/providers/AuthProvider";
 import type { CreateGameFormData } from "../types";
 import {
-  downloadYamlFile,
+  downloadGameZip,
   gameToFormData,
-  parseGameYaml,
+  GameFileError,
+  readGameFile,
+  type ImportedCover,
 } from "../lib";
 import {
   GAME_LIST_PRESETS,
@@ -148,10 +152,40 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
   const createGame = useCreateGame();
   const fetchGame = useFetchGame();
   // copy: the form holds someone else's game, which saving makes the caller's own.
+  // cover: the picture an imported zip brought along, made the new game's cover once it exists.
   const [creating, setCreating] = useState<{
     initialData: Partial<CreateGameFormData> | null;
     copy?: boolean;
+    cover?: ImportedCover;
   } | null>(initialCreate ? { initialData: null } : null);
+  const importCover = useImportGameCover();
+
+  /**
+   * Makes an imported cover the new game's, and answers the game as it then
+   * is. A cover the server refuses leaves the game without one, and says why;
+   * the editor then draws one as for any new game.
+   */
+  const withImportedCover = async (game: GameView, cover: ImportedCover | undefined): Promise<GameView> => {
+    if (!cover || !game.id) return game;
+    try {
+      return await importCover.mutateAsync({ id: game.id, ...cover });
+    } catch (error) {
+      const code = extractRawErrorCode(error);
+      notifications.show({
+        color: "yellow",
+        message: t(
+          code === "cover_refused"
+            ? "games.importExport.coverRefused"
+            : code === "cover_unsigned"
+              ? "games.importExport.coverUnsigned"
+              : code === "no_api_key"
+              ? "games.importExport.coverNoKey"
+              : "games.importExport.coverFailed",
+        ),
+      });
+      return game;
+    }
+  };
 
   const openCreate = () => setCreating({ initialData: null });
   const closeCreate = () => {
@@ -161,7 +195,8 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
 
   const submitCreate = async (request: CreateGameReq) => {
     try {
-      const newGame = await createGame.mutateAsync(request);
+      const cover = creating?.cover;
+      const newGame = await withImportedCover(await createGame.mutateAsync(request), cover);
       const wasCopy = !!creating?.copy;
       setCreating(null);
       if (wasCopy) {
@@ -215,11 +250,14 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
-    file
-      .text()
-      .then((content) => setCreating({ initialData: parseGameYaml(content) }))
-      .catch(() => {
-        // an unreadable file opens nothing
+    readGameFile(file)
+      .then(({ data, cover }) => setCreating({ initialData: data, cover }))
+      .catch((error: unknown) => {
+        // an unreadable file opens nothing, and says why
+        notifications.show({
+          color: "red",
+          message: t(error instanceof GameFileError ? error.key : "games.importExport.errors.unreadable"),
+        });
       });
   };
 
@@ -230,10 +268,10 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
   }, [autoImport, fileInputRef]);
 
   // ── Exporting ───────────────────────────────────────────────────────────
-  const exportYaml = useExportGameYaml();
+  const exportZip = useExportGameZip();
   const exportGame = async (game: GameView) => {
     try {
-      downloadYamlFile(await exportYaml.mutateAsync(game.id), game.name);
+      downloadGameZip(await exportZip.mutateAsync(game.id), game.name);
     } catch {
       // shown by the mutation's error handler
     }
@@ -293,7 +331,7 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
       saveAsOwn: !!creating?.copy,
       close: closeCreate,
       submit: submitCreate,
-      loading: createGame.isPending,
+      loading: createGame.isPending || importCover.isPending,
     },
     deleteModal: {
       game: deleting,

@@ -202,3 +202,9 @@ type Tool interface {
 type SchemaTool interface {
 	QuerySchema(ctx context.Context, system, user string, schema Schema) (string, Usage, error)
 }
+
+// ImageTool is a Tool that also looks at a picture: the user's words, then
+// the picture, answered in JSON of a schema.
+type ImageTool interface {
+	QueryImage(ctx context.Context, system, user string, image []byte, schema Schema) (string, Usage, error)
+}

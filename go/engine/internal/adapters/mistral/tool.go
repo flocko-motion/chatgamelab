@@ -36,7 +36,18 @@ func (t *Tool) QuerySchema(ctx context.Context, system, user string, schema adap
 	return t.query(ctx, system, user, &schema)
 }
 
-func (t *Tool) query(ctx context.Context, system, user string, schema *adapters.Schema) (string, adapters.Usage, error) {
+// QueryImage shows the model a picture after the user's words, and asks for
+// JSON of the schema.
+func (t *Tool) QueryImage(ctx context.Context, system, user string, image []byte, schema adapters.Schema) (string, adapters.Usage, error) {
+	content := []map[string]any{
+		{"type": "text", "text": user},
+		{"type": "image_url", "image_url": adapters.DataURL(image)},
+	}
+	return t.query(ctx, system, content, &schema)
+}
+
+// query sends one input: plain words, or a list of chunks.
+func (t *Tool) query(ctx context.Context, system string, user any, schema *adapters.Schema) (string, adapters.Usage, error) {
 	used := adapters.Usage{Model: t.model}
 
 	key, err := t.keys(ctx)

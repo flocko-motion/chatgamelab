@@ -2975,6 +2975,22 @@ export class Api<
       }),
 
     /**
+     * @description It answers with the game as it now is (coverAt set). The body is the picture, PNG or JPEG, at most 1 MB (413 file_too_large otherwise), and the X-Cover-Signature header the zip's cover.sig; one without a fitting signature is 422 cover_unsigned, one that is no picture 400 not_a_picture. It takes mayEditCard (403 otherwise). The picture is checked against the youth-protection rule for the youngest players, as a drawn cover keeps to it, and the caller pays for the check as for drawing a cover: no key, 400 no_api_key; a key its provider rejects, 400 invalid_api_key; a provider that fails, 503 ai_error. A picture that does not keep to the rule is 422 cover_refused, and the game keeps the cover it had.
+     *
+     * @name PutApiGamesIdCover
+     * @summary Takes a game's cover from its zip.
+     * @request PUT:/api/games/{id}/cover
+     * @secure
+     */
+    putApiGamesIdCover: (id: string, params: RequestParams = {}) =>
+      this.request<void, Error>({
+        path: `/api/games/${id}/cover`,
+        method: "PUT",
+        secure: true,
+        ...params,
+      }),
+
+    /**
      * @description answers the same whatever the game: it gives nothing away.
      *
      * @name DeleteApiGamesIdFavourite
@@ -3187,6 +3203,22 @@ export class Api<
         secure: true,
         type: "application/json",
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The zip holds game.yaml, the game file as the YAML export writes it, and, when the game has a cover, cover.jpg and cover.sig, the signature an import asks for. It takes seeing the game's content (hasContent; 403 otherwise).
+     *
+     * @name GetApiGamesIdZip
+     * @summary Exports a game as a zip with its cover.
+     * @request GET:/api/games/{id}/zip
+     * @secure
+     */
+    getApiGamesIdZip: (id: string, params: RequestParams = {}) =>
+      this.request<void, Error>({
+        path: `/api/games/${id}/zip`,
+        method: "GET",
+        secure: true,
         ...params,
       }),
 
@@ -3856,6 +3888,24 @@ export class Api<
         path: `/api/public/workshops/${slug}/games/${id}/yaml`,
         method: "GET",
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The zip is the one GetGameZipEndpoint answers, for a game listed on a public workshop page.
+     *
+     * @name GetApiPublicWorkshopsSlugGamesIdZip
+     * @summary Exports a public workshop's game as a zip.
+     * @request GET:/api/public/workshops/{slug}/games/{id}/zip
+     */
+    getApiPublicWorkshopsSlugGamesIdZip: (
+      slug: string,
+      id: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error>({
+        path: `/api/public/workshops/${slug}/games/${id}/zip`,
+        method: "GET",
         ...params,
       }),
 

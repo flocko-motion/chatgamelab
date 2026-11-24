@@ -3,6 +3,7 @@
 package mock
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"strings"
@@ -256,6 +257,32 @@ func (t Tool) QuerySchema(ctx context.Context, system, user string, schema adapt
 	}
 	body, err := json.Marshal(reply)
 	used := adapters.Usage{Model: "mock-tool", InputTokens: int64(len(system) + len(user)), OutputTokens: int64(len(body))}
+	return string(body), used, err
+}
+
+// UnsuitablePicture marks a picture the mock's look at a picture refuses, so
+// a test can have one refused.
+const UnsuitablePicture = "[mock-unsuitable]"
+
+// QueryImage answers as QuerySchema does, but a boolean says the picture
+// passes unless it carries UnsuitablePicture.
+func (t Tool) QueryImage(ctx context.Context, system, user string, image []byte, schema adapters.Schema) (string, adapters.Usage, error) {
+	reply, used, err := t.QuerySchema(ctx, system, user, schema)
+	if err != nil {
+		return reply, used, err
+	}
+	var fields map[string]any
+	if err := json.Unmarshal([]byte(reply), &fields); err != nil {
+		return reply, used, err
+	}
+	props, _ := schema.Body["properties"].(map[string]any)
+	for name, raw := range props {
+		if prop, _ := raw.(map[string]any); prop["type"] == "boolean" {
+			fields[name] = !bytes.Contains(image, []byte(UnsuitablePicture))
+		}
+	}
+	body, err := json.Marshal(fields)
+	used.InputTokens += int64(len(image))
 	return string(body), used, err
 }
 

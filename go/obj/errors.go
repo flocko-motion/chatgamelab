@@ -48,6 +48,12 @@ const (
 	ErrCodeInsufficientQuota        = "insufficient_quota"
 	ErrCodeContentFiltered          = "content_filtered"
 	ErrCodePreviousResponseNotFound = "previous_response_not_found"
+
+	// Cover upload error codes
+	ErrCodeCoverRefused  = "cover_refused"  // the picture does not keep to the youth-protection rule
+	ErrCodeCoverUnsigned = "cover_unsigned" // the picture carries no ChatGameLab signature
+	ErrCodeNotAPicture   = "not_a_picture"  // the upload is no PNG or JPEG
+	ErrCodeFileTooLarge  = "file_too_large"
 )
 
 // Error type constructors

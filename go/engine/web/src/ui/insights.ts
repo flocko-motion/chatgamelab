@@ -36,6 +36,11 @@ const PHONE = "(max-width: 47.99rem)";
 export class Insights {
   /** The journal entries drawn so far, in order: the journal only grows at its end. */
   #drawn: JournalEntry[] = [];
+  /**
+   * The last row drawn, for the next entry of the same source and kind to
+   * join it: a conversation arrives in fragments, and one row reads better.
+   */
+  #last: { source: string; kind: string; item: HTMLElement; what: HTMLElement; detail: string } | null = null;
 
   constructor(
     private readonly elements: InsightsElements,
@@ -75,6 +80,7 @@ export class Insights {
     if (!continues) {
       list.replaceChildren();
       this.#drawn = [];
+      this.#last = null;
     }
     for (const entry of journal.slice(this.#drawn.length)) {
       // Phases change with every call; the pipeline shows them, and the
@@ -93,6 +99,17 @@ export class Insights {
   }
 
   #add(entry: JournalEntry): void {
+    const last = this.#last;
+    if (last && last.source === entry.source && last.kind === entry.kind && last.item.isConnected) {
+      // Follow-ups of the same kind join the row: fragments of one line run
+      // on, other notes each start a line of their own within it.
+      const piece = entry.detail ?? "";
+      const flowing = CONVERSATION_KINDS.has(entry.kind);
+      last.detail = flowing ? joinSpeech(last.detail, piece) : `${last.detail}\n${piece}`;
+      last.what.textContent = last.detail ? `${entry.kind} · ${last.detail}` : entry.kind;
+      if (rank(entry.level) > rank(last.item.dataset["level"] ?? "info")) last.item.dataset["level"] = entry.level;
+      return;
+    }
     const item = document.createElement("li");
     item.dataset["level"] = entry.level;
     // An entry from a block opens that block; the session's own do not.
@@ -124,6 +141,7 @@ export class Insights {
       });
     }
     item.append(row);
+    this.#last = { source: entry.source, kind: entry.kind, item, what, detail: entry.detail ?? "" };
     const list = this.elements.runs;
     // Newest at the bottom, kept in view while the reader is there.
     const atEnd = list.scrollTop + list.clientHeight >= list.scrollHeight - 4;
@@ -171,4 +189,19 @@ function remembered(): boolean | null {
   } catch {
     return null;
   }
+}
+
+/** The kinds that carry speech, whose fragments run on into one line. */
+const CONVERSATION_KINDS = new Set(["player-said", "text", "said"]);
+
+/** Speech fragments joined as spoken: a space only where neither side has one. */
+function joinSpeech(before: string, after: string): string {
+  if (!before) return after;
+  if (!after) return before;
+  return /\s$/.test(before) || /^\s/.test(after) ? before + after : `${before} ${after}`;
+}
+
+/** A level's weight, so a joined row shows the worst of its entries. */
+function rank(level: string): number {
+  return level === "error" ? 2 : level === "warning" ? 1 : 0;
 }

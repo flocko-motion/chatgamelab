@@ -41,7 +41,8 @@ called the *player*.
 
 A game has a *cover*: one picture of it, drawn in its image style under the
 youth-protection rule for the youngest players, since anyone who sees the game
-sees its cover. 
+sees its cover. A cover can also come with the game's file, a zip of the game
+and its cover; it is checked against the same rule before it is kept.
 
 == Sessions
 

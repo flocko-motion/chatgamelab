@@ -1,6 +1,10 @@
 package genre
 
-import "strings"
+import (
+	"strings"
+
+	"engine/internal/adapters"
+)
 
 // A game's cover is one picture, made outside any session: the image style
 // adapted to the youth-protection rule, a long scenario condensed, and the
@@ -52,4 +56,38 @@ func CoverPrompt(title, description, scenario, hint, style string) string {
 	parts = append(parts, "The artistic style should be: "+style)
 	parts = append(parts, lines[len(lines)-1])
 	return strings.Join(parts, "\n")
+}
+
+// coverCheckPrompt judges a picture brought in as a cover, by the same rule a
+// drawn cover keeps to: anyone who sees the game sees it.
+const coverCheckPrompt = "You check a picture someone wants as the cover of an interactive story game. " +
+	"Anyone who sees the game sees its cover, the youngest players included. " +
+	"Judge only the picture, by the rule below: does it keep to the rule? " +
+	"A picture that is dark, eerie or exciting can still keep to it; refuse what the rule rules out. " +
+	"Answer with whether it keeps to the rule and, in one sentence, why."
+
+// CoverCheckPrompt judges a picture as a cover; its message is
+// CoverCheckMessage and its answer CoverCheckSchema.
+func CoverCheckPrompt() string { return coverCheckPrompt }
+
+// CoverCheckMessage is the check's words before the picture: the rule.
+func CoverCheckMessage(guardrail string) string {
+	if strings.TrimSpace(guardrail) == "" {
+		guardrail = "Suitable for every age."
+	}
+	return "The rule:\n" + guardrail + "\n\nThe picture:"
+}
+
+// CoverCheckSchema is the check's answer: whether the picture keeps to the
+// rule, and why.
+func CoverCheckSchema() adapters.Schema {
+	return adapters.Schema{Name: "cover_check", Body: map[string]any{
+		"type": "object",
+		"properties": map[string]any{
+			"complies": map[string]any{"type": "boolean", "description": "whether the picture keeps to the rule"},
+			"reason":   map[string]any{"type": "string", "description": "why, in one sentence"},
+		},
+		"required":             []any{"complies", "reason"},
+		"additionalProperties": false,
+	}}
 }

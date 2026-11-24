@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"engine/internal/adapters/mock"
 	"engine/internal/genre"
 )
 
@@ -84,5 +85,28 @@ func TestCoverTierIsTheCheapestWithPictures(t *testing.T) {
 	offer.Caveats.Allow[TierLow] = low
 	if tier, _ := CoverTier(offer); tier != TierMedium {
 		t.Errorf("got %q, want the cheapest tier with pictures, %q", tier, TierMedium)
+	}
+}
+
+// A picture brought in as a cover is looked at by the rule, and the verdict
+// says whether it may stay.
+func TestCheckCoverJudgesThePicture(t *testing.T) {
+	ok, err := CheckCover(context.Background(), CoverCheckSpec{Image: []byte("a calm lake"), Guardrail: "No violence."}, MockOffer())
+	if err != nil {
+		t.Fatalf("CheckCover: %v", err)
+	}
+	if !ok.Complies {
+		t.Errorf("a suitable picture was refused: %+v", ok)
+	}
+	if len(ok.Usage.ByNode) != 1 || ok.Usage.ByNode[0].Node != coverNodeCheck {
+		t.Errorf("billed %+v, want one cover-check", ok.Usage.ByNode)
+	}
+
+	refused, err := CheckCover(context.Background(), CoverCheckSpec{Image: []byte("gore " + mock.UnsuitablePicture), Guardrail: "No violence."}, MockOffer())
+	if err != nil {
+		t.Fatalf("CheckCover: %v", err)
+	}
+	if refused.Complies {
+		t.Error("an unsuitable picture passed")
 	}
 }

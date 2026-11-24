@@ -1,4 +1,5 @@
 import { api } from "../client/api";
+import { rawRequest } from "../client/raw";
 import {
   keepPreviousData,
   useMutation,
@@ -216,16 +217,38 @@ export function useDeleteGame() {
   });
 }
 
-export function useExportGameYaml() {
-  return useMutation<string, ApiError, string>({
-    mutationFn: (id) =>
-      api
-        .getApiGamesIdYaml(id, {
-          headers: { Accept: "application/x-yaml" },
-          format: "text",
-        })
-        .then((response) => response.data as unknown as string),
+/** A game as a zip: its YAML and its cover. */
+export function useExportGameZip() {
+  return useMutation<Blob, ApiError, string>({
+    mutationFn: (id) => rawRequest(`/api/games/${id}/zip`).then((response) => response.blob()),
     onError: handleApiError,
+  });
+}
+
+/**
+ * Makes a picture brought in from a game's zip the game's cover. The server
+ * takes only a cover a ChatGameLab server signed (cover_unsigned otherwise),
+ * then checks it against the youth-protection rule, so it takes a moment,
+ * and refuses one that fails (cover_refused). Its errors are the caller's.
+ */
+export function useImportGameCover() {
+  const queryClient = useQueryClient();
+
+  return useMutation<GameView, ApiError, { id: string; picture: Blob; signature: string }>({
+    mutationFn: ({ id, picture, signature }) =>
+      rawRequest(`/api/games/${id}/cover`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": picture.type || "application/octet-stream",
+          // the signature the exporting server gave the cover, from the zip's cover.sig
+          "X-Cover-Signature": signature,
+        },
+        body: picture,
+      }).then((response) => response.json() as Promise<GameView>),
+    onSuccess: (game, { id }) => {
+      queryClient.setQueryData(queryKeys.game(id), game);
+      queryClient.invalidateQueries({ queryKey: queryKeys.games });
+    },
   });
 }
 
