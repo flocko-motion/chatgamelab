@@ -70,7 +70,7 @@ func TestPlatformsJSON(t *testing.T) {
 		}
 	}
 	image := openai.Tiers[2].Models["image"]
-	if image.Name == "" || image.Params["size"] == "" || image.Params["quality"] != "high" {
+	if image.Name == "" || image.Params["size"] == "" || image.Params["quality"] == "" {
 		t.Errorf("high image = %+v", image)
 	}
 

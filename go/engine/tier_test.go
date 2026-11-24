@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"testing"
-
-	"engine/internal/adapters"
 )
 
 func noKey(context.Context) (string, error) { return "k", nil }
@@ -34,11 +32,16 @@ func TestModelsComeFromTheSettledTier(t *testing.T) {
 	}
 	settled, _, _ := spec.opening()
 
+	if settled.Tier != TierHigh {
+		t.Fatalf("settled on %s, want high", settled.Tier)
+	}
 	entry, _ := catalogueEntry(PlatformOpenAI)
 	want, _ := entry.Models(TierHigh)
+	low, _ := entry.Models(TierLow)
 	got, _ := entry.Models(settled.Tier)
-	if got[ModelImage].Name != want[ModelImage].Name || got[ModelImage].Params[adapters.ParamQuality] != "high" {
-		t.Errorf("image = %+v, want the high tier's %+v", got[ModelImage], want[ModelImage])
+	// The story model tells the tiers apart: every tier draws the same picture.
+	if got[ModelStory].Name != want[ModelStory].Name || got[ModelStory].Name == low[ModelStory].Name {
+		t.Errorf("story = %s, want the high tier's %s", got[ModelStory].Name, want[ModelStory].Name)
 	}
 }
 

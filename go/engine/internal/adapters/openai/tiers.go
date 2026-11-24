@@ -12,8 +12,10 @@ import "engine/internal/adapters"
 // engine decides what a picture costs, and a wiring only decides that it wants
 // one.
 //
-// Every tier draws on the same image model and asks for landscape, the shape
-// that sits well above a conversation; the tier sets the quality.
+// Every tier draws the same picture: gpt-image-2.6-flare at low quality, fast
+// and cheap and good enough at every tier, in landscape, the shape that sits
+// well above a conversation. A workshop runs a room of young people playing
+// at once, so the saving multiplies.
 //
 // GPT-Live publishes no tier ladder, so every tier resolves to the same voice
 // model. Hearing, the tooling model that takes the player's speech, does not
@@ -33,6 +35,7 @@ var (
 	speechMini = speaking("gpt-realtime-2.1-mini")
 	speechFull = speaking("gpt-realtime-2.1")
 	hearing    = adapters.Model{Name: "gpt-audio-1.5"}
+	picture    = image("gpt-image-2.6-flare", "low", "1024x672")
 )
 
 // speaking is a gpt-realtime model with the voice it speaks in unless a game
@@ -54,15 +57,13 @@ func Platform() adapters.Platform {
 		// Its models move fast; an admin replaces a retired one before a release does.
 		Configurable: true,
 		Toggles:      adapters.Toggles{Images: true, AudioOut: true, AudioIn: true, AudioLive: true},
-		Facts:    Models,
-		Voices:   map[adapters.ModelType][]adapters.BuiltinVoice{adapters.ModelLive: LiveVoices, adapters.ModelSpeech: RealtimeVoices},
+		Facts:        Models,
+		Voices:       map[adapters.ModelType][]adapters.BuiltinVoice{adapters.ModelLive: LiveVoices, adapters.ModelSpeech: RealtimeVoices},
 		Tiers: adapters.Ladder(
 			adapters.ModelSet{
 				adapters.ModelTooling: tooling,
 				adapters.ModelStory:   {Name: "gpt-5.6-luna"},
-				// The lowest quality on offer: a workshop runs on low, a room
-				// of young people playing at once, so the saving multiplies.
-				adapters.ModelImage:   image("gpt-image-2.5-flare", "low", "1024x672"),
+				adapters.ModelImage:   picture,
 				adapters.ModelLive:    live,
 				adapters.ModelSpeech:  speechMini,
 				adapters.ModelHearing: hearing,
@@ -70,7 +71,7 @@ func Platform() adapters.Platform {
 			adapters.ModelSet{
 				adapters.ModelTooling: tooling,
 				adapters.ModelStory:   {Name: "gpt-6.1-terra"},
-				adapters.ModelImage:   image("gpt-image-2.5-flare", "medium", "1024x672"),
+				adapters.ModelImage:   picture,
 				adapters.ModelLive:    live,
 				adapters.ModelSpeech:  speechMini,
 				adapters.ModelHearing: hearing,
@@ -78,7 +79,7 @@ func Platform() adapters.Platform {
 			adapters.ModelSet{
 				adapters.ModelTooling: tooling,
 				adapters.ModelStory:   {Name: "gpt-6.2-sol"},
-				adapters.ModelImage:   image("gpt-image-2.5-flare", "high", "1024x672"),
+				adapters.ModelImage:   picture,
 				adapters.ModelLive:    live,
 				adapters.ModelSpeech:  speechFull,
 				adapters.ModelHearing: hearing,

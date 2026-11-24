@@ -36,6 +36,7 @@ var Models = adapters.ModelTable{
 	"gpt-6.1-terra": facts(textImage, text, "2026-11-22", adapters.Price{InputPerMTok: 1.00, CachedInputPerMTok: 0.05, OutputPerMTok: 5.00}).Windowed(1_050_000, "2026-11-22", docs("gpt-6.1-terra")),
 	"gpt-5.6-luna":  facts(textImage, text, "2026-08-11", adapters.Price{InputPerMTok: 0.20, CachedInputPerMTok: 0.02, OutputPerMTok: 1.20}).Windowed(1_050_000, "2026-11-22", docs("gpt-5.6-luna")),
 
+	"gpt-image-2.6-flare": facts(textImage, imageOut, "2026-11-24", adapters.Price{InputPerMTok: 5.00, CachedInputPerMTok: 1.25, OutputPerMTok: 30.00}),
 	"gpt-image-2.5-flare": facts(textImage, imageOut, "2026-08-11", adapters.Price{InputPerMTok: 5.00, CachedInputPerMTok: 1.25, OutputPerMTok: 30.00}),
 
 	"gpt-realtime-2.1": facts(realtimeIn, textAudio, "2026-11-21", adapters.Price{
