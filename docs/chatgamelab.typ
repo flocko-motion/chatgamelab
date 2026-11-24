@@ -103,6 +103,10 @@ A tier changes how well a session plays, never which features it has. Which
 (spoken narration), *audio-in* (voice input) and *audio-live* (live voice).
 
 The platform shows, for each platform and tier, which AI model runs each task.
+The engine comes with a model for each task and tier, and a price for each
+model; on a configurable platform the admin assigns other models, from the
+platform's model table only, and sets a model's price, until they reset it.
+A price the admin set holds until the next release, which brings its own.
 
 == Genres
 
@@ -225,8 +229,9 @@ run workshops and play.
 - *Admin* — runs the site: sets the site-wide youth-protection rules per age
   group, the AI quality tiers and the site's free-use key, sets how the site
   presents itself (its name, its operator, its support address and the links
-  it shows; everyone sees these, also before signing in), and upgrades the
-  site to new releases
+  it shows; everyone sees these, also before signing in), chooses the AI model
+  for each task and tier of a configurable platform and sets each model's
+  price, and upgrades the site to new releases
 - *Head* — is a user who *is* part of an organisation, leads it, manages its staff, workshops and rules, runs workshops.
 - *Staff* — is a user who *is* part of an organisation, runs workshops within it.
 - *Individual* — is a user who is *not* in an organisation, uses the platform on his own.
@@ -266,8 +271,9 @@ There are rules at three levels:
 
 - *Workshop* — set by a workshop's staff, per workshop.
 - *Organisation* — set by an organisation's head or staff, per organisation.
-- *Site* — set by the admin, per age group: *U13*, *U13p* and *U18*. It is set
-  once when the site is installed and is never empty.
+- *Site* — per age group: *U13*, *U13p* and *U18*. Each is the site's
+  default below until the admin changes it, and the admin gives it back its
+  default at any time; it is never empty.
 
 The site's defaults:
 

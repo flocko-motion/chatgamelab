@@ -1540,17 +1540,16 @@
     "searchPlaceholder": "Mitglieder suchen...",
     "serverSettings": {
       "constraints": {
-        "description": "Definiere verbindliche KI-Regeln basierend auf der Altersgruppe der Spieler. Diese Jugendschutz-Regeln werden in jede KI-Antwort eingefügt. Sie gelten für alle angemeldeten Benutzer außerhalb des Workshop-Modus.",
+        "description": "Verbindliche KI-Regeln nach der Altersgruppe der Spieler. Sie gehen mit jedem KI-Aufruf angemeldeter Nutzer außerhalb des Workshop-Modus mit. Jede beginnt als Standard der Seite; du kannst sie ändern und jederzeit zum Standard zurückkehren.",
         "title": "Altersbasierte Jugendschutz-Regeln",
         "u13Hint": "Wird in jeden KI-Prompt für angemeldete Nutzer im Alter von 13-17 Jahren ohne elterliche Einwilligung eingefügt.",
         "u13Label": "Jugendschutz-Regel für Nutzer von 13-17 Jahren, ohne elterliche Einwilligung (U13)",
-        "u13Placeholder": "z.B. Halte alle Inhalte strikt altersgerecht für Jugendliche. Keine Gewalt, keine romantischen Inhalte, keine Horrorthemen.",
         "u13pHint": "Wird in jeden KI-Prompt für angemeldete Nutzer im Alter von 13-17 Jahren mit elterlicher Einwilligung eingefügt.",
         "u13pLabel": "Jugendschutz-Regel für Nutzer von 13-17 Jahren, mit elterlicher Einwilligung (U13p)",
-        "u13pPlaceholder": "z.B. Altersgerechte Inhalte für Jugendliche, deren Eltern zugestimmt haben. Einige reifere Themen erlaubt, keine expliziten Inhalte.",
         "u18Hint": "Wird in jeden KI-Prompt für angemeldete Nutzer ab 18 Jahren eingefügt.",
         "u18Label": "Jugendschutz-Regel für Nutzer ab 18 Jahren (U18)",
-        "u18Placeholder": "z.B. Halte die Inhalte angemessen. Vermeide explizite Gewalt oder sexuelle Inhalte."
+        "changed": "Geändert",
+        "reset": "Zurück zum Standard"
       },
       "defaultTier": {
         "description": "Die serverweite Standardstufe, die verwendet wird, wenn keine spezifische Stufe auf Workshop-, Institutions- oder Benutzerebene konfiguriert ist. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben.",
@@ -1644,7 +1643,92 @@
         "general": "Allgemein",
         "branding": "Erscheinungsbild",
         "ai": "KI und Schlüssel",
-        "youthProtection": "Jugendschutz"
+        "youthProtection": "Jugendschutz",
+        "models": "KI-Modelle"
+      },
+      "models": {
+        "fixed": "Die Modelle dieser Plattform legt die Engine fest; sie lassen sich hier nicht ändern.",
+        "assignments": {
+          "title": "{{platform}}: Modelle je Stufe",
+          "description": "Welches Modell jede Qualitätsstufe für welche Aufgabe nutzt. Klicke ein Modell an, um ein anderes aus der Modelltabelle zuzuweisen. Neue Sitzungen nutzen die Änderung, laufende behalten ihre Modelle."
+        },
+        "table": {
+          "title": "{{platform}}: Modelltabelle",
+          "description": "Was jedes Modell aufnimmt und erzeugt, seine Preise in Dollar und sein Kontextfenster. Daraus werden die Kosten berechnet. Modelle, die keine Stufe nutzt, sind ausgegraut. Änderungen an den Modellen der Engine gelten bis zur nächsten App-Version.",
+          "add": "Modell hinzufügen",
+          "edit": "Eintrag bearbeiten",
+          "unused": "Nicht genutzt",
+          "added": "Hinzugefügt",
+          "stale": "Durch Update zurückgesetzt",
+          "media": "Nimmt {{takes}} · erzeugt {{makes}}",
+          "windowValue": "Fenster {{tokens}} Tokens",
+          "read": "Preis vom {{date}}, Quelle: {{source}}"
+        },
+        "task": "Aufgabe",
+        "changed": "Geändert",
+        "unpriced": "Dieses Modell hat keinen Eintrag in der Modelltabelle: Seine Kosten werden nicht berechnet, und eine Geschichte darauf wird nie gekürzt.",
+        "refused": "Die Engine hat diese Änderung abgelehnt",
+        "types": {
+          "tooling": "Werkzeug",
+          "story": "Geschichte",
+          "image": "Bilder",
+          "live": "Live-Stimme",
+          "speech": "Erzählstimme",
+          "hearing": "Spracheingabe"
+        },
+        "media": {
+          "text": "Text",
+          "image": "Bilder",
+          "audio": "Audio"
+        },
+        "price": {
+          "none": "Kein Preis",
+          "inputPerMTok": "Eingabe {{value}}/M",
+          "cachedInputPerMTok": "zwischengespeichert {{value}}/M",
+          "outputPerMTok": "Ausgabe {{value}}/M",
+          "audioInputPerMTok": "Audio ein {{value}}/M",
+          "cachedAudioInputPerMTok": "Audio zwischengespeichert {{value}}/M",
+          "audioOutputPerMTok": "Audio aus {{value}}/M",
+          "audioPerMinute": "{{value}}/Min.",
+          "perImage": "{{value}}/Bild"
+        },
+        "assign": {
+          "title": "Modell zuweisen",
+          "where": "{{task}} auf der Stufe {{tier}}",
+          "model": "Modell",
+          "modelHint": "Nur Modelle aus der Modelltabelle, die zu dieser Aufgabe passen. Standard: {{model}}",
+          "reset": "Zurück zum Standard",
+          "cellLabel": "{{task}}, {{tier}}: {{model}}. Anderes Modell zuweisen"
+        },
+        "probe": {
+          "button": "Testen",
+          "none": "Modelle für diese Aufgabe lassen sich noch nicht testen.",
+          "answers": "Antwortet (Kosten ${{cost}})",
+          "failed": "Antwortet nicht: {{message}}"
+        },
+        "entry": {
+          "model": "Modellname",
+          "modelHint": "Genau wie beim Anbieter, z. B. gpt-6.2-sol",
+          "takes": "Nimmt",
+          "makes": "Erzeugt",
+          "prices": "Preise",
+          "pricesHint": "In Dollar, wie auf der Preisseite des Anbieters. Lass ein Feld leer, wenn das Modell so nicht abgerechnet wird.",
+          "price": {
+            "inputPerMTok": "Eingabe je Million Tokens",
+            "cachedInputPerMTok": "Zwischengespeicherte Eingabe je Million Tokens",
+            "outputPerMTok": "Ausgabe je Million Tokens",
+            "audioInputPerMTok": "Audio-Eingabe je Million Tokens",
+            "cachedAudioInputPerMTok": "Zwischengespeicherte Audio-Eingabe je Million Tokens",
+            "audioOutputPerMTok": "Audio-Ausgabe je Million Tokens",
+            "audioPerMinute": "Audio je Minute",
+            "perImage": "Je Bild"
+          },
+          "window": "Kontextfenster (Tokens)",
+          "windowHint": "Wie viel ein Aufruf fassen darf. Geschichten- und Erzählmodelle brauchen es, sonst wird eine lange Geschichte nie gekürzt.",
+          "codeRead": "Werte der Engine: vom {{date}}, Quelle: {{source}}",
+          "reset": "Zurück zu den Werten der Engine",
+          "remove": "Modell entfernen"
+        }
       }
     },
     "settings": "Einstellungen",

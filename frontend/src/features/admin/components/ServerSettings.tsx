@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Alert, Container, Group, Loader, Stack, Tabs } from "@mantine/core";
-import { IconAlertCircle, IconBrush, IconRefresh, IconShieldLock, IconSparkles } from "@tabler/icons-react";
+import { IconAlertCircle, IconBrush, IconCpu, IconRefresh, IconShieldLock, IconSparkles } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "@components/typography";
 import { useAuth } from "@/providers/AuthProvider";
@@ -10,6 +10,7 @@ import { SiteUpdates } from "./SiteUpdates";
 import { SiteBranding } from "./SiteBranding";
 import { AiSettings } from "./AiSettings";
 import { YouthProtectionSettings } from "./YouthProtectionSettings";
+import { EngineModels } from "./EngineModels";
 
 /** The site's settings, for the admin, one topic per tab. */
 export function ServerSettings() {
@@ -44,6 +45,9 @@ export function ServerSettings() {
             <Tabs.Tab value="ai" leftSection={<IconSparkles size={16} />}>
               {t("serverSettings.tabs.ai")}
             </Tabs.Tab>
+            <Tabs.Tab value="models" leftSection={<IconCpu size={16} />}>
+              {t("serverSettings.tabs.models")}
+            </Tabs.Tab>
             <Tabs.Tab value="youth" leftSection={<IconShieldLock size={16} />}>
               {t("serverSettings.tabs.youthProtection")}
             </Tabs.Tab>
@@ -57,6 +61,9 @@ export function ServerSettings() {
           </Tabs.Panel>
           <Tabs.Panel value="ai" pt="lg">
             {state.loading ? <Centered /> : <AiSettings state={state} />}
+          </Tabs.Panel>
+          <Tabs.Panel value="models" pt="lg">
+            <EngineModels />
           </Tabs.Panel>
           <Tabs.Panel value="youth" pt="lg">
             {state.loading ? <Centered /> : <YouthProtectionSettings state={state} />}

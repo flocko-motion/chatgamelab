@@ -62,8 +62,8 @@ type SystemSettingsReq struct{}
 // UpdateSystemSettingsEndpoint updates the site-wide settings; admins only.
 //
 // Only the fields sent change. The default AI quality tier cannot be empty;
-// an empty free-use tier or constraint clears it. Answers with the settings
-// as stored.
+// an empty free-use tier clears it; a constraint emptied, or set to its
+// default, is the default again. Answers with the settings as they apply.
 type UpdateSystemSettingsEndpoint struct{}
 
 func (UpdateSystemSettingsEndpoint) Method() string { return "PATCH" }

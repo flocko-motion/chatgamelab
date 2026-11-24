@@ -94,7 +94,7 @@ func draw(path, out string, offer engine.Offer) (float64, error) {
 	defer cancel()
 	cover, err := engine.MakeCover(ctx, engine.CoverSpec{
 		Title: file.Name, Description: file.Description, Scenario: file.SystemMessageScenario,
-		ImageStyle: file.ImageStyle, Guardrail: core.DevSiteConstraintU13,
+		ImageStyle: file.ImageStyle, Guardrail: *core.DefaultSiteRules().U13,
 	}, offer)
 	cost := cover.Usage.TotalCost
 	if err != nil {

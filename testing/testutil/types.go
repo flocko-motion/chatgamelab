@@ -40,6 +40,8 @@ type (
 	ApiKeyGameShare     = apiclient.ShareLinkView
 	SystemSettings      = apiclient.SystemSettings
 	Site                = apiclient.SiteResp
+	EngineModels        = apiclient.EngineModelsResp
+	ModelTableRow       = apiclient.ModelTableRowView
 	UpdateState         = apiclient.SchemafUpdateState
 	Genre               = apiclient.GenreInfo
 	Theme               = apiclient.ThemeInfo

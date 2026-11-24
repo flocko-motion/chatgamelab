@@ -1,0 +1,47 @@
+/* The engine's models (#589): tier assignments and the model table. */
+
+.grid td,
+.grid th {
+  vertical-align: middle;
+}
+
+.modelName {
+  font-family: var(--mantine-font-family-monospace);
+  font-size: var(--mantine-font-size-sm);
+  overflow-wrap: anywhere;
+}
+
+/* A tier's task the admin may change: the whole cell is the button. */
+.cellButton {
+  display: block;
+  padding: 4px 6px;
+  margin: -4px -6px;
+  border-radius: var(--mantine-radius-sm);
+}
+
+.cellButton:hover,
+.cellButton:focus-visible {
+  background: var(--mantine-color-accent-0);
+}
+
+.rows {
+  border-top: 1px solid var(--mantine-color-gray-2);
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-sm) 0;
+  border-bottom: 1px solid var(--mantine-color-gray-2);
+}
+
+.rowMain {
+  flex: 1;
+  min-width: 0;
+}
+
+/* A model no tier runs: its prices matter less. */
+.row[data-unused] .rowMain {
+  opacity: 0.5;
+}

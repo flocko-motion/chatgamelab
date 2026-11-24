@@ -51,7 +51,9 @@ func Platform() adapters.Platform {
 		ID:       "openai",
 		Name:     "OpenAI",
 		UserKeys: true,
-		Toggles:  adapters.Toggles{Images: true, AudioOut: true, AudioIn: true, AudioLive: true},
+		// Its models move fast; an admin replaces a retired one before a release does.
+		Configurable: true,
+		Toggles:      adapters.Toggles{Images: true, AudioOut: true, AudioIn: true, AudioLive: true},
 		Facts:    Models,
 		Voices:   map[adapters.ModelType][]adapters.BuiltinVoice{adapters.ModelLive: LiveVoices, adapters.ModelSpeech: RealtimeVoices},
 		Tiers: adapters.Ladder(

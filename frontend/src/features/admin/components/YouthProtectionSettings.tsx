@@ -1,19 +1,16 @@
-import { Textarea } from "@mantine/core";
-import { IconShieldLock } from "@tabler/icons-react";
+import { ActionIcon, Badge, Group, Textarea, Tooltip } from "@mantine/core";
+import { IconArrowBackUp, IconShieldLock } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import type { ServerSettingsState } from "../hooks/useServerSettings";
+import { RULE_LEVELS, type ServerSettingsState } from "../hooks/useServerSettings";
 import { SettingsCard } from "./SettingsCard";
 
-const AGE_GROUPS = [
-  { id: "u13", field: "promptConstraintU13" },
-  { id: "u13p", field: "promptConstraintU13p" },
-  { id: "u18", field: "promptConstraintU18" },
-] as const;
-
-/** The site's youth-protection rules per age group, for the admin. */
+/**
+ * The site's youth-protection rules per age group, for the admin: each is
+ * the site's default until the admin changes it, and goes back to it.
+ */
 export function YouthProtectionSettings({ state }: { state: ServerSettingsState }) {
   const { t } = useTranslation("common");
-  const { settings, update } = state;
+  const { update } = state;
 
   return (
     <SettingsCard
@@ -22,25 +19,46 @@ export function YouthProtectionSettings({ state }: { state: ServerSettingsState 
       description={t("serverSettings.constraints.description")}
       busy={update.isPending}
     >
-      {AGE_GROUPS.map(({ id, field }) => {
-        const stored = settings?.[field] || "";
+      {RULE_LEVELS.map((level) => {
+        const rule = state.rule(level);
         return (
           <Textarea
-            key={`${id}-${stored}`}
-            label={t(`serverSettings.constraints.${id}Label`)}
-            placeholder={t(`serverSettings.constraints.${id}Placeholder`)}
-            description={t(`serverSettings.constraints.${id}Hint`)}
+            key={`${level}-${rule.value}`}
+            label={
+              <Group gap="xs" component="span">
+                {t(`serverSettings.constraints.${level}Label`)}
+                {rule.changed && (
+                  <Badge size="xs" variant="light" color="accent">
+                    {t("serverSettings.constraints.changed")}
+                  </Badge>
+                )}
+              </Group>
+            }
+            description={t(`serverSettings.constraints.${level}Hint`)}
             size="sm"
             minRows={3}
             maxRows={6}
             autosize
             maxLength={500}
-            defaultValue={stored}
+            defaultValue={rule.value}
             disabled={update.isPending}
-            onBlur={(event) => {
-              const next = event.currentTarget.value;
-              if (next !== stored) update.mutate({ [field]: next });
-            }}
+            onBlur={(event) => state.setRule(level, event.currentTarget.value)}
+            rightSectionPointerEvents="all"
+            rightSection={
+              rule.changed && (
+                <Tooltip label={t("serverSettings.constraints.reset")} withArrow>
+                  <ActionIcon
+                    variant="subtle"
+                    color="gray"
+                    size="sm"
+                    aria-label={t("serverSettings.constraints.reset")}
+                    onClick={() => state.resetRule(level)}
+                  >
+                    <IconArrowBackUp size={16} />
+                  </ActionIcon>
+                </Tooltip>
+              )
+            }
           />
         );
       })}

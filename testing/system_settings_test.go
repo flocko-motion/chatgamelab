@@ -226,3 +226,29 @@ func (s *SystemSettingsTestSuite) TestAdminSetsOnlyTheirOwnKeyAsFreeUse() {
 	s.NotFound(err, "an admin may not make someone else's key pay for the site")
 	s.Equal(before.FreeUseApiKeyId, Must(admin.GetSystemSettings()).FreeUseApiKeyId, "the site's key stays")
 }
+
+// A site rule is the site's default until the admin changes it, and the
+// default again once they clear it or set it to the default's text: the site
+// rule is never empty.
+func (s *SystemSettingsTestSuite) TestSiteRulesStartAsTheDefaultAndGoBack() {
+	admin := s.DevUser()
+	settings := Must(admin.GetSystemSettings())
+	def := settings.PromptConstraintDefaults.U18
+	s.NotEmpty(def)
+	s.Require().NotNil(settings.PromptConstraintU18)
+	s.Equal(def, *settings.PromptConstraintU18, "an unset level is its default")
+
+	own := "Nur Rätsel, keine Kämpfe."
+	settings = Must(admin.UpdateSystemSettings(testutil.SettingsUpdate{PromptConstraintU18: &own}))
+	s.Equal(own, *settings.PromptConstraintU18)
+
+	cleared := ""
+	settings = Must(admin.UpdateSystemSettings(testutil.SettingsUpdate{PromptConstraintU18: &cleared}))
+	s.Require().NotNil(settings.PromptConstraintU18)
+	s.Equal(def, *settings.PromptConstraintU18, "a cleared level is its default again")
+
+	settings = Must(admin.UpdateSystemSettings(testutil.SettingsUpdate{PromptConstraintU18: &def}))
+	s.Equal(def, *settings.PromptConstraintU18)
+	s.Equal(0, s.DatabaseCount("SELECT count(*) FROM system_settings WHERE prompt_constraint_u18 IS NOT NULL"),
+		"the default's text stores nothing, so the default keeps applying")
+}

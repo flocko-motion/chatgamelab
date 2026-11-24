@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strings"
 	"time"
 
 	"cgl/core/internal/rules"
@@ -21,15 +22,41 @@ import (
 // spends someone else's key on the whole site. The site's rules are
 // readable to everyone signed in, as the fallback below an organisation's.
 
-// SiteRules are the site's youth-protection rules per age group; nil: none
-// set.
+// SiteRules are the site's youth-protection rules per age group.
 type SiteRules struct {
 	U13  *string // 13-17 without parental consent
 	U13p *string // 13-17 with parental consent
 	U18  *string // 18 and over
 }
 
-// ReadSiteRules are the site's rules: {Read, SiteRules, Everywhere}.
+// The site's default rules (spec, Jugendschutz: the site's defaults): a level
+// the admin never set, or gave back its default, plays under these, so the
+// site rule is never empty. U13p and U18 are the same by default.
+const (
+	defaultSiteRuleU13   = "Erlaube spürbare Konflikte und stärkere Spannung; greife bei realistischer, detaillierter oder eskalierender Gewalt ein und verhindere Verherrlichung und Überforderung."
+	defaultSiteRuleAdult = "Erlaube realistische, auch deutlich intensivere Inhalte; unterbinde exzessive oder verherrlichte Gewalt sowie extreme, entwürdigende oder diskriminierende Darstellungen konsequent."
+)
+
+// DefaultSiteRules are the site's default rules, a copy.
+func DefaultSiteRules() SiteRules {
+	u13, u13p, u18 := defaultSiteRuleU13, defaultSiteRuleAdult, defaultSiteRuleAdult
+	return SiteRules{U13: &u13, U13p: &u13p, U18: &u18}
+}
+
+// siteRulesOf are the site's rules as they apply: what the admin set, else
+// the default.
+func siteRulesOf(s db.SystemSetting) SiteRules {
+	d := DefaultSiteRules()
+	or := func(stored sql.NullString, def *string) *string {
+		if stored.Valid && stored.String != "" {
+			return &stored.String
+		}
+		return def
+	}
+	return SiteRules{U13: or(s.PromptConstraintU13, d.U13), U13p: or(s.PromptConstraintU13p, d.U13p), U18: or(s.PromptConstraintU18, d.U18)}
+}
+
+// ReadSiteRules are the site's rules as they apply: {Read, SiteRules, Everywhere}.
 func ReadSiteRules(ctx context.Context) (SiteRules, error) {
 	if !granted(ctx, rules.Read, rules.SiteRules, rules.Everywhere) {
 		return SiteRules{}, forbidden("you may not read the site's rules")
@@ -38,7 +65,7 @@ func ReadSiteRules(ctx context.Context) (SiteRules, error) {
 	if err != nil {
 		return SiteRules{}, err
 	}
-	return SiteRules{U13: nullString(s.PromptConstraintU13), U13p: nullString(s.PromptConstraintU13p), U18: nullString(s.PromptConstraintU18)}, nil
+	return siteRulesOf(s), nil
 }
 
 // SiteSettings are the site's settings as the admin sees them.
@@ -48,7 +75,7 @@ type SiteSettings struct {
 	ModifiedAt  time.Time
 	DefaultTier string  // the tier wherever nothing else sets one
 	FreeUseTier *string // the free-use key's tier; nil: the default
-	Rules       SiteRules
+	Rules       SiteRules // as they apply
 	FreeUseKey  *FreeUseKey
 }
 
@@ -78,7 +105,7 @@ func siteSettings(ctx context.Context) (*SiteSettings, error) {
 	settings := &SiteSettings{
 		ID: s.ID, CreatedAt: s.CreatedAt, ModifiedAt: s.ModifiedAt,
 		DefaultTier: s.DefaultAiQualityTier, FreeUseTier: nullString(s.FreeUseAiQualityTier),
-		Rules: SiteRules{U13: nullString(s.PromptConstraintU13), U13p: nullString(s.PromptConstraintU13p), U18: nullString(s.PromptConstraintU18)},
+		Rules: siteRulesOf(s),
 	}
 	if s.FreeUseApiKeyID.Valid {
 		key := &FreeUseKey{ID: s.FreeUseApiKeyID.UUID}
@@ -94,7 +121,8 @@ func siteSettings(ctx context.Context) (*SiteSettings, error) {
 }
 
 // SiteSettingsChange is what changes in the site's settings: a nil field
-// stays, an empty one clears it. The default tier cannot be cleared.
+// stays, an empty one clears it. The default tier cannot be cleared; a rule
+// cleared, or set to its default, is the default again.
 type SiteSettingsChange struct {
 	DefaultTier *string
 	FreeUseTier *string
@@ -118,19 +146,23 @@ func EditSiteSettings(ctx context.Context, c SiteSettingsChange) (*SiteSettings,
 				return err
 			}
 		}
+		d := DefaultSiteRules()
 		for _, set := range []struct {
 			value *string
+			def   *string // a value equal to it stores nothing: the default applies
 			write func(context.Context, sql.NullString) error
 		}{
-			{c.FreeUseTier, q.V2UpdateFreeUseAiQualityTier},
-			{c.U13, q.V2UpdatePromptConstraintU13},
-			{c.U13p, q.V2UpdatePromptConstraintU13p},
-			{c.U18, q.V2UpdatePromptConstraintU18},
+			{c.FreeUseTier, nil, q.V2UpdateFreeUseAiQualityTier},
+			{c.U13, d.U13, q.V2UpdatePromptConstraintU13},
+			{c.U13p, d.U13p, q.V2UpdatePromptConstraintU13p},
+			{c.U18, d.U18, q.V2UpdatePromptConstraintU18},
 		} {
 			if set.value == nil {
 				continue
 			}
-			if err := set.write(ctx, sql.NullString{String: *set.value, Valid: *set.value != ""}); err != nil {
+			value := strings.TrimSpace(*set.value)
+			keep := value != "" && (set.def == nil || value != *set.def)
+			if err := set.write(ctx, sql.NullString{String: value, Valid: keep}); err != nil {
 				return err
 			}
 		}

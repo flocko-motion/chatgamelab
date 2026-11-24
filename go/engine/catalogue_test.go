@@ -212,69 +212,59 @@ func TestPlatformsAreCopies(t *testing.T) {
 	}
 }
 
-// Every model a tier names has an entry in its platform's model table, so
-// every model is priced and its media are known.
-func TestEveryTierModelHasFacts(t *testing.T) {
-	for _, p := range Platforms() {
-		for _, tier := range p.Tiers {
-			for kind, model := range tier.Models {
-				facts, known := p.Models[model.Name]
-				if !known {
-					t.Errorf("%s/%s/%s: %s has no entry in the model table", p.ID, tier.Tier, kind, model.Name)
-					continue
-				}
-				if facts.Read == "" || facts.Source == "" {
-					t.Errorf("%s: %s's price says neither when nor where it was read", p.ID, model.Name)
-				}
+// The code's tables hold together, before any admin's overrides: every model
+// a tier names is in the model table, takes and makes what its work needs,
+// and a model a story thread runs on has a context window (catalogueProblems,
+// the same check every admin change passes).
+func TestCodeCatalogueHoldsTogether(t *testing.T) {
+	for _, p := range defaultEntries() {
+		for _, problem := range catalogueProblems(p) {
+			t.Error(problem)
+		}
+	}
+}
+
+// Every entry of the code's model table says when and where its price, and
+// its window if it has one, was read.
+func TestCodeModelFactsAreSourced(t *testing.T) {
+	for _, p := range defaultEntries() {
+		for name, facts := range p.Facts {
+			if facts.Read == "" || facts.Source == "" {
+				t.Errorf("%s: %s's price says neither when nor where it was read", p.ID, name)
+			}
+			if facts.Window > 0 && (facts.WindowRead == "" || facts.WindowSource == "") {
+				t.Errorf("%s: %s's window says neither when nor where it was read", p.ID, name)
 			}
 		}
 	}
 }
 
-// What a model type does needs what its model takes and makes: the hearing
-// model takes audio, the speech model makes it, the image model makes
-// pictures, and every model answers in text unless it only draws.
-func TestTierModelsTakeAndMakeWhatTheirTypeNeeds(t *testing.T) {
-	needs := map[ModelType]struct{ in, out adapters.Medium }{
-		ModelTooling: {adapters.MediumText, adapters.MediumText},
-		ModelStory:   {adapters.MediumText, adapters.MediumText},
-		ModelImage:   {adapters.MediumText, adapters.MediumImage},
-		ModelSpeech:  {adapters.MediumText, adapters.MediumAudio},
-		ModelHearing: {adapters.MediumAudio, adapters.MediumText},
-		ModelLive:    {adapters.MediumAudio, adapters.MediumAudio},
-	}
-	for _, p := range Platforms() {
-		for _, tier := range p.Tiers {
-			for kind, model := range tier.Models {
-				facts, need := p.Models[model.Name], needs[kind]
-				if !facts.Takes(need.in) || !facts.Makes(need.out) {
-					t.Errorf("%s/%s: %s model %s takes %v and makes %v, want it to take %s and make %s",
-						p.ID, tier.Tier, kind, model.Name, facts.In, facts.Out, need.in, need.out)
-				}
-			}
-		}
-	}
-}
-
-// Every model a story thread runs on, the story model and the speech model,
-// has a context window, so the thread compacts before it overflows; the
-// window says when and where it was read.
-func TestThreadModelsHaveAContextWindow(t *testing.T) {
-	for _, p := range Platforms() {
-		for _, tier := range p.Tiers {
-			for _, kind := range []ModelType{ModelStory, ModelSpeech} {
-				model, listed := tier.Models[kind]
-				if !listed {
-					continue
-				}
-				facts := p.Models[model.Name]
-				if facts.Window <= 0 {
-					t.Errorf("%s/%s: %s model %s has no context window", p.ID, tier.Tier, kind, model.Name)
-				}
-				if facts.WindowRead == "" || facts.WindowSource == "" {
-					t.Errorf("%s: %s's window says neither when nor where it was read", p.ID, model.Name)
-				}
-			}
+// The check finds each way tables can fall apart.
+func TestCatalogueProblemsFindsEachFault(t *testing.T) {
+	base := func() adapters.Platform { return defaultEntries()[0].Clone() }
+	for name, broken := range map[string]func(p *adapters.Platform){
+		"model not in the table": func(p *adapters.Platform) {
+			m := p.Tiers[0].Models[ModelStory]
+			m.Name = "nowhere"
+			p.Tiers[0].Models[ModelStory] = m
+		},
+		"hearing model hears no audio": func(p *adapters.Platform) {
+			name := p.Tiers[0].Models[ModelHearing].Name
+			f := p.Facts[name]
+			f.In = []Medium{adapters.MediumText}
+			p.Facts[name] = f
+		},
+		"story model without a window": func(p *adapters.Platform) {
+			name := p.Tiers[0].Models[ModelStory].Name
+			f := p.Facts[name]
+			f.Window = 0
+			p.Facts[name] = f
+		},
+	} {
+		p := base()
+		broken(&p)
+		if len(catalogueProblems(p)) == 0 {
+			t.Errorf("%s: not found", name)
 		}
 	}
 }

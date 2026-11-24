@@ -4,6 +4,17 @@
  */
 export type {
   AcceptInviteResp,
+  EngineModelsPlatform,
+  EngineModelsResp,
+  Medium,
+  ModelFacts,
+  ModelFactsOverride,
+  ModelSlotView,
+  ModelTableRowView,
+  ModelType,
+  Price,
+  ProbeEngineModelResp,
+  Tier,
   Branding,
   SiteResp,
   ConsentStatusView,
