@@ -56,7 +56,7 @@
       "cityLabel": "Kota",
       "confirmAdult": "Saya berusia minimal 18 tahun.",
       "consentPage": {
-        "constraintIntro": "Dengan deklarasi ini, lembaga Anda berkomitmen untuk menetapkan pembatasan prompt perlindungan anak yang sesuai dengan kelompok sasaran Anda. Di bawah ini adalah pengaturan yang sedang digunakan organisasi Anda. Silakan periksa dan sesuaikan jika diperlukan.",
+        "constraintIntro": "Dengan deklarasi ini, lembaga Anda berkomitmen untuk menetapkan aturan perlindungan anak yang sesuai dengan kelompok sasaran Anda. Di bawah ini tercantum aturan yang saat ini digunakan oleh organisasi Anda. Silakan periksa dan sesuaikan jika diperlukan.",
         "emailDescription": "Kami mengirimkan konfirmasi beserta teks deklarasi ke alamat ini.",
         "introExisting": "Organisasi Anda, “{{name}}”, kini memiliki deklarasi yang dikonfirmasi secara online. Deklarasi ini menggantikan perjanjian pengguna yang Anda tanda tangani sebelumnya. Silakan baca dan setujui atas nama lembaga Anda.",
         "introNewVersion": "Deklarasi telah diperbarui (versi {{version}}). Silakan baca versi baru dan setujui atas nama organisasi Anda, “{{name}}”.",
@@ -112,14 +112,14 @@
       "youthProtection": {
         "changeHint": "Anda dapat mengubah pengaturan ini kapan saja dan menetapkannya secara berbeda untuk setiap lokakarya.",
         "defaultOption": "Default mulai usia 13 tahun",
-        "fieldLabel": "Pembatasan prompt perlindungan anak untuk organisasi Anda",
+        "fieldLabel": "Aturan perlindungan anak organisasi Anda",
         "intro": "AI menerima instruksi ini dalam setiap permainan organisasi Anda. Pilih pengaturan yang sesuai dengan usia kelompok sasaran Anda.",
         "responsibilityHint": "Saran ini bukan klasifikasi usia resmi. Lembaga Anda menentukan pengaturan tersebut dan bertanggung jawab atasnya.",
         "suggestionAdults": "untuk orang dewasa mulai usia {{age}} tahun",
         "suggestionChildren": "untuk anak-anak mulai sekitar usia {{age}} tahun",
         "suggestionTeens": "untuk remaja mulai sekitar usia {{age}} tahun",
         "suggestionsLabel": "Saran (klik untuk mengganti teks):",
-        "title": "Pembatasan prompt perlindungan anak",
+        "title": "Aturan perlindungan anak",
         "tooLong": "Maksimal {{max}} karakter. Silakan persingkat atau pilih salah satu saran."
       }
     },
@@ -236,7 +236,7 @@
       "organizationExistingAccount": "Organisasi mendaftar dengan login baru. Sudah memiliki akun?",
       "organizationIntro": "Untuk pusat kegiatan anak muda, sekolah, dan lembaga lain yang ingin menggunakan ChatGameLab dalam lokakarya.",
       "organizationStep1": "Buat login Anda melalui Auth0 (email dan kata sandi).",
-      "organizationStep2": "Masukkan data diri dan lembaga Anda, tetapkan pembatasan prompt perlindungan anak, lalu setujui deklarasi.",
+      "organizationStep2": "Anda memasukkan informasi tentang diri Anda dan lembaga Anda, menetapkan aturan perlindungan anak, lalu menyetujui deklarasi.",
       "organizationStep3": "Setelah formulir dikirim, organisasi langsung diaktifkan dan Anda dapat membuat lokakarya.",
       "organizationTitle": "Daftar sebagai organisasi",
       "privacyPolicy": "Kebijakan Privasi",
@@ -433,6 +433,25 @@
           "role-desc": "Peran (Z-A)"
         },
         "title": "Kelola Pengguna"
+      },
+      "verifiedPages": {
+        "approve": "Setujui",
+        "approved": "Disetujui",
+        "callback": "Callback: {{url}}",
+        "description": "Halaman terverifikasi milik setiap organisasi. Game mereka baru dimulai di sana setelah Anda menyetujuinya; yang disetujui adalah situsnya (skema dan host), sehingga halaman yang dipindahkan ke situs lain harus menunggu persetujuan lagi, sedangkan port atau path lain di situs yang sama tetap disetujui.",
+        "empty": "Belum ada organisasi yang mendaftarkan halaman.",
+        "filters": {
+          "all": "Semua",
+          "approved": "Disetujui",
+          "waiting": "Menunggu"
+        },
+        "loadError": "Halaman tidak dapat dimuat.",
+        "organisation": "Organisasi",
+        "page": "Halaman",
+        "status": "Status",
+        "title": "Halaman yang menyematkan game",
+        "waiting": "Menunggu persetujuan",
+        "withdraw": "Cabut persetujuan"
       }
     },
     "aiQualityTier": {
@@ -455,6 +474,7 @@
       "empty": {
         "conditions": {
           "favorites": "salah satu favorit Anda",
+          "organisation": "organisasi Anda",
           "own": "milik Anda",
           "public": "publik",
           "sponsored": "disponsori"
@@ -470,7 +490,8 @@
         "all": "Semua Gim",
         "favorites": "Favorit",
         "genre": "Genre",
-        "own": "Gim Saya",
+        "organisation": "Organisasi",
+        "own": "Milik saya",
         "public": "Publik",
         "sponsored": "Disponsori"
       },
@@ -479,10 +500,16 @@
       "reportGame": "Laporkan gim",
       "restart": "Mulai Ulang",
       "resumeChoice": {
+        "advanced": "Pengaturan lanjutan",
         "continue": "Lanjutkan",
         "message": "Kamu sudah memulai \"{{game}}\". Lanjutkan dari bagian terakhir, atau mulai dari awal? Memulai dari awal akan menggantikan sesi sebelumnya.",
         "startNew": "Mulai dari awal",
         "title": "Lanjutkan atau mulai dari awal?"
+      },
+      "startChoice": {
+        "message": "Mulai \"{{game}}\" seperti yang telah dibuat, atau sesuaikan prompt yang digunakan saat game dimulai terlebih dahulu.",
+        "start": "Mulai",
+        "title": "Mulai game?"
       },
       "title": "Permainan",
       "unfavorite": "Hapus dari favorit",
@@ -640,6 +667,7 @@
         "alt": "Sampul {{name}}",
         "draw": "Buat sampul",
         "drawAgain": "Buat ulang",
+        "drawing": "Sedang menggambar sampul…",
         "drawnOnSave": "Sampul dibuat saat Anda menyimpan permainan.",
         "errors": {
           "failed": "Sampul tidak dapat dibuat. Silakan coba lagi.",
@@ -719,6 +747,10 @@
           },
           "description": "Deskripsi",
           "descriptionHint": "Satu atau dua kalimat untuk galeri, agar pemain tahu apa yang akan mereka hadapi.",
+          "duo": {
+            "descriptionPlaceholder": "Greta, penjaga mercusuar yang pemarah, dan inspektur pajak yang terlalu ceria berdebat sepanjang malam yang diterpa badai. Dengarkan mereka, atau pilih salah satu pihak.",
+            "titlePlaceholder": "Malam Badai di Mercusuar"
+          },
           "encounter": {
             "descriptionPlaceholder": "Kunjungi Greta, penjaga mercusuar yang pemarah, dan cari tahu apa yang dilihatnya malam itu.",
             "titlePlaceholder": "Greta di Mercusuar"
@@ -743,15 +775,17 @@
         },
         "embed": {
           "copy": "Salin snippet",
-          "incomplete": "Pilih siapa yang membayar dan halamannya untuk mendapatkan snippet.",
+          "incomplete": "Pilih apa yang akan membayar untuk mendapatkan cuplikannya.",
           "noKeys": "Kamu tidak memiliki kunci AI yang berfungsi untuk membayar. Tambahkan satu, atau minta organisasi kamu menyediakannya.",
-          "noPages": "Organisasi kamu belum memiliki halaman terverifikasi. Pimpinan atau staf dapat menambahkannya di pengaturan organisasi.",
+          "noOrganisation": "Penyematan ditujukan untuk game milik organisasi: game yang ditulis dalam lokakarya organisasi tersebut, atau oleh pimpinan dan stafnya. Game ini bukan milik organisasi mana pun.",
+          "noPages": "Daftarkan situs web organisasi Anda terlebih dahulu: halaman tempat game Anda akan berjalan. Admin akan menyetujuinya, lalu game dapat dimulai di sana.",
           "offNote": "Saat dimatikan, snippet tidak menampilkan apa pun. Saat dinyalakan kembali, snippet yang sama akan berfungsi.",
           "page": "Halaman terverifikasi",
           "pageHint": "Game hanya berjalan di sana, dan hanya setelah halaman tersebut menyetujui setiap permulaan.",
           "paidBy": "Dibayar oleh",
           "paidByPlaceholder": "Pilih kunci",
           "payingNow": "Sedang membayar",
+          "registerPage": "Daftarkan situs web di Organisasi Saya → Situs web",
           "snippet": "Snippet untuk situs web kamu",
           "snippetCss": "CSS kamu",
           "snippetHint": "Letakkan di tempat game ingin ditampilkan, lalu tentukan tinggi elemen sesuai keinginanmu.",
@@ -760,12 +794,14 @@
           "snippetVerifiedHint": "Server kamu mengisi ID pengunjung dan tampilan halaman ini; callback halamanmu menerima keduanya.",
           "styleLink": "Atur gayanya dengan CSS milikmu sendiri →",
           "toggle": "Sematkan di situs web",
-          "toggleHint": "Menampilkan game ini di halaman terverifikasi organisasi kamu, tanpa elemen ChatGameLab di sekitarnya. Pengunjung bermain sebagai tamu; kunci yang kamu pilih akan membayar."
+          "toggleHint": "Menampilkan game ini di halaman terverifikasi organisasi kamu, tanpa elemen ChatGameLab di sekitarnya. Pengunjung bermain sebagai tamu; kunci yang kamu pilih akan membayar.",
+          "waitingForApproval": "Halaman organisasi sedang menunggu persetujuan admin. Sampai disetujui, game tidak dapat dimulai di sana."
         },
         "fillIn": "Isi semua bagian sampai semuanya berwarna hijau.",
         "genre": {
           "pitch": {
             "adventure": "Pemain menjelajahi sebuah dunia. Game menceritakan apa yang terjadi, membuat gambar, dan menjaga skor.",
+            "duo": "Dua karakter berbicara satu sama lain melalui suara. Pemain mendengarkan atau ikut bergabung dalam percakapan.",
             "encounter": "Pemain berbicara dengan satu karakter melalui suara. Karakter tetap dalam perannya dan menjawab secara langsung."
           },
           "question": "Apa yang ingin kamu buat?"
@@ -815,6 +851,12 @@
               "systemMessageGameStart": "Jelaskan bagaimana game dimulai.",
               "systemMessageScenario": "Jelaskan tentang apa game ini."
             },
+            "duo": {
+              "imageStyle": "Pilih gaya gambar agar semua gambar terlihat serasi.",
+              "name": "Game Anda belum memiliki judul.",
+              "systemMessageGameStart": "Sebutkan tempat berlangsungnya adegan dan bagaimana adegan itu dimulai.",
+              "systemMessageScenario": "Sebutkan siapa kedua karakter tersebut."
+            },
             "encounter": {
               "imageStyle": "Pilih gaya gambar agar semua gambar terlihat serasi.",
               "name": "Game kamu belum memiliki judul.",
@@ -829,6 +871,10 @@
             "voiceStyleHint": "Seperti apa cerita terdengar saat dibacakan."
           },
           "builtInVoice": "Suara bawaan",
+          "duo": {
+            "voiceStyle": "Suara para karakter",
+            "voiceStyleHint": "Setiap karakter memiliki suara yang berbeda."
+          },
           "encounter": {
             "voiceStyle": "Suara karakter",
             "voiceStyleHint": "Seperti apa suara karakter tersebut."
@@ -864,6 +910,20 @@
             "scenario": "Tentang apa game ini?",
             "scenarioHint": "Dunia, peran pemain, tujuan, dan bagaimana pemain mengetahui bahwa mereka telah menang.",
             "scenarioPlaceholder": "Pemain adalah seorang penjelajah di hutan misterius, mencari harta karun tersembunyi…"
+          },
+          "duo": {
+            "firstCharacter": "Karakter pertama",
+            "firstCharacterHint": "Siapa dia: kepribadiannya, apa yang diinginkannya, dan cara bicaranya. Dia berbicara terlebih dahulu.",
+            "firstCharacterPlaceholder": "Greta, penjaga mercusuar yang pemarah dan ingin ditinggal sendirian bersama lampunya…",
+            "gameStart": "Di mana mereka berada, dan bagaimana ceritanya dimulai?",
+            "gameStartHint": "Adegan tempat keduanya berada saat game dimulai; kata-kata pertama karakter pertama ditulis berdasarkan adegan ini.",
+            "gameStartPlaceholder": "Malam yang diterpa badai. Otto mengetuk pintu mercusuar dalam keadaan basah kuyup…",
+            "scenario": "Siapa kedua karakter tersebut?",
+            "scenarioHint": "Siapa mereka masing-masing, dan mengapa mereka memiliki sesuatu untuk dibicarakan atau diperdebatkan.",
+            "scenarioPlaceholder": "Greta, penjaga mercusuar yang pemarah…",
+            "secondCharacter": "Karakter kedua",
+            "secondCharacterHint": "Siapa dia, dan mengapa keduanya memiliki sesuatu untuk dibicarakan atau diperdebatkan.",
+            "secondCharacterPlaceholder": "Otto, inspektur pajak yang terlalu ceria dan datang untuk menghitung setiap lilin…"
           },
           "encounter": {
             "gameStart": "Bagaimana karakter menyapa pemain?",
@@ -905,7 +965,8 @@
       },
       "genres": {
         "adventure": "Petualangan",
-        "npc-live": "Pertemuan"
+        "npc-duo": "Diskusi",
+        "npc-live": "Karakter"
       },
       "importExport": {
         "coverFailed": "Game berhasil diimpor, tetapi gambar sampulnya tidak dapat diperiksa. Kamu dapat membuat yang baru di editor.",
@@ -920,6 +981,7 @@
         "exportButton": "Ekspor Gim",
         "importButton": "Impor Gim"
       },
+      "newGame": "Game baru",
       "playNow": "Mainkan Sekarang",
       "privacyHint": "Nama dan deskripsi permainan dapat terlihat oleh publik. Harap jangan gunakan nama asli.",
       "privacyHintShort": "Dapat terlihat oleh publik – harap jangan gunakan nama asli.",
@@ -959,7 +1021,7 @@
         "unlimitedSessions": "Sesi tanpa batas",
         "update": "Perbarui Tautan Berbagi",
         "workshopCreateHint": "Buat tautan berbagi untuk gim ini. Kunci API lokakarya akan dipilih secara otomatis dan menanggung biayanya.",
-        "workshopDescription": "Tautan ini dibuat dalam lokakarya \"{{name}}\" – tamu bermain menggunakan kunci API lokakarya dan batasan prompt.",
+        "workshopDescription": "Tautan ini dibuat dalam lokakarya \"{{name}}\" – tamu bermain menggunakan kunci API dan aturan perlindungan anak milik lokakarya tersebut.",
         "workshopShare": "Berbagi lokakarya",
         "workshopShareDescription": "Tautan ini dibuat di lokakarya \"{{name}}\" - para tamu bermain menggunakan kunci API lokakarya.",
         "workshopSubsection": "Tautan Berbagi Lokakarya"
@@ -1071,6 +1133,7 @@
           "scifi": "Fiksi Ilmiah",
           "snowy": "Bersalju",
           "space": "Luar Angkasa",
+          "spielfieber": "Spielfieber",
           "steampunk": "Steampunk",
           "storybook": "Buku Cerita",
           "sunshine": "Sinar Matahari",
@@ -1192,6 +1255,7 @@
     "leaveTitle": "Tinggalkan Organisasi",
     "leaveWarning": "Anda akan kehilangan akses ke semua sumber daya dan anggota organisasi.",
     "list": {
+      "clearFilters": "Hapus",
       "clearPicks": "Tampilkan semua",
       "clearSearch": "Hapus pencarian",
       "filter": "Filter",
@@ -1241,6 +1305,8 @@
       "apiKeys": {
         "aboutDescription": "Kunci API yang dibagikan di sini tersedia bagi semua anggota organisasi Anda untuk memainkan gim.",
         "aboutTitle": "Kunci API Organisasi",
+        "addAndShare": "Tambahkan dan bagikan",
+        "addKey": "Tambahkan kunci",
         "allPlatforms": "Semua platform",
         "allowPublicSponsoring": "Izinkan sponsor publik",
         "allowPublicSponsoringDesc": "Kunci ini dapat digunakan untuk mensponsori gim bagi semua pengguna.",
@@ -1254,6 +1320,9 @@
         },
         "keyName": "Nama Kunci",
         "loadError": "Gagal memuat kunci API organisasi.",
+        "modeNew": "Kunci baru",
+        "modeOwn": "Salah satu kunci saya",
+        "newKeyHint": "Kunci ini akan menjadi milik Anda, seperti di halaman kunci API Anda, dan dibagikan dengan organisasi.",
         "noKeys": "Belum ada kunci API yang dibagikan dengan organisasi ini.",
         "noResults": "Tidak ada kunci API yang cocok dengan pencarian Anda.",
         "notAuthorized": "Anda tidak memiliki izin untuk mengelola kunci API organisasi. Hanya kepala dan guru yang dapat mengakses halaman ini.",
@@ -1266,7 +1335,7 @@
         "selectKeyPlaceholder": "Pilih kunci untuk dibagikan...",
         "share": "Bagikan",
         "shareKey": "Bagikan Kunci",
-        "shareKeyTitle": "Bagikan Kunci API dengan Organisasi",
+        "shareKeyTitle": "Tambahkan Kunci API ke Organisasi",
         "showDetails": "Tampilkan detail",
         "title": "Kunci API Organisasi"
       },
@@ -1317,13 +1386,13 @@
       "promoteToHead": "Promosikan menjadi Kepala",
       "promoteWarning": "Pengguna ini akan mendapatkan kemampuan untuk mengelola anggota organisasi dan mengundang guru.",
       "promptConstraintsFallbackEmpty": "(tidak dikonfigurasi)",
-      "promptConstraintsFallbackHint": "Tidak ada pembatasan organisasi yang dikonfigurasi. Default situs untuk kelompok usia pemain akan diterapkan:",
+      "promptConstraintsFallbackHint": "Organisasi tidak menetapkan aturan perlindungan anak. Sebagai gantinya, berlaku pengaturan default seluruh situs untuk kelompok usia pemain:",
       "promptConstraintsFallbackTitle": "Cadangan aktif seluruh situs",
       "promptConstraintsFallbackU13": "Di bawah 13 tahun",
       "promptConstraintsFallbackU13p": "13–17 (dengan persetujuan orang tua)",
       "promptConstraintsFallbackU18": "18 tahun ke atas",
-      "promptConstraintsHint": "Instruksi AI tambahan untuk semua sesi di organisasi ini. Berlaku ketika tidak ada batasan tingkat lokakarya yang ditetapkan, dan untuk gim yang dibagikan melalui tautan.",
-      "promptConstraintsLabel": "Pembatasan prompt perlindungan anak untuk organisasi",
+      "promptConstraintsHint": "Instruksi AI tambahan untuk semua sesi dalam organisasi ini. Berlaku jika lokakarya tidak menetapkan aturan perlindungan anak, serta untuk game yang dibagikan melalui tautan.",
+      "promptConstraintsLabel": "Aturan perlindungan anak organisasi",
       "promptConstraintsPlaceholder": "mis. Jaga cerita tetap sesuai usia dan hindari konten kekerasan.",
       "publicPage": {
         "changeLinkMessage": "Halaman tersebut nantinya akan berada di {{url}}.",
@@ -1377,11 +1446,15 @@
       "verifiedPages": {
         "add": "Daftarkan halaman",
         "addTitle": "Daftarkan halaman",
+        "approved": "Disetujui",
         "callbackShown": "Callback: {{url}}",
         "callbackUrl": "Alamat callback",
         "callbackUrlHint": "Tempat ChatGameLab bertanya sebelum setiap permulaan. Halaman tersebut harus menjawab dalam beberapa detik.",
         "copied": "Disalin",
         "copy": "Salin ID halaman",
+        "edit": "Ubah halaman",
+        "editReapproval": "Alamat ini berada di situs lain dan harus menunggu persetujuan admin lagi; sampai disetujui, game tidak dapat dimulai di sana. Port atau path lain di situs yang sama tetap disetujui.",
+        "editTitle": "Ubah halaman",
         "empty": "Belum ada halaman terverifikasi.",
         "intro": "Halaman terverifikasi adalah halaman di situs web organisasi kamu yang boleh menampilkan game yang disematkan. Sebelum game dimulai di sana, ChatGameLab bertanya kepada callback halaman tersebut apakah game boleh dimulai, menggunakan ID halaman di bawah serta ID pengunjung dan permintaan yang diteruskan oleh halamanmu. Hanya jawaban {\"ok\": true} yang akan memulai game.",
         "pageId": "ID halaman",
@@ -1389,7 +1462,9 @@
         "pageUrlHint": "Halaman tempat game kamu disematkan. Hanya situs web halaman tersebut yang boleh menampilkannya.",
         "remove": "Hapus halaman",
         "removeTitle": "Hapus halaman ini?",
-        "removeWarning": "Game yang disematkan untuk {{page}} tidak akan dapat dimulai di sana sampai mendapatkan halaman lain."
+        "removeWarning": "Game yang disematkan untuk {{page}} tidak akan dapat dimulai di sana sampai mendapatkan halaman lain.",
+        "save": "Simpan halaman",
+        "waiting": "Menunggu persetujuan admin"
       },
       "workshops": {
         "activate": "Aktifkan",
@@ -1461,10 +1536,10 @@
         "participantLinkTitleNamed": "Tautan login ulang untuk {{name}}",
         "participantName": "Nama peserta",
         "participants": "Peserta",
-        "promptConstraintsFallbackOrg": "Menggunakan pembatasan organisasi sebagai default: {{constraint}}",
-        "promptConstraintsFallbackSite": "Menggunakan pembatasan situs sebagai default",
+        "promptConstraintsFallbackOrg": "Menggunakan aturan perlindungan anak organisasi sebagai default: {{constraint}}",
+        "promptConstraintsFallbackSite": "Menggunakan aturan perlindungan anak situs sebagai default",
         "promptConstraintsHint": "Instruksi AI tambahan untuk semua sesi di lokakarya ini.",
-        "promptConstraintsLabel": "Pembatasan prompt perlindungan anak",
+        "promptConstraintsLabel": "Aturan perlindungan anak",
         "promptConstraintsPlaceholder": "mis. Pastikan cerita sesuai usia dan hindari konten kekerasan.",
         "removeParticipant": "Hapus peserta",
         "removeParticipantConfirm": "Apakah Anda yakin ingin menghapus \"{{name}}\" dari lokakarya ini?",
@@ -1512,13 +1587,25 @@
     "noRole": "Tidak ada peran",
     "notifications": {
       "accept": "Terima",
+      "acknowledgeAll": "Tandai semua sebagai telah dibaca",
       "decline": "Tolak",
       "declineConfirm": "Apakah Anda yakin ingin menolak undangan ini?",
       "declineTitle": "Tolak Undangan",
       "empty": "Tidak ada notifikasi baru.",
       "inviteDescription": "Anda diundang untuk bergabung sebagai {{role}}.",
       "inviteToJoin": "Undangan Organisasi",
+      "nothingNew": "Tidak ada yang baru",
       "title": "Notifikasi",
+      "titleWithCount_one": "Notifikasi: {{count}} baru",
+      "titleWithCount_other": "Notifikasi: {{count}} baru",
+      "types": {
+        "newOrganisations_one": "Satu organisasi baru telah mendaftar",
+        "newOrganisations_other": "{{count}} organisasi baru telah mendaftar",
+        "pageApproved": "Halaman terverifikasi organisasi Anda telah disetujui",
+        "pageTurnedDown": "Halaman terverifikasi organisasi Anda tidak disetujui, atau persetujuannya telah dicabut",
+        "pagesWaiting_one": "Satu halaman terverifikasi sedang menunggu persetujuan",
+        "pagesWaiting_other": "{{count}} halaman terverifikasi sedang menunggu persetujuan"
+      },
       "workshopInvite": "Undangan Lokakarya",
       "workshopInviteDescription": "Anda telah diundang untuk bergabung dengan lokakarya ini."
     },
@@ -1530,6 +1617,15 @@
       "title": "Organisasi ditangguhkan"
     },
     "play": {
+      "advanced": {
+        "edited": "diubah",
+        "hint": "Sesuaikan prompt yang digunakan saat sesi ini dimulai. Prompt yang diubah akan ditandai; semua yang lain berjalan seperti game yang telah dibuat. Prompt masih dapat diubah saat bermain, di Wawasan.",
+        "loading": "Memuat prompt…",
+        "reset": "Kembali ke versi asli",
+        "start": "Mulai game",
+        "title": "Pengaturan lanjutan",
+        "unavailable": "Prompt tidak dapat dimuat."
+      },
       "cloneGame": "Klon ke gim saya",
       "empty": {
         "description": "Cobalah menyesuaikan filter Anda atau kembali lagi nanti untuk gim baru.",
@@ -1624,16 +1720,16 @@
     "searchPlaceholder": "Cari anggota...",
     "serverSettings": {
       "constraints": {
-        "description": "Tentukan aturan AI wajib berdasarkan kelompok usia pemain. Pembatasan ini disisipkan ke dalam setiap respons AI. Aturan ini berlaku bagi semua pengguna yang masuk, di luar mode lokakarya.",
-        "title": "Prompt Pembatasan Berdasarkan Usia",
+        "description": "Tentukan aturan AI wajib berdasarkan kelompok usia pemain. Aturan perlindungan anak ini disertakan dalam setiap panggilan AI. Aturan ini berlaku untuk semua pengguna yang telah masuk di luar mode lokakarya.",
+        "title": "Aturan perlindungan anak berdasarkan kelompok usia",
         "u13Hint": "Disisipkan ke setiap prompt AI untuk pengguna masuk berusia 13–17 tanpa persetujuan orang tua yang tercatat.",
-        "u13Label": "Pembatasan untuk pengguna berusia 13–17 tahun, tanpa persetujuan orang tua (U13)",
+        "u13Label": "Aturan perlindungan anak untuk pengguna berusia 13–17 tahun, tanpa persetujuan orang tua (U13)",
         "u13Placeholder": "mis. Pastikan semua konten benar-benar sesuai usia remaja. Tidak ada kekerasan, konten romantis, atau tema horor.",
         "u13pHint": "Disisipkan ke setiap prompt AI untuk pengguna masuk berusia 13–17 dengan persetujuan orang tua yang tercatat.",
-        "u13pLabel": "Pembatasan untuk pengguna berusia 13–17 tahun, dengan persetujuan orang tua (U13p)",
+        "u13pLabel": "Aturan perlindungan anak untuk pengguna berusia 13–17 tahun, dengan persetujuan orang tua (U13p)",
         "u13pPlaceholder": "mis. Konten sesuai usia untuk remaja yang orang tuanya telah menyetujui. Beberapa tema dewasa diperbolehkan, tanpa konten eksplisit.",
         "u18Hint": "Disisipkan ke setiap prompt AI untuk pengguna masuk berusia 18 tahun ke atas.",
-        "u18Label": "Pembatasan untuk pengguna berusia 18 tahun ke atas (U18)",
+        "u18Label": "Aturan perlindungan anak untuk pengguna berusia 18 tahun ke atas (U18)",
         "u18Placeholder": "mis. Jaga konten tetap pantas. Hindari kekerasan eksplisit atau konten seksual."
       },
       "defaultTier": {
@@ -1762,6 +1858,49 @@
         "viewAll": "Semua Gim"
       }
     },
+    "continue": {
+      "go": "Lanjutkan",
+      "hint": "lanjutkan dari bagian terakhir",
+      "messages_one": "{{count}} pesan",
+      "messages_other": "{{count}} pesan",
+      "title": "Lanjutkan game"
+    },
+    "fresh": {
+      "by": "oleh {{name}}",
+      "empty": "Belum ada game baru.",
+      "title": "Game baru",
+      "viewAll": "Lihat galeri"
+    },
+    "hero": {
+      "create": "Buat",
+      "greeting": "Hai {{name}}. Apa yang akan kita \u0003cmark\u0003b buat \u0003c/mark\u0003b hari ini?",
+      "greetingNoName": "Hai. Apa yang akan kita \u0003cmark\u0003b buat \u0003c/mark\u0003b hari ini?",
+      "journal": "Jurnal lab · {{date}}",
+      "promptLabel": "Deskripsikan ide game",
+      "promptPlaceholder": "Deskripsikan ide game… AI akan membantu Anda mengembangkannya"
+    },
+    "lab": {
+      "gamesCreated": "game yang Anda ciptakan",
+      "gamesOnPlatform": "game di lab",
+      "playsOfOwnGames": "permainan game Anda",
+      "title": "Lab Anda sejauh ini"
+    },
+    "links": {
+      "about": "Tentang ChatGameLab",
+      "educators": "Untuk pendidik",
+      "jff": "JFF – Institut für Medienpädagogik"
+    },
+    "ownGames": {
+      "empty": "Belum ada game. Deskripsikan ide di atas dan buat game pertama Anda!",
+      "title": "Game Anda",
+      "viewAll": "Semua game Anda"
+    },
+    "popular": {
+      "hint": "yang sedang dimainkan semua orang",
+      "plays_one": "{{count}} kali dimainkan",
+      "plays_other": "{{count}} kali dimainkan",
+      "title": "Paling populer"
+    },
     "quickActions": {
       "createNewGame": "Buat Gim Baru",
       "createWorkshop": "Buat Lokakarya",
@@ -1770,6 +1909,7 @@
       "startNewGame": "Mulai Gim Baru",
       "title": "Aksi Cepat"
     },
+    "someone": "seseorang",
     "untitled": "Tanpa Judul",
     "untitledGame": "Game Tanpa Judul",
     "version": {
@@ -1777,6 +1917,10 @@
         "message": "Versi frontend \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e tidak cocok dengan versi backend \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. Ini dapat menyebabkan perilaku tidak terduga. Hubungi dukungan jika masalah berlanjut.",
         "title": "Ketidaksesuaian Versi Terdeteksi"
       }
+    },
+    "workshops": {
+      "title": "Lokakarya Anda",
+      "viewAll": "Semua lokakarya"
     }
   },
   "errors": {
@@ -1906,13 +2050,15 @@
     "dashboard": "Dasbor",
     "games": "Gim",
     "groups": "Grup",
+    "mainMenu": "Menu utama",
     "manageOrganizations": "Kelola Organisasi",
     "manageUsers": "Kelola Pengguna",
+    "me": "Saya",
     "myGames": "Gim Saya",
     "myOrganization": "Organisasi Saya",
     "myWorkshop": "Lokakarya Saya",
     "orgApiKeys": "Kunci API",
-    "orgConstraints": "Pembatasan prompt perlindungan anak",
+    "orgConstraints": "Aturan perlindungan anak",
     "orgMembers": "Anggota",
     "orgVerifiedPages": "Situs web",
     "orgWorkshops": "Lokakarya",
@@ -1924,14 +2070,19 @@
   "playbackEngine": {
     "blocks": {
       "adapted-style": "Gaya",
+      "cast": "Tetapkan suara",
+      "cast-brief": "Karakter",
       "condense-scenario": "Persingkat skenario",
       "condensed-scenario": "Skenario",
+      "director": "Sutradara",
       "expand": "Narasi",
       "gallery-image": "Gambar galeri",
       "greeting": "Buat teks",
       "image": "Buat gambar",
       "image-prompt": "Deskripsikan gambar",
       "image-style": "Sesuaikan gaya",
+      "live-a": "Karakter pertama",
+      "live-b": "Karakter kedua",
       "live-session": "Karakter",
       "observer": "Sutradara",
       "opening-brief": "Cara memulai",
@@ -2013,6 +2164,31 @@
       "turnFailed": "Cerita tidak dapat dilanjutkan dari situ. Kirim lagi, atau coba sesuatu yang lain.",
       "voiceFailed": "Suaramu tidak dapat tersambung."
     },
+    "guardrail": {
+      "edit": "Ubah aturan perlindungan",
+      "editHint": "Sebuah eksperimen lab: aturan baru berlaku mulai panggilan AI berikutnya; apa yang sudah terjadi tetap ada.",
+      "edited": "diubah",
+      "failed": "Tidak dapat menyimpannya",
+      "frequency": "Pengulangan",
+      "frequencyFailed": "Tidak dapat mengaturnya",
+      "frequencyHint": "Seberapa sering setiap langkah mengulangi aturan: 1 pada setiap panggilan, 10 pada setiap panggilan kesepuluh.",
+      "frequencySet": "Atur",
+      "intro": "Aturan perlindungan anak yang dipatuhi oleh setiap panggilan AI dalam game ini.",
+      "levelOrganisation": "Organisasi “{{name}}”",
+      "levelSite13": "Aturan situs, usia 13–17 tanpa persetujuan orang tua",
+      "levelSite13p": "Aturan situs, usia 13–17 dengan persetujuan orang tua",
+      "levelSite18": "Aturan situs, usia 18 tahun ke atas",
+      "levelWorkshop": "Lokakarya “{{name}}”",
+      "none": "Sesi ini tidak memiliki aturan perlindungan.",
+      "readBy": "Dipatuhi oleh",
+      "reset": "Kembali ke aturan yang telah ditetapkan",
+      "resolved": "Sesuai ketetapan",
+      "save": "Simpan",
+      "saved": "Tersimpan: berlaku mulai panggilan berikutnya",
+      "saving": "Menyimpan…",
+      "source": "Berasal dari",
+      "sourceUnknown": "Tidak diketahui"
+    },
     "insights": {
       "close": "Tutup",
       "collapse": "Ciutkan",
@@ -2025,6 +2201,7 @@
       "pickBlock": "Klik blok atau kabel dalam alur untuk membaca apa yang dilakukannya.",
       "settingEmpty": "Game membiarkan ini kosong.",
       "show": "Tampilkan Wawasan",
+      "tabGuardrail": "Aturan perlindungan",
       "tabProblems": "Masalah",
       "tabSelected": "Dipilih",
       "tabUsage": "Penggunaan"
@@ -2071,6 +2248,32 @@
       "unknown": "Sesi permainan ini tidak ada.",
       "unreachable": "Penyedia AI sedang tidak merespons, sehingga permainan tidak dapat dilanjutkan. Coba lagi dalam beberapa menit."
     },
+    "promptNames": {
+      "condense-scenario": "Persingkat skenario",
+      "conversation-policy": "Cara karakter berbicara",
+      "director": "Sutradara",
+      "expand": "Ceritakan giliran",
+      "game-master": "Master game (Pesan Sistem)",
+      "greeting": "Kata-kata pertama",
+      "image-style": "Sesuaikan gaya",
+      "opening": "Pembukaan",
+      "opening-expand": "Ceritakan pembukaan",
+      "rephrase": "Uraikan ulang tindakan",
+      "rephrase-audio": "Pahami ucapan",
+      "scene": "Bingkai gambar",
+      "summary": "Permintaan rangkuman",
+      "voice-brief": "Deskripsikan suara"
+    },
+    "prompts": {
+      "edited": "diubah",
+      "failed": "Tidak dapat menyimpannya",
+      "hint": "Ubah prompt untuk melihat bagaimana jawaban berubah. Teks baru berlaku mulai panggilan berikutnya.",
+      "reset": "Kembali ke versi asli",
+      "save": "Simpan",
+      "saved": "Tersimpan: berlaku mulai panggilan berikutnya",
+      "saving": "Menyimpan…",
+      "title": "Prompt"
+    },
     "relay": {
       "busy": "Relay: sedang digunakan oleh tab lain",
       "connected": "Relay: terhubung",
@@ -2103,15 +2306,24 @@
       "adapted-style\u001eimage-prompt": "gaya",
       "adapted-style\u001eimage-style": "permintaan",
       "adapted-style\u001estart-game": "siap",
+      "cast\u0003clive-a:voiceA": "suara",
+      "cast\u0003clive-b:voiceB": "suara",
+      "cast\u0003cstart-game": "siap",
+      "cast-brief\u0003ccast": "karakter",
       "condense-scenario\u001econdensed-scenario": "jawaban",
       "condensed-scenario\u001econdense-scenario": "permintaan",
       "condensed-scenario\u001eimage-prompt": "skenario",
       "condensed-scenario\u001estart-game": "siap",
+      "director\u0003clive-a": "sisipan",
+      "director\u0003clive-b": "sisipan",
       "gallery-image\u0003estart-game": "siap",
+      "greeting\u0003clive-a": "kata-kata pertama",
       "greeting\u0003elive-session": "kata-kata pertama",
       "greeting\u0003estart-game": "siap",
       "image-prompt\u001eimage": "prompt",
       "image-style\u001eadapted-style": "jawaban",
+      "live-a\u0003cdirector": "transkrip",
+      "live-b\u0003cdirector": "transkrip",
       "live-session\u001eobserver": "transkrip",
       "observer\u0003elive-session": "sisipan",
       "observer\u001elive-session": "petunjuk",
@@ -2119,6 +2331,8 @@
       "outline\u001eexpand": "rencana",
       "outline\u001eimage-prompt": "adegan",
       "outline\u001eprops-store": "perubahan",
+      "player-input-audio\u0003clive-a": "ucapan",
+      "player-input-audio\u0003clive-b": "ucapan",
       "player-input-audio\u001elive-session": "ucapan",
       "player-input-audio\u001erephrase-audio": "ucapan",
       "player-input-text\u001erephrase": "aksi",
@@ -2127,6 +2341,8 @@
       "props-store\u001eoutline": "status",
       "rephrase\u001eoutline": "aksi",
       "rephrase-audio\u001eoutline": "aksi",
+      "start-game\u0003clive-a": "isyarat",
+      "start-game\u0003clive-b": "isyarat",
       "start-game\u001elive-session": "isyarat",
       "start-game\u001eoutline": "prompt",
       "voice\u0003elive-session:secondary": "gaya suara",

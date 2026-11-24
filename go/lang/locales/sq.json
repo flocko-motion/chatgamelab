@@ -56,7 +56,7 @@
       "cityLabel": "Qyteti",
       "confirmAdult": "Jam të paktën 18 vjeç.",
       "consentPage": {
-        "constraintIntro": "Me deklaratën, institucioni juaj angazhohet të përcaktojë një kufizim të udhëzimeve të mbrojtjes së të rinjve që i përshtatet grupit tuaj të synuar. Më poshtë është kufizimi që përdor aktualisht organizata juaj. Ju lutemi kontrollojeni dhe përshtateni nëse është e nevojshme.",
+        "constraintIntro": "Me deklaratën, institucioni juaj angazhohet të përcaktojë një rregull për mbrojtjen e të rinjve që i përshtatet grupit tuaj të synuar. Më poshtë është rregulli që organizata juaj përdor aktualisht. Ju lutemi kontrollojeni dhe përshtateni nëse është e nevojshme.",
         "emailDescription": "Në këtë adresë do të dërgojmë konfirmimin me tekstin e deklaratës.",
         "introExisting": "Organizata juaj “{{name}}” tani ka një deklaratë pëlqimi që konfirmohet online. Ajo zëvendëson marrëveshjen e përdorimit që keni nënshkruar më parë. Ju lutemi lexojeni dhe jepni pëlqimin në emër të institucionit tuaj.",
         "introNewVersion": "Deklarata është përditësuar (versioni {{version}}). Ju lutemi lexoni versionin e ri dhe jepni pëlqimin në emër të organizatës suaj “{{name}}”.",
@@ -112,14 +112,14 @@
       "youthProtection": {
         "changeHint": "Mund ta ndryshoni këtë cilësim në çdo kohë dhe ta përcaktoni ndryshe për workshope të veçanta.",
         "defaultOption": "Parazgjedhje nga mosha 13 vjeç",
-        "fieldLabel": "Kufizimi i udhëzimeve për mbrojtjen e të rinjve të organizatës suaj",
+        "fieldLabel": "Rregulli i organizatës suaj për mbrojtjen e të rinjve",
         "intro": "AI-ja e merr këtë udhëzim në çdo lojë të organizatës suaj. Zgjidheni sipas moshës së grupit tuaj të synuar.",
         "responsibilityHint": "Sugjerimet nuk janë një klasifikim zyrtar moshe. Institucioni juaj vendos për cilësimin dhe është përgjegjës për të.",
         "suggestionAdults": "për të rritur nga {{age}} vjeç",
         "suggestionChildren": "për fëmijë nga rreth {{age}} vjeç",
         "suggestionTeens": "për të rinj nga rreth {{age}} vjeç",
         "suggestionsLabel": "Sugjerime (një klikim zëvendëson tekstin):",
-        "title": "Kufizimi i udhëzimeve për mbrojtjen e të rinjve",
+        "title": "Rregulli për mbrojtjen e të rinjve",
         "tooLong": "Maksimumi {{max}} karaktere. Ju lutemi shkurtojeni ose zgjidhni një sugjerim."
       }
     },
@@ -236,7 +236,7 @@
       "organizationExistingAccount": "Organizatat regjistrohen me një identifikim të ri. Keni tashmë një llogari?",
       "organizationIntro": "Për qendra rinore, shkolla dhe institucione të tjera që duan të përdorin ChatGameLab në workshope.",
       "organizationStep1": "Krijoni identifikimin tuaj me Auth0 (email dhe fjalëkalim).",
-      "organizationStep2": "Vendosni të dhënat tuaja dhe të institucionit, përcaktoni kufizimin e udhëzimeve për mbrojtjen e të rinjve dhe pranoni deklaratën.",
+      "organizationStep2": "Jepni të dhënat për veten dhe institucionin tuaj, përcaktoni rregullin për mbrojtjen e të rinjve dhe pranoni deklaratën.",
       "organizationStep3": "Pas dërgimit të formularit, organizata aktivizohet menjëherë dhe mund të krijoni workshope.",
       "organizationTitle": "Regjistrohu si organizatë",
       "privacyPolicy": "Politika e Privatësisë",
@@ -433,6 +433,25 @@
           "role-desc": "Roli (Z-A)"
         },
         "title": "Menaxho përdoruesit"
+      },
+      "verifiedPages": {
+        "approve": "Mirato",
+        "approved": "Miratuar",
+        "callback": "Callback: {{url}}",
+        "description": "Faqja e verifikuar e çdo organizate. Lojërat e saj nisin aty vetëm pasi ta miratoni; ju miratoni faqen e saj (skemën dhe hostin), prandaj një faqe e zhvendosur në një faqe tjetër interneti pret sërish miratimin, ndërsa një portë ose shteg tjetër në të njëjtën faqe mbetet i miratuar.",
+        "empty": "Asnjë organizatë nuk ka regjistruar ende një faqe.",
+        "filters": {
+          "all": "Të gjitha",
+          "approved": "Të miratuara",
+          "waiting": "Në pritje"
+        },
+        "loadError": "Faqet nuk mund të ngarkoheshin.",
+        "organisation": "Organizata",
+        "page": "Faqja",
+        "status": "Statusi",
+        "title": "Faqet që përfshijnë lojëra",
+        "waiting": "Në pritje të miratimit",
+        "withdraw": "Tërhiq miratimin"
       }
     },
     "aiQualityTier": {
@@ -455,6 +474,7 @@
       "empty": {
         "conditions": {
           "favorites": "një nga të preferuarat tuaja",
+          "organisation": "të organizatës suaj",
           "own": "i juaji",
           "public": "publik",
           "sponsored": "i sponsorizuar"
@@ -470,7 +490,8 @@
         "all": "Të gjitha lojërat",
         "favorites": "Të preferuarat",
         "genre": "Zhanri",
-        "own": "Lojërat e mia",
+        "organisation": "Organizata",
+        "own": "Të miat",
         "public": "Publike",
         "sponsored": "Të sponsorizuara"
       },
@@ -479,10 +500,16 @@
       "reportGame": "Raporto lojën",
       "restart": "Rinis",
       "resumeChoice": {
+        "advanced": "Cilësime të avancuara",
         "continue": "Vazhdo",
         "message": "E ke filluar tashmë \"{{game}}\". Do të vazhdosh aty ku e le, apo do të nisësh nga e para? Nisja nga e para zëvendëson sesionin e mëparshëm.",
         "startNew": "Nis nga e para",
         "title": "Të vazhdosh apo të nisësh nga e para?"
+      },
+      "startChoice": {
+        "message": "Niseni \"{{game}}\" siç është ndërtuar, ose përshtatni më parë udhëzimet me të cilat nis.",
+        "start": "Nis",
+        "title": "Të nisë loja?"
       },
       "title": "Lojërat",
       "unfavorite": "Hiq nga të preferuarat",
@@ -640,6 +667,7 @@
         "alt": "Kopertina e {{name}}",
         "draw": "Vizato kopertinën",
         "drawAgain": "Vizato përsëri",
+        "drawing": "Po vizatohet kopertina…",
         "drawnOnSave": "Kopertina vizatohet kur ruani lojën.",
         "errors": {
           "failed": "Kopertina nuk mund të vizatohej. Ju lutemi provoni përsëri.",
@@ -719,6 +747,10 @@
           },
           "description": "Përshkrimi",
           "descriptionHint": "Një ose dy fjali për galerinë, që lojtarët të dinë çfarë t'i presë.",
+          "duo": {
+            "descriptionPlaceholder": "Greta, rojtare e inatosur e farit, dhe një inspektor taksash tepër i gëzuar grinden gjatë një nate me stuhi. Dëgjoji ose mbaj anën e njërit.",
+            "titlePlaceholder": "Nata me stuhi te fari"
+          },
           "encounter": {
             "descriptionPlaceholder": "Vizito Gretën, rojtarjen inatosur të farit, dhe zbulo se çfarë pa ajo atë natë.",
             "titlePlaceholder": "Greta në far"
@@ -743,15 +775,17 @@
         },
         "embed": {
           "copy": "Kopjo fragmentin",
-          "incomplete": "Zgjidh çfarë paguan dhe faqen për të marrë fragmentin.",
+          "incomplete": "Zgjidhni çfarë paguan për të marrë fragmentin e kodit.",
           "noKeys": "Nuk ke asnjë çelës funksional të IA-së për të paguar. Shto një ose kërkoje nga organizata jote.",
-          "noPages": "Organizata jote nuk ka ende një faqe të verifikuar. Drejtuesi ose stafi i saj mund të shtojnë një te cilësimet e organizatës.",
+          "noOrganisation": "Përfshirja është për lojërat e një organizate: lojërat e shkruara në punëtoritë e saj ose nga drejtuesit dhe stafi i saj. Kjo lojë nuk i përket asnjë organizate.",
+          "noPages": "Regjistroni fillimisht faqen e internetit të organizatës suaj: faqen ku do të ekzekutohen lojërat tuaja. Një administrator e miraton atë dhe më pas loja mund të nisë aty.",
           "offNote": "Kur çaktivizohet, fragmenti nuk shfaq asgjë. Kur aktivizohet përsëri, i njëjti fragment funksionon.",
           "page": "Faqe e verifikuar",
           "pageHint": "Loja funksionon vetëm aty dhe vetëm pasi faqja të miratojë çdo nisje.",
           "paidBy": "Paguhet nga",
           "paidByPlaceholder": "Zgjidh një çelës",
           "payingNow": "Po paguan tani",
+          "registerPage": "Regjistroni një faqe interneti te Organizata ime → Faqet e internetit",
           "snippet": "Fragment për faqen tënde",
           "snippetCss": "CSS-ja jote",
           "snippetHint": "Vendose aty ku duhet të shfaqet loja dhe jepi elementit lartësinë që dëshiron.",
@@ -760,12 +794,14 @@
           "snippetVerifiedHint": "Serveri yt vendos ID-në e vizitorit dhe të kësaj shfaqjeje të faqes; callback-u i faqes tënde i merr të dyja.",
           "styleLink": "Stilizoje me CSS-në tënde →",
           "toggle": "Vendose në një faqe interneti",
-          "toggleHint": "E shfaq këtë lojë në faqen e verifikuar të organizatës sate, pa asgjë nga ChatGameLab përreth. Vizitorët luajnë si të ftuar; çelësi që zgjedh paguan."
+          "toggleHint": "E shfaq këtë lojë në faqen e verifikuar të organizatës sate, pa asgjë nga ChatGameLab përreth. Vizitorët luajnë si të ftuar; çelësi që zgjedh paguan.",
+          "waitingForApproval": "Faqja e organizatës pret miratimin e një administratori. Deri atëherë, loja nuk nis aty."
         },
         "fillIn": "Plotëso seksionet derisa të gjitha të bëhen të gjelbra.",
         "genre": {
           "pitch": {
             "adventure": "Lojtari eksploron një botë. Loja tregon çfarë ndodh, krijon figura dhe mban rezultatin.",
+            "duo": "Dy personazhe flasin me njëri-tjetrin me zë. Lojtari i dëgjon ose i bashkohet bisedës.",
             "encounter": "Lojtari flet me një personazh me zë. Ai qëndron në rolin e vet dhe përgjigjet në kohë reale."
           },
           "question": "Çfarë dëshiron të krijosh?"
@@ -815,6 +851,12 @@
               "systemMessageGameStart": "Thuaj si fillon loja.",
               "systemMessageScenario": "Thuaj për çfarë bëhet fjalë loja."
             },
+            "duo": {
+              "imageStyle": "Zgjidhni një stil imazhesh, në mënyrë që figurat të duken të ngjashme.",
+              "name": "Loja juaj ende nuk ka titull.",
+              "systemMessageGameStart": "Tregoni ku zhvillohet skena dhe si fillon.",
+              "systemMessageScenario": "Tregoni cilët janë dy personazhet."
+            },
             "encounter": {
               "imageStyle": "Zgjidh një stil figurash, që figurat të përputhen.",
               "name": "Loja jote ende nuk ka titull.",
@@ -829,6 +871,10 @@
             "voiceStyleHint": "Si tingëllon historia kur lexohet me zë."
           },
           "builtInVoice": "Zë i integruar",
+          "duo": {
+            "voiceStyle": "Zërat e personazheve",
+            "voiceStyleHint": "Secili personazh ka zërin e vet."
+          },
           "encounter": {
             "voiceStyle": "Zëri i personazhit",
             "voiceStyleHint": "Si tingëllon personazhi."
@@ -864,6 +910,20 @@
             "scenario": "Për çfarë bëhet fjalë loja?",
             "scenarioHint": "Bota, roli i lojtarit, qëllimi dhe si e kupton lojtari se ka fituar.",
             "scenarioPlaceholder": "Lojtari është një eksplorues në një pyll misterioz, në kërkim të një thesari të fshehur…"
+          },
+          "duo": {
+            "firstCharacter": "Personazhi i parë",
+            "firstCharacterHint": "Kush është: personaliteti, çfarë dëshiron, si flet. Ai ose ajo flet i pari.",
+            "firstCharacterPlaceholder": "Greta, një rojtare e inatosur fari që dëshiron të lihet vetëm me llambën e saj…",
+            "gameStart": "Ku janë dhe si fillon?",
+            "gameStartHint": "Skena ku ndodhen të dy kur fillon loja; fjalët e para të personazhit të parë shkruhen duke u bazuar në të.",
+            "gameStartPlaceholder": "Një natë me stuhi. Otto troket në derën e farit, i lagur deri në palcë…",
+            "scenario": "Cilët janë dy personazhet?",
+            "scenarioHint": "Kush është secili dhe pse kanë diçka për të diskutuar ose për të debatuar.",
+            "scenarioPlaceholder": "Greta, një rojtare e inatosur fari…",
+            "secondCharacter": "Personazhi i dytë",
+            "secondCharacterHint": "Kush është dhe pse të dy kanë diçka për të diskutuar ose për të debatuar.",
+            "secondCharacterPlaceholder": "Otto, një inspektor taksash tepër i gëzuar që ka ardhur të numërojë çdo qiri…"
           },
           "encounter": {
             "gameStart": "Si e përshëndet ajo lojtarin?",
@@ -905,7 +965,8 @@
       },
       "genres": {
         "adventure": "Aventurë",
-        "npc-live": "Takim"
+        "npc-duo": "Diskutim",
+        "npc-live": "Personazh"
       },
       "importExport": {
         "coverFailed": "Loja u importua, por kopertina e saj nuk mund të kontrollohej. Mund të vizatosh një të re në redaktues.",
@@ -920,6 +981,7 @@
         "exportButton": "Eksporto lojën",
         "importButton": "Importo lojën"
       },
+      "newGame": "Lojë e re",
       "playNow": "Luaj tani",
       "privacyHint": "Emri dhe përshkrimi i një loje mund të bëhen publikisht të dukshme. Mos përdor emra të vërtetë.",
       "privacyHintShort": "Mund të bëhet publikisht e dukshme – ju lutemi, mos përdorni emra të vërtetë.",
@@ -959,7 +1021,7 @@
         "unlimitedSessions": "Sesionet e pakufizuara",
         "update": "Përditëso lidhjen e ndarjes",
         "workshopCreateHint": "Krijoni një lidhje shpërndarjeje për këtë lojë. Çelësi API i punëtorisë zgjidhet automatikisht dhe mbulon kostot.",
-        "workshopDescription": "Kjo lidhje krijohet brenda punëtorisë \"{{name}}\" – të ftuarit luajnë me çelësin API të punëtorisë dhe kufizimet e kërkesave.",
+        "workshopDescription": "Kjo lidhje krijohet brenda punëtorisë \"{{name}}\" – të ftuarit luajnë me çelësin API dhe rregullin e punëtorisë për mbrojtjen e të rinjve.",
         "workshopShare": "Shpërndarje punëtorie",
         "workshopShareDescription": "Kjo lidhje është krijuar në punëtorinë \"{{name}}\" - të ftuarit luajnë duke përdorur çelësin API të punëtorisë.",
         "workshopSubsection": "Lidhje Shpërndarjeje e Punëtorisë"
@@ -1071,6 +1133,7 @@
           "scifi": "Shkencë-fiksion",
           "snowy": "Me dëborë",
           "space": "Hapësirë",
+          "spielfieber": "Spielfieber",
           "steampunk": "Steampunk",
           "storybook": "Libër me përralla",
           "sunshine": "Rreze dielli",
@@ -1192,6 +1255,7 @@
     "leaveTitle": "Lër organizatën",
     "leaveWarning": "Do të humbni aksesin në të gjitha burimet dhe anëtarët e organizatës.",
     "list": {
+      "clearFilters": "Pastro",
       "clearPicks": "Shfaq të gjitha",
       "clearSearch": "Pastro kërkimin",
       "filter": "Filtro",
@@ -1241,6 +1305,8 @@
       "apiKeys": {
         "aboutDescription": "Çelësat API të ndarë këtu janë të disponueshëm për të gjithë anëtarët e organizatës suaj për të luajtur lojëra.",
         "aboutTitle": "Çelësat API të organizatës",
+        "addAndShare": "Shto dhe ndaj",
+        "addKey": "Shto çelës",
         "allPlatforms": "Të gjitha platformat",
         "allowPublicSponsoring": "Lejo sponsorizim publik",
         "allowPublicSponsoringDesc": "Ky çelës mund të përdoret për të sponsorizuar lojëra për të gjithë përdoruesit.",
@@ -1254,6 +1320,9 @@
         },
         "keyName": "Emri i çelësit",
         "loadError": "Dështoi ngarkimi i çelësave API të organizatës.",
+        "modeNew": "Një çelës i ri",
+        "modeOwn": "Një nga çelësat e mi",
+        "newKeyHint": "Çelësi bëhet i juaji, si në faqen e çelësave tuaj API, dhe ndahet me organizatën.",
         "noKeys": "Ende nuk ka çelësa API të ndarë me këtë organizatë.",
         "noResults": "Asnjë çelës API nuk përputhet me kërkimin tuaj.",
         "notAuthorized": "Nuk keni leje të menaxhoni çelësat API të organizatës. Vetëm krerët dhe mësuesit mund të kenë akses në këtë faqe.",
@@ -1266,7 +1335,7 @@
         "selectKeyPlaceholder": "Zgjidh një çelës për ta ndarë...",
         "share": "Nda",
         "shareKey": "Nda çelësin",
-        "shareKeyTitle": "Ndani çelësin API me organizatën",
+        "shareKeyTitle": "Shto një çelës API te organizata",
         "showDetails": "Shfaq detajet",
         "title": "Çelësat API të organizatës"
       },
@@ -1317,13 +1386,13 @@
       "promoteToHead": "Promovo në Kreu",
       "promoteWarning": "Ky përdorues do të fitojë aftësinë për të menaxhuar anëtarët e organizatës dhe për të ftuar mësues.",
       "promptConstraintsFallbackEmpty": "(e pakonfiguruar)",
-      "promptConstraintsFallbackHint": "Nuk është konfiguruar asnjë kufizim i organizatës. Zbatohet parazgjedhja e faqes për grupmoshën e lojtarit:",
+      "promptConstraintsFallbackHint": "Organizata nuk ka përcaktuar asnjë rregull për mbrojtjen e të rinjve. Zbatohet parazgjedhja e faqes për grupmoshën e lojtarit:",
       "promptConstraintsFallbackTitle": "Parazgjedhje aktive në nivel faqeje",
       "promptConstraintsFallbackU13": "Nën 13",
       "promptConstraintsFallbackU13p": "13–17 (me pëlqimin prindëror)",
       "promptConstraintsFallbackU18": "18 dhe më të mëdhenj",
-      "promptConstraintsHint": "Udhëzime shtesë të AI për të gjitha sesionet në këtë organizatë. Zbatohen kur nuk ka vendosur kufizim në nivel punëtorie dhe për lojërat e ndara me lidhje.",
-      "promptConstraintsLabel": "Kufizimi i udhëzimeve për mbrojtjen e të rinjve të organizatës",
+      "promptConstraintsHint": "Udhëzime shtesë për IA-në për të gjitha sesionet në këtë organizatë. Zbatohen kur punëtoria nuk përcakton asnjë rregull për mbrojtjen e të rinjve dhe për lojërat e ndara me lidhje.",
+      "promptConstraintsLabel": "Rregulli i organizatës për mbrojtjen e të rinjve",
       "promptConstraintsPlaceholder": "p.sh. Mbajeni historinë të përshtatshme për moshën dhe shmangni përmbajtjen e dhunshme.",
       "publicPage": {
         "changeLinkMessage": "Më pas faqja do të jetë te {{url}}.",
@@ -1377,11 +1446,15 @@
       "verifiedPages": {
         "add": "Regjistro faqen",
         "addTitle": "Regjistro një faqe",
+        "approved": "Miratuar",
         "callbackShown": "Callback: {{url}}",
         "callbackUrl": "Adresa e callback-ut",
         "callbackUrlHint": "Këtu ChatGameLab pyet para çdo nisjeje. Duhet të përgjigjet brenda pak sekondash.",
         "copied": "U kopjua",
         "copy": "Kopjo ID-në e faqes",
+        "edit": "Ndrysho faqen",
+        "editReapproval": "Kjo adresë ndodhet në një faqe tjetër interneti, e cila pret sërish miratimin e një administratori; deri atëherë, lojërat nuk nisin aty. Një portë ose shteg tjetër në të njëjtën faqe mbetet i miratuar.",
+        "editTitle": "Ndrysho faqen",
         "empty": "Nuk ka ende faqe të verifikuara.",
         "intro": "Një faqe e verifikuar është një faqe në faqen e internetit të organizatës sate që mund të shfaqë lojërat e tua të vendosura aty. Para se një lojë të nisë atje, ChatGameLab pyet callback-un e faqes nëse duhet ta nisë, duke dërguar ID-në e faqes më poshtë dhe ID-të e vizitorit dhe kërkesës që përcjell faqja jote. Vetëm përgjigjja {\"ok\": true} e nis lojën.",
         "pageId": "ID-ja e faqes",
@@ -1389,7 +1462,9 @@
         "pageUrlHint": "Faqja ku janë vendosur lojërat e tua. Vetëm faqja e saj e internetit mund t'i shfaqë.",
         "remove": "Hiq faqen",
         "removeTitle": "Të hiqet kjo faqe?",
-        "removeWarning": "Lojërat e vendosura për {{page}} nuk do të nisin më aty derisa t'u caktohet një faqe tjetër."
+        "removeWarning": "Lojërat e vendosura për {{page}} nuk do të nisin më aty derisa t'u caktohet një faqe tjetër.",
+        "save": "Ruaj faqen",
+        "waiting": "Në pritje të miratimit të një administratori"
       },
       "workshops": {
         "activate": "Aktivo",
@@ -1465,10 +1540,10 @@
         "participantLinkTitleNamed": "Lidhja për hyrje përsëri për {{name}}",
         "participantName": "Emri i pjesëmarrësit",
         "participants": "Pjesëmarrësit",
-        "promptConstraintsFallbackOrg": "Kufizimi i organizatës përdoret si parazgjedhje: {{constraint}}",
-        "promptConstraintsFallbackSite": "Kufizimi i faqes përdoret si parazgjedhje",
+        "promptConstraintsFallbackOrg": "Si parazgjedhje përdoret rregulli i organizatës për mbrojtjen e të rinjve: {{constraint}}",
+        "promptConstraintsFallbackSite": "Si parazgjedhje përdoret rregulli i faqes për mbrojtjen e të rinjve",
         "promptConstraintsHint": "Udhëzime shtesë të AI për të gjitha sesionet në këtë punëtori.",
-        "promptConstraintsLabel": "Kufizimi i udhëzimeve për mbrojtjen e të rinjve",
+        "promptConstraintsLabel": "Rregulli për mbrojtjen e të rinjve",
         "promptConstraintsPlaceholder": "p.sh. Mbaje historinë të përshtatshme për moshën dhe shmang përmbajtjen e dhunshme.",
         "removeParticipant": "Hiq pjesëmarrësin",
         "removeParticipantConfirm": "A jeni i sigurt që doni ta hiqni \"{{name}}\" nga kjo punëtori?",
@@ -1517,13 +1592,25 @@
     "noRole": "Pa rol",
     "notifications": {
       "accept": "Prano",
+      "acknowledgeAll": "Shënoji të gjitha si të lexuara",
       "decline": "Refuzo",
       "declineConfirm": "Jeni i sigurt që doni ta refuzoni këtë ftesë?",
       "declineTitle": "Refuzo ftesën",
       "empty": "Nuk ka njoftime të reja.",
       "inviteDescription": "Jeni ftuar të bashkoheni si {{role}}.",
       "inviteToJoin": "Ftesë organizate",
+      "nothingNew": "Asgjë e re",
       "title": "Njoftimet",
+      "titleWithCount_one": "Njoftime: {{count}} i ri",
+      "titleWithCount_other": "Njoftime: {{count}} të reja",
+      "types": {
+        "newOrganisations_one": "Është regjistruar një organizatë e re",
+        "newOrganisations_other": "Janë regjistruar {{count}} organizata të reja",
+        "pageApproved": "Faqja e verifikuar e organizatës suaj është miratuar",
+        "pageTurnedDown": "Faqja e verifikuar e organizatës suaj nuk u miratua ose miratimi i saj u tërhoq",
+        "pagesWaiting_one": "Një faqe e verifikuar pret miratimin",
+        "pagesWaiting_other": "{{count}} faqe të verifikuara presin miratimin"
+      },
       "workshopInvite": "Ftesë për Punëtori",
       "workshopInviteDescription": "Jeni ftuar t’i bashkoheni kësaj punëtorie."
     },
@@ -1535,6 +1622,15 @@
       "title": "Organizata është pezulluar"
     },
     "play": {
+      "advanced": {
+        "edited": "ndryshuar",
+        "hint": "Përshtatni udhëzimet me të cilat nis ky sesion. Udhëzimet e ndryshuara janë shënuar; gjithçka tjetër funksionon siç është ndërtuar loja. Udhëzimet mund të ndryshohen përsëri gjatë lojës, te Vështrimet.",
+        "loading": "Po ngarkohen udhëzimet…",
+        "reset": "Kthehu te origjinali",
+        "start": "Nis lojën",
+        "title": "Cilësime të avancuara",
+        "unavailable": "Udhëzimet nuk mund të ngarkoheshin."
+      },
       "cloneGame": "Klono te lojërat e mia",
       "empty": {
         "description": "Provoni të rregulloni filtrat ose kontrolloni më vonë për lojëra të reja.",
@@ -1629,16 +1725,16 @@
     "searchPlaceholder": "Kërko anëtarët...",
     "serverSettings": {
       "constraints": {
-        "description": "Përcaktoni rregulla të detyrueshme të AI-së bazuar në grupmoshën e lojtarit. Këto kufizime futen në çdo përgjigje të AI-së. Ato zbatohen për të gjithë përdoruesit e identifikuar jashtë mënyrës së workshopit.",
-        "title": "Udhëzime kufizuese të bazuara në moshë",
+        "description": "Përcaktoni rregulla të detyrueshme për IA-në bazuar në grupmoshën e lojtarit. Këto rregulla për mbrojtjen e të rinjve shoqërojnë çdo thirrje të IA-së. Ato zbatohen për të gjithë përdoruesit e identifikuar jashtë modalitetit të punëtorisë.",
+        "title": "Rregullat për mbrojtjen e të rinjve sipas grupmoshës",
         "u13Hint": "Futet në çdo kërkesë të IA-s për përdoruesit e kyçur të moshës 13-17 pa pëlqim prindëror të regjistruar.",
-        "u13Label": "Kufizim për përdoruesit 13–17 vjeç, pa pëlqim prindëror (U13)",
+        "u13Label": "Rregulli për përdoruesit 13–17 vjeç, pa pëlqimin prindëror (U13)",
         "u13Placeholder": "p.sh. Mbajeni gjithë përmbajtjen rreptësisht të përshtatshme për adoleshentët. Pa dhunë, pa përmbajtje romantike, pa tema horror.",
         "u13pHint": "Futet në çdo kërkesë të IA-s për përdoruesit e kyçur të moshës 13-17 me pëlqim prindëror të regjistruar.",
-        "u13pLabel": "Kufizim për përdoruesit 13–17 vjeç, me pëlqim prindëror (U13p)",
+        "u13pLabel": "Rregulli për përdoruesit 13–17 vjeç, me pëlqimin prindëror (U13p)",
         "u13pPlaceholder": "p.sh. Përmbajtje e përshtatshme për moshën për adoleshentët që kanë marrë pëlqimin e prindërve. Lejohen disa tema të pjekura, pa përmbajtje eksplicite.",
         "u18Hint": "Futet në çdo prompt të AI për përdoruesit e kyçur 18 vjeç e sipër.",
-        "u18Label": "Kufizim për përdoruesit 18+ vjeç (U18)",
+        "u18Label": "Rregulli për përdoruesit 18 vjeç e lart (U18)",
         "u18Placeholder": "p.sh. Mbajeni përmbajtjen të përshtatshme. Shmangni dhunën e qartë ose përmbajtjen seksuale."
       },
       "defaultTier": {
@@ -1767,6 +1863,49 @@
         "viewAll": "Të gjitha lojërat"
       }
     },
+    "continue": {
+      "go": "Vazhdo",
+      "hint": "vazhdo nga aty ku e le",
+      "messages_one": "{{count}} mesazh",
+      "messages_other": "{{count}} mesazhe",
+      "title": "Vazhdo lojën"
+    },
+    "fresh": {
+      "by": "nga {{name}}",
+      "empty": "Ende nuk ka lojëra të reja.",
+      "title": "Lojëra të reja",
+      "viewAll": "Shiko galerinë"
+    },
+    "hero": {
+      "create": "Krijo",
+      "greeting": "Përshëndetje {{name}}. Çfarë të \u0003cmark\u0003ndërtojmë\u0003c/mark\u0003 sot?",
+      "greetingNoName": "Përshëndetje. Çfarë të \u0003cmark\u0003ndërtojmë\u0003c/mark\u0003 sot?",
+      "journal": "Ditari i laboratorit · {{date}}",
+      "promptLabel": "Përshkruani një ide loje",
+      "promptPlaceholder": "Përshkruani një ide loje… IA-ja do t'ju ndihmojë ta zhvilloni"
+    },
+    "lab": {
+      "gamesCreated": "lojëra që keni krijuar",
+      "gamesOnPlatform": "lojëra në laborator",
+      "playsOfOwnGames": "luajtje të lojërave tuaja",
+      "title": "Laboratori juaj deri tani"
+    },
+    "links": {
+      "about": "Rreth ChatGameLab",
+      "educators": "Për edukatorët",
+      "jff": "JFF – Instituti për edukimin mediatik"
+    },
+    "ownGames": {
+      "empty": "Ende nuk ka lojëra. Përshkruani një ide më sipër dhe krijoni të parën tuaj!",
+      "title": "Lojërat tuaja",
+      "viewAll": "Të gjitha lojërat tuaja"
+    },
+    "popular": {
+      "hint": "çfarë po luajnë të gjithë",
+      "plays_one": "{{count}} luajtje",
+      "plays_other": "{{count}} luajtje",
+      "title": "Më të njohurat"
+    },
     "quickActions": {
       "createNewGame": "Krijo lojë të re",
       "createRoom": "Krijo dhomë",
@@ -1776,6 +1915,7 @@
       "startNewGame": "Fillo lojë të re",
       "title": "Veprime të shpejta"
     },
+    "someone": "dikush",
     "untitled": "Pa titull",
     "untitledGame": "Lojë pa titull",
     "version": {
@@ -1783,6 +1923,10 @@
         "message": "Versioni i frontend-it \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e nuk përputhet me versionin e backend-it \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. Kjo mund të shkaktojë sjellje të papritura. Kontaktoni mbështetjen nëse problemi vazhdon.",
         "title": "U zbulua mospërputhje versioni"
       }
+    },
+    "workshops": {
+      "title": "Punëtoritë tuaja",
+      "viewAll": "Të gjitha punëtoritë"
     }
   },
   "errors": {
@@ -1912,13 +2056,15 @@
     "dashboard": "Paneli",
     "games": "Lojëra",
     "groups": "Grupe",
+    "mainMenu": "Menyja kryesore",
     "manageOrganizations": "Menaxho organizatat",
     "manageUsers": "Menaxho përdoruesit",
+    "me": "Unë",
     "myGames": "Lojërat e mia",
     "myOrganization": "Organizata ime",
     "myWorkshop": "Punëtoria ime",
     "orgApiKeys": "Çelësat API",
-    "orgConstraints": "Kufizimi i udhëzimeve për mbrojtjen e të rinjve",
+    "orgConstraints": "Rregulli për mbrojtjen e të rinjve",
     "orgMembers": "Anëtarët",
     "orgVerifiedPages": "Faqet e internetit",
     "orgWorkshops": "Punëtoritë",
@@ -1930,14 +2076,19 @@
   "playbackEngine": {
     "blocks": {
       "adapted-style": "Stili",
+      "cast": "Cakto zërat",
+      "cast-brief": "Personazhet",
       "condense-scenario": "Shkurto skenarin",
       "condensed-scenario": "Skenari",
+      "director": "Regjisori",
       "expand": "Trego",
       "gallery-image": "Imazhi i galerisë",
       "greeting": "Gjenero tekst",
       "image": "Vizato figurë",
       "image-prompt": "Përshkruaj figurën",
       "image-style": "Përshtat stilin",
+      "live-a": "Personazhi i parë",
+      "live-b": "Personazhi i dytë",
       "live-session": "Personazhi",
       "observer": "Regjisori",
       "opening-brief": "Si fillon",
@@ -2019,6 +2170,31 @@
       "turnFailed": "Historia nuk mund të vazhdonte nga ajo pikë. Dërgoje sërish ose provo diçka tjetër.",
       "voiceFailed": "Zëri yt nuk mund të lidhej."
     },
+    "guardrail": {
+      "edit": "Ndrysho rregullin mbrojtës",
+      "editHint": "Një eksperiment laboratorik: rregulli i ri zbatohet duke filluar nga thirrja e ardhshme e IA-së; ajo që ka ndodhur mbetet.",
+      "edited": "ndryshuar",
+      "failed": "Nuk mund të ruhej",
+      "frequency": "Përsëritja",
+      "frequencyFailed": "Nuk mund të caktohej",
+      "frequencyHint": "Sa shpesh çdo hap e përsërit rregullin: 1 në çdo thirrje, 10 në çdo thirrje të dhjetë.",
+      "frequencySet": "Cakto",
+      "intro": "Rregulli për mbrojtjen e të rinjve të cilit i përmbahet çdo thirrje e IA-së së kësaj loje.",
+      "levelOrganisation": "Organizata “{{name}}”",
+      "levelSite13": "Rregulli i faqes, 13–17 vjeç pa pëlqimin prindëror",
+      "levelSite13p": "Rregulli i faqes, 13–17 vjeç me pëlqimin prindëror",
+      "levelSite18": "Rregulli i faqes, 18 vjeç e lart",
+      "levelWorkshop": "Punëtoria “{{name}}”",
+      "none": "Ky sesion nuk ka rregull mbrojtës.",
+      "readBy": "Respektohet nga",
+      "reset": "Kthehu te rregulli i zgjidhur",
+      "resolved": "Siç është zgjidhur",
+      "save": "Ruaj",
+      "saved": "U ruajt: zbatohet nga thirrja e ardhshme",
+      "saving": "Po ruhet…",
+      "source": "Vjen nga",
+      "sourceUnknown": "E panjohur"
+    },
     "insights": {
       "close": "Mbyll",
       "collapse": "Palos",
@@ -2031,6 +2207,7 @@
       "pickBlock": "Kliko një bllok ose një lidhje në rrjedhën e procesit për të parë se çfarë bëri.",
       "settingEmpty": "Loja e lë bosh këtë fushë.",
       "show": "Shfaq informacionet",
+      "tabGuardrail": "Rregulli mbrojtës",
       "tabProblems": "Probleme",
       "tabSelected": "Të zgjedhura",
       "tabUsage": "Përdorimi"
@@ -2077,6 +2254,32 @@
       "unknown": "Kjo seancë loje nuk ekziston.",
       "unreachable": "Ofruesi i IA-së nuk po përgjigjet për momentin, ndaj loja nuk mund të vazhdojë. Provo sërish pas disa minutash."
     },
+    "promptNames": {
+      "condense-scenario": "Shkurto skenarin",
+      "conversation-policy": "Si flet personazhi",
+      "director": "Regjisori",
+      "expand": "Trego një raund",
+      "game-master": "Drejtuesi i lojës (Mesazh sistemi)",
+      "greeting": "Fjalët e para",
+      "image-style": "Përshtat stilin",
+      "opening": "Hapja",
+      "opening-expand": "Trego hapjen",
+      "rephrase": "Riformulo veprimin",
+      "rephrase-audio": "Kupto të folurën",
+      "scene": "Korniza e figurës",
+      "summary": "Kërkesë për përmbledhje",
+      "voice-brief": "Përshkruaj zërin"
+    },
+    "prompts": {
+      "edited": "ndryshuar",
+      "failed": "Nuk mund të ruhej",
+      "hint": "Ndryshoni një udhëzim për të parë si ndryshojnë përgjigjet. Teksti i ri zbatohet duke filluar nga thirrja e ardhshme.",
+      "reset": "Kthehu te origjinali",
+      "save": "Ruaj",
+      "saved": "U ruajt: zbatohet nga thirrja e ardhshme",
+      "saving": "Po ruhet…",
+      "title": "Udhëzimet"
+    },
     "relay": {
       "busy": "Relay: në përdorim nga një skedë tjetër",
       "connected": "Relay: i lidhur",
@@ -2109,21 +2312,32 @@
       "adapted-style\u0003eimage-prompt": "stil",
       "adapted-style\u0003eimage-style": "kërkesë",
       "adapted-style\u0003estart-game": "gati",
+      "cast\u0003clive-a:voiceA": "zë",
+      "cast\u0003clive-b:voiceB": "zë",
+      "cast\u0003cstart-game": "gati",
+      "cast-brief\u0003ccast": "personazhe",
       "condense-scenario\u0003econdensed-scenario": "përgjigje",
       "condensed-scenario\u0003econdense-scenario": "kërkesë",
       "condensed-scenario\u0003eimage-prompt": "skenar",
       "condensed-scenario\u0003estart-game": "gati",
+      "director\u0003clive-a": "ndërhyrje",
+      "director\u0003clive-b": "ndërhyrje",
       "gallery-image\u0003estart-game": "gati",
+      "greeting\u0003clive-a": "fjalët e para",
       "greeting\u0003elive-session": "fjalët e para",
       "greeting\u0003estart-game": "gati",
       "image-prompt\u0003eimage": "udhëzim",
       "image-style\u0003eadapted-style": "përgjigje",
+      "live-a\u0003cdirector": "transkript",
+      "live-b\u0003cdirector": "transkript",
       "live-session\u0003eobserver": "transkript",
       "observer\u0003elive-session": "futje",
       "opening-brief\u0003egreeting": "udhëzim",
       "outline\u0003eexpand": "plan",
       "outline\u0003eimage-prompt": "skenë",
       "outline\u0003eprops-store": "ndryshime",
+      "player-input-audio\u0003clive-a": "të folur",
+      "player-input-audio\u0003clive-b": "të folur",
       "player-input-audio\u0003elive-session": "të folur",
       "player-input-audio\u0003erephrase-audio": "të folur",
       "player-input-text\u0003erephrase": "veprim",
@@ -2132,6 +2346,8 @@
       "props-store\u0003eoutline": "status",
       "rephrase\u0003eoutline": "veprim",
       "rephrase-audio\u0003eoutline": "veprim",
+      "start-game\u0003clive-a": "sinjal",
+      "start-game\u0003clive-b": "sinjal",
       "start-game\u0003elive-session": "hyrje",
       "start-game\u0003eoutline": "udhëzim",
       "voice\u0003elive-session:secondary": "stili i zërit",

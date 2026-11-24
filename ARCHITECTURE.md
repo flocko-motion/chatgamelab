@@ -76,6 +76,24 @@ That floor is enforced automatically.
   (`core.EmbedPlay`): it posts to the callback in its own records, follows no
   redirect and gives up after a few seconds.
 
+### Notifications are rules over current data (#578)
+
+- **The facts stay where they are.** A notification type is a rule in the
+  core (`core/notification.go`) that reads the current data and compares it
+  with the user's last acknowledgement of that type; the database holds
+  only that acknowledgement (per user, type and optional subject). Without
+  one, the start is the user's role's creation.
+- **A type is held through the grant that opens its target**: new
+  organisations through listing every organisation, waiting pages through
+  approving them, an organisation's page decisions through listing its
+  page. The grant table stays as it is.
+- **Acknowledging names how far**: an entry carries the time of its newest
+  fact, and acknowledging stores that time (at most now), so a fact that
+  arrives meanwhile stays news. Acknowledging never moves back.
+- **The web app polls**: on load, every minute while the tab is visible and
+  after an acknowledgement. The bell renders the server's codes and counts
+  as i18n texts.
+
 ### Insights are part of playing (#455)
 
 - **Every player has them.** Insights (spec: Insights) show the workings of

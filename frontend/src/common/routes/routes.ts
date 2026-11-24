@@ -74,6 +74,9 @@ export const ROUTES = {
 } as const;
 
 // Route groups for navigation menus
+/** The admins' list of verified pages on the organisations page, as an anchor. */
+export const ADMIN_VERIFIED_PAGES_ANCHOR = "verified-pages";
+
 export const NAVIGATION_GROUPS = {
   MAIN: [ROUTES.HOME, ROUTES.LANDING, ROUTES.DASHBOARD],
   AUTH: [ROUTES.AUTH_LOGIN, ROUTES.AUTH_REGISTER],

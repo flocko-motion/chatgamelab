@@ -202,13 +202,8 @@ DELETE FROM institution WHERE id = @organisation_id;
 -- Carried over from v1 for the core's system jobs (#344).
 
 -- name: V2SeedOrganisation :one
-INSERT INTO institution (
-  id, created_by,
-  created_at, modified_by, modified_at,
-  name
-) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6
-)
+-- The database stamps its times, as for every organisation: notifications
+-- compare them with other times the database stamped.
+INSERT INTO institution (id, created_by, modified_by, name)
+VALUES (@id, sqlc.narg(created_by)::uuid, sqlc.narg(created_by)::uuid, @name)
 RETURNING *;

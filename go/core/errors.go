@@ -93,6 +93,13 @@ func sqlString(s *string) sql.NullString {
 	return sql.NullString{String: *s, Valid: true}
 }
 
+func sqlTime(t *time.Time) sql.NullTime {
+	if t == nil {
+		return sql.NullTime{}
+	}
+	return sql.NullTime{Time: *t, Valid: true}
+}
+
 func nullTime(t sql.NullTime) *time.Time {
 	if !t.Valid {
 		return nil

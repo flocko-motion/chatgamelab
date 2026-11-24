@@ -1,4 +1,5 @@
 go/api/wire/*.go
+go/core/*.go
 go/engine/*.go
 go/engine/api/*.go
 go/engine/internal/adapters/*.go

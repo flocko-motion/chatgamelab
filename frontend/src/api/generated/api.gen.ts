@@ -48,6 +48,12 @@ export type OrganisationKeySort = "name" | "owner" | "platform";
 
 export type OrganisationFilter = "recentlyRegistered";
 
+export type NotificationType =
+  | "newOrganisations"
+  | "pagesWaiting"
+  | "pageApproved"
+  | "pageTurnedDown";
+
 export type MemberSort = "name" | "email" | "role";
 
 export type Medium = "text" | "audio" | "image";
@@ -100,6 +106,14 @@ export interface AcceptInviteResp {
   authToken?: string;
   message: string;
   user?: NewGuestView;
+}
+
+export interface AcknowledgeNotificationReq {
+  /** @format date-time */
+  at?: string;
+  /** @format uuid */
+  subject?: string;
+  type: NotificationType;
 }
 
 export interface ApiKey {
@@ -846,6 +860,21 @@ export interface NodeDetail {
   transcript?: TranscriptLine[];
   type: string;
   usage?: UsageRecord;
+}
+
+export interface NotificationView {
+  /** @format date-time */
+  at: string;
+  count: number;
+  /** @format uuid */
+  organisationId?: string;
+  /** @format uuid */
+  subject?: string;
+  type: NotificationType;
+}
+
+export interface NotificationsResp {
+  notifications: NotificationView[];
 }
 
 export interface ObserverEntry {
@@ -4159,6 +4188,62 @@ export class Api<
       this.request<DeclarationResp, Error>({
         path: `/api/legal/institution-declaration`,
         method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description important facts that are true now and wait for their acknowledgement.
+     *
+     * @name GetApiNotifications
+     * @summary Answers the caller's notifications: the
+     * @request GET:/api/notifications
+     * @secure
+     */
+    getApiNotifications: (params: RequestParams = {}) =>
+      this.request<NotificationsResp, Error>({
+        path: `/api/notifications`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description notifications and answers those that remain.
+     *
+     * @name PostApiNotificationsAcknowledge
+     * @summary Acknowledges one of the caller's
+     * @request POST:/api/notifications/acknowledge
+     * @secure
+     */
+    postApiNotificationsAcknowledge: (
+      data: AcknowledgeNotificationReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<NotificationsResp, Error>({
+        path: `/api/notifications/acknowledge`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: "application/json",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description caller has, each up to the entry they could see; it answers those that remain.
+     *
+     * @name PostApiNotificationsAcknowledgeAll
+     * @summary Acknowledges every notification the
+     * @request POST:/api/notifications/acknowledge-all
+     * @secure
+     */
+    postApiNotificationsAcknowledgeAll: (params: RequestParams = {}) =>
+      this.request<NotificationsResp, Error>({
+        path: `/api/notifications/acknowledge-all`,
+        method: "POST",
+        secure: true,
         format: "json",
         ...params,
       }),

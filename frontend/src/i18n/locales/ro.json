@@ -56,7 +56,7 @@
       "cityLabel": "Localitate",
       "confirmAdult": "Am cel puțin 18 ani.",
       "consentPage": {
-        "constraintIntro": "Prin declarație, instituția ta se angajează să stabilească o restricție pentru instrucțiunile de protecție a minorilor potrivită grupului-țintă. Mai jos este cea utilizată în prezent de organizația ta. Verific-o și ajusteaz-o dacă este necesar.",
+        "constraintIntro": "Prin declarație, instituția dumneavoastră se angajează să stabilească o regulă de protecție a minorilor potrivită grupului țintă. Mai jos este regula utilizată în prezent de organizația dumneavoastră. Vă rugăm să o verificați și să o ajustați dacă este necesar.",
         "emailDescription": "Trimitem confirmarea, împreună cu textul declarației, la această adresă.",
         "introExisting": "Organizația ta „{{name}}” are acum o declarație confirmată online. Aceasta înlocuiește acordul de utilizare semnat anterior. Citește-o și aprob-o în numele instituției tale.",
         "introNewVersion": "Declarația a fost actualizată (versiunea {{version}}). Citește noua versiune și aprob-o în numele organizației tale „{{name}}”.",
@@ -112,14 +112,14 @@
       "youthProtection": {
         "changeHint": "Poți schimba această setare oricând și o poți defini diferit pentru ateliere individuale.",
         "defaultOption": "Implicit, de la 13 ani",
-        "fieldLabel": "Restricția pentru instrucțiunile de protecție a minorilor a organizației tale",
+        "fieldLabel": "Regula de protecție a minorilor a organizației dumneavoastră",
         "intro": "Inteligența artificială primește această instrucțiune în fiecare joc al organizației tale. Alege o setare potrivită vârstei grupului-țintă.",
         "responsibilityHint": "Sugestiile nu reprezintă o clasificare oficială pe vârste. Instituția ta decide setarea și este responsabilă pentru aceasta.",
         "suggestionAdults": "pentru adulți de la {{age}} ani",
         "suggestionChildren": "pentru copii de aproximativ {{age}} ani",
         "suggestionTeens": "pentru tineri de aproximativ {{age}} ani",
         "suggestionsLabel": "Sugestii (un clic înlocuiește textul):",
-        "title": "Restricție pentru instrucțiunile de protecție a minorilor",
+        "title": "Regula de protecție a minorilor",
         "tooLong": "Maximum {{max}} de caractere. Scurtează textul sau alege o sugestie."
       }
     },
@@ -236,7 +236,7 @@
       "organizationExistingAccount": "Organizațiile se înregistrează cu o autentificare nouă. Ai deja un cont?",
       "organizationIntro": "Pentru centre de tineret, școli și alte instituții care doresc să utilizeze ChatGameLab în ateliere.",
       "organizationStep1": "Îți creezi autentificarea prin Auth0 (e-mail și parolă).",
-      "organizationStep2": "Introduci datele despre tine și instituția ta, stabilești restricția pentru instrucțiunile de protecție a minorilor și aprobi declarația.",
+      "organizationStep2": "Introduceți datele despre dumneavoastră și instituția dumneavoastră, stabiliți regula de protecție a minorilor și acceptați declarația.",
       "organizationStep3": "După trimiterea formularului, organizația este activată imediat și poți crea ateliere.",
       "organizationTitle": "Înregistrează-te ca organizație",
       "privacyPolicy": "Politica de confidențialitate",
@@ -433,6 +433,25 @@
           "role-desc": "Rol (Z-A)"
         },
         "title": "Gestionează utilizatorii"
+      },
+      "verifiedPages": {
+        "approve": "Aprobă",
+        "approved": "Aprobată",
+        "callback": "Callback: {{url}}",
+        "description": "Pagina verificată a fiecărei organizații. Jocurile sale pornesc acolo doar după ce o aprobați; aprobați site-ul (schema și gazda), astfel încât o pagină mutată pe un alt site așteaptă din nou aprobarea, în timp ce un alt port sau o altă cale pe același site rămâne aprobată.",
+        "empty": "Nicio organizație nu a înregistrat încă o pagină.",
+        "filters": {
+          "all": "Toate",
+          "approved": "Aprobate",
+          "waiting": "În așteptare"
+        },
+        "loadError": "Paginile nu au putut fi încărcate.",
+        "organisation": "Organizație",
+        "page": "Pagină",
+        "status": "Stare",
+        "title": "Pagini care încorporează jocuri",
+        "waiting": "În așteptarea aprobării",
+        "withdraw": "Retrage aprobarea"
       }
     },
     "aiQualityTier": {
@@ -455,6 +474,7 @@
       "empty": {
         "conditions": {
           "favorites": "unul dintre favoritele tale",
+          "organisation": "ale organizației dumneavoastră",
           "own": "al tău",
           "public": "public",
           "sponsored": "sponsorizat"
@@ -470,7 +490,8 @@
         "all": "Toate jocurile",
         "favorites": "Favorite",
         "genre": "Gen",
-        "own": "Jocurile mele",
+        "organisation": "Organizație",
+        "own": "Ale mele",
         "public": "Publice",
         "sponsored": "Sponsorizate"
       },
@@ -479,10 +500,16 @@
       "reportGame": "Raportează jocul",
       "restart": "Repornește",
       "resumeChoice": {
+        "advanced": "Setări avansate",
         "continue": "Continuă",
         "message": "Ai început deja „{{game}}”. Continui de unde ai rămas sau începi din nou? Începerea unei sesiuni noi o înlocuiește pe cea anterioară.",
         "startNew": "Începe din nou",
         "title": "Continui sau începi din nou?"
+      },
+      "startChoice": {
+        "message": "Porniți „{{game}}” așa cum a fost creat sau adaptați mai întâi prompturile cu care începe.",
+        "start": "Pornește",
+        "title": "Porniți jocul?"
       },
       "title": "Jocuri",
       "unfavorite": "Elimină din favorite",
@@ -640,6 +667,7 @@
         "alt": "Coperta lui {{name}}",
         "draw": "Desenează coperta",
         "drawAgain": "Desenează din nou",
+        "drawing": "Se desenează coperta…",
         "drawnOnSave": "Coperta este desenată când salvezi jocul.",
         "errors": {
           "failed": "Coperta nu a putut fi desenată. Încearcă din nou.",
@@ -719,6 +747,10 @@
           },
           "description": "Descriere",
           "descriptionHint": "O propoziție sau două pentru galerie, ca jucătorii să știe la ce să se aștepte.",
+          "duo": {
+            "descriptionPlaceholder": "Greta, îngrijitoarea morocănoasă a farului, și un inspector fiscal mult prea vesel se ceartă de-a lungul unei nopți furtunoase. Ascultă-i sau ia partea unuia dintre ei.",
+            "titlePlaceholder": "Noapte furtunoasă la far"
+          },
           "encounter": {
             "descriptionPlaceholder": "Viziteaz-o pe Greta, paznica morocănoasă a farului, și află ce a văzut în acea noapte.",
             "titlePlaceholder": "Greta la far"
@@ -743,15 +775,17 @@
         },
         "embed": {
           "copy": "Copiază fragmentul",
-          "incomplete": "Alege cine plătește și pagina pentru a obține fragmentul.",
+          "incomplete": "Alege ce plătește pentru a primi fragmentul de cod.",
           "noKeys": "Nu ai nicio cheie AI funcțională cu care să plătești. Adaugă una sau cere una organizației tale.",
-          "noPages": "Organizația ta nu are încă nicio pagină verificată. Conducerea sau personalul poate adăuga una din setările organizației.",
+          "noOrganisation": "Încorporarea este destinată jocurilor unei organizații: jocuri scrise în atelierele sale sau de conducerea și angajații săi. Acest joc nu aparține niciunei organizații.",
+          "noPages": "Înregistrează mai întâi site-ul organizației tale: pagina pe care vor rula jocurile. Un administrator îl aprobă, apoi jocul poate porni acolo.",
           "offNote": "Când este dezactivat, fragmentul nu afișează nimic. Când este activat din nou, același fragment funcționează.",
           "page": "Pagină verificată",
           "pageHint": "Jocul rulează doar acolo și doar după ce pagina aprobă fiecare pornire.",
           "paidBy": "Plătit de",
           "paidByPlaceholder": "Alege o cheie",
           "payingNow": "Plătește acum",
+          "registerPage": "Înregistrează un site în Organizația mea → Site-uri",
           "snippet": "Fragment pentru site-ul tău",
           "snippetCss": "CSS-ul tău",
           "snippetHint": "Inserează-l acolo unde trebuie să apară jocul și stabilește înălțimea dorită pentru element.",
@@ -760,12 +794,14 @@
           "snippetVerifiedHint": "Serverul tău completează ID-ul vizitatorului și al acestei vizualizări de pagină; callback-ul paginii tale le primește pe ambele.",
           "styleLink": "Personalizează-l cu propriul CSS →",
           "toggle": "Încorporează pe un site",
-          "toggleHint": "Afișează acest joc pe pagina verificată a organizației tale, fără nimic de la ChatGameLab în jurul lui. Vizitatorii joacă în calitate de invitați; cheia aleasă de tine plătește."
+          "toggleHint": "Afișează acest joc pe pagina verificată a organizației tale, fără nimic de la ChatGameLab în jurul lui. Vizitatorii joacă în calitate de invitați; cheia aleasă de tine plătește.",
+          "waitingForApproval": "Pagina organizației așteaptă aprobarea unui administrator. Până atunci, jocul nu pornește acolo."
         },
         "fillIn": "Completează secțiunile până când toate devin verzi.",
         "genre": {
           "pitch": {
             "adventure": "Jucătorul explorează o lume. Jocul povestește ce se întâmplă, creează imagini și ține scorul.",
+            "duo": "Două personaje vorbesc între ele prin voce. Jucătorul ascultă sau se alătură conversației.",
             "encounter": "Jucătorul vorbește cu un personaj, prin voce. Personajul își păstrează rolul și răspunde în timp real."
           },
           "question": "Ce vrei să creezi?"
@@ -815,6 +851,12 @@
               "systemMessageGameStart": "Spune cum începe jocul.",
               "systemMessageScenario": "Spune despre ce este jocul."
             },
+            "duo": {
+              "imageStyle": "Alege un stil de imagine, pentru ca imaginile să se potrivească între ele.",
+              "name": "Jocul tău nu are încă un titlu.",
+              "systemMessageGameStart": "Spune unde are loc scena și cum începe.",
+              "systemMessageScenario": "Spune cine sunt cele două personaje."
+            },
             "encounter": {
               "imageStyle": "Alege un stil de imagine, pentru ca imaginile să se potrivească.",
               "name": "Jocul tău nu are încă un titlu.",
@@ -829,6 +871,10 @@
             "voiceStyleHint": "Cum sună povestea când este citită cu voce tare."
           },
           "builtInVoice": "Voce încorporată",
+          "duo": {
+            "voiceStyle": "Vocile personajelor",
+            "voiceStyleHint": "Fiecare personaj primește propria voce."
+          },
           "encounter": {
             "voiceStyle": "Vocea personajului",
             "voiceStyleHint": "Cum sună personajul."
@@ -864,6 +910,20 @@
             "scenario": "Despre ce este jocul?",
             "scenarioHint": "Lumea, rolul jucătorului, obiectivul și cum își dă seama jucătorul că a câștigat.",
             "scenarioPlaceholder": "Jucătorul este un explorator într-o pădure misterioasă și caută o comoară ascunsă…"
+          },
+          "duo": {
+            "firstCharacter": "Primul personaj",
+            "firstCharacterHint": "Cine este: personalitate, ce își dorește, cum vorbește. El vorbește primul.",
+            "firstCharacterPlaceholder": "Greta, o îngrijitoare morocănoasă a farului care vrea să fie lăsată în pace cu lampa ei…",
+            "gameStart": "Unde se află și cum începe?",
+            "gameStartHint": "Scena în care se află amândoi la început; primele cuvinte ale primului personaj sunt scrise pornind de aici.",
+            "gameStartPlaceholder": "O noapte furtunoasă. Otto bate la ușa farului, ud până la piele…",
+            "scenario": "Cine sunt cele două personaje?",
+            "scenarioHint": "Cine este fiecare și de ce au ceva de discutat sau de ce se ceartă.",
+            "scenarioPlaceholder": "Greta, o îngrijitoare morocănoasă a farului…",
+            "secondCharacter": "Al doilea personaj",
+            "secondCharacterHint": "Cine este și de ce au cei doi ceva de discutat sau de ce se ceartă.",
+            "secondCharacterPlaceholder": "Otto, un inspector fiscal mult prea vesel, venit să numere fiecare lumânare…"
           },
           "encounter": {
             "gameStart": "Cum întâmpină personajul jucătorul?",
@@ -905,7 +965,8 @@
       },
       "genres": {
         "adventure": "Aventură",
-        "npc-live": "Întâlnire"
+        "npc-duo": "Discuție",
+        "npc-live": "Personaj"
       },
       "importExport": {
         "coverFailed": "Jocul a fost importat, dar coperta nu a putut fi verificată. Poți desena una nouă în editor.",
@@ -920,6 +981,7 @@
         "exportButton": "Exportă jocul",
         "importButton": "Importă joc"
       },
+      "newGame": "Joc nou",
       "playNow": "Joacă acum",
       "privacyHint": "Numele și descrierea unui joc pot deveni vizibile public. Te rugăm să nu folosești nume reale.",
       "privacyHintShort": "Poate deveni vizibil public – te rugăm să nu folosești nume reale.",
@@ -959,7 +1021,7 @@
         "unlimitedSessions": "Sesiuni nelimitate",
         "update": "Actualizează linkul de partajare",
         "workshopCreateHint": "Creează un link de partajare pentru acest joc. Cheia API a atelierului este selectată automat și acoperă costurile.",
-        "workshopDescription": "Acest link este creat în cadrul atelierului „{{name}}” – invitații se joacă folosind cheia API a atelierului și restricțiile pentru solicitări.",
+        "workshopDescription": "Acest link este creat în cadrul atelierului „{{name}}” – invitații joacă folosind cheia API și regula de protecție a minorilor ale atelierului.",
         "workshopShare": "Partajare atelier",
         "workshopShareDescription": "Acest link a fost creat în atelierul „{{name}}” - invitații joacă folosind cheia API a atelierului.",
         "workshopSubsection": "Link de partajare al atelierului"
@@ -1074,6 +1136,7 @@
           "scifi": "SF",
           "snowy": "Înzăpezit",
           "space": "Spațiu",
+          "spielfieber": "Spielfieber",
           "steampunk": "Steampunk",
           "storybook": "Carte de povești",
           "sunshine": "Rază de soare",
@@ -1195,6 +1258,7 @@
     "leaveTitle": "Părăsește organizația",
     "leaveWarning": "Vei pierde accesul la toate resursele și membrii organizației.",
     "list": {
+      "clearFilters": "Șterge",
       "clearPicks": "Afișează tot",
       "clearSearch": "Șterge căutarea",
       "filter": "Filtru",
@@ -1244,6 +1308,8 @@
       "apiKeys": {
         "aboutDescription": "Cheile API partajate aici sunt disponibile tuturor membrilor organizației pentru a juca jocuri.",
         "aboutTitle": "Cheile API ale organizației",
+        "addAndShare": "Adaugă și distribuie",
+        "addKey": "Adaugă cheia",
         "allPlatforms": "Toate platformele",
         "allowPublicSponsoring": "Permite sponsorizarea publică",
         "allowPublicSponsoringDesc": "Această cheie poate fi folosită pentru sponsorizarea jocurilor pentru toți utilizatorii.",
@@ -1257,6 +1323,9 @@
         },
         "keyName": "Numele cheii",
         "loadError": "Nu s-au putut încărca cheile API ale organizației.",
+        "modeNew": "O cheie nouă",
+        "modeOwn": "Una dintre cheile mele",
+        "newKeyHint": "Cheia devine a dumneavoastră, ca pe pagina cu cheile API, și este distribuită organizației.",
         "noKeys": "Nu există încă chei API partajate cu această organizație.",
         "noResults": "Nicio cheie API nu corespunde căutării.",
         "notAuthorized": "Nu ai permisiunea de a gestiona cheile API ale organizației. Doar conducătorii și profesorii pot accesa această pagină.",
@@ -1269,7 +1338,7 @@
         "selectKeyPlaceholder": "Alege o cheie de partajat...",
         "share": "Partajează",
         "shareKey": "Partajează cheia",
-        "shareKeyTitle": "Partajează cheia API cu organizația",
+        "shareKeyTitle": "Adaugă o cheie API organizației",
         "showDetails": "Arată detaliile",
         "title": "Cheile API ale organizației"
       },
@@ -1320,13 +1389,13 @@
       "promoteToHead": "Promovează la conducător",
       "promoteWarning": "Acest utilizator va putea gestiona membrii organizației și invita profesorii.",
       "promptConstraintsFallbackEmpty": "(neconfigurat)",
-      "promptConstraintsFallbackHint": "Nu este configurată nicio restricție pentru organizație. Se aplică setarea implicită a întregului site pentru grupa de vârstă a jucătorului:",
+      "promptConstraintsFallbackHint": "Organizația nu a stabilit nicio regulă de protecție a minorilor. Se aplică setarea implicită a site-ului pentru grupa de vârstă a jucătorului:",
       "promptConstraintsFallbackTitle": "Mecanism de rezervă activ la nivelul site-ului",
       "promptConstraintsFallbackU13": "Sub 13",
       "promptConstraintsFallbackU13p": "13–17 (cu consimțământul părinților)",
       "promptConstraintsFallbackU18": "18 și peste",
-      "promptConstraintsHint": "Instrucțiuni suplimentare pentru AI pentru toate sesiunile din această organizație. Se aplică atunci când nu este setată o constrângere la nivel de atelier și pentru jocurile partajate prin link.",
-      "promptConstraintsLabel": "Restricția pentru instrucțiunile de protecție a minorilor a organizației",
+      "promptConstraintsHint": "Instrucțiuni AI suplimentare pentru toate sesiunile din această organizație. Se aplică atunci când atelierul nu stabilește nicio regulă de protecție a minorilor și jocurilor distribuite prin link.",
+      "promptConstraintsLabel": "Regula de protecție a minorilor a organizației",
       "promptConstraintsPlaceholder": "ex. Păstrează povestea adecvată vârstei și evită conținutul violent.",
       "publicPage": {
         "changeLinkMessage": "Pagina va fi apoi disponibilă la {{url}}.",
@@ -1380,11 +1449,15 @@
       "verifiedPages": {
         "add": "Înregistrează pagina",
         "addTitle": "Înregistrează o pagină",
+        "approved": "Aprobată",
         "callbackShown": "Callback: {{url}}",
         "callbackUrl": "Adresa callback-ului",
         "callbackUrlHint": "Aici întreabă ChatGameLab înainte de fiecare pornire. Trebuie să răspundă în câteva secunde.",
         "copied": "Copiat",
         "copy": "Copiază ID-ul paginii",
+        "edit": "Schimbă pagina",
+        "editReapproval": "Această adresă se află pe un alt site, care așteaptă din nou aprobarea unui administrator; până atunci, jocurile nu pornesc acolo. Un alt port sau o altă cale pe același site rămâne aprobată.",
+        "editTitle": "Schimbă pagina",
         "empty": "Nu există încă pagini verificate.",
         "intro": "O pagină verificată este o pagină de pe site-ul organizației tale care poate afișa jocurile încorporate. Înainte ca un joc să înceapă acolo, ChatGameLab întreabă callback-ul paginii dacă poate porni, folosind ID-ul paginii de mai jos și ID-urile vizitatorului și cererii transmise de pagina ta. Doar răspunsul {\"ok\": true} pornește jocul.",
         "pageId": "ID-ul paginii",
@@ -1392,7 +1465,9 @@
         "pageUrlHint": "Pagina în care sunt încorporate jocurile tale. Doar site-ul acesteia le poate afișa.",
         "remove": "Elimină pagina",
         "removeTitle": "Elimini această pagină?",
-        "removeWarning": "Jocurile încorporate pentru {{page}} nu vor mai porni acolo până când nu primesc o altă pagină."
+        "removeWarning": "Jocurile încorporate pentru {{page}} nu vor mai porni acolo până când nu primesc o altă pagină.",
+        "save": "Salvează pagina",
+        "waiting": "În așteptarea aprobării unui administrator"
       },
       "workshops": {
         "activate": "Activează",
@@ -1464,10 +1539,10 @@
         "participantLinkTitleNamed": "Link de reconectare pentru {{name}}",
         "participantName": "Numele participantului",
         "participants": "Participanți",
-        "promptConstraintsFallbackOrg": "Se utilizează restricția organizației ca setare implicită: {{constraint}}",
-        "promptConstraintsFallbackSite": "Se utilizează restricția site-ului ca setare implicită",
+        "promptConstraintsFallbackOrg": "Se folosește ca implicită regula de protecție a minorilor a organizației: {{constraint}}",
+        "promptConstraintsFallbackSite": "Se folosește ca implicită regula de protecție a minorilor a site-ului",
         "promptConstraintsHint": "Instrucțiuni suplimentare pentru AI pentru toate sesiunile din acest atelier.",
-        "promptConstraintsLabel": "Restricție pentru instrucțiunile de protecție a minorilor",
+        "promptConstraintsLabel": "Regula de protecție a minorilor",
         "promptConstraintsPlaceholder": "de ex. Păstrează povestea adecvată vârstei și evită conținutul violent.",
         "removeParticipant": "Elimină participantul",
         "removeParticipantConfirm": "Sigur vrei să îl elimini pe „{{name}}” din acest atelier?",
@@ -1515,13 +1590,25 @@
     "noRole": "Fără rol",
     "notifications": {
       "accept": "Acceptă",
+      "acknowledgeAll": "Marchează toate ca citite",
       "decline": "Respinge",
       "declineConfirm": "Sigur vrei să respingi această invitație?",
       "declineTitle": "Respinge invitația",
       "empty": "Nicio notificare nouă.",
       "inviteDescription": "Ai fost invitat să te alături ca {{role}}.",
       "inviteToJoin": "Invitație de organizație",
+      "nothingNew": "Nimic nou",
       "title": "Notificări",
+      "titleWithCount_one": "Notificări: {{count}} nouă",
+      "titleWithCount_other": "Notificări: {{count}} noi",
+      "types": {
+        "newOrganisations_one": "O organizație nouă s-a înregistrat",
+        "newOrganisations_other": "{{count}} organizații noi s-au înregistrat",
+        "pageApproved": "Pagina verificată a organizației dumneavoastră a fost aprobată",
+        "pageTurnedDown": "Pagina verificată a organizației dumneavoastră nu a fost aprobată sau aprobarea acesteia a fost retrasă",
+        "pagesWaiting_one": "O pagină verificată așteaptă aprobarea",
+        "pagesWaiting_other": "{{count}} pagini verificate așteaptă aprobarea"
+      },
       "workshopInvite": "Invitație la atelier",
       "workshopInviteDescription": "Ai fost invitat să te alături acestui atelier."
     },
@@ -1533,6 +1620,15 @@
       "title": "Organizație suspendată"
     },
     "play": {
+      "advanced": {
+        "edited": "modificat",
+        "hint": "Adaptează prompturile cu care începe această sesiune. Prompturile modificate sunt marcate; toate celelalte rulează așa cum a fost creat jocul. Prompturile pot fi schimbate în continuare în timpul jocului, în secțiunea Perspective.",
+        "loading": "Se încarcă prompturile…",
+        "reset": "Înapoi la original",
+        "start": "Pornește jocul",
+        "title": "Setări avansate",
+        "unavailable": "Prompturile nu au putut fi încărcate."
+      },
       "cloneGame": "Clonează în jocurile mele",
       "empty": {
         "description": "Încearcă să ajustezi filtrele sau revino mai târziu pentru jocuri noi.",
@@ -1627,16 +1723,16 @@
     "searchPlaceholder": "Caută membri...",
     "serverSettings": {
       "constraints": {
-        "description": "Definește reguli AI obligatorii pe baza grupei de vârstă a jucătorului. Aceste restricții sunt introduse în fiecare răspuns AI. Se aplică tuturor utilizatorilor conectați din afara modului atelier.",
-        "title": "Restricții pentru instrucțiuni bazate pe vârstă",
+        "description": "Definește reguli AI obligatorii pe baza grupei de vârstă a jucătorului. Aceste reguli de protecție a minorilor sunt incluse în fiecare apel AI. Se aplică tuturor utilizatorilor autentificați din afara modului atelier.",
+        "title": "Reguli de protecție a minorilor în funcție de vârstă",
         "u13Hint": "Este injectată în fiecare prompt AI pentru utilizatorii autentificați cu vârsta între 13-17 ani fără consimțământ parental înregistrat.",
-        "u13Label": "Restricție pentru utilizatorii cu vârsta între 13 și 17 ani, fără consimțământ parental (U13)",
+        "u13Label": "Regula de protecție a minorilor pentru utilizatorii cu vârsta între 13 și 17 ani, fără consimțământul părinților (U13)",
         "u13Placeholder": "ex. Păstrează tot conținutul strict adecvat adolescenților. Fără violență, fără conținut romantic, fără teme de groază.",
         "u13pHint": "Este injectată în fiecare prompt AI pentru utilizatorii autentificați cu vârsta între 13-17 ani cu consimțământ parental înregistrat.",
-        "u13pLabel": "Restricție pentru utilizatorii cu vârsta între 13 și 17 ani, cu consimțământ parental (U13p)",
+        "u13pLabel": "Regula de protecție a minorilor pentru utilizatorii cu vârsta între 13 și 17 ani, cu consimțământul părinților (U13p)",
         "u13pPlaceholder": "ex. Conținut adecvat vârstei pentru adolescenți ale căror părinți și-au dat acordul. Sunt permise unele teme mature, fără conținut explicit.",
         "u18Hint": "Injectat în fiecare prompt AI pentru utilizatorii autentificați cu vârsta de 18 ani și peste.",
-        "u18Label": "Restricție pentru utilizatorii cu vârsta de cel puțin 18 ani (U18)",
+        "u18Label": "Regula de protecție a minorilor pentru utilizatorii cu vârsta de cel puțin 18 ani (U18)",
         "u18Placeholder": "ex. Păstrează conținutul adecvat. Evită violența explicită sau conținutul sexual."
       },
       "defaultTier": {
@@ -1765,6 +1861,49 @@
         "viewAll": "Toate jocurile"
       }
     },
+    "continue": {
+      "go": "Continuă",
+      "hint": "reia de unde ai rămas",
+      "messages_one": "{{count}} mesaj",
+      "messages_other": "{{count}} mesaje",
+      "title": "Continuă jocul"
+    },
+    "fresh": {
+      "by": "de {{name}}",
+      "empty": "Nu există încă jocuri noi.",
+      "title": "Jocuri noi",
+      "viewAll": "Vezi galeria"
+    },
+    "hero": {
+      "create": "Creează",
+      "greeting": "Salut, {{name}}. Ce vom \u0003cmark\u0003construi\u0003c/mark\u0003 astăzi?",
+      "greetingNoName": "Salut. Ce vom \u0003cmark\u0003construi\u0003c/mark\u0003 astăzi?",
+      "journal": "Jurnal de laborator · {{date}}",
+      "promptLabel": "Descrie o idee de joc",
+      "promptPlaceholder": "Descrie o idee de joc… AI-ul te va ajuta să o dezvolți"
+    },
+    "lab": {
+      "gamesCreated": "jocuri inventate de tine",
+      "gamesOnPlatform": "jocuri în laborator",
+      "playsOfOwnGames": "partide ale jocurilor tale",
+      "title": "Laboratorul tău până acum"
+    },
+    "links": {
+      "about": "Despre ChatGameLab",
+      "educators": "Pentru cadre didactice",
+      "jff": "JFF – Institutul pentru pedagogia media"
+    },
+    "ownGames": {
+      "empty": "Nu există încă jocuri. Descrie mai sus o idee și creează-l pe primul!",
+      "title": "Jocurile tale",
+      "viewAll": "Toate jocurile tale"
+    },
+    "popular": {
+      "hint": "ce joacă toată lumea",
+      "plays_one": "{{count}} partidă",
+      "plays_other": "{{count}} partide",
+      "title": "Cele mai populare"
+    },
     "quickActions": {
       "createNewGame": "Creează un joc nou",
       "createWorkshop": "Creează atelier",
@@ -1773,6 +1912,7 @@
       "startNewGame": "Începe un joc nou",
       "title": "Acțiuni rapide"
     },
+    "someone": "cineva",
     "untitled": "Fără titlu",
     "untitledGame": "Joc fără titlu",
     "version": {
@@ -1780,6 +1920,10 @@
         "message": "Versiunea interfeței \u0003frontendVersion\u0003{{frontendVersion}}\u0003/frontendVersion\u0003 nu se potrivește cu versiunea backend \u0003backendVersion\u0003{{backendVersion}}\u0003/backendVersion\u0003. Acest lucru poate cauza comportamente neașteptate. Contactează suportul dacă problemele persistă.",
         "title": "Detectată nepotrivire de versiuni"
       }
+    },
+    "workshops": {
+      "title": "Atelierele tale",
+      "viewAll": "Toate atelierele"
     }
   },
   "errors": {
@@ -1909,13 +2053,15 @@
     "dashboard": "Panou",
     "games": "Jocuri",
     "groups": "Grupuri",
+    "mainMenu": "Meniu principal",
     "manageOrganizations": "Gestionează organizațiile",
     "manageUsers": "Gestionează utilizatorii",
+    "me": "Eu",
     "myGames": "Jocurile mele",
     "myOrganization": "Organizația mea",
     "myWorkshop": "Atelierul meu",
     "orgApiKeys": "Chei API",
-    "orgConstraints": "Restricție pentru instrucțiunile de protecție a minorilor",
+    "orgConstraints": "Regula de protecție a minorilor",
     "orgMembers": "Membri",
     "orgVerifiedPages": "Site-uri",
     "orgWorkshops": "Ateliere",
@@ -1927,14 +2073,19 @@
   "playbackEngine": {
     "blocks": {
       "adapted-style": "Stil",
+      "cast": "Distribuie vocile",
+      "cast-brief": "Personaje",
       "condense-scenario": "Scurtează scenariul",
       "condensed-scenario": "Scenariu",
+      "director": "Regie",
       "expand": "Povestește",
       "gallery-image": "Imagine din galerie",
       "greeting": "Generează text",
       "image": "Desenează imaginea",
       "image-prompt": "Descrie imaginea",
       "image-style": "Adaptează stilul",
+      "live-a": "Primul personaj",
+      "live-b": "Al doilea personaj",
       "live-session": "Personaj",
       "observer": "Regizor",
       "opening-brief": "Cum începe",
@@ -2016,6 +2167,31 @@
       "turnFailed": "Povestea nu a putut continua de aici. Trimite din nou sau încearcă altceva.",
       "voiceFailed": "Vocea ta nu a putut fi conectată."
     },
+    "guardrail": {
+      "edit": "Schimbă regula de protecție",
+      "editHint": "Un experiment de laborator: noua regulă se aplică începând cu următorul apel AI; ceea ce s-a întâmplat rămâne neschimbat.",
+      "edited": "modificat",
+      "failed": "Nu a putut fi salvat",
+      "frequency": "Repetare",
+      "frequencyFailed": "Nu a putut fi setată",
+      "frequencyHint": "Cât de des repetă fiecare pas regula: 1 la fiecare apel, 10 la fiecare al zecelea apel.",
+      "frequencySet": "Setează",
+      "intro": "Regula de protecție a minorilor pe care o respectă fiecare apel AI al acestui joc.",
+      "levelOrganisation": "Organizația „{{name}}”",
+      "levelSite13": "Regula site-ului, 13–17 ani fără consimțământul părinților",
+      "levelSite13p": "Regula site-ului, 13–17 ani cu consimțământul părinților",
+      "levelSite18": "Regula site-ului, 18 ani și peste",
+      "levelWorkshop": "Atelierul „{{name}}”",
+      "none": "Această sesiune nu are nicio regulă de protecție.",
+      "readBy": "Respectată de",
+      "reset": "Înapoi la regula stabilită",
+      "resolved": "Conform regulii stabilite",
+      "save": "Salvează",
+      "saved": "Salvat: se aplică începând cu următorul apel",
+      "saving": "Se salvează…",
+      "source": "Provine de la",
+      "sourceUnknown": "Necunoscut"
+    },
     "insights": {
       "close": "Închide",
       "collapse": "Restrânge",
@@ -2028,6 +2204,7 @@
       "pickBlock": "Fă clic pe un bloc sau pe o conexiune din flux pentru a vedea ce a făcut.",
       "settingEmpty": "Jocul lasă acest câmp gol.",
       "show": "Afișează informațiile",
+      "tabGuardrail": "Regulă de protecție",
       "tabProblems": "Probleme",
       "tabSelected": "Selectat",
       "tabUsage": "Utilizare"
@@ -2074,6 +2251,32 @@
       "unknown": "Această sesiune de joc nu există.",
       "unreachable": "Furnizorul AI nu răspunde momentan, așa că jocul nu poate continua. Încearcă din nou peste câteva minute."
     },
+    "promptNames": {
+      "condense-scenario": "Scurtează scenariul",
+      "conversation-policy": "Cum vorbește personajul",
+      "director": "Regie",
+      "expand": "Povestește o rundă",
+      "game-master": "Maestru de joc (mesaj de sistem)",
+      "greeting": "Primele cuvinte",
+      "image-style": "Adaptează stilul",
+      "opening": "Deschidere",
+      "opening-expand": "Povestește deschiderea",
+      "rephrase": "Reformulează acțiunea",
+      "rephrase-audio": "Înțelege vorbirea",
+      "scene": "Cadru de imagine",
+      "summary": "Solicitare de rezumat",
+      "voice-brief": "Descrie vocea"
+    },
+    "prompts": {
+      "edited": "modificat",
+      "failed": "Nu a putut fi salvat",
+      "hint": "Schimbă un prompt pentru a vedea cum se modifică răspunsurile. Noul text se aplică începând cu următorul apel.",
+      "reset": "Înapoi la original",
+      "save": "Salvează",
+      "saved": "Salvat: se aplică începând cu următorul apel",
+      "saving": "Se salvează…",
+      "title": "Prompturi"
+    },
     "relay": {
       "busy": "Relay: utilizat de o altă filă",
       "connected": "Relay: conectat",
@@ -2106,21 +2309,32 @@
       "adapted-style\u0003eimage-prompt": "stil",
       "adapted-style\u0003eimage-style": "solicitare",
       "adapted-style\u0003estart-game": "gata",
+      "cast\u0003clive-a:voiceA": "voce",
+      "cast\u0003clive-b:voiceB": "voce",
+      "cast\u0003cstart-game": "pregătit",
+      "cast-brief\u0003ccast": "personaje",
       "condense-scenario\u0003econdensed-scenario": "răspuns",
       "condensed-scenario\u0003econdense-scenario": "solicitare",
       "condensed-scenario\u0003eimage-prompt": "scenariu",
       "condensed-scenario\u0003estart-game": "gata",
+      "director\u0003clive-a": "intervenție",
+      "director\u0003clive-b": "intervenție",
       "gallery-image\u0003estart-game": "gata",
+      "greeting\u0003clive-a": "primele cuvinte",
       "greeting\u0003elive-session": "primele cuvinte",
       "greeting\u0003estart-game": "gata",
       "image-prompt\u0003eimage": "instrucțiune",
       "image-style\u0003eadapted-style": "răspuns",
+      "live-a\u0003cdirector": "transcriere",
+      "live-b\u0003cdirector": "transcriere",
       "live-session\u0003eobserver": "transcriere",
       "observer\u0003elive-session": "inserare",
       "opening-brief\u0003egreeting": "indicații",
       "outline\u0003eexpand": "plan",
       "outline\u0003eimage-prompt": "scenă",
       "outline\u0003eprops-store": "modificări",
+      "player-input-audio\u0003clive-a": "vorbire",
+      "player-input-audio\u0003clive-b": "vorbire",
       "player-input-audio\u0003elive-session": "vorbire",
       "player-input-audio\u0003erephrase-audio": "vorbire",
       "player-input-text\u0003erephrase": "acțiune",
@@ -2129,6 +2343,8 @@
       "props-store\u0003eoutline": "stare",
       "rephrase\u0003eoutline": "acțiune",
       "rephrase-audio\u0003eoutline": "acțiune",
+      "start-game\u0003clive-a": "semnal de pornire",
+      "start-game\u0003clive-b": "semnal de pornire",
       "start-game\u0003elive-session": "indicație",
       "start-game\u0003eoutline": "instrucțiune",
       "voice\u0003elive-session:secondary": "stilul vocii",

@@ -56,7 +56,7 @@
       "cityLabel": "Plaats",
       "confirmAdult": "Ik ben minstens 18 jaar oud.",
       "consentPage": {
-        "constraintIntro": "Met de verklaring verplicht je instelling zich ertoe een passende promptbeperking voor je doelgroep in te stellen ter bescherming van jongeren. Hieronder staat de beperking die je organisatie momenteel gebruikt. Controleer deze en pas haar zo nodig aan.",
+        "constraintIntro": "Met de verklaring verplicht jullie instelling zich ertoe een jeugd­beschermingsregel vast te leggen die bij jullie doelgroep past. Hieronder staat de regel die jullie organisatie momenteel gebruikt. Controleer deze en pas hem indien nodig aan.",
         "emailDescription": "We sturen de bevestiging met de tekst van de verklaring naar dit adres.",
         "introExisting": "Je organisatie ‘{{name}}’ heeft nu een verklaring die online wordt bevestigd. Deze vervangt de gebruikersovereenkomst die je eerder hebt ondertekend. Lees de verklaring en ga er namens je instelling mee akkoord.",
         "introNewVersion": "De verklaring is bijgewerkt (versie {{version}}). Lees de nieuwe versie en ga er namens je organisatie ‘{{name}}’ mee akkoord.",
@@ -112,14 +112,14 @@
       "youthProtection": {
         "changeHint": "Je kunt deze instelling op elk moment wijzigen en voor afzonderlijke workshops anders instellen.",
         "defaultOption": "Standaard vanaf 13 jaar",
-        "fieldLabel": "Promptbeperking van je organisatie ter bescherming van jongeren",
+        "fieldLabel": "Jeugd­beschermingsregel van jullie organisatie",
         "intro": "De AI krijgt deze instructie bij elk spel van je organisatie. Kies een instelling die past bij de leeftijd van je doelgroep.",
         "responsibilityHint": "De suggesties zijn geen officiële leeftijdsclassificatie. Je instelling bepaalt de instelling en is hiervoor verantwoordelijk.",
         "suggestionAdults": "voor volwassenen vanaf {{age}} jaar",
         "suggestionChildren": "voor kinderen vanaf ongeveer {{age}} jaar",
         "suggestionTeens": "voor jongeren vanaf ongeveer {{age}} jaar",
         "suggestionsLabel": "Suggesties (een klik vervangt de tekst):",
-        "title": "Promptbeperking ter bescherming van jongeren",
+        "title": "Jeugd­beschermingsregel",
         "tooLong": "Maximaal {{max}} tekens. Maak de tekst korter of kies een suggestie."
       }
     },
@@ -236,7 +236,7 @@
       "organizationExistingAccount": "Organisaties registreren zich met een nieuwe aanmelding. Heb je al een account?",
       "organizationIntro": "Voor jongerencentra, scholen en andere instellingen die ChatGameLab in workshops willen gebruiken.",
       "organizationStep1": "Je maakt je aanmelding aan via Auth0 (e-mail en wachtwoord).",
-      "organizationStep2": "Je vult gegevens over jezelf en je instelling in, stelt de promptbeperking ter bescherming van jongeren in en gaat akkoord met de verklaring.",
+      "organizationStep2": "Je vult gegevens over jezelf en je instelling in, stelt de jeugd­beschermingsregel vast en gaat akkoord met de verklaring.",
       "organizationStep3": "Na het verzenden van het formulier wordt de organisatie direct geactiveerd en kun je workshops aanmaken.",
       "organizationTitle": "Registreren als organisatie",
       "privacyPolicy": "Privacybeleid",
@@ -433,6 +433,25 @@
           "role-desc": "Rol (Z-A)"
         },
         "title": "Gebruikers beheren"
+      },
+      "verifiedPages": {
+        "approve": "Goedkeuren",
+        "approved": "Goedgekeurd",
+        "callback": "Callback: {{url}}",
+        "description": "De geverifieerde pagina van elke organisatie. De spellen starten daar pas nadat je de pagina hebt goedgekeurd; je keurt de website goed (schema en host), dus een pagina die naar een andere website wordt verplaatst, moet opnieuw worden goedgekeurd, terwijl een andere poort of een ander pad op dezelfde website goedgekeurd blijft.",
+        "empty": "Geen enkele organisatie heeft een pagina geregistreerd.",
+        "filters": {
+          "all": "Alle",
+          "approved": "Goedgekeurd",
+          "waiting": "Wachtend"
+        },
+        "loadError": "De pagina's konden niet worden geladen.",
+        "organisation": "Organisatie",
+        "page": "Pagina",
+        "status": "Status",
+        "title": "Pagina's waarin spellen zijn ingesloten",
+        "waiting": "Wacht op goedkeuring",
+        "withdraw": "Goedkeuring intrekken"
       }
     },
     "aiQualityTier": {
@@ -455,6 +474,7 @@
       "empty": {
         "conditions": {
           "favorites": "een van je favorieten",
+          "organisation": "van je organisatie",
           "own": "van jou",
           "public": "openbaar",
           "sponsored": "gesponsord"
@@ -470,7 +490,8 @@
         "all": "Alle games",
         "favorites": "Favorieten",
         "genre": "Genre",
-        "own": "Mijn games",
+        "organisation": "Organisatie",
+        "own": "Mijn",
         "public": "Openbaar",
         "sponsored": "Gesponsord"
       },
@@ -479,10 +500,16 @@
       "reportGame": "Game rapporteren",
       "restart": "Opnieuw starten",
       "resumeChoice": {
+        "advanced": "Geavanceerde instellingen",
         "continue": "Doorgaan",
         "message": "Je bent al begonnen met \"{{game}}\". Ga je verder waar je gebleven was, of begin je opnieuw? Opnieuw beginnen vervangt je eerdere sessie.",
         "startNew": "Opnieuw beginnen",
         "title": "Doorgaan of opnieuw beginnen?"
+      },
+      "startChoice": {
+        "message": "Start \"{{game}}\" zoals het is gemaakt, of pas eerst de prompts aan waarmee het start.",
+        "start": "Starten",
+        "title": "Spel starten?"
       },
       "title": "Spellen",
       "unfavorite": "Verwijderen uit favorieten",
@@ -640,6 +667,7 @@
         "alt": "Omslag van {{name}}",
         "draw": "Omslag tekenen",
         "drawAgain": "Opnieuw tekenen",
+        "drawing": "Omslag wordt getekend…",
         "drawnOnSave": "De omslag wordt getekend wanneer je het spel opslaat.",
         "errors": {
           "failed": "De omslag kon niet worden getekend. Probeer het opnieuw.",
@@ -719,6 +747,10 @@
           },
           "description": "Beschrijving",
           "descriptionHint": "Een of twee zinnen voor de galerij, zodat spelers weten wat ze kunnen verwachten.",
+          "duo": {
+            "descriptionPlaceholder": "Greta, de knorrige vuurtorenwachter, en een veel te vrolijke belastinginspecteur ruziën zich door een stormachtige nacht. Luister mee of kies een kant.",
+            "titlePlaceholder": "Stormnacht bij de vuurtoren"
+          },
           "encounter": {
             "descriptionPlaceholder": "Bezoek Greta, de humeurige vuurtorenwachter, en ontdek wat ze die nacht heeft gezien.",
             "titlePlaceholder": "Greta bij de vuurtoren"
@@ -743,15 +775,17 @@
         },
         "embed": {
           "copy": "Snippet kopiëren",
-          "incomplete": "Kies wat betaalt en de pagina om de snippet te krijgen.",
+          "incomplete": "Kies wat betaalt om de snippet te krijgen.",
           "noKeys": "Je hebt geen werkende AI-sleutel om mee te betalen. Voeg er een toe of vraag je organisatie erom.",
-          "noPages": "Je organisatie heeft nog geen geverifieerde pagina. Het hoofd of medewerkers van de organisatie kunnen er een toevoegen in de organisatie-instellingen.",
+          "noOrganisation": "Insluiten is bedoeld voor spellen van een organisatie: spellen die in haar workshops zijn geschreven of door haar leiding en medewerkers zijn gemaakt. Dit spel hoort bij geen enkele organisatie.",
+          "noPages": "Registreer eerst de website van je organisatie: de pagina waarop jullie spellen zullen draaien. Een beheerder keurt deze goed, daarna kan het spel daar starten.",
           "offNote": "Als dit uitstaat, toont de snippet niets. Als je het weer inschakelt, werkt dezelfde snippet.",
           "page": "Geverifieerde pagina",
           "pageHint": "Het spel draait alleen daar en alleen nadat de pagina elke start heeft goedgekeurd.",
           "paidBy": "Betaald door",
           "paidByPlaceholder": "Kies een sleutel",
           "payingNow": "Betaalt nu",
+          "registerPage": "Registreer een website via Mijn organisatie → Websites",
           "snippet": "Snippet voor je website",
           "snippetCss": "jouw CSS",
           "snippetHint": "Plaats hem waar het spel moet verschijnen en geef het element de gewenste hoogte.",
@@ -760,12 +794,14 @@
           "snippetVerifiedHint": "Je server vult de ID van de bezoeker en van deze paginaweergave in; de callback van je pagina ontvangt beide.",
           "styleLink": "Stijl het met je eigen CSS →",
           "toggle": "Inbedden op een website",
-          "toggleHint": "Toont dit spel op de geverifieerde pagina van je organisatie, zonder iets van ChatGameLab eromheen. Bezoekers spelen als gasten; de gekozen sleutel betaalt."
+          "toggleHint": "Toont dit spel op de geverifieerde pagina van je organisatie, zonder iets van ChatGameLab eromheen. Bezoekers spelen als gasten; de gekozen sleutel betaalt.",
+          "waitingForApproval": "De pagina van de organisatie wacht op goedkeuring door een beheerder. Tot die tijd start het spel daar niet."
         },
         "fillIn": "Vul de onderdelen in totdat ze allemaal groen zijn.",
         "genre": {
           "pitch": {
             "adventure": "De speler verkent een wereld. Het spel vertelt wat er gebeurt, maakt afbeeldingen en houdt de score bij.",
+            "duo": "Twee personages praten met elkaar via hun stem. De speler luistert mee of neemt deel aan het gesprek.",
             "encounter": "De speler praat met één personage, met de stem. Het personage blijft in zijn rol en antwoordt live."
           },
           "question": "Wat wil je maken?"
@@ -815,6 +851,12 @@
               "systemMessageGameStart": "Vertel hoe het spel begint.",
               "systemMessageScenario": "Vertel waar het spel over gaat."
             },
+            "duo": {
+              "imageStyle": "Kies een afbeeldingsstijl, zodat de afbeeldingen bij elkaar passen.",
+              "name": "Je spel heeft nog geen titel.",
+              "systemMessageGameStart": "Vertel waar de scène zich afspeelt en hoe deze begint.",
+              "systemMessageScenario": "Vertel wie de twee personages zijn."
+            },
             "encounter": {
               "imageStyle": "Kies een afbeeldingsstijl, zodat de afbeeldingen bij elkaar passen.",
               "name": "Je spel heeft nog geen titel.",
@@ -829,6 +871,10 @@
             "voiceStyleHint": "Hoe het verhaal klinkt wanneer het wordt voorgelezen."
           },
           "builtInVoice": "Ingebouwde stem",
+          "duo": {
+            "voiceStyle": "De stemmen van de personages",
+            "voiceStyleHint": "Elk personage krijgt een eigen stem."
+          },
           "encounter": {
             "voiceStyle": "De stem van het personage",
             "voiceStyleHint": "Hoe het personage klinkt."
@@ -864,6 +910,20 @@
             "scenario": "Waar gaat het spel over?",
             "scenarioHint": "De wereld, de rol van de speler, het doel en hoe de speler weet dat die heeft gewonnen.",
             "scenarioPlaceholder": "De speler is een ontdekkingsreiziger in een mysterieus bos, op zoek naar een verborgen schat…"
+          },
+          "duo": {
+            "firstCharacter": "Het eerste personage",
+            "firstCharacterHint": "Wie die persoon is: persoonlijkheid, wat die wil en hoe die praat. Die persoon spreekt als eerste.",
+            "firstCharacterPlaceholder": "Greta, een knorrige vuurtorenwachter die met rust gelaten wil worden met haar lamp…",
+            "gameStart": "Waar zijn ze en hoe begint het?",
+            "gameStartHint": "De scène waarin ze zich allebei bevinden wanneer het spel begint; de eerste woorden van het eerste personage worden hieruit geschreven.",
+            "gameStartPlaceholder": "Een stormachtige nacht. Otto klopt doorweekt aan op de deur van de vuurtoren…",
+            "scenario": "Wie zijn de twee personages?",
+            "scenarioHint": "Wie elk van hen is en waarom de twee iets te bespreken of te bespreken hebben.",
+            "scenarioPlaceholder": "Greta, een knorrige vuurtorenwachter…",
+            "secondCharacter": "Het tweede personage",
+            "secondCharacterHint": "Wie die persoon is en waarom de twee iets te bespreken of te bespreken hebben.",
+            "secondCharacterPlaceholder": "Otto, een veel te vrolijke belastinginspecteur die elke kaars wil tellen…"
           },
           "encounter": {
             "gameStart": "Hoe begroet het personage de speler?",
@@ -905,7 +965,8 @@
       },
       "genres": {
         "adventure": "Avontuur",
-        "npc-live": "Ontmoeting"
+        "npc-duo": "Discussie",
+        "npc-live": "Personage"
       },
       "importExport": {
         "coverFailed": "Het spel is geïmporteerd, maar de omslag kon niet worden gecontroleerd. Je kunt in de editor een nieuwe laten tekenen.",
@@ -920,6 +981,7 @@
         "exportButton": "Game exporteren",
         "importButton": "Game importeren"
       },
+      "newGame": "Nieuw spel",
       "playNow": "Nu spelen",
       "privacyHint": "De naam en beschrijving van een spel kunnen openbaar zichtbaar worden. Gebruik daarom geen echte namen.",
       "privacyHintShort": "Kan openbaar zichtbaar worden – gebruik geen echte namen.",
@@ -959,7 +1021,7 @@
         "unlimitedSessions": "Onbeperkte sessies",
         "update": "Deellink bijwerken",
         "workshopCreateHint": "Maak een deellink voor dit spel. De API-sleutel van de workshop wordt automatisch geselecteerd en dekt de kosten.",
-        "workshopDescription": "Deze link is aangemaakt binnen de workshop \"{{name}}\" – gasten spelen met de API-sleutel van de workshop en de beperkingen voor prompts.",
+        "workshopDescription": "Deze link is aangemaakt binnen de workshop \"{{name}}\" – gasten spelen met de API-sleutel en jeugd­beschermingsregel van de workshop.",
         "workshopShare": "Workshopdeel",
         "workshopShareDescription": "Deze link is aangemaakt in workshop \"{{name}}\" - gasten spelen met de API-sleutel van de workshop.",
         "workshopSubsection": "Workshop-deellink"
@@ -1071,6 +1133,7 @@
           "scifi": "Sci-fi",
           "snowy": "Besneeuwd",
           "space": "Ruimte",
+          "spielfieber": "Spielfieber",
           "steampunk": "Steampunk",
           "storybook": "Sprookjesboek",
           "sunshine": "Zonneschijn",
@@ -1192,6 +1255,7 @@
     "leaveTitle": "Organisatie verlaten",
     "leaveWarning": "Je verliest toegang tot alle middelen en leden van de organisatie.",
     "list": {
+      "clearFilters": "Wissen",
       "clearPicks": "Alles tonen",
       "clearSearch": "Zoekopdracht wissen",
       "filter": "Filter",
@@ -1241,6 +1305,8 @@
       "apiKeys": {
         "aboutDescription": "API-sleutels die hier worden gedeeld, zijn beschikbaar voor alle leden van je organisatie om games te spelen.",
         "aboutTitle": "Organisatie-API-sleutels",
+        "addAndShare": "Toevoegen en delen",
+        "addKey": "Sleutel toevoegen",
         "allPlatforms": "Alle platforms",
         "allowPublicSponsoring": "Publieke sponsoring toestaan",
         "allowPublicSponsoringDesc": "Deze sleutel kan worden gebruikt om games voor alle gebruikers te sponsoren.",
@@ -1254,6 +1320,9 @@
         },
         "keyName": "Sleutelnaam",
         "loadError": "Organisatie-API-sleutels laden mislukt.",
+        "modeNew": "Een nieuwe sleutel",
+        "modeOwn": "Een van mijn sleutels",
+        "newKeyHint": "De sleutel wordt van jou, net als op je pagina met API-sleutels, en wordt gedeeld met de organisatie.",
         "noKeys": "Nog geen API-sleutels gedeeld met deze organisatie.",
         "noResults": "Geen API-sleutels komen overeen met je zoekopdracht.",
         "notAuthorized": "Je hebt geen toestemming om organisatie-API-sleutels te beheren. Alleen hoofden en docenten hebben toegang.",
@@ -1266,7 +1335,7 @@
         "selectKeyPlaceholder": "Kies een sleutel om te delen...",
         "share": "Delen",
         "shareKey": "Sleutel delen",
-        "shareKeyTitle": "API-sleutel delen met organisatie",
+        "shareKeyTitle": "Een API-sleutel aan de organisatie toevoegen",
         "showDetails": "Details weergeven",
         "title": "Organisatie-API-sleutels"
       },
@@ -1317,13 +1386,13 @@
       "promoteToHead": "Promoveren tot hoofd",
       "promoteWarning": "Deze gebruiker kan voortaan organisatieleden beheren en docenten uitnodigen.",
       "promptConstraintsFallbackEmpty": "(niet geconfigureerd)",
-      "promptConstraintsFallbackHint": "Er is geen beperking voor de organisatie ingesteld. De algemene standaardinstelling voor de leeftijdsgroep van de speler wordt toegepast:",
+      "promptConstraintsFallbackHint": "De organisatie heeft geen jeugd­beschermingsregel ingesteld. In plaats daarvan geldt de algemene standaardinstelling van de site voor de leeftijdsgroep van de speler:",
       "promptConstraintsFallbackTitle": "Actieve sitebrede terugvaloptie",
       "promptConstraintsFallbackU13": "Jonger dan 13",
       "promptConstraintsFallbackU13p": "13–17 (met ouderlijke toestemming)",
       "promptConstraintsFallbackU18": "18 en ouder",
-      "promptConstraintsHint": "Aanvullende AI-instructies voor alle sessies in deze organisatie. Van toepassing wanneer er geen workshopniveau-beperking is ingesteld, en op games die via een link worden gedeeld.",
-      "promptConstraintsLabel": "Promptbeperking van de organisatie ter bescherming van jongeren",
+      "promptConstraintsHint": "Aanvullende AI-instructies voor alle sessies in deze organisatie. Geldt wanneer de workshop geen jeugd­beschermingsregel instelt en voor spellen die via een link worden gedeeld.",
+      "promptConstraintsLabel": "Jeugd­beschermingsregel van de organisatie",
       "promptConstraintsPlaceholder": "bijv. Zorg dat het verhaal leeftijdsgebonden blijft en vermijd gewelddadige inhoud.",
       "publicPage": {
         "changeLinkMessage": "De pagina is dan te vinden op {{url}}.",
@@ -1377,11 +1446,15 @@
       "verifiedPages": {
         "add": "Pagina registreren",
         "addTitle": "Een pagina registreren",
+        "approved": "Goedgekeurd",
         "callbackShown": "Callback: {{url}}",
         "callbackUrl": "Callbackadres",
         "callbackUrlHint": "Hier vraagt ChatGameLab vóór elke start toestemming. De pagina moet binnen enkele seconden antwoorden.",
         "copied": "Gekopieerd",
         "copy": "Pagina-ID kopiëren",
+        "edit": "Pagina wijzigen",
+        "editReapproval": "Dit adres bevindt zich op een andere website en wacht opnieuw op goedkeuring door een beheerder; tot die tijd starten er geen spellen. Een andere poort of een ander pad op dezelfde website blijft goedgekeurd.",
+        "editTitle": "De pagina wijzigen",
         "empty": "Nog geen geverifieerde pagina's.",
         "intro": "Een geverifieerde pagina is een pagina op de website van je organisatie waarop je ingebedde spellen mogen worden weergegeven. Voordat daar een spel start, vraagt ChatGameLab via de callback van de pagina of het mag starten, met de pagina-ID hieronder en de ID's van de bezoeker en de aanvraag die je pagina doorgeeft. Alleen een antwoord van {\"ok\": true} start het spel.",
         "pageId": "Pagina-ID",
@@ -1389,7 +1462,9 @@
         "pageUrlHint": "De pagina waarin je spellen worden ingebed. Alleen haar website mag ze tonen.",
         "remove": "Pagina verwijderen",
         "removeTitle": "Deze pagina verwijderen?",
-        "removeWarning": "Spellen die voor {{page}} zijn ingebed, starten daar niet meer totdat ze een andere pagina krijgen."
+        "removeWarning": "Spellen die voor {{page}} zijn ingebed, starten daar niet meer totdat ze een andere pagina krijgen.",
+        "save": "Pagina opslaan",
+        "waiting": "Wacht op goedkeuring door een beheerder"
       },
       "workshops": {
         "activate": "Activeren",
@@ -1461,10 +1536,10 @@
         "participantLinkTitleNamed": "Link om opnieuw in te loggen voor {{name}}",
         "participantName": "Deelnemersnaam",
         "participants": "Deelnemers",
-        "promptConstraintsFallbackOrg": "De beperking van de organisatie wordt als standaard gebruikt: {{constraint}}",
-        "promptConstraintsFallbackSite": "De algemene beperking van de website wordt als standaard gebruikt",
+        "promptConstraintsFallbackOrg": "De jeugd­beschermingsregel van de organisatie wordt als standaard gebruikt: {{constraint}}",
+        "promptConstraintsFallbackSite": "De jeugd­beschermingsregel van de website wordt als standaard gebruikt",
         "promptConstraintsHint": "Aanvullende AI-instructies voor alle sessies in deze workshop.",
-        "promptConstraintsLabel": "Promptbeperking ter bescherming van jongeren",
+        "promptConstraintsLabel": "Jeugd­beschermingsregel",
         "promptConstraintsPlaceholder": "bijv. Houd het verhaal geschikt voor de leeftijd en vermijd gewelddadige inhoud.",
         "removeParticipant": "Deelnemer verwijderen",
         "removeParticipantConfirm": "Weet je zeker dat je \"{{name}}\" uit deze workshop wilt verwijderen?",
@@ -1512,13 +1587,25 @@
     "noRole": "Geen rol",
     "notifications": {
       "accept": "Accepteren",
+      "acknowledgeAll": "Alles als gelezen markeren",
       "decline": "Afwijzen",
       "declineConfirm": "Weet je zeker dat je deze uitnodiging wilt afwijzen?",
       "declineTitle": "Uitnodiging afwijzen",
       "empty": "Geen nieuwe meldingen.",
       "inviteDescription": "Je bent uitgenodigd om mee te doen als {{role}}.",
       "inviteToJoin": "Organisatie-uitnodiging",
+      "nothingNew": "Niets nieuws",
       "title": "Meldingen",
+      "titleWithCount_one": "Meldingen: {{count}} nieuw",
+      "titleWithCount_other": "Meldingen: {{count}} nieuwe",
+      "types": {
+        "newOrganisations_one": "Er heeft zich een nieuwe organisatie geregistreerd",
+        "newOrganisations_other": "{{count}} nieuwe organisaties hebben zich geregistreerd",
+        "pageApproved": "De geverifieerde pagina van je organisatie is goedgekeurd",
+        "pageTurnedDown": "De geverifieerde pagina van je organisatie is niet goedgekeurd of de goedkeuring is ingetrokken",
+        "pagesWaiting_one": "Een geverifieerde pagina wacht op goedkeuring",
+        "pagesWaiting_other": "{{count}} geverifieerde pagina's wachten op goedkeuring"
+      },
       "workshopInvite": "Workshopuitnodiging",
       "workshopInviteDescription": "Je bent uitgenodigd om deel te nemen aan deze workshop."
     },
@@ -1530,6 +1617,15 @@
       "title": "Organisatie opgeschort"
     },
     "play": {
+      "advanced": {
+        "edited": "gewijzigd",
+        "hint": "Pas de prompts aan waarmee deze sessie start. Gewijzigde prompts zijn gemarkeerd; al het andere verloopt zoals het spel is gemaakt. De prompts kunnen tijdens het spelen nog worden gewijzigd in Inzichten.",
+        "loading": "De prompts worden geladen…",
+        "reset": "Terug naar het origineel",
+        "start": "Spel starten",
+        "title": "Geavanceerde instellingen",
+        "unavailable": "De prompts konden niet worden geladen."
+      },
       "cloneGame": "Klonen naar mijn games",
       "empty": {
         "description": "Pas je filters aan of kom later terug voor nieuwe games.",
@@ -1624,16 +1720,16 @@
     "searchPlaceholder": "Zoek leden...",
     "serverSettings": {
       "constraints": {
-        "description": "Definieer verplichte AI-regels op basis van de leeftijdsgroep van de speler. Deze beperkingen worden aan elk AI-antwoord toegevoegd. Ze gelden voor alle aangemelde gebruikers buiten de workshopmodus.",
-        "title": "Leeftijdsgebonden promptbeperkingen",
+        "description": "Definieer verplichte AI-regels op basis van de leeftijdsgroep van de speler. Deze jeugd­beschermingsregels worden bij elke AI-aanroep meegestuurd. Ze gelden voor alle ingelogde gebruikers buiten de workshopmodus.",
+        "title": "Jeugd­beschermingsregels per leeftijdsgroep",
         "u13Hint": "Toegevoegd aan elke AI-prompt voor aangemelde gebruikers van 13-17 jaar zonder geregistreerde ouderlijke toestemming.",
-        "u13Label": "Beperking voor gebruikers van 13–17 jaar, zonder ouderlijke toestemming (U13)",
+        "u13Label": "Jeugd­beschermingsregel voor gebruikers van 13–17 jaar, zonder ouderlijke toestemming (U13)",
         "u13Placeholder": "bijv. Zorg dat alle inhoud strikt geschikt blijft voor tieners. Geen geweld, geen romantische inhoud, geen horrorthema’s.",
         "u13pHint": "Toegevoegd aan elke AI-prompt voor aangemelde gebruikers van 13-17 jaar met geregistreerde ouderlijke toestemming.",
-        "u13pLabel": "Beperking voor gebruikers van 13–17 jaar, met ouderlijke toestemming (U13p)",
+        "u13pLabel": "Jeugd­beschermingsregel voor gebruikers van 13–17 jaar, met ouderlijke toestemming (U13p)",
         "u13pPlaceholder": "bijv. Leeftijdsgeschikte inhoud voor tieners waarvan de ouders toestemming hebben gegeven. Sommige volwassen thema's toegestaan, geen expliciete inhoud.",
         "u18Hint": "Geïnjecteerd in elke AI-prompt voor ingelogde gebruikers van 18 jaar en ouder.",
-        "u18Label": "Beperking voor gebruikers van 18 jaar en ouder (U18)",
+        "u18Label": "Jeugd­beschermingsregel voor gebruikers van 18 jaar en ouder (U18)",
         "u18Placeholder": "bijv. Houd de inhoud gepast. Vermijd expliciet geweld of seksuele inhoud."
       },
       "defaultTier": {
@@ -1762,6 +1858,49 @@
         "viewAll": "Alle games"
       }
     },
+    "continue": {
+      "go": "Doorgaan",
+      "hint": "ga verder waar je gebleven was",
+      "messages_one": "{{count}} bericht",
+      "messages_other": "{{count}} berichten",
+      "title": "Spel hervatten"
+    },
+    "fresh": {
+      "by": "door {{name}}",
+      "empty": "Nog geen nieuwe spellen.",
+      "title": "Nieuwe spellen",
+      "viewAll": "Galerij bekijken"
+    },
+    "hero": {
+      "create": "Maken",
+      "greeting": "Hoi {{name}}. Wat zullen we vandaag \u0003cmark\u0003bouwen\u0003c/mark\u0003?",
+      "greetingNoName": "Hoi. Wat zullen we vandaag \u0003cmark\u0003bouwen\u0003c/mark\u0003?",
+      "journal": "Labjournaal · {{date}}",
+      "promptLabel": "Beschrijf een spelidee",
+      "promptPlaceholder": "Beschrijf een spelidee… de AI helpt je het uit te werken"
+    },
+    "lab": {
+      "gamesCreated": "spellen die je hebt bedacht",
+      "gamesOnPlatform": "spellen in het lab",
+      "playsOfOwnGames": "keer dat je eigen spellen zijn gespeeld",
+      "title": "Jouw lab tot nu toe"
+    },
+    "links": {
+      "about": "Over ChatGameLab",
+      "educators": "Voor onderwijzers",
+      "jff": "JFF – Institut für Medienpädagogik"
+    },
+    "ownGames": {
+      "empty": "Nog geen spellen. Beschrijf hierboven een idee en maak je eerste spel!",
+      "title": "Jouw spellen",
+      "viewAll": "Al je spellen"
+    },
+    "popular": {
+      "hint": "wat iedereen speelt",
+      "plays_one": "{{count}} keer gespeeld",
+      "plays_other": "{{count}} keer gespeeld",
+      "title": "Populairst"
+    },
     "quickActions": {
       "createNewGame": "Nieuwe game maken",
       "createWorkshop": "Workshop maken",
@@ -1770,6 +1909,7 @@
       "startNewGame": "Nieuwe game starten",
       "title": "Snelle acties"
     },
+    "someone": "iemand",
     "untitled": "Naamloos",
     "untitledGame": "Naamloos spel",
     "version": {
@@ -1777,6 +1917,10 @@
         "message": "Frontendversie \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e komt niet overeen met backendversie \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. Dit kan onverwacht gedrag veroorzaken. Neem contact op met support als het probleem blijft bestaan.",
         "title": "Versieconflict gedetecteerd"
       }
+    },
+    "workshops": {
+      "title": "Jouw workshops",
+      "viewAll": "Alle workshops"
     }
   },
   "errors": {
@@ -1906,13 +2050,15 @@
     "dashboard": "Dashboard",
     "games": "Games",
     "groups": "Groepen",
+    "mainMenu": "Hoofdmenu",
     "manageOrganizations": "Organisaties beheren",
     "manageUsers": "Gebruikers beheren",
+    "me": "Ik",
     "myGames": "Mijn games",
     "myOrganization": "Mijn organisatie",
     "myWorkshop": "Mijn workshop",
     "orgApiKeys": "API-sleutels",
-    "orgConstraints": "Promptbeperking ter bescherming van jongeren",
+    "orgConstraints": "Jeugd­beschermingsregel",
     "orgMembers": "Leden",
     "orgVerifiedPages": "Websites",
     "orgWorkshops": "Workshops",
@@ -1924,14 +2070,19 @@
   "playbackEngine": {
     "blocks": {
       "adapted-style": "Stijl",
+      "cast": "Stemmen casten",
+      "cast-brief": "Personages",
       "condense-scenario": "Scenario inkorten",
       "condensed-scenario": "Scenario",
+      "director": "Regie",
       "expand": "Vertellen",
       "gallery-image": "Galerijafbeelding",
       "greeting": "Tekst genereren",
       "image": "Afbeelding tekenen",
       "image-prompt": "Afbeelding beschrijven",
       "image-style": "Stijl aanpassen",
+      "live-a": "Eerste personage",
+      "live-b": "Tweede personage",
       "live-session": "Personage",
       "observer": "Regie",
       "opening-brief": "Hoe het begint",
@@ -2013,6 +2164,31 @@
       "turnFailed": "Het verhaal kon hier niet op voortbouwen. Stuur het nogmaals of probeer iets anders.",
       "voiceFailed": "Er kon geen verbinding met je stem worden gemaakt."
     },
+    "guardrail": {
+      "edit": "De beschermingsregel wijzigen",
+      "editHint": "Een labexperiment: de nieuwe beschermingsregel geldt vanaf de volgende AI-aanroep; wat er is gebeurd, blijft.",
+      "edited": "bewerkt",
+      "failed": "Opslaan mislukt",
+      "frequency": "Herhaald",
+      "frequencyFailed": "Instellen mislukt",
+      "frequencyHint": "Hoe vaak elke stap de beschermingsregel herhaalt: 1 bij elke aanroep, 10 bij elke tiende.",
+      "frequencySet": "Instellen",
+      "intro": "De jeugd­beschermingsregel waaraan elke AI-aanroep van dit spel zich houdt.",
+      "levelOrganisation": "Organisatie “{{name}}”",
+      "levelSite13": "Regel van de site, 13–17 zonder ouderlijke toestemming",
+      "levelSite13p": "Regel van de site, 13–17 met ouderlijke toestemming",
+      "levelSite18": "Regel van de site, 18 jaar en ouder",
+      "levelWorkshop": "Workshop “{{name}}”",
+      "none": "Deze sessie heeft geen beschermingsregel.",
+      "readBy": "Nageleefd door",
+      "reset": "Terug naar de vastgestelde beschermingsregel",
+      "resolved": "Zoals vastgesteld",
+      "save": "Opslaan",
+      "saved": "Opgeslagen: geldt vanaf de volgende aanroep",
+      "saving": "Opslaan…",
+      "source": "Afkomstig van",
+      "sourceUnknown": "Onbekend"
+    },
     "insights": {
       "close": "Sluiten",
       "collapse": "Inklappen",
@@ -2025,6 +2201,7 @@
       "pickBlock": "Klik op een blok of verbinding in de pijplijn om te lezen wat het heeft gedaan.",
       "settingEmpty": "Het spel laat dit leeg.",
       "show": "Inzichten tonen",
+      "tabGuardrail": "Beschermingsregel",
       "tabProblems": "Problemen",
       "tabSelected": "Geselecteerd",
       "tabUsage": "Gebruik"
@@ -2071,6 +2248,32 @@
       "unknown": "Deze spelsessie bestaat niet.",
       "unreachable": "De AI-aanbieder antwoordt momenteel niet, dus het spel kan niet verdergaan. Probeer het over een paar minuten opnieuw."
     },
+    "promptNames": {
+      "condense-scenario": "Scenario inkorten",
+      "conversation-policy": "Hoe het personage praat",
+      "director": "Regie",
+      "expand": "Een beurt vertellen",
+      "game-master": "Spelleider (systeembericht)",
+      "greeting": "Eerste woorden",
+      "image-style": "Stijl aanpassen",
+      "opening": "Opening",
+      "opening-expand": "De opening vertellen",
+      "rephrase": "Actie herformuleren",
+      "rephrase-audio": "Spraak begrijpen",
+      "scene": "Beeldkader",
+      "summary": "Samenvatting vragen",
+      "voice-brief": "Stem beschrijven"
+    },
+    "prompts": {
+      "edited": "bewerkt",
+      "failed": "Opslaan mislukt",
+      "hint": "Wijzig een prompt om te zien hoe de antwoorden veranderen. De nieuwe tekst geldt vanaf de volgende aanroep.",
+      "reset": "Terug naar het origineel",
+      "save": "Opslaan",
+      "saved": "Opgeslagen: geldt vanaf de volgende aanroep",
+      "saving": "Opslaan…",
+      "title": "Prompts"
+    },
     "relay": {
       "busy": "Relay: in gebruik door een ander tabblad",
       "connected": "Relay: verbonden",
@@ -2103,15 +2306,24 @@
       "adapted-style\u0003eimage-prompt": "stijl",
       "adapted-style\u0003eimage-style": "verzoek",
       "adapted-style\u0003estart-game": "klaar",
+      "cast\u0003live-a:voiceA": "stem",
+      "cast\u0003live-b:voiceB": "stem",
+      "cast\u0003start-game": "klaar",
+      "cast-brief\u0003cast": "personages",
       "condense-scenario\u0003econdensed-scenario": "antwoord",
       "condensed-scenario\u0003econdense-scenario": "verzoek",
       "condensed-scenario\u0003eimage-prompt": "scenario",
       "condensed-scenario\u0003estart-game": "klaar",
+      "director\u0003live-a": "inworp",
+      "director\u0003live-b": "inworp",
       "gallery-image\u00003estart-game": "klaar",
       "greeting\u00003elive-session": "eerste woorden",
       "greeting\u00003estart-game": "klaar",
+      "greeting\u0003live-a": "eerste woorden",
       "image-prompt\u0003eimage": "prompt",
       "image-style\u0003eadapted-style": "antwoord",
+      "live-a\u0003director": "transcript",
+      "live-b\u0003director": "transcript",
       "live-session\u0003eobserver": "transcript",
       "observer\u00003elive-session": "invoeging",
       "observer\u0003elive-session": "hint",
@@ -2121,6 +2333,8 @@
       "outline\u0003eprops-store": "wijzigingen",
       "player-input-audio\u0003elive-session": "spraak",
       "player-input-audio\u0003erephrase-audio": "spraak",
+      "player-input-audio\u0003live-a": "spraak",
+      "player-input-audio\u0003live-b": "spraak",
       "player-input-text\u0003erephrase": "actie",
       "portrait\u0003estart-game": "klaar",
       "portrait-prompt\u0003eportrait": "prompt",
@@ -2129,6 +2343,8 @@
       "rephrase-audio\u0003eoutline": "actie",
       "start-game\u0003elive-session": "aanwijzing",
       "start-game\u0003eoutline": "prompt",
+      "start-game\u0003live-a": "startsein",
+      "start-game\u0003live-b": "startsein",
       "voice\u00003elive-session:secondary": "stemstijl",
       "voice\u00003elive-session:voice": "stem",
       "voice\u00003estart-game": "klaar",

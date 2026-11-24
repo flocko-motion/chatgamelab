@@ -112,7 +112,7 @@
       "organizationTitle": "Als Organisation registrieren",
       "organizationIntro": "Für Jugendeinrichtungen, Schulen und andere Einrichtungen, die ChatGameLab in Workshops nutzen möchten.",
       "organizationStep1": "Du legst über Auth0 deinen Zugang an (E-Mail und Passwort).",
-      "organizationStep2": "Du gibst die Angaben zu dir und deiner Einrichtung ein, legst die Jugendschutz-Prompt-Einschränkung fest und stimmst der Einverständniserklärung zu.",
+      "organizationStep2": "Du gibst die Angaben zu dir und deiner Einrichtung ein, legst die Jugendschutz-Regel fest und stimmst der Einverständniserklärung zu.",
       "organizationStep3": "Nach dem Absenden ist die Organisation sofort freigeschaltet und du kannst Workshops anlegen.",
       "organizationExistingAccount": "Organisationen registrieren sich mit einem neuen Login. Du hast schon ein Konto?"
     },
@@ -157,14 +157,14 @@
       "postalCodeLabel": "PLZ",
       "cityLabel": "Ort",
       "youthProtection": {
-        "title": "Jugendschutz-Prompt-Einschränkung",
+        "title": "Jugendschutz-Regel",
         "intro": "Diese Anweisung gibt die KI bei allen Spielen deiner Organisation mit. Lege sie passend zum Alter eurer Zielgruppe fest.",
         "suggestionsLabel": "Vorschläge (ein Klick ersetzt den Text):",
         "defaultOption": "Standard ab 13 Jahren",
         "suggestionChildren": "für Kinder ab ca. {{age}} Jahren",
         "suggestionTeens": "für Jugendliche ab ca. {{age}} Jahren",
         "suggestionAdults": "für Erwachsene ab {{age}} Jahren",
-        "fieldLabel": "Jugendschutz-Prompt-Einschränkung eurer Organisation",
+        "fieldLabel": "Jugendschutz-Regel eurer Organisation",
         "tooLong": "Höchstens {{max}} Zeichen. Bitte kürzen oder einen Vorschlag wählen.",
         "changeHint": "Ihr könnt diese Einstellung jederzeit ändern und für einzelne Workshops anders festlegen.",
         "responsibilityHint": "Die Vorschläge sind keine offizielle Alterskennzeichnung. Eure Einrichtung entscheidet über die Einstellung und verantwortet sie."
@@ -200,7 +200,7 @@
         "text": "Eure Organisation ist freigeschaltet. Du bist Organisationsleitung und kannst jetzt Workshops anlegen."
       },
       "consentPage": {
-        "constraintIntro": "Mit der Erklärung verpflichtet sich eure Einrichtung, eine zu eurer Zielgruppe passende Jugendschutz-Prompt-Einschränkung festzulegen. Unten steht die, die eure Organisation gerade verwendet. Bitte prüft sie und passt sie bei Bedarf an.",
+        "constraintIntro": "Mit der Erklärung verpflichtet sich eure Einrichtung, eine zu eurer Zielgruppe passende Jugendschutz-Regel festzulegen. Unten steht die, die eure Organisation gerade verwendet. Bitte prüft sie und passt sie bei Bedarf an.",
         "title": "Einverständniserklärung bestätigen",
         "introExisting": "Für eure Organisation „{{name}}“ gibt es jetzt eine Einverständniserklärung, die online bestätigt wird. Sie ersetzt die bisher unterschriebene Nutzungsvereinbarung. Bitte lies sie und stimme im Namen eurer Einrichtung zu.",
         "introNewVersion": "Die Einverständniserklärung wurde aktualisiert (Version {{version}}). Bitte lies die neue Fassung und stimme im Namen eurer Organisation „{{name}}“ zu.",
@@ -215,6 +215,25 @@
   "common": {
     "actions": "Aktionen",
     "admin": {
+      "verifiedPages": {
+        "organisation": "Organisation",
+        "page": "Seite",
+        "status": "Status",
+        "filters": {
+          "all": "Alle",
+          "waiting": "Wartend",
+          "approved": "Freigegeben"
+        },
+        "title": "Seiten, die Spiele einbetten",
+        "description": "Die verifizierte Seite jeder Organisation. Ihre Spiele starten dort erst, wenn du sie freigibst; du gibst ihre Website frei (Schema und Host): eine Seite auf einer anderen Website wartet wieder auf Freigabe, ein anderer Port oder Pfad auf derselben Website bleibt freigegeben.",
+        "empty": "Noch keine Organisation hat eine Seite registriert.",
+        "loadError": "Die Seiten konnten nicht geladen werden.",
+        "approved": "Freigegeben",
+        "waiting": "Wartet auf Freigabe",
+        "callback": "Callback: {{url}}",
+        "approve": "Freigeben",
+        "withdraw": "Freigabe zurückziehen"
+      },
       "invites": {
         "actions": "Aktionen",
         "empty": "Keine ausstehenden Einladungen.",
@@ -355,17 +374,7 @@
         "loadError": "Die Registrierungen konnten nicht geladen werden.",
         "date": "Registriert",
         "institution": "Einrichtung",
-        "person": "Erklärt von",
-        "bell": {
-          "label": "Neue Organisationen",
-          "title": "Neue Organisationen",
-          "intro_one": "Diese Organisation hat sich in den letzten zwei Wochen registriert und ist bereits freigeschaltet.",
-          "intro_other": "Diese {{count}} Organisationen haben sich in den letzten zwei Wochen registriert und sind bereits freigeschaltet.",
-          "empty": "In den letzten zwei Wochen hat sich keine Organisation registriert.",
-          "open": "Zur Übersicht",
-          "later": "Später",
-          "suspendHint": "E-Mail-Adressen werden im Moment nicht bestätigt. Schau dir neue Organisationen kurz an und setze sie in der Übersicht aus, wenn etwas nicht stimmt."
-        }
+        "person": "Erklärt von"
       }
     },
     "aiQualityTier": {
@@ -390,6 +399,7 @@
         "conditions": {
           "favorites": "einer deiner Favoriten",
           "own": "von dir",
+          "organisation": "von deiner Organisation",
           "sponsored": "gesponsert",
           "public": "öffentlich"
         },
@@ -398,8 +408,9 @@
       "favorite": "Zu Favoriten hinzufügen",
       "filters": {
         "all": "Alle Spiele",
-        "favorites": "Favoriten",
-        "own": "Meine Spiele",
+        "favorites": "Favs",
+        "own": "Meine",
+        "organisation": "Orga",
         "public": "Öffentlich",
         "sponsored": "Gesponsert",
         "genre": "Genre"
@@ -412,10 +423,16 @@
       "workshop": "Workshop / Org",
       "continue": "Spielen",
       "restart": "Neu starten",
+      "startChoice": {
+        "title": "Spiel starten?",
+        "message": "Starte „{{game}}“, wie es gebaut ist, oder passe vorher die Prompts an, mit denen es startet.",
+        "start": "Starten"
+      },
       "resumeChoice": {
         "title": "Weiterspielen oder neu starten?",
         "message": "Du hast „{{game}}“ schon angefangen. Machst du dort weiter, wo du aufgehört hast, oder startest du neu? Ein Neustart ersetzt deine bisherige Sitzung.",
         "continue": "Weiterspielen",
+        "advanced": "Erweiterte Einstellungen",
         "startNew": "Neu starten"
       }
     },
@@ -669,7 +686,7 @@
         "unlimitedSessions": "Unbegrenzte Sitzungen",
         "update": "Freigabelink aktualisieren",
         "workshopCreateHint": "Erstelle einen Freigabelink für dieses Spiel. Der API-Schlüssel des Workshops ist automatisch ausgewählt und übernimmt die Kosten.",
-        "workshopDescription": "Dieser Link wird im Rahmen des Workshops „{{name}}“ erstellt – Gäste spielen mit dem API-Schlüssel und den Prompt-Einschränkungen des Workshops.",
+        "workshopDescription": "Dieser Link wird im Rahmen des Workshops „{{name}}“ erstellt – Gäste spielen mit dem API-Schlüssel und der Jugendschutz-Regel des Workshops.",
         "workshopShare": "Workshop-Freigabe",
         "workshopShareDescription": "Dieser Link wurde im Workshop \"{{name}}\" erstellt - Gäste spielen mit dem API-Schlüssel des Workshops.",
         "workshopSubsection": "Workshop-Freigabelink"
@@ -789,6 +806,7 @@
           "scifi": "Sci-Fi",
           "snowy": "Verschneit",
           "space": "Weltraum",
+          "spielfieber": "Spielfieber",
           "steampunk": "Steampunk",
           "storybook": "Märchenbuch",
           "sunshine": "Sonnenschein",
@@ -802,7 +820,8 @@
       },
       "genres": {
         "adventure": "Abenteuer",
-        "npc-live": "Begegnung"
+        "npc-live": "Charakter",
+        "npc-duo": "Diskussion"
       },
       "features": {
         "images": "Bildern",
@@ -825,7 +844,8 @@
           "noKey": "Keiner der KI-Schlüssel, die du nutzen kannst, zeichnet Bilder. Das Spiel hat deshalb vorerst kein Titelbild.",
           "keyRejected": "Der KI-Anbieter hat den Schlüssel abgelehnt. Das Titelbild konnte nicht gezeichnet werden.",
           "failed": "Das Titelbild konnte nicht gezeichnet werden. Bitte versuche es noch einmal."
-        }
+        },
+        "drawing": "Titelbild wird gezeichnet …"
       },
       "editor": {
         "titleNew": "Neues Spiel",
@@ -846,7 +866,8 @@
           "question": "Was möchtest du machen?",
           "pitch": {
             "adventure": "Die Spielerin oder der Spieler erkundet eine Welt. Das Spiel erzählt, was passiert, malt Bilder und zählt mit.",
-            "encounter": "Die Spielerin oder der Spieler spricht mit einer Figur, per Stimme. Sie bleibt in ihrer Rolle und antwortet live."
+            "encounter": "Die Spielerin oder der Spieler spricht mit einer Figur, per Stimme. Sie bleibt in ihrer Rolle und antwortet live.",
+            "duo": "Zwei Figuren unterhalten sich per Stimme. Die Spielenden hören zu oder mischen sich ins Gespräch ein."
           }
         },
         "pages": {
@@ -883,7 +904,11 @@
             "titlePlaceholder": "Greta im Leuchtturm",
             "descriptionPlaceholder": "Besuche Greta, die grummelige Leuchtturmwärterin, und finde heraus, was sie in jener Nacht gesehen hat."
           },
-          "titleHint": "{{length}}/{{max}} · Kann öffentlich sichtbar werden – bitte keine Klarnamen."
+          "titleHint": "{{length}}/{{max}} · Kann öffentlich sichtbar werden – bitte keine Klarnamen.",
+          "duo": {
+            "titlePlaceholder": "Sturmnacht am Leuchtturm",
+            "descriptionPlaceholder": "Greta, die grummelige Leuchtturmwärterin, und ein viel zu fröhlicher Steuerprüfer streiten sich durch eine stürmische Nacht. Hör zu oder ergreif Partei."
+          }
         },
         "story": {
           "adventure": {
@@ -901,6 +926,20 @@
             "gameStart": "Wie begrüßt sie die Spielenden?",
             "gameStartHint": "Die Lage, wenn das Gespräch beginnt; die ersten Worte werden daraus geschrieben.",
             "gameStartPlaceholder": "Mitten in einem Sturm klopft jemand Fremdes an die Tür des Leuchtturms…"
+          },
+          "duo": {
+            "scenario": "Wer sind die beiden Figuren?",
+            "scenarioHint": "Wer die beiden sind und warum sie einander etwas zu sagen oder zu streiten haben.",
+            "scenarioPlaceholder": "Greta, eine grummelige Leuchtturmwärterin …",
+            "firstCharacter": "Die erste Figur",
+            "firstCharacterHint": "Wer sie ist: Persönlichkeit, was sie will, wie sie spricht. Sie spricht zuerst.",
+            "firstCharacterPlaceholder": "Greta, eine grummelige Leuchtturmwärterin, die mit ihrer Lampe in Ruhe gelassen werden will …",
+            "secondCharacter": "Die zweite Figur",
+            "secondCharacterHint": "Wer sie ist und warum die beiden einander etwas zu sagen oder zu streiten haben.",
+            "secondCharacterPlaceholder": "Otto, ein viel zu fröhlicher Steuerprüfer, der jede Kerze zählen will …",
+            "gameStart": "Wo sind sie, und wie fängt es an?",
+            "gameStartHint": "Die Szene, in der beide zu Beginn sind; daraus werden die ersten Worte der ersten Figur geschrieben.",
+            "gameStartPlaceholder": "Eine stürmische Nacht. Otto klopft klitschnass an die Tür des Leuchtturms …"
           }
         },
         "look": {
@@ -939,6 +978,10 @@
             "noKey": "Keiner der KI-Schlüssel, die du verwenden kannst, spricht mit einer Live-Stimme, darum gibt es gerade nichts zu hören.",
             "keyRejected": "Der KI-Anbieter hat den Schlüssel abgelehnt. Die Stimme konnte nicht abgespielt werden.",
             "failed": "Die Stimme konnte nicht abgespielt werden. Bitte versuche es noch einmal."
+          },
+          "duo": {
+            "voiceStyle": "Die Stimmen der Figuren",
+            "voiceStyleHint": "Jede Figur bekommt eine eigene Stimme."
           }
         },
         "download": {
@@ -972,19 +1015,28 @@
               "systemMessageScenario": "Sag, wer die Figur ist.",
               "systemMessageGameStart": "Sag, wie die Figur die Spielenden begrüßt.",
               "imageStyle": "Wähle einen Bildstil, damit die Bilder zusammenpassen."
+            },
+            "duo": {
+              "name": "Dein Spiel hat noch keinen Titel.",
+              "systemMessageScenario": "Sag, wer die beiden Figuren sind.",
+              "systemMessageGameStart": "Sag, wo die Szene spielt und wie sie beginnt.",
+              "imageStyle": "Wähle einen Bildstil, damit die Bilder zusammenpassen."
             }
           }
         },
         "embed": {
+          "waitingForApproval": "Die Seite der Organisation wartet auf die Freigabe durch einen Admin. Bis dahin startet das Spiel dort nicht.",
           "toggle": "Auf einer Website einbetten",
           "toggleHint": "Zeigt dieses Spiel auf der verifizierten Seite deiner Organisation, ohne etwas von ChatGameLab drumherum. Besucher spielen als Gäste; der gewählte Schlüssel bezahlt.",
           "page": "Verifizierte Seite",
-          "noPages": "Deine Organisation hat noch keine verifizierte Seite. Leitung oder Mitarbeitende legen sie in den Einstellungen der Organisation an.",
+          "noPages": "Registriere zuerst die Website deiner Organisation: die Seite, auf der eure Spiele laufen. Ein Admin gibt sie frei, dann kann das Spiel dort starten.",
+          "registerPage": "Website registrieren unter Meine Organisation → Websites",
+          "noOrganisation": "Einbetten gibt es für die Spiele einer Organisation: die in ihren Workshops geschrieben wurden oder von ihrer Leitung und ihren Mitarbeitenden. Dieses Spiel gehört zu keiner Organisation.",
           "paidBy": "Bezahlt von",
           "paidByPlaceholder": "Schlüssel wählen",
           "payingNow": "Bezahlt jetzt",
           "noKeys": "Du hast keinen funktionierenden KI-Schlüssel zum Bezahlen. Füge einen hinzu oder frag deine Organisation.",
-          "incomplete": "Wähle, was bezahlt, und die Seite, um das Snippet zu bekommen.",
+          "incomplete": "Wähle, was bezahlt, um das Snippet zu bekommen.",
           "snippet": "Snippet für deine Website",
           "snippetHint": "Füge es dort ein, wo das Spiel erscheinen soll, und gib dem Element die gewünschte Höhe.",
           "snippetVerifiedHint": "Dein Server setzt seine ID des Besuchers und dieses Seitenaufrufs ein; der Callback deiner Seite bekommt beide.",
@@ -996,7 +1048,8 @@
           "styleLink": "Mit eigenem CSS gestalten →",
           "pageHint": "Das Spiel läuft nur dort, und nur wenn die Seite jedem Start zustimmt."
         }
-      }
+      },
+      "newGame": "Neues Spiel"
     },
     "header": {
       "apiKeys": "API-Schlüssel",
@@ -1100,7 +1153,8 @@
         "first": "Erste Seite",
         "last": "Letzte Seite"
       },
-      "clearPicks": "Alle zeigen"
+      "clearPicks": "Alle zeigen",
+      "clearFilters": "Zurücksetzen"
     },
     "loading": "Laden...",
     "logout": "Abmelden",
@@ -1128,6 +1182,8 @@
     },
     "myOrganization": {
       "verifiedPages": {
+        "approved": "Freigegeben",
+        "waiting": "Wartet auf die Freigabe durch einen Admin",
         "intro": "Eine verifizierte Seite ist eine Seite auf der Website deiner Organisation, die eure eingebetteten Spiele zeigen darf. Bevor dort ein Spiel startet, fragt ChatGameLab den Callback der Seite, ob es starten soll, mit der Seiten-ID unten und den IDs von Besucher und Anfrage, die eure Seite mitgibt. Nur die Antwort {\"ok\": true} startet das Spiel.",
         "empty": "Noch keine verifizierten Seiten.",
         "addTitle": "Seite registrieren",
@@ -1136,6 +1192,10 @@
         "callbackUrl": "Callback-Adresse",
         "callbackUrlHint": "Hier fragt ChatGameLab vor jedem Start. Sie muss innerhalb weniger Sekunden antworten.",
         "add": "Seite registrieren",
+        "editTitle": "Seite ändern",
+        "editReapproval": "Diese Adresse liegt auf einer anderen Website und wartet erneut auf die Freigabe durch einen Admin; bis dahin starten dort keine Spiele. Ein anderer Port oder Pfad auf derselben Website bleibt freigegeben.",
+        "edit": "Seite ändern",
+        "save": "Seite speichern",
         "pageId": "Seiten-ID",
         "copy": "Seiten-ID kopieren",
         "copied": "Kopiert",
@@ -1148,6 +1208,8 @@
       "apiKeys": {
         "aboutDescription": "Hier freigegebene API-Schlüssel stehen allen Mitgliedern Ihrer Organisation zum Spielen zur Verfügung.",
         "aboutTitle": "Organisations-API-Schlüssel",
+        "addAndShare": "Hinzufügen und teilen",
+        "addKey": "Schlüssel hinzufügen",
         "allPlatforms": "Alle Plattformen",
         "allowPublicSponsoring": "Öffentliches Sponsoring erlauben",
         "allowPublicSponsoringDesc": "Dieser Schlüssel kann zum Sponsern von Spielen für alle Benutzer verwendet werden.",
@@ -1160,6 +1222,9 @@
         },
         "keyName": "Schlüsselname",
         "loadError": "Fehler beim Laden der Organisations-API-Schlüssel.",
+        "modeNew": "Ein neuer Schlüssel",
+        "modeOwn": "Einer meiner Schlüssel",
+        "newKeyHint": "Der Schlüssel gehört Ihnen, wie auf Ihrer Seite der API-Schlüssel, und wird mit der Organisation geteilt.",
         "noKeys": "Noch keine API-Schlüssel mit dieser Organisation geteilt.",
         "noResults": "Keine API-Schlüssel entsprechen Ihrer Suche.",
         "notAuthorized": "Sie haben keine Berechtigung, Organisations-API-Schlüssel zu verwalten. Nur Leiter und Lehrer können auf diese Seite zugreifen.",
@@ -1170,8 +1235,7 @@
         "selectKey": "API-Schlüssel auswählen",
         "selectKeyPlaceholder": "Wählen Sie einen Schlüssel zum Teilen...",
         "share": "Teilen",
-        "shareKey": "Schlüssel teilen",
-        "shareKeyTitle": "API-Schlüssel mit Organisation teilen",
+        "shareKeyTitle": "API-Schlüssel zur Organisation hinzufügen",
         "title": "Organisations-API-Schlüssel"
       },
       "autoShare": {
@@ -1209,11 +1273,11 @@
       "promoteTitle": "Zum Leiter befördern",
       "promoteToHead": "Zum Leiter befördern",
       "promoteWarning": "Dieser Benutzer erhält die Möglichkeit, Organisationsmitglieder zu verwalten und Lehrer einzuladen.",
-      "promptConstraintsHint": "Zusätzliche KI-Anweisungen für alle Sitzungen in dieser Organisation. Gilt, wenn keine Workshop-Einschränkung gesetzt ist, und für per Link geteilte Spiele.",
-      "promptConstraintsLabel": "Jugendschutz-Prompt-Einschränkung der Organisation",
+      "promptConstraintsHint": "Zusätzliche KI-Anweisungen für alle Sitzungen in dieser Organisation. Gilt, wenn der Workshop keine Jugendschutz-Regel setzt, und für per Link geteilte Spiele.",
+      "promptConstraintsLabel": "Jugendschutz-Regel der Organisation",
       "promptConstraintsPlaceholder": "z.B. Halte die Geschichte altersgerecht und vermeide gewalttätige Inhalte.",
       "promptConstraintsFallbackTitle": "Aktiver Site-weiter Fallback",
-      "promptConstraintsFallbackHint": "Keine Jugendschutz-Prompt-Einschränkung für die Organisation gesetzt. Stattdessen gilt die Site-weite Standardeinstellung für die jeweilige Altersgruppe:",
+      "promptConstraintsFallbackHint": "Keine Jugendschutz-Regel für die Organisation gesetzt. Stattdessen gilt die Site-weite Standardeinstellung für die jeweilige Altersgruppe:",
       "promptConstraintsFallbackU13": "Unter 13 Jahre",
       "promptConstraintsFallbackU13p": "13–17 Jahre (mit Zustimmung der Eltern)",
       "promptConstraintsFallbackU18": "18 Jahre oder älter",
@@ -1290,10 +1354,10 @@
         "guestLinkTitleNamed": "Link zum erneuten Anmelden für {{name}}",
         "participantName": "Teilnehmername",
         "participants": "Teilnehmer",
-        "promptConstraintsFallbackOrg": "Die Jugendschutz-Prompt-Einschränkung der Organisation wird als Standard verwendet: {{constraint}}",
-        "promptConstraintsFallbackSite": "Die Jugendschutz-Prompt-Einschränkung der Website wird als Standard verwendet",
+        "promptConstraintsFallbackOrg": "Die Jugendschutz-Regel der Organisation wird als Standard verwendet: {{constraint}}",
+        "promptConstraintsFallbackSite": "Die Jugendschutz-Regel der Website wird als Standard verwendet",
         "promptConstraintsHint": "Zusätzliche KI-Anweisungen, die für alle Sitzungen in diesem Workshop gelten.",
-        "promptConstraintsLabel": "Jugendschutz-Prompt-Einschränkung",
+        "promptConstraintsLabel": "Jugendschutz-Regel",
         "promptConstraintsPlaceholder": "z.B. Halte die Geschichte altersgerecht und vermeide gewalttätige Inhalte.",
         "removeParticipant": "Teilnehmer entfernen",
         "removeParticipantConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" aus diesem Workshop entfernen möchten?",
@@ -1381,13 +1445,24 @@
     "noRole": "Keine Rolle",
     "notifications": {
       "accept": "Annehmen",
+      "acknowledgeAll": "Alle als gelesen markieren",
       "decline": "Ablehnen",
       "declineConfirm": "Sind Sie sicher, dass Sie diese Einladung ablehnen möchten?",
       "declineTitle": "Einladung ablehnen",
-      "empty": "Keine neuen Benachrichtigungen.",
       "inviteDescription": "Sie wurden eingeladen, als {{role}} beizutreten.",
       "inviteToJoin": "Organisations-Einladung",
+      "nothingNew": "Nichts Neues",
       "title": "Benachrichtigungen",
+      "titleWithCount_one": "Benachrichtigungen: {{count}} neu",
+      "titleWithCount_other": "Benachrichtigungen: {{count}} neu",
+      "types": {
+        "newOrganisations_one": "Eine neue Organisation hat sich registriert",
+        "newOrganisations_other": "{{count}} neue Organisationen haben sich registriert",
+        "pagesWaiting_one": "Eine verifizierte Seite wartet auf Freigabe",
+        "pagesWaiting_other": "{{count}} verifizierte Seiten warten auf Freigabe",
+        "pageApproved": "Die verifizierte Seite der Organisation wurde freigegeben",
+        "pageTurnedDown": "Die verifizierte Seite der Organisation wurde nicht freigegeben oder ihre Freigabe zurückgezogen"
+      },
       "workshopInvite": "Workshop-Einladung",
       "workshopInviteDescription": "Sie wurden eingeladen, diesem Workshop beizutreten."
     },
@@ -1411,6 +1486,15 @@
       "selectGameTitle": "Spiel auswählen",
       "title": "Spiel auswählen",
       "unfavorite": "Aus Favoriten entfernen",
+      "advanced": {
+        "title": "Erweiterte Einstellungen",
+        "hint": "Passe die Prompts an, mit denen diese Sitzung startet. Geänderte Prompts sind markiert; alles andere läuft, wie das Spiel gebaut ist. Während des Spiels lassen sich die Prompts in den Einblicken weiter ändern.",
+        "edited": "geändert",
+        "reset": "Zurück zum Original",
+        "start": "Spiel starten",
+        "loading": "Die Prompts werden geladen …",
+        "unavailable": "Die Prompts konnten nicht geladen werden."
+      },
       "launch": {
         "starting": "Das Spiel startet…",
         "opening": "Das Spiel wird geöffnet…",
@@ -1455,16 +1539,16 @@
     "searchPlaceholder": "Mitglieder suchen...",
     "serverSettings": {
       "constraints": {
-        "description": "Definiere verbindliche KI-Regeln basierend auf der Altersgruppe der Spieler. Diese Jugendschutz-Prompt-Einschränkungen werden in jede KI-Antwort eingefügt. Sie gelten für alle angemeldeten Benutzer außerhalb des Workshop-Modus.",
-        "title": "Altersbasierte Jugendschutz-Prompt-Einschränkungen",
+        "description": "Definiere verbindliche KI-Regeln basierend auf der Altersgruppe der Spieler. Diese Jugendschutz-Regeln werden in jede KI-Antwort eingefügt. Sie gelten für alle angemeldeten Benutzer außerhalb des Workshop-Modus.",
+        "title": "Altersbasierte Jugendschutz-Regeln",
         "u13Hint": "Wird in jeden KI-Prompt für angemeldete Nutzer im Alter von 13-17 Jahren ohne elterliche Einwilligung eingefügt.",
-        "u13Label": "Jugendschutz-Prompt-Einschränkung für Nutzer von 13-17 Jahren, ohne elterliche Einwilligung (U13)",
+        "u13Label": "Jugendschutz-Regel für Nutzer von 13-17 Jahren, ohne elterliche Einwilligung (U13)",
         "u13Placeholder": "z.B. Halte alle Inhalte strikt altersgerecht für Jugendliche. Keine Gewalt, keine romantischen Inhalte, keine Horrorthemen.",
         "u13pHint": "Wird in jeden KI-Prompt für angemeldete Nutzer im Alter von 13-17 Jahren mit elterlicher Einwilligung eingefügt.",
-        "u13pLabel": "Jugendschutz-Prompt-Einschränkung für Nutzer von 13-17 Jahren, mit elterlicher Einwilligung (U13p)",
+        "u13pLabel": "Jugendschutz-Regel für Nutzer von 13-17 Jahren, mit elterlicher Einwilligung (U13p)",
         "u13pPlaceholder": "z.B. Altersgerechte Inhalte für Jugendliche, deren Eltern zugestimmt haben. Einige reifere Themen erlaubt, keine expliziten Inhalte.",
         "u18Hint": "Wird in jeden KI-Prompt für angemeldete Nutzer ab 18 Jahren eingefügt.",
-        "u18Label": "Jugendschutz-Prompt-Einschränkung für Nutzer ab 18 Jahren (U18)",
+        "u18Label": "Jugendschutz-Regel für Nutzer ab 18 Jahren (U18)",
         "u18Placeholder": "z.B. Halte die Inhalte angemessen. Vermeide explizite Gewalt oder sexuelle Inhalte."
       },
       "defaultTier": {
@@ -1588,57 +1672,6 @@
     }
   },
   "dashboard": {
-    "cards": {
-      "externalLinks": {
-        "edu": {
-          "description": "Medienpädagogisches Arbeiten mit dem ChatGameLab",
-          "title": "Über ChatGameLab"
-        },
-        "jff": {
-          "description": "Projektkoordinator und federführende Organisation.",
-          "title": "JFF – Institut für Medienpädagogik"
-        },
-        "mainSite": {
-          "description": "Erfahre mehr über das Bildungsprojekt hinter dieser Plattform.",
-          "title": "ChatGameLab Projekt"
-        },
-        "title": "Über ChatGameLab"
-      },
-      "myGames": {
-        "empty": "Noch keine Spiele. Erstelle dein erstes Spiel!",
-        "title": "Meine Spiele",
-        "viewAll": "Meine Spiele"
-      },
-      "myWorkshops": {
-        "empty": "Keine aktiven Workshops. Erstelle einen Workshop in deiner Organisation!",
-        "title": "Meine Workshops",
-        "viewAll": "Alle Workshops"
-      },
-      "newGames": {
-        "empty": "Noch keine Spiele verfügbar.",
-        "title": "Neue Spiele",
-        "viewAll": "Alle Spiele"
-      },
-      "popularGames": {
-        "empty": "Noch keine Spiele verfügbar.",
-        "plays": "{{count}} Mal gespielt",
-        "title": "Beliebte Spiele",
-        "viewAll": "Alle Spiele"
-      },
-      "lastPlayed": {
-        "empty": "Noch kein laufendes Spiel. Spiel dein erstes Spiel!",
-        "title": "Zuletzt gespielt",
-        "viewAll": "Alle Spiele"
-      }
-    },
-    "quickActions": {
-      "createNewGame": "Ein neues Spiel erstellen",
-      "createWorkshop": "Workshop erstellen",
-      "importGame": "Spiel importieren",
-      "inviteMembers": "Mitglieder einladen",
-      "startNewGame": "Ein neues Spiel starten",
-      "title": "Schnellaktionen"
-    },
     "untitled": "Unbenannt",
     "version": {
       "mismatch": {
@@ -1646,7 +1679,55 @@
         "title": "Versionenkonflikt erkannt"
       }
     },
-    "untitledGame": "Unbenanntes Spiel"
+    "untitledGame": "Unbenanntes Spiel",
+    "hero": {
+      "journal": "Laborbuch · {{date}}",
+      "greeting": "Hallo {{name}}. Was \u003cmark\u003ebauen\u003c/mark\u003e wir heute?",
+      "greetingNoName": "Hallo. Was \u003cmark\u003ebauen\u003c/mark\u003e wir heute?",
+      "promptLabel": "Beschreibe eine Spielidee",
+      "promptPlaceholder": "Beschreibe eine Spielidee … die KI hilft dir, sie auszuarbeiten",
+      "create": "Erstellen"
+    },
+    "continue": {
+      "title": "Weiterspielen",
+      "hint": "mach da weiter, wo du aufgehört hast",
+      "messages_one": "{{count}} Nachricht",
+      "messages_other": "{{count}} Nachrichten",
+      "go": "Weiter"
+    },
+    "ownGames": {
+      "title": "Deine Spiele",
+      "viewAll": "Alle deine Spiele",
+      "empty": "Noch keine Spiele. Beschreibe oben eine Idee und erstelle dein erstes!"
+    },
+    "lab": {
+      "title": "Dein Labor bisher",
+      "gamesOnPlatform": "Spiele im Labor",
+      "gamesCreated": "Spiele von dir",
+      "playsOfOwnGames": "Mal gespielt, deine Spiele"
+    },
+    "workshops": {
+      "title": "Deine Workshops",
+      "viewAll": "Alle Workshops"
+    },
+    "fresh": {
+      "title": "Neue Spiele",
+      "viewAll": "Zur Galerie",
+      "by": "von {{name}}",
+      "empty": "Noch keine neuen Spiele."
+    },
+    "popular": {
+      "title": "Am beliebtesten",
+      "hint": "was gerade alle spielen",
+      "plays_one": "{{count}}-mal gespielt",
+      "plays_other": "{{count}}-mal gespielt"
+    },
+    "links": {
+      "educators": "Für Pädagog*innen",
+      "about": "Über ChatGameLab",
+      "jff": "JFF – Institut für Medienpädagogik"
+    },
+    "someone": "jemandem"
   },
   "errors": {
     "aiError": "Der KI-Dienst hat einen Fehler festgestellt. Bitte versuche es erneut.",
@@ -1757,13 +1838,15 @@
     "myWorkshop": "Mein Workshop",
     "orgApiKeys": "API-Schlüssel",
     "orgVerifiedPages": "Websites",
-    "orgConstraints": "Jugendschutz-Prompt-Einschränkung",
+    "orgConstraints": "Jugendschutz-Regel",
     "orgMembers": "Mitglieder",
     "orgWorkshops": "Workshops",
     "play": "Spiele spielen",
     "rooms": "Räume",
     "serverSettings": "Servereinstellungen",
-    "workshopSettings": "Workshop-Einstellungen"
+    "workshopSettings": "Workshop-Einstellungen",
+    "me": "Ich",
+    "mainMenu": "Hauptmenü"
   },
   "playbackEngine": {
     "over": {
@@ -1847,6 +1930,7 @@
       "tabSelected": "Ausgewählt",
       "tabUsage": "Verbrauch",
       "tabProblems": "Probleme",
+      "tabGuardrail": "Jugendschutz",
       "pickBlock": "Klick im Ablauf auf einen Baustein oder eine Verbindung, um zu sehen, was dort passiert ist.",
       "noProblems": "Bisher keine Probleme.",
       "settingEmpty": "Das Spiel lässt das leer."
@@ -1911,6 +1995,57 @@
       "busy": "Relay: von einem anderen Tab belegt",
       "connected": "Relay: verbunden"
     },
+    "guardrail": {
+      "intro": "Die Jugendschutz-Regel, an die sich jeder KI-Aufruf dieses Spiels hält.",
+      "none": "Diese Sitzung hat keine Jugendschutz-Regel.",
+      "edited": "bearbeitet",
+      "source": "Stammt von",
+      "levelWorkshop": "Workshop „{{name}}“",
+      "levelOrganisation": "Organisation „{{name}}“",
+      "levelSite13": "Regel der Seite, 13–17 ohne Einverständnis der Eltern",
+      "levelSite13p": "Regel der Seite, 13–17 mit Einverständnis der Eltern",
+      "levelSite18": "Regel der Seite, ab 18",
+      "sourceUnknown": "Unbekannt",
+      "readBy": "Beachtet von",
+      "resolved": "Ursprünglich",
+      "edit": "Jugendschutz-Regel ändern",
+      "editHint": "Ein Experiment: Die neue Regel gilt ab dem nächsten KI-Aufruf; was geschehen ist, bleibt.",
+      "save": "Speichern",
+      "saving": "Speichern …",
+      "saved": "Gespeichert: gilt ab dem nächsten Aufruf",
+      "failed": "Konnte nicht gespeichert werden",
+      "reset": "Zurück zur ursprünglichen Regel",
+      "frequency": "Wiederholt",
+      "frequencyHint": "Wie oft jeder Schritt die Regel wiederholt: 1 bei jedem Aufruf, 10 bei jedem zehnten.",
+      "frequencySet": "Setzen",
+      "frequencyFailed": "Konnte nicht gesetzt werden"
+    },
+    "prompts": {
+      "title": "Prompts",
+      "hint": "Ändere einen Prompt und sieh, wie sich die Antworten ändern. Der neue Text gilt ab dem nächsten Aufruf.",
+      "edited": "bearbeitet",
+      "save": "Speichern",
+      "saving": "Speichern …",
+      "saved": "Gespeichert: gilt ab dem nächsten Aufruf",
+      "failed": "Konnte nicht gespeichert werden",
+      "reset": "Zurück zum Original"
+    },
+    "promptNames": {
+      "game-master": "Spielleitung (System Message)",
+      "summary": "Bitte um Zusammenfassung",
+      "rephrase": "Aktion umformulieren",
+      "rephrase-audio": "Sprache verstehen",
+      "opening": "Eröffnung",
+      "opening-expand": "Eröffnung erzählen",
+      "expand": "Zug erzählen",
+      "scene": "Bildrahmen",
+      "condense-scenario": "Szenario kürzen",
+      "image-style": "Stil anpassen",
+      "conversation-policy": "Wie die Figur spricht",
+      "director": "Regie",
+      "greeting": "Erste Worte",
+      "voice-brief": "Stimme beschreiben"
+    },
     "blocks": {
       "image-style": "Stil anpassen",
       "adapted-style": "Stil",
@@ -1930,7 +2065,12 @@
       "live-session": "Figur",
       "observer": "Regie",
       "voice": "Stimme generieren",
-      "voice-brief": "Stimme beschreiben"
+      "voice-brief": "Stimme beschreiben",
+      "live-a": "Erste Figur",
+      "live-b": "Zweite Figur",
+      "director": "Regie",
+      "cast": "Stimmen besetzen",
+      "cast-brief": "Figuren"
     },
     "settings": {
       "scenario": "Szenario",
@@ -1972,7 +2112,20 @@
       "voice\u003elive-session:voice": "Stimme",
       "voice\u003elive-session:secondary": "Stimmbeschreibung",
       "voice-brief\u003evoice:description": "Beschreibung",
-      "voice-brief\u003evoice:voice": "Ersatzstimme"
+      "voice-brief\u003evoice:voice": "Ersatzstimme",
+      "cast-brief\u003ecast": "Figuren",
+      "cast\u003elive-a:voiceA": "Stimme",
+      "cast\u003elive-b:voiceB": "Stimme",
+      "cast\u003estart-game": "bereit",
+      "greeting\u003elive-a": "erste Worte",
+      "start-game\u003elive-a": "Startsignal",
+      "start-game\u003elive-b": "Startsignal",
+      "player-input-audio\u003elive-a": "Sprache",
+      "player-input-audio\u003elive-b": "Sprache",
+      "live-a\u003edirector": "Transkript",
+      "live-b\u003edirector": "Transkript",
+      "director\u003elive-a": "Einwurf",
+      "director\u003elive-b": "Einwurf"
     }
   },
   "mail": {

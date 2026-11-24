@@ -20,6 +20,8 @@ export type {
   InviteCardView,
   InviteView,
   KeyShareView,
+  NotificationType,
+  NotificationView,
   OrganisationSignUpReq,
   OrganisationView,
   PlatformInfo,
