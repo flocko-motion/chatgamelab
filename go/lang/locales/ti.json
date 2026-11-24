@@ -5,14 +5,14 @@
       "description": "ይእቲ ንናብ ኣካውንትካ ትኽክለኛ ምጥቓዕን መመሪያታት ትሕዝቶ ንምምላእ ይሓግዝና።",
       "label": "ዕድመን ምጥቓዕን ቡድን",
       "u13": "13–17 ዓመት፣ ዘይተመዝገበ ፍቓድ ወላዶም",
-      "u13Description": "ናይ ChatGameLab ትጠቀም ትኽእል። በለጽሑ መዋቅሮታት ምጥቓዕ ኣብ ኣካውንትካ ይሰርሑ።",
+      "u13Description": "{{siteName}} ክትጥቀመሉ ትኽእል ኢኻ። ኣብ ሕሳብካ ዝያዳ ጥበቃ ዘለዎም ቅንብራት ክተግበሩ እዮም።",
       "u13p": "13–17 ዓመት፣ ብፍቓድ ወላዶም",
-      "u13pDescription": "እንተ ወላዶም ተስማማዮም ናይ ChatGameLab ትጠቀም ትኽእል።",
+      "u13pDescription": "ወለድኻ እንተተሰማሚዖም ን{{siteName}} ክትጥቀመሉ ትኽእል ኢኻ።",
       "u18": "18 ዓመት ወይ ካብዚ ዕድመ ዝበለ",
-      "u18Description": "ናይ ChatGameLab ትጠቀም ትኽእል።",
+      "u18Description": "{{siteName}} ክትጥቀመሉ ትኽእል ኢኻ።",
       "under13": "ከሳሕ 13 ዓመት",
-      "under13Blocker": "ገና ራስካ ኣካውንት ክትፍጠር ኣትኽእልን። እንተ ከሳሕ 13 ዓመት ዝኾንካ ናይ ChatGameLab ብቐርቢ ውድብ ወጣት ብቻ ትጠቀም ትኽእል።",
-      "under13Description": "ገና ራስካ ኣካውንት ክትፍጠር ኣትኽእልን። እንተ ከሳሕ 13 ዓመት ዝኾንካ ናይ ChatGameLab ብቐርቢ ውድብ ወጣት ብቻ ትጠቀም ትኽእል።"
+      "under13Blocker": "ገና ናይ ባዕልኻ ሕሳብ ክትፈጥር ኣይትኽእልን ኢኻ። ዕድሜኻ ትሕቲ 13 እንተኾይኑ፣ {{siteName}} ክትጥቀመሉ እትኽእል ብናይ መንእሰያት ትካል ጥራይ እዩ።",
+      "under13Description": "ገና ናይ ባዕልኻ ሕሳብ ክትፈጥር ኣይትኽእልን ኢኻ። ዕድሜኻ ትሕቲ 13 እንተኾይኑ፣ {{siteName}} ክትጥቀመሉ እትኽእል ብናይ መንእሰያት ትካል ጥራይ እዩ።"
     },
     "guest": {
       "leaveConfirm": {
@@ -51,7 +51,7 @@
       }
     },
     "organizationRegistration": {
-      "accountNameDescription": "ኣብ ChatGameLab ከምዚ ኢኻ ትርአ (እንተደሚሩ 24 ፊደላት).",
+      "accountNameDescription": "ኣብ {{siteName}} ከመይ ኢልካ ከም እትርአ (እንተበዝሐ 24 ፊደላት)።",
       "accountNameLabel": "ስም ምርኣይ",
       "cityLabel": "ከተማ",
       "confirmAdult": "ብውሑዱ 18 ዓመት ኣለኒ።",
@@ -60,9 +60,9 @@
         "emailDescription": "እቲ መረጋገጺ ምስ ጽሑፍ እቲ መግለጺ ናብዚ ኣድራሻ ኢና እንልእኽ።",
         "introExisting": "ትካልኩም “{{name}}” ሕጂ ብኢንተርነት ዝተረጋገጸ መግለጺ ስምምዕ ኣለዎ። እዚ ነቲ ቀደም ዝፈረምኩምዎ ስምምዕ ተጠቃሚ ይትክኦ። በጃኻ ኣንብቦን ብስም ትካልኩም ተሰማማዕን።",
         "introNewVersion": "እቲ መግለጺ ስምምዕ ተሓዲሱ (ስሪት {{version}})። በጃኻ እቲ ሓድሽ ስሪት ኣንብብን ብስም ትካልኩም “{{name}}” ተሰማማዕን።",
-        "introWithdrawn": "ስምምዕ ትካልኩም “{{name}}” ኣብቲ መግለጺ ስምምዕ ተሰሪዙ እዩ፣ ስለዚ ኣገልግሎቱ ተኣጊዱ ኣሎ። ChatGameLab እንደገና ንምጥቃም እቲ መግለጺ ኣንብብን ብስም ትካልኩም ተሰማማዕን።",
+        "introWithdrawn": "ናይ ትካልኩም “{{name}}” ንመግለጺ ስምምዕ ዝሃቦ ስምምዕ ተሰሪዙ፣ ስለዚ እቲ ትካል ተኣጊዱ ኣሎ። እቲ መግለጺ ኣንብብዎ፣ ከምኡውን {{siteName}} እንደገና ክትጥቀሙ ብስም ትካልኩም ተሰማምዑ።",
         "logout": "ውጻእ",
-        "oneHeadIsEnough": "ሓደ ሓላፊ ትካል እንተተሰማሚዑ ይኣክል። ክሳብ ሽዑ ትካልኩም ተኣጊዱ እዩ፦ ኣባላቱ ChatGameLab ክጥቀሙ ኣይክእሉን።",
+        "oneHeadIsEnough": "ሓደ ሓላፊ ናይቲ ትካል እንተተሰማሚዑ እኹል እዩ። ክሳብ ሽዑ ትካልኩም ተኣጊዱ ይጸንሕ፦ ኣባላቱ {{siteName}} ክጥቀሙ ኣይክእሉን።",
         "submit": "ተሰማማዕ",
         "title": "መግለጺ ስምምዕ ኣረጋግጽ"
       },
@@ -207,10 +207,10 @@
       "agreeSuffix2": "",
       "alreadyHaveAccount": "ኣካውንት ኣለካ ድዩ?",
       "backButton": "ተመለስ",
-      "chooseType": "ChatGameLab ከመይ ክትጥቀም ትደሊ?",
+      "chooseType": "{{siteName}} ከመይ ኢልካ ክትጥቀመሉ ትደሊ?",
       "continueButton": "ናብ ምዝገባ ቀጽል",
       "description": "ንምምላእን ንምንባርርን ናይ ተጠቃሚ ኣካውንታት Auth0 ንመለማመዲ እንጥቀም። ናብ Auth0 ክትመለስ ኢኻ ኣካውንትካ ንትፍጠር፣ ካልእ ድማ ናብዚ ትመለስ ፕሮፋይልካ ንትጨምር።",
-      "educatorDescription": "ChatGameLab ኣብ ስልጠናታት፣ ት/ቤትታት ወይ ተቋማትካ ስራሕ ምጥቃም",
+      "educatorDescription": "{{siteName}} ኣብ ዎርክሾፕ፣ ክፍሊ ትምህርቲ ወይ ትካልካ ተጠቐመሉ",
       "educatorModal": {
         "closeButton": "ዕጽው",
         "copied": "ተቐዲሑ!",
@@ -234,7 +234,7 @@
       "individualTitle": "ውልቃዊ ኣካውንት",
       "loginLink": "እቶ ግባ",
       "organizationExistingAccount": "ትካላት ብሓድሽ መእተዊ ይምዝገቡ። ድሮ ሕሳብ ኣለካ?",
-      "organizationIntro": "ንማእከላት መንእሰያት፣ ቤት ትምህርትታትን ካልኦት ትካላትን ኣብ ዎርክሾፓት ChatGameLab ክጥቀሙ ዝደልዩ።",
+      "organizationIntro": "{{siteName}} ኣብ ዎርክሾፕ ክጥቀማሉ ንዝደልያ ናይ መንእሰያት ማእከላት፣ ቤት ትምህርትታትን ካልኦት ትካላትን።",
       "organizationStep1": "ብAuth0 መእተዊኻ ፍጠር (ኢ-መይልን መሕለፊ ቃልን)።",
       "organizationStep2": "ብዛዕባኻን ትካልካን ዝርዝር ትኣቱ፣ ሕጊ ሓለዋ መንእሰያት ትውስንን ነቲ መግለጺ ስምምዕነት ትቕበልን።",
       "organizationStep3": "ቅጥዒ ምስ ለኣኽካ፣ ትካል ብቕጽበት ይኽፈት፣ ዎርክሾፓት ድማ ክትፈጥር ትኽእል።",
@@ -776,6 +776,9 @@
         "embed": {
           "copy": "እቲ snippet ቅዳሕ",
           "incomplete": "ነቲ snippet ንምርካብ እንታይ ክኸፍል ከም ዘለዎ ምረጽ።",
+          "mode": "እቲ ጸወታ ከመይ ከም ዝጻወት",
+          "modeChoose": "ተጻዋታይ ይመርጽ",
+          "modeHint": "እዚ ጸወታ ብቐጥታ ወይ ብተራ ክጻወት ይኽእል። ነቲ ሕቶ ንምስጋር ሓደ ኣማራጺ ኣቐዲምካ ምረጽ፤ እቲ መፍትሕ ሓደ ጥራይ ክገብር እንተኽኢሉ፣ እቲ ሓደ እዩ ዝጻወት።",
           "noKeys": "ንምኽፋል ዝሰርሕ ናይ AI መፍትሕ የብልካን። ሓደ ወስኽ፣ ወይ ንውድብካ ሕተት።",
           "noOrganisation": "ምእታው ንጸወታታት ማሕበር እዩ፤ እዚኣቶም ኣብ ወርክሾፓታቱ ዝተጻሕፉ ወይ ብመሪሕነታን ሰራሕተኛታታን ዝተጻሕፉ እዮም። እዚ ጸወታ ናይ ዝኾነ ማሕበር ኣይኮነን።",
           "noPages": "መጀመርታ ዌብሳይት ማሕበርኩም መዝግቡ፤ ጸወታታትኩም ዝሰርሑላ ገጽ እያ። ኣድሚን ምስ ኣጽደቓ፣ እቲ ጸወታ ኣብኣ ክጅምር ይኽእል።",
@@ -794,7 +797,7 @@
           "snippetVerifiedHint": "ሰርቨርካ መለለዪ ናይቲ በጻሒን ናይዚ ምብጻሕ ገጽን የእቱ፤ callback ናይቲ ገጽካ ክልቲኦም ይቕበል።",
           "styleLink": "ብናትካ CSS ኣስተካኽሎ →",
           "toggle": "ኣብ ድሕረ-ገጽ ኣእቱ",
-          "toggleHint": "ነዚ ጸወታ ኣብ ዝተረጋገጸ ገጽ ውድብካ የርእዮ፣ ከባቢኡ ድማ ካብ ChatGameLab ዝኾነ ነገር የብሉን። በጻሕቲ ከም ኣጋይሽ ይጻወቱ፤ እቲ ዝመረጽካዮ መፍትሕ ይኸፍል።",
+          "toggleHint": "እዚ ጸወታ ኣብ ዝተረጋገጸ ገጽ ናይ ትካልኩም የርእዮ፣ ዝኾነ ካብ {{siteName}} ድማ ኣብ ዙርያኡ የለን። በጻሕቲ ከም ኣጋይሽ ይጻወቱ፤ እቲ ዝመረጽካዮ መፍትሕ ይኸፍል።",
           "waitingForApproval": "ገጽ ማሕበር ንምጽዳቕ ኣድሚን ትጽበ ኣላ። ክሳብ ሽዑ እቲ ጸወታ ኣብኣ ኣይጅምርን።"
         },
         "fillIn": "ኩሎም ክፍልታት ክሳብ ኩሎም ቀጠልያ ዝኾኑ ምልኣዮም።",
@@ -871,6 +874,14 @@
             "voiceStyleHint": "እቲ ዛንታ ብድምጺ ክንበብ ከሎ ከመይ ከም ዝስማዕ።"
           },
           "builtInVoice": "ውሽጣዊ ድምጺ",
+          "choices": {
+            "any": "ዝኾነ",
+            "custom": "ፍሉይ",
+            "female": "ኣንስተይቲ",
+            "male": "ተባዕታይ"
+          },
+          "choicesHint": "ተባዕታይ፣ ኣንስተይቲ ወይ ዝኾነ፦ ነቲ ዛንታ ዝሰማማዕ ኣብ ውሽጢ ዝተሃንጸ ድምጺ።",
+          "customHint": "ፍሉይ፦ ካብቲ መግለጺ ዝተፈጥረ ናይ ባዕሉ ድምጺ።",
           "duo": {
             "voiceStyle": "ድምጽታት ናይቶም ባህርያት",
             "voiceStyleHint": "ነፍሲ ወከፍ ባህሪ ናይ ባዕሉ ድምጺ ይወሃቦ።"
@@ -895,8 +906,15 @@
             "greeting": "ሰላም! እቶ፣ ተቐመጥ፣ እዚ ቦታ እንታይ ከም ዘምጽኣካ ድማ ንገረኒ።",
             "narration": "እቲ ዛንታ ኣብ ሓንቲ ጸጥ ዝበለት ንግሆ ይጅምር፣ ኣስተማማኒ መንገዲ ድማ ናብ ዘይተፈልጠ ይመርሕ።"
           },
+          "slots": {
+            "a": "ቀዳማይ ባህርይ",
+            "b": "ካልኣይ ባህርይ",
+            "character": "ባህርይ",
+            "narrator": "ኣዘንታዊ"
+          },
           "status": {
             "builtIn": "ገና መግለጺ የለን: እቲ ጸወታ ክሳብ ነቲ ድምጺ ትገልጾ ብውሽጣዊ ድምጺ ይዛረብ።",
+            "cast": "ጸወታ ክጅምር ከሎ፣ ነቲ ዛንታ ዝበለጸ ዝሰማማዕ ካብ ዝመረጽካዮ ዓይነት ዝተሃንጸ ድምጺ ይመርጽ። እቲ መግለጺ ከመይ ከም ዝዛረብ ይመርሖ።",
             "ownVoice": "ንዚ መግለጺ ዝተዳለወ ፍሉይ ድምጺ፣ ብ AI መፍትሕካ ዝተፈጥረ።",
             "steered": "ውሽጣዊ ድምጺ ነቲ ዛንታ ከምቲ መግለጺ ዝብሎ የንብቦ።"
           },
@@ -965,6 +983,8 @@
       },
       "genres": {
         "adventure": "ጀብዱ",
+        "discussion": "ዘተ",
+        "npc": "ባህርይ",
         "npc-duo": "ዝርርብ",
         "npc-live": "ባህሪ"
       },
@@ -1159,6 +1179,7 @@
       "apiKeys": "API ቁልፊታት",
       "closeNavigation": "መመርያ ማዕረ ዕጽው",
       "contact": "ተወዳድር",
+      "contactHint": "ምስ ጉጅለ {{siteName}} ተራኸብ",
       "goToDashboard": "ናብ ዳሽቦርድ ሂድ",
       "leaveWorkshopMode": "ካብ ሞድ ወርክሾፕ ውጽእ",
       "leaveWorkshopModeTooltip": "ካብ ሞድ ወርክሾፕ ውጽእ ናብ መደበኛ እይታ ምምላስ",
@@ -1349,7 +1370,7 @@
         "consented": "ትካልኩም ኣብ {{date}} ነቲ ስሪት {{version}} ተሰማሚዑሉ።",
         "title": "መግለጺ ስምምዕ",
         "withdraw": "ስምምዕ ሰርዝ",
-        "withdrawConfirm": "ብዘይ ስምምዕ ትካልኩም ተኣጊዱ እዩ፦ ሓደ ሓላፊ እንደገና ክሳብ ዝሰማማዕ ዝኾነ ኣባል ChatGameLab ክጥቀም ኣይክእልን። ዳታኹም ይቕመጥ።",
+        "withdrawConfirm": "ብዘይ ስምምዕ ትካልኩም ተኣጊዱ እዩ፦ ሓደ ሓላፊ እንደገና ክሳብ ዝሰማማዕ ዝኾነ ኣባል {{siteName}} ክጥቀም ኣይክእልን። ሓበሬታኡ ይዕቀብ።",
         "withdrawFailed": "እዚ ኣይሰርሐን። በጃኻ እንደገና ፈትን።",
         "withdrawTitle": "ስምምዕ ክስረዝ?"
       },
@@ -1449,14 +1470,14 @@
         "approved": "ዝጸደቐት",
         "callbackShown": "Callback: {{url}}",
         "callbackUrl": "ኣድራሻ callback",
-        "callbackUrlHint": "ChatGameLab ቅድሚ ነፍሲ ወከፍ መጀመርታ ኣብዚ ይሓትት። ኣብ ውሽጢ ገለ ካልኢታት ክምልስ ኣለዎ።",
+        "callbackUrlHint": "{{siteName}} ቅድሚ ነፍሲ ወከፍ ጅማሮ ኣበይ ከም ዝሓትት። ኣብ ውሽጢ ገለ ካልኢታት ክትምልስ ኣለካ።",
         "copied": "ተቐዲሑ",
         "copy": "መለለዪ ገጽ ቅዳሕ",
         "edit": "ገጽ ቀይር",
         "editReapproval": "እዛ ኣድራሻ ኣብ ካልእ ዌብሳይት እያ ዘላ፣ ስለዚ እንደገና ምጽዳቕ ኣድሚን ትጽበ፤ ክሳብ ሽዑ ጸወታታት ኣብኣ ኣይጅምሩን። ኣብ ተመሳሳሊ ዌብሳይት ዘሎ ካልእ ፖርት ወይ መንገዲ ግን ጸዲቑ ይቕጽል።",
         "editTitle": "ገጽ ቀይር",
         "empty": "ገና ዝተረጋገጹ ገጻት የለዉን።",
-        "intro": "ዝተረጋገጸ ገጽ፣ ኣብ ድሕረ-ገጽ ውድብካ ዘሎን እቶም ዝተኣተዉ ጸወታታትኩም ከርኢ ዝፍቀደሉን ገጽ እዩ። ኣብኡ ጸወታ ቅድሚ ምጅማሩ፣ ChatGameLab ነቲ callback እቲ ገጽ ክጅምር ድዩ ኣይክጅምርን ይሓትት፣ ምስቲ ኣብ ታሕቲ ዘሎ መለለዪ ገጽን ገጽኩም ዘመሓላልፎ መለለዪ በጻሕን ሕቶን። መልሲ {\"ok\": true} ጥራይ እዩ ነቲ ጸወታ ዝጅምሮ።",
+        "intro": "ዝተረጋገጸ ገጽ፣ ኣብ መርበብ ሓበሬታ ትካልኩም ዝርከብን እቶም ዝተኣተዉ ጸወታታትኩም ከርኢ ዝኽእልን ገጽ እዩ። ጸወታ ኣብኡ ቅድሚ ምጅማሩ፣ {{siteName}} ነቲ callback ናይቲ ገጽ ክጅምር ድዩ ኣይክጅምርን ይሓትት፣ ምስቲ ኣብ ታሕቲ ዘሎ መለለዪ ገጽን ገጽኩም ዘመሓላልፎ መለለዪ በጻሕን መለለዪ ሕቶን። እቲ {\"ok\": true} ዝብል መልሲ ጥራይ እዩ ነቲ ጸወታ ዝጅምሮ።",
         "pageId": "መለለዪ ገጽ",
         "pageUrl": "ኣድራሻ ገጽ",
         "pageUrlHint": "እቲ ጸወታታትኩም ዝኣተዉሉ ገጽ። ድሕረ-ገጹ ጥራይ እዩ ከርእዮም ዝኽእል።",
@@ -1615,8 +1636,8 @@
       "workshopInviteDescription": "ናብዚ ስልጠና ምእታው ትጋብተ ተመክሮም።"
     },
     "organisationSuspended": {
-      "byAdmin": "ኣካያዲ መእተዊ ትካልኩም ናብ ChatGameLab ኣጊድዎ ኣሎ። ዳታኹም ይቕመጥ።",
-      "consentWanted": "መእተዊ ትካልኩም ናብ ChatGameLab ተኣጊዱ ኣሎ፣ ክሳብ ሓደ ካብ ሓለፍቱ ነቲ ህሉው መግለጺ ስምምዕ ዝቕበል። ዳታኹም ይቕመጥ።",
+      "byAdmin": "እቲ ኣካያዲ ናይ ትካልኩም ናብ {{siteName}} ዘለዎ መእተዊ ኣንጠልጢሉዎ ኣሎ። ሓበሬታኹም ይዕቀብ።",
+      "consentWanted": "ሓደ ካብ ሓለፍቲ ትካልኩም ነቲ ህሉው መግለጺ ስምምዕ ክሳብ ዝቕበል፣ ናይ ትካልኩም መእተዊ ናብ {{siteName}} ተኣጊዱ ኣሎ። ሓበሬታኹም ይዕቀብ።",
       "contact": "ሕቶታት እንተሃልዩኩም ተወከሱ",
       "logout": "ውጻእ",
       "title": "ትካል ተኣጊዱ"
@@ -1648,12 +1669,16 @@
         "backToGames": "ናብ ጸወታታት ተመለስ",
         "cannotOpen": "እዚ ጸወታ ክቕጽል ኣይኽእልን",
         "cannotStart": "እዚ ጸወታ ክጅምር ኣይኽእልን",
+        "chooseMode": "ከመይ ኢልካ ክትጻወት ትደሊ?",
+        "chooseModeHint": "ምስቲ ባህርይ ብቐጥታ ተዘራረብ፣ ወይ ብተራ ብጽሑፍ ወይ ብድምጺ መልስ።",
         "continue": "ቀጽል",
         "inProgress": "ኣብ ሂደት ዘሎ ጸወታ ኣለካ",
         "inProgressHint": "ካብ ዝተወንካሉ ቦታ ቀጽል፣ ወይ ካብ መጀመርታ እንደገና ጀምር።",
+        "live": "ብቐጥታ ተዛረብ",
         "noPlaysLeft": "እዚ ሊንክ ዝተረፉ ጸወታታት የብሉን፣ ስለዚ እቲ ጸወታ እንደገና ክጅምር ኣይኽእልን።",
         "offline": "ናብ ሰርቨር ጸወታ ምብጻሕ ኣይከኣልን።",
         "opening": "እቲ ጸወታ ይኽፈት ኣሎ…",
+        "rounds": "ብተራ",
         "startAnew": "ካብ መጀመርታ ጀምር",
         "startAnewUsesPlay": "ካብ መጀመርታ ምጅማር ካብ ጸወታታት እዚ ሊንክ ሓደ ይጥቀም።",
         "starting": "እቲ ጸወታ ይጅምር ኣሎ…",
@@ -1688,16 +1713,16 @@
       "about": {
         "details": "እቶም ፈጠርቲ ዓለም፣ ባህርያትን ሕግታትን ብናቶም ቃላት ይገልጹ። ክትጻወት ከለኻ፣ AI ነቲ ዛንታ ካብኡ ቀጻሊ ብቐጥታ ይነግር፦ ንዝጽሕፎ ዘበለ ይምልሰሉን ዝሰማማዕ ስእልታት ይፈጥርን — ስለዚ ክልተ ዙር ብሓደ ዓይነት ኣይካየዱን። ባዕልኻ ምስ እትሃንጽ መምርሒታትካ ንውጽኢት ክንደይ ከም ዝጸልዎን AI ድማ ደረቱ ኣበይ ከም ዝበጽሕን ቀልጢፍካ ትርዳእ። እዚ እዩ ቀንዲ ዕላማኡ፦ AI ክግለጸልካ ዘይኮነስ፣ ባዕልኻ ክትፍትኖ።",
         "less": "ውሑድ",
-        "link": "ብዛዕባ ChatGameLab ተወሳኺ",
+        "link": "ብዛዕባ {{siteName}} ዝያዳ",
         "more": "ተወሳኺ ሓበሬታ ርኸብ",
-        "oneLiner": "እዞም ጽሑፋዊ ጀብዱታት ብ ChatGameLab ተሰሪሖም፦ ብኢድ ዝተሃንጹ፣ ብዘይ ፕሮግራሚንግ፣ ብ AI ብቐጥታ ዝንገሩ።"
+        "oneLiner": "እዞም ናይ ጽሑፍ ጀብዱታት ብ{{siteName}} ተሰሪሖም፦ ብኢድ ዝተሃንጹ፣ ብዘይ ፕሮግራሚንግ፣ ብAI ብቐጥታ ዝንገሩ።"
       },
       "copy": "ቅዳሕ",
       "copyLogin": "ንምቕዳሕ እቶ",
       "cta": {
         "button": "ብነጻ ጀምር",
         "text": "ናትካ ጽሑፋዊ ጀብዱ ምህናጽ ብነጻ እዩ፣ ዝወስዶ ግዜ ድማ ውሑድ ደቓይቕ ጥራይ እዩ።",
-        "title": "ናትካ ChatGameLab ጸወታ ፍጠር"
+        "title": "ብ{{siteName}} ናይ ባዕልኻ ጸወታ ስራሕ"
       },
       "download": "ኣውርድ",
       "gamesTitle": "ካብዚ ዎርክሾፕ ዝመጹ ጸወታታት",
@@ -1724,6 +1749,42 @@
     "search": "ፈልጥ",
     "searchPlaceholder": "ኣባላት ፈልጥ...",
     "serverSettings": {
+      "branding": {
+        "changed": "ተቐይሩ",
+        "description": "እዚ ገጽ ከመይ ኢሉ ከም ዝቐርብ፦ ስሙ ኣብ ታብ መርበብን ኣብ ጽሑፋትን፣ መን ከም ዘካይዶን እቶም ዘርእዮም መላግቦታትን። ንሓደ መላግቦ ባዶ ግደፎ ንምሕባእ።",
+        "errors": {
+          "nameRequired": "እቲ ገጽ ስም የድልዮ።",
+          "notEmail": "እዚ ኢ-መይል ኣይኮነን።",
+          "notUrl": "እዚ ናይ መርበብ ኣድራሻ ኣይኮነን። ብhttps:// ወይ http:// ይጅምር።"
+        },
+        "fields": {
+          "aiInsightsUrl": "ብዛዕባ ሓበሬታታት AI",
+          "apiKeyFaqUrl": "ሕቶታት ብዛዕባ መፍትሕታት AI",
+          "contactUrl": "ርክብ",
+          "creditName": "ብዝተዳለወ ብ",
+          "creditUrl": "መርበብ ሓበሬታኦም",
+          "educatorInfoUrl": "ሓበሬታ ንኣለይቲ ትምህርቲ",
+          "gameTipsUrl": "ምኽርታት ንምስራሕ ጸወታታት",
+          "helpUrl": "ሓገዝ",
+          "operatorName": "ኣካያዲ",
+          "operatorUrl": "መርበብ ሓበሬታ ኣካያዲ",
+          "privacyUrl": "ፖሊሲ ምስጢራዊነት",
+          "reportGameUrl": "ጸወታ ሓብር",
+          "siteName": "ስም ገጽ",
+          "supportEmail": "ኢ-መይል ደገፍ",
+          "termsUrl": "ኩነታት ኣጠቓቕማ",
+          "websiteUrl": "መርበብ ሓበሬታ"
+        },
+        "groups": {
+          "credit": "ሓበሬታ ኣብ ታሕተዋይ ክፋል ገጽ",
+          "identity": "ስምን ኣካያድን",
+          "links": "መላግቦታት"
+        },
+        "hidden": "ተሓቢኡ",
+        "reset": "ናብ ነባሪ ተመለስ",
+        "resetTo": "ናብ ነባሪ ተመለስ፦ {{value}}",
+        "title": "መልክዕ"
+      },
       "constraints": {
         "description": "ብመሰረት ዕድመ ጉጅለ ተጻዋታይ ክግደዱ ዘለዉ ሕግታት AI ወስን። እዞም ሕግታት ሓለዋ መንእሰያት ኣብ ነፍሲ ወከፍ ጻውዒት AI ይካተቱ። ካብ ሞድ ወርክሾፕ ወጻኢ ንኹሎም ዝተመዝገቡ ተጠቀምቲ ይምልከቱ።",
         "title": "ሕግታት ሓለዋ መንእሰያት ብዕድመ ጉጅለ",
@@ -1758,6 +1819,12 @@
         "title": "ነጻ ጥቕም AI ደረጃ ጥራይ"
       },
       "notAuthorized": "ናይ ሰርቨር ቅንብሮም ምድላይ ፍቓድ የብልካን። ፈቃድ ኣስመራን ይደሊ።",
+      "tabs": {
+        "ai": "AIን መፍትሕታትን",
+        "branding": "መልክዕ",
+        "general": "ሓፈሻዊ",
+        "youthProtection": "ጥበቃ መንእሰያት"
+      },
       "title": "ቅንብሮም ሰርቨር",
       "updates": {
         "checkNow": "ሕጂ ሓደሽቲ ስሪታት ኣረጋግጽ",
@@ -1891,7 +1958,7 @@
       "title": "ላቦራቶሪኻ ክሳብ ሕጂ"
     },
     "links": {
-      "about": "ብዛዕባ ChatGameLab",
+      "about": "ብዛዕባ {{siteName}}",
       "educators": "ንኣለይቲ ትምህርቲ",
       "jff": "JFF – ትካል ትምህርቲ ሚድያ"
     },
@@ -2000,11 +2067,11 @@
       "greeting": "ሰላም {{name}},",
       "operator": "ኣካያዲ",
       "organisation": "ትካል",
-      "registered": "ትካል “{{organisation}}” ሕጂ ኣብ ChatGameLab ተኸፊቱ እዩ። ንስኻ ሓላፊ ትካል ኢኻ፣ ሕጂ ዎርክሾፓት ክትፈጥር ትኽእል።",
-      "renewed": "የቐንየልና! ትካል “{{organisation}}” ኣብ ChatGameLab ነቲ ህሉው መግለጺ ስምምዕ ሕጂ ተሰማሚዑሉ ኣሎ።",
-      "signature": "ጉጅለ ChatGameLabኹም\nJFF – Jugend Film Fernsehen e.V.",
-      "subjectRegistered": "ChatGameLab፦ ትካል “{{organisation}}” ተኸፊቱ – መግለጺ ስምምዕ",
-      "subjectRenewed": "ChatGameLab፦ መግለጺ ስምምዕ ን“{{organisation}}” ተረጋጊጹ (ስሪት {{version}})",
+      "registered": "ትካል “{{organisation}}” ኣብ {{siteName}} ሕጂ ንጡፍ ኮይኑ ኣሎ። ንስኻ ሓላፊ ናይቲ ትካል ኢኻ፣ ሕጂ ድማ ዎርክሾፓት ክትፈጥር ትኽእል።",
+      "renewed": "የቐንየልና! {{siteName}} ሕጂ ናይ ትካል “{{organisation}}” ንህሉው መግለጺ ስምምዕ ዘለዎ ስምምዕ ተቐቢሉ ኣሎ።",
+      "signature": "ጉጅለኹም ናይ {{siteName}}\n{{operatorName}}",
+      "subjectRegistered": "{{siteName}}፦ ትካል “{{organisation}}” ንጡፍ ኮይኑ – መግለጺ ስምምዕ",
+      "subjectRenewed": "{{siteName}}፦ መግለጺ ስምምዕ ን“{{organisation}}” ተረጋጊጹ (ስሪት {{version}})",
       "version": "ስሪት",
       "versionValue": "{{version}} (ካብ {{date}})"
     }
@@ -2078,12 +2145,14 @@
       "adapted-style": "ቅዲ",
       "cast": "ድምጽታት መድብ",
       "cast-brief": "ባህርያት",
+      "character": "ባህርይ",
       "condense-scenario": "ስናርዮ ኣሕጽር",
       "condensed-scenario": "ስናርዮ",
       "director": "ዳይረክተር",
       "expand": "ተረኽ",
       "gallery-image": "ስእሊ ጋለሪ",
       "greeting": "ጽሑፍ ፍጠር",
+      "hearing": "ዘረባ ምርዳእ",
       "image": "ስእሊ ስኣል",
       "image-prompt": "ስእሊ ግለጽ",
       "image-style": "ቅዲ ኣስተኻኽል",
@@ -2213,7 +2282,10 @@
       "tabUsage": "ኣጠቓቕማ"
     },
     "launch": {
+      "chooseMode": "ከመይ ኢልካ ክትጻወት ትደሊ?",
+      "live": "ብቐጥታ ተዛረብ",
       "noGame": "እዛ ገጽ ንምጽዋት ጸወታ ትደሊ፦ ካብ ገጽ ሓደ ጸወታ ክፈታ።",
+      "rounds": "ብተራ፣ ብጽሑፍ ወይ ብድምጺ",
       "starting": "ጸወታ ይጅምር ኣሎ…"
     },
     "over": {
@@ -2240,6 +2312,7 @@
       "injectionSent": "ናብ ዝርርብ ተላኢኹ"
     },
     "problems": {
+      "chooseMode": "እዚ ጸወታ ብቐጥታ ወይ ብተራ ክጻወት ይኽእል፦ ሓደ ምረጽ።",
       "denied": "ነዚ ጸወታ ክትጻወቶ ኣይተፈቕደልካን።",
       "failed": "ገለ ጌጋ ተፈጢሩ፣ ጸወታ ክቕጽል ኣይከኣለን።",
       "genre": "እቲ ዝርከብ ቁልፊ AI ነዚ ዓይነት ጸወታ ከካይዶ ኣይክእልን።",
@@ -2255,12 +2328,15 @@
       "unreachable": "ኣቕራቢ AI ሕጂ ኣይምልስን ኣሎ፣ ስለዚ ጸወታ ክቕጽል ኣይከኣለን። ድሕሪ ገለ ደቓይቕ እንደገና ፈትን።"
     },
     "promptNames": {
+      "character": "እቲ ባህርይ (መልእኽቲ ስርዓት)",
       "condense-scenario": "ስነ-ምግባር ሓጽር ግበር",
       "conversation-policy": "እቲ ባህሪ ከመይ ይዛረብ",
       "director": "ዳይረክተር",
       "expand": "ተራ ተረኽ",
       "game-master": "መራሒ ጸወታ (System Message)",
       "greeting": "ቀዳሞት ቃላት",
+      "hear-player": "ዘረባ ምርዳእ",
+      "hold-the-line": "ጽኑዕ ኩን",
       "image-style": "ስልቲ ኣስተኻኽል",
       "opening": "መኽፈቲ",
       "opening-expand": "መኽፈቲ ተረኽ",
