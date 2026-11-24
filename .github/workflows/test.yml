@@ -146,9 +146,37 @@ jobs:
       - name: Check every UI text is translated
         run: make translate-check
 
+  # Whether the generated files match their inputs. Two pull requests can
+  # each be current on their own and stale together; the required check runs
+  # on the branch brought up to date, so the second one fails here instead of
+  # the release build.
+  codegen:
+    name: Generated Files
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    env:
+      SCHEMAF_RUNTIME: docker
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Regenerate
+        run: ./schemaf.sh codegen
+
+      - name: Check nothing changed
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::generated files are stale — run ./schemaf.sh codegen and commit"
+            git status --short
+            git diff
+            exit 1
+          fi
+
   test:
     name: Run Tests
-    needs: [changes, backend-tests, frontend-checks, translations]
+    needs: [changes, backend-tests, frontend-checks, translations, codegen]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -158,7 +186,7 @@ jobs:
             echo "✅ Only tooling changed; nothing to check."
             exit 0
           fi
-          if [ "${{ needs.backend-tests.result }}" == "success" ] && [ "${{ needs.frontend-checks.result }}" == "success" ] && [ "${{ needs.translations.result }}" == "success" ]; then
+          if [ "${{ needs.backend-tests.result }}" == "success" ] && [ "${{ needs.frontend-checks.result }}" == "success" ] && [ "${{ needs.translations.result }}" == "success" ] && [ "${{ needs.codegen.result }}" == "success" ]; then
             echo "✅ All checks passed!"
             exit 0
           else
