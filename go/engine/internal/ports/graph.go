@@ -22,6 +22,14 @@ type Graph struct {
 	layout Layout
 	// journal is handed to every node that notes into it, at Start.
 	journal *Journal
+	// voices are the graph's voices, in the order declared.
+	voices []voice
+}
+
+// voice is one voice the graph speaks in: its name and the block that speaks.
+type voice struct {
+	name    string
+	speaker any
 }
 
 // VoiceMaker is a block that makes a voice of its own for the game, kept on
@@ -38,6 +46,35 @@ func (g *Graph) MakesVoices() bool {
 		}
 	}
 	return false
+}
+
+// Speaks declares one voice the graph speaks in, by name, and the block that
+// speaks in it, so whoever builds a game sees which voices there are to
+// choose.
+func (g *Graph) Speaks(name string, speaker any) {
+	g.voices = append(g.voices, voice{name: name, speaker: speaker})
+}
+
+// VoiceSlot is one voice the graph speaks in: its name, and whether a block
+// that makes a voice of its own feeds the block that speaks it (Maker).
+type VoiceSlot struct {
+	Name  string
+	Maker bool
+}
+
+// Voices are the voices the graph speaks in, in the order declared.
+func (g *Graph) Voices() []VoiceSlot {
+	out := make([]VoiceSlot, 0, len(g.voices))
+	for _, v := range g.voices {
+		slot := VoiceSlot{Name: v.name}
+		for _, e := range g.edges {
+			if _, maker := e.From.(VoiceMaker); maker && e.To == v.speaker {
+				slot.Maker = true
+			}
+		}
+		out = append(out, slot)
+	}
+	return out
 }
 
 // setting is a field of the game as a block reads it, for the drawing: the

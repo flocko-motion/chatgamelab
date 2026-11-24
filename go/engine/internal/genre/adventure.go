@@ -45,6 +45,13 @@ type AdventureConfig struct {
 	// designer's words: part of the System Message, left out when empty.
 	VoiceStyle string
 
+	// SpeechVoices are the speaking model's built-in voices, the narrator is
+	// cast in.
+	SpeechVoices []adapters.BuiltinVoice
+	// VoiceChoices is the game's choice for the narrator's voice, by
+	// VoiceNarrator: a gender, or any; one it chose nothing for is any.
+	VoiceChoices map[string]VoiceChoice
+
 	// StartingMessage is how the game starts, in the designer's words: part
 	// of the System Message, left out when empty.
 	StartingMessage string
@@ -90,6 +97,12 @@ const AdventureImageStyle = "simple illustration, minimalist"
 // Each is a text/template, filled when the wiring is built from
 // adventurePromptData: an override may use the same fields.
 var AdventurePrompts = Prompts{
+	// Casts the narrator in a built-in voice before the game opens.
+	PromptCast: "You cast the narrator of a story game in a voice. You are given the game's scenario and the " +
+		"author's note on how the narrator should sound, which may be missing. Pick the built-in voice that " +
+		"fits the narrator best: its gender, age, accent and mood suit the story and keep to the note, and it " +
+		"speaks the game's language natively.",
+
 	// The game engine prompt, the head of the story thread's System Message,
 	// sent once as the thread's first message. The input example is filled in
 	// with the game's own status fields.
@@ -590,6 +603,18 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	adapter := blocks.NewToolCall("image-style", cfg.Tool, prompts[PromptImageStyle])
 	adapted := blocks.NewKeep("adapted-style", partStyle, styleMessage(cfg.ImageStyle, cfg.Guardrail))
 
+	// The narrator, cast once in a voice of the gender the game chose, kept
+	// across a restart. Until the cast comes, or without one, the first voice
+	// of that gender speaks, and left to any, the speaking model's own.
+	narrator := narratorCast{
+		voices: cfg.SpeechVoices, language: cfg.Language, choice: choiceOf(cfg.VoiceChoices, VoiceNarrator),
+	}
+	story.Voice = narrator.fallback()
+	castBrief := blocks.NewOnceText("cast-brief", narrator.brief(cfg.Scenario, cfg.VoiceStyle)).SendAgain()
+	cast := blocks.NewToolCall("cast", cfg.Tool, prompts[PromptCast]+narrator.tail())
+	cast.Schema = narrator.schema()
+	cast.Keep = true
+
 	// The world has the initiative: once preparation is done, the gate sends
 	// the Initialization Prompt.
 	gate := blocks.NewGate("start-game", prompts[PromptOpening])
@@ -623,6 +648,17 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	g.ConnectPropsOut(condensed, picturePrompt)
 	g.ConnectPropsOut(adapted, picturePrompt)
 
+	// The narrator speaks in its cast voice from the opening on.
+	g.ConnectTextOut(castBrief, cast)
+	g.ConnectFieldToVoice(cast, VoiceNarrator, expand)
+	g.ConnectState(cast, gate)
+	g.Setting(cast, "scenario", cfg.Scenario)
+	g.Setting(cast, "voiceStyle", cfg.VoiceStyle)
+	// Without a cast the narrator speaks in its fallback voice, at once.
+	castFallback := blocks.NewFailureReply("cast-fallback", map[string]string{VoiceNarrator: narrator.fallback()})
+	g.ConnectFailure(cast, castFallback)
+	g.ConnectFieldToVoice(castFallback, VoiceNarrator, expand)
+
 	// The opening skips Rephrase: it is the game's own message, not an action.
 	g.ConnectOpening(gate, outline)
 	g.ConnectTextOut(player, rephrase)
@@ -649,6 +685,7 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	// The player watches the prose appear, and hears it as it is spoken.
 	g.ConnectStreamOut(expand, outText)
 	g.ConnectAudioOut(expand, outAudio)
+	g.Speaks(VoiceNarrator, expand)
 	g.ConnectFailure(expand, turnFailed)
 
 	g.ConnectTextOut(picturePrompt, image)
@@ -684,6 +721,7 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 		PromptCondenseScenario: {[]string{condenser.NodeName()}, func(c Current) { condenser.SetSystem(c.Prompts[PromptCondenseScenario]) }},
 		PromptImageStyle:       {[]string{adapter.NodeName()}, func(c Current) { adapter.SetSystem(c.Prompts[PromptImageStyle]) }},
 		PromptOpening:          {[]string{gate.NodeName()}, func(c Current) { gate.SetInitPrompt(c.Prompts[PromptOpening]) }},
+		PromptCast:             {[]string{cast.NodeName()}, func(c Current) { cast.SetSystem(c.Prompts[PromptCast] + narrator.tail()) }},
 	}
 	// The story thread's System Message and calls carry the guardrail; the
 	// image style was adapted to it once, before the game, and stays.
@@ -754,4 +792,55 @@ func statusNames(status map[string]string) string {
 	}
 	slices.Sort(names)
 	return strings.Join(names, ", ")
+}
+
+// narratorCast is what the narrator is cast from: the speaking model's
+// built-in voices, the game's language, and the gender the game chose.
+type narratorCast struct {
+	voices   []adapters.BuiltinVoice
+	language string
+	choice   VoiceChoice
+}
+
+// fallback is the voice the narrator speaks in without a cast: the first of
+// its gender; for any, "", the speaking model's own.
+func (n narratorCast) fallback() string {
+	if presentation(n.choice) == "" {
+		return ""
+	}
+	return fallbackVoice(n.voices, n.choice, n.language)
+}
+
+// brief is what the cast reads: the scenario and the author's note.
+func (n narratorCast) brief(scenario, style string) string {
+	return "Scenario:\n" + scenario + "\n\nThe author's note on the narrator's voice:\n" + voiceNote(style)
+}
+
+// tail says the game's language and the gender asked for, and lists the
+// voices, those of the game's language first.
+func (n narratorCast) tail() string {
+	var b strings.Builder
+	if n.language != "" {
+		b.WriteString("\nThe game is told in " + languageName(n.language) + ": pick a voice that speaks it natively, if any does.")
+	}
+	if gender := presentation(n.choice); gender != "" {
+		b.WriteString("\nThe game asks for a " + gender + " voice.")
+	}
+	b.WriteString("\nThe built-in voices:\n")
+	b.WriteString(voiceList(castable(n.voices, VoiceAny, n.language)))
+	return b.String()
+}
+
+// schema is the cast's reply: the narrator's voice, one of the gender asked.
+func (n narratorCast) schema() *adapters.Schema {
+	voice := map[string]any{"type": "string", "description": "the built-in voice the narrator speaks in"}
+	if names := voiceEnum(castable(n.voices, n.choice, n.language)); len(names) > 0 {
+		voice["enum"] = names
+	}
+	return &adapters.Schema{Name: "cast", Body: map[string]any{
+		"type":                 "object",
+		"properties":           map[string]any{VoiceNarrator: voice},
+		"required":             []any{VoiceNarrator},
+		"additionalProperties": false,
+	}}
 }

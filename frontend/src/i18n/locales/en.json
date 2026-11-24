@@ -963,7 +963,7 @@
           "status": {
             "builtIn": "No description yet: the game speaks in a built-in voice until you describe the voice.",
             "ownVoice": "A voice of its own for this description, made on your AI key.",
-            "steered": "A built-in voice reads the story, as the description says."
+            "cast": "When the game starts, it picks the built-in voice of the kind you chose that fits the story best. The description steers how it speaks."
           },
           "newVoice": "Make a new voice",
           "newVoiceConfirm": "The current voice is deleted, and a new one is made from the same description. Games with exactly this description on this AI key get the new voice too.",
@@ -979,6 +979,20 @@
             "keyRejected": "The AI provider rejected the key. The voice could not be played.",
             "failed": "The voice could not be played. Please try again."
           },
+          "slots": {
+            "narrator": "Narrator",
+            "character": "Character",
+            "a": "First character",
+            "b": "Second character"
+          },
+          "choices": {
+            "male": "Male",
+            "female": "Female",
+            "any": "Any",
+            "custom": "Custom"
+          },
+          "choicesHint": "Male, female or any: a built-in voice that fits the story.",
+          "customHint": "Custom: a voice of its own, made from the description.",
           "duo": {
             "voiceStyle": "The characters' voices",
             "voiceStyleHint": "Each character is cast in a voice of its own."

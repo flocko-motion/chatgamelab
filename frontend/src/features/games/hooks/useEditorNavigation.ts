@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { editorPages, pageDone, type EditorPage } from "../lib/editorPages";
 import type { GameEditor } from "./useGameEditor";
-import { useGenreFields } from "./useGenreFields";
+import { useGenreFields, useVoiceSlots } from "./useGenreFields";
 
 /** Where the editor is: the genre question, the overview, a section, or deleting. */
 export type EditorView =
@@ -20,7 +20,8 @@ export type EditorView =
  */
 export function useEditorNavigation(editor: GameEditor) {
   const shows = useGenreFields(editor.values.genre);
-  const pages = editorPages(!editor.creating, shows);
+  const speaks = useVoiceSlots(editor.values.genre).length > 0;
+  const pages = editorPages(!editor.creating, shows, speaks);
   const [genreChosen, setGenreChosen] = useState(false);
   const [chosen, setChosen] = useState<EditorView>({ kind: "overview" });
   const [opened, setOpened] = useState<Set<EditorPage>>(new Set());

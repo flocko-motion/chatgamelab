@@ -12,14 +12,14 @@ export type EditorPage = "card" | "story" | "look" | "sound" | "sharing";
 const ORDER: EditorPage[] = ["card", "story", "look", "sound", "sharing"];
 
 /**
- * The sections the editor offers: Sound when the genre reads a voice style,
- * Sharing once the game is saved.
+ * The sections the editor offers: Sound when the genre speaks (it has voices
+ * to choose) or reads a voice style, Sharing once the game is saved.
  */
-export function editorPages(saved: boolean, shows: (field: GameField) => boolean): EditorPage[] {
+export function editorPages(saved: boolean, shows: (field: GameField) => boolean, speaks = false): EditorPage[] {
   return ORDER.filter((page) => {
     switch (page) {
       case "sound":
-        return shows("voiceStyle");
+        return speaks || shows("voiceStyle");
       case "sharing":
         return saved;
       default:

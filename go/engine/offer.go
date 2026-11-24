@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"engine/internal/adapters"
-	"engine/internal/adapters/openai"
 	"engine/internal/genre"
 )
 
@@ -162,18 +161,8 @@ func Validate(spec SessionSpec, offers []Offer) []Issue {
 		report(SeverityError, "offers", "no usable offer")
 		return issues
 	}
-	speaksOpenAI := false
-	for i, offer := range offers {
-		speaksOpenAI = speaksOpenAI || (sound[i] && offer.Platform == PlatformOpenAI)
-	}
-	// The voice is the genre's speaking model's: gpt-realtime narrates an
-	// Adventure, GPT-Live is NPC-Live's character.
-	valid := openai.ValidLiveVoice
-	if spec.Genre == GenreAdventure {
-		valid = openai.ValidRealtimeVoice
-	}
-	if speaksOpenAI && spec.Voice != "" && !valid(spec.Voice) {
-		report(SeverityError, "voice", "unknown voice %q", spec.Voice)
+	if knownGenre {
+		checkVoices(spec, report)
 	}
 	if !knownGenre {
 		return issues
@@ -521,4 +510,24 @@ func catalogueEntry(id Platform) (adapters.Platform, bool) {
 		}
 	}
 	return adapters.Platform{}, false
+}
+
+// checkVoices warns of a voice choice the genre does not offer: a voice it
+// does not speak in, as after the game changed its genre, or a choice the
+// voice lacks. Neither refuses a launch; such a voice speaks in any.
+func checkVoices(spec SessionSpec, report func(Severity, string, string, ...any)) {
+	slots := map[string][]VoiceChoice{}
+	for _, slot := range spec.Genre.VoiceSlots() {
+		slots[slot.Name] = slot.Choices
+	}
+	for _, name := range slices.Sorted(maps.Keys(spec.Voices)) {
+		choices, ok := slots[name]
+		field := "voices." + name
+		switch {
+		case !ok:
+			report(SeverityWarning, field, "the genre speaks in no voice %q; the choice is left aside", name)
+		case !slices.Contains(choices, spec.Voices[name]):
+			report(SeverityWarning, field, "%q is not offered for this voice; it speaks in any", spec.Voices[name])
+		}
+	}
 }

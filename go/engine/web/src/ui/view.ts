@@ -8,11 +8,12 @@ import {
   hasStandingImage,
   holdsToTalk,
   overText,
+  preparing,
   voiceMode,
   type AudioState,
   type PlaybackEngineState,
 } from "../state.js";
-import { text } from "../texts.js";
+import { blockLabel, text } from "../texts.js";
 import { Flowchart } from "./flowchart.js";
 import { applyTheme } from "./theme/apply.js";
 import { mergeTheme, statusEmoji } from "./theme/resolve.js";
@@ -28,6 +29,8 @@ export interface ViewElements {
   feed: HTMLElement;
   thinking: HTMLElement;
   thinkingText: HTMLElement;
+  /** The steps still running while the game prepares, a line each. */
+  preparing: HTMLElement;
   /** The one control a live conversation has: pause it, or pick it up again. */
   talk: HTMLButtonElement;
   /** What it holds, so the state has a word as well as a shape. */
@@ -203,6 +206,31 @@ export class View {
     this.#renderFeed(state);
     this.#renderImage(state);
     this.#renderThinking(state, blocked);
+    this.#renderPreparing(state);
+  }
+
+  /**
+   * While the game prepares, each step still running as a line with moving
+   * dots, under the name Insights gives it, so a player sees it is not stuck.
+   */
+  #renderPreparing(state: PlaybackEngineState): void {
+    const running = state.connection === "open" && !state.choosing ? preparing(state) : [];
+    const list = this.elements.preparing;
+    list.hidden = running.length === 0;
+    const shown = [...list.children].map((line) => (line as HTMLElement).dataset.node);
+    if (shown.join("\n") === running.join("\n")) return;
+    list.replaceChildren(
+      ...running.map((name) => {
+        const line = document.createElement("li");
+        line.dataset.node = name;
+        const dots = element("span", "dots");
+        dots.append(document.createElement("i"), document.createElement("i"), document.createElement("i"));
+        const label = document.createElement("span");
+        label.textContent = blockLabel(name);
+        line.append(dots, label);
+        return line;
+      }),
+    );
   }
 
   /** The icon shows the state, since a player's first question is whether they are heard. */

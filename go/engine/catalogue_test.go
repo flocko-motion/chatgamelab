@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"reflect"
 	"slices"
 	"testing"
 
@@ -221,15 +222,29 @@ func TestGenresNameTheirFields(t *testing.T) {
 // one: NPC-Live's character has one, an Adventure narrates in a built-in
 // voice. The editor offers making a new voice only where one is made.
 func TestGenreSaysWhetherItMakesVoices(t *testing.T) {
-	want := map[Genre]bool{GenreAdventure: false, GenreNPCLive: true}
+	want := map[Genre]bool{GenreAdventure: false, GenreNPCLive: true, GenreNPCDuo: false}
 	for g, makes := range want {
 		if got := g.MakesVoices(); got != makes {
 			t.Errorf("%s.MakesVoices() = %v, want %v", g, got, makes)
 		}
 	}
+}
+
+// Each speaking genre names the voices it speaks in, its voice slots, and
+// what a game may choose for each: a built-in voice of a gender, or any the
+// cast finds fitting; and a voice of its own only where the graph makes one.
+// An editor offers exactly these.
+func TestGenresNameTheirVoiceSlots(t *testing.T) {
+	builtin := []VoiceChoice{VoiceMale, VoiceFemale, VoiceAny}
+	own := []VoiceChoice{VoiceMale, VoiceFemale, VoiceAny, VoiceCustom}
+	want := map[Genre][]VoiceSlot{
+		GenreAdventure: {{Name: "narrator", Choices: builtin}},
+		GenreNPCLive:   {{Name: "character", Choices: own}},
+		GenreNPCDuo:    {{Name: "a", Choices: builtin}, {Name: "b", Choices: builtin}},
+	}
 	for _, info := range GenreList() {
-		if info.MakesVoices != want[info.ID] {
-			t.Errorf("GenreList: %s makesVoices = %v, want %v", info.ID, info.MakesVoices, want[info.ID])
+		if !reflect.DeepEqual(info.VoiceSlots, want[info.ID]) {
+			t.Errorf("%s voice slots = %+v, want %+v", info.ID, info.VoiceSlots, want[info.ID])
 		}
 	}
 }

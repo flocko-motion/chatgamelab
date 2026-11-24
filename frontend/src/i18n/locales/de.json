@@ -963,7 +963,7 @@
           "status": {
             "builtIn": "Noch keine Beschreibung: Das Spiel spricht mit einer eingebauten Stimme, bis du die Stimme beschreibst.",
             "ownVoice": "Eine eigene Stimme für diese Beschreibung, gemacht mit deinem KI-Schlüssel.",
-            "steered": "Eine eingebaute Stimme liest die Geschichte vor, so wie die Beschreibung es sagt."
+            "cast": "Beim Start sucht das Spiel die eingebaute Stimme der gewählten Art aus, die am besten zur Geschichte passt. Die Beschreibung bestimmt, wie sie spricht."
           },
           "newVoice": "Neue Stimme machen",
           "newVoiceConfirm": "Die jetzige Stimme wird gelöscht, und aus derselben Beschreibung wird eine neue gemacht. Spiele mit genau dieser Beschreibung auf diesem KI-Schlüssel bekommen die neue Stimme auch.",
@@ -979,6 +979,20 @@
             "keyRejected": "Der KI-Anbieter hat den Schlüssel abgelehnt. Die Stimme konnte nicht abgespielt werden.",
             "failed": "Die Stimme konnte nicht abgespielt werden. Bitte versuche es noch einmal."
           },
+          "slots": {
+            "narrator": "Erzähler",
+            "character": "Figur",
+            "a": "Erste Figur",
+            "b": "Zweite Figur"
+          },
+          "choices": {
+            "male": "Männlich",
+            "female": "Weiblich",
+            "any": "Beliebig",
+            "custom": "Eigene"
+          },
+          "choicesHint": "Männlich, weiblich oder beliebig: eine eingebaute Stimme, die zur Geschichte passt.",
+          "customHint": "Eigene: eine eigene Stimme, aus der Beschreibung gemacht.",
           "duo": {
             "voiceStyle": "Die Stimmen der Figuren",
             "voiceStyleHint": "Jede Figur bekommt eine eigene Stimme."

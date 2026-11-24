@@ -162,6 +162,7 @@ UPDATE game SET
   system_message_game_start = @game_start::text,
   image_style               = @image_style::text,
   voice_style               = @voice_style::text,
+  voices                    = @voices::jsonb,
   css                       = @css::text,
   status_fields             = @status_fields::text,
   first_message             = sqlc.narg(first_message)::text,
@@ -176,12 +177,12 @@ WHERE id = @id::uuid AND deleted_at IS NULL;
 INSERT INTO game (
   id, created_by, created_at, modified_by, modified_at, workshop_id,
   name, description, icon, genre, theme, public,
-  system_message_scenario, system_message_game_start, image_style, voice_style, css,
+  system_message_scenario, system_message_game_start, image_style, voice_style, voices, css,
   status_fields, first_message, first_status, first_image, originally_created_by
 ) VALUES (
   @id::uuid, @created_by::uuid, now(), @created_by::uuid, now(), sqlc.narg(workshop_id)::uuid,
   @name::text, @description::text, @icon::bytea, @genre::text, sqlc.narg(theme)::text, @public::bool,
-  @scenario::text, @game_start::text, @image_style::text, @voice_style::text, @css::text,
+  @scenario::text, @game_start::text, @image_style::text, @voice_style::text, @voices::jsonb, @css::text,
   @status_fields::text, sqlc.narg(first_message)::text, sqlc.narg(first_status)::text, @first_image::bytea,
   sqlc.narg(originally_created_by)::uuid
 );

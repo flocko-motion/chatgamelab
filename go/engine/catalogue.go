@@ -153,8 +153,45 @@ func (g Genre) Prompts() []GenrePrompt {
 // voice style only steers, so there is no voice to remake.
 func (g Genre) MakesVoices() bool {
 	s := &Session{usage: newUsageLedger()}
-	w, err := s.wire(SessionSpec{Genre: g})
+	w, err := s.wire(SessionSpec{Genre: g}, PlatformOpenAI)
 	return err == nil && w.Graph.MakesVoices()
+}
+
+// VoiceChoice is what a game chooses for one of a genre's voices.
+type VoiceChoice = genre.VoiceChoice
+
+const (
+	VoiceMale   = genre.VoiceMale
+	VoiceFemale = genre.VoiceFemale
+	VoiceAny    = genre.VoiceAny
+	VoiceCustom = genre.VoiceCustom
+)
+
+// VoiceSlot is one voice a genre speaks in, by the name a game chooses for
+// it, and the choices it has.
+type VoiceSlot struct {
+	Name    string        `json:"name"`
+	Choices []VoiceChoice `json:"choices"`
+}
+
+// VoiceSlots are the voices the genre speaks in, read off its wiring: every
+// voice is cast from the built-in voices, so a game may ask for a gender or
+// any; a voice of its own only where a block that makes one feeds it.
+func (g Genre) VoiceSlots() []VoiceSlot {
+	s := &Session{usage: newUsageLedger()}
+	w, err := s.wire(SessionSpec{Genre: g}, PlatformOpenAI)
+	if err != nil {
+		return []VoiceSlot{}
+	}
+	out := []VoiceSlot{}
+	for _, v := range w.Graph.Voices() {
+		choices := []VoiceChoice{VoiceMale, VoiceFemale, VoiceAny}
+		if v.Maker {
+			choices = append(choices, VoiceCustom)
+		}
+		out = append(out, VoiceSlot{Name: v.Name, Choices: choices})
+	}
+	return out
 }
 
 // PlayableGenres is every genre whose needs the toggles meet.

@@ -82,6 +82,7 @@ Select parts as `[data-part="…"]`.
 | `talk` | The button that starts and pauses a voice conversation | every size |
 | `hold` | The button held to speak | every size |
 | `notice` | What the game says while it connects or waits | every size |
+| `preparing` | The steps still running while the game prepares, a line each | every size |
 | `launch` | The panel shown when a game cannot start | every size |
 | `options` | The choice of how to play, before a game starts | every size |
 

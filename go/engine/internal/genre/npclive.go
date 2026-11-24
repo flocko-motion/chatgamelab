@@ -25,11 +25,14 @@ type NPCLiveConfig struct {
 	// Scenario and Guardrail stay apart: nothing a designer writes may reach the guardrail.
 	Scenario  string
 	Guardrail string
-	Voice     string
 	// VoiceStyle is how the character sounds, in the designer's words; it
-	// goes with the scenario, labelled as the designer's, and a voice is made
-	// from it on the session's key.
+	// goes with the scenario, labelled as the designer's, and, where the game
+	// chose a voice of its own, a voice is made from it on the session's key.
 	VoiceStyle string
+	// VoiceChoices is the game's choice for the character's voice, by
+	// VoiceCharacter: custom makes a voice of its own; male, female or any
+	// has the brief cast a built-in voice of that gender, and makes none.
+	VoiceChoices map[string]VoiceChoice
 	// Voices makes and keeps the game's voice on the settled key; nil, or
 	// empty, leaves the built-in voice.
 	Voices *adapters.VoicesSlot
@@ -116,12 +119,15 @@ const voiceBriefPrompt = "You write the prompt a voice design model makes a cust
 	"refuse into the qualities that suggest it: a creature becomes the human voice that sounds like " +
 	"it (a troll: a very deep, rough, gravelly, slow adult voice), a young character a young " +
 	"adult's voice. At most 300 characters.\n" +
-	"Then propose the built-in voice that fits it best, should no voice be made from it."
+	"Then cast the character in a built-in voice: the one whose gender, age, accent and mood fit the " +
+	"character best and keep to the note, and that speaks the character's language natively. It " +
+	"speaks whenever no voice is made from the prompt."
 
 // voiceBriefTail lists the built-in voices to propose from and says the
 // game's language: the voice speaks it natively, and a voice that speaks it
-// is proposed before one that does not.
-func voiceBriefTail(voices []adapters.BuiltinVoice, language, scenario string) string {
+// is proposed before one that does not. A gender the game chose is the
+// voice's.
+func voiceBriefTail(voices []adapters.BuiltinVoice, language, scenario string, choice VoiceChoice) string {
 	var b strings.Builder
 	if strings.TrimSpace(scenario) != "" {
 		b.WriteString("\nThe character's scenario:\n" + scenario + "\n")
@@ -131,30 +137,12 @@ func voiceBriefTail(voices []adapters.BuiltinVoice, language, scenario string) s
 		b.WriteString("\nThe character speaks " + name + ": the description says the voice speaks " +
 			name + " natively, and a built-in voice that speaks " + name + " is proposed before any other.")
 	}
+	if gender := presentation(choice); gender != "" {
+		b.WriteString("\nThe game asks for a " + gender + " voice.")
+	}
 	b.WriteString("\nThe built-in voices:\n")
-	for _, v := range voices {
-		line := "- " + v.Name + ": speaks " + languageName(v.Language) + ", " + v.Accent
-		if v.Gender != "" {
-			line += ", " + v.Gender
-		}
-		b.WriteString(line + "\n")
-	}
+	b.WriteString(voiceList(voices))
 	return b.String()
-}
-
-// fallbackVoices are the built-in voices' names, those of the game's language
-// first, so the voice block falls back to one that speaks it.
-func fallbackVoices(voices []adapters.BuiltinVoice, language string) []string {
-	base, _, _ := strings.Cut(language, "-")
-	var own, other []string
-	for _, v := range voices {
-		if base != "" && v.Language == base {
-			own = append(own, v.Name)
-		} else {
-			other = append(other, v.Name)
-		}
-	}
-	return append(own, other...)
 }
 
 // NPCLivePrompts are the mechanics' own prompts; a spec may replace any by name.
@@ -186,8 +174,18 @@ func NewNPCLive(cfg NPCLiveConfig) (*Wiring, error) {
 		return nil, err
 	}
 
+	// The brief casts the character from the built-in voices of the gender
+	// the game chose, the game's language first.
+	// Without a brief, the character speaks in the first voice of its
+	// gender, or, left to any, in the tier's.
+	choice := choiceOf(cfg.VoiceChoices, VoiceCharacter)
+	cast := castable(cfg.BuiltinVoices, choice, cfg.Language)
+	fallback := ""
+	if presentation(choice) != "" {
+		fallback = fallbackVoice(cfg.BuiltinVoices, choice, cfg.Language)
+	}
 	live := blocks.NewLiveSession("live-session", cfg.Live, adapters.LiveConfig{
-		Voice: cfg.Voice,
+		Voice: fallback,
 		// Configuration rather than edges: both are fixed before the session exists.
 		Scenario:  cfg.Scenario + prompts[PromptConversationPolicy] + speakClause(cfg.Language),
 		Guardrail: cfg.Guardrail,
@@ -229,12 +227,14 @@ func NewNPCLive(cfg NPCLiveConfig) (*Wiring, error) {
 		voices = &adapters.VoicesSlot{}
 	}
 	voice := blocks.NewVoice("voice", cfg.VoiceStyle, voices)
-	voice.Builtin = fallbackVoices(cfg.BuiltinVoices, cfg.Language)
+	voice.Builtin = voiceNames(cast)
+	voice.Fallback = fallback
+	voice.Makes = choice == VoiceCustom
 	// The author's voice style, as written, rewritten as a voice's qualities
 	// a provider makes a voice from, once, and kept across a restart.
 	voiceStyle := blocks.NewOnceText("voice-style", voiceNote(cfg.VoiceStyle)).AsSetting("voiceStyle").SendAgain()
-	voiceBrief := blocks.NewToolCall("voice-brief", cfg.Tool, prompts[PromptVoiceBrief]+voiceBriefTail(cfg.BuiltinVoices, cfg.Language, cfg.Scenario))
-	voiceBrief.Schema = voiceBriefSchema(cfg.BuiltinVoices)
+	voiceBrief := blocks.NewToolCall("voice-brief", cfg.Tool, prompts[PromptVoiceBrief]+voiceBriefTail(cast, cfg.Language, cfg.Scenario, choice))
+	voiceBrief.Schema = voiceBriefSchema(cast)
 	voiceBrief.Keep = true
 
 	// The gate waits on the picture and the first words, so the player sees
@@ -249,6 +249,7 @@ func NewNPCLive(cfg NPCLiveConfig) (*Wiring, error) {
 	// The voice, and how it is meant to sound: the second always arrives, so a
 	// built-in voice follows it when no voice could be made.
 	g.ConnectVoiceOut(voice, live)
+	g.Speaks(VoiceCharacter, live)
 	g.ConnectSecondaryToSecondary(voice, live)
 	g.ConnectState(voice, gate)
 	g.ConnectTextOut(voiceStyle, voiceBrief)
@@ -283,7 +284,7 @@ func NewNPCLive(cfg NPCLiveConfig) (*Wiring, error) {
 			greeting.SetSystem(c.Prompts[PromptGreeting] + languageClause(cfg.Language))
 		}},
 		PromptVoiceBrief: {[]string{voiceBrief.NodeName()}, func(c Current) {
-			voiceBrief.SetSystem(c.Prompts[PromptVoiceBrief] + voiceBriefTail(cfg.BuiltinVoices, cfg.Language, cfg.Scenario))
+			voiceBrief.SetSystem(c.Prompts[PromptVoiceBrief] + voiceBriefTail(cast, cfg.Language, cfg.Scenario, choice))
 		}},
 	}
 	// The live session takes the guardrail on its own channel, the director
@@ -378,12 +379,8 @@ func voiceNote(style string) string {
 // and the built-in voice that fits it best, one of those there are, so it
 // can propose no voice that does not exist.
 func voiceBriefSchema(voices []adapters.BuiltinVoice) *adapters.Schema {
-	names := make([]any, 0, len(voices))
-	for _, v := range voices {
-		names = append(names, v.Name)
-	}
 	voice := map[string]any{"type": "string", "description": "the built-in voice that fits best"}
-	if len(names) > 0 {
+	if names := voiceEnum(voices); len(names) > 0 {
 		voice["enum"] = names
 	}
 	return &adapters.Schema{Name: "voice_brief", Body: map[string]any{
@@ -417,5 +414,6 @@ func directorBrief(prompt, scenario, guardrail, language string) string {
 // the prompt. Outside a game, as for a sample, the built-in voices and the
 // scenario are background the call may go without.
 func VoiceBrief(style, scenario, language string, voices []adapters.BuiltinVoice) (system, message string, schema *adapters.Schema) {
-	return voiceBriefPrompt + voiceBriefTail(voices, language, scenario), voiceNote(style), voiceBriefSchema(voices)
+	cast := castable(voices, VoiceCustom, language)
+	return voiceBriefPrompt + voiceBriefTail(cast, language, scenario, VoiceCustom), voiceNote(style), voiceBriefSchema(cast)
 }

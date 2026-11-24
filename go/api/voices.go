@@ -6,10 +6,13 @@ package api
 
 import (
 	"context"
+	"net/http"
+	"slices"
 	"strconv"
 	"unicode/utf8"
 
 	"cgl/session"
+	"engine"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
 )
@@ -18,16 +21,18 @@ import (
 // characters: the game's own fields are no longer.
 const maxVoiceText = 20000
 
-// VoiceSampleEndpoint has the voice a game of the genre speaks in say a
+// VoiceSampleEndpoint has the voice made for a game's voice style say a
 // neutral sample line, the same for every game, in the caller's language,
 // and answers it as audio. It reads the form as it is, so a game not yet
 // saved is heard too.
 //
-// A genre that makes voices of its own (makesVoices in /api/genres) speaks
-// in the voice made for the voice style on the paying key: the first sample
-// makes the voice when there is none and keeps the sample, and later ones
-// play it without asking the provider (stored: true). Otherwise, and with an
-// empty voice style, a built-in voice speaks, as the style steers it.
+// Only a voice set to custom, in a genre that offers it, is heard (a choice
+// in voiceSlots of /api/genres): with a built-in choice the session casts its
+// own voice, so a sample would mislead, and anything else is refused with
+// 400 voice_not_custom. The voice made for the voice style on the paying key
+// speaks: the first sample makes the voice when there is none and keeps the
+// sample, and later ones play it without asking the provider (stored: true).
+// With an empty voice style a built-in voice speaks.
 //
 // The caller pays with their own keys, as in the editor: workshop,
 // organisation, own, site; never a game's sponsor. None that speaks live:
@@ -45,9 +50,9 @@ func (VoiceSampleEndpoint) Handle(ctx context.Context, req VoiceSampleReq) (Voic
 // NewVoiceEndpoint makes a new voice for a voice style on the paying key and
 // answers its sample, as VoiceSampleEndpoint does. The voice made before for
 // that key and style, and its sample, are deleted: every game with exactly
-// this voice style on this key speaks in the new voice from now on. A genre
-// that makes no voices of its own, or an empty voice style, makes none and
-// only plays the built-in voice.
+// this voice style on this key speaks in the new voice from now on. Only for
+// a voice set to custom, as VoiceSampleEndpoint; an empty voice style makes
+// none and only plays the built-in voice.
 type NewVoiceEndpoint struct{}
 
 func (NewVoiceEndpoint) Method() string             { return "POST" }
@@ -57,7 +62,14 @@ func (NewVoiceEndpoint) Handle(ctx context.Context, req VoiceSampleReq) (VoiceSa
 	return speakSample(ctx, req, true)
 }
 
+// codeVoiceNotCustom refuses a sample or a new voice for a voice not set
+// to custom.
+const codeVoiceNotCustom = "voice_not_custom"
+
 func speakSample(ctx context.Context, req VoiceSampleReq, renew bool) (VoiceSampleResp, error) {
+	if req.Voice != string(engine.VoiceCustom) || !offersCustom(engine.Genre(req.Genre)) {
+		return VoiceSampleResp{}, coded(http.StatusBadRequest, codeVoiceNotCustom, "a voice is heard and made only when it is set to custom")
+	}
 	if utf8.RuneCountInString(req.VoiceStyle) > maxVoiceText || utf8.RuneCountInString(req.Scenario) > maxVoiceText {
 		return VoiceSampleResp{}, errBadRequest("the voice style or the scenario is longer than " + strconv.Itoa(maxVoiceText) + " characters")
 	}
@@ -70,11 +82,19 @@ func speakSample(ctx context.Context, req VoiceSampleReq, renew bool) (VoiceSamp
 	return VoiceSampleResp{Audio: sample.Audio, ContentType: sample.ContentType, Stored: sample.Stored, OwnVoice: sample.Voice != ""}, nil
 }
 
-// VoiceSampleReq is the form as the editor holds it: the game's genre, its
-// voice style and its scenario, which describes a voice the style leaves
-// open.
+// offersCustom says whether a voice of the genre may be set to custom.
+func offersCustom(genre engine.Genre) bool {
+	return slices.ContainsFunc(genre.VoiceSlots(), func(slot engine.VoiceSlot) bool {
+		return slices.Contains(slot.Choices, engine.VoiceCustom)
+	})
+}
+
+// VoiceSampleReq is the form as the editor holds it: the game's genre, the
+// choice for the voice to hear (custom, or it is refused), its voice style
+// and its scenario, which describes a voice the style leaves open.
 type VoiceSampleReq struct {
 	Genre      string `json:"genre"`
+	Voice      string `json:"voice"`
 	VoiceStyle string `json:"voiceStyle"`
 	Scenario   string `json:"scenario"`
 }

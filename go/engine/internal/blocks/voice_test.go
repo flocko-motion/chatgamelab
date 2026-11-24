@@ -27,7 +27,9 @@ func runVoiceCapped(t *testing.T, style string, maker adapters.Voices, store ada
 	slot.Set(maker, store)
 	b := NewVoice("voice", style, slot)
 	b.Wait, b.Poll, b.Cap = 2*time.Second, 10*time.Millisecond, capped
+	b.Makes = true
 	b.Builtin = []string{"marin", "stone"}
+	b.Fallback = "marin"
 	// The brief's two fields, as their wires bring them.
 	b.SecondaryTextInPort() <- "stone"
 	b.TextInPort() <- style + ", as a voice"
@@ -241,6 +243,7 @@ func TestVoiceIsKeptWhenItsSessionEnds(t *testing.T) {
 	slot := &adapters.VoicesSlot{}
 	slot.Set(maker, store)
 	b := NewVoice("voice", "deep and slow", slot)
+	b.Makes = true
 	b.UseJournal(ports.NewJournal(100, nil))
 	b.TextInPort() <- "a deep, slow voice"
 	ctx, cancel := context.WithCancel(context.Background())

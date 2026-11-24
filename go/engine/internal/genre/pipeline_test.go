@@ -309,51 +309,6 @@ func TestNPCLiveCarriesTheVoiceStyle(t *testing.T) {
 	}
 }
 
-// A game with a voice style speaks in a voice made from it on the session's
-// key: the conversation opens with that voice's id.
-func TestNPCLiveSpeaksInTheMadeVoice(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	voices := &adapters.VoicesSlot{}
-	maker := &mock.Voices{}
-	voices.Set(maker, &adapters.MemoryVoices{})
-	recorder := &recordingLive{opened: make(chan adapters.LiveConfig, 1)}
-	w, err := NewNPCLive(NPCLiveConfig{
-		Live:         recorder,
-		GalleryImage: mock.GalleryImage("bridge"),
-		Tool:         mock.Tool{},
-		Guardrail:    "Suitable for a 13-year-old.",
-		Scenario:     "You are the keeper of a bridge.",
-		VoiceStyle:   "deep, slow and a little hoarse",
-		Voices:       voices,
-		InitPrompt:   "Begin. Greet whoever has arrived.",
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := w.Graph.Validate(); err != nil {
-		t.Fatal(err)
-	}
-	w.Graph.Start(ctx)
-	// The gate opens once the voice is ready; a player connects after.
-	time.Sleep(100 * time.Millisecond)
-	if _, err := w.Live.Connect(ctx, "v=0 mock offer"); err != nil {
-		t.Fatalf("connect: %v", err)
-	}
-	select {
-	case cfg := <-recorder.opened:
-		if !strings.HasPrefix(cfg.Voice, "voice_mock_") {
-			t.Errorf("the conversation speaks in %q, want the voice made from the voice style", cfg.Voice)
-		}
-	case <-time.After(2 * time.Second):
-		t.Fatal("the conversation was never opened")
-	}
-	if maker.Made.Load() != 1 {
-		t.Errorf("made %d voices, want 1", maker.Made.Load())
-	}
-}
-
 func TestScenarioAndGuardrailStayApart(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

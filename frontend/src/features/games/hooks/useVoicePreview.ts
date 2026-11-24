@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useGenres, useNewVoice, useVoiceSample, type VoiceSample } from "@/api/hooks";
+import { useNewVoice, useVoiceSample, type VoiceSample } from "@/api/hooks";
 import { extractRawErrorCode } from "@/common/types/errorCodes";
 import { genreWording } from "../lib/editorPages";
 
@@ -21,16 +21,15 @@ function errorKey(error: unknown): string {
 }
 
 /**
- * Hearing a game's voice in the editor: the sample the voice of the genre
- * and voice style says, played here (the overview's tile and the Sound page
+ * Hearing a game's own voice in the editor: the sample the voice made for
+ * the voice style says, played here (the overview's tile and the Sound page
  * share one), and making a new voice for the style. A sample heard once
- * plays again without asking the server, until the style changes. Whether a
- * new voice can be made at all is the engine's to say (the genre's
- * makesVoices); without a voice style the built-in voice speaks.
+ * plays again without asking the server, until the style changes. Only a
+ * voice set to custom is heard (custom): with a built-in choice the session
+ * casts its own voice, which a sample would misrepresent. Without a voice
+ * style the built-in voice speaks.
  */
-export function useVoicePreview(genre: string, voiceStyle: string, scenario: string) {
-  const { data: genres } = useGenres();
-  const makesVoices = !!genres?.find((g) => g.id === genre)?.makesVoices;
+export function useVoicePreview(genre: string, voiceStyle: string, scenario: string, custom: boolean) {
   const style = voiceStyle.trim();
   const key = `${genre}\n${style}`;
 
@@ -94,7 +93,7 @@ export function useVoicePreview(genre: string, voiceStyle: string, scenario: str
     setFailed(null);
     if (heard?.key === key) return start(ac, heard.audio);
     try {
-      await start(ac, keep(await sample.mutateAsync({ genre, voiceStyle: style, scenario })));
+      await start(ac, keep(await sample.mutateAsync({ genre, voice: "custom", voiceStyle: style, scenario })));
     } catch (error) {
       setFailed(errorKey(error));
     }
@@ -106,7 +105,7 @@ export function useVoicePreview(genre: string, voiceStyle: string, scenario: str
     const ac = unlock();
     setFailed(null);
     try {
-      await start(ac, keep(await renewal.mutateAsync({ genre, voiceStyle: style, scenario })));
+      await start(ac, keep(await renewal.mutateAsync({ genre, voice: "custom", voiceStyle: style, scenario })));
     } catch (error) {
       setFailed(errorKey(error));
     }
@@ -122,12 +121,12 @@ export function useVoicePreview(genre: string, voiceStyle: string, scenario: str
   );
 
   return {
-    /** The genre makes a voice of its own per key and style, which can be remade. */
-    makesVoices,
+    /** A voice is set to custom: a voice of its own per key and style, heard and remade here. */
+    custom,
     /** The game has a voice style; without one the built-in voice speaks. */
     hasStyle: style !== "",
     /** A new voice can be made: the genre makes them, and there is a style. */
-    mayRenew: makesVoices && style !== "",
+    mayRenew: custom && style !== "",
     playing,
     /** The sample is being fetched or made. */
     loading: sample.isPending,

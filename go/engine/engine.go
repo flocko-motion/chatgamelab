@@ -119,10 +119,12 @@ type SessionSpec struct {
 	// rebuilt from the platform's key cascade on every launch and resume.
 	Preference *Preference `json:"preference,omitempty"`
 
-	// Voice is a provider built-in voice name, fixed once the session exists:
-	// one the genre's speaking model knows, gpt-realtime's for Adventure's
-	// narration and GPT-Live's for NPC-Live. Empty takes the tier's.
-	Voice string `json:"voice,omitempty"`
+	// Voices is the game's choice for each voice its genre speaks in, by the
+	// voice's name (Genre.VoiceSlots): a built-in voice of a gender, any the
+	// cast finds fitting, or, where the genre makes one, a voice of its own.
+	// A voice it chose nothing for is any. Which voice each one speaks in is
+	// cast once and kept with the session.
+	Voices map[string]VoiceChoice `json:"voices,omitempty"`
 
 	// PromptOverride replaces a genre prompt by name; an unknown name errors so a typo cannot pass silently.
 	PromptOverride map[string]string `json:"promptOverride,omitempty"`
@@ -329,7 +331,7 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 	}
 	s.openJournal()
 
-	w, err := s.wire(spec)
+	w, err := s.wire(spec, castingPlatform(spec, offers))
 	if err != nil {
 		return nil, err
 	}
@@ -1010,14 +1012,6 @@ func (spec SessionSpec) idleAfter() time.Duration {
 	}
 }
 
-// voice is what a speaking model speaks in: the spec's, or the tier's.
-func (spec SessionSpec) voice(model adapters.Model) string {
-	if spec.Voice != "" {
-		return spec.Voice
-	}
-	return model.Params[adapters.ParamVoice]
-}
-
 // equipment is the adapters a settlement runs on, one per slot. The story
 // thread has two: thread on the text story model, and speech on the speaking
 // one, which it runs on while narration is on; speech is nil on a platform
@@ -1082,7 +1076,7 @@ func (spec SessionSpec) adapters(settled settlement) (equipment, error) {
 			tool:    openai.NewTool(keys, models[adapters.ModelTooling].Name),
 			image:   openai.NewImage(keys, picture.Name, picture.Params[adapters.ParamQuality], picture.Params[adapters.ParamSize]),
 			thread:  openai.NewThread(keys, story.Name),
-			speech:  openai.NewRealtime(keys, speech.Name, spec.voice(speech)),
+			speech:  openai.NewRealtime(keys, speech.Name, speech.Params[adapters.ParamVoice]),
 			hearing: openai.NewHearing(keys, models[adapters.ModelHearing].Name),
 		}
 	case PlatformMistral:
@@ -1099,8 +1093,33 @@ func (spec SessionSpec) adapters(settled settlement) (equipment, error) {
 	return kit, nil
 }
 
+// castingPlatform is the platform whose built-in voices a session's voices
+// are cast from: the one the player's preference names, else the first
+// offer's. The graph is wired before the offer is settled, and a session
+// never changes platform.
+func castingPlatform(spec SessionSpec, offers []Offer) Platform {
+	if spec.Preference != nil && spec.Preference.Platform != "" {
+		return spec.Preference.Platform
+	}
+	if len(offers) > 0 {
+		return offers[0].Platform
+	}
+	return PlatformOpenAI
+}
+
+// builtinVoices are the voices a platform's speaking model of a type speaks
+// in; OpenAI's for a platform that lists none.
+func builtinVoices(platform Platform, model adapters.ModelType) []adapters.BuiltinVoice {
+	if entry, ok := catalogueEntry(platform); ok && len(entry.Voices[model]) > 0 {
+		return entry.Voices[model]
+	}
+	return openai.Platform().Voices[model]
+}
+
 // wire builds the spec's genre on the session's slots: its graph, unstarted.
-func (s *Session) wire(spec SessionSpec) (*genre.Wiring, error) {
+// Its voices are cast from the platform's built-in voices.
+func (s *Session) wire(spec SessionSpec, platform Platform) (*genre.Wiring, error) {
+	live := builtinVoices(platform, adapters.ModelLive)
 	switch spec.Genre {
 	case GenreAdventure:
 		return genre.NewAdventure(genre.AdventureConfig{
@@ -1114,6 +1133,8 @@ func (s *Session) wire(spec SessionSpec) (*genre.Wiring, error) {
 			Description:         spec.Description,
 			ImageStyle:          spec.ImageStyle,
 			VoiceStyle:          spec.VoiceStyle,
+			SpeechVoices:        builtinVoices(platform, adapters.ModelSpeech),
+			VoiceChoices:        spec.Voices,
 			StartingMessage:     spec.InitPrompt,
 			Status:              spec.Status,
 			Language:            spec.Language,
@@ -1128,10 +1149,10 @@ func (s *Session) wire(spec SessionSpec) (*genre.Wiring, error) {
 			Tool:           &s.slots.tool,
 			GameStart:      spec.InitPrompt,
 			Language:       spec.Language,
-			Voice:          spec.Voice,
 			VoiceStyle:     spec.VoiceStyle,
+			VoiceChoices:   spec.Voices,
 			Voices:         &s.slots.voices,
-			BuiltinVoices:  openai.LiveVoices,
+			BuiltinVoices:  live,
 			Guardrail:      spec.guardrail(),
 			Scenario:       spec.Scenario,
 			InitPrompt:     spec.initPrompt(),
@@ -1146,7 +1167,8 @@ func (s *Session) wire(spec SessionSpec) (*genre.Wiring, error) {
 			Scenario:       spec.Scenario,
 			Guardrail:      spec.Guardrail,
 			GameStart:      spec.InitPrompt,
-			BuiltinVoices:  openai.LiveVoices,
+			BuiltinVoices:  live,
+			VoiceChoices:   spec.Voices,
 			Language:       spec.Language,
 			IdleAfter:      spec.idleAfter(),
 			PromptOverride: spec.PromptOverride,

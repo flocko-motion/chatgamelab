@@ -416,7 +416,34 @@ game start, the image style its cover is drawn in, and the voice style.
   labelled as theirs. NPC-Live gives it to the character with the scenario;
   an Adventure puts it in the System Message for its spoken turns, where the
   narrator follows it.
-- **NPC-Live speaks in a voice made from it.** The author's voice style may
+- **A genre names the voices it speaks in, its voice slots**, each with the
+  block that speaks it (`Graph.Speaks`): Adventure's `narrator`, NPC-Live's
+  `character`, Discussion's `a` and `b`. `GET genres` lists them with their
+  choices, read off the graph (`Genre.VoiceSlots`): `male`, `female` and
+  `any` for every slot, as each is cast from the speaking model's built-in
+  voices; `custom` only where a block that makes a voice feeds the speaker.
+  The spec carries the game's choice per slot (`voices`); a slot it names
+  nothing for is `any`, and a slot or choice the genre lacks only warns.
+- **Each speaking genre casts its voices once, before the gate.** A tool
+  call reads the scenario, the voice style and what each slot is, and picks
+  the built-in voice that fits best, the game's language first; a gender
+  choice narrows the reply's enum to voices of that gender. The voices come
+  from the settled platform's catalogue (`Platform.Voices`, per speaking
+  model type: GPT-Live's for live, gpt-realtime's for speech; the mock tags
+  its own). Adventure's `cast` gives the narrator's voice to Expand, whose
+  thread speaks every turn in it (`ThreadTurn.Voice`; gpt-realtime opens a
+  fresh session when the voice changes); Discussion's `cast` names both
+  characters and casts them; NPC-Live's `voice-brief` casts the character.
+  The cast is kept (`Keep`), and the speaker keeps the voice in its state,
+  so a resumed session speaks in it from its first word. A failed cast
+  answers through `cast-fallback` at once: the first voice of the slot's
+  gender; for `any`, the tier's voice, but in Discussion the first voice the
+  other character does not have, so the two are told apart. A speaker wired to be given a voice waits a moment
+  for it before its first call or conversation, as the browser may outrun
+  preparation.
+- **NPC-Live speaks in a voice made from it where the game chose `custom`.**
+  With any other choice the `voice` block makes nothing, and the voice the
+  brief cast speaks. The author's voice style may
   say anything ("a fantasy troll"), which a provider's safety system refuses
   to make a voice of; a tool call (`voice-brief`) first rewrites it as an
   adult human voice's qualities, with no character, creature or person
@@ -601,7 +628,7 @@ resolves nothing against platform data.
   playback-engine.
 - **The player's preference** — the wish described above, naming an offer by
   its ID, once the player has chosen.
-- **The voice.**
+- **The voices**: the game's choice for each voice slot.
 
 The spec is what is stored. **Offers are live inputs** beside it, like
 persistence: `Launch`, `Resume` and `Validate` take them as an argument, and

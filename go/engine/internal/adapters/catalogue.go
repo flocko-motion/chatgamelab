@@ -220,6 +220,9 @@ type Platform struct {
 	Toggles  Toggles      `json:"toggles"`
 	Tiers    []TierModels `json:"tiers"`
 	Facts    ModelTable   `json:"models"`
+	// Voices are the built-in voices each speaking model type speaks in,
+	// such as the live model's, for a genre to cast its voices from.
+	Voices map[ModelType][]BuiltinVoice `json:"-"`
 }
 
 // Models is one tier's model set, a copy the caller may change.

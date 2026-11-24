@@ -33,8 +33,15 @@ type Voice struct {
 	slot  *adapters.VoicesSlot
 
 	// Builtin are the built-in voices a brief may choose as the fallback, by
-	// name; the first is the one taken when it chooses none. Set before Start.
+	// name. Set before Start.
 	Builtin []string
+	// Fallback is the built-in voice taken when the brief chooses none;
+	// empty leaves the conversation's own. Set before Start.
+	Fallback string
+	// Makes has it make a voice of its own from the voice style; without
+	// it the built-in voice the brief chose speaks, and nothing is made. Set
+	// before Start.
+	Makes bool
 
 	// in takes the description to make the voice from: the voice style
 	// rewritten as a voice's qualities, or, should that fail, as written.
@@ -105,9 +112,8 @@ func (b *Voice) Start(ctx context.Context) {
 		}
 		// Owed to a gate whatever happens, or the game never starts.
 		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
-		if id := b.voice(ctx); id != "" {
-			b.out.Send(id)
-		}
+		// Sent even when empty, so the conversation waits no longer for one.
+		b.out.Send(b.voice(ctx))
 		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 	}()
 }
@@ -115,7 +121,7 @@ func (b *Voice) Start(ctx context.Context) {
 // madeBefore is the voice made before for the style on this key, "" when
 // there is none or nothing to ask; the journal says when one is reused.
 func (b *Voice) madeBefore(ctx context.Context) string {
-	if b.style == "" {
+	if b.style == "" || !b.Makes {
 		return ""
 	}
 	maker, store := b.slot.Get()
@@ -137,6 +143,10 @@ func (b *Voice) madeBefore(ctx context.Context) string {
 // The journal says which and why.
 func (b *Voice) voice(ctx context.Context) string {
 	description, fallback := b.awaitBrief(ctx)
+	if !b.Makes {
+		b.journal.Note(b.name, "built-in", "the game chose a built-in voice: "+b.builtinSaying(fallback))
+		return fallback
+	}
 	// No voice is made without the author's own words: the built-in voice the
 	// brief proposed from the scenario speaks.
 	if b.style == "" {
@@ -206,7 +216,7 @@ func (b *Voice) Make(ctx context.Context, description string) (string, error) {
 // description in time the voice style itself is the description; without a
 // fitting fallback, the first built-in voice.
 func (b *Voice) awaitBrief(ctx context.Context) (description, fallback string) {
-	fallback = b.firstBuiltin()
+	fallback = b.Fallback
 	deadline := time.After(b.Wait)
 	for description == "" {
 		select {
@@ -250,13 +260,6 @@ func firstNonEmpty(a, b string) string {
 		return a
 	}
 	return b
-}
-
-func (b *Voice) firstBuiltin() string {
-	if len(b.Builtin) == 0 {
-		return ""
-	}
-	return b.Builtin[0]
 }
 
 func (b *Voice) builtinKnown(name string) bool {

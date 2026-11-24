@@ -23,5 +23,17 @@ func Platform() adapters.Platform {
 		Toggles: adapters.Toggles{Images: true, AudioOut: true, AudioIn: true, AudioLive: true},
 		Tiers:   adapters.Ladder(models(), models(), models()),
 		Facts:   Models,
+		Voices:  map[adapters.ModelType][]adapters.BuiltinVoice{adapters.ModelLive: BuiltinVoices, adapters.ModelSpeech: BuiltinVoices},
 	}
+}
+
+// BuiltinVoices are the mock's own voices, tagged as a provider's are: both
+// genders in English and German, and one whose gender is not stated. Its
+// live and speaking models speak in any of them, and sound the same in each.
+var BuiltinVoices = []adapters.BuiltinVoice{
+	{Name: "mock-anna", Language: "en", Accent: "mock", Gender: "feminine"},
+	{Name: "mock-ben", Language: "en", Accent: "mock", Gender: "masculine"},
+	{Name: "mock-alex", Language: "en", Accent: "mock"},
+	{Name: "mock-greta", Language: "de", Accent: "mock", Gender: "feminine"},
+	{Name: "mock-hans", Language: "de", Accent: "mock", Gender: "masculine"},
 }

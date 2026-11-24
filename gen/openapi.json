@@ -536,6 +536,12 @@
           },
           "voiceStyle": {
             "type": "string"
+          },
+          "voices": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
           }
         },
         "type": "object"
@@ -982,6 +988,12 @@
           "voiceStyle": {
             "type": "string"
           },
+          "voices": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
           "workshopId": {
             "format": "uuid",
             "type": "string"
@@ -1119,6 +1131,12 @@
           },
           "voice_style": {
             "type": "string"
+          },
+          "voices": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
           }
         },
         "required": [
@@ -1274,6 +1292,12 @@
           },
           "voiceStyle": {
             "type": "string"
+          },
+          "voices": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
           }
         },
         "required": [
@@ -1410,6 +1434,12 @@
           "voiceStyle": {
             "type": "string"
           },
+          "voices": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
           "workshopId": {
             "format": "uuid",
             "type": "string"
@@ -1477,9 +1507,6 @@
           "id": {
             "$ref": "#/components/schemas/Genre"
           },
-          "makesVoices": {
-            "type": "boolean"
-          },
           "needs": {
             "items": {
               "$ref": "#/components/schemas/Toggle"
@@ -1491,13 +1518,19 @@
               "$ref": "#/components/schemas/GenrePrompt"
             },
             "type": "array"
+          },
+          "voiceSlots": {
+            "items": {
+              "$ref": "#/components/schemas/VoiceSlot"
+            },
+            "type": "array"
           }
         },
         "required": [
           "id",
           "needs",
           "fields",
-          "makesVoices",
+          "voiceSlots",
           "prompts"
         ],
         "type": "object"
@@ -4327,6 +4360,12 @@
           },
           "voiceStyle": {
             "type": "string"
+          },
+          "voices": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
           }
         },
         "type": "object"
@@ -4377,6 +4416,12 @@
           },
           "voice_style": {
             "type": "string"
+          },
+          "voices": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
           }
         },
         "required": [
@@ -5024,6 +5069,15 @@
         ],
         "type": "object"
       },
+      "VoiceChoice": {
+        "enum": [
+          "male",
+          "female",
+          "any",
+          "custom"
+        ],
+        "type": "string"
+      },
       "VoiceSampleReq": {
         "properties": {
           "genre": {
@@ -5032,12 +5086,16 @@
           "scenario": {
             "type": "string"
           },
+          "voice": {
+            "type": "string"
+          },
           "voiceStyle": {
             "type": "string"
           }
         },
         "required": [
           "genre",
+          "voice",
           "voiceStyle",
           "scenario"
         ],
@@ -5064,6 +5122,24 @@
           "contentType",
           "stored",
           "ownVoice"
+        ],
+        "type": "object"
+      },
+      "VoiceSlot": {
+        "properties": {
+          "choices": {
+            "items": {
+              "$ref": "#/components/schemas/VoiceChoice"
+            },
+            "type": "array"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "choices"
         ],
         "type": "object"
       },
@@ -12749,7 +12825,7 @@
     },
     "/api/voices/new": {
       "post": {
-        "description": "answers its sample, as VoiceSampleEndpoint does. The voice made before for\nthat key and style, and its sample, are deleted: every game with exactly\nthis voice style on this key speaks in the new voice from now on. A genre\nthat makes no voices of its own, or an empty voice style, makes none and\nonly plays the built-in voice.",
+        "description": "answers its sample, as VoiceSampleEndpoint does. The voice made before for\nthat key and style, and its sample, are deleted: every game with exactly\nthis voice style on this key speaks in the new voice from now on. Only for\na voice set to custom, as VoiceSampleEndpoint; an empty voice style makes\nnone and only plays the built-in voice.",
         "operationId": "postApiVoicesNew",
         "requestBody": {
           "content": {
@@ -12796,7 +12872,7 @@
     },
     "/api/voices/sample": {
       "post": {
-        "description": "neutral sample line, the same for every game, in the caller's language,\nand answers it as audio. It reads the form as it is, so a game not yet\nsaved is heard too.\n\nA genre that makes voices of its own (makesVoices in /api/genres) speaks\nin the voice made for the voice style on the paying key: the first sample\nmakes the voice when there is none and keeps the sample, and later ones\nplay it without asking the provider (stored: true). Otherwise, and with an\nempty voice style, a built-in voice speaks, as the style steers it.\n\nThe caller pays with their own keys, as in the editor: workshop,\norganisation, own, site; never a game's sponsor. None that speaks live:\n400 no_api_key; a key its provider rejects: 400 invalid_api_key; a\nprovider that fails: 503 ai_error.",
+        "description": "neutral sample line, the same for every game, in the caller's language,\nand answers it as audio. It reads the form as it is, so a game not yet\nsaved is heard too.\n\nOnly a voice set to custom, in a genre that offers it, is heard (a choice\nin voiceSlots of /api/genres): with a built-in choice the session casts its\nown voice, so a sample would mislead, and anything else is refused with\n400 voice_not_custom. The voice made for the voice style on the paying key\nspeaks: the first sample makes the voice when there is none and keeps the\nsample, and later ones play it without asking the provider (stored: true).\nWith an empty voice style a built-in voice speaks.\n\nThe caller pays with their own keys, as in the editor: workshop,\norganisation, own, site; never a game's sponsor. None that speaks live:\n400 no_api_key; a key its provider rejects: 400 invalid_api_key; a\nprovider that fails: 503 ai_error.",
         "operationId": "postApiVoicesSample",
         "requestBody": {
           "content": {
@@ -12838,7 +12914,7 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Has the voice a game of the genre speaks in say a"
+        "summary": "Has the voice made for a game's voice style say a"
       }
     },
     "/api/workshops": {

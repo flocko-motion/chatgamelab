@@ -36,9 +36,9 @@ type GenreInfo struct {
 	Needs []Toggle `json:"needs"`
 	// Fields is the game's fields the genre reads, for an editor to offer.
 	Fields []GameField `json:"fields"`
-	// MakesVoices says the genre makes a voice of its own per key and voice
-	// style, which an editor may preview and remake.
-	MakesVoices bool `json:"makesVoices"`
+	// VoiceSlots are the voices the genre speaks in and what a game may
+	// choose for each, for an editor to offer.
+	VoiceSlots []VoiceSlot `json:"voiceSlots"`
 	// Prompts are the genre's own prompts, for a launch that adapts them.
 	Prompts []GenrePrompt `json:"prompts"`
 }
@@ -52,7 +52,7 @@ func GenreList() []GenreInfo {
 		if needs == nil {
 			needs = []Toggle{}
 		}
-		out = append(out, GenreInfo{ID: g, Needs: needs, Fields: g.Fields(), MakesVoices: g.MakesVoices(), Prompts: g.Prompts()})
+		out = append(out, GenreInfo{ID: g, Needs: needs, Fields: g.Fields(), VoiceSlots: g.VoiceSlots(), Prompts: g.Prompts()})
 	}
 	return out
 }

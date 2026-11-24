@@ -98,6 +98,7 @@ func CopyGame(ctx context.Context, id uuid.UUID) (*GameCard, error) {
 		gameStart:    content.GameStart(),
 		imageStyle:   content.ImageStyle(),
 		voiceStyle:   content.VoiceStyle(),
+		voices:       content.Voices(),
 		css:          content.CSS(),
 		statusFields: content.StatusFields(),
 		firstMessage: content.FirstMessage(),
@@ -164,6 +165,7 @@ func insertGame(ctx context.Context, next gameRow, originallyCreatedBy *uuid.UUI
 		GameStart:           next.gameStart,
 		ImageStyle:          next.imageStyle,
 		VoiceStyle:          next.voiceStyle,
+		Voices:              voicesJSON(next.voices),
 		Css:                 next.css,
 		StatusFields:        next.statusFields,
 		FirstMessage:        sqlString(next.firstMessage),
@@ -189,15 +191,16 @@ func (t *GameTemplate) Genre() string       { return t.row.genre }
 func (t *GameTemplate) Theme() *string      { return t.row.theme }
 func (t *GameTemplate) Public() bool        { return t.row.public }
 
-func (t *GameTemplate) Scenario() string      { return t.row.scenario }
-func (t *GameTemplate) GameStart() string     { return t.row.gameStart }
-func (t *GameTemplate) ImageStyle() string    { return t.row.imageStyle }
-func (t *GameTemplate) VoiceStyle() string    { return t.row.voiceStyle }
-func (t *GameTemplate) CSS() string           { return t.row.css }
-func (t *GameTemplate) StatusFields() string  { return t.row.statusFields }
-func (t *GameTemplate) FirstMessage() *string { return t.row.firstMessage }
-func (t *GameTemplate) FirstStatus() *string  { return t.row.firstStatus }
-func (t *GameTemplate) FirstImage() []byte    { return t.row.firstImage }
+func (t *GameTemplate) Scenario() string          { return t.row.scenario }
+func (t *GameTemplate) GameStart() string         { return t.row.gameStart }
+func (t *GameTemplate) ImageStyle() string        { return t.row.imageStyle }
+func (t *GameTemplate) VoiceStyle() string        { return t.row.voiceStyle }
+func (t *GameTemplate) Voices() map[string]string { return cloneVoices(t.row.voices) }
+func (t *GameTemplate) CSS() string               { return t.row.css }
+func (t *GameTemplate) StatusFields() string      { return t.row.statusFields }
+func (t *GameTemplate) FirstMessage() *string     { return t.row.firstMessage }
+func (t *GameTemplate) FirstStatus() *string      { return t.row.firstStatus }
+func (t *GameTemplate) FirstImage() []byte        { return t.row.firstImage }
 
 // MayEditCard, MayEditContent and MayPublish are the caller's rights on the
 // game once created: their Own grants.

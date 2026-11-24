@@ -167,11 +167,25 @@ type GameFields struct {
 	SystemMessageGameStart *string `json:"systemMessageGameStart"`
 	ImageStyle             *string `json:"imageStyle"`
 	VoiceStyle             *string `json:"voiceStyle"`
-	CSS                    *string `json:"css"`
-	StatusFields           *string `json:"statusFields"`
-	FirstMessage           *string `json:"firstMessage"`
-	FirstStatus            *string `json:"firstStatus"`
-	FirstImage             *[]byte `json:"firstImage"`
+	// Voices replaces the game's choice for each voice its genre speaks in,
+	// as a whole: male, female, any or custom, by the voice's name.
+	Voices       *map[string]string `json:"voices"`
+	CSS          *string            `json:"css"`
+	StatusFields *string            `json:"statusFields"`
+	FirstMessage *string            `json:"firstMessage"`
+	FirstStatus  *string            `json:"firstStatus"`
+	FirstImage   *[]byte            `json:"firstImage"`
+}
+
+// derefVoices is given voices, none included, or nil when left out.
+func derefVoices(v *map[string]string) map[string]string {
+	if v == nil {
+		return nil
+	}
+	if *v == nil {
+		return map[string]string{}
+	}
+	return *v
 }
 
 // deref is a given byte field, "" (removed) included, or nil when left out.
@@ -197,6 +211,7 @@ func (r GameFields) changes() core.GameChanges {
 		GameStart:    r.SystemMessageGameStart,
 		ImageStyle:   r.ImageStyle,
 		VoiceStyle:   r.VoiceStyle,
+		Voices:       derefVoices(r.Voices),
 		CSS:          r.CSS,
 		StatusFields: r.StatusFields,
 		FirstMessage: r.FirstMessage,

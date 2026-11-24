@@ -18,6 +18,8 @@ export type WorkshopSort =
 
 export type WorkshopFilter = "active";
 
+export type VoiceChoice = "male" | "female" | "any" | "custom";
+
 export type VerifiedPageSort = "status" | "organisation" | "createdAt";
 
 export type VerifiedPageFilter = "waiting" | "approved";
@@ -283,6 +285,7 @@ export interface CreateGameReq {
   systemMessageScenario?: string;
   theme?: string;
   voiceStyle?: string;
+  voices?: Record<string, string>;
 }
 
 export interface CreateGameShareReq {
@@ -435,6 +438,7 @@ export interface Game {
   tags: GameTag[];
   theme?: string;
   voiceStyle: string;
+  voices?: Record<string, string>;
   /** @format uuid */
   workshopId?: string;
 }
@@ -476,6 +480,7 @@ export interface GameFile {
   system_message_scenario: string;
   theme?: string;
   voice_style?: string;
+  voices?: Record<string, string>;
 }
 
 export interface GameMeta {
@@ -523,6 +528,7 @@ export interface GameTemplate {
   systemMessageScenario?: string;
   theme?: string;
   voiceStyle?: string;
+  voices?: Record<string, string>;
 }
 
 export interface GameView {
@@ -571,6 +577,7 @@ export interface GameView {
   systemMessageScenario?: string;
   theme?: string;
   voiceStyle?: string;
+  voices?: Record<string, string>;
   /** @format uuid */
   workshopId?: string;
 }
@@ -583,9 +590,9 @@ export interface GameViewPage {
 export interface GenreInfo {
   fields: GameField[];
   id: Genre;
-  makesVoices: boolean;
   needs: Toggle[];
   prompts: GenrePrompt[];
+  voiceSlots: VoiceSlot[];
 }
 
 export interface GenrePrompt {
@@ -1463,6 +1470,7 @@ export interface UpdateGameReq {
   systemMessageScenario?: string;
   theme?: string;
   voiceStyle?: string;
+  voices?: Record<string, string>;
 }
 
 export interface UpdateGameShareReq {
@@ -1483,6 +1491,7 @@ export interface UpdateGameYAMLReq {
   system_message_scenario: string;
   theme?: string;
   voice_style?: string;
+  voices?: Record<string, string>;
 }
 
 export interface UpdateInstitutionReq {
@@ -1692,6 +1701,7 @@ export interface VerifiedPagesResp {
 export interface VoiceSampleReq {
   genre: string;
   scenario: string;
+  voice: string;
   voiceStyle: string;
 }
 
@@ -1701,6 +1711,11 @@ export interface VoiceSampleResp {
   contentType: string;
   ownVoice: boolean;
   stored: boolean;
+}
+
+export interface VoiceSlot {
+  choices: VoiceChoice[];
+  name: string;
 }
 
 export interface Workshop {
@@ -4966,7 +4981,7 @@ export class Api<
       }),
 
     /**
-     * @description answers its sample, as VoiceSampleEndpoint does. The voice made before for that key and style, and its sample, are deleted: every game with exactly this voice style on this key speaks in the new voice from now on. A genre that makes no voices of its own, or an empty voice style, makes none and only plays the built-in voice.
+     * @description answers its sample, as VoiceSampleEndpoint does. The voice made before for that key and style, and its sample, are deleted: every game with exactly this voice style on this key speaks in the new voice from now on. Only for a voice set to custom, as VoiceSampleEndpoint; an empty voice style makes none and only plays the built-in voice.
      *
      * @name PostApiVoicesNew
      * @summary Makes a new voice for a voice style on the paying key and
@@ -4985,10 +5000,10 @@ export class Api<
       }),
 
     /**
-     * @description neutral sample line, the same for every game, in the caller's language, and answers it as audio. It reads the form as it is, so a game not yet saved is heard too. A genre that makes voices of its own (makesVoices in /api/genres) speaks in the voice made for the voice style on the paying key: the first sample makes the voice when there is none and keeps the sample, and later ones play it without asking the provider (stored: true). Otherwise, and with an empty voice style, a built-in voice speaks, as the style steers it. The caller pays with their own keys, as in the editor: workshop, organisation, own, site; never a game's sponsor. None that speaks live: 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a provider that fails: 503 ai_error.
+     * @description neutral sample line, the same for every game, in the caller's language, and answers it as audio. It reads the form as it is, so a game not yet saved is heard too. Only a voice set to custom, in a genre that offers it, is heard (a choice in voiceSlots of /api/genres): with a built-in choice the session casts its own voice, so a sample would mislead, and anything else is refused with 400 voice_not_custom. The voice made for the voice style on the paying key speaks: the first sample makes the voice when there is none and keeps the sample, and later ones play it without asking the provider (stored: true). With an empty voice style a built-in voice speaks. The caller pays with their own keys, as in the editor: workshop, organisation, own, site; never a game's sponsor. None that speaks live: 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a provider that fails: 503 ai_error.
      *
      * @name PostApiVoicesSample
-     * @summary Has the voice a game of the genre speaks in say a
+     * @summary Has the voice made for a game's voice style say a
      * @request POST:/api/voices/sample
      * @secure
      */

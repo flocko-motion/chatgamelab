@@ -434,14 +434,11 @@ func TestValidateErrors(t *testing.T) {
 		spec  game
 		field string
 	}{
-		"no offer":       {adventure(), "offers"},
-		"unknown genre":  {game{spec: SessionSpec{Genre: "quiz"}, offers: []Offer{MockOffer()}}, "genre"},
-		"unknown prompt": {game{spec: SessionSpec{Genre: GenreNPCLive, PromptOverride: map[string]string{"portrait-x": ""}}, offers: []Offer{MockOffer()}}, "promptOverride.portrait-x"},
-		"invalid voice":  {game{spec: SessionSpec{Genre: GenreNPCLive, Voice: "nobody"}, offers: []Offer{oneOffer(PlatformOpenAI, TierLow, live)}}, "voice"},
-		// beacon is a GPT-Live voice, which gpt-realtime does not speak in.
-		"live voice narrating": {game{spec: SessionSpec{Genre: GenreAdventure, Voice: "beacon"}, offers: []Offer{oneOffer(PlatformOpenAI, TierLow, Toggles{AudioOut: true})}}, "voice"},
-		"adventure override":   {game{spec: SessionSpec{Genre: GenreAdventure, PromptOverride: map[string]string{"observer": ""}}, offers: []Offer{MockOffer()}}, "promptOverride.observer"},
-		"no offer runs it":     {game{spec: SessionSpec{Genre: GenreNPCLive}, offers: []Offer{oneOffer(PlatformMistral, TierLow, Toggles{})}}, "offers"},
+		"no offer":           {adventure(), "offers"},
+		"unknown genre":      {game{spec: SessionSpec{Genre: "quiz"}, offers: []Offer{MockOffer()}}, "genre"},
+		"unknown prompt":     {game{spec: SessionSpec{Genre: GenreNPCLive, PromptOverride: map[string]string{"portrait-x": ""}}, offers: []Offer{MockOffer()}}, "promptOverride.portrait-x"},
+		"adventure override": {game{spec: SessionSpec{Genre: GenreAdventure, PromptOverride: map[string]string{"observer": ""}}, offers: []Offer{MockOffer()}}, "promptOverride.observer"},
+		"no offer runs it":   {game{spec: SessionSpec{Genre: GenreNPCLive}, offers: []Offer{oneOffer(PlatformMistral, TierLow, Toggles{})}}, "offers"},
 	} {
 		t.Run(name, func(t *testing.T) {
 			if issues := check(tc.spec); !hasErrorAt(issues, tc.field) {
@@ -451,18 +448,28 @@ func TestValidateErrors(t *testing.T) {
 	}
 }
 
-// A voice is checked against the genre's speaking model: gpt-realtime's for
-// Adventure's narration, GPT-Live's for NPC-Live.
-func TestVoiceFitsTheGenresSpeakingModel(t *testing.T) {
-	for name, spec := range map[string]game{
-		"realtime voice narrating": {spec: SessionSpec{Genre: GenreAdventure, Voice: "cedar"}, offers: []Offer{oneOffer(PlatformOpenAI, TierLow, Toggles{AudioOut: true})}},
-		"live voice in npc-live":   {spec: SessionSpec{Genre: GenreNPCLive, Voice: "beacon"}, offers: []Offer{oneOffer(PlatformOpenAI, TierLow, live)}},
+// A game's voice choices never refuse a launch: a voice the genre does not
+// speak in, as after the game changed its genre, or a choice the voice does
+// not offer, warns, and the voice speaks in any.
+func TestVoiceChoicesOnlyWarn(t *testing.T) {
+	for name, tc := range map[string]struct {
+		spec  SessionSpec
+		field string
+	}{
+		"voice of another genre": {SessionSpec{Genre: GenreAdventure, Voices: map[string]VoiceChoice{"character": VoiceCustom}}, "voices.character"},
+		"choice the voice lacks": {SessionSpec{Genre: GenreAdventure, Voices: map[string]VoiceChoice{"narrator": VoiceCustom}}, "voices.narrator"},
+		"no such choice":         {SessionSpec{Genre: GenreNPCLive, Voices: map[string]VoiceChoice{"character": "robot"}}, "voices.character"},
 	} {
 		t.Run(name, func(t *testing.T) {
-			if issues := check(spec); hasErrorAt(issues, "voice") {
-				t.Errorf("issues = %v, want the voice accepted", issues)
+			issues := check(game{spec: tc.spec, offers: []Offer{MockOffer()}})
+			if hasErrorAt(issues, tc.field) || !slices.ContainsFunc(issues, func(i Issue) bool { return i.Field == tc.field }) {
+				t.Errorf("issues = %v, want a warning at %s and no error", issues, tc.field)
 			}
 		})
+	}
+	ok := check(game{spec: SessionSpec{Genre: GenreNPCLive, Voices: map[string]VoiceChoice{"character": VoiceCustom}}, offers: []Offer{MockOffer()}})
+	if slices.ContainsFunc(ok, func(i Issue) bool { return strings.HasPrefix(i.Field, "voices") }) {
+		t.Errorf("issues = %v, want a custom character accepted", ok)
 	}
 }
 

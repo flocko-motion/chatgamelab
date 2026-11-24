@@ -63,11 +63,15 @@ type GameView struct {
 	SystemMessageGameStart *string `json:"systemMessageGameStart,omitempty"`
 	ImageStyle             *string `json:"imageStyle,omitempty"`
 	VoiceStyle             *string `json:"voiceStyle,omitempty"`
-	CSS                    *string `json:"css,omitempty"`
-	StatusFields           *string `json:"statusFields,omitempty"`
-	FirstMessage           *string `json:"firstMessage,omitempty"`
-	FirstStatus            *string `json:"firstStatus,omitempty"`
-	FirstImage             []byte  `json:"firstImage,omitempty"`
+	// Voices is the game's choice for each voice its genre speaks in
+	// (voiceSlots in /api/genres), by the voice's name; a voice left out is
+	// any.
+	Voices       *map[string]string `json:"voices,omitempty"`
+	CSS          *string            `json:"css,omitempty"`
+	StatusFields *string            `json:"statusFields,omitempty"`
+	FirstMessage *string            `json:"firstMessage,omitempty"`
+	FirstStatus  *string            `json:"firstStatus,omitempty"`
+	FirstImage   []byte             `json:"firstImage,omitempty"`
 
 	// HasSettings: the caller sees who is behind the game; the fields below are set.
 	HasSettings bool       `json:"hasSettings"`
@@ -146,6 +150,7 @@ func gameView(card *core.GameCard, refusal error, mayPreset bool) GameView {
 		v.SystemMessageGameStart = ptr(c.GameStart())
 		v.ImageStyle = ptr(c.ImageStyle())
 		v.VoiceStyle = ptr(c.VoiceStyle())
+		v.Voices = ptr(c.Voices())
 		v.CSS = ptr(c.CSS())
 		v.StatusFields = ptr(c.StatusFields())
 		v.FirstMessage = c.FirstMessage()
@@ -201,11 +206,15 @@ type GameTemplate struct {
 	SystemMessageGameStart *string `json:"systemMessageGameStart,omitempty"`
 	ImageStyle             *string `json:"imageStyle,omitempty"`
 	VoiceStyle             *string `json:"voiceStyle,omitempty"`
-	CSS                    *string `json:"css,omitempty"`
-	StatusFields           *string `json:"statusFields,omitempty"`
-	FirstMessage           *string `json:"firstMessage,omitempty"`
-	FirstStatus            *string `json:"firstStatus,omitempty"`
-	FirstImage             []byte  `json:"firstImage,omitempty"`
+	// Voices is the game's choice for each voice its genre speaks in
+	// (voiceSlots in /api/genres), by the voice's name; a voice left out is
+	// any.
+	Voices       *map[string]string `json:"voices,omitempty"`
+	CSS          *string            `json:"css,omitempty"`
+	StatusFields *string            `json:"statusFields,omitempty"`
+	FirstMessage *string            `json:"firstMessage,omitempty"`
+	FirstStatus  *string            `json:"firstStatus,omitempty"`
+	FirstImage   []byte             `json:"firstImage,omitempty"`
 }
 
 // GameTemplateOf converts a game template, passing a loading error through:
@@ -230,6 +239,7 @@ func GameTemplateOf(t *core.GameTemplate, err error) (GameTemplate, error) {
 		SystemMessageGameStart: ptr(t.GameStart()),
 		ImageStyle:             ptr(t.ImageStyle()),
 		VoiceStyle:             ptr(t.VoiceStyle()),
+		Voices:                 ptr(t.Voices()),
 		CSS:                    ptr(t.CSS()),
 		StatusFields:           ptr(t.StatusFields()),
 		FirstMessage:           t.FirstMessage(),
@@ -261,6 +271,7 @@ func GameFileOf(card *core.GameCard, err error) (obj.GameFile, error) {
 		SystemMessageGameStart: content.GameStart(),
 		ImageStyle:             content.ImageStyle(),
 		VoiceStyle:             content.VoiceStyle(),
+		Voices:                 content.Voices(),
 		CSS:                    content.CSS(),
 		StatusFields:           content.StatusFields(),
 	}, nil
