@@ -44,15 +44,20 @@ what every user may see and do. `.github/CODEOWNERS` lists the sealed paths.
 
 ## Uli's mode
 
-When Uli (GitHub: TausendMedien) asks for it, these rules replace "Commit only
-what the owner has staged" and "One worktree per issue" for his changes:
+Uli (GitHub: `TausendMedien`) works in a single checkout, for documents and
+code alike (including vibe coding). Uli's mode applies to every session in
+which he works: the agent recognises it by the GitHub account the session
+uses (`gh api user` answers `TausendMedien`); Uli does not need to name it.
+It replaces "Commit only what the owner has staged" and "One worktree per
+issue":
 
 - **Stage, commit, open the pull request.** The agent stages and commits Uli's
   changes itself and opens a pull request to `v2/development`. Flo reviews and
   merges; the agent never merges and never pushes to `v2/development` itself.
-- **No worktree.** The agent works in the current checkout, on a new branch per
-  change from the latest `origin/v2/development`, named as in the table under
-  "One worktree per issue" (e.g. `docs/506-key-budgets`).
+- **One checkout, a branch per change.** No worktrees. Each change gets its
+  own branch from the latest `origin/v2/development`, named as in the table
+  under "One worktree per issue" (e.g. `docs/506-key-budgets`). Before
+  switching to a new change, the agent commits the current one to its branch.
 - **Everything else holds:** conventional commits, the sealed core (no edits
   under the sealed paths), milestones for new issues.
 
