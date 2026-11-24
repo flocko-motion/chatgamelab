@@ -77,7 +77,7 @@ export function GuestMobileNavigation({
               px="md"
               style={{
                 borderRadius: "var(--mantine-radius-md)",
-                color: "white",
+                color: theme.other.layout.text,
                 display: "flex",
                 alignItems: "center",
                 gap: "10px",
@@ -85,7 +85,7 @@ export function GuestMobileNavigation({
                   ? theme.other.layout.bgActive
                   : theme.other.layout.bgSubtle,
                 boxShadow: item.active
-                  ? "0 0 0 1px rgba(255, 255, 255, 0.3)"
+                  ? "inset 0 0 0 2px var(--mantine-color-ink-5)"
                   : "none",
               }}
             >
@@ -108,7 +108,7 @@ export function GuestMobileNavigation({
               <Text size="xs" c="dimmed">
                 {tAuth("guest.workshop")}:
               </Text>
-              <Text size="sm" fw={500} c="white">
+              <Text size="sm" fw={500} c={theme.other.layout.text}>
                 {workshopName}
               </Text>
             </Group>
@@ -118,7 +118,7 @@ export function GuestMobileNavigation({
               <Text size="xs" c="dimmed">
                 {tAuth("guest.organization")}:
               </Text>
-              <Text size="sm" fw={500} c="white">
+              <Text size="sm" fw={500} c={theme.other.layout.text}>
                 {organizationName}
               </Text>
             </Group>
@@ -138,7 +138,7 @@ export function GuestMobileNavigation({
             px="md"
             style={{
               borderRadius: "var(--mantine-radius-md)",
-              color: "white",
+              color: theme.other.layout.text,
               display: "flex",
               alignItems: "center",
               gap: "8px",
@@ -159,7 +159,7 @@ export function GuestMobileNavigation({
             px="md"
             style={{
               borderRadius: "var(--mantine-radius-md)",
-              color: "white",
+              color: theme.other.layout.text,
               display: "flex",
               alignItems: "center",
               gap: "8px",

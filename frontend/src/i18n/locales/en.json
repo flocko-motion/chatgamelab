@@ -398,8 +398,8 @@
       "favorite": "Add to favorites",
       "filters": {
         "all": "All Games",
-        "favorites": "Favorites",
-        "own": "My Games",
+        "favorites": "Faves",
+        "own": "Mine",
         "public": "Public",
         "sponsored": "Sponsored",
         "genre": "Genre"
@@ -825,7 +825,8 @@
           "noKey": "None of the AI keys you can use draws pictures, so the game has no cover for now.",
           "keyRejected": "The AI provider rejected the key. The cover could not be drawn.",
           "failed": "The cover could not be drawn. Please try again."
-        }
+        },
+        "drawing": "Drawing the cover…"
       },
       "editor": {
         "titleNew": "New game",
@@ -996,7 +997,8 @@
           "styleLink": "Style it with your own CSS →",
           "pageHint": "The game runs only there, and only after the page says yes to each start."
         }
-      }
+      },
+      "newGame": "New game"
     },
     "header": {
       "apiKeys": "API Keys",
@@ -1100,7 +1102,8 @@
         "first": "First page",
         "last": "Last page"
       },
-      "clearPicks": "Show all"
+      "clearPicks": "Show all",
+      "clearFilters": "Clear"
     },
     "loading": "Loading...",
     "logout": "Logout",
@@ -1588,57 +1591,6 @@
     }
   },
   "dashboard": {
-    "cards": {
-      "externalLinks": {
-        "edu": {
-          "description": "Media pedagogy work with ChatGameLab",
-          "title": "About ChatGameLab"
-        },
-        "jff": {
-          "description": "Project coordinator and lead organization.",
-          "title": "JFF – Institut für Medienpädagogik"
-        },
-        "mainSite": {
-          "description": "Learn more about the educational project behind this platform.",
-          "title": "ChatGameLab Project"
-        },
-        "title": "About ChatGameLab"
-      },
-      "myGames": {
-        "empty": "No games yet. Create your first game!",
-        "title": "My Games",
-        "viewAll": "All Creations"
-      },
-      "myWorkshops": {
-        "empty": "No active workshops. Create a workshop in your organization!",
-        "title": "My Workshops",
-        "viewAll": "All Workshops"
-      },
-      "newGames": {
-        "empty": "No games available yet.",
-        "title": "New Games",
-        "viewAll": "All Games"
-      },
-      "popularGames": {
-        "empty": "No games available yet.",
-        "plays": "{{count}} plays",
-        "title": "Popular Games",
-        "viewAll": "All Games"
-      },
-      "lastPlayed": {
-        "empty": "No play history yet. Start playing a game!",
-        "title": "Last Played",
-        "viewAll": "All Games"
-      }
-    },
-    "quickActions": {
-      "createNewGame": "Create New Game",
-      "createWorkshop": "Create Workshop",
-      "importGame": "Import Game",
-      "inviteMembers": "Invite Members",
-      "startNewGame": "Start New Game",
-      "title": "Quick Actions"
-    },
     "untitled": "Untitled",
     "version": {
       "mismatch": {
@@ -1646,7 +1598,55 @@
         "title": "Version Mismatch Detected"
       }
     },
-    "untitledGame": "Untitled Game"
+    "untitledGame": "Untitled Game",
+    "hero": {
+      "journal": "Lab journal · {{date}}",
+      "greeting": "Hi {{name}}. What shall we \u003cmark\u003ebuild\u003c/mark\u003e today?",
+      "greetingNoName": "Hi. What shall we \u003cmark\u003ebuild\u003c/mark\u003e today?",
+      "promptLabel": "Describe a game idea",
+      "promptPlaceholder": "Describe a game idea… the AI will help you shape it",
+      "create": "Create"
+    },
+    "continue": {
+      "title": "Continue game",
+      "hint": "pick up where you left off",
+      "messages_one": "{{count}} message",
+      "messages_other": "{{count}} messages",
+      "go": "Continue"
+    },
+    "ownGames": {
+      "title": "Your games",
+      "viewAll": "All your games",
+      "empty": "No games yet. Describe an idea above and create your first one!"
+    },
+    "lab": {
+      "title": "Your lab so far",
+      "gamesOnPlatform": "games in the lab",
+      "gamesCreated": "games you invented",
+      "playsOfOwnGames": "plays of your games"
+    },
+    "workshops": {
+      "title": "Your workshops",
+      "viewAll": "All workshops"
+    },
+    "fresh": {
+      "title": "New games",
+      "viewAll": "See the gallery",
+      "by": "by {{name}}",
+      "empty": "No new games yet."
+    },
+    "popular": {
+      "title": "Most popular",
+      "hint": "what everyone is playing",
+      "plays_one": "{{count}} play",
+      "plays_other": "{{count}} plays"
+    },
+    "links": {
+      "educators": "For educators",
+      "about": "About ChatGameLab",
+      "jff": "JFF – Institut für Medienpädagogik"
+    },
+    "someone": "someone"
   },
   "errors": {
     "aiError": "The AI service encountered an error. Please try again.",
@@ -1763,7 +1763,9 @@
     "play": "Play a Game",
     "rooms": "Rooms",
     "serverSettings": "Server Settings",
-    "workshopSettings": "Workshop Settings"
+    "workshopSettings": "Workshop Settings",
+    "me": "Me",
+    "mainMenu": "Main menu"
   },
   "playbackEngine": {
     "over": {

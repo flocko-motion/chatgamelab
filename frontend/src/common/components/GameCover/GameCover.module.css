@@ -1,10 +1,20 @@
 .frame {
+  container-type: inline-size;
   position: relative;
   width: 100%;
   aspect-ratio: 3 / 2;
   overflow: hidden;
   border-radius: var(--mantine-radius-md);
   background: var(--mantine-color-gray-1);
+}
+
+.frame[data-ratio='1/1'] {
+  aspect-ratio: 1;
+}
+
+.frame[data-ratio='fill'] {
+  aspect-ratio: auto;
+  height: 100%;
 }
 
 /* Edge to edge in a card's section: the card rounds the corners. */
@@ -39,12 +49,88 @@
   font-size: 72px;
 }
 
-/* While a cover is being drawn. */
+/* A cover being drawn: the frame dims, a neon ring spins around a sparkle,
+   and a line says what is happening. */
 .busy {
   position: absolute;
   inset: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: color-mix(in srgb, var(--mantine-color-black) 35%, transparent);
+  gap: 10px;
+  padding: 8px;
+  background: color-mix(in srgb, var(--mantine-color-ink-5) 55%, transparent);
+  backdrop-filter: blur(2px);
+  color: var(--mantine-color-white);
+  text-align: center;
+}
+
+.ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(40px, 22%, 72px);
+  aspect-ratio: 1;
+}
+
+.ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    var(--mantine-color-accent-5),
+    var(--mantine-color-violet-5),
+    var(--mantine-color-highlight-5),
+    transparent 75%
+  );
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  animation: spin 1.1s linear infinite;
+}
+
+.sparkle {
+  width: 45%;
+  height: 45%;
+  color: var(--mantine-color-accent-3);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.busyText {
+  font-weight: 700;
+  font-size: var(--mantine-font-size-sm);
+  line-height: 1.2;
+  text-shadow: 0 1px 2px var(--mantine-color-ink-5);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+}
+
+/* A thumbnail has room for the ring only. */
+@container (max-width: 140px) {
+  .busyText {
+    display: none;
+  }
+
+  .ring {
+    width: 60%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring::before {
+    animation: none;
+  }
 }

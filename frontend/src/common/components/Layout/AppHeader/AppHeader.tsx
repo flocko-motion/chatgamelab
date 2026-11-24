@@ -14,12 +14,13 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 import { useResponsiveDesign } from "../../../hooks/useResponsiveDesign";
 import { ROUTES } from "../../../routes/routes";
-import logoLandscapeWhite from "@/assets/logos/colorful/ChatGameLab-Logo-2025-Landscape-Colorful-White-Text-Transparent.png";
+import logoLandscape from "@/assets/logos/colorful/ChatGameLab-Logo-2025-Landscape-Colorful-Black-Text-Transparent.png";
 
 import type { AppHeaderProps } from "./types";
 import { DesktopNavigation } from "./DesktopNavigation";
 import { UserActions } from "./UserActions";
 import { NotificationBell } from "../../NotificationBell";
+import { MobileTabBar } from "../MobileTabBar";
 import {
   GuestMobileNavigation,
   WorkshopModeMobileNavigation,
@@ -95,7 +96,7 @@ export function AppHeader({
         </Box>
         <Box ref={measureLogoRef} style={{ display: "inline-block" }}>
           <Image
-            src={logoLandscapeWhite}
+            src={logoLandscape}
             alt=""
             h={50}
             w="auto"
@@ -165,7 +166,7 @@ export function AppHeader({
               }}
             >
               <Image
-                src={logoLandscapeWhite}
+                src={logoLandscape}
                 alt="ChatGameLab Logo"
                 h={{ base: 36, sm: 50 }}
                 w="auto"
@@ -201,7 +202,7 @@ export function AppHeader({
               <Burger
                 opened={mobileNavOpened}
                 onClick={openMobileNav}
-                color="white"
+                color={theme.other.layout.text}
                 size="sm"
                 aria-label={
                   mobileNavOpened
@@ -213,6 +214,10 @@ export function AppHeader({
           </Group>
         </Group>
       </AppShell.Header>
+
+      {/* Phone: the main menu as a tab bar at the bottom, for signed-in
+          members (guests and workshop mode keep their own menus) */}
+      {forceMobile && !isSignedOut && !isGuest && !isInWorkshopMode && <MobileTabBar />}
 
       {/* Mobile Navigation Drawer */}
       <Drawer
@@ -226,7 +231,7 @@ export function AppHeader({
             borderBottom: theme.other.layout.borderLight,
           },
           close: {
-            color: "white",
+            color: theme.other.layout.text,
             "&:hover": {
               backgroundColor: theme.other.layout.bgHover,
             },
@@ -247,7 +252,7 @@ export function AppHeader({
         }}
         title={
           <Image
-            src={logoLandscapeWhite}
+            src={logoLandscape}
             alt="ChatGameLab Logo"
             h={40}
             w="auto"

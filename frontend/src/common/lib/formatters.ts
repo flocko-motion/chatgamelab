@@ -3,25 +3,25 @@
  */
 
 /**
- * Formats a date string as a relative time (e.g., "just now", "5m ago", "2h ago", "3d ago")
- * 
+ * Formats a date string as a relative time in the given language
+ * (e.g. "now", "5 min. ago", "vor 2 Std.", "3 days ago").
+ *
  * @param dateString - ISO date string or undefined
+ * @param locale - The UI language (i18n.language)
  * @returns Formatted relative time string, or empty string if no date provided
  */
-export function formatRelativeTime(dateString?: string): string {
+export function formatRelativeTime(dateString: string | undefined, locale: string): string {
   if (!dateString) return '';
-  
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return 'just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  return `${diffDays}d ago`;
+  const diffSeconds = Math.round((new Date(dateString).getTime() - Date.now()) / 1000);
+  const format = new Intl.RelativeTimeFormat(locale, { numeric: 'auto', style: 'short' });
+  const abs = Math.abs(diffSeconds);
+  if (abs < 60) return format.format(0, 'second');
+  if (abs < 3600) return format.format(Math.round(diffSeconds / 60), 'minute');
+  if (abs < 86400) return format.format(Math.round(diffSeconds / 3600), 'hour');
+  if (abs < 86400 * 30) return format.format(Math.round(diffSeconds / 86400), 'day');
+  if (abs < 86400 * 365) return format.format(Math.round(diffSeconds / (86400 * 30)), 'month');
+  return format.format(Math.round(diffSeconds / (86400 * 365)), 'year');
 }
 
 /**

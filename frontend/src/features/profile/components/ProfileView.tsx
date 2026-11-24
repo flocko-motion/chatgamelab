@@ -83,7 +83,7 @@ export function ProfileView() {
   const userInfoCard = (
     <Card shadow="sm" padding="xl" radius="md" withBorder>
       <Group gap="lg" align="flex-start">
-        <UserAvatar name={backendUser.name || "User"} size="xl" />
+        <UserAvatar name={backendUser.name || "User"} seed={backendUser.id} size="xl" />
 
         <Stack gap="xs" style={{ flex: 1 }}>
           <Group gap="sm" align="center">

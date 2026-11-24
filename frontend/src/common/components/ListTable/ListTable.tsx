@@ -29,6 +29,7 @@ import { DimmedLoader } from "@components/LoadingAnimation";
 import { HelperText } from "@components/typography";
 import { TextButton, ToggleIconButton } from "@components/buttons";
 import {
+  FilterBar,
   FilterMultiSelect,
   FilterSegmentedControl,
   FilterToggles,
@@ -101,6 +102,11 @@ export interface ListTableProps<T, F extends string, S extends string> {
    * the list holds more than a page.
    */
   compact?: boolean;
+  /**
+   * How a filter option looks in the grid's filter bar: an icon, or a colour
+   * dot (e.g. a genre's). Its label stays the preset's.
+   */
+  optionLook?: (value: string) => { icon?: ReactNode; dot?: string } | undefined;
 }
 
 /**
@@ -121,6 +127,7 @@ export function ListTable<T, F extends string, S extends string>({
   empty,
   errorMessage,
   compact = false,
+  optionLook,
 }: ListTableProps<T, F, S>) {
   const { preset } = list;
   const { t } = useTranslation(["common", ...presetNamespaces(preset)]);
@@ -188,6 +195,48 @@ export function ListTable<T, F extends string, S extends string>({
       <div className={classes.root}>
         {body}
         {list.total > list.items.length && footer}
+      </div>
+    );
+  }
+
+  // The grid (cards everywhere): search, order and actions on top, then every
+  // filter in one bar, each on or off on its own and combinable.
+  if (layout === "grid") {
+    const look = (o: { value: string; label: string }) => ({ ...o, ...optionLook?.(o.value) });
+    return (
+      <div className={classes.root}>
+        <div className={classes.gridToolbar}>
+          <div className={classes.gridTop}>
+            <div className={classes.gridSearch}>
+              <SearchInput
+                value={list.searchInput}
+                onChange={list.setSearch}
+                placeholder={t("search")}
+                clearLabel={t("list.clearSearch")}
+              />
+            </div>
+            {sortSelector}
+            {actions && <div className={classes.gridActions}>{actions}</div>}
+          </div>
+          {(toggles.length > 0 || multiOptions.length > 0) && (
+            <FilterBar
+              label={t("list.filter")}
+              clearLabel={t("list.clearFilters")}
+              onClear={() => {
+                query.only.forEach((o) => list.toggleOnly(o));
+                list.clearPicks();
+              }}
+              groups={[
+                { options: toggles.map(look), active: query.only, onToggle: (v) => list.toggleOnly(v as never) },
+                { options: multiOptions.map(look), active: query.picked, onToggle: (v) => list.togglePick(v as never) },
+              ]}
+            />
+          )}
+        </div>
+
+        <div>{body}</div>
+
+        {footer}
       </div>
     );
   }

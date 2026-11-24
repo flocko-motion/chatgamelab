@@ -1,0 +1,32 @@
+/* App-wide basics of the "Lab Notebook" look (#567). Imported from main.tsx,
+   so they hold on every route, including pages outside the router. */
+
+body {
+  background: var(--mantine-color-gray-0);
+  color: var(--mantine-color-gray-7);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--mantine-color-accent-2);
+  color: var(--mantine-color-ink-5);
+}
+
+/* Focus is always visible: a thick ink ring with a gap. Components that draw
+   their own ring keep theirs. */
+:focus-visible {
+  outline: 3px solid var(--mantine-color-ink-5);
+  outline-offset: 3px;
+}
+
+/* "Reduce motion": no wobble, no typing, no blinking. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

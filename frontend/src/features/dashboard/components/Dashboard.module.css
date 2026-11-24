@@ -1,9 +1,393 @@
-.gridCol {
+/* The dashboard in the "Lab Notebook" look (#567). */
+
+.page {
   display: flex;
   flex-direction: column;
+  gap: 44px;
+  padding-bottom: var(--mantine-spacing-xl);
+  color: var(--mantine-color-ink-5);
 }
 
-.gridCol > * {
+/* The springy wobble of everything that opens a game. */
+.wobble {
+  transition:
+    transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 250ms ease;
+}
+
+.wobble:hover {
+  transform: translate(-2px, -6px) rotate(-0.8deg) scale(1.01);
+  box-shadow: 6px 8px 0 var(--mantine-color-highlight-5);
+}
+
+.wobble:nth-child(even):hover {
+  transform: translate(-2px, -6px) rotate(0.7deg) scale(1.01);
+  box-shadow: 6px 8px 0 var(--mantine-color-accent-5);
+}
+
+.wobble:focus-visible {
+  outline: 3px solid var(--mantine-color-ink-5);
+  outline-offset: 3px;
+}
+
+/* A card that opens a game: white, ink outline, offset shadow. */
+.itemCard {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: var(--mantine-color-white);
+  border: 2px solid var(--mantine-color-ink-5);
+  border-radius: var(--mantine-radius-sm);
+  box-shadow: 4px 4px 0 var(--mantine-color-ink-5);
+  overflow: hidden;
+  text-align: left;
+}
+
+.itemBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px 12px;
+  min-width: 0;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--mantine-font-size-sm);
+  color: var(--mantine-color-gray-5);
+}
+
+.monoMeta {
+  font-family: var(--mantine-font-family-monospace);
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-gray-5);
+}
+
+/* A cover with a genre chip in its bottom left corner. */
+.cover {
+  position: relative;
+  border-bottom: 2px solid var(--mantine-color-ink-5);
+}
+
+.genreOnCover {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+}
+
+/* ---------- Hero: the greeting and the prompt ---------- */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 880px;
+  margin: 8px auto 0;
+  text-align: center;
+}
+
+.greeting {
+  margin: 4px 0 26px;
+  min-height: 1.2em;
+  font-family: var(--mantine-font-family-headings);
+  font-weight: 800;
+  font-size: clamp(28px, 3.4vw, 44px);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--mantine-color-ink-5);
+}
+
+.marker {
+  padding: 0 4px;
+  background: linear-gradient(
+    transparent 55%,
+    color-mix(in srgb, var(--mantine-color-accent-5) 50%, transparent) 55%,
+    color-mix(in srgb, var(--mantine-color-accent-5) 50%, transparent) 90%,
+    transparent 90%
+  );
+}
+
+.caret {
+  display: inline-block;
+  width: 0.07em;
+  height: 0.85em;
+  margin-left: 4px;
+  vertical-align: -0.06em;
+  background: var(--mantine-color-highlight-5);
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.prompt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 8px 8px 22px;
+  background: var(--mantine-color-white);
+  border: 2px solid var(--mantine-color-ink-5);
+  border-radius: var(--mantine-radius-lg);
+  box-shadow: 4px 4px 0 var(--mantine-color-accent-5);
+  transition: box-shadow 200ms ease;
+}
+
+.prompt:focus-within {
+  box-shadow: 5px 5px 0 var(--mantine-color-highlight-5);
+  outline: 3px solid var(--mantine-color-ink-5);
+  outline-offset: 3px;
+}
+
+.promptIcon {
+  flex-shrink: 0;
+  color: var(--mantine-color-highlight-7);
+}
+
+.promptInput {
   flex: 1;
-  min-height: 0;
+  min-width: 0;
+  padding: 12px 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  font-size: var(--mantine-font-size-lg);
+  color: var(--mantine-color-ink-5);
+  text-align: left;
+}
+
+.promptInput::placeholder {
+  color: var(--mantine-color-gray-5);
+}
+
+/* ---------- Sections ---------- */
+
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--mantine-color-ink-5);
+}
+
+.sectionHead h2 {
+  margin: 0;
+  font-size: 26px;
+}
+
+@media (max-width: 48em) {
+  .sectionHint {
+    display: none;
+  }
+}
+
+/* Continue game: wide cards with the cover on the left. */
+.continueGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+  gap: 22px;
+}
+
+.continueCard {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  width: 100%;
+  background: var(--mantine-color-white);
+  border: 2px solid var(--mantine-color-ink-5);
+  border-radius: var(--mantine-radius-sm);
+  box-shadow: 4px 4px 0 var(--mantine-color-ink-5);
+  overflow: hidden;
+  text-align: left;
+}
+
+.continueCover {
+  border-right: 2px solid var(--mantine-color-ink-5);
+  min-height: 120px;
+}
+
+.continueGo {
+  margin-top: auto;
+  font-family: var(--mantine-font-family-monospace);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Your games next to Your lab so far. */
+.split {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 40px;
+}
+
+@media (max-width: 62em) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 20px;
+}
+
+.discoveries {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 22px;
+}
+
+/* Your lab so far: big numbers, two per row. */
+.numbers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--mantine-color-white);
+  border: 2px solid var(--mantine-color-ink-5);
+  border-radius: var(--mantine-radius-sm);
+  box-shadow: 4px 4px 0 var(--mantine-color-ink-5);
+}
+
+.number {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 2px;
+  padding: 16px 18px;
+  border-bottom: 1px dashed var(--mantine-color-gray-3);
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 13px;
+  color: var(--mantine-color-gray-6);
+}
+
+/* The platform's number spans the top row; the user's own two sit below. */
+.number[data-wide] {
+  grid-column: 1 / -1;
+}
+
+.number[data-own] {
+  border-bottom: none;
+}
+
+.number[data-own] + .number[data-own] {
+  border-left: 1px dashed var(--mantine-color-gray-3);
+}
+
+.number b {
+  font-family: var(--mantine-font-family-headings);
+  font-weight: 800;
+  font-size: 34px;
+  line-height: 1;
+  color: var(--mantine-color-ink-5);
+}
+
+.number[data-own] b {
+  color: var(--mantine-color-highlight-7);
+}
+
+.workshopList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.workshopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--mantine-color-white);
+  border: 1.5px solid var(--mantine-color-gray-3);
+  border-radius: var(--mantine-radius-sm);
+  text-align: left;
+}
+
+.workshopRow:hover {
+  border-color: var(--mantine-color-ink-5);
+}
+
+/* Most popular: a ranked list in two columns. */
+.ranked {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+  gap: 0 40px;
+}
+
+.rank {
+  display: grid;
+  grid-template-columns: 40px 52px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+  padding: 10px 6px;
+  border-bottom: 1px dashed var(--mantine-color-gray-3);
+  border-radius: var(--mantine-radius-sm);
+  text-align: left;
+  transition: background-color 150ms ease;
+}
+
+.rank:hover {
+  background: var(--mantine-color-white);
+}
+
+.rankNo {
+  font-family: var(--mantine-font-family-headings);
+  font-weight: 800;
+  font-size: 28px;
+  color: var(--mantine-color-accent-8);
+}
+
+.rankCover {
+  width: 52px;
+  height: 52px;
+  overflow: hidden;
+  border: 2px solid var(--mantine-color-ink-5);
+  border-radius: var(--mantine-radius-sm);
+}
+
+.rankName {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+@media (max-width: 48em) {
+  .greeting {
+    font-size: 28px;
+  }
+
+  .number b {
+    font-size: 28px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wobble,
+  .wobble:hover {
+    transition: none;
+    transform: none;
+  }
+
+  .caret {
+    animation: none;
+  }
 }

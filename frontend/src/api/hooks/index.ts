@@ -54,6 +54,7 @@ export {
   useRevokePrivateShare,
   useUpdateGameShare,
   useMakeGameCover,
+  useCoverDrawing,
   useFetchGame,
   fetchGame,
   gameCoverUrl,

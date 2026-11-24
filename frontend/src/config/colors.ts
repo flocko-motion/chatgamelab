@@ -1,191 +1,206 @@
 /**
- * Color System for ChatGameLab
- * 
- * This file defines color palettes in Mantine's 10-shade format (indices 0-9).
- * 
- * Brand Identity:
- * - Dark bluish gradient header → trustworthy, techy, calm
- * - Neon cyan/magenta logo → playful, game-y, creative
- * - Light theme content → modern SaaS, readable, scalable
+ * Color System for ChatGameLab: the "Lab Notebook" look (#567)
  *
- * Usage Rules:
- * - Cyan (accent) → primary actions, highlights, focus states
- * - Magenta (highlight) → attention, notifications, special actions (use sparingly!)
- * - Everything else → calm, neutral, predictable
- * - "If everything is colorful, nothing is important"
- * 
- * Mantine Index Reference:
- * - Index 0-2: Light shades (backgrounds, subtle states)
- * - Index 3-4: Medium-light (hover states)
- * - Index 5-6: Main color (default, filled buttons) ← primaryShade
- * - Index 7-8: Dark shades (pressed states, borders)
- * - Index 9: Darkest (text on light bg, high contrast)
+ * Mantine palettes have 10 shades (index 0 lightest … 9 darkest).
+ *
+ * The look:
+ * - Paper: a warm off-white page with a faint dot pattern; cards are white.
+ * - Ink: near-black text, outlines and the hard offset shadows of cards and
+ *   primary buttons. Primary actions are ink.
+ * - Neon cyan and magenta from the logo: accents (highlighter strokes,
+ *   shadows, the active state of a control, focus), never long text.
+ *
+ * Readability: every text colour here is at least 4.5:1 on paper and on white.
+ * Bright cyan (#29D0DE) and magenta (#FF4D9D) are below that, so they are
+ * fills and lines only; text in an accent uses accent.9 or highlight.7.
  */
 
 import type { MantineColorsTuple } from '@mantine/core';
 
 // =============================================================================
-// MANTINE COLOR TUPLES (10 shades each, index 0-9)
+// MANTINE COLOR TUPLES
 // =============================================================================
 
 /**
- * Primary Accent - Cyan (main: #29D0DE)
- * Use for: Primary buttons, active nav, toggles, focus rings, links
+ * Ink: the primary colour. Primary buttons, checked controls, outlines, text.
+ * Index 5+ are all ink, so filled controls look the same at every shade.
  */
-export const accentColors: MantineColorsTuple = [
-  '#e6fafb', // 0 - lightest (tinted white)
-  '#b8f0f4', // 1
-  '#8ae6ed', // 2
-  '#5cdce6', // 3
-  '#3ed6e2', // 4
-  '#29D0DE', // 5 - main accent (primaryShade)
-  '#22b8c9', // 6 - hover/darker
-  '#1a9baa', // 7
-  '#137e8b', // 8
-  '#0d616c', // 9 - darkest (for text)
+export const inkColors: MantineColorsTuple = [
+  '#F3F1EA', // 0 - hover tint on paper
+  '#E6E2D6', // 1
+  '#D3CEBF', // 2
+  '#A8A293', // 3
+  '#5B5649', // 4
+  '#15140F', // 5 - ink (primaryShade)
+  '#15140F', // 6
+  '#0B0A08', // 7
+  '#0B0A08', // 8
+  '#000000', // 9
 ];
 
 /**
- * Secondary Accent - Magenta (from logo #FF4D9D)  
- * Use for: Notifications, badges, special actions (Create, New, Pro)
- * ⚠️ Don't overuse - one accent per screen is ideal
+ * Accent: neon cyan from the logo. Fills, highlighter strokes, offset
+ * shadows, active markers. Text in cyan uses index 8 or 9 (≥ 5:1).
+ */
+export const accentColors: MantineColorsTuple = [
+  '#E6FAFB', // 0 - tinted white
+  '#B8F0F4', // 1
+  '#8AE6ED', // 2
+  '#5CDCE6', // 3
+  '#3ED6E2', // 4
+  '#29D0DE', // 5 - neon cyan (fill)
+  '#22B8C9', // 6
+  '#14808D', // 7
+  '#0D6A75', // 8 - text on white, 5.9:1
+  '#0B5A63', // 9 - text on white, 7.6:1
+];
+
+/**
+ * Highlight: neon magenta from the logo. Shadows, underlines, the caret;
+ * as text index 7 (#C81D63, 5.5:1 on white).
  */
 export const highlightColors: MantineColorsTuple = [
-  '#fdf2f8', // 0
-  '#fce7f3', // 1
-  '#fbcfe8', // 2
-  '#f9a8d4', // 3
-  '#f472b6', // 4
-  '#FF4D9D', // 5 - main highlight
-  '#db2777', // 6
-  '#be185d', // 7
-  '#9d174d', // 8
+  '#FDF2F8', // 0
+  '#FCE7F3', // 1
+  '#FBCFE8', // 2
+  '#FF9EC8', // 3
+  '#FF7EB6', // 4 - soft magenta (genre fill)
+  '#FF4D9D', // 5 - neon magenta (fill, line)
+  '#E3367F', // 6
+  '#C81D63', // 7 - text, 5.5:1 on white
+  '#9D174D', // 8
   '#831843', // 9
 ];
 
 /**
- * Slate-based neutrals (slightly blue-tinted for cohesion with header)
+ * Paper greys: warm, a little yellow, so the page reads as paper.
+ * 0 page, 1 hover, 2 lines, 5 muted text (6.1:1), 7 body text, 9 ink.
  */
 export const grayColors: MantineColorsTuple = [
-  '#F6F8FB', // 0 - main app background
-  '#EEF2F7', // 1 - hover/selected backgrounds
-  '#E2E8F0', // 2 - borders, dividers
-  '#cbd5e1', // 3
-  '#94a3b8', // 4
-  '#64748B', // 5 - muted text
-  '#475569', // 6 - icon default
-  '#334155', // 7 - body text
-  '#1e293b', // 8
-  '#0F172A', // 9 - title text (dark blue, not pure black)
+  '#FBFAF6', // 0 - page
+  '#F3F1EA', // 1 - hover / selected
+  '#E6E2D6', // 2 - lines, dividers
+  '#D3CEBF', // 3 - borders of quiet controls
+  '#A8A293', // 4 - disabled, decorative
+  '#655F52', // 5 - muted text (6.1:1 on paper)
+  '#4F4A3F', // 6 - secondary text, icons
+  '#3B3830', // 7 - body text
+  '#24221D', // 8
+  '#15140F', // 9 - titles, ink
 ];
 
-/**
- * Success - Green
- */
+/** Violet: the third neon, for the Chatbot genre and gradients. */
+export const violetColors: MantineColorsTuple = [
+  '#F2EFFF', // 0
+  '#E2DCFF', // 1
+  '#CFC6FF', // 2
+  '#B9ADFF', // 3 - soft violet (genre fill)
+  '#A193FF', // 4
+  '#8B7BFF', // 5
+  '#7462F0', // 6
+  '#5B47D6', // 7 - text, 5.9:1 on white
+  '#4835AD', // 8
+  '#372885', // 9
+];
+
 export const successColors: MantineColorsTuple = [
-  '#f0fdf4', // 0
-  '#dcfce7', // 1
-  '#bbf7d0', // 2
-  '#86efac', // 3
-  '#4ade80', // 4
-  '#22c55e', // 5
-  '#16a34a', // 6
-  '#15803d', // 7
-  '#166534', // 8
-  '#14532d', // 9
+  '#f0fdf4', '#dcfce7', '#bbf7d0', '#86efac', '#4ade80',
+  '#22c55e', '#16a34a', '#15803d', '#166534', '#14532d',
 ];
 
-/**
- * Error - Red
- */
 export const errorColors: MantineColorsTuple = [
-  '#fef2f2', // 0
-  '#fee2e2', // 1
-  '#fecaca', // 2
-  '#fca5a5', // 3
-  '#f87171', // 4
-  '#ef4444', // 5
-  '#dc2626', // 6
-  '#b91c1c', // 7
-  '#991b1b', // 8
-  '#7f1d1d', // 9
+  '#fef2f2', '#fee2e2', '#fecaca', '#fca5a5', '#f87171',
+  '#ef4444', '#dc2626', '#b91c1c', '#991b1b', '#7f1d1d',
 ];
 
-/**
- * Warning - Orange/Amber
- */
 export const warningColors: MantineColorsTuple = [
-  '#fffbeb', // 0
-  '#fef3c7', // 1
-  '#fde68a', // 2
-  '#fcd34d', // 3
-  '#fbbf24', // 4
-  '#f59e0b', // 5
-  '#d97706', // 6
-  '#b45309', // 7
-  '#92400e', // 8
-  '#78350f', // 9
+  '#fffbeb', '#fef3c7', '#fde68a', '#fcd34d', '#fbbf24',
+  '#f59e0b', '#d97706', '#b45309', '#92400e', '#78350f',
+];
+
+export const infoColors: MantineColorsTuple = [
+  '#eff6ff', '#dbeafe', '#bfdbfe', '#93c5fd', '#60a5fa',
+  '#3b82f6', '#2563eb', '#1d4ed8', '#1e40af', '#1e3a8a',
 ];
 
 /**
- * Info - Blue (using Mantine's default blue, slightly adjusted)
+ * The page: paper with a faint dot grid, and a soft glow of cyan (top left)
+ * and magenta (top right).
  */
-export const infoColors: MantineColorsTuple = [
-  '#eff6ff', // 0
-  '#dbeafe', // 1
-  '#bfdbfe', // 2
-  '#93c5fd', // 3
-  '#60a5fa', // 4
-  '#3b82f6', // 5
-  '#2563eb', // 6
-  '#1d4ed8', // 7
-  '#1e40af', // 8
-  '#1e3a8a', // 9
-];
+const PAPER_BACKGROUND = [
+  'radial-gradient(900px 400px at 10% -100px, rgba(41, 208, 222, 0.14), transparent 70%)',
+  'radial-gradient(800px 380px at 95% -80px, rgba(255, 77, 157, 0.10), transparent 70%)',
+  'radial-gradient(rgba(21, 20, 15, 0.16) 1px, transparent 1.4px) 0 0 / 22px 22px',
+  grayColors[0],
+].join(', ');
 
 // =============================================================================
-// SEMANTIC COLORS (for direct use in components)
+// SEMANTIC COLORS (theme.other.colors)
 // =============================================================================
 
 export const semanticColors = {
   // Backgrounds
-  bgMain: grayColors[0],        // #F6F8FB - main app background
-  bgSurface: '#ffffff',         // cards, modals, dropdowns
-  bgHover: grayColors[1],       // #EEF2F7 - hover/selected states
-  bgCard: '#f0f4f8',            // bluish card bg (matches header tone)
-  bgCardBorder: '#d1dce8',      // bluish card border
-  
-  // Gradients
-  bgLandingGradient: 'linear-gradient(180deg, #f0f4f8 0%, #e8eef5 25%, #dfe8f2 50%, #e8eef5 75%, #f0f4f8 100%)',
-  bgRegistrationGradient: 'linear-gradient(180deg, #f0f4f8 0%, #e8eef5 25%, #dfe8f2 50%, #e8eef5 75%, #f0f4f8 100%)',
-  
+  bgMain: grayColors[0],
+  bgSurface: '#ffffff',
+  bgHover: grayColors[1],
+  bgCard: '#ffffff',
+  bgCardBorder: inkColors[5],
+  /** A pale yellow for a highlighted strip (a card's header, a picked option). */
+  bgNote: '#FFF7B8',
+
+  // Full-page backgrounds (landing, registration): paper with a soft glow of the two neons.
+  bgLandingGradient: PAPER_BACKGROUND,
+  bgRegistrationGradient: PAPER_BACKGROUND,
+
   // Typography
-  textTitle: grayColors[9],     // #0F172A - headlines
-  textBody: grayColors[7],      // #334155 - body text
-  textMuted: grayColors[5],     // #64748B - secondary text
-  textInverse: '#E6F0FF',       // text on dark backgrounds
-  
-  // Borders & Icons
-  border: grayColors[2],        // #E2E8F0 - subtle borders
-  borderStrong: grayColors[3],  // #cbd5e1 - emphasized borders
-  iconDefault: grayColors[6],   // #475569 - default icon color
-  iconActive: accentColors[5],  // cyan for active icons
+  textTitle: grayColors[9],
+  textBody: grayColors[7],
+  textMuted: grayColors[5],
+  textInverse: '#FBFAF6',
+  textAccent: accentColors[9],
+  textHighlight: highlightColors[7],
+
+  // Borders & icons
+  border: grayColors[2],
+  borderStrong: grayColors[3],
+  ink: inkColors[5],
+  iconDefault: grayColors[6],
+  iconActive: inkColors[5],
 } as const;
 
+/**
+ * The genres' colours: a fill each, with ink text and an ink outline on top
+ * (≥ 7.8:1). Adventure cyan, Encounter magenta, Chatbot violet.
+ */
+export const genreColors: Record<string, string> = {
+  adventure: accentColors[5],
+  'npc-live': highlightColors[4],
+  chatbot: violetColors[3],
+};
+
+/** A genre without its own colour. */
+export const genreFallbackColor = grayColors[2];
+
 // =============================================================================
-// HEADER/DARK THEME LAYOUT COLORS
+// HEADER / DRAWER (theme.other.layout): light, on paper
 // =============================================================================
 
 export const layoutColors = {
-  headerGradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-  drawerGradient: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 100%)',
-  borderLight: '1px solid rgba(255, 255, 255, 0.1)',
-  lineLight: 'rgba(255, 255, 255, 0.1)',
-  panelBg: '#1a1a2e',
-  bgSubtle: 'rgba(15, 52, 96, 0.25)',
-  bgHover: 'rgba(15, 52, 96, 0.45)',
-  bgActive: 'rgba(15, 52, 96, 0.6)',
-  borderSubtle: 'rgba(255, 255, 255, 0.18)',
-  borderStrong: 'rgba(255, 255, 255, 0.26)',
-  shadowHeader: '0 2px 10px rgba(0, 0, 0, 0.3)',
+  headerGradient: 'rgba(251, 250, 246, 0.92)',
+  drawerGradient: grayColors[0],
+  borderLight: `2px solid ${inkColors[5]}`,
+  lineLight: grayColors[2],
+  panelBg: grayColors[0],
+  bgSubtle: 'transparent',
+  bgHover: grayColors[1],
+  bgActive: 'rgba(41, 208, 222, 0.22)',
+  borderSubtle: grayColors[2],
+  borderStrong: grayColors[3],
+  shadowHeader: 'none',
+  /** Text and icons in the header and the drawer. */
+  text: inkColors[5],
+  /** The active page's highlighter strip in the header. */
+  activeStrip: 'linear-gradient(transparent 42%, rgba(255, 77, 157, 0.35) 42%, rgba(255, 77, 157, 0.35) 64%, transparent 64%)',
+  /** Hovered nav text. */
+  hoverText: highlightColors[7],
 } as const;

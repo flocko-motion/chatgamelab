@@ -40,7 +40,7 @@ export function AdminRegistrationBell() {
         >
           <ActionIcon
             variant="subtle"
-            color="white"
+            color="ink"
             size="lg"
             onClick={notice.open}
             aria-label={t("admin.registrations.bell.label")}

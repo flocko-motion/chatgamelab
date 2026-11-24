@@ -1,52 +1,27 @@
-import { Avatar } from '@mantine/core';
-import { getUserInitials, getUserAvatarColor, shouldUseWhiteText } from '@/common/lib/userUtils';
+import { Critter } from './Critter';
 
 export interface UserAvatarProps {
-  /** User's name to generate initials and color */
+  /** The user's name: the seed when no id is given. */
   name: string;
+  /** The user's id: a stable seed, so the critter survives a rename. */
+  seed?: string;
   /** Avatar size - defaults to 'md' */
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-  /** Custom style overrides */
-  style?: React.CSSProperties;
-  /** Additional CSS classes */
-  className?: string;
-  /** Whether to show the initials (default) or fallback to icon */
-  showInitials?: boolean;
+  /** A ring in the critter's colour (e.g. the header's own avatar). */
+  ring?: boolean;
 }
 
+const PX = { xs: 16, sm: 26, md: 38, lg: 56, xl: 84 } as const;
+
 /**
- * UserAvatar component that generates initials and consistent colors
- * 
- * Examples:
- * - "Janos" -> Shows "J" with consistent color
- * - "Janos Brodbeck" -> Shows "JB" with consistent color  
- * - "Florian Blabla Metzger Nuger" -> Shows "FB" with consistent color
+ * UserAvatar - who someone is, as their lab critter
+ *
+ * Draws the user's critter (see Critter): the same user always gets the
+ * same one. Seeded by the id when given, else by the name.
+ *
+ * @example
+ * <UserAvatar name={user.name} seed={user.id} size="md" />
  */
-export function UserAvatar({
-  name,
-  size = 'md',
-  style,
-  className,
-  showInitials = true,
-}: UserAvatarProps) {
-  const initials = getUserInitials(name);
-  const color = getUserAvatarColor(name);
-  const textColor = shouldUseWhiteText(color) ? 'white' : 'dark';
-
-  // If style has transparent background, use white text for header
-  const isTransparentBackground = style?.backgroundColor === 'transparent';
-  const finalTextColor = isTransparentBackground ? 'white' : textColor;
-
-  return (
-    <Avatar
-      size={size}
-      radius="xl"
-      color={color}
-      style={style}
-      className={className}
-      c={finalTextColor}
-    >
-      {showInitials ? initials : null}
-    </Avatar>
-  );
+export function UserAvatar({ name, seed, size = 'md', ring = false }: UserAvatarProps) {
+  return <Critter seed={seed || name} size={PX[size]} ring={ring} />;
 }

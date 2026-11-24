@@ -61,7 +61,6 @@ export const GAME_LIST_PRESETS: Record<GameListPreset, GameListPresetConfig> = {
       toggles: [
         { value: "favorites", label: "allGames.filters.favorites" },
         { value: "own", label: "allGames.filters.own" },
-        { value: "sponsored", label: "allGames.filters.sponsored" },
         { value: "public", label: "allGames.filters.public" },
       ],
       sorts: [

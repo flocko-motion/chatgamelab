@@ -1,0 +1,212 @@
+/*
+ * Component looks of the "Lab Notebook" theme (#567), attached through
+ * classNames in mantineTheme.ts. Colours come from the theme's variables.
+ */
+
+/* ---------- Buttons ---------- */
+
+/* Filled buttons: an ink outline and a hard offset shadow; on hover they lift
+   a little and the shadow turns magenta. The fill comes from the button's
+   colour (ink by default, cyan for color="accent"). */
+.button[data-variant='filled'] {
+  border: 2px solid var(--mantine-color-ink-5);
+  box-shadow: 3px 3px 0 var(--mantine-color-accent-5);
+  font-weight: 700;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.button[data-variant='filled']:hover:not(:disabled, [data-disabled]) {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--mantine-color-highlight-5);
+}
+
+.button[data-variant='filled']:active:not(:disabled, [data-disabled]) {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--mantine-color-ink-5);
+}
+
+/* Outline and default buttons: ink outlines on white. */
+.button:is([data-variant='outline'], [data-variant='default']) {
+  border-width: 2px;
+  font-weight: 700;
+}
+
+.button:is([data-variant='subtle'], [data-variant='light']) {
+  font-weight: 600;
+}
+
+/* Everything focusable shows where the keyboard is. */
+.button:focus-visible,
+.actionIcon:focus-visible,
+.anchor:focus-visible {
+  outline: 3px solid var(--mantine-color-ink-5);
+  outline-offset: 3px;
+}
+
+.actionIcon[data-variant='filled'] {
+  border: 2px solid var(--mantine-color-ink-5);
+}
+
+/* ---------- Links ---------- */
+
+/* Ink text with a magenta underline: readable, and clearly a link. */
+.anchor {
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--mantine-color-highlight-5);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  transition: color 150ms ease;
+}
+
+.anchor:hover {
+  color: var(--mantine-color-highlight-7);
+}
+
+/* ---------- Surfaces ---------- */
+
+/* Cards: white, an ink outline and a hard offset shadow (shadow="md"). */
+.card {
+  background: var(--mantine-color-white);
+  border-width: 2px;
+  border-color: var(--mantine-color-ink-5);
+}
+
+/* Paper: plain white, a quiet outline; no soft drop shadow. */
+.paper {
+  background: var(--mantine-color-white);
+}
+
+.paper[data-with-border] {
+  border-color: var(--mantine-color-gray-2);
+}
+
+.modal {
+  border: 2px solid var(--mantine-color-ink-5);
+  box-shadow: 6px 6px 0 var(--mantine-color-ink-5);
+}
+
+.modalTitle {
+  font-family: var(--mantine-font-family-headings);
+  font-weight: 800;
+  font-size: var(--mantine-font-size-lg);
+}
+
+/* Menus, popovers and select lists: white, ink outline, offset shadow. */
+.dropdown {
+  border: 2px solid var(--mantine-color-ink-5);
+  border-radius: var(--mantine-radius-md);
+  box-shadow: 4px 4px 0 var(--mantine-color-ink-5);
+}
+
+.menuItem {
+  font-weight: 500;
+}
+
+.menuItem[data-hovered] {
+  background: var(--mantine-color-accent-0);
+}
+
+.option[data-combobox-selected] {
+  background: var(--mantine-color-ink-5);
+  color: var(--mantine-color-white);
+}
+
+.option:hover:not([data-combobox-selected]) {
+  background: var(--mantine-color-accent-0);
+}
+
+/* ---------- Inputs ---------- */
+
+.input {
+  border-width: 1.5px;
+  border-color: var(--mantine-color-gray-3);
+  background: var(--mantine-color-white);
+}
+
+.input:focus,
+.input:focus-within {
+  border-color: var(--mantine-color-ink-5);
+  outline: 3px solid var(--mantine-color-accent-3);
+  outline-offset: 1px;
+}
+
+.input::placeholder {
+  color: var(--mantine-color-gray-5);
+}
+
+/* ---------- Controls ---------- */
+
+.segmented {
+  border: 2px solid var(--mantine-color-ink-5);
+  background: var(--mantine-color-white);
+}
+
+.segmentedIndicator {
+  background: var(--mantine-color-ink-5);
+  box-shadow: none;
+}
+
+.segmentedLabel {
+  padding: 6px 12px;
+  font-weight: 600;
+  color: var(--mantine-color-ink-5);
+}
+
+/* The active segment's label reads on the ink indicator. */
+.segmentedLabel[data-active],
+.segmentedLabel[data-active]:hover {
+  color: var(--mantine-color-white);
+}
+
+.switchTrack {
+  border: 1.5px solid var(--mantine-color-ink-5);
+}
+
+.badge {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.badge[data-variant='light'] {
+  color: var(--mantine-color-ink-5);
+}
+
+/* Table headers: small mono labels. */
+.th {
+  font-family: var(--mantine-font-family-monospace);
+  font-size: var(--mantine-font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--mantine-color-gray-6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button,
+  .button:hover {
+    transition: none;
+    transform: none !important;
+  }
+}
+
+/* A disabled button looks pressed flat: no shadow, so it does not invite a click. */
+.button[data-variant='filled']:is(:disabled, [data-disabled]) {
+  box-shadow: none;
+  border-color: var(--mantine-color-gray-3);
+}
+
+/* Alerts: the colour stays in the tint, the edge and the icon; the text is
+   ink, readable on every tint (a pale orange title alone is below 4.5:1). */
+.alert:not([data-variant='filled']) {
+  border: 1.5px solid var(--alert-color);
+}
+
+.alert:not([data-variant='filled']) .alertTitle {
+  color: var(--mantine-color-ink-5);
+}
+
+.alert:not([data-variant='filled']) .alertMessage {
+  color: var(--mantine-color-gray-8);
+}
