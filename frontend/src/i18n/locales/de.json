@@ -225,7 +225,7 @@
           "approved": "Freigegeben"
         },
         "title": "Seiten, die Spiele einbetten",
-        "description": "Die verifizierte Seite jeder Organisation. Ihre Spiele starten dort erst, wenn du sie freigibst; eine geänderte Adresse oder ein geänderter Callback wartet wieder auf Freigabe.",
+        "description": "Die verifizierte Seite jeder Organisation. Ihre Spiele starten dort erst, wenn du sie freigibst; du gibst ihre Website frei (Schema und Host): eine Seite auf einer anderen Website wartet wieder auf Freigabe, ein anderer Port oder Pfad auf derselben Website bleibt freigegeben.",
         "empty": "Noch keine Organisation hat eine Seite registriert.",
         "loadError": "Die Seiten konnten nicht geladen werden.",
         "approved": "Freigegeben",
@@ -1203,7 +1203,7 @@
         "callbackUrlHint": "Hier fragt ChatGameLab vor jedem Start. Sie muss innerhalb weniger Sekunden antworten.",
         "add": "Seite registrieren",
         "editTitle": "Seite ändern",
-        "editReapproval": "Eine geänderte Adresse oder Rückrufadresse wartet erneut auf die Freigabe durch einen Admin; bis dahin starten dort keine Spiele.",
+        "editReapproval": "Diese Adresse liegt auf einer anderen Website und wartet erneut auf die Freigabe durch einen Admin; bis dahin starten dort keine Spiele. Ein anderer Port oder Pfad auf derselben Website bleibt freigegeben.",
         "edit": "Seite ändern",
         "save": "Seite speichern",
         "pageId": "Seiten-ID",

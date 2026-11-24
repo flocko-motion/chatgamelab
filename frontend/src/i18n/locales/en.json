@@ -225,7 +225,7 @@
           "approved": "Approved"
         },
         "title": "Pages that embed games",
-        "description": "Each organisation's verified page. Its games start there only once you approve it; a change of the page's address or callback waits for approval again.",
+        "description": "Each organisation's verified page. Its games start there only once you approve it; you approve its site (scheme and host), so a page moved to another site waits for approval again, while another port or path on the same site stays approved.",
         "empty": "No organisation has registered a page.",
         "loadError": "The pages could not be loaded.",
         "approved": "Approved",
@@ -1203,7 +1203,7 @@
         "callbackUrlHint": "Where ChatGameLab asks before each start. It must answer within a few seconds.",
         "add": "Register page",
         "editTitle": "Change the page",
-        "editReapproval": "A changed address or callback waits for an admin's approval again; until then, games stop starting there.",
+        "editReapproval": "This address is on another site, which waits for an admin's approval again; until then, games stop starting there. Another port or path on the same site stays approved.",
         "edit": "Change page",
         "save": "Save page",
         "pageId": "Page ID",

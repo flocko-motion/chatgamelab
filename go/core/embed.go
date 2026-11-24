@@ -214,7 +214,7 @@ func embedSource(ctx context.Context, card *GameCard, existing *GameEmbed, from 
 // caller: its workshop's, or the one its creator is head or staff of.
 func gameOrganisation(card *GameCard) *uuid.UUID { return card.row.organisationID }
 
-// Framing is the playback-engine page's frame-ancestors, and the origin
+// Framing is the playback-engine page's frame-ancestors, and the source
 // besides its own that handed-over CSS may load from ("" for none).
 type Framing struct {
 	Ancestors   string
@@ -227,8 +227,8 @@ func (f Framing) Framed() bool { return f.Ancestors != framedBySelf }
 const framedBySelf = "'self'"
 
 // EmbedFraming is who may frame the playback-engine opened for share token
-// or session: an approved verified page's origin for its embed link,
-// otherwise the platform alone.
+// or session: an approved verified page's site, on any port, for its embed
+// link; otherwise the platform alone.
 func EmbedFraming(ctx context.Context, token string, session *uuid.UUID) Framing {
 	self := Framing{Ancestors: framedBySelf}
 	if token == "" && session == nil {
@@ -244,8 +244,9 @@ func EmbedFraming(ctx context.Context, token string, session *uuid.UUID) Framing
 	switch {
 	case !r.Embed || !r.Enabled:
 		return self
-	case EmbedMode(r.EmbedMode.String) == EmbedVerified && r.VerifiedOrigin.Valid && r.VerifiedPageApproved:
-		return Framing{Ancestors: r.VerifiedOrigin.String, AssetOrigin: r.VerifiedOrigin.String}
+	case EmbedMode(r.EmbedMode.String) == EmbedVerified && r.VerifiedSite.Valid && r.VerifiedPageApproved:
+		anyPort := r.VerifiedSite.String + ":*"
+		return Framing{Ancestors: anyPort, AssetOrigin: anyPort}
 	}
 	return self
 }

@@ -20,6 +20,16 @@ function isWebURL(value: string): boolean {
   }
 }
 
+/** An address's site, scheme and host, as the server compares it; null for no address. */
+function siteOf(value: string): string | null {
+  try {
+    const { protocol, hostname } = new URL(value);
+    return `${protocol}//${hostname.toLowerCase()}`;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * The organisation's verified pages, registering one and changing it: the
  * address of the page that frames its embedded games and the callback that
@@ -89,6 +99,8 @@ export function useVerifiedPagesTab(institutionId: string | undefined) {
     draft: { pageUrl, setPageUrl, callbackUrl, setCallbackUrl, valid: draftValid },
     /** The page the form changes; null while it registers a new one. */
     editing,
+    /** The changed address is on another site than the page's: its approval would go. */
+    leavesSite: !!editing && siteOf(pageUrl.trim()) !== null && siteOf(pageUrl.trim()) !== editing.site,
     startEdit,
     cancelEdit: clearForm,
     submit,

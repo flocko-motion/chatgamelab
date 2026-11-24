@@ -67,10 +67,11 @@ That floor is enforced automatically.
   CSS contract (`docs/embed-styling.md`).
 - **The core decides who may frame it.** The playback-engine page's
   `Content-Security-Policy` comes from `core.EmbedFraming`: `frame-ancestors`
-  is `'self'`, or the origin of the embed link's verified page once an admin
-  approved it (the only embedding there is); framed elsewhere, `img-src` and
-  `font-src` keep handed-over CSS to the platform, `data:` and the verified
-  origin.
+  is `'self'`, or the site of the embed link's verified page on any port
+  (`scheme://host:*`) once an admin approved it (the only embedding there
+  is); framed elsewhere, `img-src` and `font-src` keep handed-over CSS to the
+  platform, `data:` and the verified site. An approval holds for the site:
+  only a change of scheme or host withdraws it.
 - **The host's yes is an access decision**, so the core asks it
   (`core.EmbedPlay`): it posts to the callback in its own records, follows no
   redirect and gives up after a few seconds.

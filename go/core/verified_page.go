@@ -25,8 +25,9 @@ import (
 
 // A verified page is an organisation's one page on its own website that may
 // frame its embedded games (#340). Its head and staff register and manage
-// it; an admin approves it, and a change of its address or callback
-// withdraws the approval. The host's yes to each start is embed.go's.
+// it; an admin approves its site (scheme and host), and only a change of
+// site withdraws the approval: port and path are free, for the page and its
+// callback alike. The host's yes to each start is embed.go's.
 
 // pageIDBytes is the length of a page ID: 16 hex characters.
 const pageIDBytes = 8
@@ -37,7 +38,7 @@ type VerifiedPage struct {
 	OrganisationID   uuid.UUID
 	OrganisationName string
 	PageID           string     // the ID the host recognises in the callback
-	Origin           string     // who may frame the playback-engine: scheme, host, port
+	Site             string     // what the admin approves, scheme://host: any port and path on it may frame
 	ApprovedAt       *time.Time // nil: not approved, its games start nothing
 	PageURL          string
 	CallbackURL      string
@@ -112,7 +113,7 @@ func loadVerifiedPages(ctx context.Context, org, id *uuid.UUID, rights verifiedP
 	for i, r := range rows {
 		p := &VerifiedPage{
 			ID: r.ID, OrganisationID: r.InstitutionID, OrganisationName: r.InstitutionName, PageID: r.PageID,
-			Origin: r.Origin, PageURL: r.PageUrl, CallbackURL: r.CallbackUrl, CreatedAt: r.CreatedAt, ModifiedAt: r.ModifiedAt,
+			Site: r.Site, PageURL: r.PageUrl, CallbackURL: r.CallbackUrl, CreatedAt: r.CreatedAt, ModifiedAt: r.ModifiedAt,
 			mayEdit: rights.edit, mayDelete: rights.delete, mayApprove: mayApprove,
 		}
 		if r.ApprovedAt.Valid {
@@ -123,7 +124,7 @@ func loadVerifiedPages(ctx context.Context, org, id *uuid.UUID, rights verifiedP
 	return pages, nil
 }
 
-// VerifiedPageDraft is a verified page's address and callback; the origin
+// VerifiedPageDraft is a verified page's address and callback; the site
 // comes from the address.
 type VerifiedPageDraft struct {
 	PageURL     string
@@ -137,7 +138,7 @@ func CreateVerifiedPage(ctx context.Context, org uuid.UUID, d VerifiedPageDraft)
 	if !verifiedPageGates(ctx, org).create {
 		return nil, forbidden("you may not register pages for this organisation")
 	}
-	origin, err := checkPageURLs(d)
+	site, err := checkPageURLs(d)
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +147,7 @@ func CreateVerifiedPage(ctx context.Context, org uuid.UUID, d VerifiedPageDraft)
 		return nil, err
 	}
 	id, err := store.Queries().V2CreateVerifiedPage(ctx, db.V2CreateVerifiedPageParams{
-		InstitutionID: org, PageID: pageID, Origin: origin,
+		InstitutionID: org, PageID: pageID, Site: site,
 		PageUrl: d.PageURL, CallbackUrl: d.CallbackURL, CreatedBy: account(ctx).UUID,
 	})
 	if errors.Is(err, sql.ErrNoRows) {
@@ -160,8 +161,8 @@ func CreateVerifiedPage(ctx context.Context, org uuid.UUID, d VerifiedPageDraft)
 }
 
 // UpdateVerifiedPage changes a verified page's address and callback; its
-// page ID stays, and a change withdraws its approval: {Edit, VerifiedPage,
-// OfOwnOrganisation}.
+// page ID stays, and a change of its site withdraws its approval (a new
+// port or path keeps it): {Edit, VerifiedPage, OfOwnOrganisation}.
 func UpdateVerifiedPage(ctx context.Context, id uuid.UUID, d VerifiedPageDraft) (*VerifiedPage, error) {
 	page, err := readVerifiedPage(ctx, id)
 	if err != nil {
@@ -170,12 +171,12 @@ func UpdateVerifiedPage(ctx context.Context, id uuid.UUID, d VerifiedPageDraft) 
 	if !page.MayEdit() {
 		return nil, forbidden("you may not change this page")
 	}
-	origin, err := checkPageURLs(d)
+	site, err := checkPageURLs(d)
 	if err != nil {
 		return nil, err
 	}
 	if err := store.Queries().V2UpdateVerifiedPage(ctx, db.V2UpdateVerifiedPageParams{
-		ID: id, Origin: origin, PageUrl: d.PageURL, CallbackUrl: d.CallbackURL,
+		ID: id, Site: site, PageUrl: d.PageURL, CallbackUrl: d.CallbackURL,
 	}); err != nil {
 		return nil, err
 	}
@@ -222,17 +223,33 @@ func DeleteVerifiedPage(ctx context.Context, id uuid.UUID) error {
 }
 
 // checkPageURLs checks a page's address and callback and answers the
-// page's origin. Both are https: TLS proves who answers the callback. In
-// development, a page on the own machine may use plain http.
+// page's site. Both are https: TLS proves who answers the callback. In
+// development, a page on the own machine may use plain http. The callback
+// is on the page's site, which the admin approves for both.
 func checkPageURLs(d VerifiedPageDraft) (string, error) {
 	page, err := pageURL(d.PageURL, "pageUrl")
 	if err != nil {
 		return "", err
 	}
-	if _, err := pageURL(d.CallbackURL, "callbackUrl"); err != nil {
+	callback, err := pageURL(d.CallbackURL, "callbackUrl")
+	if err != nil {
 		return "", err
 	}
-	return page.Scheme + "://" + page.Host, nil
+	site := siteOf(page)
+	if siteOf(callback) != site {
+		return "", refuse("callbackUrl must be on the page's site, %s", site)
+	}
+	return site, nil
+}
+
+// siteOf is an address's site: its scheme and host, without port or path,
+// the host in lower case (an IPv6 address in brackets).
+func siteOf(u *url.URL) string {
+	host := strings.ToLower(u.Hostname())
+	if strings.Contains(host, ":") {
+		host = "[" + host + "]"
+	}
+	return u.Scheme + "://" + host
 }
 
 // maxPageURL caps the length of a page's address and callback.

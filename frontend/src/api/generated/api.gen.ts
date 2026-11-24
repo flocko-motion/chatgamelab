@@ -1646,9 +1646,9 @@ export interface VerifiedPageView {
   /** @format uuid */
   organisationId: string;
   organisationName: string;
-  origin: string;
   pageId: string;
   pageUrl: string;
+  site: string;
 }
 
 export interface VerifiedPageViewPage {

@@ -84,8 +84,8 @@ WHERE id = @id::uuid AND embed;
 
 -- name: V2EmbedFraming :many
 -- Who may frame the playback-engine for a share token, or for the session
--- it plays (session set): an embed link's switch, mode and verified origin.
-SELECT gs.embed, gs.enabled, gs.embed_mode, vp.origin AS verified_origin,
+-- it plays (session set): an embed link's switch, mode and verified site.
+SELECT gs.embed, gs.enabled, gs.embed_mode, vp.site AS verified_site,
   (vp.approved_at IS NOT NULL)::bool AS verified_page_approved
 FROM game_share gs
 LEFT JOIN verified_page vp ON vp.id = gs.verified_page_id

@@ -159,7 +159,7 @@ func (q *Queries) V2DeleteLinkGuests(ctx context.Context, linkID uuid.NullUUID) 
 }
 
 const v2EmbedFraming = `-- name: V2EmbedFraming :many
-SELECT gs.embed, gs.enabled, gs.embed_mode, vp.origin AS verified_origin,
+SELECT gs.embed, gs.enabled, gs.embed_mode, vp.site AS verified_site,
   (vp.approved_at IS NOT NULL)::bool AS verified_page_approved
 FROM game_share gs
 LEFT JOIN verified_page vp ON vp.id = gs.verified_page_id
@@ -177,12 +177,12 @@ type V2EmbedFramingRow struct {
 	Embed                bool           `json:"embed"`
 	Enabled              bool           `json:"enabled"`
 	EmbedMode            sql.NullString `json:"embed_mode"`
-	VerifiedOrigin       sql.NullString `json:"verified_origin"`
+	VerifiedSite         sql.NullString `json:"verified_site"`
 	VerifiedPageApproved bool           `json:"verified_page_approved"`
 }
 
 // Who may frame the playback-engine for a share token, or for the session
-// it plays (session set): an embed link's switch, mode and verified origin.
+// it plays (session set): an embed link's switch, mode and verified site.
 func (q *Queries) V2EmbedFraming(ctx context.Context, arg V2EmbedFramingParams) ([]V2EmbedFramingRow, error) {
 	rows, err := q.db.QueryContext(ctx, v2EmbedFraming, arg.Token, arg.Session)
 	if err != nil {
@@ -196,7 +196,7 @@ func (q *Queries) V2EmbedFraming(ctx context.Context, arg V2EmbedFramingParams) 
 			&i.Embed,
 			&i.Enabled,
 			&i.EmbedMode,
-			&i.VerifiedOrigin,
+			&i.VerifiedSite,
 			&i.VerifiedPageApproved,
 		); err != nil {
 			return nil, err

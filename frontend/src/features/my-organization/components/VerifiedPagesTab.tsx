@@ -58,7 +58,7 @@ export function VerifiedPagesTab({ state }: { state: VerifiedPagesTabState }) {
                 ? t("myOrganization.verifiedPages.editTitle")
                 : t("myOrganization.verifiedPages.addTitle")}
             </Label>
-            {state.editing?.approvedAt && (
+            {state.editing?.approvedAt && state.leavesSite && (
               <HelperText c="orange.8">{t("myOrganization.verifiedPages.editReapproval")}</HelperText>
             )}
             <TextInput
