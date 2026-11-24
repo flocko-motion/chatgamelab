@@ -6,10 +6,14 @@ import {
 } from "@/api/hooks";
 import type { VerifiedPageView } from "@/api/types";
 
-/** A web address the server may take: a full https address. */
-function isHttpsURL(value: string): boolean {
+/**
+ * A full web address. Which ones it takes is the server's: https, and in
+ * development plain http to the own machine.
+ */
+function isWebURL(value: string): boolean {
   try {
-    return new URL(value).protocol === "https:";
+    const { protocol } = new URL(value);
+    return protocol === "https:" || protocol === "http:";
   } catch {
     return false;
   }
@@ -31,7 +35,7 @@ export function useVerifiedPagesTab(institutionId: string | undefined) {
   // The page asked to be removed, waiting for the confirmation.
   const [removing, setRemoving] = useState<VerifiedPageView | null>(null);
 
-  const draftValid = isHttpsURL(pageUrl.trim()) && isHttpsURL(callbackUrl.trim());
+  const draftValid = isWebURL(pageUrl.trim()) && isWebURL(callbackUrl.trim());
 
   const add = async () => {
     if (!institutionId || !draftValid) return;
