@@ -66,8 +66,12 @@ type GameView struct {
 	FirstImage             []byte  `json:"firstImage,omitempty"`
 
 	// HasSettings: the caller sees who is behind the game; the fields below are set.
-	HasSettings                  bool       `json:"hasSettings"`
-	WorkshopID                   *uuid.UUID `json:"workshopId,omitempty"`
+	HasSettings bool       `json:"hasSettings"`
+	WorkshopID  *uuid.UUID `json:"workshopId,omitempty"`
+	// OrganisationID is the organisation the game belongs to: its workshop's,
+	// or the one its creator is head or staff of; the caller's own when it is
+	// theirs.
+	OrganisationID               *uuid.UUID `json:"organisationId,omitempty"`
 	PublicSponsoredApiKeyShareID *uuid.UUID `json:"publicSponsoredApiKeyShareId,omitempty"`
 	CreatorID                    *uuid.UUID `json:"creatorId,omitempty"`
 	OriginallyCreatedBy          *uuid.UUID `json:"originallyCreatedBy,omitempty"`
@@ -146,6 +150,7 @@ func gameView(card *core.GameCard, refusal error) GameView {
 	if s, err := card.AsGameSettings(); err == nil {
 		v.HasSettings = true
 		v.WorkshopID = s.WorkshopID()
+		v.OrganisationID = s.OrganisationID()
 		v.PublicSponsoredApiKeyShareID = s.SponsorID()
 		v.CreatorID = s.CreatorID()
 		v.OriginallyCreatedBy = s.OriginallyCreatedBy()

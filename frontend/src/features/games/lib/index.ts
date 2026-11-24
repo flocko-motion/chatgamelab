@@ -6,6 +6,7 @@ export { readGameFile, GameFileError, MAX_GAME_FILE_BYTES, type GameFileContents
 export {
   GAME_LIST_PRESETS,
   withGenreFilter,
+  withoutOrganisationFilter,
   type GameListPreset,
   type GameColumnKey,
   type GameListPresetConfig,

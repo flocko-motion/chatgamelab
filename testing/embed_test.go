@@ -91,6 +91,26 @@ func (s *EmbedTestSuite) TestAVerifiedPagePlaysOnlyOnceApproved() {
 	s.Refused(start("c"), testutil.CodeHostRefused, "changed")
 }
 
+// A game its designer, head or staff, wrote outside any workshop is the
+// organisation's too (#564): a colleague embeds it on the organisation's
+// verified page.
+func (s *EmbedTestSuite) TestAGameOfTheOrganisationThroughItsDesignerEmbeds() {
+	w := s.world()
+	Must(w.head.SetActiveWorkshop(nil))
+	game := Must(w.head.UploadGame("alien-first-contact")).Id.String()
+	staff := s.CreateUser(testutil.Unique("staff"))
+	invite := Must(s.DevUser().InviteToInstitution(w.org, "staff", staff.ID))
+	Must(staff.AcceptInviteByToken(invite.Id.String()))
+	page := Must(w.head.CreateVerifiedPage(w.org, "https://example.org/play", "https://example.org/callback")).Id.String()
+
+	read := Must(staff.ReadGame(game))
+	s.Require().NotNil(read.OrganisationId)
+	s.Equal(w.org, read.OrganisationId.String())
+	embed := Must(staff.SetGameEmbed(game, testutil.Embedding{Enabled: true, PaidBy: w.share, VerifiedPage: page}))
+	s.Require().NotNil(embed.VerifiedPageId)
+	s.Equal(page, embed.VerifiedPageId.String())
+}
+
 // An organisation has one verified page; the admin sees every one.
 func (s *EmbedTestSuite) TestAnOrganisationHasOneVerifiedPage() {
 	w := s.world()

@@ -21,6 +21,7 @@ import {
 import { extractRawErrorCode } from "@/common/types/errorCodes";
 import type { CreateGameReq, GameView } from "@/api/types";
 import { useAuth } from "@/providers/AuthProvider";
+import { isOrganisationMember } from "@/common/lib/roles";
 import type { CreateGameFormData } from "../types";
 import {
   gameToFormData,
@@ -31,6 +32,7 @@ import {
 import {
   GAME_LIST_PRESETS,
   withGenreFilter,
+  withoutOrganisationFilter,
   type GameListPreset,
 } from "../lib/gameListPresets";
 import type { GameEditRights } from "./useGameEditor";
@@ -88,13 +90,16 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
   const workshopId = preset === "workshop" ? backendUser?.role?.workshop?.id : undefined;
 
   // ── The list ────────────────────────────────────────────────────────────
-  // The gallery can be narrowed to genres, the ones the engine plays.
+  // The gallery can be narrowed to genres, the ones the engine plays, and,
+  // for the head and staff of an organisation, to its games.
   const { data: genres } = useGenres();
   const genreIds = useMemo(() => (genres ?? []).map((g) => g.id), [genres]);
-  const listPreset = useMemo(
-    () => (preset === "all" ? withGenreFilter(config.list, genreIds) : config.list),
-    [preset, config.list, genreIds],
-  );
+  const inOrganisation = isOrganisationMember(backendUser);
+  const listPreset = useMemo(() => {
+    if (preset !== "all") return config.list;
+    const list = inOrganisation ? config.list : withoutOrganisationFilter(config.list);
+    return withGenreFilter(list, genreIds);
+  }, [preset, config.list, genreIds, inOrganisation]);
   const list = useGames(listPreset);
 
   // ── Who may do what: the server's flags ────────────────────────────────

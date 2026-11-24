@@ -219,6 +219,15 @@ export function getUserInstitutionId(
 }
 
 /**
+ * Whether the user is in an organisation: its head or staff. A guest in one of
+ * its workshops takes part, but is no member (spec, Roles).
+ */
+export function isOrganisationMember(user: WithRole | null | undefined): boolean {
+  const role = user?.role?.role;
+  return (role === RoleName.Head || role === RoleName.Staff) && !!user?.role?.institution?.id;
+}
+
+/**
  * Checks if user belongs to a specific institution.
  */
 export function isInInstitution(
