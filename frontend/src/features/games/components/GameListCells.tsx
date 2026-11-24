@@ -9,29 +9,8 @@ import {
 import { useTranslation } from "react-i18next";
 import type { GameView } from "@/api/types";
 import { GameCover } from "@components/GameCover";
-import {
-  DeleteIconButton,
-  GenericIconButton,
-} from "@components/buttons";
-import type { GameCardAction } from "./GameCard";
 
 /* The cells of a game list's columns (useGameColumns). */
-
-export function GameActionIcon({ action }: { action: GameCardAction }) {
-  return (
-    <Tooltip label={action.label} withArrow>
-      {action.key === "delete" ? (
-        <DeleteIconButton onClick={action.onClick} aria-label={action.label} />
-      ) : (
-        <GenericIconButton
-          icon={action.icon}
-          onClick={action.onClick}
-          aria-label={action.label}
-        />
-      )}
-    </Tooltip>
-  );
-}
 
 export function GameNameCell({
   game,

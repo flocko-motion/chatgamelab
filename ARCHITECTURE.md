@@ -67,8 +67,8 @@ That floor is enforced automatically.
   CSS contract (`docs/embed-styling.md`).
 - **The core decides who may frame it.** The playback-engine page's
   `Content-Security-Policy` comes from `core.EmbedFraming`: `frame-ancestors`
-  is `'self'`, `*` for an embed link on any website, or a verified page's
-  origin; framed elsewhere, `img-src` and `font-src` keep handed-over CSS to
+  is `'self'`, or a verified page's origin for its embed link (the only
+  embedding there is); framed elsewhere, `img-src` and `font-src` keep handed-over CSS to
   the platform, `data:` and the verified origin.
 - **The host's yes is an access decision**, so the core asks it
   (`core.EmbedPlay`): it posts to the callback in its own records, follows no

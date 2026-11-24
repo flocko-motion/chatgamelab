@@ -729,7 +729,8 @@
         "addField": "Neuen Wert hinzufügen",
         "namePlaceholder": "Name (z.B. Gesundheit)",
         "noFields": "Noch keine Werte. Klicke auf +, um einen neuen Wert hinzuzufügen.",
-        "valuePlaceholder": "Startwert (z.B. 100)"
+        "valuePlaceholder": "Startwert (z.B. 100)",
+        "maxHint": "Höchstens fünf Werte: Wenige, denen man folgen kann, sind besser als viele."
       },
       "tabs": {
         "basic": "Grundlagen",
@@ -824,6 +825,176 @@
           "noKey": "Keiner der KI-Schlüssel, die du nutzen kannst, zeichnet Bilder. Das Spiel hat deshalb vorerst kein Titelbild.",
           "keyRejected": "Der KI-Anbieter hat den Schlüssel abgelehnt. Das Titelbild konnte nicht gezeichnet werden.",
           "failed": "Das Titelbild konnte nicht gezeichnet werden. Bitte versuche es noch einmal."
+        }
+      },
+      "editor": {
+        "titleNew": "Neues Spiel",
+        "titleEdit": "Spiel bearbeiten",
+        "titleView": "Spiel",
+        "open": "Öffnen",
+        "untitled": "Spiel ohne Titel",
+        "othersGame": "Dieses Spiel gehört jemand anderem. Du kannst dir alles ansehen und eine eigene Kopie machen, um es zu ändern.",
+        "allSet": "Alles bereit: Erstelle das Spiel.",
+        "fillIn": "Fülle die Abschnitte aus, bis alle grün sind.",
+        "next": "als Nächstes",
+        "done": "fertig",
+        "notDone": "noch nicht fertig",
+        "doneButton": "Fertig",
+        "backToOverview": "Zurück zur Übersicht",
+        "makeCopy": "Meine Kopie machen",
+        "genre": {
+          "question": "Was möchtest du machen?",
+          "pitch": {
+            "adventure": "Die Spielerin oder der Spieler erkundet eine Welt. Das Spiel erzählt, was passiert, malt Bilder und zählt mit.",
+            "encounter": "Die Spielerin oder der Spieler spricht mit einer Figur, per Stimme. Sie bleibt in ihrer Rolle und antwortet live."
+          }
+        },
+        "pages": {
+          "card": {
+            "label": "Karte",
+            "intro": "Was Spielende in der Galerie sehen: den Titel und eine kurze Beschreibung."
+          },
+          "story": {
+            "label": "Geschichte",
+            "intro": "Was im Spiel passiert und wie es beginnt."
+          },
+          "look": {
+            "label": "Aussehen",
+            "intro": "Wie die Bilder des Spiels und seine Seite aussehen."
+          },
+          "sound": {
+            "label": "Klang",
+            "intro": "Wie die Stimme des Spiels klingt."
+          },
+          "sharing": {
+            "label": "Teilen",
+            "intro": "Wer das Spiel finden und spielen kann."
+          }
+        },
+        "card": {
+          "title": "Titel",
+          "description": "Beschreibung",
+          "descriptionHint": "Ein, zwei Sätze für die Galerie, damit Spielende wissen, was sie erwartet.",
+          "adventure": {
+            "titlePlaceholder": "Der Schatz im dunklen Wald",
+            "descriptionPlaceholder": "Finde den versteckten Schatz, bevor der Wald dich verschluckt."
+          },
+          "encounter": {
+            "titlePlaceholder": "Greta im Leuchtturm",
+            "descriptionPlaceholder": "Besuche Greta, die grummelige Leuchtturmwärterin, und finde heraus, was sie in jener Nacht gesehen hat."
+          },
+          "titleHint": "{{length}}/{{max}} · Kann öffentlich sichtbar werden – bitte keine Klarnamen."
+        },
+        "story": {
+          "adventure": {
+            "scenario": "Worum geht es im Spiel?",
+            "scenarioHint": "Die Welt, die Rolle der Spielenden, das Ziel, und woran sie merken, dass sie gewonnen haben.",
+            "scenarioPlaceholder": "Die Spielerin ist eine Entdeckerin in einem geheimnisvollen Wald und sucht einen versteckten Schatz…",
+            "gameStart": "Wie beginnt es?",
+            "gameStartHint": "Die erste Szene, die die Spielenden sehen, und woran sie merken, was zu tun ist.",
+            "gameStartPlaceholder": "Die Spielerin erwacht am Rand eines dunklen Waldes. Ein schmaler Pfad führt zwischen die Bäume…"
+          },
+          "encounter": {
+            "scenario": "Wer ist die Figur?",
+            "scenarioHint": "Ihre Persönlichkeit, was sie weiß, wie sie spricht und worin sie niemals nachgibt.",
+            "scenarioPlaceholder": "Du bist Greta, eine grummelige Leuchtturmwärterin, die jedes Schiff an der Küste kennt…",
+            "gameStart": "Wie begrüßt sie die Spielenden?",
+            "gameStartHint": "Die Lage, wenn das Gespräch beginnt; die ersten Worte werden daraus geschrieben.",
+            "gameStartPlaceholder": "Mitten in einem Sturm klopft jemand Fremdes an die Tür des Leuchtturms…"
+          }
+        },
+        "look": {
+          "imageStyle": "Bildstil",
+          "imageStyleHint": "Wie die Bilder aussehen, das Titelbild eingeschlossen: Cartoon, Aquarell, Pixel-Art…",
+          "imageStylePlaceholder": "weiches Aquarell, gedämpfte Farben"
+        },
+        "sound": {
+          "adventure": {
+            "voiceStyle": "Die Stimme der Erzählerin oder des Erzählers",
+            "voiceStyleHint": "Wie die Geschichte klingt, wenn sie vorgelesen wird."
+          },
+          "encounter": {
+            "voiceStyle": "Die Stimme der Figur",
+            "voiceStyleHint": "Wie die Figur klingt."
+          },
+          "listen": "Anhören",
+          "play": "Eine Hörprobe der Stimme abspielen",
+          "stop": "Hörprobe anhalten",
+          "builtInVoice": "Eingebaute Stimme",
+          "status": {
+            "builtIn": "Noch keine Beschreibung: Das Spiel spricht mit einer eingebauten Stimme, bis du die Stimme beschreibst.",
+            "ownVoice": "Eine eigene Stimme für diese Beschreibung, gemacht mit deinem KI-Schlüssel.",
+            "steered": "Eine eingebaute Stimme liest die Geschichte vor, so wie die Beschreibung es sagt."
+          },
+          "newVoice": "Neue Stimme machen",
+          "newVoiceConfirm": "Die jetzige Stimme wird gelöscht, und aus derselben Beschreibung wird eine neue gemacht. Spiele mit genau dieser Beschreibung auf diesem KI-Schlüssel bekommen die neue Stimme auch.",
+          "keepVoice": "Diese behalten",
+          "noteDescription": "Wenn du die Beschreibung änderst, entsteht ohnehin eine andere Stimme.",
+          "noteKeys": "Aus technischen Gründen können wir nicht versprechen, dass jede Sitzung genau diese Stimme verwendet: Eine Stimme wird auf dem KI-Schlüssel gemacht und aufbewahrt, der bezahlt. Eine Sitzung, die ein anderer Schlüssel bezahlt, bekommt aus derselben Beschreibung ihre eigene Stimme.",
+          "sampleLine": {
+            "greeting": "Hallo! Komm herein, setz dich und erzähl mir, was dich herführt.",
+            "narration": "Die Geschichte beginnt an einem stillen Morgen, als ein schmaler Pfad ins Unbekannte führt."
+          },
+          "errors": {
+            "noKey": "Keiner der KI-Schlüssel, die du verwenden kannst, spricht mit einer Live-Stimme, darum gibt es gerade nichts zu hören.",
+            "keyRejected": "Der KI-Anbieter hat den Schlüssel abgelehnt. Die Stimme konnte nicht abgespielt werden.",
+            "failed": "Die Stimme konnte nicht abgespielt werden. Bitte versuche es noch einmal."
+          }
+        },
+        "download": {
+          "title": "Herunterladen",
+          "description": "Das Spiel als Datei, zum Aufbewahren oder zum Importieren auf einem anderen ChatGameLab-Server.",
+          "button": "Herunterladen"
+        },
+        "delete": {
+          "label": "Spiel löschen",
+          "intro": "Für immer entfernen, vorher herunterladen.",
+          "whatGoes": "„{{name}}“ ist dann für immer weg: seine Karte, Geschichte, Bilder und Teilen-Links. Niemand kann es mehr starten. Das lässt sich nicht rückgängig machen.",
+          "keepFile": "Behalte die Datei, dann kannst du das Spiel später wieder importieren, hier oder auf einem anderen ChatGameLab-Server.",
+          "confirm": "Für immer löschen",
+          "keep": "Behalten"
+        },
+        "review": {
+          "button": "Prüfen",
+          "later": "Später",
+          "goTo": "Zu „{{page}}“",
+          "looksGood": "Sieht gut aus. Spiel es einmal und schau, wie es sich anfühlt.",
+          "failed": "Das Spiel konnte gerade nicht geprüft werden. Speichern kannst du es trotzdem.",
+          "missing": {
+            "adventure": {
+              "name": "Dein Spiel hat noch keinen Titel.",
+              "systemMessageScenario": "Sag, worum es im Spiel geht.",
+              "systemMessageGameStart": "Sag, wie das Spiel beginnt.",
+              "imageStyle": "Wähle einen Bildstil, damit die Bilder zusammenpassen."
+            },
+            "encounter": {
+              "name": "Dein Spiel hat noch keinen Titel.",
+              "systemMessageScenario": "Sag, wer die Figur ist.",
+              "systemMessageGameStart": "Sag, wie die Figur die Spielenden begrüßt.",
+              "imageStyle": "Wähle einen Bildstil, damit die Bilder zusammenpassen."
+            }
+          }
+        },
+        "embed": {
+          "toggle": "Auf einer Website einbetten",
+          "toggleHint": "Zeigt dieses Spiel auf der verifizierten Seite deiner Organisation, ohne etwas von ChatGameLab drumherum. Besucher spielen als Gäste; der gewählte Schlüssel bezahlt.",
+          "page": "Verifizierte Seite",
+          "noPages": "Deine Organisation hat noch keine verifizierte Seite. Leitung oder Mitarbeitende legen sie in den Einstellungen der Organisation an.",
+          "paidBy": "Bezahlt von",
+          "paidByPlaceholder": "Schlüssel wählen",
+          "payingNow": "Bezahlt jetzt",
+          "noKeys": "Du hast keinen funktionierenden KI-Schlüssel zum Bezahlen. Füge einen hinzu oder frag deine Organisation.",
+          "incomplete": "Wähle, was bezahlt, und die Seite, um das Snippet zu bekommen.",
+          "snippet": "Snippet für deine Website",
+          "snippetHint": "Füge es dort ein, wo das Spiel erscheinen soll, und gib dem Element die gewünschte Höhe.",
+          "snippetVerifiedHint": "Dein Server setzt seine ID des Besuchers und dieses Seitenaufrufs ein; der Callback deiner Seite bekommt beide.",
+          "snippetCss": "dein CSS",
+          "snippetPlayer": "DEINE-BESUCHER-ID",
+          "snippetRequest": "DEINE-AUFRUF-ID",
+          "copy": "Snippet kopieren",
+          "offNote": "Ausgeschaltet zeigt das Snippet nichts. Wieder eingeschaltet funktioniert dasselbe Snippet.",
+          "styleLink": "Mit eigenem CSS gestalten →",
+          "pageHint": "Das Spiel läuft nur dort, und nur wenn die Seite jedem Start zustimmt."
         }
       }
     },

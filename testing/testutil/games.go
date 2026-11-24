@@ -311,6 +311,24 @@ func (c caller) GuestGetGameInfo(shareToken string) (GuestGameInfo, error) {
 	return decode[GuestGameInfo](c.api.GetApiPlayTokenInfoWithResponse(ctx(), shareToken))
 }
 
+// --- Voices ---
+
+// VoiceSample has the voice a game of the genre speaks in say its sample, for
+// the voice style and scenario as an editor's form holds them.
+func (c caller) VoiceSample(genre, voiceStyle, scenario string) (VoiceSample, error) {
+	return decode[VoiceSample](c.api.PostApiVoicesSampleWithResponse(ctx(), apiclient.VoiceSampleReq{Genre: genre, VoiceStyle: voiceStyle, Scenario: scenario}))
+}
+
+// NewVoice makes a new voice for a voice style and answers its sample.
+func (c caller) NewVoice(genre, voiceStyle, scenario string) (VoiceSample, error) {
+	return decode[VoiceSample](c.api.PostApiVoicesNewWithResponse(ctx(), apiclient.VoiceSampleReq{Genre: genre, VoiceStyle: voiceStyle, Scenario: scenario}))
+}
+
+// ReviewGame has a game's form reviewed: one point to improve.
+func (c caller) ReviewGame(form ReviewForm) (Review, error) {
+	return decode[Review](c.api.PostApiGamesReviewWithResponse(ctx(), form))
+}
+
 // --- Covers ---
 
 // MakeCover has a game's cover drawn, with a hint of what it should show

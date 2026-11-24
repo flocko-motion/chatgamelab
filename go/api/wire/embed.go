@@ -19,8 +19,8 @@ type GameEmbedView struct {
 	Token string    `json:"token"`
 	// Enabled is false while embedding is switched off; the token stays.
 	Enabled bool `json:"enabled"`
-	// Mode is "any" (any website) or "verified" (one verified page, whose
-	// host says yes to every start).
+	// Mode is "verified" (one verified page, whose host says yes to every
+	// start), the only mode.
 	Mode            string     `json:"mode"`
 	VerifiedPageID  *uuid.UUID `json:"verifiedPageId,omitempty"`
 	VerifiedPageURL *string    `json:"verifiedPageUrl,omitempty"`

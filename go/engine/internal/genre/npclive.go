@@ -382,3 +382,12 @@ func directorBrief(prompt, scenario, guardrail, language string) string {
 	}
 	return brief
 }
+
+// VoiceBrief is the call that rewrites an author's voice style as the prompt
+// a voice is made from, as NPC-Live's preparation makes it: the system
+// prompt, the message and the reply's schema, whose "description" field is
+// the prompt. Outside a game, as for a sample, the built-in voices and the
+// scenario are background the call may go without.
+func VoiceBrief(style, scenario, language string, voices []adapters.BuiltinVoice) (system, message string, schema *adapters.Schema) {
+	return voiceBriefPrompt + voiceBriefTail(voices, language, scenario), voiceNote(style), voiceBriefSchema(voices)
+}

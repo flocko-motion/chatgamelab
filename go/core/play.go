@@ -63,14 +63,14 @@ type LinkPlay struct {
 // GameCard, ViaShareLink}. A token that opens none is not found and counts
 // as a guess (tokenlock), and so does an embed link switched off; a link of
 // a suspended organisation is refused (organisation_suspended), and so is a
-// game not ready to play. An embed link of the verified mode starts only
-// with its host's yes (EmbedPlay), never by its token alone.
+// game not ready to play. An embed link starts only with its host's yes
+// (EmbedPlay), never by its token alone.
 func ShareLinkPlay(ctx context.Context, token string) (*LinkPlay, error) {
 	play, err := openToken(ctx, token)
 	if err != nil {
 		return nil, err
 	}
-	if play.mode == EmbedVerified {
+	if play.mode != "" {
 		return nil, engine.Refuse(engine.ProblemHostRefused, "this game starts only on its host page")
 	}
 	return openLinkPlay(ctx, play, token)

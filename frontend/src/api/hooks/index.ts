@@ -38,6 +38,10 @@ export {
   useUpdateGame,
   useGameTemplate,
   useDeleteGame,
+  useNewVoice,
+  useReviewGame,
+  useVoiceSample,
+  type VoiceSample,
   useExportGameFile,
   useImportGameCover,
   useSponsorGame,
@@ -189,6 +193,9 @@ export {
   useCreateVerifiedPage,
   useDeleteVerifiedPage,
 } from "./useVerifiedPages";
+
+// A game's embed link on another website
+export { useGameEmbed, useSetGameEmbed } from "./useGameEmbed";
 
 // Playing: creating and opening engine sessions, what a share link offers
 export {

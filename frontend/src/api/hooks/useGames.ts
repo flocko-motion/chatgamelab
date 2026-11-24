@@ -22,6 +22,10 @@ import type {
   ShareLinkView,
   MessageResp,
   PrivateShareStatusResp,
+  ReviewGameReq,
+  ReviewGameResp,
+  VoiceSampleReq,
+  VoiceSampleResp,
 } from "../generated/api.gen";
 import { useEntityList, type List, type ListParams, type ListPreset } from "../lists";
 
@@ -252,6 +256,57 @@ export function useImportGameCover() {
   });
 }
 
+
+/** A voice's sample as the editor plays it. */
+export interface VoiceSample {
+  audio: Blob;
+  /** Kept from an earlier preview: no provider was asked. */
+  stored: boolean;
+  /** A voice made for the voice style speaks, not a built-in one. */
+  ownVoice: boolean;
+}
+
+/** The sample comes as base64 in JSON; the generated type calls it a Blob. */
+function toVoiceSample(resp: VoiceSampleResp): VoiceSample {
+  const base64 = resp.audio as unknown as string;
+  const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+  return {
+    audio: new Blob([bytes], { type: resp.contentType }),
+    stored: resp.stored,
+    ownVoice: resp.ownVoice,
+  };
+}
+
+/**
+ * Has the voice a game of the genre speaks in say its sample, for the voice
+ * style as the form holds it. The first sample of a voice is made (and the
+ * voice with it); later ones are kept. Errors are the caller's to show.
+ */
+export function useVoiceSample() {
+  return useMutation<VoiceSample, ApiError, VoiceSampleReq>({
+    mutationFn: (req) => api.postApiVoicesSample(req).then((response) => toVoiceSample(response.data)),
+  });
+}
+
+/**
+ * Makes a new voice for a voice style on the paying key, for every game with
+ * that style there, and answers its sample. Errors are the caller's.
+ */
+export function useNewVoice() {
+  return useMutation<VoiceSample, ApiError, VoiceSampleReq>({
+    mutationFn: (req) => api.postApiVoicesNew(req).then((response) => toVoiceSample(response.data)),
+  });
+}
+
+/**
+ * Reviews a game's form: one point to improve. It never blocks saving, so
+ * its errors are the caller's to say quietly.
+ */
+export function useReviewGame() {
+  return useMutation<ReviewGameResp, ApiError, ReviewGameReq>({
+    mutationFn: (req) => api.postApiGamesReview(req).then((response) => response.data),
+  });
+}
 
 // Game Sponsoring hooks
 export function useSponsorGame() {

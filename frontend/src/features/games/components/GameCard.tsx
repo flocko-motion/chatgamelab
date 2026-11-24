@@ -27,15 +27,7 @@ import {
 import type { GameView } from "@/api/types";
 import type { ReactNode } from "react";
 import { GameCover } from "@components/GameCover";
-import { GameActionIcon } from "./GameListCells";
 import classes from "./GameCard.module.css";
-
-export interface GameCardAction {
-  key: string;
-  icon: ReactNode;
-  label: string;
-  onClick: () => void;
-}
 
 export interface GameCardProps {
   game: Pick<
@@ -79,9 +71,6 @@ export interface GameCardProps {
   favoriteLabel?: string;
   unfavoriteLabel?: string;
 
-  // Action buttons (configurable)
-  actions?: GameCardAction[];
-
   // Date display (optional)
   dateLabel?: string;
 
@@ -99,7 +88,7 @@ export interface GameCardProps {
  * asks whether to continue or start anew. The cover on top carries where the game is seen (public, private,
  * sponsored) and the favourite star; below it the name, the facts (who
  * made it, how often it was played, when it changed) and the description;
- * at the foot the button that opens the game and the actions, which line up
+ * at the foot the button that opens the game in the editor, which lines up
  * across a row.
  */
 export function GameCard({
@@ -116,7 +105,6 @@ export function GameCard({
   onToggleFavorite,
   favoriteLabel,
   unfavoriteLabel,
-  actions = [],
   dateLabel,
   isWorkshopGame = false,
   extra,
@@ -290,7 +278,7 @@ export function GameCard({
         {problem && <UnplayableNote problem={problem} />}
       </Stack>
 
-      {/* The foot: open the game (left), the actions (right). */}
+      {/* The foot: open the game in the editor. */}
       <Group
         className={classes.foot}
         justify="space-between"
@@ -300,11 +288,6 @@ export function GameCard({
         onClick={(e) => e.stopPropagation()}
       >
         <EditButtonWithText onClick={onEdit}>{editLabel}</EditButtonWithText>
-        <Group gap={2} wrap="nowrap">
-          {actions.map((action) => (
-            <GameActionIcon key={action.key} action={action} />
-          ))}
-        </Group>
       </Group>
     </Card>
   );

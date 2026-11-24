@@ -275,6 +275,14 @@ type Voice struct {
 	LastUsedAt sql.NullTime   `json:"last_used_at"`
 }
 
+type VoiceSample struct {
+	ApiKeyID    uuid.UUID `json:"api_key_id"`
+	StyleHash   string    `json:"style_hash"`
+	Audio       []byte    `json:"audio"`
+	ContentType string    `json:"content_type"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
 type Workshop struct {
 	ID                         uuid.UUID             `json:"id"`
 	CreatedBy                  uuid.NullUUID         `json:"created_by"`

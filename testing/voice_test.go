@@ -82,3 +82,45 @@ func (s *VoiceTestSuite) TestNoVoiceStyleKeepsTheBuiltInVoice() {
 	id := Must(carol.CreateSession(testutil.ForGame(game.Id.String())))
 	s.True(strings.HasPrefix(s.voiceOutcome(carol, id), "built-in"))
 }
+
+// The editor hears a voice: the first sample makes the voice and keeps what
+// it said, the next one plays it from the store, and a new voice replaces
+// both. The session that follows speaks in the voice the preview made.
+func (s *VoiceTestSuite) TestAPreviewKeepsItsSampleUntilANewVoiceIsMade() {
+	dana := s.CreateUser("voice-dana")
+	Must(dana.AddApiKey("mock-voice-dana", "Dana's key", "mock"))
+	style := "warm, low and unhurried"
+
+	first := Must(dana.VoiceSample("npc-live", style, "A lighthouse keeper."))
+	s.False(first.Stored, "the first sample is spoken")
+	s.True(first.OwnVoice, "a voice of its own speaks")
+	s.Equal("audio/wav", first.ContentType)
+	s.True(strings.HasPrefix(string(first.Audio), "RIFF"), "the sample is a WAV")
+
+	again := Must(dana.VoiceSample("npc-live", style, "A lighthouse keeper."))
+	s.True(again.Stored, "the second sample comes from the store, without the provider")
+	s.Equal(first.Audio, again.Audio)
+
+	renewed := Must(dana.NewVoice("npc-live", style, "A lighthouse keeper."))
+	s.False(renewed.Stored, "a new voice drops the old sample")
+	s.True(Must(dana.VoiceSample("npc-live", style, "")).Stored, "the new voice's sample is kept")
+
+	game := Must(dana.UploadGame("bridge-troll"))
+	game.Genre = "npc-live"
+	game.VoiceStyle = style
+	Must(dana.UpdateGame(game.Id.String(), game))
+	id := Must(dana.CreateSession(testutil.ForGame(game.Id.String())))
+	s.Equal("reused", s.voiceOutcome(dana, id), "a game with the style speaks in the voice the preview made")
+}
+
+// A genre that makes no voice of its own, and an empty voice style, hear a
+// built-in voice; nothing is kept.
+func (s *VoiceTestSuite) TestWithoutAVoiceOfItsOwnTheBuiltInVoiceIsHeard() {
+	erin := s.CreateUser("voice-erin")
+	Must(erin.AddApiKey("mock-voice-erin", "Erin's key", "mock"))
+
+	narrated := Must(erin.VoiceSample("adventure", "a warm narrator", ""))
+	s.False(narrated.OwnVoice)
+	s.False(Must(erin.VoiceSample("adventure", "a warm narrator", "")).Stored, "a built-in voice's sample is not kept")
+	s.False(Must(erin.VoiceSample("npc-live", "", "")).OwnVoice, "no voice style, no voice of its own")
+}

@@ -9,10 +9,9 @@ import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
 import { GAME_LIST_PRESETS } from "../lib/gameListPresets";
 import { emptyListDescription, getGameDateLabel } from "../lib";
 import { useGamesTable, type UseGamesTableOptions } from "../hooks/useGamesTable";
-import { useGameActions, useGameColumns } from "./useGameColumns";
+import { useGameColumns } from "./useGameColumns";
 import { GameCard } from "./GameCard";
-import { GameEditModal } from "./GameEditModal";
-import { DeleteGameModal } from "./DeleteGameModal";
+import { GameEditor } from "./editor/GameEditor";
 import { SponsorGameModal } from "./SponsorGameModal";
 import { WorkshopBadges } from "./WorkshopBadges";
 
@@ -30,7 +29,6 @@ export function GamesTable(props: GamesTableProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const state = useGamesTable(props, { fileInputRef });
   const columns = useGameColumns(state);
-  const actionsFor = useGameActions(state);
   const { config, list } = state;
 
   // An empty list says what narrowed it, when anything did; otherwise there
@@ -51,7 +49,7 @@ export function GamesTable(props: GamesTableProps) {
       <GameCard
         game={game}
         onEdit={() => state.view(game)}
-        editLabel={t("editGame")}
+        editLabel={p.canEdit ? t("editGame") : t("games.editor.open")}
         onOpen={(canStartNew) => state.openGame(game, session, canStartNew)}
         playLabel={t("allGames.play")}
         hasSession={hasSession}
@@ -62,7 +60,6 @@ export function GamesTable(props: GamesTableProps) {
         onToggleFavorite={favorites ? () => state.toggleFavorite(game) : undefined}
         favoriteLabel={t("allGames.favorite")}
         unfavoriteLabel={t("allGames.unfavorite")}
-        actions={actionsFor(game)}
         dateLabel={getGameDateLabel(game, list.query.sortBy)}
         isWorkshopGame={state.isWorkshopGame(game)}
         extra={
@@ -133,7 +130,7 @@ export function GamesTable(props: GamesTableProps) {
         errorMessage={t("games.errors.loadFailed")}
       />
 
-      <GameEditModal
+      <GameEditor
         opened={state.createModal.opened}
         onClose={state.createModal.close}
         onCreate={state.createModal.submit}
@@ -142,24 +139,16 @@ export function GamesTable(props: GamesTableProps) {
         saveAsOwn={state.createModal.saveAsOwn}
       />
 
-      <GameEditModal
+      <GameEditor
         gameId={state.viewModal.gameId}
         opened={state.viewModal.opened}
         onClose={state.viewModal.close}
         isOwner={state.viewModal.isOwner}
+        isOthersWorkshopGame={state.viewModal.isOthersWorkshopGame}
         onSponsor={state.viewModal.onSponsor}
+        onCopy={state.viewModal.copy}
         showShareSection
         workshopId={state.viewModal.workshopId}
-      />
-
-      <DeleteGameModal
-        opened={state.deleteModal.opened}
-        onClose={state.deleteModal.close}
-        onConfirm={state.deleteModal.confirm}
-        gameName={state.deleteModal.game?.name ?? ""}
-        loading={state.deleteModal.loading}
-        isOwner={state.deleteModal.isOwner}
-        isModeratorAction={state.deleteModal.isOthersWorkshopGame}
       />
 
       <SponsorGameModal

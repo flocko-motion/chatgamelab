@@ -542,6 +542,7 @@ export interface GameViewPage {
 export interface GenreInfo {
   fields: GameField[];
   id: Genre;
+  makesVoices: boolean;
   needs: Toggle[];
 }
 
@@ -1029,6 +1030,23 @@ export interface PublicWorkshopPlay {
   limit: number;
   remaining: number;
   token: string;
+}
+
+export interface ReviewGameReq {
+  description: string;
+  genre: string;
+  imageStyle: string;
+  name: string;
+  statusFields: string;
+  systemMessageGameStart: string;
+  systemMessageScenario: string;
+  voiceStyle: string;
+}
+
+export interface ReviewGameResp {
+  field: string;
+  missing: boolean;
+  text: string;
 }
 
 export interface RolesResp {
@@ -1573,6 +1591,20 @@ export interface VerifiedPageView {
 
 export interface VerifiedPagesResp {
   pages: VerifiedPageView[];
+}
+
+export interface VoiceSampleReq {
+  genre: string;
+  scenario: string;
+  voiceStyle: string;
+}
+
+export interface VoiceSampleResp {
+  /** @format byte */
+  audio: Blob;
+  contentType: string;
+  ownVoice: boolean;
+  stored: boolean;
 }
 
 export interface Workshop {
@@ -2894,6 +2926,25 @@ export class Api<
     postApiGamesNew: (data: CreateGameReq, params: RequestParams = {}) =>
       this.request<GameView, Error>({
         path: `/api/games/new`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: "application/json",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description not, and answers the one point most worth improving: the field it is about (title, description, scenario, gameStart, imageStyle, voiceStyle, statusFields), empty when there is nothing to fix; missing when a required field is empty, which the client says in its own words; else one short sentence in the caller's language. Nothing is stored, and nothing blocks saving. The caller pays with their own keys, as in the editor: workshop, organisation, own, site; never a game's sponsor. None: 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a provider that fails or takes too long: 503 ai_error.
+     *
+     * @name PostApiGamesReview
+     * @summary Reviews a game's form as the editor holds it, saved or
+     * @request POST:/api/games/review
+     * @secure
+     */
+    postApiGamesReview: (data: ReviewGameReq, params: RequestParams = {}) =>
+      this.request<ReviewGameResp, Error>({
+        path: `/api/games/review`,
         method: "POST",
         body: data,
         secure: true,
@@ -4645,6 +4696,44 @@ export class Api<
       this.request<GetVersionResp, Error>({
         path: `/api/version`,
         method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description answers its sample, as VoiceSampleEndpoint does. The voice made before for that key and style, and its sample, are deleted: every game with exactly this voice style on this key speaks in the new voice from now on. A genre that makes no voices of its own, or an empty voice style, makes none and only plays the built-in voice.
+     *
+     * @name PostApiVoicesNew
+     * @summary Makes a new voice for a voice style on the paying key and
+     * @request POST:/api/voices/new
+     * @secure
+     */
+    postApiVoicesNew: (data: VoiceSampleReq, params: RequestParams = {}) =>
+      this.request<VoiceSampleResp, Error>({
+        path: `/api/voices/new`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: "application/json",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description neutral sample line, the same for every game, in the caller's language, and answers it as audio. It reads the form as it is, so a game not yet saved is heard too. A genre that makes voices of its own (makesVoices in /api/genres) speaks in the voice made for the voice style on the paying key: the first sample makes the voice when there is none and keeps the sample, and later ones play it without asking the provider (stored: true). Otherwise, and with an empty voice style, a built-in voice speaks, as the style steers it. The caller pays with their own keys, as in the editor: workshop, organisation, own, site; never a game's sponsor. None that speaks live: 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a provider that fails: 503 ai_error.
+     *
+     * @name PostApiVoicesSample
+     * @summary Has the voice a game of the genre speaks in say a
+     * @request POST:/api/voices/sample
+     * @secure
+     */
+    postApiVoicesSample: (data: VoiceSampleReq, params: RequestParams = {}) =>
+      this.request<VoiceSampleResp, Error>({
+        path: `/api/voices/sample`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: "application/json",
         format: "json",
         ...params,
       }),

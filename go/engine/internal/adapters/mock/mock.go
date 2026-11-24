@@ -303,3 +303,22 @@ func (t Tool) Query(ctx context.Context, system, user string) (string, adapters.
 	used.OutputTokens = int64(len(user))
 	return "[mock-tool] " + user, used, nil
 }
+
+// Say answers a quarter second of tone, pitched by the voice, so a test can
+// tell two voices' samples apart, and bills that quarter second.
+func (l Live) Say(ctx context.Context, req adapters.SayRequest) ([]byte, adapters.Usage, error) {
+	wait(ctx, l.Pace)
+	const seconds = 0.25
+	n := int(seconds * adapters.SayRate)
+	pitch := 220 + len(req.Voice)*10
+	pcm := make([]byte, 2*n)
+	for i := 0; i < n; i++ {
+		// A square wave: enough to be audio, no maths package needed.
+		v := int16(2000)
+		if (i*pitch*2/adapters.SayRate)%2 == 1 {
+			v = -2000
+		}
+		pcm[2*i], pcm[2*i+1] = byte(v), byte(uint16(v)>>8)
+	}
+	return pcm, adapters.Usage{Model: "mock-live", AudioSeconds: seconds}, nil
+}

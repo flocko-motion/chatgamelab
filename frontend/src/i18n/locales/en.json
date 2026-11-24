@@ -729,7 +729,8 @@
         "addField": "Add new value",
         "namePlaceholder": "Name (e.g., Health)",
         "noFields": "No values yet. Click + to add a new value.",
-        "valuePlaceholder": "Starting value (e.g., 100)"
+        "valuePlaceholder": "Starting value (e.g., 100)",
+        "maxHint": "Five values at most: a few values the player can follow beat many."
       },
       "tabs": {
         "basic": "Basics",
@@ -824,6 +825,176 @@
           "noKey": "None of the AI keys you can use draws pictures, so the game has no cover for now.",
           "keyRejected": "The AI provider rejected the key. The cover could not be drawn.",
           "failed": "The cover could not be drawn. Please try again."
+        }
+      },
+      "editor": {
+        "titleNew": "New game",
+        "titleEdit": "Edit game",
+        "titleView": "Game",
+        "open": "Open",
+        "untitled": "Untitled game",
+        "othersGame": "This game is someone else's. You can look at everything, and make your own copy to change it.",
+        "allSet": "All set: create the game.",
+        "fillIn": "Fill in the sections until all are green.",
+        "next": "next",
+        "done": "done",
+        "notDone": "not done yet",
+        "doneButton": "Done",
+        "backToOverview": "Back to the overview",
+        "makeCopy": "Make my copy",
+        "genre": {
+          "question": "What do you want to make?",
+          "pitch": {
+            "adventure": "The player explores a world. The game tells what happens, paints pictures and keeps score.",
+            "encounter": "The player talks with one character, by voice. It stays in its role and answers live."
+          }
+        },
+        "pages": {
+          "card": {
+            "label": "Card",
+            "intro": "What players see in the gallery: the title and a short description."
+          },
+          "story": {
+            "label": "Story",
+            "intro": "What happens in the game, and how it begins."
+          },
+          "look": {
+            "label": "Look",
+            "intro": "How the game's pictures and its page look."
+          },
+          "sound": {
+            "label": "Sound",
+            "intro": "How the game's voice sounds."
+          },
+          "sharing": {
+            "label": "Sharing",
+            "intro": "Who can find and play the game."
+          }
+        },
+        "card": {
+          "title": "Title",
+          "description": "Description",
+          "descriptionHint": "A sentence or two for the gallery, so players know what to expect.",
+          "adventure": {
+            "titlePlaceholder": "The Treasure of the Dark Forest",
+            "descriptionPlaceholder": "Find the hidden treasure before the forest swallows you."
+          },
+          "encounter": {
+            "titlePlaceholder": "Greta at the Lighthouse",
+            "descriptionPlaceholder": "Visit Greta, the grumpy lighthouse keeper, and find out what she saw that night."
+          },
+          "titleHint": "{{length}}/{{max}} · May become publicly visible – please no real names."
+        },
+        "story": {
+          "adventure": {
+            "scenario": "What is the game about?",
+            "scenarioHint": "The world, the player's role, the goal, and how the player knows they've won.",
+            "scenarioPlaceholder": "The player is an explorer in a mysterious forest, looking for a hidden treasure…",
+            "gameStart": "How does it begin?",
+            "gameStartHint": "The first scene the player sees, and how they know what to do.",
+            "gameStartPlaceholder": "The player wakes up at the edge of a dark forest. A narrow path leads into the trees…"
+          },
+          "encounter": {
+            "scenario": "Who is the character?",
+            "scenarioHint": "Their personality, what they know, how they talk, and what they will never give in on.",
+            "scenarioPlaceholder": "You are Greta, a grumpy lighthouse keeper who knows every ship on the coast…",
+            "gameStart": "How do they greet the player?",
+            "gameStartHint": "The situation when the conversation starts; the first words are written from it.",
+            "gameStartPlaceholder": "A stranger knocks at the lighthouse door in the middle of a storm…"
+          }
+        },
+        "look": {
+          "imageStyle": "Image style",
+          "imageStyleHint": "How the pictures look, the cover included: cartoon, watercolour, pixel art…",
+          "imageStylePlaceholder": "soft watercolour, muted colours"
+        },
+        "sound": {
+          "adventure": {
+            "voiceStyle": "The narrator's voice",
+            "voiceStyleHint": "How the story sounds when it is read aloud."
+          },
+          "encounter": {
+            "voiceStyle": "The character's voice",
+            "voiceStyleHint": "How the character sounds."
+          },
+          "listen": "Listen",
+          "play": "Play a sample of the voice",
+          "stop": "Stop the sample",
+          "builtInVoice": "Built-in voice",
+          "status": {
+            "builtIn": "No description yet: the game speaks in a built-in voice until you describe the voice.",
+            "ownVoice": "A voice of its own for this description, made on your AI key.",
+            "steered": "A built-in voice reads the story, as the description says."
+          },
+          "newVoice": "Make a new voice",
+          "newVoiceConfirm": "The current voice is deleted, and a new one is made from the same description. Games with exactly this description on this AI key get the new voice too.",
+          "keepVoice": "Keep this one",
+          "noteDescription": "Changing the description makes a different voice anyway.",
+          "noteKeys": "For technical reasons we can't promise that every session uses exactly this voice: a voice is made and kept on the AI key that pays, so a session paid by another key gets its own voice from the same description.",
+          "sampleLine": {
+            "greeting": "Hello there! Come in, sit down, and tell me what brings you here.",
+            "narration": "The story begins on a quiet morning, as a narrow path leads into the unknown."
+          },
+          "errors": {
+            "noKey": "None of the AI keys you can use speaks with a live voice, so there is nothing to hear for now.",
+            "keyRejected": "The AI provider rejected the key. The voice could not be played.",
+            "failed": "The voice could not be played. Please try again."
+          }
+        },
+        "download": {
+          "title": "Download",
+          "description": "The game as a file, to keep or to import into another ChatGameLab server.",
+          "button": "Download"
+        },
+        "delete": {
+          "label": "Delete game",
+          "intro": "Remove it for good, with a download first.",
+          "whatGoes": "\"{{name}}\" will be gone for good: its card, story, pictures and share links. Players can no longer start it. This can't be undone.",
+          "keepFile": "Keep the file, and you can import the game again later, here or on another ChatGameLab server.",
+          "confirm": "Delete for good",
+          "keep": "Keep it"
+        },
+        "review": {
+          "button": "Review",
+          "later": "Later",
+          "goTo": "Go to {{page}}",
+          "looksGood": "Looks good. Play it once and see how it feels.",
+          "failed": "The game couldn't be reviewed just now. You can save it all the same.",
+          "missing": {
+            "adventure": {
+              "name": "Your game has no title yet.",
+              "systemMessageScenario": "Say what the game is about.",
+              "systemMessageGameStart": "Say how the game begins.",
+              "imageStyle": "Pick an image style, so the pictures look alike."
+            },
+            "encounter": {
+              "name": "Your game has no title yet.",
+              "systemMessageScenario": "Say who the character is.",
+              "systemMessageGameStart": "Say how the character greets the player.",
+              "imageStyle": "Pick an image style, so the pictures look alike."
+            }
+          }
+        },
+        "embed": {
+          "toggle": "Embed on a website",
+          "toggleHint": "Shows this game on your organisation's verified page, with nothing of ChatGameLab around it. Visitors play as guests; the key you choose pays.",
+          "page": "Verified page",
+          "noPages": "Your organisation has no verified page yet. Its head or staff add one in the organisation's settings.",
+          "paidBy": "Paid by",
+          "paidByPlaceholder": "Choose a key",
+          "payingNow": "Paying now",
+          "noKeys": "You have no working AI key to pay with. Add one, or ask your organisation for one.",
+          "incomplete": "Choose what pays, and the page, to get the snippet.",
+          "snippet": "Snippet for your website",
+          "snippetHint": "Put it where the game should appear, and give the element the height you want.",
+          "snippetVerifiedHint": "Your server fills in its ID of the visitor and of this page view; your page's callback gets both.",
+          "snippetCss": "your CSS",
+          "snippetPlayer": "YOUR-VISITOR-ID",
+          "snippetRequest": "YOUR-REQUEST-ID",
+          "copy": "Copy snippet",
+          "offNote": "Turned off, the snippet shows nothing. Turned on again, the same snippet works.",
+          "styleLink": "Style it with your own CSS →",
+          "pageHint": "The game runs only there, and only after the page says yes to each start."
         }
       }
     },

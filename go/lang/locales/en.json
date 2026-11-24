@@ -401,7 +401,8 @@
         "favorites": "Favorites",
         "own": "My Games",
         "public": "Public",
-        "sponsored": "Sponsored"
+        "sponsored": "Sponsored",
+        "genre": "Genre"
       },
       "play": "Play",
       "reportGame": "Report game",
@@ -410,7 +411,13 @@
       "onlyFavorites": "Show only favorites",
       "workshop": "Workshop / Org",
       "continue": "Play",
-      "restart": "Restart"
+      "restart": "Restart",
+      "resumeChoice": {
+        "title": "Continue or start anew?",
+        "message": "You have already started \"{{game}}\". Continue where you left off, or start anew? Starting anew replaces your earlier session.",
+        "continue": "Continue",
+        "startNew": "Start anew"
+      }
     },
     "apiKeys": {
       "aboutSection": {
@@ -478,8 +485,15 @@
       },
       "status": {
         "failed": "Key is not working",
-        "unknown": "Key not yet used",
-        "working": "Key is working"
+        "unknown": "Not checked yet",
+        "working": "Key is working",
+        "checking": "Checking…",
+        "reasons": {
+          "key_rejected": "The provider refuses this key. Check that it was copied whole and is still active.",
+          "no_credit": "The account behind this key has no credit left. Top it up with the provider.",
+          "unreachable": "The provider did not answer. Check again in a moment.",
+          "no_key": "The key could not be read."
+        }
       },
       "subtitle": "Manage your API keys for AI platforms.",
       "title": "API Key Management",
@@ -498,7 +512,9 @@
       "unsupportedPlatform": {
         "badge": "not supported yet",
         "hint": "This platform is not supported yet. Its keys stay stored but are not used. You can remove them."
-      }
+      },
+      "check": "Check key",
+      "keyEndsWith": "The key ends with these characters"
     },
     "back": "Back",
     "cancel": "Cancel",
@@ -571,12 +587,18 @@
         "genreNeeds": "Needs an AI key with {{features}}.",
         "theme": "Theme",
         "themeHint": "The look the game is played in.",
-        "themeDefault": "Default look"
+        "themeDefault": "Default look",
+        "voiceStyle": "Voice style",
+        "voiceStyleHint": "How the voice sounds: the character's, or the narrator's when the story is read aloud.",
+        "voiceStylePlaceholder": "e.g., deep, slow and a little hoarse, an old man"
       },
       "editModal": {
         "adminActionTitle": "Admin action",
         "adminActionWarning": "You are editing a game you do not own. This is an administrative action and should only be used for moderation purposes.",
         "gameDesignSection": "Game Design",
+        "othersGameNotice": "This game is by someone else. You can change anything: saving makes it your own game, and the original stays as it is.",
+        "saveAsOwn": "Save as my game",
+        "savedAsOwn": "Saved as your game",
         "title": "Edit Game",
         "unsavedChanges": {
           "discard": "Discard Changes",
@@ -599,6 +621,15 @@
         "visibility": "Visibility"
       },
       "importExport": {
+        "coverFailed": "The game was imported, but its cover could not be checked. You can draw a new one in the editor.",
+        "coverNoKey": "The game was imported without its cover: checking a cover needs an API key.",
+        "coverRefused": "The game was imported without its cover: the picture does not keep to the youth-protection rule.",
+        "coverUnsigned": "The game was imported without its cover: the picture was not exported by ChatGameLab, or was changed since.",
+        "errors": {
+          "noGame": "This .cgl file holds no game.",
+          "tooLarge": "This file is larger than 1 MB, too large for a game file.",
+          "unreadable": "This file could not be read as a game."
+        },
         "exportButton": "Export Game",
         "importButton": "Import Game"
       },
@@ -698,7 +729,8 @@
         "addField": "Add new value",
         "namePlaceholder": "Name (e.g., Health)",
         "noFields": "No values yet. Click + to add a new value.",
-        "valuePlaceholder": "Starting value (e.g., 100)"
+        "valuePlaceholder": "Starting value (e.g., 100)",
+        "maxHint": "Five values at most: a few values the player can follow beat many."
       },
       "tabs": {
         "basic": "Basics",
@@ -770,7 +802,7 @@
       },
       "genres": {
         "adventure": "Adventure",
-        "npc-live": "NPC-Live"
+        "npc-live": "Encounter"
       },
       "features": {
         "images": "pictures",
@@ -793,6 +825,176 @@
           "noKey": "None of the AI keys you can use draws pictures, so the game has no cover for now.",
           "keyRejected": "The AI provider rejected the key. The cover could not be drawn.",
           "failed": "The cover could not be drawn. Please try again."
+        }
+      },
+      "editor": {
+        "titleNew": "New game",
+        "titleEdit": "Edit game",
+        "titleView": "Game",
+        "open": "Open",
+        "untitled": "Untitled game",
+        "othersGame": "This game is someone else's. You can look at everything, and make your own copy to change it.",
+        "allSet": "All set: create the game.",
+        "fillIn": "Fill in the sections until all are green.",
+        "next": "next",
+        "done": "done",
+        "notDone": "not done yet",
+        "doneButton": "Done",
+        "backToOverview": "Back to the overview",
+        "makeCopy": "Make my copy",
+        "genre": {
+          "question": "What do you want to make?",
+          "pitch": {
+            "adventure": "The player explores a world. The game tells what happens, paints pictures and keeps score.",
+            "encounter": "The player talks with one character, by voice. It stays in its role and answers live."
+          }
+        },
+        "pages": {
+          "card": {
+            "label": "Card",
+            "intro": "What players see in the gallery: the title and a short description."
+          },
+          "story": {
+            "label": "Story",
+            "intro": "What happens in the game, and how it begins."
+          },
+          "look": {
+            "label": "Look",
+            "intro": "How the game's pictures and its page look."
+          },
+          "sound": {
+            "label": "Sound",
+            "intro": "How the game's voice sounds."
+          },
+          "sharing": {
+            "label": "Sharing",
+            "intro": "Who can find and play the game."
+          }
+        },
+        "card": {
+          "title": "Title",
+          "description": "Description",
+          "descriptionHint": "A sentence or two for the gallery, so players know what to expect.",
+          "adventure": {
+            "titlePlaceholder": "The Treasure of the Dark Forest",
+            "descriptionPlaceholder": "Find the hidden treasure before the forest swallows you."
+          },
+          "encounter": {
+            "titlePlaceholder": "Greta at the Lighthouse",
+            "descriptionPlaceholder": "Visit Greta, the grumpy lighthouse keeper, and find out what she saw that night."
+          },
+          "titleHint": "{{length}}/{{max}} · May become publicly visible – please no real names."
+        },
+        "story": {
+          "adventure": {
+            "scenario": "What is the game about?",
+            "scenarioHint": "The world, the player's role, the goal, and how the player knows they've won.",
+            "scenarioPlaceholder": "The player is an explorer in a mysterious forest, looking for a hidden treasure…",
+            "gameStart": "How does it begin?",
+            "gameStartHint": "The first scene the player sees, and how they know what to do.",
+            "gameStartPlaceholder": "The player wakes up at the edge of a dark forest. A narrow path leads into the trees…"
+          },
+          "encounter": {
+            "scenario": "Who is the character?",
+            "scenarioHint": "Their personality, what they know, how they talk, and what they will never give in on.",
+            "scenarioPlaceholder": "You are Greta, a grumpy lighthouse keeper who knows every ship on the coast…",
+            "gameStart": "How do they greet the player?",
+            "gameStartHint": "The situation when the conversation starts; the first words are written from it.",
+            "gameStartPlaceholder": "A stranger knocks at the lighthouse door in the middle of a storm…"
+          }
+        },
+        "look": {
+          "imageStyle": "Image style",
+          "imageStyleHint": "How the pictures look, the cover included: cartoon, watercolour, pixel art…",
+          "imageStylePlaceholder": "soft watercolour, muted colours"
+        },
+        "sound": {
+          "adventure": {
+            "voiceStyle": "The narrator's voice",
+            "voiceStyleHint": "How the story sounds when it is read aloud."
+          },
+          "encounter": {
+            "voiceStyle": "The character's voice",
+            "voiceStyleHint": "How the character sounds."
+          },
+          "listen": "Listen",
+          "play": "Play a sample of the voice",
+          "stop": "Stop the sample",
+          "builtInVoice": "Built-in voice",
+          "status": {
+            "builtIn": "No description yet: the game speaks in a built-in voice until you describe the voice.",
+            "ownVoice": "A voice of its own for this description, made on your AI key.",
+            "steered": "A built-in voice reads the story, as the description says."
+          },
+          "newVoice": "Make a new voice",
+          "newVoiceConfirm": "The current voice is deleted, and a new one is made from the same description. Games with exactly this description on this AI key get the new voice too.",
+          "keepVoice": "Keep this one",
+          "noteDescription": "Changing the description makes a different voice anyway.",
+          "noteKeys": "For technical reasons we can't promise that every session uses exactly this voice: a voice is made and kept on the AI key that pays, so a session paid by another key gets its own voice from the same description.",
+          "sampleLine": {
+            "greeting": "Hello there! Come in, sit down, and tell me what brings you here.",
+            "narration": "The story begins on a quiet morning, as a narrow path leads into the unknown."
+          },
+          "errors": {
+            "noKey": "None of the AI keys you can use speaks with a live voice, so there is nothing to hear for now.",
+            "keyRejected": "The AI provider rejected the key. The voice could not be played.",
+            "failed": "The voice could not be played. Please try again."
+          }
+        },
+        "download": {
+          "title": "Download",
+          "description": "The game as a file, to keep or to import into another ChatGameLab server.",
+          "button": "Download"
+        },
+        "delete": {
+          "label": "Delete game",
+          "intro": "Remove it for good, with a download first.",
+          "whatGoes": "\"{{name}}\" will be gone for good: its card, story, pictures and share links. Players can no longer start it. This can't be undone.",
+          "keepFile": "Keep the file, and you can import the game again later, here or on another ChatGameLab server.",
+          "confirm": "Delete for good",
+          "keep": "Keep it"
+        },
+        "review": {
+          "button": "Review",
+          "later": "Later",
+          "goTo": "Go to {{page}}",
+          "looksGood": "Looks good. Play it once and see how it feels.",
+          "failed": "The game couldn't be reviewed just now. You can save it all the same.",
+          "missing": {
+            "adventure": {
+              "name": "Your game has no title yet.",
+              "systemMessageScenario": "Say what the game is about.",
+              "systemMessageGameStart": "Say how the game begins.",
+              "imageStyle": "Pick an image style, so the pictures look alike."
+            },
+            "encounter": {
+              "name": "Your game has no title yet.",
+              "systemMessageScenario": "Say who the character is.",
+              "systemMessageGameStart": "Say how the character greets the player.",
+              "imageStyle": "Pick an image style, so the pictures look alike."
+            }
+          }
+        },
+        "embed": {
+          "toggle": "Embed on a website",
+          "toggleHint": "Shows this game on your organisation's verified page, with nothing of ChatGameLab around it. Visitors play as guests; the key you choose pays.",
+          "page": "Verified page",
+          "noPages": "Your organisation has no verified page yet. Its head or staff add one in the organisation's settings.",
+          "paidBy": "Paid by",
+          "paidByPlaceholder": "Choose a key",
+          "payingNow": "Paying now",
+          "noKeys": "You have no working AI key to pay with. Add one, or ask your organisation for one.",
+          "incomplete": "Choose what pays, and the page, to get the snippet.",
+          "snippet": "Snippet for your website",
+          "snippetHint": "Put it where the game should appear, and give the element the height you want.",
+          "snippetVerifiedHint": "Your server fills in its ID of the visitor and of this page view; your page's callback gets both.",
+          "snippetCss": "your CSS",
+          "snippetPlayer": "YOUR-VISITOR-ID",
+          "snippetRequest": "YOUR-REQUEST-ID",
+          "copy": "Copy snippet",
+          "offNote": "Turned off, the snippet shows nothing. Turned on again, the same snippet works.",
+          "styleLink": "Style it with your own CSS →",
+          "pageHint": "The game runs only there, and only after the page says yes to each start."
         }
       }
     },
@@ -897,7 +1099,8 @@
         "next": "Next page",
         "first": "First page",
         "last": "Last page"
-      }
+      },
+      "clearPicks": "Show all"
     },
     "loading": "Loading...",
     "logout": "Logout",
@@ -924,6 +1127,23 @@
       }
     },
     "myOrganization": {
+      "verifiedPages": {
+        "intro": "A verified page is a page on your organisation's website that may show your embedded games. Before a game starts there, ChatGameLab asks the page's callback whether to start it, with the page ID below and the visitor's and request's IDs your page passes on. Only an answer of {\"ok\": true} starts the game.",
+        "empty": "No verified pages yet.",
+        "addTitle": "Register a page",
+        "pageUrl": "Page address",
+        "pageUrlHint": "The page your games are embedded in. Only its website may show them.",
+        "callbackUrl": "Callback address",
+        "callbackUrlHint": "Where ChatGameLab asks before each start. It must answer within a few seconds.",
+        "add": "Register page",
+        "pageId": "Page ID",
+        "copy": "Copy page ID",
+        "copied": "Copied",
+        "callbackShown": "Callback: {{url}}",
+        "remove": "Remove page",
+        "removeTitle": "Remove this page?",
+        "removeWarning": "Games embedded for {{page}} stop starting there until they get another page."
+      },
       "actions": "Actions",
       "apiKeys": {
         "aboutDescription": "API keys shared here are available to all members of your organization for playing games.",
@@ -1211,6 +1431,7 @@
         "genre": "The AI key cannot run this kind of game",
         "no_plays": "No plays left",
         "key_rejected": "The AI key was refused",
+        "no_credit": "No AI credit left",
         "unreachable": "The AI provider is not answering",
         "stale": "Can no longer be played",
         "unknown": "Not available",
@@ -1535,6 +1756,7 @@
     "myOrganization": "My Organization",
     "myWorkshop": "My Workshop",
     "orgApiKeys": "API Keys",
+    "orgVerifiedPages": "Websites",
     "orgConstraints": "Youth-protection prompt restriction",
     "orgMembers": "Members",
     "orgWorkshops": "Workshops",
@@ -1544,17 +1766,24 @@
     "workshopSettings": "Workshop Settings"
   },
   "playbackEngine": {
+    "over": {
+      "contentPolicy": "This game was stopped by the AI provider: the conversation went somewhere its safety rules do not allow. You can still read everything that was said, and start a new game whenever you like.",
+      "unknown": "This game is over. You can still read everything that was said, and start a new game whenever you like."
+    },
     "problems": {
       "noKey": "There is no AI key available to play this game.",
       "genre": "The available AI key cannot run this kind of game.",
       "noPlays": "This shared game has no plays left.",
       "keyRejected": "The AI provider refused this game's key, so the game cannot go on. Whoever set up the game needs to check the key.",
+      "noCredit": "Sorry, the AI credit is used up, so the game can't go on for now.",
       "unreachable": "The AI provider is not answering right now, so the game cannot go on. Try again in a few minutes.",
       "stale": "This game can no longer be continued.",
       "unknown": "This game session does not exist.",
       "denied": "You may not play this game.",
       "paused": "The workshop is paused. The game goes on when it resumes.",
-      "failed": "Something went wrong, and the game cannot go on."
+      "failed": "Something went wrong, and the game cannot go on.",
+      "over": "This game is over, so it cannot go on.",
+      "hostRefused": "The website this game is embedded in did not let it start."
     },
     "errors": {
       "serverUnreachable": "Cannot reach the game server.",
@@ -1577,6 +1806,7 @@
       "connecting": "Connecting…",
       "reconnecting": "Reconnecting…",
       "ended": "The game has ended.",
+      "over": "The game is over.",
       "choose": "Choose how to play to begin.",
       "settingScene": "Setting the scene…",
       "wakingCharacter": "Waking the character…"
@@ -1592,15 +1822,89 @@
       "copyFailed": "No clipboard: layout logged to the console",
       "compact": "Compact thread",
       "compacting": "Compacting…",
-      "compactFailed": "Could not compact"
+      "compactFailed": "Could not compact",
+      "injection": "Tell the character to …",
+      "injectDirection": "Do",
+      "injectDirectionHint": "What the character should do, e.g. \"Be grumpy, you don't trust the player.\"",
+      "injectBackground": "Know",
+      "injectBackgroundHint": "What the character thinks to itself, in its own words, without saying it now, e.g. \"I'm a werewolf, and I want her to find out slowly.\"",
+      "injectSpeech": "Say",
+      "injectSpeechHint": "What the character should say, in its own words, e.g. \"Halt! Who goes there?\"",
+      "injectionSend": "Send",
+      "injectionSending": "Sending…",
+      "injectionSent": "Sent to the conversation",
+      "injectionFailed": "Could not send it"
     },
     "insights": {
       "label": "Insights",
       "show": "Show Insights",
       "hide": "Hide Insights",
-      "feed": "What happened",
+      "feed": "History",
       "empty": "Nothing has run yet.",
-      "close": "Close"
+      "close": "Close",
+      "collapse": "Collapse",
+      "expand": "Expand",
+      "tabSelected": "Selected",
+      "tabUsage": "Usage",
+      "tabProblems": "Problems",
+      "pickBlock": "Click a block or a wire in the pipeline to read what it did.",
+      "noProblems": "No problems so far.",
+      "settingEmpty": "The game leaves this empty."
+    },
+    "director": {
+      "now": "director now",
+      "counted": "counted",
+      "log": "director log",
+      "doing": "doing",
+      "listening": "listening",
+      "standingDown": "stood down · the player has said nothing for {{s}}",
+      "thinking": "thinking · {{s}}",
+      "characterSpoke": "character spoke",
+      "playerSpoke": "player spoke",
+      "ago": "{{s}} ago",
+      "notYet": "not yet",
+      "quietFor": "quiet for",
+      "pool": "in the pool",
+      "poolValue": "{{n}} fragments · beat {{ms}} ms",
+      "waiting": "waiting for it",
+      "lines": "{{n}} lines",
+      "inARow": "directions in a row",
+      "ofLimit": "{{n}} of {{limit}}",
+      "fragments": "fragments",
+      "beats": "beats with lines",
+      "beatsValue": "{{n}} · {{lines}} lines",
+      "late": "late fragments",
+      "lateValue": "{{n}} · up to {{ms}} ms",
+      "notices": "silence notices",
+      "calls": "model calls",
+      "callsValue": "{{n}} · last {{s}}",
+      "failed": "{{n}} failed",
+      "sent": "sent",
+      "sentValue": "{{d}} directions · {{b}} background",
+      "dropped": "dropped",
+      "droppedValue": "{{n}} (too many in a row)",
+      "injected": "injected by hand",
+      "empty": "nothing yet",
+      "setBeat": "set beat (ms)",
+      "beatSet": "set",
+      "beatRefused": "refused",
+      "character": "character",
+      "player": "player",
+      "lateMark": "late",
+      "entryLine": "said",
+      "entrySilence": "silence",
+      "entryInjection": "injected",
+      "entryThought": "thinks",
+      "entryDirection": "direction sent",
+      "entryBackground": "background sent",
+      "entryDropped": "dropped",
+      "entryError": "error",
+      "entryConversation": "conversation",
+      "entryAbsent": "player away",
+      "quietReplies": "nothing to do",
+      "gap": "calls at most every",
+      "reminders": "reminded of the rules",
+      "entryRules": "rules sent"
     },
     "relay": {
       "connecting": "Relay: not running",
@@ -1620,10 +1924,22 @@
       "image-prompt": "Describe picture",
       "image": "Draw picture",
       "props-store": "Game status",
-      "portrait-prompt": "Describe portrait",
-      "portrait": "Draw portrait",
+      "gallery-image": "Gallery image",
+      "opening-brief": "How it begins",
+      "greeting": "Generate text",
       "live-session": "Character",
-      "observer": "Observer"
+      "observer": "Director",
+      "voice": "Generate voice",
+      "voice-brief": "Describe voice"
+    },
+    "settings": {
+      "scenario": "Scenario",
+      "gameStart": "Game start",
+      "voiceStyle": "Voice style",
+      "imageStyle": "Image style",
+      "statusFields": "Status fields",
+      "description": "Description",
+      "cover": "Gallery image"
     },
     "wires": {
       "adapted-style\u003eimage-style": "request",
@@ -1644,12 +1960,19 @@
       "outline\u003eprops-store": "changes",
       "props-store\u003eoutline": "status",
       "image-prompt\u003eimage": "prompt",
-      "portrait-prompt\u003eportrait": "prompt",
-      "portrait\u003estart-game": "ready",
+      "gallery-image\u003estart-game": "ready",
+      "opening-brief\u003egreeting": "brief",
+      "greeting\u003estart-game": "ready",
+      "greeting\u003elive-session": "first words",
       "start-game\u003elive-session": "cue",
       "player-input-audio\u003elive-session": "speech",
       "live-session\u003eobserver": "transcript",
-      "observer\u003elive-session": "hint"
+      "observer\u003elive-session": "injection",
+      "voice\u003estart-game": "ready",
+      "voice\u003elive-session:voice": "voice",
+      "voice\u003elive-session:secondary": "voice style",
+      "voice-brief\u003evoice:description": "description",
+      "voice-brief\u003evoice:voice": "fallback voice"
     }
   },
   "mail": {
