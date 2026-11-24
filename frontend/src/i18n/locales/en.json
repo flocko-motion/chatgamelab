@@ -374,17 +374,7 @@
         "loadError": "The registrations could not be loaded.",
         "date": "Registered",
         "institution": "Institution",
-        "person": "Signed by",
-        "bell": {
-          "label": "New organisations",
-          "title": "New organisations",
-          "intro_one": "This organisation registered in the last two weeks and is already activated.",
-          "intro_other": "These {{count}} organisations registered in the last two weeks and are already activated.",
-          "empty": "No organisation has registered in the last two weeks.",
-          "open": "Go to overview",
-          "later": "Later",
-          "suspendHint": "E-mail addresses are currently not confirmed. Take a quick look at new organisations and suspend them in the overview if something is wrong."
-        }
+        "person": "Signed by"
       }
     },
     "aiQualityTier": {
@@ -1455,13 +1445,24 @@
     "noRole": "No role",
     "notifications": {
       "accept": "Accept",
+      "acknowledgeAll": "Mark all as read",
       "decline": "Decline",
       "declineConfirm": "Are you sure you want to decline this invitation?",
       "declineTitle": "Decline Invitation",
-      "empty": "No new notifications.",
       "inviteDescription": "You have been invited to join as {{role}}.",
       "inviteToJoin": "Organization Invitation",
+      "nothingNew": "Nothing new",
       "title": "Notifications",
+      "titleWithCount_one": "Notifications: {{count}} new",
+      "titleWithCount_other": "Notifications: {{count}} new",
+      "types": {
+        "newOrganisations_one": "A new organisation has registered",
+        "newOrganisations_other": "{{count}} new organisations have registered",
+        "pagesWaiting_one": "A verified page is waiting for approval",
+        "pagesWaiting_other": "{{count}} verified pages are waiting for approval",
+        "pageApproved": "Your organisation’s verified page has been approved",
+        "pageTurnedDown": "Your organisation’s verified page was not approved, or its approval was withdrawn"
+      },
       "workshopInvite": "Workshop Invitation",
       "workshopInviteDescription": "You have been invited to join this workshop."
     },

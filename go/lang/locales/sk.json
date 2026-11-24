@@ -56,7 +56,7 @@
       "cityLabel": "Mesto",
       "confirmAdult": "Star_a sem najmanj 18 let.",
       "consentPage": {
-        "constraintIntro": "Z izjavo se vaša ustanova zavezuje, da bo določila omejitev pozivov za zaščito otrok, ki ustreza vaši ciljni skupini. Spodaj je omejitev, ki jo vaša organizacija trenutno uporablja. Preverite jo in jo po potrebi prilagodite.",
+        "constraintIntro": "Vyhlásením sa vaša inštitúcia zaväzuje stanoviť pravidlo ochrany mládeže, ktoré zodpovedá vašej cieľovej skupine. Nižšie je uvedené pravidlo, ktoré vaša organizácia v súčasnosti používa. Skontrolujte ho a podľa potreby upravte.",
         "emailDescription": "Potrdilo z besedilom izjave bomo poslali na ta naslov.",
         "introExisting": "Vaša organizacija »{{name}}« ima zdaj izjavo o soglasju, ki je potrjena prek spleta. Ta nadomešča uporabniški dogovor, ki ste ga podpisali prej. Preberite jo in v imenu svoje ustanove soglašajte z njo.",
         "introNewVersion": "Izjava je bila posodobljena (različica {{version}}). Preberite novo različico in v imenu svoje organizacije »{{name}}« soglašajte z njo.",
@@ -112,14 +112,14 @@
       "youthProtection": {
         "changeHint": "To nastavitev lahko kadar koli spremenite in jo za posamezne delavnice določite drugače.",
         "defaultOption": "Privzeto od 13. leta",
-        "fieldLabel": "Omejitev pozivov za zaščito otrok vaše organizacije",
+        "fieldLabel": "Pravidlo ochrany mládeže vašej organizácie",
         "intro": "Umetna inteligenca prejme to navodilo pri vsaki igri vaše organizacije. Izberite ga tako, da ustreza starosti vaše ciljne skupine.",
         "responsibilityHint": "Predlogi niso uradna starostna oznaka. O nastavitvi odloča vaša ustanova in zanjo tudi odgovarja.",
         "suggestionAdults": "za odrasle od {{age}}. leta",
         "suggestionChildren": "za otroke od približno {{age}}. leta",
         "suggestionTeens": "za mladostnike od približno {{age}}. leta",
         "suggestionsLabel": "Predlogi (s klikom zamenjate besedilo):",
-        "title": "Omejitev pozivov za zaščito otrok",
+        "title": "Pravidlo ochrany mládeže",
         "tooLong": "Največ {{max}} znakov. Skrajšajte besedilo ali izberite predlog."
       }
     },
@@ -236,7 +236,7 @@
       "organizationExistingAccount": "Organizacije se registrirajo z novo prijavo. Že imate račun?",
       "organizationIntro": "Za mladinske centre, šole in druge ustanove, ki želijo ChatGameLab uporabljati pri delavnicah.",
       "organizationStep1": "Ustvarite svojo prijavo pri Auth0 (e-pošta in geslo).",
-      "organizationStep2": "Vnesete podatke o sebi in svoji ustanovi, določite omejitev pozivov za zaščito otrok ter soglašate z izjavo.",
+      "organizationStep2": "Zadáte údaje o sebe a svojej inštitúcii, stanovíte pravidlo ochrany mládeže a súhlasíte s vyhlásením.",
       "organizationStep3": "Po oddaji obrazca bo organizacija takoj aktivirana in lahko boste ustvarjali delavnice.",
       "organizationTitle": "Registracija kot organizacija",
       "privacyPolicy": "Zásady ochrany osobných údajov",
@@ -433,6 +433,25 @@
           "role-desc": "Rola (Z-A)"
         },
         "title": "Spravovať používateľov"
+      },
+      "verifiedPages": {
+        "approve": "Schváliť",
+        "approved": "Schválené",
+        "callback": "Callback: {{url}}",
+        "description": "Overená stránka každej organizácie. Jej hry sa tam spustia až po vašom schválení; schvaľujete jej web (schému a hostiteľa), takže stránka presunutá na inú webovú lokalitu musí znova čakať na schválenie, zatiaľ čo iný port alebo cesta na tej istej lokalite zostáva schválená.",
+        "empty": "Zatiaľ žiadna organizácia nezaregistrovala stránku.",
+        "filters": {
+          "all": "Všetky",
+          "approved": "Schválené",
+          "waiting": "Čakajúce"
+        },
+        "loadError": "Stránky sa nepodarilo načítať.",
+        "organisation": "Organizácia",
+        "page": "Stránka",
+        "status": "Stav",
+        "title": "Stránky, na ktorých sú vložené hry",
+        "waiting": "Čaká na schválenie",
+        "withdraw": "Zrušiť schválenie"
       }
     },
     "aiQualityTier": {
@@ -455,6 +474,7 @@
       "empty": {
         "conditions": {
           "favorites": "med vašimi priljubljenimi",
+          "organisation": "vašej organizácie",
           "own": "vaša",
           "public": "javna",
           "sponsored": "sponzorirana"
@@ -470,7 +490,8 @@
         "all": "Všetky hry",
         "favorites": "Obľúbené",
         "genre": "Žanr",
-        "own": "Moje hry",
+        "organisation": "Organizácia",
+        "own": "Moje",
         "public": "Verejné",
         "sponsored": "Sponzorované"
       },
@@ -479,10 +500,16 @@
       "reportGame": "Nahlásiť hru",
       "restart": "Reštartovať",
       "resumeChoice": {
+        "advanced": "Rozšírené nastavenia",
         "continue": "Nadaljuj",
         "message": "Igro »{{game}}« si že začel. Želiš nadaljevati tam, kjer si končal, ali začeti znova? Začetek znova bo nadomestil tvojo prejšnjo sejo.",
         "startNew": "Začni znova",
         "title": "Nadaljevati ali začeti znova?"
+      },
+      "startChoice": {
+        "message": "Spustite hru „{{game}}“ tak, ako bola vytvorená, alebo najprv upravte prompty, s ktorými sa spustí.",
+        "start": "Spustiť",
+        "title": "Spustiť hru?"
       },
       "title": "Igre",
       "unfavorite": "Odstrániť z obľúbených",
@@ -640,6 +667,7 @@
         "alt": "Naslovna slika igre {{name}}",
         "draw": "Ustvari naslovno sliko",
         "drawAgain": "Ustvari znova",
+        "drawing": "Kreslí sa titulný obrázok…",
         "drawnOnSave": "Naslovna slika bo ustvarjena, ko shranite igro.",
         "errors": {
           "failed": "Naslovne slike ni bilo mogoče ustvariti. Poskusite znova.",
@@ -719,6 +747,10 @@
           },
           "description": "Popis",
           "descriptionHint": "Jedna či dve vety do galérie, aby hráči vedeli, čo ich čaká.",
+          "duo": {
+            "descriptionPlaceholder": "Greta, mrzutá majáková strážkyňa, a priveľmi veselý daňový kontrolór sa počas búrlivej noci hádajú. Počúvajte ich alebo sa prikloňte na jednu stranu.",
+            "titlePlaceholder": "Búrlivá noc pri majáku"
+          },
           "encounter": {
             "descriptionPlaceholder": "Navštívte Gretu, mrzutú strážkyňu majáka, a zistite, čo v tú noc videla.",
             "titlePlaceholder": "Greta pri majáku"
@@ -743,15 +775,17 @@
         },
         "embed": {
           "copy": "Kopírovať úryvok",
-          "incomplete": "Vyberte, čo bude platiť, a stránku, aby ste získali úryvok.",
+          "incomplete": "Vyberte, čo sa má zaplatiť, aby ste získali úryvok kódu.",
           "noKeys": "Nemáte funkčný kľúč AI, ktorým by ste mohli platiť. Pridajte ho alebo oň požiadajte svoju organizáciu.",
-          "noPages": "Vaša organizácia zatiaľ nemá overenú stránku. Jej vedenie alebo zamestnanci ju pridajú v nastaveniach organizácie.",
+          "noOrganisation": "Vkladanie je určené pre hry organizácie: hry vytvorené na jej workshopoch alebo jej vedením a zamestnancami. Táto hra nepatrí žiadnej organizácii.",
+          "noPages": "Najprv zaregistrujte web svojej organizácie: stránku, na ktorej budú bežať vaše hry. Administrátor ju schváli a potom sa tam hra môže spustiť.",
           "offNote": "Keď je úryvok vypnutý, nič nezobrazuje. Po opätovnom zapnutí funguje ten istý úryvok.",
           "page": "Overená stránka",
           "pageHint": "Hra funguje iba tam a až potom, čo stránka schváli každé spustenie.",
           "paidBy": "Platí",
           "paidByPlaceholder": "Vyberte kľúč",
           "payingNow": "Platí teraz",
+          "registerPage": "Zaregistrujte web v časti Moja organizácia → Weby",
           "snippet": "Úryvok pre vašu webovú stránku",
           "snippetCss": "vaše CSS",
           "snippetHint": "Vložte ho tam, kde sa má hra zobraziť, a prvku nastavte požadovanú výšku.",
@@ -760,12 +794,14 @@
           "snippetVerifiedHint": "Váš server doplní ID návštevníka a ID tohto zobrazenia stránky; spätné volanie vašej stránky dostane obe.",
           "styleLink": "Upravte vzhľad vlastným CSS →",
           "toggle": "Vložiť na webovú stránku",
-          "toggleHint": "Zobrazí túto hru na overenej stránke vašej organizácie bez prvkov ChatGameLab okolo nej. Návštevníci hrajú ako hostia; vybraný kľúč platí."
+          "toggleHint": "Zobrazí túto hru na overenej stránke vašej organizácie bez prvkov ChatGameLab okolo nej. Návštevníci hrajú ako hostia; vybraný kľúč platí.",
+          "waitingForApproval": "Stránka organizácie čaká na schválenie administrátorom. Dovtedy sa tam hra nespustí."
         },
         "fillIn": "Vyplňte časti, kým nebudú všetky zelené.",
         "genre": {
           "pitch": {
             "adventure": "Hráč objavuje svet. Hra rozpráva, čo sa deje, vytvára obrázky a vedie skóre.",
+            "duo": "Dve postavy sa rozprávajú hlasom. Hráč počúva alebo sa zapojí do rozhovoru.",
             "encounter": "Hráč sa hlasom rozpráva s jednou postavou. Tá zostáva vo svojej úlohe a odpovedá naživo."
           },
           "question": "Čo chcete vytvoriť?"
@@ -815,6 +851,12 @@
               "systemMessageGameStart": "Povedzte, ako sa hra začína.",
               "systemMessageScenario": "Povedzte, o čom hra je."
             },
+            "duo": {
+              "imageStyle": "Vyberte štýl obrázkov, aby sa obrázky navzájom podobali.",
+              "name": "Vaša hra ešte nemá názov.",
+              "systemMessageGameStart": "Uveďte, kde sa scéna odohráva a ako sa začína.",
+              "systemMessageScenario": "Uveďte, kto sú tieto dve postavy."
+            },
             "encounter": {
               "imageStyle": "Vyberte štýl obrázkov, aby sa obrázky k sebe hodili.",
               "name": "Vaša hra ešte nemá názov.",
@@ -829,6 +871,10 @@
             "voiceStyleHint": "Ako znie príbeh pri čítaní nahlas."
           },
           "builtInVoice": "Vstavaný hlas",
+          "duo": {
+            "voiceStyle": "Hlasy postáv",
+            "voiceStyleHint": "Každá postava dostane vlastný hlas."
+          },
           "encounter": {
             "voiceStyle": "Hlas postavy",
             "voiceStyleHint": "Ako znie postava."
@@ -864,6 +910,20 @@
             "scenario": "O čom hra je?",
             "scenarioHint": "Svet, úloha hráča, cieľ a ako hráč spozná, že vyhral.",
             "scenarioPlaceholder": "Hráč je prieskumníkom v tajomnom lese a hľadá skrytý poklad…"
+          },
+          "duo": {
+            "firstCharacter": "Prvá postava",
+            "firstCharacterHint": "Kto je: osobnosť, čo chce a ako rozpráva. Hovorí ako prvá.",
+            "firstCharacterPlaceholder": "Greta, mrzutá majáková strážkyňa, ktorá chce mať pri svojej lampe pokoj…",
+            "gameStart": "Kde sú a ako sa to začína?",
+            "gameStartHint": "Scéna, v ktorej sa obe postavy nachádzajú na začiatku; z nej sa vytvoria prvé slová prvej postavy.",
+            "gameStartPlaceholder": "Búrlivá noc. Otto celý premočený klope na dvere majáka…",
+            "scenario": "Kto sú tieto dve postavy?",
+            "scenarioHint": "Kto je každá z nich a prečo sa majú o čom rozprávať alebo hádať.",
+            "scenarioPlaceholder": "Greta, mrzutá majáková strážkyňa…",
+            "secondCharacter": "Druhá postava",
+            "secondCharacterHint": "Kto je a prečo sa tieto dve postavy majú o čom rozprávať alebo hádať.",
+            "secondCharacterPlaceholder": "Otto, priveľmi veselý daňový kontrolór, ktorý prišiel spočítať každú sviečku…"
           },
           "encounter": {
             "gameStart": "Ako pozdraví hráča?",
@@ -905,7 +965,8 @@
       },
       "genres": {
         "adventure": "Dobrodružstvo",
-        "npc-live": "Stretnutie"
+        "npc-duo": "Diskusia",
+        "npc-live": "Postava"
       },
       "importExport": {
         "coverFailed": "Igra je bila uvožena, vendar naslovne slike ni bilo mogoče preveriti. V urejevalniku lahko ustvariš novo.",
@@ -920,6 +981,7 @@
         "exportButton": "Exportovať hru",
         "importButton": "Importovať hru"
       },
+      "newGame": "Nová hra",
       "playNow": "Hrať teraz",
       "privacyHint": "Názov a popis hry môžu byť verejne viditeľné. Nepoužívajte skutočné mená.",
       "privacyHintShort": "Môže byť verejne viditeľné – nepoužívajte skutočné mená.",
@@ -959,7 +1021,7 @@
         "unlimitedSessions": "Neobmedzené relácie",
         "update": "Aktualizovať zdieľací odkaz",
         "workshopCreateHint": "Vytvorte zdieľací odkaz pre túto hru. Kľúč API workshopu sa vyberie automaticky a pokryje náklady.",
-        "workshopDescription": "Tento odkaz bol vytvorený v rámci workshopu „{{name}}“ – hostia hrajú s API kľúčom workshopu a jeho obmedzeniami promptov.",
+        "workshopDescription": "Tento odkaz bol vytvorený v rámci workshopu „{{name}}“ – hostia hrajú s API kľúčom a pravidlom ochrany mládeže workshopu.",
         "workshopShare": "Workshopové zdieľanie",
         "workshopShareDescription": "Tento odkaz bol vytvorený vo workshope „{{name}}“ – hostia hrajú s použitím kľúča API workshopu.",
         "workshopSubsection": "Workshopový zdieľací odkaz"
@@ -1071,6 +1133,7 @@
           "scifi": "Sci-fi",
           "snowy": "Zasnežený",
           "space": "Vesmír",
+          "spielfieber": "Spielfieber",
           "steampunk": "Steampunk",
           "storybook": "Rozprávková kniha",
           "sunshine": "Slnečný svit",
@@ -1192,6 +1255,7 @@
     "leaveTitle": "Opustiť organizáciu",
     "leaveWarning": "Stratíte prístup ku všetkým zdrojom a členom organizácie.",
     "list": {
+      "clearFilters": "Vymazať",
       "clearPicks": "Prikaži vse",
       "clearSearch": "Počisti iskanje",
       "filter": "Filter",
@@ -1241,6 +1305,8 @@
       "apiKeys": {
         "aboutDescription": "Kľúče API zdieľané tu sú dostupné všetkým členom vašej organizácie na hranie hier.",
         "aboutTitle": "Organizačné API kľúče",
+        "addAndShare": "Pridať a zdieľať",
+        "addKey": "Pridať kľúč",
         "allPlatforms": "Vse platforme",
         "allowPublicSponsoring": "Povoliť verejné sponzorovanie",
         "allowPublicSponsoringDesc": "Tento kľúč môže byť použitý na sponzorovanie hier pre všetkých používateľov.",
@@ -1254,6 +1320,9 @@
         },
         "keyName": "Názov kľúča",
         "loadError": "Nepodarilo sa načítať organizačné API kľúče.",
+        "modeNew": "Nový kľúč",
+        "modeOwn": "Jeden z mojich kľúčov",
+        "newKeyHint": "Kľúč bude patriť vám, rovnako ako na stránke s vašimi API kľúčmi, a bude zdieľaný s organizáciou.",
         "noKeys": "S touto organizáciou zatiaľ nie sú zdieľané žiadne API kľúče.",
         "noResults": "Žiadne API kľúče nezodpovedajú hľadaniu.",
         "notAuthorized": "Nemáte oprávnenie spravovať organizačné API kľúče. Prístup majú iba vedúci a učitelia.",
@@ -1266,7 +1335,7 @@
         "selectKeyPlaceholder": "Vyberte kľúč na zdieľanie...",
         "share": "Zdieľať",
         "shareKey": "Zdieľať kľúč",
-        "shareKeyTitle": "Zdieľať API kľúč s organizáciou",
+        "shareKeyTitle": "Pridať API kľúč do organizácie",
         "showDetails": "Zobraziť podrobnosti",
         "title": "Organizačné API kľúče"
       },
@@ -1317,13 +1386,13 @@
       "promoteToHead": "Povýšiť na vedúceho",
       "promoteWarning": "Tento používateľ získa možnosť spravovať členov organizácie a pozývať učiteľov.",
       "promptConstraintsFallbackEmpty": "(nenakonfigurované)",
-      "promptConstraintsFallbackHint": "Omejitev organizacije ni nastavljena. Uporablja se privzeta omejitev spletnega mesta za starostno skupino igralca:",
+      "promptConstraintsFallbackHint": "Organizácia nemá nastavené pravidlo ochrany mládeže. Platí predvolené nastavenie pre danú vekovú skupinu na úrovni celej stránky:",
       "promptConstraintsFallbackTitle": "Aktívna celoportálová záloha",
       "promptConstraintsFallbackU13": "Mladší ako 13",
       "promptConstraintsFallbackU13p": "13–17 (so súhlasom rodičov)",
       "promptConstraintsFallbackU18": "18 a viac",
-      "promptConstraintsHint": "Ďalšie inštrukcie pre AI pre všetky relácie v tejto organizácii. Platí, keď nie je nastavené obmedzenie na úrovni workshopu a pre hry zdieľané cez odkaz.",
-      "promptConstraintsLabel": "Omejitev pozivov za zaščito otrok organizacije",
+      "promptConstraintsHint": "Ďalšie pokyny pre AI pre všetky relácie v tejto organizácii. Platí, keď workshop nenastaví pravidlo ochrany mládeže, a pre hry zdieľané prostredníctvom odkazu.",
+      "promptConstraintsLabel": "Pravidlo ochrany mládeže organizácie",
       "promptConstraintsPlaceholder": "napr. Udržuj príbeh primeraný veku a vyhýbaj sa násilnému obsahu.",
       "publicPage": {
         "changeLinkMessage": "Stránka bude potom dostupná na adrese {{url}}.",
@@ -1377,11 +1446,15 @@
       "verifiedPages": {
         "add": "Registrovať stránku",
         "addTitle": "Registrovať stránku",
+        "approved": "Schválené",
         "callbackShown": "Spätné volanie: {{url}}",
         "callbackUrl": "Adresa spätného volania",
         "callbackUrlHint": "Sem sa ChatGameLab pýta pred každým spustením. Stránka musí odpovedať do niekoľkých sekúnd.",
         "copied": "Skopírované",
         "copy": "Kopírovať ID stránky",
+        "edit": "Zmeniť stránku",
+        "editReapproval": "Táto adresa je na inej webovej lokalite, ktorá musí znova čakať na schválenie administrátorom; dovtedy sa tam hry prestanú spúšťať. Iný port alebo cesta na tej istej lokalite zostáva schválená.",
+        "editTitle": "Zmeniť stránku",
         "empty": "Zatiaľ žiadne overené stránky.",
         "intro": "Overená stránka je stránka na webovej lokalite vašej organizácie, ktorá môže zobrazovať vaše vložené hry. Pred spustením hry sa tam ChatGameLab opýta spätného volania stránky, či ju má spustiť, pričom použije ID stránky nižšie a ID návštevníka a požiadavky, ktoré mu vaša stránka odovzdá. Hru spustí iba odpoveď {\"ok\": true}.",
         "pageId": "ID stránky",
@@ -1389,7 +1462,9 @@
         "pageUrlHint": "Stránka, na ktorej sú vložené vaše hry. Zobrazovať ich môže iba jej webová lokalita.",
         "remove": "Odstrániť stránku",
         "removeTitle": "Odstrániť túto stránku?",
-        "removeWarning": "Hry vložené pre {{page}} sa tam prestanú spúšťať, kým nedostanú inú stránku."
+        "removeWarning": "Hry vložené pre {{page}} sa tam prestanú spúšťať, kým nedostanú inú stránku.",
+        "save": "Uložiť stránku",
+        "waiting": "Čaká na schválenie administrátorom"
       },
       "workshops": {
         "activate": "Aktivovať",
@@ -1461,10 +1536,10 @@
         "participantLinkTitleNamed": "Odkaz na opätovné prihlásenie pre {{name}}",
         "participantName": "Meno účastníka",
         "participants": "Účastníci",
-        "promptConstraintsFallbackOrg": "Kot privzeta se uporablja omejitev organizacije: {{constraint}}",
-        "promptConstraintsFallbackSite": "Kot privzeta se uporablja omejitev spletnega mesta",
+        "promptConstraintsFallbackOrg": "Ako predvolené sa používa pravidlo ochrany mládeže organizácie: {{constraint}}",
+        "promptConstraintsFallbackSite": "Ako predvolené sa používa pravidlo ochrany mládeže webu",
         "promptConstraintsHint": "Ďalšie inštrukcie pre AI pre všetky relácie v tomto workshope.",
-        "promptConstraintsLabel": "Omejitev pozivov za zaščito otrok",
+        "promptConstraintsLabel": "Pravidlo ochrany mládeže",
         "promptConstraintsPlaceholder": "napr. Udržujte príbeh primeraný veku a vyhnite sa násilnému obsahu.",
         "removeParticipant": "Odstrániť účastníka",
         "removeParticipantConfirm": "Naozaj chcete odstrániť „{{name}}“ z tohto workshopu?",
@@ -1512,13 +1587,25 @@
     "noRole": "Žiadna rola",
     "notifications": {
       "accept": "Prijať",
+      "acknowledgeAll": "Označiť všetky ako prečítané",
       "decline": "Odmietnuť",
       "declineConfirm": "Naozaj chcete odmietnuť túto pozvánku?",
       "declineTitle": "Odmietnuť pozvánku",
       "empty": "Žiadne nové upozornenia.",
       "inviteDescription": "Boli ste pozvaní pripojiť sa ako {{role}}.",
       "inviteToJoin": "Pozvánka do organizácie",
+      "nothingNew": "Nič nové",
       "title": "Upozornenia",
+      "titleWithCount_one": "Oznámenia: {{count}} nové",
+      "titleWithCount_other": "Oznámenia: {{count}} nových",
+      "types": {
+        "newOrganisations_one": "Zaregistrovala sa nová organizácia",
+        "newOrganisations_other": "Zaregistrovalo sa {{count}} nových organizácií",
+        "pageApproved": "Overená stránka vašej organizácie bola schválená",
+        "pageTurnedDown": "Overená stránka vašej organizácie nebola schválená alebo bolo jej schválenie odvolané",
+        "pagesWaiting_one": "Overená stránka čaká na schválenie",
+        "pagesWaiting_other": "{{count}} overených stránok čaká na schválenie"
+      },
       "workshopInvite": "Pozvánka do workshopu",
       "workshopInviteDescription": "Boli ste pozvaní na pripojenie k tomuto workshopu."
     },
@@ -1530,6 +1617,15 @@
       "title": "Organizacija je začasno onemogočena"
     },
     "play": {
+      "advanced": {
+        "edited": "zmenené",
+        "hint": "Upravte prompty, s ktorými sa táto relácia spustí. Zmenené prompty sú označené; všetko ostatné funguje tak, ako bola hra vytvorená. Prompty možno počas hrania ďalej meniť v prehľadoch.",
+        "loading": "Načítavajú sa prompty…",
+        "reset": "Späť na pôvodné",
+        "start": "Spustiť hru",
+        "title": "Rozšírené nastavenia",
+        "unavailable": "Prompty sa nepodarilo načítať."
+      },
       "cloneGame": "Klonovať do mojich hier",
       "empty": {
         "description": "Skúste upraviť filtre alebo sa vráťte neskôr, keď pribudnú nové hry.",
@@ -1624,16 +1720,16 @@
     "searchPlaceholder": "Hľadať členov...",
     "serverSettings": {
       "constraints": {
-        "description": "Določite obvezna pravila umetne inteligence glede na starostno skupino igralca. Te omejitve so vključene v vsak odgovor umetne inteligence. Veljajo za vse prijavljene uporabnike zunaj načina delavnice.",
-        "title": "Starostno določene omejitve pozivov",
+        "description": "Definujte záväzné pravidlá pre AI na základe vekovej skupiny hráča. Tieto pravidlá ochrany mládeže sa pridávajú ku každému volaniu AI. Platia pre všetkých prihlásených používateľov mimo režimu workshopu.",
+        "title": "Pravidlá ochrany mládeže podľa vekovej skupiny",
         "u13Hint": "Vkladá sa do každého AI promptu pre prihlásených používateľov vo veku 13–17 rokov bez evidovaného súhlasu rodičov.",
-        "u13Label": "Omejitev za uporabnike, stare 13–17 let, brez soglasja staršev (U13)",
+        "u13Label": "Pravidlo ochrany mládeže pre používateľov vo veku 13 – 17 rokov bez súhlasu rodičov (U13)",
         "u13Placeholder": "napr. Udržuj všetok obsah striktne primeraný tínedžerom. Žiadne násilie, žiadny romantický obsah, žiadne hororové motívy.",
         "u13pHint": "Vkladá sa do každého AI promptu pre prihlásených používateľov vo veku 13–17 rokov so zaznamenaným súhlasom rodičov.",
-        "u13pLabel": "Omejitev za uporabnike, stare 13–17 let, s soglasjem staršev (U13p)",
+        "u13pLabel": "Pravidlo ochrany mládeže pre používateľov vo veku 13 – 17 rokov so súhlasom rodičov (U13p)",
         "u13pPlaceholder": "napr. Vekovo primeraný obsah pre tínedžerov, ktorých rodičia dali súhlas. Povolené sú niektoré zrelšie témy, bez explicitného obsahu.",
         "u18Hint": "Vkladá sa do každého promptu AI pre prihlásených používateľov vo veku 18 rokov a viac.",
-        "u18Label": "Omejitev za uporabnike, stare 18 let ali več (U18)",
+        "u18Label": "Pravidlo ochrany mládeže pre používateľov vo veku 18 a viac rokov (U18)",
         "u18Placeholder": "napr. Udržuj obsah vhodný. Vyhýbaj sa explicitnému násiliu alebo sexuálnemu obsahu."
       },
       "defaultTier": {
@@ -1762,6 +1858,49 @@
         "viewAll": "Všetky hry"
       }
     },
+    "continue": {
+      "go": "Pokračovať",
+      "hint": "pokračovať tam, kde ste skončili",
+      "messages_one": "{{count}} správa",
+      "messages_other": "{{count}} správ",
+      "title": "Pokračovať v hre"
+    },
+    "fresh": {
+      "by": "od {{name}}",
+      "empty": "Zatiaľ žiadne nové hry.",
+      "title": "Nové hry",
+      "viewAll": "Zobraziť galériu"
+    },
+    "hero": {
+      "create": "Vytvoriť",
+      "greeting": "Ahoj, {{name}}. Čo dnes \u0003cmark\u0003evytvoríme\u0003c/mark\u0003e?",
+      "greetingNoName": "Ahoj. Čo dnes \u0003cmark\u0003evytvoríme\u0003c/mark\u0003e?",
+      "journal": "Laboratórny denník · {{date}}",
+      "promptLabel": "Opíšte nápad na hru",
+      "promptPlaceholder": "Opíšte nápad na hru… AI vám pomôže ho rozpracovať"
+    },
+    "lab": {
+      "gamesCreated": "hier, ktoré ste vymysleli",
+      "gamesOnPlatform": "hier v laboratóriu",
+      "playsOfOwnGames": "hraní vašich hier",
+      "title": "Vaše doterajšie laboratórium"
+    },
+    "links": {
+      "about": "O ChatGameLab",
+      "educators": "Pre pedagógov",
+      "jff": "JFF – Inštitút pre mediálnu pedagogiku"
+    },
+    "ownGames": {
+      "empty": "Zatiaľ žiadne hry. Opíšte vyššie nápad a vytvorte svoju prvú hru!",
+      "title": "Vaše hry",
+      "viewAll": "Všetky vaše hry"
+    },
+    "popular": {
+      "hint": "čo práve všetci hrajú",
+      "plays_one": "{{count}} hranie",
+      "plays_other": "{{count}} hraní",
+      "title": "Najobľúbenejšie"
+    },
     "quickActions": {
       "createNewGame": "Vytvoriť novú hru",
       "createWorkshop": "Vytvoriť workshop",
@@ -1770,6 +1909,7 @@
       "startNewGame": "Začať novú hru",
       "title": "Rýchle akcie"
     },
+    "someone": "niekto",
     "untitled": "Bez názvu",
     "untitledGame": "Hra bez názvu",
     "version": {
@@ -1777,6 +1917,10 @@
         "message": "Verzia frontendu \u0003cbcfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e sa nezhoduje s verziou backendu \u0003cbcbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. Môže to spôsobovať neočakávané správanie. Ak problém pretrváva, kontaktujte podporu.",
         "title": "Zistená nezhoda verzií"
       }
+    },
+    "workshops": {
+      "title": "Vaše workshopy",
+      "viewAll": "Všetky workshopy"
     }
   },
   "errors": {
@@ -1906,13 +2050,15 @@
     "dashboard": "Dashboard",
     "games": "Hry",
     "groups": "Skupiny",
+    "mainMenu": "Hlavná ponuka",
     "manageOrganizations": "Spravovať organizácie",
     "manageUsers": "Spravovať používateľov",
+    "me": "Ja",
     "myGames": "Moje hry",
     "myOrganization": "Moja organizácia",
     "myWorkshop": "Môj workshop",
     "orgApiKeys": "API kľúče",
-    "orgConstraints": "Omejitev pozivov za zaščito otrok",
+    "orgConstraints": "Pravidlo ochrany mládeže",
     "orgMembers": "Členovia",
     "orgVerifiedPages": "Webové stránky",
     "orgWorkshops": "Workshopy",
@@ -1924,14 +2070,19 @@
   "playbackEngine": {
     "blocks": {
       "adapted-style": "Slog",
+      "cast": "Obsadiť hlasy",
+      "cast-brief": "Postavy",
       "condense-scenario": "Skrajšaj scenarij",
       "condensed-scenario": "Scenarij",
+      "director": "Réžia",
       "expand": "Pripoveduj",
       "gallery-image": "Slika iz galerije",
       "greeting": "Ustvari besedilo",
       "image": "Nariši sliko",
       "image-prompt": "Opiši sliko",
       "image-style": "Prilagodi slog",
+      "live-a": "Prvá postava",
+      "live-b": "Druhá postava",
       "live-session": "Lik",
       "observer": "Režija",
       "opening-brief": "Kako se začne",
@@ -2013,6 +2164,31 @@
       "turnFailed": "Príbeh na to nedokázal nadviazať. Pošli to znova alebo skús niečo iné.",
       "voiceFailed": "Tvoj hlas sa nepodarilo pripojiť."
     },
+    "guardrail": {
+      "edit": "Zmeniť ochranné pravidlo",
+      "editHint": "Laboratórny experiment: nové ochranné pravidlo platí od nasledujúceho volania AI; to, čo sa už stalo, zostáva.",
+      "edited": "upravené",
+      "failed": "Nepodarilo sa uložiť",
+      "frequency": "Opakovanie",
+      "frequencyFailed": "Nepodarilo sa nastaviť",
+      "frequencyHint": "Ako často každý krok opakuje ochranné pravidlo: 1 pri každom volaní, 10 pri každom desiatom.",
+      "frequencySet": "Nastaviť",
+      "intro": "Pravidlo ochrany mládeže, ktoré dodržiava každé volanie AI v tejto hre.",
+      "levelOrganisation": "Organizácia „{{name}}“",
+      "levelSite13": "Pravidlo stránky, 13 – 17 rokov bez súhlasu rodičov",
+      "levelSite13p": "Pravidlo stránky, 13 – 17 rokov so súhlasom rodičov",
+      "levelSite18": "Pravidlo stránky, 18 rokov a viac",
+      "levelWorkshop": "Workshop „{{name}}“",
+      "none": "Táto relácia nemá žiadne ochranné pravidlo.",
+      "readBy": "Dodržiava",
+      "reset": "Späť na vyriešené ochranné pravidlo",
+      "resolved": "Podľa pôvodného nastavenia",
+      "save": "Uložiť",
+      "saved": "Uložené: platí od nasledujúceho volania",
+      "saving": "Ukladá sa…",
+      "source": "Pochádza z",
+      "sourceUnknown": "Neznáme"
+    },
     "insights": {
       "close": "Zavrieť",
       "collapse": "Strni",
@@ -2025,6 +2201,7 @@
       "pickBlock": "Klikni blok ali povezavo v poteku, da prebereš, kaj je naredil.",
       "settingEmpty": "Igra tega ne izpolni.",
       "show": "Zobraziť prehľady",
+      "tabGuardrail": "Ochranné pravidlo",
       "tabProblems": "Težave",
       "tabSelected": "Izbrano",
       "tabUsage": "Poraba"
@@ -2071,6 +2248,32 @@
       "unknown": "Táto herná relácia neexistuje.",
       "unreachable": "Poskytovateľ AI momentálne neodpovedá, takže hra nemôže pokračovať. Skús to znova o niekoľko minút."
     },
+    "promptNames": {
+      "condense-scenario": "Skrátiť scenár",
+      "conversation-policy": "Ako postava rozpráva",
+      "director": "Réžia",
+      "expand": "Rozprávať ťah",
+      "game-master": "Herný majster (systémová správa)",
+      "greeting": "Prvé slová",
+      "image-style": "Upraviť štýl",
+      "opening": "Úvod",
+      "opening-expand": "Rozprávať úvod",
+      "rephrase": "Preformulovať akciu",
+      "rephrase-audio": "Porozumieť reči",
+      "scene": "Obrazový rám",
+      "summary": "Žiadosť o zhrnutie",
+      "voice-brief": "Opísať hlas"
+    },
+    "prompts": {
+      "edited": "upravené",
+      "failed": "Nepodarilo sa uložiť",
+      "hint": "Zmeňte prompt a sledujte, ako sa zmenia odpovede. Nový text platí od nasledujúceho volania.",
+      "reset": "Späť na pôvodné",
+      "save": "Uložiť",
+      "saved": "Uložené: platí od nasledujúceho volania",
+      "saving": "Ukladá sa…",
+      "title": "Prompty"
+    },
     "relay": {
       "busy": "Relé: používa ho iná karta",
       "connected": "Relé: pripojené",
@@ -2103,15 +2306,24 @@
       "adapted-style\u0003eimage-prompt": "slog",
       "adapted-style\u0003eimage-style": "zahteva",
       "adapted-style\u0003estart-game": "pripravljeno",
+      "cast\u0003elive-a:voiceA": "hlas",
+      "cast\u0003elive-b:voiceB": "hlas",
+      "cast\u0003estart-game": "pripravené",
+      "cast-brief\u0003ccast": "postavy",
       "condense-scenario\u0003econdensed-scenario": "odgovor",
       "condensed-scenario\u0003econdense-scenario": "zahteva",
       "condensed-scenario\u0003eimage-prompt": "scenarij",
       "condensed-scenario\u0003estart-game": "pripravljeno",
+      "director\u0003elive-a": "vstup",
+      "director\u0003elive-b": "vstup",
       "gallery-image\u0000start-game": "pripravljeno",
       "greeting\u0000live-session": "prve besede",
       "greeting\u0000start-game": "pripravljeno",
+      "greeting\u0003elive-a": "prvé slová",
       "image-prompt\u0003eimage": "poziv",
       "image-style\u0003eadapted-style": "odgovor",
+      "live-a\u0003edirector": "prepis",
+      "live-b\u0003edirector": "prepis",
       "live-session\u0003eobserver": "prepis",
       "observer\u0000live-session": "vnos",
       "observer\u0003elive-session": "namig",
@@ -2119,6 +2331,8 @@
       "outline\u0003eexpand": "načrt",
       "outline\u0003eimage-prompt": "prizor",
       "outline\u0003eprops-store": "spremembe",
+      "player-input-audio\u0003elive-a": "reč",
+      "player-input-audio\u0003elive-b": "reč",
       "player-input-audio\u0003elive-session": "govor",
       "player-input-audio\u0003erephrase-audio": "govor",
       "player-input-text\u0003erephrase": "dejanje",
@@ -2127,6 +2341,8 @@
       "props-store\u0003eoutline": "stanje",
       "rephrase\u0003eoutline": "dejanje",
       "rephrase-audio\u0003eoutline": "dejanje",
+      "start-game\u0003elive-a": "signál na začatie",
+      "start-game\u0003elive-b": "signál na začatie",
       "start-game\u0003elive-session": "uvod",
       "start-game\u0003eoutline": "poziv",
       "voice\u0000live-session:secondary": "slog glasu",

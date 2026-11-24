@@ -374,17 +374,7 @@
         "loadError": "Die Registrierungen konnten nicht geladen werden.",
         "date": "Registriert",
         "institution": "Einrichtung",
-        "person": "Erklärt von",
-        "bell": {
-          "label": "Neue Organisationen",
-          "title": "Neue Organisationen",
-          "intro_one": "Diese Organisation hat sich in den letzten zwei Wochen registriert und ist bereits freigeschaltet.",
-          "intro_other": "Diese {{count}} Organisationen haben sich in den letzten zwei Wochen registriert und sind bereits freigeschaltet.",
-          "empty": "In den letzten zwei Wochen hat sich keine Organisation registriert.",
-          "open": "Zur Übersicht",
-          "later": "Später",
-          "suspendHint": "E-Mail-Adressen werden im Moment nicht bestätigt. Schau dir neue Organisationen kurz an und setze sie in der Übersicht aus, wenn etwas nicht stimmt."
-        }
+        "person": "Erklärt von"
       }
     },
     "aiQualityTier": {
@@ -1455,13 +1445,24 @@
     "noRole": "Keine Rolle",
     "notifications": {
       "accept": "Annehmen",
+      "acknowledgeAll": "Alle als gelesen markieren",
       "decline": "Ablehnen",
       "declineConfirm": "Sind Sie sicher, dass Sie diese Einladung ablehnen möchten?",
       "declineTitle": "Einladung ablehnen",
-      "empty": "Keine neuen Benachrichtigungen.",
       "inviteDescription": "Sie wurden eingeladen, als {{role}} beizutreten.",
       "inviteToJoin": "Organisations-Einladung",
+      "nothingNew": "Nichts Neues",
       "title": "Benachrichtigungen",
+      "titleWithCount_one": "Benachrichtigungen: {{count}} neu",
+      "titleWithCount_other": "Benachrichtigungen: {{count}} neu",
+      "types": {
+        "newOrganisations_one": "Eine neue Organisation hat sich registriert",
+        "newOrganisations_other": "{{count}} neue Organisationen haben sich registriert",
+        "pagesWaiting_one": "Eine verifizierte Seite wartet auf Freigabe",
+        "pagesWaiting_other": "{{count}} verifizierte Seiten warten auf Freigabe",
+        "pageApproved": "Die verifizierte Seite der Organisation wurde freigegeben",
+        "pageTurnedDown": "Die verifizierte Seite der Organisation wurde nicht freigegeben oder ihre Freigabe zurückgezogen"
+      },
       "workshopInvite": "Workshop-Einladung",
       "workshopInviteDescription": "Sie wurden eingeladen, diesem Workshop beizutreten."
     },

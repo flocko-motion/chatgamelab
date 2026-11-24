@@ -195,9 +195,9 @@ export function AppHeader({
               />
             )}
 
-            {/* Mobile: the bell (it shows only while something waits), then
-                the burger menu (not when signed out) */}
-            {forceMobile && !isSignedOut && <NotificationBell />}
+            {/* Mobile: the bell (not for guests), then the burger menu (not
+                when signed out) */}
+            {forceMobile && !isSignedOut && !isGuest && <NotificationBell />}
             {forceMobile && !isSignedOut && (
               <Burger
                 opened={mobileNavOpened}

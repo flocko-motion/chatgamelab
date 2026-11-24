@@ -56,7 +56,7 @@
       "cityLabel": "Miejscowość",
       "confirmAdult": "Mam co najmniej 18 lat.",
       "consentPage": {
-        "constraintIntro": "Wraz z deklaracją instytucja zobowiązuje się do ustalenia ograniczenia promptów ochrony małoletnich odpowiedniego dla swojej grupy docelowej. Poniżej znajduje się ograniczenie obecnie używane przez Twoją organizację. Sprawdź je i w razie potrzeby dostosuj.",
+        "constraintIntro": "Składając deklarację, wasza instytucja zobowiązuje się ustalić zasady ochrony młodzieży odpowiednie dla swojej grupy docelowej. Poniżej znajdują się zasady, z których obecnie korzysta wasza organizacja. Sprawdźcie je i w razie potrzeby dostosujcie.",
         "emailDescription": "Na ten adres wyślemy potwierdzenie wraz z treścią deklaracji.",
         "introExisting": "Twoja organizacja „{{name}}” ma teraz deklarację potwierdzaną online. Zastępuje ona wcześniej podpisaną umowę użytkownika. Przeczytaj ją i zaakceptuj w imieniu swojej instytucji.",
         "introNewVersion": "Deklaracja została zaktualizowana (wersja {{version}}). Przeczytaj nową wersję i zaakceptuj ją w imieniu swojej organizacji „{{name}}”.",
@@ -112,14 +112,14 @@
       "youthProtection": {
         "changeHint": "Możesz zmienić to ustawienie w dowolnym momencie i ustawić je inaczej dla poszczególnych warsztatów.",
         "defaultOption": "Domyślnie od 13 lat",
-        "fieldLabel": "Ograniczenie promptów ochrony małoletnich w Twojej organizacji",
+        "fieldLabel": "Zasady ochrony młodzieży obowiązujące w waszej organizacji",
         "intro": "SI otrzymuje tę instrukcję podczas każdej gry organizowanej przez Twoją organizację. Wybierz ustawienie odpowiednie dla wieku grupy docelowej.",
         "responsibilityHint": "Sugestie nie są oficjalną klasyfikacją wiekową. To instytucja decyduje o ustawieniu i ponosi za nie odpowiedzialność.",
         "suggestionAdults": "dla osób dorosłych od {{age}} lat",
         "suggestionChildren": "dla dzieci od około {{age}} lat",
         "suggestionTeens": "dla młodzieży od około {{age}} lat",
         "suggestionsLabel": "Sugestie (kliknięcie zastępuje tekst):",
-        "title": "Ograniczenie promptów ochrony małoletnich",
+        "title": "Zasady ochrony młodzieży",
         "tooLong": "Maksymalnie {{max}} znaków. Skróć tekst lub wybierz sugestię."
       }
     },
@@ -236,7 +236,7 @@
       "organizationExistingAccount": "Organizacje rejestrują się za pomocą nowego loginu. Masz już konto?",
       "organizationIntro": "Dla ośrodków młodzieżowych, szkół i innych instytucji, które chcą korzystać z ChatGameLab podczas warsztatów.",
       "organizationStep1": "Tworzysz login w Auth0 (adres e-mail i hasło).",
-      "organizationStep2": "Podajesz informacje o sobie i swojej instytucji, ustalasz ograniczenie promptów ochrony małoletnich i akceptujesz deklarację.",
+      "organizationStep2": "Podajesz informacje o sobie i swojej instytucji, ustalasz zasady ochrony młodzieży i akceptujesz deklarację.",
       "organizationStep3": "Po wysłaniu formularza organizacja zostanie od razu aktywowana i będziesz móc tworzyć warsztaty.",
       "organizationTitle": "Zarejestruj się jako organizacja",
       "privacyPolicy": "Polityka prywatności",
@@ -433,6 +433,25 @@
           "role-desc": "Rola (Z-A)"
         },
         "title": "Zarządzanie użytkownikami"
+      },
+      "verifiedPages": {
+        "approve": "Zatwierdź",
+        "approved": "Zatwierdzone",
+        "callback": "Callback: {{url}}",
+        "description": "Zweryfikowana strona każdej organizacji. Jej gry uruchamiają się tam dopiero po zatwierdzeniu; zatwierdzasz jej witrynę (schemat i host), więc strona przeniesiona do innej witryny musi ponownie czekać na zatwierdzenie, natomiast inny port lub ścieżka w tej samej witrynie pozostaje zatwierdzona.",
+        "empty": "Żadna organizacja nie zarejestrowała jeszcze strony.",
+        "filters": {
+          "all": "Wszystkie",
+          "approved": "Zatwierdzone",
+          "waiting": "Oczekujące"
+        },
+        "loadError": "Nie udało się załadować stron.",
+        "organisation": "Organizacja",
+        "page": "Strona",
+        "status": "Status",
+        "title": "Strony osadzające gry",
+        "waiting": "Oczekuje na zatwierdzenie",
+        "withdraw": "Wycofaj zatwierdzenie"
       }
     },
     "aiQualityTier": {
@@ -455,6 +474,7 @@
       "empty": {
         "conditions": {
           "favorites": "jedną z Twoich ulubionych",
+          "organisation": "twojej organizacji",
           "own": "Twoją",
           "public": "publiczna",
           "sponsored": "sponsorowana"
@@ -470,7 +490,8 @@
         "all": "Wszystkie gry",
         "favorites": "Ulubione",
         "genre": "Gatunek",
-        "own": "Moje gry",
+        "organisation": "Organizacja",
+        "own": "Moje",
         "public": "Publiczne",
         "sponsored": "Sponsorowane"
       },
@@ -479,10 +500,16 @@
       "reportGame": "Zgłoś grę",
       "restart": "Uruchom ponownie",
       "resumeChoice": {
+        "advanced": "Ustawienia zaawansowane",
         "continue": "Kontynuuj",
         "message": "Rozpoczęto już grę „{{game}}”. Kontynuować od miejsca, w którym przerwano, czy zacząć od nowa? Rozpoczęcie od nowa zastąpi wcześniejszą sesję.",
         "startNew": "Zacznij od nowa",
         "title": "Kontynuować czy zacząć od nowa?"
+      },
+      "startChoice": {
+        "message": "Uruchom „{{game}}” w obecnej formie albo najpierw dostosuj prompty, z którymi gra się rozpoczyna.",
+        "start": "Uruchom",
+        "title": "Uruchomić grę?"
       },
       "title": "Gry",
       "unfavorite": "Usuń z ulubionych",
@@ -640,6 +667,7 @@
         "alt": "Okładka gry {{name}}",
         "draw": "Narysuj okładkę",
         "drawAgain": "Narysuj ponownie",
+        "drawing": "Rysowanie okładki…",
         "drawnOnSave": "Okładka zostanie narysowana podczas zapisywania gry.",
         "errors": {
           "failed": "Nie udało się narysować okładki. Spróbuj ponownie.",
@@ -719,6 +747,10 @@
           },
           "description": "Opis",
           "descriptionHint": "Jedno lub dwa zdania do galerii, aby gracze wiedzieli, czego się spodziewać.",
+          "duo": {
+            "descriptionPlaceholder": "Greta, zrzędliwa latarniczka, i zdecydowanie zbyt wesoły inspektor podatkowy kłócą się podczas burzliwej nocy. Posłuchaj ich albo opowiedz się po którejś ze stron.",
+            "titlePlaceholder": "Burzliwa noc przy latarni morskiej"
+          },
           "encounter": {
             "descriptionPlaceholder": "Odwiedź Gretę, zrzędliwą latarniczkę, i dowiedz się, co widziała tamtej nocy.",
             "titlePlaceholder": "Greta w latarni morskiej"
@@ -743,15 +775,17 @@
         },
         "embed": {
           "copy": "Kopiuj fragment kodu",
-          "incomplete": "Wybierz, kto płaci, oraz stronę, aby otrzymać fragment kodu.",
+          "incomplete": "Wybierz, co ma zostać opłacone, aby otrzymać fragment kodu.",
           "noKeys": "Nie masz działającego klucza AI, którym można zapłacić. Dodaj go lub poproś o niego swoją organizację.",
-          "noPages": "Twoja organizacja nie ma jeszcze zweryfikowanej strony. Jej kierownictwo lub pracownicy mogą dodać ją w ustawieniach organizacji.",
+          "noOrganisation": "Osadzanie dotyczy gier organizacji: gier napisanych podczas jej warsztatów albo przez jej kierownictwo i pracowników. Ta gra nie należy do żadnej organizacji.",
+          "noPages": "Najpierw zarejestruj stronę internetową swojej organizacji: stronę, na której będą działać wasze gry. Administrator ją zatwierdzi, a wtedy będzie można uruchamiać tam grę.",
           "offNote": "Po wyłączeniu fragment kodu nic nie wyświetla. Po ponownym włączeniu ten sam fragment znów działa.",
           "page": "Zweryfikowana strona",
           "pageHint": "Gra działa tylko tam i tylko wtedy, gdy strona wyrazi zgodę na każde uruchomienie.",
           "paidBy": "Płaci",
           "paidByPlaceholder": "Wybierz klucz",
           "payingNow": "Płaci teraz",
+          "registerPage": "Zarejestruj stronę w sekcji Moja organizacja → Strony internetowe",
           "snippet": "Fragment kodu na twoją stronę",
           "snippetCss": "twój CSS",
           "snippetHint": "Umieść go tam, gdzie ma pojawić się gra, i nadaj elementowi wybraną wysokość.",
@@ -760,12 +794,14 @@
           "snippetVerifiedHint": "Twój serwer uzupełnia identyfikator odwiedzającego i tego wyświetlenia strony; funkcja callback twojej strony otrzymuje oba.",
           "styleLink": "Nadaj styl za pomocą własnego CSS →",
           "toggle": "Osadź na stronie internetowej",
-          "toggleHint": "Wyświetla tę grę na zweryfikowanej stronie twojej organizacji, bez żadnych elementów ChatGameLab wokół niej. Odwiedzający grają jako goście; płaci wybrany klucz."
+          "toggleHint": "Wyświetla tę grę na zweryfikowanej stronie twojej organizacji, bez żadnych elementów ChatGameLab wokół niej. Odwiedzający grają jako goście; płaci wybrany klucz.",
+          "waitingForApproval": "Strona organizacji oczekuje na zatwierdzenie przez administratora. Do tego czasu nie można uruchamiać tam gry."
         },
         "fillIn": "Wypełniaj kolejne sekcje, aż wszystkie będą zielone.",
         "genre": {
           "pitch": {
             "adventure": "Gracz odkrywa świat. Gra opowiada, co się dzieje, tworzy obrazy i prowadzi punktację.",
+            "duo": "Dwie postacie rozmawiają ze sobą głosowo. Gracz słucha albo dołącza do rozmowy.",
             "encounter": "Gracz rozmawia głosowo z jedną postacią. Postać pozostaje w swojej roli i odpowiada na bieżąco."
           },
           "question": "Co chcesz stworzyć?"
@@ -815,6 +851,12 @@
               "systemMessageGameStart": "Powiedz, jak zaczyna się gra.",
               "systemMessageScenario": "Powiedz, o czym jest gra."
             },
+            "duo": {
+              "imageStyle": "Wybierz styl obrazu, aby ilustracje do siebie pasowały.",
+              "name": "Twoja gra nie ma jeszcze tytułu.",
+              "systemMessageGameStart": "Napisz, gdzie rozgrywa się scena i jak się zaczyna.",
+              "systemMessageScenario": "Napisz, kim są obie postacie."
+            },
             "encounter": {
               "imageStyle": "Wybierz styl obrazów, aby wszystkie wyglądały spójnie.",
               "name": "Twoja gra nie ma jeszcze tytułu.",
@@ -829,6 +871,10 @@
             "voiceStyleHint": "Jak brzmi historia, gdy jest czytana na głos."
           },
           "builtInVoice": "Wbudowany głos",
+          "duo": {
+            "voiceStyle": "Głosy postaci",
+            "voiceStyleHint": "Każda postać otrzymuje własny głos."
+          },
           "encounter": {
             "voiceStyle": "Głos postaci",
             "voiceStyleHint": "Jak brzmi postać."
@@ -864,6 +910,20 @@
             "scenario": "O czym jest gra?",
             "scenarioHint": "Świat, rola gracza, cel oraz sposób, w jaki gracz wie, że wygrał.",
             "scenarioPlaceholder": "Gracz jest odkrywcą w tajemniczym lesie i szuka ukrytego skarbu…"
+          },
+          "duo": {
+            "firstCharacter": "Pierwsza postać",
+            "firstCharacterHint": "Kim jest: jej osobowość, czego chce i jak mówi. Odzywa się jako pierwsza.",
+            "firstCharacterPlaceholder": "Greta, zrzędliwa latarniczka, która chce w spokoju zajmować się swoją latarnią…",
+            "gameStart": "Gdzie są i jak zaczyna się scena?",
+            "gameStartHint": "Scena, w której obie postacie znajdują się na początku; na jej podstawie zostaną napisane pierwsze słowa pierwszej postaci.",
+            "gameStartPlaceholder": "Burzliwa noc. Otto, przemoczony do suchej nitki, puka do drzwi latarni morskiej…",
+            "scenario": "Kim są obie postacie?",
+            "scenarioHint": "Kim jest każda z nich i dlaczego mają sobie coś do powiedzenia albo o co się kłócić.",
+            "scenarioPlaceholder": "Greta, zrzędliwa latarniczka…",
+            "secondCharacter": "Druga postać",
+            "secondCharacterHint": "Kim jest i dlaczego obie postacie mają sobie coś do powiedzenia albo o co się kłócić.",
+            "secondCharacterPlaceholder": "Otto, zdecydowanie zbyt wesoły inspektor podatkowy, który przybył policzyć każdą świecę…"
           },
           "encounter": {
             "gameStart": "Jak postać wita gracza?",
@@ -905,7 +965,8 @@
       },
       "genres": {
         "adventure": "Przygoda",
-        "npc-live": "Spotkanie"
+        "npc-duo": "Dyskusja",
+        "npc-live": "Postać"
       },
       "importExport": {
         "coverFailed": "Gra została zaimportowana, ale nie udało się sprawdzić jej okładki. W edytorze możesz narysować nową.",
@@ -920,6 +981,7 @@
         "exportButton": "Eksportuj grę",
         "importButton": "Importuj grę"
       },
+      "newGame": "Nowa gra",
       "playNow": "Graj teraz",
       "privacyHint": "Nazwa i opis gry mogą stać się publicznie widoczne. Nie używaj prawdziwych imion i nazwisk.",
       "privacyHintShort": "Może stać się publicznie widoczne – nie używaj prawdziwych imion i nazwisk.",
@@ -959,7 +1021,7 @@
         "unlimitedSessions": "Nielimitowane sesje",
         "update": "Zaktualizuj link udostępniania",
         "workshopCreateHint": "Utwórz link udostępniania dla tej gry. Klucz API warsztatu zostanie automatycznie wybrany i pokryje koszty.",
-        "workshopDescription": "Ten link został utworzony w ramach warsztatu „{{name}}” – goście grają przy użyciu klucza API warsztatu i określonych ograniczeń promptu.",
+        "workshopDescription": "Ten link został utworzony w ramach warsztatu „{{name}}” – goście grają przy użyciu klucza API i zasad ochrony młodzieży obowiązujących w warsztacie.",
         "workshopShare": "Udostępnienie warsztatowe",
         "workshopShareDescription": "Ten link został utworzony w warsztacie „{{name}}” – goście grają, używając klucza API warsztatu.",
         "workshopSubsection": "Link udostępniania warsztatowego"
@@ -1071,6 +1133,7 @@
           "scifi": "Science fiction",
           "snowy": "Śnieżny",
           "space": "Kosmos",
+          "spielfieber": "Spielfieber",
           "steampunk": "Steampunk",
           "storybook": "Książka z bajkami",
           "sunshine": "Słoneczny",
@@ -1192,6 +1255,7 @@
     "leaveTitle": "Opuścić organizację",
     "leaveWarning": "Utracisz dostęp do zasobów i członków organizacji.",
     "list": {
+      "clearFilters": "Wyczyść",
       "clearPicks": "Pokaż wszystkie",
       "clearSearch": "Wyczyść wyszukiwanie",
       "filter": "Filtr",
@@ -1241,6 +1305,8 @@
       "apiKeys": {
         "aboutDescription": "Klucze API udostępnione tutaj są dostępne dla wszystkich członków Twojej organizacji do grania w gry.",
         "aboutTitle": "Organizacyjne klucze API",
+        "addAndShare": "Dodaj i udostępnij",
+        "addKey": "Dodaj klucz",
         "allPlatforms": "Wszystkie platformy",
         "allowPublicSponsoring": "Zezwól na publiczne sponsorowanie",
         "allowPublicSponsoringDesc": "Ten klucz może być używany do sponsorowania gier dla wszystkich użytkowników.",
@@ -1254,6 +1320,9 @@
         },
         "keyName": "Nazwa klucza",
         "loadError": "Nie udało się wczytać kluczy API organizacji.",
+        "modeNew": "Nowy klucz",
+        "modeOwn": "Jeden z moich kluczy",
+        "newKeyHint": "Klucz stanie się twoją własnością, tak jak na stronie kluczy API, i zostanie udostępniony organizacji.",
         "noKeys": "Jeszcze nie udostępniono żadnych kluczy API tej organizacji.",
         "noResults": "Brak kluczy API spełniających kryteria wyszukiwania.",
         "notAuthorized": "Nie masz uprawnień do zarządzania organizacyjnymi kluczami API. Dostęp mają jedynie kierownicy i nauczyciele.",
@@ -1266,7 +1335,7 @@
         "selectKeyPlaceholder": "Wybierz klucz do udostępnienia...",
         "share": "Udostępnij",
         "shareKey": "Udostępnij klucz",
-        "shareKeyTitle": "Udostępnij klucz API organizacji",
+        "shareKeyTitle": "Dodaj klucz API do organizacji",
         "showDetails": "Pokaż szczegóły",
         "title": "Organizacyjne klucze API"
       },
@@ -1317,13 +1386,13 @@
       "promoteToHead": "Awansuj na kierownika",
       "promoteWarning": "Ten użytkownik zyska możliwość zarządzania członkami organizacji i zapraszania nauczycieli.",
       "promptConstraintsFallbackEmpty": "(nie skonfigurowano)",
-      "promptConstraintsFallbackHint": "Nie skonfigurowano ograniczenia dla organizacji. Obowiązuje domyślne ustawienie witryny dla grupy wiekowej gracza:",
+      "promptConstraintsFallbackHint": "Organizacja nie ustaliła zasad ochrony młodzieży. Obowiązuje domyślne ustawienie dla danej grupy wiekowej w całej witrynie:",
       "promptConstraintsFallbackTitle": "Aktywne ustawienie awaryjne dla całej witryny",
       "promptConstraintsFallbackU13": "Poniżej 13",
       "promptConstraintsFallbackU13p": "13–17 (za zgodą rodziców)",
       "promptConstraintsFallbackU18": "18 i więcej",
-      "promptConstraintsHint": "Dodatkowe instrukcje AI dla wszystkich sesji w tej organizacji. Stosowane, gdy nie ustawiono ograniczenia na poziomie warsztatu oraz w grach udostępnianych poprzez link.",
-      "promptConstraintsLabel": "Ograniczenie promptów ochrony małoletnich w organizacji",
+      "promptConstraintsHint": "Dodatkowe instrukcje AI dla wszystkich sesji w tej organizacji. Obowiązują, gdy warsztat nie ustala zasad ochrony młodzieży, oraz w grach udostępnianych za pomocą linku.",
+      "promptConstraintsLabel": "Zasady ochrony młodzieży obowiązujące w organizacji",
       "promptConstraintsPlaceholder": "np. Utrzymuj historię odpowiednią dla wieku i unikaj przemocy.",
       "publicPage": {
         "changeLinkMessage": "Strona będzie wtedy dostępna pod adresem {{url}}.",
@@ -1377,11 +1446,15 @@
       "verifiedPages": {
         "add": "Zarejestruj stronę",
         "addTitle": "Zarejestruj stronę",
+        "approved": "Zatwierdzone",
         "callbackShown": "Callback: {{url}}",
         "callbackUrl": "Adres callbacku",
         "callbackUrlHint": "Tutaj ChatGameLab pyta przed każdym uruchomieniem. Strona musi odpowiedzieć w ciągu kilku sekund.",
         "copied": "Skopiowano",
         "copy": "Kopiuj ID strony",
+        "edit": "Zmień stronę",
+        "editReapproval": "Ten adres znajduje się w innej witrynie i ponownie oczekuje na zatwierdzenie przez administratora; do tego czasu nie można tam uruchamiać gier. Inny port lub ścieżka w tej samej witrynie pozostaje zatwierdzona.",
+        "editTitle": "Zmień stronę",
         "empty": "Brak zweryfikowanych stron.",
         "intro": "Zweryfikowana strona to strona w witrynie twojej organizacji, na której można wyświetlać osadzone gry. Zanim gra uruchomi się na tej stronie, ChatGameLab pyta jej funkcję callback, czy ją uruchomić, przekazując poniższe ID strony oraz ID odwiedzającego i żądania, które przekazuje twoja strona. Tylko odpowiedź {\"ok\": true} uruchamia grę.",
         "pageId": "ID strony",
@@ -1389,7 +1462,9 @@
         "pageUrlHint": "Strona, na której osadzone są twoje gry. Tylko jej witryna może je wyświetlać.",
         "remove": "Usuń stronę",
         "removeTitle": "Usunąć tę stronę?",
-        "removeWarning": "Gry osadzone dla {{page}} przestaną się tam uruchamiać, dopóki nie zostaną przypisane do innej strony."
+        "removeWarning": "Gry osadzone dla {{page}} przestaną się tam uruchamiać, dopóki nie zostaną przypisane do innej strony.",
+        "save": "Zapisz stronę",
+        "waiting": "Oczekuje na zatwierdzenie przez administratora"
       },
       "workshops": {
         "activate": "Aktywuj",
@@ -1465,10 +1540,10 @@
         "participantLinkTitleNamed": "Link do ponownego logowania dla {{name}}",
         "participantName": "Nazwa uczestnika",
         "participants": "Uczestnicy",
-        "promptConstraintsFallbackOrg": "Ograniczenie organizacji jest używane jako domyślne: {{constraint}}",
-        "promptConstraintsFallbackSite": "Ograniczenie witryny jest używane jako domyślne",
+        "promptConstraintsFallbackOrg": "Jako ustawienie domyślne używane są zasady ochrony młodzieży organizacji: {{constraint}}",
+        "promptConstraintsFallbackSite": "Jako ustawienie domyślne używane są zasady ochrony młodzieży witryny",
         "promptConstraintsHint": "Dodatkowe instrukcje AI dla wszystkich sesji w tym warsztacie.",
-        "promptConstraintsLabel": "Ograniczenie promptów ochrony małoletnich",
+        "promptConstraintsLabel": "Zasady ochrony młodzieży",
         "promptConstraintsPlaceholder": "np. Utrzymuj historię odpowiednią dla wieku i unikaj treści brutalnych.",
         "removeParticipant": "Usuń uczestnika",
         "removeParticipantConfirm": "Czy na pewno chcesz usunąć \"{{name}}\" z tego warsztatu?",
@@ -1517,13 +1592,25 @@
     "noRole": "Brak roli",
     "notifications": {
       "accept": "Akceptuj",
+      "acknowledgeAll": "Oznacz wszystkie jako przeczytane",
       "decline": "Odrzuć",
       "declineConfirm": "Czy na pewno chcesz odrzucić to zaproszenie?",
       "declineTitle": "Odrzuć zaproszenie",
       "empty": "Brak nowych powiadomień.",
       "inviteDescription": "Zostałeś zaproszony do dołączenia jako {{role}}.",
       "inviteToJoin": "Zaproszenie do organizacji",
+      "nothingNew": "Brak nowych powiadomień",
       "title": "Powiadomienia",
+      "titleWithCount_one": "Powiadomienia: {{count}} nowe",
+      "titleWithCount_other": "Powiadomienia: {{count}} nowych",
+      "types": {
+        "newOrganisations_one": "Zarejestrowała się nowa organizacja",
+        "newOrganisations_other": "Zarejestrowało się {{count}} nowych organizacji",
+        "pageApproved": "Zweryfikowana strona Twojej organizacji została zatwierdzona",
+        "pageTurnedDown": "Zweryfikowana strona Twojej organizacji nie została zatwierdzona lub jej zatwierdzenie zostało wycofane",
+        "pagesWaiting_one": "Zweryfikowana strona oczekuje na zatwierdzenie",
+        "pagesWaiting_other": "{{count}} zweryfikowanych stron oczekuje na zatwierdzenie"
+      },
       "workshopInvite": "Zaproszenie do warsztatu",
       "workshopInviteDescription": "Zostałeś zaproszony do udziału w tym warsztacie."
     },
@@ -1535,6 +1622,15 @@
       "title": "Organizacja zawieszona"
     },
     "play": {
+      "advanced": {
+        "edited": "zmieniono",
+        "hint": "Dostosuj prompty, z którymi rozpoczyna się ta sesja. Zmienione prompty są oznaczone; cała reszta działa tak, jak została zbudowana gra. Prompty można nadal zmieniać podczas gry, w sekcji Wgląd.",
+        "loading": "Ładowanie promptów…",
+        "reset": "Wróć do oryginału",
+        "start": "Uruchom grę",
+        "title": "Ustawienia zaawansowane",
+        "unavailable": "Nie udało się załadować promptów."
+      },
       "cloneGame": "Sklonuj do moich gier",
       "empty": {
         "description": "Spróbuj zmienić filtry lub sprawdź ponownie później, czy pojawiły się nowe gry.",
@@ -1629,16 +1725,16 @@
     "searchPlaceholder": "Szukaj członków...",
     "serverSettings": {
       "constraints": {
-        "description": "Zdefiniuj obowiązkowe zasady SI na podstawie grupy wiekowej gracza. Ograniczenia te są dodawane do każdej odpowiedzi SI. Obowiązują wszystkich zalogowanych użytkowników poza trybem warsztatów.",
-        "title": "Ograniczenia promptów zależne od wieku",
+        "description": "Zdefiniuj obowiązkowe zasady AI na podstawie grupy wiekowej gracza. Te zasady ochrony młodzieży są dołączane do każdego wywołania AI. Obowiązują wszystkich zalogowanych użytkowników poza trybem warsztatowym.",
+        "title": "Zasady ochrony młodzieży według grupy wiekowej",
         "u13Hint": "Dodawane do każdego promptu AI dla zalogowanych użytkowników w wieku 13–17 lat, którzy nie mają w systemie zgody rodziców.",
-        "u13Label": "Ograniczenie dla użytkowników w wieku 13–17 lat, bez zgody rodziców (U13)",
+        "u13Label": "Zasady ochrony młodzieży dla użytkowników w wieku 13–17 lat, bez zgody rodziców (U13)",
         "u13Placeholder": "np. Utrzymuj treści ściśle odpowiednie dla nastolatków. Bez przemocy, treści romantycznych czy horroru.",
         "u13pHint": "Dodawane do każdego promptu AI dla zalogowanych użytkowników w wieku 13–17 lat, którzy mają w systemie zgody rodziców.",
-        "u13pLabel": "Ograniczenie dla użytkowników w wieku 13–17 lat, za zgodą rodziców (U13p)",
+        "u13pLabel": "Zasady ochrony młodzieży dla użytkowników w wieku 13–17 lat, za zgodą rodziców (U13p)",
         "u13pPlaceholder": "np. Treści odpowiednie dla nastolatków, których rodzice wyrazili zgodę. Dozwolone niektóre dojrzalsze motywy, bez treści jednoznacznie erotycznych.",
         "u18Hint": "Wstrzykiwane do każdego promptu AI dla zalogowanych użytkowników w wieku 18 lat i więcej.",
-        "u18Label": "Ograniczenie dla użytkowników w wieku 18+ (U18)",
+        "u18Label": "Zasady ochrony młodzieży dla użytkowników w wieku 18 lat i starszych (U18)",
         "u18Placeholder": "np. Dbaj o odpowiednią treść. Unikaj drastycznej przemocy i treści seksualnych."
       },
       "defaultTier": {
@@ -1767,6 +1863,49 @@
         "viewAll": "Wszystkie gry"
       }
     },
+    "continue": {
+      "go": "Kontynuuj",
+      "hint": "wróć do miejsca, w którym skończyłeś",
+      "messages_one": "{{count}} wiadomość",
+      "messages_other": "{{count}} wiadomości",
+      "title": "Kontynuuj grę"
+    },
+    "fresh": {
+      "by": "autor: {{name}}",
+      "empty": "Nie ma jeszcze nowych gier.",
+      "title": "Nowe gry",
+      "viewAll": "Zobacz galerię"
+    },
+    "hero": {
+      "create": "Utwórz",
+      "greeting": "Cześć, {{name}}. Co dziś \u0003cmark\u0003bzbudujemy\u0003c/mark\u0003b?",
+      "greetingNoName": "Cześć. Co dziś \u0003cmark\u0003bzbudujemy\u0003c/mark\u0003b?",
+      "journal": "Dziennik laboratorium · {{date}}",
+      "promptLabel": "Opisz pomysł na grę",
+      "promptPlaceholder": "Opisz pomysł na grę… AI pomoże ci go rozwinąć"
+    },
+    "lab": {
+      "gamesCreated": "wymyślone przez ciebie gry",
+      "gamesOnPlatform": "gier w laboratorium",
+      "playsOfOwnGames": "odtworzeń twoich gier",
+      "title": "Twoje dotychczasowe laboratorium"
+    },
+    "links": {
+      "about": "O ChatGameLab",
+      "educators": "Dla edukatorów",
+      "jff": "JFF – Instytut Edukacji Medialnej"
+    },
+    "ownGames": {
+      "empty": "Nie masz jeszcze gier. Opisz wyżej swój pomysł i utwórz pierwszą grę!",
+      "title": "Twoje gry",
+      "viewAll": "Wszystkie twoje gry"
+    },
+    "popular": {
+      "hint": "w co wszyscy teraz grają",
+      "plays_one": "{{count}} odtworzenie",
+      "plays_other": "{{count}} odtworzeń",
+      "title": "Najpopularniejsze"
+    },
     "quickActions": {
       "createNewGame": "Utwórz nową grę",
       "createRoom": "Utwórz pokój",
@@ -1776,6 +1915,7 @@
       "startNewGame": "Rozpocznij nową grę",
       "title": "Szybkie akcje"
     },
+    "someone": "ktoś",
     "untitled": "Bez tytułu",
     "untitledGame": "Gra bez tytułu",
     "version": {
@@ -1783,6 +1923,10 @@
         "message": "Wersja frontend \u0003frontendVersion\u0003{{frontendVersion}}\u0003/frontendVersion\u0003 nie zgadza się z wersją backend \u0003backendVersion\u0003{{backendVersion}}\u0003/backendVersion\u0003. Może to powodować nieoczekiwane zachowanie. Skontaktuj się z pomocą, jeśli problem będzie się powtarzał.",
         "title": "Wykryto niezgodność wersji"
       }
+    },
+    "workshops": {
+      "title": "Twoje warsztaty",
+      "viewAll": "Wszystkie warsztaty"
     }
   },
   "errors": {
@@ -1912,13 +2056,15 @@
     "dashboard": "Pulpit",
     "games": "Gry",
     "groups": "Grupy",
+    "mainMenu": "Menu główne",
     "manageOrganizations": "Zarządzaj organizacjami",
     "manageUsers": "Zarządzaj użytkownikami",
+    "me": "Ja",
     "myGames": "Moje gry",
     "myOrganization": "Moja organizacja",
     "myWorkshop": "Mój warsztat",
     "orgApiKeys": "Klucze API",
-    "orgConstraints": "Ograniczenie promptów ochrony małoletnich",
+    "orgConstraints": "Zasady ochrony młodzieży",
     "orgMembers": "Członkowie",
     "orgVerifiedPages": "Witryny",
     "orgWorkshops": "Warsztaty",
@@ -1930,14 +2076,19 @@
   "playbackEngine": {
     "blocks": {
       "adapted-style": "Styl",
+      "cast": "Obsada głosowa",
+      "cast-brief": "Postacie",
       "condense-scenario": "Skróć scenariusz",
       "condensed-scenario": "Scenariusz",
+      "director": "Reżyseria",
       "expand": "Narracja",
       "gallery-image": "Obraz z galerii",
       "greeting": "Generowanie tekstu",
       "image": "Narysuj obraz",
       "image-prompt": "Opisz obraz",
       "image-style": "Dostosuj styl",
+      "live-a": "Pierwsza postać",
+      "live-b": "Druga postać",
       "live-session": "Postać",
       "observer": "Reżyseria",
       "opening-brief": "Początek gry",
@@ -2019,6 +2170,31 @@
       "turnFailed": "Historia nie mogła potoczyć się dalej na tej podstawie. Wyślij to ponownie albo spróbuj czegoś innego.",
       "voiceFailed": "Nie udało się połączyć z twoim głosem."
     },
+    "guardrail": {
+      "edit": "Zmień zabezpieczenie",
+      "editHint": "Eksperyment laboratoryjny: nowe zabezpieczenie zacznie obowiązywać od następnego wywołania AI; to, co już się wydarzyło, pozostaje bez zmian.",
+      "edited": "zmieniono",
+      "failed": "Nie udało się zapisać",
+      "frequency": "Powtarzanie",
+      "frequencyFailed": "Nie udało się ustawić",
+      "frequencyHint": "Jak często każdy krok powtarza zabezpieczenie: 1 przy każdym wywołaniu, 10 przy co dziesiątym.",
+      "frequencySet": "Ustaw",
+      "intro": "Zasady ochrony młodzieży, których przestrzega każde wywołanie AI w tej grze.",
+      "levelOrganisation": "Organizacja „{{name}}”",
+      "levelSite13": "Zasady witryny, wiek 13–17 lat bez zgody rodziców",
+      "levelSite13p": "Zasady witryny, wiek 13–17 lat za zgodą rodziców",
+      "levelSite18": "Zasady witryny, wiek 18 lat i starsi",
+      "levelWorkshop": "Warsztat „{{name}}”",
+      "none": "Ta sesja nie ma zabezpieczenia.",
+      "readBy": "Przestrzega ich",
+      "reset": "Wróć do ustalonego zabezpieczenia",
+      "resolved": "Ustalone",
+      "save": "Zapisz",
+      "saved": "Zapisano: obowiązuje od następnego wywołania",
+      "saving": "Zapisywanie…",
+      "source": "Pochodzi z",
+      "sourceUnknown": "Nieznane"
+    },
     "insights": {
       "close": "Zamknij",
       "collapse": "Zwiń",
@@ -2031,6 +2207,7 @@
       "pickBlock": "Kliknij blok lub połączenie w potoku, aby zobaczyć, co zrobiło.",
       "settingEmpty": "Gra pozostawia to puste.",
       "show": "Pokaż informacje",
+      "tabGuardrail": "Zabezpieczenie",
       "tabProblems": "Problemy",
       "tabSelected": "Wybrane",
       "tabUsage": "Wykorzystanie"
@@ -2077,6 +2254,32 @@
       "unknown": "Ta sesja gry nie istnieje.",
       "unreachable": "Dostawca AI obecnie nie odpowiada, więc nie można kontynuować gry. Spróbuj ponownie za kilka minut."
     },
+    "promptNames": {
+      "condense-scenario": "Skróć scenariusz",
+      "conversation-policy": "Sposób mówienia postaci",
+      "director": "Reżyseria",
+      "expand": "Opowiedz turę",
+      "game-master": "Mistrz gry (wiadomość systemowa)",
+      "greeting": "Pierwsze słowa",
+      "image-style": "Dostosuj styl",
+      "opening": "Otwarcie",
+      "opening-expand": "Opowiedz otwarcie",
+      "rephrase": "Przeredaguj akcję",
+      "rephrase-audio": "Rozumienie mowy",
+      "scene": "Kadr",
+      "summary": "Prośba o podsumowanie",
+      "voice-brief": "Opisz głos"
+    },
+    "prompts": {
+      "edited": "zmieniono",
+      "failed": "Nie udało się zapisać",
+      "hint": "Zmień prompt, aby zobaczyć, jak zmienią się odpowiedzi. Nowy tekst zacznie obowiązywać od następnego wywołania.",
+      "reset": "Wróć do oryginału",
+      "save": "Zapisz",
+      "saved": "Zapisano: obowiązuje od następnego wywołania",
+      "saving": "Zapisywanie…",
+      "title": "Prompty"
+    },
     "relay": {
       "busy": "Relay: używany przez inną kartę",
       "connected": "Relay: połączony",
@@ -2109,21 +2312,32 @@
       "adapted-style\u0003eimage-prompt": "styl",
       "adapted-style\u0003eimage-style": "prośba",
       "adapted-style\u0003estart-game": "gotowe",
+      "cast\u0003clive-a:voiceA": "głos",
+      "cast\u0003clive-b:voiceB": "głos",
+      "cast\u0003cstart-game": "gotowe",
+      "cast-brief\u0003ccast": "postacie",
       "condense-scenario\u0003econdensed-scenario": "odpowiedź",
       "condensed-scenario\u0003econdense-scenario": "prośba",
       "condensed-scenario\u0003eimage-prompt": "scenariusz",
       "condensed-scenario\u0003estart-game": "gotowe",
+      "director\u0003clive-a": "wtrącenie",
+      "director\u0003clive-b": "wtrącenie",
       "gallery-image\u0003estart-game": "gotowe",
+      "greeting\u0003clive-a": "pierwsze słowa",
       "greeting\u0003elive-session": "pierwsze słowa",
       "greeting\u0003estart-game": "gotowe",
       "image-prompt\u0003eimage": "prompt",
       "image-style\u0003eadapted-style": "odpowiedź",
+      "live-a\u0003cdirector": "transkrypcja",
+      "live-b\u0003cdirector": "transkrypcja",
       "live-session\u0003eobserver": "transkrypcja",
       "observer\u0003elive-session": "wprowadzenie",
       "opening-brief\u0003egreeting": "wytyczne",
       "outline\u0003eexpand": "plan",
       "outline\u0003eimage-prompt": "scena",
       "outline\u0003eprops-store": "zmiany",
+      "player-input-audio\u0003clive-a": "mowa",
+      "player-input-audio\u0003clive-b": "mowa",
       "player-input-audio\u0003elive-session": "mowa",
       "player-input-audio\u0003erephrase-audio": "mowa",
       "player-input-text\u0003erephrase": "działanie",
@@ -2132,6 +2346,8 @@
       "props-store\u0003eoutline": "status",
       "rephrase\u0003eoutline": "działanie",
       "rephrase-audio\u0003eoutline": "działanie",
+      "start-game\u0003clive-a": "sygnał rozpoczęcia",
+      "start-game\u0003clive-b": "sygnał rozpoczęcia",
       "start-game\u0003elive-session": "wprowadzenie",
       "start-game\u0003eoutline": "prompt",
       "voice\u0003elive-session:secondary": "opis głosu",

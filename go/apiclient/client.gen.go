@@ -272,6 +272,30 @@ func (e MemberSort) Valid() bool {
 	}
 }
 
+// Defines values for NotificationType.
+const (
+	NotificationTypeNewOrganisations NotificationType = "newOrganisations"
+	NotificationTypePageApproved     NotificationType = "pageApproved"
+	NotificationTypePageTurnedDown   NotificationType = "pageTurnedDown"
+	NotificationTypePagesWaiting     NotificationType = "pagesWaiting"
+)
+
+// Valid indicates whether the value is a known member of the NotificationType enum.
+func (e NotificationType) Valid() bool {
+	switch e {
+	case NotificationTypeNewOrganisations:
+		return true
+	case NotificationTypePageApproved:
+		return true
+	case NotificationTypePageTurnedDown:
+		return true
+	case NotificationTypePagesWaiting:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for OrganisationFilter.
 const (
 	OrganisationFilterRecentlyRegistered OrganisationFilter = "recentlyRegistered"
@@ -742,6 +766,13 @@ type AcceptInviteResp struct {
 	AuthToken *string       `json:"authToken,omitempty"`
 	Message   string        `json:"message"`
 	User      *NewGuestView `json:"user,omitempty"`
+}
+
+// AcknowledgeNotificationReq defines model for AcknowledgeNotificationReq.
+type AcknowledgeNotificationReq struct {
+	At      *time.Time          `json:"at,omitempty"`
+	Subject *openapi_types.UUID `json:"subject,omitempty"`
+	Type    NotificationType    `json:"type"`
 }
 
 // ApiKey defines model for ApiKey.
@@ -1522,6 +1553,23 @@ type NodeDetail struct {
 	Transcript *[]TranscriptLine `json:"transcript,omitempty"`
 	Type       string            `json:"type"`
 	Usage      *UsageRecord      `json:"usage,omitempty"`
+}
+
+// NotificationType defines model for NotificationType.
+type NotificationType string
+
+// NotificationView defines model for NotificationView.
+type NotificationView struct {
+	At             time.Time           `json:"at"`
+	Count          int                 `json:"count"`
+	OrganisationId *openapi_types.UUID `json:"organisationId,omitempty"`
+	Subject        *openapi_types.UUID `json:"subject,omitempty"`
+	Type           NotificationType    `json:"type"`
+}
+
+// NotificationsResp defines model for NotificationsResp.
+type NotificationsResp struct {
+	Notifications []NotificationView `json:"notifications"`
 }
 
 // ObserverEntry defines model for ObserverEntry.
@@ -2786,6 +2834,9 @@ type PostApiInvitesWorkshopJSONRequestBody = CreateWorkshopInviteReq
 
 // PostApiInvitesWorkshopEmailJSONRequestBody defines body for PostApiInvitesWorkshopEmail for application/json ContentType.
 type PostApiInvitesWorkshopEmailJSONRequestBody = CreateWorkshopEmailInviteReq
+
+// PostApiNotificationsAcknowledgeJSONRequestBody defines body for PostApiNotificationsAcknowledge for application/json ContentType.
+type PostApiNotificationsAcknowledgeJSONRequestBody = AcknowledgeNotificationReq
 
 // PatchApiSystemSettingsJSONRequestBody defines body for PatchApiSystemSettings for application/json ContentType.
 type PatchApiSystemSettingsJSONRequestBody = UpdateSystemSettingsReq
@@ -4310,6 +4361,39 @@ type ClientInterface interface {
 	//
 	// Corresponds with GET /api/legal/institution-declaration (the `GetApiLegalInstitutionDeclaration` operationId).
 	GetApiLegalInstitutionDeclaration(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiNotifications Answers the caller's notifications: the
+	//
+	// important facts that are true now and wait for their acknowledgement.
+	//
+	// Corresponds with GET /api/notifications (the `GetApiNotifications` operationId).
+	GetApiNotifications(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiNotificationsAcknowledgeWithBody Acknowledges one of the caller's
+	//
+	// notifications and answers those that remain.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /api/notifications/acknowledge (the `PostApiNotificationsAcknowledge` operationId).
+	PostApiNotificationsAcknowledgeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiNotificationsAcknowledge Acknowledges one of the caller's
+	//
+	// notifications and answers those that remain.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /api/notifications/acknowledge (the `PostApiNotificationsAcknowledge` operationId).
+	PostApiNotificationsAcknowledge(ctx context.Context, body PostApiNotificationsAcknowledgeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiNotificationsAcknowledgeAll Acknowledges every notification the
+	//
+	// caller has, each up to the entry they could see; it answers those that
+	// remain.
+	//
+	// Corresponds with POST /api/notifications/acknowledge-all (the `PostApiNotificationsAcknowledgeAll` operationId).
+	PostApiNotificationsAcknowledgeAll(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiPlatforms Lists the engine's AI platforms.
 	//
@@ -7768,6 +7852,79 @@ func (c *Client) GetApiLanguagesCode(ctx context.Context, code string, reqEditor
 // Corresponds with GET /api/legal/institution-declaration (the `GetApiLegalInstitutionDeclaration` operationId).
 func (c *Client) GetApiLegalInstitutionDeclaration(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetApiLegalInstitutionDeclarationRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiNotifications Answers the caller's notifications: the
+//
+// important facts that are true now and wait for their acknowledgement.
+//
+// Corresponds with GET /api/notifications (the `GetApiNotifications` operationId).
+func (c *Client) GetApiNotifications(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiNotificationsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiNotificationsAcknowledgeWithBody Acknowledges one of the caller's
+//
+// notifications and answers those that remain.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /api/notifications/acknowledge (the `PostApiNotificationsAcknowledge` operationId).
+func (c *Client) PostApiNotificationsAcknowledgeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiNotificationsAcknowledgeRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiNotificationsAcknowledge Acknowledges one of the caller's
+//
+// notifications and answers those that remain.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /api/notifications/acknowledge (the `PostApiNotificationsAcknowledge` operationId).
+func (c *Client) PostApiNotificationsAcknowledge(ctx context.Context, body PostApiNotificationsAcknowledgeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiNotificationsAcknowledgeRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiNotificationsAcknowledgeAll Acknowledges every notification the
+//
+// caller has, each up to the entry they could see; it answers those that
+// remain.
+//
+// Corresponds with POST /api/notifications/acknowledge-all (the `PostApiNotificationsAcknowledgeAll` operationId).
+func (c *Client) PostApiNotificationsAcknowledgeAll(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiNotificationsAcknowledgeAllRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -13752,6 +13909,100 @@ func NewGetApiLegalInstitutionDeclarationRequest(server string) (*http.Request, 
 	return req, nil
 }
 
+// NewGetApiNotificationsRequest constructs an http.Request for the GetApiNotifications method
+func NewGetApiNotificationsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/notifications")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiNotificationsAcknowledgeRequest calls the generic PostApiNotificationsAcknowledge builder with application/json body
+func NewPostApiNotificationsAcknowledgeRequest(server string, body PostApiNotificationsAcknowledgeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiNotificationsAcknowledgeRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiNotificationsAcknowledgeRequestWithBody constructs an http.Request for the PostApiNotificationsAcknowledge method, with any body, and a specified content type
+func NewPostApiNotificationsAcknowledgeRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/notifications/acknowledge")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostApiNotificationsAcknowledgeAllRequest constructs an http.Request for the PostApiNotificationsAcknowledgeAll method
+func NewPostApiNotificationsAcknowledgeAllRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/notifications/acknowledge-all")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetApiPlatformsRequest constructs an http.Request for the GetApiPlatforms method
 func NewGetApiPlatformsRequest(server string) (*http.Request, error) {
 	var err error
@@ -17500,6 +17751,43 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with GET /api/legal/institution-declaration (the `GetApiLegalInstitutionDeclaration` operationId).
 	GetApiLegalInstitutionDeclarationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiLegalInstitutionDeclarationResponse, error)
+
+	// GetApiNotificationsWithResponse Answers the caller's notifications: the
+	//
+	// important facts that are true now and wait for their acknowledgement.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/notifications (the `GetApiNotifications` operationId).
+	GetApiNotificationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiNotificationsResponse, error)
+
+	// PostApiNotificationsAcknowledgeWithBodyWithResponse Acknowledges one of the caller's
+	//
+	// notifications and answers those that remain.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/notifications/acknowledge (the `PostApiNotificationsAcknowledge` operationId).
+	PostApiNotificationsAcknowledgeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiNotificationsAcknowledgeResponse, error)
+
+	// PostApiNotificationsAcknowledgeWithResponse Acknowledges one of the caller's
+	//
+	// notifications and answers those that remain.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/notifications/acknowledge (the `PostApiNotificationsAcknowledge` operationId).
+	PostApiNotificationsAcknowledgeWithResponse(ctx context.Context, body PostApiNotificationsAcknowledgeJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiNotificationsAcknowledgeResponse, error)
+
+	// PostApiNotificationsAcknowledgeAllWithResponse Acknowledges every notification the
+	//
+	// caller has, each up to the entry they could see; it answers those that
+	// remain.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/notifications/acknowledge-all (the `PostApiNotificationsAcknowledgeAll` operationId).
+	PostApiNotificationsAcknowledgeAllWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiNotificationsAcknowledgeAllResponse, error)
 
 	// GetApiPlatformsWithResponse Lists the engine's AI platforms.
 	//
@@ -23212,6 +23500,150 @@ func (r GetApiLegalInstitutionDeclarationResponse) ContentType() string {
 	return ""
 }
 
+type GetApiNotificationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *NotificationsResp
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiNotificationsResponse) GetJSON200() *NotificationsResp {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiNotificationsResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiNotificationsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiNotificationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiNotificationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiNotificationsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiNotificationsAcknowledgeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *NotificationsResp
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r PostApiNotificationsAcknowledgeResponse) GetJSON200() *NotificationsResp {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiNotificationsAcknowledgeResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiNotificationsAcknowledgeResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiNotificationsAcknowledgeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiNotificationsAcknowledgeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiNotificationsAcknowledgeResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiNotificationsAcknowledgeAllResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *NotificationsResp
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r PostApiNotificationsAcknowledgeAllResponse) GetJSON200() *NotificationsResp {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiNotificationsAcknowledgeAllResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiNotificationsAcknowledgeAllResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiNotificationsAcknowledgeAllResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiNotificationsAcknowledgeAllResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiNotificationsAcknowledgeAllResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetApiPlatformsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -28048,6 +28480,67 @@ func (c *ClientWithResponses) GetApiLegalInstitutionDeclarationWithResponse(ctx 
 	return ParseGetApiLegalInstitutionDeclarationResponse(rsp)
 }
 
+// GetApiNotificationsWithResponse Answers the caller's notifications: the
+//
+// important facts that are true now and wait for their acknowledgement.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/notifications (the `GetApiNotifications` operationId).
+func (c *ClientWithResponses) GetApiNotificationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiNotificationsResponse, error) {
+	rsp, err := c.GetApiNotifications(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiNotificationsResponse(rsp)
+}
+
+// PostApiNotificationsAcknowledgeWithBodyWithResponse Acknowledges one of the caller's
+//
+// notifications and answers those that remain.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/notifications/acknowledge (the `PostApiNotificationsAcknowledge` operationId).
+func (c *ClientWithResponses) PostApiNotificationsAcknowledgeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiNotificationsAcknowledgeResponse, error) {
+	rsp, err := c.PostApiNotificationsAcknowledgeWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiNotificationsAcknowledgeResponse(rsp)
+}
+
+// PostApiNotificationsAcknowledgeWithResponse Acknowledges one of the caller's
+//
+// notifications and answers those that remain.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/notifications/acknowledge (the `PostApiNotificationsAcknowledge` operationId).
+func (c *ClientWithResponses) PostApiNotificationsAcknowledgeWithResponse(ctx context.Context, body PostApiNotificationsAcknowledgeJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiNotificationsAcknowledgeResponse, error) {
+	rsp, err := c.PostApiNotificationsAcknowledge(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiNotificationsAcknowledgeResponse(rsp)
+}
+
+// PostApiNotificationsAcknowledgeAllWithResponse Acknowledges every notification the
+//
+// caller has, each up to the entry they could see; it answers those that
+// remain.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/notifications/acknowledge-all (the `PostApiNotificationsAcknowledgeAll` operationId).
+func (c *ClientWithResponses) PostApiNotificationsAcknowledgeAllWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiNotificationsAcknowledgeAllResponse, error) {
+	rsp, err := c.PostApiNotificationsAcknowledgeAll(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiNotificationsAcknowledgeAllResponse(rsp)
+}
+
 // GetApiPlatformsWithResponse Lists the engine's AI platforms.
 //
 // With their toggles, playable genres and tiers.
@@ -32586,6 +33079,105 @@ func ParseGetApiLegalInstitutionDeclarationResponse(rsp *http.Response) (*GetApi
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest DeclarationResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiNotificationsResponse parses an HTTP response from a GetApiNotificationsWithResponse call
+func ParseGetApiNotificationsResponse(rsp *http.Response) (*GetApiNotificationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiNotificationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest NotificationsResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiNotificationsAcknowledgeResponse parses an HTTP response from a PostApiNotificationsAcknowledgeWithResponse call
+func ParsePostApiNotificationsAcknowledgeResponse(rsp *http.Response) (*PostApiNotificationsAcknowledgeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiNotificationsAcknowledgeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest NotificationsResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiNotificationsAcknowledgeAllResponse parses an HTTP response from a PostApiNotificationsAcknowledgeAllWithResponse call
+func ParsePostApiNotificationsAcknowledgeAllResponse(rsp *http.Response) (*PostApiNotificationsAcknowledgeAllResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiNotificationsAcknowledgeAllResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest NotificationsResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

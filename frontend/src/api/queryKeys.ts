@@ -86,6 +86,9 @@ export const queryKeys = {
     ["institution-invites", institutionId] as const,
   allInvites: ["all-invites"] as const,
 
+  // Notifications: the caller's bell
+  notifications: ["notifications"] as const,
+
   // Workshops
   workshops: ["workshops"] as const,
   workshopsByInstitution: (institutionId: string) =>

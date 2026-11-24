@@ -29,16 +29,21 @@ RETURNING id;
 -- name: V2UpdateVerifiedPage :exec
 -- Changes a verified page's address and callback; a change of its site
 -- (scheme and host) withdraws its approval, a new port or path keeps it.
+-- A change of site, or any change while it is not approved, asks for its
+-- approval anew.
 UPDATE verified_page
 SET site = @site, page_url = @page_url, callback_url = @callback_url, modified_at = now(),
+    requested_at = CASE WHEN site IS DISTINCT FROM @site::text OR approved_at IS NULL THEN now() ELSE requested_at END,
     approved_at = CASE WHEN site IS DISTINCT FROM @site::text THEN NULL ELSE approved_at END,
     approved_by = CASE WHEN site IS DISTINCT FROM @site::text THEN NULL ELSE approved_by END
 WHERE id = @id::uuid;
 
 -- name: V2ApproveVerifiedPage :exec
--- An admin approves a verified page (approved_by set) or withdraws it (NULL).
+-- An admin approves a verified page (approved_by set), or turns it down or
+-- withdraws the approval (NULL), which turned_down_at records.
 UPDATE verified_page
 SET approved_at = CASE WHEN sqlc.narg(approved_by)::uuid IS NULL THEN NULL ELSE now() END,
+    turned_down_at = CASE WHEN sqlc.narg(approved_by)::uuid IS NULL THEN now() ELSE turned_down_at END,
     approved_by = sqlc.narg(approved_by)::uuid
 WHERE id = @id::uuid;
 

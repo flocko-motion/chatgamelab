@@ -198,6 +198,13 @@ type InstitutionConsent struct {
 	DeclarationHash     string         `json:"declaration_hash"`
 }
 
+type NotificationAck struct {
+	UserID  uuid.UUID     `json:"user_id"`
+	Type    string        `json:"type"`
+	Subject uuid.NullUUID `json:"subject"`
+	AckedAt time.Time     `json:"acked_at"`
+}
+
 type SystemSetting struct {
 	ID                   uuid.UUID      `json:"id"`
 	CreatedAt            time.Time      `json:"created_at"`
@@ -266,6 +273,8 @@ type VerifiedPage struct {
 	ModifiedAt    time.Time     `json:"modified_at"`
 	ApprovedAt    sql.NullTime  `json:"approved_at"`
 	ApprovedBy    uuid.NullUUID `json:"approved_by"`
+	RequestedAt   time.Time     `json:"requested_at"`
+	TurnedDownAt  sql.NullTime  `json:"turned_down_at"`
 }
 
 type Voice struct {

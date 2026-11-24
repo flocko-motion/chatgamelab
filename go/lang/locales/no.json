@@ -56,7 +56,7 @@
       "cityLabel": "Sted",
       "confirmAdult": "Jeg er minst 18 år gammel.",
       "consentPage": {
-        "constraintIntro": "Med erklæringen forplikter institusjonen deres seg til å fastsette en promptbegrensning for ungdomsvern som passer målgruppen. Nedenfor ser du den organisasjonen deres bruker nå. Kontroller den og tilpass den ved behov.",
+        "constraintIntro": "Med erklæringen forplikter institusjonen din seg til å fastsette en regel for ungdomsvern som passer målgruppen deres. Nedenfor ser du regelen organisasjonen din bruker nå. Kontroller den og juster den om nødvendig.",
         "emailDescription": "Vi sender bekreftelsen med teksten i erklæringen til denne adressen.",
         "introExisting": "Organisasjonen deres «{{name}}» har nå en erklæring som bekreftes på nett. Den erstatter brukeravtalen dere signerte tidligere. Les den og godta den på vegne av institusjonen deres.",
         "introNewVersion": "Erklæringen er oppdatert (versjon {{version}}). Les den nye versjonen og godta den på vegne av organisasjonen deres «{{name}}».",
@@ -112,14 +112,14 @@
       "youthProtection": {
         "changeHint": "Du kan endre denne innstillingen når som helst og angi den annerledes for enkelte workshoper.",
         "defaultOption": "Standard fra 13 år",
-        "fieldLabel": "Organisasjonens promptbegrensning for ungdomsvern",
+        "fieldLabel": "Organisasjonens regel for ungdomsvern",
         "intro": "KI-en mottar denne instruksjonen i alle spillene til organisasjonen din. Velg den slik at den passer alderen til målgruppen din.",
         "responsibilityHint": "Forslagene er ikke en offisiell aldersgrense. Institusjonen din bestemmer innstillingen og er ansvarlig for den.",
         "suggestionAdults": "for voksne fra {{age}} år",
         "suggestionChildren": "for barn fra omtrent {{age}} år",
         "suggestionTeens": "for ungdom fra omtrent {{age}} år",
         "suggestionsLabel": "Forslag (et klikk erstatter teksten):",
-        "title": "Promptbegrensning for ungdomsvern",
+        "title": "Regel for ungdomsvern",
         "tooLong": "Maksimalt {{max}} tegn. Forkort teksten eller velg et forslag."
       }
     },
@@ -236,7 +236,7 @@
       "organizationExistingAccount": "Organisasjoner registrerer seg med en ny innlogging. Har du allerede en konto?",
       "organizationIntro": "For ungdomssentre, skoler og andre institusjoner som ønsker å bruke ChatGameLab i workshoper.",
       "organizationStep1": "Du oppretter innloggingen din med Auth0 (e-post og passord).",
-      "organizationStep2": "Du oppgir informasjon om deg selv og institusjonen din, angir promptbegrensningen for ungdomsvern og godtar erklæringen.",
+      "organizationStep2": "Du oppgir opplysninger om deg selv og institusjonen din, fastsetter regelen for ungdomsvern og godtar erklæringen.",
       "organizationStep3": "Når du sender inn skjemaet, aktiveres organisasjonen med en gang, og du kan opprette workshoper.",
       "organizationTitle": "Registrer som organisasjon",
       "privacyPolicy": "Personvernerklæring",
@@ -433,6 +433,25 @@
           "role-desc": "Rolle (Å-A)"
         },
         "title": "Administrer brukere"
+      },
+      "verifiedPages": {
+        "approve": "Godkjenn",
+        "approved": "Godkjent",
+        "callback": "Tilbakeringing: {{url}}",
+        "description": "Den verifiserte siden til hver organisasjon. Spillene deres starter der først når du har godkjent den; du godkjenner nettstedet (skjema og vert), slik at en side som flyttes til et annet nettsted må godkjennes på nytt, mens en annen port eller bane på samme nettsted fortsatt er godkjent.",
+        "empty": "Ingen organisasjoner har registrert en side.",
+        "filters": {
+          "all": "Alle",
+          "approved": "Godkjent",
+          "waiting": "Venter"
+        },
+        "loadError": "Sidene kunne ikke lastes inn.",
+        "organisation": "Organisasjon",
+        "page": "Side",
+        "status": "Status",
+        "title": "Sider som bygger inn spill",
+        "waiting": "Venter på godkjenning",
+        "withdraw": "Trekk tilbake godkjenning"
       }
     },
     "aiQualityTier": {
@@ -455,6 +474,7 @@
       "empty": {
         "conditions": {
           "favorites": "en av favorittene dine",
+          "organisation": "organisasjonens",
           "own": "din",
           "public": "offentlig",
           "sponsored": "sponset"
@@ -470,7 +490,8 @@
         "all": "Alle spill",
         "favorites": "Favoritter",
         "genre": "Sjanger",
-        "own": "Mine spill",
+        "organisation": "Orga",
+        "own": "Mine",
         "public": "Offentlige",
         "sponsored": "Sponset"
       },
@@ -479,10 +500,16 @@
       "reportGame": "Rapporter spill",
       "restart": "Start på nytt",
       "resumeChoice": {
+        "advanced": "Avanserte innstillinger",
         "continue": "Fortsett",
         "message": "Du har allerede begynt på «{{game}}». Vil du fortsette der du slapp, eller begynne på nytt? En ny start erstatter den tidligere økten din.",
         "startNew": "Begynn på nytt",
         "title": "Fortsette eller begynne på nytt?"
+      },
+      "startChoice": {
+        "message": "Start «{{game}}» slik det er laget, eller tilpass instruksjonene det starter med først.",
+        "start": "Start",
+        "title": "Starte spillet?"
       },
       "title": "Spill",
       "unfavorite": "Fjern fra favoritter",
@@ -640,6 +667,7 @@
         "alt": "Omslag for {{name}}",
         "draw": "Lag omslag",
         "drawAgain": "Lag på nytt",
+        "drawing": "Tegner omslaget …",
         "drawnOnSave": "Omslaget lages når du lagrer spillet.",
         "errors": {
           "failed": "Omslaget kunne ikke lages. Prøv igjen.",
@@ -719,6 +747,10 @@
           },
           "description": "Beskrivelse",
           "descriptionHint": "En setning eller to til galleriet, så spillerne vet hva de kan forvente.",
+          "duo": {
+            "descriptionPlaceholder": "Greta, den gretne fyrvokteren, og en altfor munter skatteinspektør krangler seg gjennom en stormfull natt. Lytt med, eller ta parti.",
+            "titlePlaceholder": "Stormnatt ved fyret"
+          },
           "encounter": {
             "descriptionPlaceholder": "Besøk Greta, den grettene fyrvokteren, og finn ut hva hun så den natten.",
             "titlePlaceholder": "Greta på fyrtårnet"
@@ -743,15 +775,17 @@
         },
         "embed": {
           "copy": "Kopier kodebit",
-          "incomplete": "Velg hva som skal betale, og siden, for å få kodebiten.",
+          "incomplete": "Velg hva som skal betale for å få kodebiten.",
           "noKeys": "Du har ingen fungerende KI-nøkkel å betale med. Legg til en, eller spør organisasjonen din om en.",
-          "noPages": "Organisasjonen din har ennå ingen verifisert side. Organisasjonens leder eller ansatte kan legge til en i organisasjonens innstillinger.",
+          "noOrganisation": "Innebygging er for en organisasjons spill: spillene som er skrevet i workshopene deres, eller av ledelsen og de ansatte. Dette spillet tilhører ingen organisasjon.",
+          "noPages": "Registrer organisasjonens nettsted først: siden spillene deres skal kjøre på. En administrator godkjenner den, og deretter kan spillet starte der.",
           "offNote": "Når den er slått av, viser kodebiten ingenting. Når den slås på igjen, fungerer den samme kodebiten.",
           "page": "Verifisert side",
           "pageHint": "Spillet kjører bare der, og bare etter at siden har godkjent hver start.",
           "paidBy": "Betales av",
           "paidByPlaceholder": "Velg en nøkkel",
           "payingNow": "Betaler nå",
+          "registerPage": "Registrer et nettsted under Min organisasjon → Nettsteder",
           "snippet": "Kodebit for nettstedet ditt",
           "snippetCss": "din CSS",
           "snippetHint": "Sett den inn der spillet skal vises, og gi elementet høyden du ønsker.",
@@ -760,12 +794,14 @@
           "snippetVerifiedHint": "Serveren din fyller inn ID-en til besøkeren og til denne sidevisningen; tilbakekallet fra siden din får begge.",
           "styleLink": "Utform den med din egen CSS →",
           "toggle": "Bygg inn på et nettsted",
-          "toggleHint": "Viser dette spillet på organisasjonens verifiserte side, uten noe fra ChatGameLab rundt det. Besøkende spiller som gjester; nøkkelen du velger, betaler."
+          "toggleHint": "Viser dette spillet på organisasjonens verifiserte side, uten noe fra ChatGameLab rundt det. Besøkende spiller som gjester; nøkkelen du velger, betaler.",
+          "waitingForApproval": "Organisasjonens side venter på godkjenning fra en administrator. Inntil da starter ikke spillet der."
         },
         "fillIn": "Fyll ut delene til alle er grønne.",
         "genre": {
           "pitch": {
             "adventure": "Spilleren utforsker en verden. Spillet forteller hva som skjer, lager bilder og holder oversikt over poeng.",
+            "duo": "To figurer snakker med hverandre med stemmen. Spilleren lytter med eller blir med i samtalen.",
             "encounter": "Spilleren snakker med én figur, med stemmen. Figuren holder seg i rollen og svarer direkte."
           },
           "question": "Hva vil du lage?"
@@ -815,6 +851,12 @@
               "systemMessageGameStart": "Fortell hvordan spillet begynner.",
               "systemMessageScenario": "Fortell hva spillet handler om."
             },
+            "duo": {
+              "imageStyle": "Velg en bildestil slik at bildene ser like ut.",
+              "name": "Spillet ditt har ikke fått noen tittel ennå.",
+              "systemMessageGameStart": "Fortell hvor scenen finner sted, og hvordan den begynner.",
+              "systemMessageScenario": "Fortell hvem de to figurene er."
+            },
             "encounter": {
               "imageStyle": "Velg en bildestil, slik at bildene passer sammen.",
               "name": "Spillet ditt har ingen tittel ennå.",
@@ -829,6 +871,10 @@
             "voiceStyleHint": "Hvordan historien høres ut når den leses høyt."
           },
           "builtInVoice": "Innebygd stemme",
+          "duo": {
+            "voiceStyle": "Figurenes stemmer",
+            "voiceStyleHint": "Hver figur får sin egen stemme."
+          },
           "encounter": {
             "voiceStyle": "Figurens stemme",
             "voiceStyleHint": "Hvordan figuren høres ut."
@@ -864,6 +910,20 @@
             "scenario": "Hva handler spillet om?",
             "scenarioHint": "Verdenen, spillerens rolle, målet og hvordan spilleren vet at hen har vunnet.",
             "scenarioPlaceholder": "Spilleren er en oppdagelsesreisende i en mystisk skog og leter etter en skjult skatt …"
+          },
+          "duo": {
+            "firstCharacter": "Den første figuren",
+            "firstCharacterHint": "Hvem de er: personlighet, hva de vil, hvordan de snakker. De snakker først.",
+            "firstCharacterPlaceholder": "Greta, en gretten fyrvokter som vil være alene med lampen sin …",
+            "gameStart": "Hvor er de, og hvordan begynner det?",
+            "gameStartHint": "Scenen de begge befinner seg i når spillet begynner; den første figurens første ord skrives ut fra den.",
+            "gameStartPlaceholder": "En stormfull natt. Otto banker på fyrdøren, gjennomvåt til skinnet …",
+            "scenario": "Hvem er de to figurene?",
+            "scenarioHint": "Hvem hver av dem er, og hvorfor de to har noe å snakke eller krangle om.",
+            "scenarioPlaceholder": "Greta, en gretten fyrvokter …",
+            "secondCharacter": "Den andre figuren",
+            "secondCharacterHint": "Hvem de er, og hvorfor de to har noe å snakke eller krangle om.",
+            "secondCharacterPlaceholder": "Otto, en altfor munter skatteinspektør som har kommet for å telle hvert eneste lys …"
           },
           "encounter": {
             "gameStart": "Hvordan hilser figuren på spilleren?",
@@ -905,7 +965,8 @@
       },
       "genres": {
         "adventure": "Eventyr",
-        "npc-live": "Møte"
+        "npc-duo": "Diskusjon",
+        "npc-live": "Figur"
       },
       "importExport": {
         "coverFailed": "Spillet ble importert, men galleribildet kunne ikke kontrolleres. Du kan tegne et nytt i redigeringsverktøyet.",
@@ -920,6 +981,7 @@
         "exportButton": "Eksporter spill",
         "importButton": "Importer spill"
       },
+      "newGame": "Nytt spill",
       "playNow": "Spill nå",
       "privacyHint": "Navnet og beskrivelsen av et spill kan bli offentlig synlig. Ikke bruk ekte navn.",
       "privacyHintShort": "Kan bli offentlig synlig – ikke bruk ekte navn.",
@@ -959,7 +1021,7 @@
         "unlimitedSessions": "Ubegrensede økter",
         "update": "Oppdater delelenke",
         "workshopCreateHint": "Opprett en delingslenke for dette spillet. Workshopens API-nøkkel velges automatisk og dekker kostnadene.",
-        "workshopDescription": "Denne lenken er opprettet i workshopen «{{name}}» – gjester spiller med workshoppens API-nøkkel og begrensninger for ledetekster.",
+        "workshopDescription": "Denne lenken opprettes i workshopen «{{name}}» – gjester spiller med workshoppens API-nøkkel og regel for ungdomsvern.",
         "workshopShare": "Workshop-deling",
         "workshopShareDescription": "Denne lenken ble opprettet i workshopen «{{name}}» – gjester spiller med workshopens API-nøkkel.",
         "workshopSubsection": "Delingslenke for workshop"
@@ -1071,6 +1133,7 @@
           "scifi": "Sci-fi",
           "snowy": "Snødekt",
           "space": "Verdensrommet",
+          "spielfieber": "Spielfieber",
           "steampunk": "Steampunk",
           "storybook": "Eventyrbok",
           "sunshine": "Solskinn",
@@ -1192,6 +1255,7 @@
     "leaveTitle": "Forlat organisasjon",
     "leaveWarning": "Du mister tilgang til alle organisasjonsressurser og -medlemmer.",
     "list": {
+      "clearFilters": "Nullstill",
       "clearPicks": "Vis alle",
       "clearSearch": "Tøm søket",
       "filter": "Filter",
@@ -1241,6 +1305,8 @@
       "apiKeys": {
         "aboutDescription": "API-nøkler som deles her er tilgjengelige for alle medlemmer av organisasjonen din for å spille spill.",
         "aboutTitle": "Organisasjonens API-nøkler",
+        "addAndShare": "Legg til og del",
+        "addKey": "Legg til nøkkel",
         "allPlatforms": "Alle plattformer",
         "allowPublicSponsoring": "Tillat offentlig sponsing",
         "allowPublicSponsoringDesc": "Denne nøkkelen kan brukes til å sponse spill for alle brukere.",
@@ -1254,6 +1320,9 @@
         },
         "keyName": "Nøkkelnavn",
         "loadError": "Kunne ikke laste organisasjonens API-nøkler.",
+        "modeNew": "En ny nøkkel",
+        "modeOwn": "En av mine nøkler",
+        "newKeyHint": "Nøkkelen blir din, slik den er på API-nøkkelsiden din, og deles med organisasjonen.",
         "noKeys": "Ingen API-nøkler delt med denne organisasjonen ennå.",
         "noResults": "Ingen API-nøkler samsvarer med søket ditt.",
         "notAuthorized": "Du har ikke tillatelse til å administrere organisasjonens API-nøkler. Bare ledere og lærere kan åpne denne siden.",
@@ -1266,7 +1335,7 @@
         "selectKeyPlaceholder": "Velg en nøkkel å dele...",
         "share": "Del",
         "shareKey": "Del nøkkel",
-        "shareKeyTitle": "Del API-nøkkel med organisasjon",
+        "shareKeyTitle": "Legg til en API-nøkkel i organisasjonen",
         "showDetails": "Vis detaljer",
         "title": "Organisasjonens API-nøkler"
       },
@@ -1317,13 +1386,13 @@
       "promoteToHead": "Forfrem til leder",
       "promoteWarning": "Denne brukeren får muligheten til å administrere organisasjonsmedlemmer og invitere lærere.",
       "promptConstraintsFallbackEmpty": "(ikke konfigurert)",
-      "promptConstraintsFallbackHint": "Ingen organisasjonsbegrensning er konfigurert. Den nettstedsomfattende standarden for spillerens aldersgruppe gjelder:",
+      "promptConstraintsFallbackHint": "Organisasjonen har ingen regel for ungdomsvern. Nettstedets standardinnstilling for spillerens aldersgruppe gjelder i stedet:",
       "promptConstraintsFallbackTitle": "Aktiv reserve for hele nettstedet",
       "promptConstraintsFallbackU13": "Under 13",
       "promptConstraintsFallbackU13p": "13–17 (med foreldresamtykke)",
       "promptConstraintsFallbackU18": "18 og eldre",
-      "promptConstraintsHint": "Ekstra KI-instruksjoner for alle økter i denne organisasjonen. Gjelder når ingen workshop-nivå-begrensning er satt, og for spill som deles via lenke.",
-      "promptConstraintsLabel": "Organisasjonens promptbegrensning for ungdomsvern",
+      "promptConstraintsHint": "Ekstra KI-instruksjoner for alle økter i denne organisasjonen. Gjelder når workshopen ikke fastsetter noen regel for ungdomsvern, og for spill som deles via lenke.",
+      "promptConstraintsLabel": "Organisasjonens regel for ungdomsvern",
       "promptConstraintsPlaceholder": "f.eks. Hold historien aldersvennlig og unngå voldelig innhold.",
       "publicPage": {
         "changeLinkMessage": "Siden vil da være tilgjengelig på {{url}}.",
@@ -1377,11 +1446,15 @@
       "verifiedPages": {
         "add": "Registrer side",
         "addTitle": "Registrer en side",
+        "approved": "Godkjent",
         "callbackShown": "Tilbakekall: {{url}}",
         "callbackUrl": "Adresse for tilbakekall",
         "callbackUrlHint": "Her spør ChatGameLab før hver start. Den må svare innen noen få sekunder.",
         "copied": "Kopiert",
         "copy": "Kopier side-ID",
+        "edit": "Endre side",
+        "editReapproval": "Denne adressen ligger på et annet nettsted og venter på godkjenning fra en administrator på nytt; inntil da starter ingen spill der. En annen port eller bane på samme nettsted forblir godkjent.",
+        "editTitle": "Endre siden",
         "empty": "Ingen verifiserte sider ennå.",
         "intro": "En verifisert side er en side på organisasjonens nettsted som kan vise de innebygde spillene dine. Før et spill starter der, spør ChatGameLab sidens tilbakekall om det skal starte, med side-ID-en nedenfor og ID-ene til besøkeren og forespørselen som siden din sender videre. Bare svaret {\"ok\": true} starter spillet.",
         "pageId": "Side-ID",
@@ -1389,7 +1462,9 @@
         "pageUrlHint": "Siden som spillene dine er bygget inn i. Bare nettstedet dens kan vise dem.",
         "remove": "Fjern side",
         "removeTitle": "Fjern denne siden?",
-        "removeWarning": "Spill som er bygget inn for {{page}}, slutter å starte der til de får en annen side."
+        "removeWarning": "Spill som er bygget inn for {{page}}, slutter å starte der til de får en annen side.",
+        "save": "Lagre siden",
+        "waiting": "Venter på godkjenning fra en administrator"
       },
       "workshops": {
         "activate": "Aktiver",
@@ -1461,10 +1536,10 @@
         "participantLinkTitleNamed": "Lenke for ny innlogging for {{name}}",
         "participantName": "Deltakernavn",
         "participants": "Deltakere",
-        "promptConstraintsFallbackOrg": "Organisasjonens begrensning brukes som standard: {{constraint}}",
-        "promptConstraintsFallbackSite": "Nettstedets begrensning brukes som standard",
+        "promptConstraintsFallbackOrg": "Organisasjonens regel for ungdomsvern brukes som standard: {{constraint}}",
+        "promptConstraintsFallbackSite": "Nettstedets regel for ungdomsvern brukes som standard",
         "promptConstraintsHint": "Ekstra KI-instruksjoner for alle økter i denne workshopen.",
-        "promptConstraintsLabel": "Promptbegrensning for ungdomsvern",
+        "promptConstraintsLabel": "Regel for ungdomsvern",
         "promptConstraintsPlaceholder": "f.eks. Hold historien passende for alder og unngå voldelig innhold.",
         "removeParticipant": "Fjern deltaker",
         "removeParticipantConfirm": "Er du sikker på at du vil fjerne \"{{name}}\" fra denne workshopen?",
@@ -1512,13 +1587,25 @@
     "noRole": "Ingen rolle",
     "notifications": {
       "accept": "Godta",
+      "acknowledgeAll": "Marker alle som lest",
       "decline": "Avslå",
       "declineConfirm": "Er du sikker på at du vil avslå denne invitasjonen?",
       "declineTitle": "Avslå invitasjon",
       "empty": "Ingen nye varsler.",
       "inviteDescription": "Du er invitert til å bli med som {{role}}.",
       "inviteToJoin": "Organisasjonsinvitasjon",
+      "nothingNew": "Ingenting nytt",
       "title": "Varsler",
+      "titleWithCount_one": "Varsler: {{count}} nytt",
+      "titleWithCount_other": "Varsler: {{count}} nye",
+      "types": {
+        "newOrganisations_one": "En ny organisasjon har registrert seg",
+        "newOrganisations_other": "{{count}} nye organisasjoner har registrert seg",
+        "pageApproved": "Organisasjonens verifiserte side er godkjent",
+        "pageTurnedDown": "Organisasjonens verifiserte side ble ikke godkjent, eller godkjenningen ble trukket tilbake",
+        "pagesWaiting_one": "En verifisert side venter på godkjenning",
+        "pagesWaiting_other": "{{count}} verifiserte sider venter på godkjenning"
+      },
       "workshopInvite": "Workshop-invitasjon",
       "workshopInviteDescription": "Du er invitert til å bli med i denne workshopen."
     },
@@ -1530,6 +1617,15 @@
       "title": "Organisasjon suspendert"
     },
     "play": {
+      "advanced": {
+        "edited": "endret",
+        "hint": "Tilpass instruksjonene denne økten starter med. Endrede instruksjoner er markert; alt annet kjører slik spillet er laget. Instruksjonene kan fortsatt endres mens du spiller, under Innsikt.",
+        "loading": "Laster inn instruksjonene …",
+        "reset": "Tilbake til originalen",
+        "start": "Start spillet",
+        "title": "Avanserte innstillinger",
+        "unavailable": "Instruksjonene kunne ikke lastes inn."
+      },
       "cloneGame": "Klon til spillene mine",
       "empty": {
         "description": "Prøv å justere filtrene dine eller kom tilbake senere for nye spill.",
@@ -1624,16 +1720,16 @@
     "searchPlaceholder": "Søk blant medlemmer...",
     "serverSettings": {
       "constraints": {
-        "description": "Definer obligatoriske KI-regler basert på spillerens aldersgruppe. Disse begrensningene settes inn i alle KI-svar. De gjelder for alle innloggede brukere utenfor workshopmodus.",
-        "title": "Aldersbaserte begrensningsprompter",
+        "description": "Definer obligatoriske KI-regler basert på spillerens aldersgruppe. Disse reglene for ungdomsvern følger med hvert KI-kall. De gjelder for alle innloggede brukere utenfor workshopmodus.",
+        "title": "Regler for ungdomsvern etter aldersgruppe",
         "u13Hint": "Settes inn i hver AI-forespørsel for påloggede brukere mellom 13 og 17 år uten registrert foreldresamtykke.",
-        "u13Label": "Begrensning for brukere i alderen 13–17 år uten foreldresamtykke (U13)",
+        "u13Label": "Regel for ungdomsvern for brukere i alderen 13–17 år, uten foreldresamtykke (U13)",
         "u13Placeholder": "f.eks. Hold alt innhold strengt aldersvennlig for tenåringer. Ingen vold, ingen romantisk innhold, ingen skrekktemaer.",
         "u13pHint": "Settes inn i hver AI-forespørsel for påloggede brukere mellom 13 og 17 år med registrert foreldresamtykke.",
-        "u13pLabel": "Begrensning for brukere i alderen 13–17 år med foreldresamtykke (U13p)",
+        "u13pLabel": "Regel for ungdomsvern for brukere i alderen 13–17 år, med foreldresamtykke (U13p)",
         "u13pPlaceholder": "f.eks. Alderstilpasset innhold for tenåringer med foreldresamtykke. Noen modne temaer tillatt, men ikke eksplisitt innhold.",
         "u18Hint": "Settes inn i hver KI-prompt for innloggede brukere som er 18 år eller eldre.",
-        "u18Label": "Begrensning for brukere fra 18 år (U18)",
+        "u18Label": "Regel for ungdomsvern for brukere fra 18 år (U18)",
         "u18Placeholder": "f.eks. Hold innholdet passende. Unngå eksplisitt vold eller seksuelt innhold."
       },
       "defaultTier": {
@@ -1762,6 +1858,49 @@
         "viewAll": "Alle spill"
       }
     },
+    "continue": {
+      "go": "Fortsett",
+      "hint": "fortsett der du slapp",
+      "messages_one": "{{count}} melding",
+      "messages_other": "{{count}} meldinger",
+      "title": "Fortsett spillet"
+    },
+    "fresh": {
+      "by": "av {{name}}",
+      "empty": "Ingen nye spill ennå.",
+      "title": "Nye spill",
+      "viewAll": "Se galleriet"
+    },
+    "hero": {
+      "create": "Lag",
+      "greeting": "Hei {{name}}. Hva skal vi \u001cmark\u001e\u001ebygge\u001c/mark\u001e i dag?",
+      "greetingNoName": "Hei. Hva skal vi \u001cmark\u001e\u001ebygge\u001c/mark\u001e i dag?",
+      "journal": "Labblogg · {{date}}",
+      "promptLabel": "Beskriv en spillidé",
+      "promptPlaceholder": "Beskriv en spillidé … KI-en hjelper deg med å forme den"
+    },
+    "lab": {
+      "gamesCreated": "spill du har funnet på",
+      "gamesOnPlatform": "spill i laboratoriet",
+      "playsOfOwnGames": "spillinger av spillene dine",
+      "title": "Laboratoriet ditt så langt"
+    },
+    "links": {
+      "about": "Om ChatGameLab",
+      "educators": "For pedagoger",
+      "jff": "JFF – Institutt for mediepedagogikk"
+    },
+    "ownGames": {
+      "empty": "Ingen spill ennå. Beskriv en idé ovenfor og lag ditt første!",
+      "title": "Spillene dine",
+      "viewAll": "Alle spillene dine"
+    },
+    "popular": {
+      "hint": "det alle spiller",
+      "plays_one": "{{count}} spilling",
+      "plays_other": "{{count}} spillinger",
+      "title": "Mest populære"
+    },
     "quickActions": {
       "createNewGame": "Opprett nytt spill",
       "createWorkshop": "Opprett workshop",
@@ -1770,6 +1909,7 @@
       "startNewGame": "Start nytt spill",
       "title": "Hurtighandlinger"
     },
+    "someone": "noen",
     "untitled": "Uten navn",
     "untitledGame": "Spill uten navn",
     "version": {
@@ -1777,6 +1917,10 @@
         "message": "Frontend-versjon \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e samsvarer ikke med backend-versjon \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. Dette kan føre til uventet oppførsel. Kontakt support hvis problemene vedvarer.",
         "title": "Versjonsavvik oppdaget"
       }
+    },
+    "workshops": {
+      "title": "Workshopene dine",
+      "viewAll": "Alle workshoper"
     }
   },
   "errors": {
@@ -1906,13 +2050,15 @@
     "dashboard": "Dashbord",
     "games": "Spill",
     "groups": "Grupper",
+    "mainMenu": "Hovedmeny",
     "manageOrganizations": "Administrer organisasjoner",
     "manageUsers": "Administrer brukere",
+    "me": "Meg",
     "myGames": "Mine spill",
     "myOrganization": "Min organisasjon",
     "myWorkshop": "Min workshop",
     "orgApiKeys": "API-nøkler",
-    "orgConstraints": "Promptbegrensning for ungdomsvern",
+    "orgConstraints": "Regel for ungdomsvern",
     "orgMembers": "Medlemmer",
     "orgVerifiedPages": "Nettsteder",
     "orgWorkshops": "Workshops",
@@ -1924,14 +2070,19 @@
   "playbackEngine": {
     "blocks": {
       "adapted-style": "Stil",
+      "cast": "Besett stemmer",
+      "cast-brief": "Figurer",
       "condense-scenario": "Forkort scenario",
       "condensed-scenario": "Scenario",
+      "director": "Regi",
       "expand": "Fortell",
       "gallery-image": "Galleribilde",
       "greeting": "Generer tekst",
       "image": "Tegn bilde",
       "image-prompt": "Beskriv bilde",
       "image-style": "Tilpass stil",
+      "live-a": "Første figur",
+      "live-b": "Andre figur",
       "live-session": "Karakter",
       "observer": "Regi",
       "opening-brief": "Slik begynner det",
@@ -2013,6 +2164,31 @@
       "turnFailed": "Historien kunne ikke fortsette derfra. Send det på nytt, eller prøv noe annet.",
       "voiceFailed": "Kunne ikke koble til stemmen din."
     },
+    "guardrail": {
+      "edit": "Endre regelen",
+      "editHint": "Et laboratorieeksperiment: Den nye regelen gjelder fra neste KI-kall; det som har skjedd, blir stående.",
+      "edited": "redigert",
+      "failed": "Kunne ikke lagre",
+      "frequency": "Gjentakelse",
+      "frequencyFailed": "Kunne ikke angi den",
+      "frequencyHint": "Hvor ofte hvert trinn gjentar regelen: 1 ved hvert kall, 10 ved hvert tiende.",
+      "frequencySet": "Angi",
+      "intro": "Regelen for ungdomsvern som hvert KI-kall i dette spillet følger.",
+      "levelOrganisation": "Organisasjon «{{name}}»",
+      "levelSite13": "Nettstedets regel, 13–17 uten foreldresamtykke",
+      "levelSite13p": "Nettstedets regel, 13–17 med foreldresamtykke",
+      "levelSite18": "Nettstedets regel, 18 år og eldre",
+      "levelWorkshop": "Workshop «{{name}}»",
+      "none": "Denne økten har ingen regel for ungdomsvern.",
+      "readBy": "Følges av",
+      "reset": "Tilbake til den fastsatte regelen",
+      "resolved": "Som fastsatt",
+      "save": "Lagre",
+      "saved": "Lagret: gjelder fra neste kall",
+      "saving": "Lagrer …",
+      "source": "Kommer fra",
+      "sourceUnknown": "Ukjent"
+    },
     "insights": {
       "close": "Lukk",
       "collapse": "Skjul",
@@ -2025,6 +2201,7 @@
       "pickBlock": "Klikk på en blokk eller en forbindelse i arbeidsflyten for å lese hva den gjorde.",
       "settingEmpty": "Spillet lar dette stå tomt.",
       "show": "Vis innsikt",
+      "tabGuardrail": "Regel",
       "tabProblems": "Problemer",
       "tabSelected": "Valgt",
       "tabUsage": "Bruk"
@@ -2071,6 +2248,32 @@
       "unknown": "Denne spilløkten finnes ikke.",
       "unreachable": "AI-leverandøren svarer ikke akkurat nå, så spillet kan ikke fortsette. Prøv igjen om noen minutter."
     },
+    "promptNames": {
+      "condense-scenario": "Kort ned scenarioet",
+      "conversation-policy": "Hvordan figuren snakker",
+      "director": "Regi",
+      "expand": "Fortell en omgang",
+      "game-master": "Spillmester (systemmelding)",
+      "greeting": "Første ord",
+      "image-style": "Tilpass stil",
+      "opening": "Åpning",
+      "opening-expand": "Fortell åpningen",
+      "rephrase": "Omformuler handlingen",
+      "rephrase-audio": "Forstå tale",
+      "scene": "Bilderamme",
+      "summary": "Be om sammendrag",
+      "voice-brief": "Beskriv stemmen"
+    },
+    "prompts": {
+      "edited": "redigert",
+      "failed": "Kunne ikke lagre",
+      "hint": "Endre en instruksjon for å se hvordan svarene endres. Den nye teksten gjelder fra neste kall.",
+      "reset": "Tilbake til originalen",
+      "save": "Lagre",
+      "saved": "Lagret: gjelder fra neste kall",
+      "saving": "Lagrer …",
+      "title": "Instruksjoner"
+    },
     "relay": {
       "busy": "Relay: i bruk av en annen fane",
       "connected": "Relay: tilkoblet",
@@ -2103,15 +2306,24 @@
       "adapted-style\u0003eimage-prompt": "stil",
       "adapted-style\u0003eimage-style": "forespørsel",
       "adapted-style\u0003estart-game": "klar",
+      "cast\u001elive-a:voiceA": "stemme",
+      "cast\u001elive-b:voiceB": "stemme",
+      "cast\u001estart-game": "klar",
+      "cast-brief\u001ecast": "figurer",
       "condense-scenario\u0003econdensed-scenario": "svar",
       "condensed-scenario\u0003econdense-scenario": "forespørsel",
       "condensed-scenario\u0003eimage-prompt": "scenario",
       "condensed-scenario\u0003estart-game": "klar",
+      "director\u001elive-a": "innskudd",
+      "director\u001elive-b": "innskudd",
       "gallery-image\u0003estart-game": "klar",
       "greeting\u0003elive-session": "første ord",
       "greeting\u0003estart-game": "klar",
+      "greeting\u001elive-a": "første ord",
       "image-prompt\u0003eimage": "prompt",
       "image-style\u0003eadapted-style": "svar",
+      "live-a\u001edirector": "transkripsjon",
+      "live-b\u001edirector": "transkripsjon",
       "live-session\u0003eobserver": "utskrift",
       "observer\u0003elive-session": "innspill",
       "opening-brief\u0003egreeting": "brief",
@@ -2120,6 +2332,8 @@
       "outline\u0003eprops-store": "endringer",
       "player-input-audio\u0003elive-session": "tale",
       "player-input-audio\u0003erephrase-audio": "tale",
+      "player-input-audio\u001elive-a": "tale",
+      "player-input-audio\u001elive-b": "tale",
       "player-input-text\u0003erephrase": "handling",
       "portrait\u0003estart-game": "klar",
       "portrait-prompt\u0003eportrait": "prompt",
@@ -2128,6 +2342,8 @@
       "rephrase-audio\u0003eoutline": "handling",
       "start-game\u0003elive-session": "innledning",
       "start-game\u0003eoutline": "prompt",
+      "start-game\u001elive-a": "signal",
+      "start-game\u001elive-b": "signal",
       "voice\u0003elive-session:secondary": "stemmekarakter",
       "voice\u0003elive-session:voice": "stemme",
       "voice\u0003estart-game": "klar",

@@ -16,6 +16,7 @@ import (
 const v2ApproveVerifiedPage = `-- name: V2ApproveVerifiedPage :exec
 UPDATE verified_page
 SET approved_at = CASE WHEN $1::uuid IS NULL THEN NULL ELSE now() END,
+    turned_down_at = CASE WHEN $1::uuid IS NULL THEN now() ELSE turned_down_at END,
     approved_by = $1::uuid
 WHERE id = $2::uuid
 `
@@ -25,7 +26,8 @@ type V2ApproveVerifiedPageParams struct {
 	ID         uuid.UUID     `json:"id"`
 }
 
-// An admin approves a verified page (approved_by set) or withdraws it (NULL).
+// An admin approves a verified page (approved_by set), or turns it down or
+// withdraws the approval (NULL), which turned_down_at records.
 func (q *Queries) V2ApproveVerifiedPage(ctx context.Context, arg V2ApproveVerifiedPageParams) error {
 	_, err := q.db.ExecContext(ctx, v2ApproveVerifiedPage, arg.ApprovedBy, arg.ID)
 	return err
@@ -77,6 +79,7 @@ func (q *Queries) V2DeleteVerifiedPage(ctx context.Context, id uuid.UUID) error 
 const v2UpdateVerifiedPage = `-- name: V2UpdateVerifiedPage :exec
 UPDATE verified_page
 SET site = $1, page_url = $2, callback_url = $3, modified_at = now(),
+    requested_at = CASE WHEN site IS DISTINCT FROM $1::text OR approved_at IS NULL THEN now() ELSE requested_at END,
     approved_at = CASE WHEN site IS DISTINCT FROM $1::text THEN NULL ELSE approved_at END,
     approved_by = CASE WHEN site IS DISTINCT FROM $1::text THEN NULL ELSE approved_by END
 WHERE id = $4::uuid
@@ -91,6 +94,8 @@ type V2UpdateVerifiedPageParams struct {
 
 // Changes a verified page's address and callback; a change of its site
 // (scheme and host) withdraws its approval, a new port or path keeps it.
+// A change of site, or any change while it is not approved, asks for its
+// approval anew.
 func (q *Queries) V2UpdateVerifiedPage(ctx context.Context, arg V2UpdateVerifiedPageParams) error {
 	_, err := q.db.ExecContext(ctx, v2UpdateVerifiedPage,
 		arg.Site,

@@ -619,37 +619,22 @@ func (q *Queries) V2RecordWithdrawal(ctx context.Context, arg V2RecordWithdrawal
 
 const v2SeedOrganisation = `-- name: V2SeedOrganisation :one
 
-INSERT INTO institution (
-  id, created_by,
-  created_at, modified_by, modified_at,
-  name
-) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6
-)
+INSERT INTO institution (id, created_by, modified_by, name)
+VALUES ($1, $2::uuid, $2::uuid, $3)
 RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints, operator, street, postal_code, city, suspended_at, suspended_reason
 `
 
 type V2SeedOrganisationParams struct {
-	ID         uuid.UUID     `json:"id"`
-	CreatedBy  uuid.NullUUID `json:"created_by"`
-	CreatedAt  time.Time     `json:"created_at"`
-	ModifiedBy uuid.NullUUID `json:"modified_by"`
-	ModifiedAt time.Time     `json:"modified_at"`
-	Name       string        `json:"name"`
+	ID        uuid.UUID     `json:"id"`
+	CreatedBy uuid.NullUUID `json:"created_by"`
+	Name      string        `json:"name"`
 }
 
 // Carried over from v1 for the core's system jobs (#344).
+// The database stamps its times, as for every organisation: notifications
+// compare them with other times the database stamped.
 func (q *Queries) V2SeedOrganisation(ctx context.Context, arg V2SeedOrganisationParams) (Institution, error) {
-	row := q.db.QueryRowContext(ctx, v2SeedOrganisation,
-		arg.ID,
-		arg.CreatedBy,
-		arg.CreatedAt,
-		arg.ModifiedBy,
-		arg.ModifiedAt,
-		arg.Name,
-	)
+	row := q.db.QueryRowContext(ctx, v2SeedOrganisation, arg.ID, arg.CreatedBy, arg.Name)
 	var i Institution
 	err := row.Scan(
 		&i.ID,

@@ -54,7 +54,7 @@ func preseed(ctx context.Context) {
 	q := store.Queries()
 	now := time.Now()
 	if _, err := q.V2GetInstitutionByID(ctx, DevInstitutionID); err != nil {
-		if _, err := q.V2SeedOrganisation(ctx, db.V2SeedOrganisationParams{ID: DevInstitutionID, CreatedAt: now, ModifiedAt: now, Name: "Dev Organization"}); err != nil {
+		if _, err := q.V2SeedOrganisation(ctx, db.V2SeedOrganisationParams{ID: DevInstitutionID, Name: "Dev Organization"}); err != nil {
 			log.Warn("failed to create dev organisation", "error", err)
 		}
 	}

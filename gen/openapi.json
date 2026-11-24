@@ -18,6 +18,25 @@
         ],
         "type": "object"
       },
+      "AcknowledgeNotificationReq": {
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "subject": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/NotificationType"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "type": "object"
+      },
       "ApiKey": {
         "properties": {
           "id": {
@@ -2331,6 +2350,57 @@
           "inputs",
           "outputs",
           "phase"
+        ],
+        "type": "object"
+      },
+      "NotificationType": {
+        "enum": [
+          "newOrganisations",
+          "pagesWaiting",
+          "pageApproved",
+          "pageTurnedDown"
+        ],
+        "type": "string"
+      },
+      "NotificationView": {
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "organisationId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "subject": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/NotificationType"
+          }
+        },
+        "required": [
+          "type",
+          "count",
+          "at"
+        ],
+        "type": "object"
+      },
+      "NotificationsResp": {
+        "properties": {
+          "notifications": {
+            "items": {
+              "$ref": "#/components/schemas/NotificationView"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "notifications"
         ],
         "type": "object"
       },
@@ -10828,6 +10898,127 @@
           }
         },
         "summary": "Returns the declaration organisations consent to."
+      }
+    },
+    "/api/notifications": {
+      "get": {
+        "description": "important facts that are true now and wait for their acknowledgement.",
+        "operationId": "getApiNotifications",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationsResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Answers the caller's notifications: the"
+      }
+    },
+    "/api/notifications/acknowledge": {
+      "post": {
+        "description": "notifications and answers those that remain.",
+        "operationId": "postApiNotificationsAcknowledge",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcknowledgeNotificationReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationsResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Acknowledges one of the caller's"
+      }
+    },
+    "/api/notifications/acknowledge-all": {
+      "post": {
+        "description": "caller has, each up to the entry they could see; it answers those that\nremain.",
+        "operationId": "postApiNotificationsAcknowledge-all",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationsResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Acknowledges every notification the"
       }
     },
     "/api/platforms": {

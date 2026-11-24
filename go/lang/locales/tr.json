@@ -57,7 +57,7 @@
       "cityLabel": "Şehir",
       "confirmAdult": "En az 18 yaşındayım.",
       "consentPage": {
-        "constraintIntro": "Beyanla birlikte kurumunuz, hedef grubunuza uygun bir çocuk ve genç koruma istemi kısıtlaması belirlemeyi taahhüt eder. Aşağıda kuruluşunuzun şu anda kullandığı kısıtlama yer almaktadır. Lütfen kontrol edin ve gerekirse düzenleyin.",
+        "constraintIntro": "Beyanla birlikte kurumunuz, hedef grubunuza uygun bir çocuk ve genç koruma kuralı belirlemeyi taahhüt eder. Aşağıda kuruluşunuzun şu anda kullandığı kural yer alıyor. Lütfen kontrol edin ve gerekirse düzenleyin.",
         "emailDescription": "Beyanın metnini içeren onayı bu adrese gönderiyoruz.",
         "introExisting": "Kuruluşunuz “{{name}}” için artık çevrim içi olarak onaylanan bir beyan bulunmaktadır. Bu beyan, daha önce imzaladığınız kullanıcı sözleşmesinin yerine geçer. Lütfen okuyun ve kurumunuz adına onaylayın.",
         "introNewVersion": "Beyan güncellendi (sürüm {{version}}). Lütfen yeni sürümü okuyun ve kuruluşunuz “{{name}}” adına onaylayın.",
@@ -113,14 +113,14 @@
       "youthProtection": {
         "changeHint": "Bu ayarı istediğiniz zaman değiştirebilir ve ayrı atölyeler için farklı belirleyebilirsiniz.",
         "defaultOption": "13 yaşından itibaren varsayılan",
-        "fieldLabel": "Kuruluşunuzun çocuk ve genç koruma istemi kısıtlaması",
+        "fieldLabel": "Kuruluşunuzun çocuk ve genç koruma kuralı",
         "intro": "Yapay zekâ bu talimatı kuruluşunuzun her oyununda alır. Hedef grubunuzun yaşına uygun şekilde seçin.",
         "responsibilityHint": "Öneriler resmî bir yaş derecelendirmesi değildir. Ayara kurumunuz karar verir ve bundan sorumludur.",
         "suggestionAdults": "{{age}} yaşından itibaren yetişkinler için",
         "suggestionChildren": "yaklaşık {{age}} yaşından itibaren çocuklar için",
         "suggestionTeens": "yaklaşık {{age}} yaşından itibaren gençler için",
         "suggestionsLabel": "Öneriler (tıklamak metnin yerine geçer):",
-        "title": "Çocuk ve genç koruma istemi kısıtlaması",
+        "title": "Çocuk ve genç koruma kuralı",
         "tooLong": "En fazla {{max}} karakter. Lütfen kısaltın veya bir öneri seçin."
       }
     },
@@ -237,7 +237,7 @@
       "organizationExistingAccount": "Kuruluşlar yeni bir girişle kaydolur. Zaten bir hesabınız var mı?",
       "organizationIntro": "ChatGameLab'i atölyelerde kullanmak isteyen gençlik merkezleri, okullar ve diğer kurumlar için.",
       "organizationStep1": "Auth0 üzerinden girişinizi oluşturursunuz (e-posta ve parola).",
-      "organizationStep2": "Kendiniz ve kurumunuz hakkında bilgileri girer, çocuk ve genç koruma istemi kısıtlamasını belirler ve beyanı onaylarsınız.",
+      "organizationStep2": "Kendiniz ve kurumunuzla ilgili bilgileri girer, çocuk ve genç koruma kuralını belirlersiniz ve beyanı kabul edersiniz.",
       "organizationStep3": "Formu gönderdikten sonra kuruluş hemen etkinleştirilir ve atölye oluşturabilirsiniz.",
       "organizationTitle": "Kuruluş olarak kaydol",
       "privacyPolicy": "Gizlilik Politikası",
@@ -435,6 +435,25 @@
           "role-desc": "Rol (Z-A)"
         },
         "title": "Kullanıcıları Yönet"
+      },
+      "verifiedPages": {
+        "approve": "Onayla",
+        "approved": "Onaylandı",
+        "callback": "Geri çağırma: {{url}}",
+        "description": "Her kuruluşun doğrulanmış sayfası. O kuruluşun oyunları ancak siz onayladıktan sonra burada başlar; sitelerini (şema ve ana bilgisayar) onaylarsınız. Bu nedenle başka bir siteye taşınan bir sayfa yeniden onay beklerken, aynı sitedeki farklı bir bağlantı noktası veya yol onaylanmış olarak kalır.",
+        "empty": "Henüz hiçbir kuruluş bir sayfa kaydetmedi.",
+        "filters": {
+          "all": "Tümü",
+          "approved": "Onaylandı",
+          "waiting": "Bekliyor"
+        },
+        "loadError": "Sayfalar yüklenemedi.",
+        "organisation": "Kuruluş",
+        "page": "Sayfa",
+        "status": "Durum",
+        "title": "Oyunları gömen sayfalar",
+        "waiting": "Onay bekliyor",
+        "withdraw": "Onayı geri çek"
       }
     },
     "aiQualityTier": {
@@ -457,6 +476,7 @@
       "empty": {
         "conditions": {
           "favorites": "favorilerinizden biri",
+          "organisation": "kuruluşunuzun",
           "own": "size ait",
           "public": "herkese açık",
           "sponsored": "sponsorlu"
@@ -472,7 +492,8 @@
         "all": "Tüm Oyunlar",
         "favorites": "Favoriler",
         "genre": "Tür",
-        "own": "Oyunlarım",
+        "organisation": "Kuruluş",
+        "own": "Benim",
         "public": "Herkese Açık",
         "sponsored": "Sponsorlu"
       },
@@ -481,10 +502,16 @@
       "reportGame": "Oyunu bildir",
       "restart": "Yeniden Başlat",
       "resumeChoice": {
+        "advanced": "Gelişmiş ayarlar",
         "continue": "Devam et",
         "message": "\"{{game}}\" oyununa zaten başladın. Kaldığın yerden devam etmek mi, yoksa yeniden başlamak mı istersin? Yeniden başlamak önceki oturumunun yerini alır.",
         "startNew": "Yeniden başla",
         "title": "Devam mı, yeniden başlamak mı?"
+      },
+      "startChoice": {
+        "message": "\"{{game}}\" oyununu oluşturulduğu haliyle başlatın veya önce başladığı komutları uyarlayın.",
+        "start": "Başlat",
+        "title": "Oyun başlatılsın mı?"
       },
       "title": "Oyunlar",
       "unfavorite": "Favorilerden çıkar",
@@ -642,6 +669,7 @@
         "alt": "{{name}} için kapak görseli",
         "draw": "Kapak görseli oluştur",
         "drawAgain": "Yeniden oluştur",
+        "drawing": "Kapak çiziliyor…",
         "drawnOnSave": "Kapak görseli oyunu kaydettiğinizde oluşturulur.",
         "errors": {
           "failed": "Kapak görseli oluşturulamadı. Lütfen tekrar deneyin.",
@@ -721,6 +749,10 @@
           },
           "description": "Açıklama",
           "descriptionHint": "Oyuncuların ne bekleyeceğini bilmeleri için galeriye bir veya iki cümle.",
+          "duo": {
+            "descriptionPlaceholder": "Huysuz deniz feneri bekçisi Greta ile fazlasıyla neşeli bir vergi müfettişi fırtınalı bir gece boyunca tartışıyor. Onları dinleyin veya bir taraf seçin.",
+            "titlePlaceholder": "Deniz Fenerinde Fırtınalı Gece"
+          },
           "encounter": {
             "descriptionPlaceholder": "Somurtkan deniz feneri bekçisi Greta'yı ziyaret et ve o gece ne gördüğünü öğren.",
             "titlePlaceholder": "Deniz Fenerindeki Greta"
@@ -745,15 +777,17 @@
         },
         "embed": {
           "copy": "Kodu kopyala",
-          "incomplete": "Kodu almak için ödeme yapacak anahtarı ve sayfayı seç.",
+          "incomplete": "Kod parçacığını almak için neyin ödeme yaptığını seçin.",
           "noKeys": "Ödeme yapmak için kullanabileceğin çalışan bir yapay zekâ anahtarın yok. Bir tane ekle veya kuruluşundan iste.",
-          "noPages": "Kuruluşunun henüz doğrulanmış bir sayfası yok. Kuruluş yöneticisi veya çalışanları kuruluş ayarlarından bir tane ekleyebilir.",
+          "noOrganisation": "Gömme özelliği bir kuruluşun oyunları içindir: atölyelerinde veya yöneticileri ve çalışanları tarafından yazılan oyunlar. Bu oyun herhangi bir kuruluşa ait değil.",
+          "noPages": "Önce kuruluşunuzun web sitesini kaydedin: oyunlarınızın çalışacağı sayfayı. Bir yönetici bunu onayladıktan sonra oyun orada başlayabilir.",
           "offNote": "Kapalıyken kod hiçbir şey göstermez. Yeniden açıldığında aynı kod çalışır.",
           "page": "Doğrulanmış sayfa",
           "pageHint": "Oyun yalnızca orada ve sayfa her başlatma isteğine onay verdikten sonra çalışır.",
           "paidBy": "Ödemeyi yapan",
           "paidByPlaceholder": "Bir anahtar seç",
           "payingNow": "Şimdi ödeme yapan",
+          "registerPage": "Web sitesini Kuruluşum → Web Siteleri bölümünden kaydedin",
           "snippet": "Web siten için kod",
           "snippetCss": "senin CSS'in",
           "snippetHint": "Oyunun görünmesini istediğin yere ekle ve öğeye istediğin yüksekliği ver.",
@@ -762,12 +796,14 @@
           "snippetVerifiedHint": "Sunucun ziyaretçinin ve bu sayfa görüntülemesinin kimliklerini ekler; sayfanın geri çağrısı her ikisini de alır.",
           "styleLink": "Kendi CSS'inle biçimlendir →",
           "toggle": "Bir web sitesine göm",
-          "toggleHint": "Bu oyunu, ChatGameLab'e ait başka hiçbir şey olmadan kuruluşunun doğrulanmış sayfasında gösterir. Ziyaretçiler konuk olarak oynar; seçtiğin anahtar ödeme yapar."
+          "toggleHint": "Bu oyunu, ChatGameLab'e ait başka hiçbir şey olmadan kuruluşunun doğrulanmış sayfasında gösterir. Ziyaretçiler konuk olarak oynar; seçtiğin anahtar ödeme yapar.",
+          "waitingForApproval": "Kuruluşun sayfası bir yöneticinin onayını bekliyor. O zamana kadar oyun orada başlamaz."
         },
         "fillIn": "Tüm bölümler yeşil olana kadar doldur.",
         "genre": {
           "pitch": {
             "adventure": "Oyuncu bir dünyayı keşfeder. Oyun neler olduğunu anlatır, görseller oluşturur ve puan tutar.",
+            "duo": "İki karakter sesli olarak birbiriyle konuşur. Oyuncu konuşmayı dinler veya sohbete katılır.",
             "encounter": "Oyuncu bir karakterle sesli olarak konuşur. Karakter rolünden çıkmaz ve anında yanıt verir."
           },
           "question": "Ne oluşturmak istiyorsun?"
@@ -817,6 +853,12 @@
               "systemMessageGameStart": "Oyunun nasıl başladığını anlat.",
               "systemMessageScenario": "Oyunun ne hakkında olduğunu anlat."
             },
+            "duo": {
+              "imageStyle": "Resimlerin birbiriyle uyumlu görünmesi için bir resim stili seçin.",
+              "name": "Oyununuzun henüz bir başlığı yok.",
+              "systemMessageGameStart": "Sahnenin nerede geçtiğini ve nasıl başladığını belirtin.",
+              "systemMessageScenario": "İki karakterin kim olduğunu belirtin."
+            },
             "encounter": {
               "imageStyle": "Görsellerin birbiriyle uyumlu olması için bir görsel stili seç.",
               "name": "Oyununun henüz bir başlığı yok.",
@@ -831,6 +873,10 @@
             "voiceStyleHint": "Hikâyenin sesli okunduğunda nasıl duyulacağı."
           },
           "builtInVoice": "Yerleşik ses",
+          "duo": {
+            "voiceStyle": "Karakterlerin sesleri",
+            "voiceStyleHint": "Her karaktere kendine özgü bir ses verilir."
+          },
           "encounter": {
             "voiceStyle": "Karakterin sesi",
             "voiceStyleHint": "Karakterin nasıl duyulacağı."
@@ -866,6 +912,20 @@
             "scenario": "Oyun ne hakkında?",
             "scenarioHint": "Dünya, oyuncunun rolü, hedef ve oyuncunun kazandığını nasıl anlayacağı.",
             "scenarioPlaceholder": "Oyuncu gizli bir hazine arayan, gizemli bir ormandaki kâşiftir…"
+          },
+          "duo": {
+            "firstCharacter": "İlk karakter",
+            "firstCharacterHint": "Kim olduğu: kişiliği, ne istediği, nasıl konuştuğu. İlk o konuşur.",
+            "firstCharacterPlaceholder": "Greta, lambasıyla baş başa bırakılmak isteyen huysuz bir deniz feneri bekçisi…",
+            "gameStart": "Neredeler ve nasıl başlıyor?",
+            "gameStartHint": "Başlangıçta ikisinin de bulunduğu sahne; ilk karakterin ilk sözleri buradan yazılır.",
+            "gameStartPlaceholder": "Fırtınalı bir gece. Otto sırılsıklam halde deniz fenerinin kapısını çalıyor…",
+            "scenario": "İki karakter kim?",
+            "scenarioHint": "Her birinin kim olduğu ve neden konuşacak ya da tartışacak bir şeyleri olduğu.",
+            "scenarioPlaceholder": "Greta, huysuz bir deniz feneri bekçisi…",
+            "secondCharacter": "İkinci karakter",
+            "secondCharacterHint": "Kim olduğu ve bu ikisinin neden konuşacak ya da tartışacak bir şeyleri olduğu.",
+            "secondCharacterPlaceholder": "Her mumu saymaya gelmiş, fazlasıyla neşeli bir vergi müfettişi olan Otto…"
           },
           "encounter": {
             "gameStart": "Oyuncuyu nasıl selamlıyor?",
@@ -907,7 +967,8 @@
       },
       "genres": {
         "adventure": "Macera",
-        "npc-live": "Karşılaşma"
+        "npc-duo": "Tartışma",
+        "npc-live": "Karakter"
       },
       "importExport": {
         "coverFailed": "Oyun içe aktarıldı, ancak kapak görseli kontrol edilemedi. Düzenleyicide yeni bir tane çizdirebilirsin.",
@@ -922,6 +983,7 @@
         "exportButton": "Oyunu Dışa Aktar",
         "importButton": "Oyunu İçe Aktar"
       },
+      "newGame": "Yeni oyun",
       "playNow": "Hemen Oyna",
       "privacyHint": "Bir oyunun adı ve açıklaması herkese açık şekilde görünür olabilir. Lütfen gerçek isimler kullanmayın.",
       "privacyHintShort": "Herkese açık şekilde görünebilir – lütfen gerçek isim kullanmayın.",
@@ -961,7 +1023,7 @@
         "unlimitedSessions": "Sınırsız oturum",
         "update": "Paylaşım Bağlantısını Güncelle",
         "workshopCreateHint": "Bu oyun için bir paylaşım bağlantısı oluşturun. Atölyenin API anahtarı otomatik olarak seçilir ve maliyeti karşılar.",
-        "workshopDescription": "Bu bağlantı \"{{name}}\" atölyesi içinde oluşturuldu – konuklar atölyenin API anahtarı ve istem kısıtlamalarıyla oynar.",
+        "workshopDescription": "Bu bağlantı \"{{name}}\" atölyesi içinde oluşturuldu – konuklar atölyenin API anahtarı ve çocuk ve genç koruma kuralıyla oynar.",
         "workshopShare": "Atölye paylaşımı",
         "workshopShareDescription": "Bu bağlantı \"{{name}}\" atölyesinde oluşturuldu - misafirler atölyenin API anahtarını kullanarak oynar.",
         "workshopSubsection": "Atölye Paylaşım Bağlantısı"
@@ -1073,6 +1135,7 @@
           "scifi": "Bilim Kurgu",
           "snowy": "Karlı",
           "space": "Uzay",
+          "spielfieber": "Spielfieber",
           "steampunk": "Steampunk",
           "storybook": "Masal Kitabı",
           "sunshine": "Güneş Işığı",
@@ -1194,6 +1257,7 @@
     "leaveTitle": "Organizasyondan Ayrıl",
     "leaveWarning": "Organizasyon kaynaklarına ve üyelerine erişiminizi kaybedeceksiniz.",
     "list": {
+      "clearFilters": "Temizle",
       "clearPicks": "Tümünü göster",
       "clearSearch": "Aramayı temizle",
       "filter": "Filtre",
@@ -1243,6 +1307,8 @@
       "apiKeys": {
         "aboutDescription": "Burada paylaşılan API anahtarları, kuruluşunuzdaki tüm üyeler tarafından oyun oynamak için kullanılabilir.",
         "aboutTitle": "Organizasyon API Anahtarları",
+        "addAndShare": "Ekle ve paylaş",
+        "addKey": "Anahtar ekle",
         "allPlatforms": "Tüm platformlar",
         "allowPublicSponsoring": "Herkese açık sponsorluğa izin ver",
         "allowPublicSponsoringDesc": "Bu anahtar tüm kullanıcılar için oyun sponsorluğunda kullanılabilir.",
@@ -1256,6 +1322,9 @@
         },
         "keyName": "Anahtar Adı",
         "loadError": "Organizasyon API anahtarları yüklenemedi.",
+        "modeNew": "Yeni bir anahtar",
+        "modeOwn": "Anahtarlarımdan biri",
+        "newKeyHint": "Anahtar, API anahtarları sayfanızdaki gibi sizin olur ve kuruluşla paylaşılır.",
         "noKeys": "Bu organizasyonla henüz API anahtarı paylaşılmadı.",
         "noResults": "Aramanızla eşleşen API anahtarı yok.",
         "notAuthorized": "Organizasyon API anahtarlarını yönetme izniniz yok. Bu sayfaya yalnızca başkanlar ve öğretmenler erişebilir.",
@@ -1268,7 +1337,7 @@
         "selectKeyPlaceholder": "Paylaşmak için bir anahtar seçin...",
         "share": "Paylaş",
         "shareKey": "Anahtarı Paylaş",
-        "shareKeyTitle": "API Anahtarını Organizasyonla Paylaş",
+        "shareKeyTitle": "Kuruluşa API anahtarı ekle",
         "showDetails": "Ayrıntıları göster",
         "title": "Organizasyon API Anahtarları"
       },
@@ -1319,13 +1388,13 @@
       "promoteToHead": "Başkan Yap",
       "promoteWarning": "Bu kullanıcı, organizasyon üyelerini yönetme ve öğretmen davet etme yetkisi kazanacak.",
       "promptConstraintsFallbackEmpty": "(yapılandırılmadı)",
-      "promptConstraintsFallbackHint": "Kuruluş için herhangi bir kısıtlama yapılandırılmamış. Oyuncunun yaş grubu için site genelindeki varsayılan uygulanır:",
+      "promptConstraintsFallbackHint": "Kuruluş herhangi bir çocuk ve genç koruma kuralı belirlemiyor. Oyuncunun yaş grubu için site genelindeki varsayılan kural uygulanır:",
       "promptConstraintsFallbackTitle": "Etkin site genelindeki geri dönüş",
       "promptConstraintsFallbackU13": "13 yaş altı",
       "promptConstraintsFallbackU13p": "13–17 (ebeveyn izniyle)",
       "promptConstraintsFallbackU18": "18 ve üzeri",
-      "promptConstraintsHint": "Bu kuruluşta tüm oturumlar için ek yapay zekâ talimatları. Atölye düzeyinde bir kısıtlama ayarlanmadığında ve bağlantı yoluyla paylaşılan oyunlarda geçerlidir.",
-      "promptConstraintsLabel": "Kuruluşun çocuk ve genç koruma istemi kısıtlaması",
+      "promptConstraintsHint": "Bu kuruluştaki tüm oturumlar için ek yapay zekâ talimatları. Atölye bir çocuk ve genç koruma kuralı belirlemediğinde ve bağlantıyla paylaşılan oyunlarda geçerlidir.",
+      "promptConstraintsLabel": "Kuruluşun çocuk ve genç koruma kuralı",
       "promptConstraintsPlaceholder": "ör. Hikâyeyi yaşa uygun tut ve şiddet içeriğinden kaçın.",
       "publicPage": {
         "changeLinkMessage": "Sayfa bundan sonra {{url}} adresinde olacaktır.",
@@ -1379,11 +1448,15 @@
       "verifiedPages": {
         "add": "Sayfa kaydet",
         "addTitle": "Sayfa kaydet",
+        "approved": "Onaylandı",
         "callbackShown": "Geri çağrı: {{url}}",
         "callbackUrl": "Geri çağrı adresi",
         "callbackUrlHint": "ChatGameLab her başlatmadan önce burada sorar. Birkaç saniye içinde yanıt vermelidir.",
         "copied": "Kopyalandı",
         "copy": "Sayfa kimliğini kopyala",
+        "edit": "Sayfayı değiştir",
+        "editReapproval": "Bu adres başka bir sitede ve yeniden bir yöneticinin onayını bekliyor; o zamana kadar oyunlar burada başlamaz. Aynı sitedeki farklı bir bağlantı noktası veya yol onaylanmış olarak kalır.",
+        "editTitle": "Sayfayı değiştir",
         "empty": "Henüz doğrulanmış sayfa yok.",
         "intro": "Doğrulanmış sayfa, kuruluşunun web sitesinde gömülü oyunlarını gösterebilecek bir sayfadır. Bir oyun orada başlamadan önce ChatGameLab, aşağıdaki sayfa kimliği ile sayfanın ilettiği ziyaretçi ve istek kimliklerini kullanarak sayfanın geri çağrısına oyunun başlatılıp başlatılmayacağını sorar. Oyunu yalnızca {\"ok\": true} yanıtı başlatır.",
         "pageId": "Sayfa kimliği",
@@ -1391,7 +1464,9 @@
         "pageUrlHint": "Oyunlarının gömüldüğü sayfa. Oyunları yalnızca bu web sitesi gösterebilir.",
         "remove": "Sayfayı kaldır",
         "removeTitle": "Bu sayfa kaldırılsın mı?",
-        "removeWarning": "{{page}} için gömülen oyunlar, başka bir sayfaya atanana kadar orada başlatılamaz."
+        "removeWarning": "{{page}} için gömülen oyunlar, başka bir sayfaya atanana kadar orada başlatılamaz.",
+        "save": "Sayfayı kaydet",
+        "waiting": "Bir yöneticinin onayı bekleniyor"
       },
       "workshops": {
         "activate": "Aktifleştir",
@@ -1463,10 +1538,10 @@
         "participantLinkTitleNamed": "{{name}} için yeniden giriş bağlantısı",
         "participantName": "Katılımcı adı",
         "participants": "Katılımcılar",
-        "promptConstraintsFallbackOrg": "Kuruluş kısıtlaması varsayılan olarak kullanılıyor: {{constraint}}",
-        "promptConstraintsFallbackSite": "Site kısıtlaması varsayılan olarak kullanılıyor",
+        "promptConstraintsFallbackOrg": "Kuruluşun çocuk ve genç koruma kuralı varsayılan olarak kullanılıyor: {{constraint}}",
+        "promptConstraintsFallbackSite": "Sitenin çocuk ve genç koruma kuralı varsayılan olarak kullanılıyor",
         "promptConstraintsHint": "Bu atölyedeki tüm oturumlar için ek yapay zekâ talimatları.",
-        "promptConstraintsLabel": "Çocuk ve genç koruma istemi kısıtlaması",
+        "promptConstraintsLabel": "Çocuk ve genç koruma kuralı",
         "promptConstraintsPlaceholder": "örn. Hikayeyi yaşa uygun tutun ve şiddet içeriğinden kaçının.",
         "removeParticipant": "Katılımcıyı kaldır",
         "removeParticipantConfirm": "\"{{name}}\" adlı katılımcıyı bu atölyeden çıkarmak istediğinizden emin misiniz?",
@@ -1514,13 +1589,25 @@
     "noRole": "Rol yok",
     "notifications": {
       "accept": "Kabul Et",
+      "acknowledgeAll": "Tümünü okundu olarak işaretle",
       "decline": "Reddet",
       "declineConfirm": "Bu daveti reddetmek istediğinizden emin misiniz?",
       "declineTitle": "Daveti Reddet",
       "empty": "Yeni bildirim yok.",
       "inviteDescription": "{{role}} olarak katılmaya davet edildiniz.",
       "inviteToJoin": "Organizasyon Daveti",
+      "nothingNew": "Yeni bir şey yok",
       "title": "Bildirimler",
+      "titleWithCount_one": "Bildirimler: {{count}} yeni",
+      "titleWithCount_other": "Bildirimler: {{count}} yeni",
+      "types": {
+        "newOrganisations_one": "Yeni bir kuruluş kaydoldu",
+        "newOrganisations_other": "{{count}} yeni kuruluş kaydoldu",
+        "pageApproved": "Kuruluşunuzun doğrulanmış sayfası onaylandı",
+        "pageTurnedDown": "Kuruluşunuzun doğrulanmış sayfası onaylanmadı veya sayfanın onayı geri çekildi",
+        "pagesWaiting_one": "Bir doğrulanmış sayfa onay bekliyor",
+        "pagesWaiting_other": "{{count}} doğrulanmış sayfa onay bekliyor"
+      },
       "workshopInvite": "Atölye Daveti",
       "workshopInviteDescription": "Bu atölyeye katılmanız için davet edildiniz."
     },
@@ -1532,6 +1619,15 @@
       "title": "Kuruluş askıya alındı"
     },
     "play": {
+      "advanced": {
+        "edited": "değiştirildi",
+        "hint": "Bu oturumun başladığı komutları uyarlayın. Değiştirilen komutlar işaretlenir; diğer her şey oyunun oluşturulduğu haliyle çalışır. Oyun sırasında komutlar İçgörüler bölümünde değiştirilmeye devam edilebilir.",
+        "loading": "Komutlar yükleniyor…",
+        "reset": "Özgün haline dön",
+        "start": "Oyunu başlat",
+        "title": "Gelişmiş ayarlar",
+        "unavailable": "Komutlar yüklenemedi."
+      },
       "cloneGame": "Oyunu oyunlarıma kopyala",
       "empty": {
         "description": "Filtrelerinizi değiştirin veya yeni oyunlar için daha sonra tekrar bakın.",
@@ -1626,16 +1722,16 @@
     "searchPlaceholder": "Üyelerde ara...",
     "serverSettings": {
       "constraints": {
-        "description": "Oyuncunun yaş grubuna göre zorunlu yapay zekâ kuralları tanımlayın. Bu kısıtlamalar her yapay zekâ yanıtına eklenir. Atölye modu dışındaki tüm giriş yapmış kullanıcılar için geçerlidir.",
-        "title": "Yaşa dayalı kısıtlama istemleri",
+        "description": "Oyuncunun yaş grubuna göre zorunlu yapay zekâ kuralları tanımlayın. Bu çocuk ve genç koruma kuralları her yapay zekâ çağrısıyla birlikte gönderilir. Atölye modu dışındaki tüm giriş yapmış kullanıcılar için geçerlidir.",
+        "title": "Yaş grubuna göre çocuk ve genç koruma kuralları",
         "u13Hint": "13-17 yaş arasındaki, dosyada ebeveyn izni bulunmayan oturum açmış kullanıcıların her bir yapay zeka istemine eklenir.",
-        "u13Label": "13–17 yaş arası, ebeveyn onayı olmayan kullanıcılar için kısıtlama (U13)",
+        "u13Label": "13-17 yaş arası, ebeveyn izni olmayan kullanıcılar için çocuk ve genç koruma kuralı (U13)",
         "u13Placeholder": "ör. Tüm içeriği gençler için kesinlikle yaşa uygun tutun. Şiddet, romantik içerik veya korku teması yok.",
         "u13pHint": "13-17 yaş arasındaki, dosyada ebeveyn izni bulunan oturum açmış kullanıcıların her bir yapay zeka istemine eklenir.",
-        "u13pLabel": "13–17 yaş arası, ebeveyn onayı olan kullanıcılar için kısıtlama (U13p)",
+        "u13pLabel": "13-17 yaş arası, ebeveyn izni olan kullanıcılar için çocuk ve genç koruma kuralı (U13p)",
         "u13pPlaceholder": "örn. Ebeveynleri izin vermiş ergenler için yaşa uygun içerik. Bazı olgun temalara izin verilir, açık içerik yok.",
         "u18Hint": "18 yaş ve üzeri giriş yapmış kullanıcılar için her yapay zekâ istemine eklenir.",
-        "u18Label": "18 yaş ve üzeri kullanıcılar için kısıtlama (U18)",
+        "u18Label": "18 yaş ve üzeri kullanıcılar için çocuk ve genç koruma kuralı (U18)",
         "u18Placeholder": "ör. İçeriği uygun tutun. Açık şiddet veya cinsel içerikten kaçının."
       },
       "defaultTier": {
@@ -1764,6 +1860,49 @@
         "viewAll": "Tüm Oyunlar"
       }
     },
+    "continue": {
+      "go": "Devam et",
+      "hint": "kaldığın yerden devam et",
+      "messages_one": "{{count}} mesaj",
+      "messages_other": "{{count}} mesaj",
+      "title": "Oyuna devam et"
+    },
+    "fresh": {
+      "by": "{{name}} tarafından",
+      "empty": "Henüz yeni oyun yok.",
+      "title": "Yeni oyunlar",
+      "viewAll": "Galeriyi gör"
+    },
+    "hero": {
+      "create": "Oluştur",
+      "greeting": "Merhaba {{name}}. Bugün ne \u001b[mark\u001bbuilde\u001b[/mark\u001b edelim?",
+      "greetingNoName": "Merhaba. Bugün ne \u001b[mark\u001bbuilde\u001b[/mark\u001b edelim?",
+      "journal": "Laboratuvar günlüğü · {{date}}",
+      "promptLabel": "Bir oyun fikri anlatın",
+      "promptPlaceholder": "Bir oyun fikri anlatın… yapay zekâ onu şekillendirmenize yardımcı olur"
+    },
+    "lab": {
+      "gamesCreated": "icat ettiğiniz oyunlar",
+      "gamesOnPlatform": "laboratuvardaki oyunlar",
+      "playsOfOwnGames": "oyunlarınızın oynanma sayısı",
+      "title": "Şimdiye kadarki laboratuvarınız"
+    },
+    "links": {
+      "about": "ChatGameLab hakkında",
+      "educators": "Eğitimciler için",
+      "jff": "JFF – Medya Eğitimi Enstitüsü"
+    },
+    "ownGames": {
+      "empty": "Henüz oyun yok. Yukarıda bir fikir anlatın ve ilk oyununuzu oluşturun!",
+      "title": "Oyunlarınız",
+      "viewAll": "Tüm oyunlarınız"
+    },
+    "popular": {
+      "hint": "herkesin şu anda oynadığı",
+      "plays_one": "{{count}} oynanma",
+      "plays_other": "{{count}} oynanma",
+      "title": "En popüler"
+    },
     "quickActions": {
       "createNewGame": "Yeni Oyun Oluştur",
       "createWorkshop": "Atölye Oluştur",
@@ -1772,6 +1911,7 @@
       "startNewGame": "Yeni Oyun Başlat",
       "title": "Hızlı Eylemler"
     },
+    "someone": "birisi",
     "untitled": "Adsız",
     "untitledGame": "Adsız Oyun",
     "version": {
@@ -1779,6 +1919,10 @@
         "message": "Ön uç sürümü \u0003frontendVersion\u0003{{frontendVersion}}\u0003/frontendVersion\u0003 arka uç sürümü \u0003backendVersion\u0003{{backendVersion}}\u0003/backendVersion\u0003 ile eşleşmiyor. Bu beklenmeyen davranışlara yol açabilir. Sorun devam ederse destekle iletişime geçin.",
         "title": "Sürüm Uyumsuzluğu Tespit Edildi"
       }
+    },
+    "workshops": {
+      "title": "Atölyeleriniz",
+      "viewAll": "Tüm atölyeler"
     }
   },
   "errors": {
@@ -1908,13 +2052,15 @@
     "dashboard": "Pano",
     "games": "Oyunlar",
     "groups": "Gruplar",
+    "mainMenu": "Ana menü",
     "manageOrganizations": "Organizasyonları Yönet",
     "manageUsers": "Kullanıcıları Yönet",
+    "me": "Ben",
     "myGames": "Oyunlarım",
     "myOrganization": "Organizasyonum",
     "myWorkshop": "Atölyem",
     "orgApiKeys": "API Anahtarları",
-    "orgConstraints": "Çocuk ve genç koruma istemi kısıtlaması",
+    "orgConstraints": "Çocuk ve genç koruma kuralı",
     "orgMembers": "Üyeler",
     "orgVerifiedPages": "Web siteleri",
     "orgWorkshops": "Atölyeler",
@@ -1926,14 +2072,19 @@
   "playbackEngine": {
     "blocks": {
       "adapted-style": "Stil",
+      "cast": "Sesleri seç",
+      "cast-brief": "Karakterler",
       "condense-scenario": "Senaryoyu kısalt",
       "condensed-scenario": "Senaryo",
+      "director": "Yönetmen",
       "expand": "Anlat",
       "gallery-image": "Galeri görseli",
       "greeting": "Metin oluştur",
       "image": "Resim çiz",
       "image-prompt": "Resmi tarif et",
       "image-style": "Stili uyarla",
+      "live-a": "İlk karakter",
+      "live-b": "İkinci karakter",
       "live-session": "Karakter",
       "observer": "Yönetmen",
       "opening-brief": "Nasıl başlar",
@@ -2015,6 +2166,31 @@
       "turnFailed": "Hikâye buradan devam edemedi. Tekrar gönder veya başka bir şey dene.",
       "voiceFailed": "Ses bağlantısı kurulamadı."
     },
+    "guardrail": {
+      "edit": "Koruma kuralını değiştir",
+      "editHint": "Bir laboratuvar deneyi: Yeni koruma kuralı bir sonraki yapay zekâ çağrısından itibaren geçerli olur; olanlar değişmez.",
+      "edited": "düzenlendi",
+      "failed": "Kaydedilemedi",
+      "frequency": "Tekrarlanma",
+      "frequencyFailed": "Ayarlanamadı",
+      "frequencyHint": "Her adımın koruma kuralını ne sıklıkla tekrarladığı: 1 her çağrıda, 10 her onuncu çağrıda.",
+      "frequencySet": "Ayarla",
+      "intro": "Bu oyunun her yapay zekâ çağrısının uyduğu çocuk ve genç koruma kuralı.",
+      "levelOrganisation": "Kuruluş “{{name}}”",
+      "levelSite13": "Site kuralı, ebeveyn izni olmadan 13–17 yaş",
+      "levelSite13p": "Site kuralı, ebeveyn izniyle 13–17 yaş",
+      "levelSite18": "Site kuralı, 18 yaş ve üzeri",
+      "levelWorkshop": "Atölye “{{name}}”",
+      "none": "Bu oturumda koruma kuralı yok.",
+      "readBy": "Uyan",
+      "reset": "Çözümlenen koruma kuralına dön",
+      "resolved": "Çözümlendiği haliyle",
+      "save": "Kaydet",
+      "saved": "Kaydedildi: bir sonraki çağrıdan itibaren geçerli",
+      "saving": "Kaydediliyor…",
+      "source": "Kaynak",
+      "sourceUnknown": "Bilinmiyor"
+    },
     "insights": {
       "close": "Kapat",
       "collapse": "Daralt",
@@ -2027,6 +2203,7 @@
       "pickBlock": "Ne yaptığını görmek için işlem akışında bir bloğa veya bağlantıya tıkla.",
       "settingEmpty": "Oyun bunu boş bırakıyor.",
       "show": "İçgörüleri göster",
+      "tabGuardrail": "Koruma kuralı",
       "tabProblems": "Sorunlar",
       "tabSelected": "Seçili",
       "tabUsage": "Kullanım"
@@ -2073,6 +2250,32 @@
       "unknown": "Bu oyun oturumu mevcut değil.",
       "unreachable": "Yapay zekâ sağlayıcısı şu anda yanıt vermiyor, bu nedenle oyun devam edemiyor. Birkaç dakika sonra tekrar dene."
     },
+    "promptNames": {
+      "condense-scenario": "Senaryoyu kısalt",
+      "conversation-policy": "Karakter nasıl konuşur",
+      "director": "Yönetmen",
+      "expand": "Bir turu anlat",
+      "game-master": "Oyun yöneticisi (Sistem Mesajı)",
+      "greeting": "İlk sözler",
+      "image-style": "Stili uyarla",
+      "opening": "Açılış",
+      "opening-expand": "Açılışı anlat",
+      "rephrase": "Eylemi yeniden ifade et",
+      "rephrase-audio": "Konuşmayı anla",
+      "scene": "Resim çerçevesi",
+      "summary": "Özet talebi",
+      "voice-brief": "Sesi tanımla"
+    },
+    "prompts": {
+      "edited": "düzenlendi",
+      "failed": "Kaydedilemedi",
+      "hint": "Yanıtların nasıl değiştiğini görmek için bir komutu değiştirin. Yeni metin bir sonraki çağrıdan itibaren geçerli olur.",
+      "reset": "Özgün haline dön",
+      "save": "Kaydet",
+      "saved": "Kaydedildi: bir sonraki çağrıdan itibaren geçerli",
+      "saving": "Kaydediliyor…",
+      "title": "Komutlar"
+    },
     "relay": {
       "busy": "Relay: başka bir sekme tarafından kullanılıyor",
       "connected": "Relay: bağlı",
@@ -2105,15 +2308,24 @@
       "adapted-style\u0003eimage-prompt": "stil",
       "adapted-style\u0003eimage-style": "istek",
       "adapted-style\u0003estart-game": "hazır",
+      "cast\u001blive-a:voiceA": "ses",
+      "cast\u001blive-b:voiceB": "ses",
+      "cast\u001bstart-game": "hazır",
+      "cast-brief\u001bcast": "karakterler",
       "condense-scenario\u0003econdensed-scenario": "yanıt",
       "condensed-scenario\u0003econdense-scenario": "istek",
       "condensed-scenario\u0003eimage-prompt": "senaryo",
       "condensed-scenario\u0003estart-game": "hazır",
+      "director\u001blive-a": "müdahale",
+      "director\u001blive-b": "müdahale",
       "gallery-image\u0003estart-game": "hazır",
       "greeting\u0003elive-session": "ilk sözler",
       "greeting\u0003estart-game": "hazır",
+      "greeting\u001blive-a": "ilk sözler",
       "image-prompt\u0003eimage": "istem",
       "image-style\u0003eadapted-style": "yanıt",
+      "live-a\u001bdirector": "döküm",
+      "live-b\u001bdirector": "döküm",
       "live-session\u0003eobserver": "döküm",
       "observer\u0003elive-session": "ekleme",
       "opening-brief\u0003egreeting": "özet",
@@ -2122,6 +2334,8 @@
       "outline\u0003eprops-store": "değişiklikler",
       "player-input-audio\u0003elive-session": "konuşma",
       "player-input-audio\u0003erephrase-audio": "konuşma",
+      "player-input-audio\u001blive-a": "konuşma",
+      "player-input-audio\u001blive-b": "konuşma",
       "player-input-text\u0003erephrase": "eylem",
       "portrait\u0003estart-game": "hazır",
       "portrait-prompt\u0003eportrait": "istem",
@@ -2130,6 +2344,8 @@
       "rephrase-audio\u0003eoutline": "eylem",
       "start-game\u0003elive-session": "ipucu",
       "start-game\u0003eoutline": "istem",
+      "start-game\u001blive-a": "işaret",
+      "start-game\u001blive-b": "işaret",
       "voice\u0003elive-session:secondary": "ses tarzı",
       "voice\u0003elive-session:voice": "ses",
       "voice\u0003estart-game": "hazır",

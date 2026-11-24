@@ -1,41 +1,57 @@
-/* The bell only shows when something waits for the user, so it rings: a
-   short swing every few seconds, hung from its top. */
-.ringing {
-  animation: ring 2.5s ease-in-out infinite;
+/* The bell wiggles once when it has more to say: a short swing, hung from
+   its top. The element is mounted anew for each wiggle. */
+.wiggle {
+  display: inline-flex;
+  animation: wiggle 0.9s ease-in-out 1;
   transform-origin: 50% 4px;
 }
 
-@keyframes ring {
+@keyframes wiggle {
   0%,
-  40%,
   100% {
     rotate: 0deg;
   }
-  5% {
+  12% {
     rotate: 18deg;
   }
-  10% {
+  25% {
     rotate: -16deg;
   }
-  15% {
+  38% {
     rotate: 12deg;
   }
-  20% {
+  50% {
     rotate: -10deg;
   }
-  25% {
+  62% {
     rotate: 6deg;
   }
-  30% {
+  75% {
     rotate: -4deg;
-  }
-  35% {
-    rotate: 0deg;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ringing {
+  .wiggle {
     animation: none;
   }
+}
+
+/* One entry of the panel: the whole row leads to its target. */
+.entry {
+  display: flex;
+  gap: var(--mantine-spacing-sm);
+  align-items: flex-start;
+  width: 100%;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-sm);
+}
+
+.entry:hover,
+.entry:focus-visible {
+  background: var(--mantine-color-gray-1);
+}
+
+.panel {
+  width: min(380px, calc(100vw - 32px));
 }

@@ -109,6 +109,13 @@ export {
 } from "./useSystem";
 export type { CheckMark, CheckRefused } from "./useSystem";
 
+// Notifications
+export {
+  useNotifications,
+  useAcknowledgeNotification,
+  useAcknowledgeAllNotifications,
+} from "./useNotifications";
+
 // Invites
 export {
   useRevokeInvite,

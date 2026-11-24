@@ -361,6 +361,25 @@ or take it back. If user is member of an organisation it can shared with that or
 All members of that organisation can then use the key within that organisation 
 and its workshops. 
 
+== Notifications
+
+A bell beside the avatar tells a user about important facts that are true
+now and need their acknowledgement. It shows what is true at the moment: an
+entry goes once the user acknowledges it or once it stops being true, and
+the next new fact starts a fresh entry. Facts of one kind fold into one
+entry with their number. Each user acknowledges for themselves; a user hears
+of facts from when they got their role on.
+
+- *Admins* hear of new organisations, and of verified pages waiting for
+  their approval; that count drops by itself as pages are decided or
+  removed.
+- *Head and staff* hear that an admin approved their organisation's verified
+  page, or turned it down or withdrew the approval. Only an admin's decision
+  counts: a change of site by the organisation itself stays silent.
+
+An entry leads to where the user acts on it. The bell is for signed-in
+users with a role of their own; guests play without it.
+
 == Data
 
 Erasing a user removes their sessions along with their account.

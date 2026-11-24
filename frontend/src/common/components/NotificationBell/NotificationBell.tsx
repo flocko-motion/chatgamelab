@@ -1,324 +1,201 @@
-import { useEffect, useRef, useCallback, useMemo, useState } from "react";
 import {
   ActionIcon,
+  Badge,
+  Card,
+  Center,
+  Divider,
+  Group,
   Indicator,
   Modal,
+  Popover,
+  ScrollArea,
   Stack,
-  Text,
-  Card,
-  Group,
-  Badge,
-  Button,
-  Loader,
-  Center,
+  UnstyledButton,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import { IconBell } from "@tabler/icons-react";
+import {
+  IconBell,
+  IconBuildingCommunity,
+  IconCircleCheck,
+  IconCircleX,
+  IconHourglass,
+  type Icon,
+} from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "@tanstack/react-router";
-import { useAuth } from "@/providers/AuthProvider";
-import { useAcceptInvite, useDeclineInvite, useMyInvites } from "@/api/hooks";
-import type { InviteCardView } from "@/api/types";
+import { ActionButton, CancelButton, DangerButton, TextButton } from "@components/buttons";
+import { BodyText, HelperText } from "@components/typography";
+import type { InviteCardView, NotificationType, NotificationView } from "@/api/types";
 import { useTranslateRole } from "@/common/lib/roles";
-import { ROUTES } from "@/common/routes/routes";
+import { formatRelativeTime } from "@/common/lib/formatters";
+import { useNotificationBell, type BellInvite } from "@/common/hooks/useNotificationBell";
 import classes from "./NotificationBell.module.css";
-import { AdminRegistrationBell } from "./AdminRegistrationBell";
 
-const SEEN_INVITES_KEY = "cgl_seen_invites";
+const TYPE_ICONS: Record<NotificationType, { icon: Icon; color: string }> = {
+  newOrganisations: { icon: IconBuildingCommunity, color: "var(--mantine-color-accent-7)" },
+  pagesWaiting: { icon: IconHourglass, color: "var(--mantine-color-accent-7)" },
+  pageApproved: { icon: IconCircleCheck, color: "var(--mantine-color-green-7)" },
+  pageTurnedDown: { icon: IconCircleX, color: "var(--mantine-color-red-7)" },
+};
 
-function getSeenInviteIds(): Set<string> {
-  try {
-    const stored = localStorage.getItem(SEEN_INVITES_KEY);
-    if (!stored) return new Set();
-    return new Set(JSON.parse(stored));
-  } catch {
-    return new Set();
-  }
-}
-
-function markInvitesAsSeen(inviteIds: string[]): void {
-  try {
-    const seen = getSeenInviteIds();
-    inviteIds.forEach((id) => seen.add(id));
-    localStorage.setItem(SEEN_INVITES_KEY, JSON.stringify([...seen]));
-  } catch {
-    // Ignore storage errors
-  }
-}
-
+/**
+ * The header's bell: grey with nothing new, red with one entry, red with
+ * their number with more. It wiggles once each time there is more; its
+ * panel lists the caller's notifications and invites.
+ */
 export function NotificationBell() {
   const { t } = useTranslation("common");
-  const { backendUser, retryBackendFetch, standing } = useAuth();
-  const [opened, { open, close }] = useDisclosure(false);
-  const [
-    declineModalOpened,
-    { open: openDeclineModal, close: closeDeclineModal },
-  ] = useDisclosure(false);
-  const [inviteToDecline, setInviteToDecline] =
-    useState<InviteCardView | null>(null);
-  const hasAutoOpened = useRef(false);
-
-  // Admins don't have invites - disable query and hide the bell
-  const isAdmin = backendUser?.role?.role === "admin";
-
-  const { data: invites, isLoading } = useMyInvites(!isAdmin); // Don't fetch invites for admins
-
-  const navigate = useNavigate();
-
-  const [acceptingInvite, setAcceptingInvite] =
-    useState<InviteCardView | null>(null);
-
-  const acceptMutation = useAcceptInvite({
-    onSuccess: () => {
-      // Mark all invites as seen to prevent auto-reopen
-      const inviteIds = pendingInvites
-        .map((inv) => inv.id)
-        .filter(Boolean) as string[];
-      if (inviteIds.length > 0) {
-        markInvitesAsSeen(inviteIds);
-      }
-
-      retryBackendFetch(); // Refresh user's organization data
-      close(); // Close the notifications modal
-
-      const isWorkshopInvite = !!acceptingInvite?.workshopId;
-      setAcceptingInvite(null);
-
-      // Navigate to the appropriate page
-      setTimeout(() => {
-        if (isWorkshopInvite) {
-          navigate({ to: ROUTES.MY_WORKSHOP as "/" });
-        } else {
-          navigate({ to: "/my-organization" });
-        }
-      }, 100);
-    },
-  });
-
-  const declineMutation = useDeclineInvite({
-    onSuccess: () => {
-      closeDeclineModal();
-      setInviteToDecline(null);
-      // If no more pending invites, close the main modal
-      if (pendingInvites.length <= 1) {
-        handleClose();
-      }
-    },
-  });
-
-  /* eslint-disable react-hooks/preserve-manual-memoization -- React Compiler limitation */
-  const pendingInvites = useMemo(
-    () => invites?.filter((inv) => inv.status === "pending") || [],
-    [invites],
-  );
-  /* eslint-enable react-hooks/preserve-manual-memoization */
-  const pendingCount = pendingInvites.length;
-
-  // Check for unseen invites
-  const seenIds = getSeenInviteIds();
-  const unseenInvites = pendingInvites.filter(
-    (inv) => inv.id && !seenIds.has(inv.id),
-  );
-  const hasUnseenInvites = unseenInvites.length > 0;
-
-  // Mark invites as seen when modal closes
-  /* eslint-disable react-hooks/preserve-manual-memoization -- React Compiler limitation */
-  const handleClose = useCallback(() => {
-    const inviteIds = pendingInvites
-      .map((inv) => inv.id)
-      .filter(Boolean) as string[];
-    if (inviteIds.length > 0) {
-      markInvitesAsSeen(inviteIds);
-    }
-    close();
-  }, [pendingInvites, close]);
-  /* eslint-enable react-hooks/preserve-manual-memoization */
-
-  // Auto-open modal once if there are unseen invites
-  useEffect(() => {
-    if (!isLoading && hasUnseenInvites && !hasAutoOpened.current && !opened) {
-      hasAutoOpened.current = true;
-      open();
-    }
-  }, [isLoading, hasUnseenInvites, opened, open]);
-
-  const translateRole = useTranslateRole();
-
-  const isWorkshopInvite = (invite: InviteCardView) =>
-    !!invite.workshopId;
-
-  const getInviteTitle = (invite: InviteCardView) => {
-    if (isWorkshopInvite(invite)) {
-      return t("notifications.workshopInvite");
-    }
-    return t("notifications.inviteToJoin");
-  };
-
-  const getInviteTarget = (invite: InviteCardView) => {
-    if (isWorkshopInvite(invite)) {
-      const wsName = invite.workshopName || invite.workshopId;
-      const orgName = invite.institutionName;
-      return orgName ? `${wsName} (${orgName})` : wsName;
-    }
-    return invite.institutionName || invite.institutionId || "-";
-  };
-
-  const handleAccept = (invite: InviteCardView) => {
-    setAcceptingInvite(invite);
-    acceptMutation.mutate(invite.id!);
-  };
-
-  const handleDecline = (invite: InviteCardView) => {
-    setInviteToDecline(invite);
-    openDeclineModal();
-  };
-
-  const confirmDecline = () => {
-    if (inviteToDecline?.id) {
-      declineMutation.mutate(inviteToDecline.id, {
-        onSuccess: () => {
-          closeDeclineModal();
-          setInviteToDecline(null);
-        },
-      });
-    }
-  };
-
-  // Admins have no invites; whoever may suspend organisations is told about
-  // the organisations registered lately instead.
-  if (standing.maySuspendInstitutions) {
-    return <AdminRegistrationBell />;
-  }
-  if (isAdmin) {
-    return null;
-  }
-
-  // The bell shows only while something waits; its dialogs stay until closed
-  // (declining the last invite closes them itself).
-  if (pendingCount === 0 && !opened && !declineModalOpened) {
-    return null;
-  }
+  const bell = useNotificationBell();
+  const empty = bell.count === 0;
 
   return (
     <>
-      <Indicator
-        inline
-        label={pendingCount}
-        size={18}
-        offset={4}
-        position="top-end"
-        // white on the red bell; the theme's autoContrast writes the count dark
-        color="white"
-        disabled={pendingCount === 0}
+      <Popover
+        opened={bell.opened}
+        onClose={bell.close}
+        position="bottom-end"
+        withArrow
+        shadow="md"
+        trapFocus
       >
-        <ActionIcon
-          variant="filled"
-          color="red"
-          size="lg"
-          radius="xl"
-          onClick={open}
-          aria-label={t("notifications.title")}
-          className={pendingCount > 0 ? classes.ringing : undefined}
-        >
-          <IconBell size={22} />
-        </ActionIcon>
-      </Indicator>
+        <Popover.Target>
+          <Indicator
+            inline
+            label={bell.count}
+            size={18}
+            offset={4}
+            position="top-end"
+            // white on the red bell; the theme's autoContrast writes the count dark
+            color="white"
+            disabled={bell.count < 2}
+          >
+            <ActionIcon
+              variant={empty ? "subtle" : "filled"}
+              color={empty ? "gray" : "red"}
+              size="lg"
+              radius="xl"
+              onClick={bell.toggle}
+              aria-label={empty ? t("notifications.title") : t("notifications.titleWithCount", { count: bell.count })}
+            >
+              <span key={bell.wiggles} className={bell.wiggles > 0 ? classes.wiggle : undefined}>
+                <IconBell size={22} />
+              </span>
+            </ActionIcon>
+          </Indicator>
+        </Popover.Target>
 
-      <Modal
-        opened={opened}
-        onClose={handleClose}
-        title={t("notifications.title")}
-        size="md"
-      >
-        {isLoading ? (
-          <Center p="xl">
-            <Loader size="sm" />
-          </Center>
-        ) : pendingInvites.length === 0 ? (
-          <Text c="dimmed" ta="center" py="xl">
-            {t("notifications.empty")}
-          </Text>
-        ) : (
-          <Stack gap="md">
-            {pendingInvites.map((invite: InviteCardView) => (
-              <Card key={invite.id} withBorder padding="md">
-                <Stack gap="sm">
-                  <Group justify="space-between" align="flex-start">
-                    <Stack gap={4}>
-                      <Text fw={500}>{getInviteTitle(invite)}</Text>
-                      <Text size="sm" fw={600}>
-                        {getInviteTarget(invite)}
-                      </Text>
-                    </Stack>
-                    {!isWorkshopInvite(invite) && (
-                      <Badge variant="light">
-                        {translateRole(invite.role)}
-                      </Badge>
-                    )}
-                  </Group>
-                  <Text size="sm" c="dimmed">
-                    {isWorkshopInvite(invite)
-                      ? t("notifications.workshopInviteDescription")
-                      : t("notifications.inviteDescription", {
-                          role: translateRole(invite.role),
-                        })}
-                  </Text>
-                  <Group justify="flex-end" gap="xs">
-                    <Button
-                      variant="subtle"
-                      color="gray"
-                      size="xs"
-                      onClick={() => handleDecline(invite)}
-                    >
-                      {t("notifications.decline")}
-                    </Button>
-                    <Button
-                      size="xs"
-                      onClick={() => handleAccept(invite)}
-                      loading={acceptMutation.isPending}
-                    >
-                      {t("notifications.accept")}
-                    </Button>
-                  </Group>
-                </Stack>
-              </Card>
-            ))}
-          </Stack>
-        )}
-      </Modal>
+        <Popover.Dropdown p="xs" className={classes.panel}>
+          {empty ? (
+            <Center py="md">
+              <HelperText ta="center">{t("notifications.nothingNew")}</HelperText>
+            </Center>
+          ) : (
+            <ScrollArea.Autosize mah="70vh" type="auto">
+              <Stack gap="xs">
+                {bell.notifications.map((n) => (
+                  <NotificationEntry key={`${n.type}:${n.subject ?? ""}`} notification={n} onOpen={bell.openNotification} />
+                ))}
+                {bell.invites.map((entry) => (
+                  <InviteEntry
+                    key={entry.invite.id}
+                    entry={entry}
+                    accepting={bell.accepting}
+                    onAccept={bell.acceptInvite}
+                    onDecline={bell.askDecline}
+                  />
+                ))}
+                {bell.notifications.length > 0 && (
+                  <>
+                    <Divider />
+                    <Group justify="center">
+                      <TextButton size="xs" onClick={bell.acknowledgeAll} disabled={bell.acknowledgingAll}>
+                        {t("notifications.acknowledgeAll")}
+                      </TextButton>
+                    </Group>
+                  </>
+                )}
+              </Stack>
+            </ScrollArea.Autosize>
+          )}
+        </Popover.Dropdown>
+      </Popover>
 
-      {/* Decline Confirmation Modal */}
-      <Modal
-        opened={declineModalOpened}
-        onClose={() => {
-          closeDeclineModal();
-          setInviteToDecline(null);
-        }}
-        title={t("notifications.declineTitle")}
-        size="sm"
-      >
+      <Modal opened={!!bell.declining} onClose={bell.cancelDecline} title={t("notifications.declineTitle")} size="sm">
         <Stack gap="md">
-          <Text>{t("notifications.declineConfirm")}</Text>
+          <BodyText>{t("notifications.declineConfirm")}</BodyText>
           <Group justify="flex-end" gap="xs">
-            <Button
-              variant="subtle"
-              onClick={() => {
-                closeDeclineModal();
-                setInviteToDecline(null);
-              }}
-            >
-              {t("cancel")}
-            </Button>
-            <Button
-              color="red"
-              onClick={confirmDecline}
-              loading={declineMutation.isPending}
-            >
+            <CancelButton onClick={bell.cancelDecline}>{t("cancel")}</CancelButton>
+            <DangerButton onClick={bell.confirmDecline} loading={bell.decliningPending}>
               {t("notifications.decline")}
-            </Button>
+            </DangerButton>
           </Group>
         </Stack>
       </Modal>
     </>
+  );
+}
+
+/** One notification: its text, how many it folds and when; clicking leads to its target. */
+function NotificationEntry({
+  notification: n,
+  onOpen,
+}: {
+  notification: NotificationView;
+  onOpen: (n: NotificationView) => void;
+}) {
+  const { t, i18n } = useTranslation("common");
+  const { icon: TypeIcon, color } = TYPE_ICONS[n.type];
+  return (
+    <UnstyledButton className={classes.entry} onClick={() => onOpen(n)}>
+      <TypeIcon size={20} color={color} style={{ flexShrink: 0, marginTop: 2 }} />
+      <Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
+        <BodyText size="sm">{t(`notifications.types.${n.type}`, { count: n.count })}</BodyText>
+        <HelperText size="xs">{formatRelativeTime(n.at, i18n.language)}</HelperText>
+      </Stack>
+    </UnstyledButton>
+  );
+}
+
+/** One pending invite, accepted or declined here. */
+function InviteEntry({
+  entry: { invite, workshop, target },
+  accepting,
+  onAccept,
+  onDecline,
+}: {
+  entry: BellInvite;
+  accepting: boolean;
+  onAccept: (invite: InviteCardView) => void;
+  onDecline: (invite: InviteCardView) => void;
+}) {
+  const { t } = useTranslation("common");
+  const translateRole = useTranslateRole();
+  return (
+    <Card withBorder padding="sm">
+      <Stack gap="xs">
+        <Group justify="space-between" align="flex-start" wrap="nowrap">
+          <Stack gap={2}>
+            <BodyText size="sm" fw={500}>
+              {workshop ? t("notifications.workshopInvite") : t("notifications.inviteToJoin")}
+            </BodyText>
+            <BodyText size="sm" fw={600}>
+              {target}
+            </BodyText>
+          </Stack>
+          {!workshop && <Badge variant="light">{translateRole(invite.role)}</Badge>}
+        </Group>
+        <HelperText size="sm">
+          {workshop
+            ? t("notifications.workshopInviteDescription")
+            : t("notifications.inviteDescription", { role: translateRole(invite.role) })}
+        </HelperText>
+        <Group justify="flex-end" gap="xs">
+          <TextButton size="xs" onClick={() => onDecline(invite)}>
+            {t("notifications.decline")}
+          </TextButton>
+          <ActionButton size="xs" onClick={() => onAccept(invite)} loading={accepting}>
+            {t("notifications.accept")}
+          </ActionButton>
+        </Group>
+      </Stack>
+    </Card>
   );
 }

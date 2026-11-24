@@ -47,6 +47,7 @@ import { OrganizationStatusBadges } from "./OrganizationStatusBadges";
 import { OrganizationSuspendModal } from "./OrganizationSuspendModal";
 import { RecentRegistrationsList } from "./RecentRegistrationsList";
 import { VerifiedPagesApproval } from "./VerifiedPagesApproval";
+import { ADMIN_VERIFIED_PAGES_ANCHOR } from "@/common/routes/routes";
 
 type OrganisationColumn = ListColumn<OrganisationView, OrganisationListSort>;
 
@@ -161,7 +162,7 @@ export function OrganizationsManagement() {
         />
 
         {/* The allow list of pages that embed games */}
-        <Card shadow="sm" padding="lg" radius="md" withBorder>
+        <Card id={ADMIN_VERIFIED_PAGES_ANCHOR} shadow="sm" padding="lg" radius="md" withBorder>
           <Stack gap="xs">
             <CardTitle>{t("admin.verifiedPages.title")}</CardTitle>
             <HelperText>{t("admin.verifiedPages.description")}</HelperText>
