@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -28,37 +29,38 @@ const v2CreateGame = `-- name: V2CreateGame :exec
 INSERT INTO game (
   id, created_by, created_at, modified_by, modified_at, workshop_id,
   name, description, icon, genre, theme, public,
-  system_message_scenario, system_message_game_start, image_style, voice_style, css,
+  system_message_scenario, system_message_game_start, image_style, voice_style, voices, css,
   status_fields, first_message, first_status, first_image, originally_created_by
 ) VALUES (
   $1::uuid, $2::uuid, now(), $2::uuid, now(), $3::uuid,
   $4::text, $5::text, $6::bytea, $7::text, $8::text, $9::bool,
-  $10::text, $11::text, $12::text, $13::text, $14::text,
-  $15::text, $16::text, $17::text, $18::bytea,
-  $19::uuid
+  $10::text, $11::text, $12::text, $13::text, $14::jsonb, $15::text,
+  $16::text, $17::text, $18::text, $19::bytea,
+  $20::uuid
 )
 `
 
 type V2CreateGameParams struct {
-	ID                  uuid.UUID      `json:"id"`
-	CreatedBy           uuid.UUID      `json:"created_by"`
-	WorkshopID          uuid.NullUUID  `json:"workshop_id"`
-	Name                string         `json:"name"`
-	Description         string         `json:"description"`
-	Icon                []byte         `json:"icon"`
-	Genre               string         `json:"genre"`
-	Theme               sql.NullString `json:"theme"`
-	Public              bool           `json:"public"`
-	Scenario            string         `json:"scenario"`
-	GameStart           string         `json:"game_start"`
-	ImageStyle          string         `json:"image_style"`
-	VoiceStyle          string         `json:"voice_style"`
-	Css                 string         `json:"css"`
-	StatusFields        string         `json:"status_fields"`
-	FirstMessage        sql.NullString `json:"first_message"`
-	FirstStatus         sql.NullString `json:"first_status"`
-	FirstImage          []byte         `json:"first_image"`
-	OriginallyCreatedBy uuid.NullUUID  `json:"originally_created_by"`
+	ID                  uuid.UUID       `json:"id"`
+	CreatedBy           uuid.UUID       `json:"created_by"`
+	WorkshopID          uuid.NullUUID   `json:"workshop_id"`
+	Name                string          `json:"name"`
+	Description         string          `json:"description"`
+	Icon                []byte          `json:"icon"`
+	Genre               string          `json:"genre"`
+	Theme               sql.NullString  `json:"theme"`
+	Public              bool            `json:"public"`
+	Scenario            string          `json:"scenario"`
+	GameStart           string          `json:"game_start"`
+	ImageStyle          string          `json:"image_style"`
+	VoiceStyle          string          `json:"voice_style"`
+	Voices              json.RawMessage `json:"voices"`
+	Css                 string          `json:"css"`
+	StatusFields        string          `json:"status_fields"`
+	FirstMessage        sql.NullString  `json:"first_message"`
+	FirstStatus         sql.NullString  `json:"first_status"`
+	FirstImage          []byte          `json:"first_image"`
+	OriginallyCreatedBy uuid.NullUUID   `json:"originally_created_by"`
 }
 
 // Creates a game from what the caller filled in; core/game_create.go has
@@ -79,6 +81,7 @@ func (q *Queries) V2CreateGame(ctx context.Context, arg V2CreateGameParams) erro
 		arg.GameStart,
 		arg.ImageStyle,
 		arg.VoiceStyle,
+		arg.Voices,
 		arg.Css,
 		arg.StatusFields,
 		arg.FirstMessage,
@@ -121,7 +124,7 @@ func (q *Queries) V2DeleteGameTagsByGameID(ctx context.Context, gameID uuid.UUID
 
 const v2GameCards = `-- name: V2GameCards :many
 
-SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g.description, g.icon, g.workshop_id, g.public, g.public_sponsored_api_key_share_id, g.system_message_scenario, g.system_message_game_start, g.image_style, g.css, g.status_fields, g.genre, g.theme, g.first_message, g.first_status, g.first_image, g.originally_created_by, g.play_count, g.clone_count, g.deleted_at, g.voice_style,
+SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g.description, g.icon, g.workshop_id, g.public, g.public_sponsored_api_key_share_id, g.system_message_scenario, g.system_message_game_start, g.image_style, g.css, g.status_fields, g.genre, g.theme, g.first_message, g.first_status, g.first_image, g.originally_created_by, g.play_count, g.clone_count, g.deleted_at, g.voice_style, g.voices,
   -- the sections: NULL (no caller, no workshop, no organisation) is false
   COALESCE(
      ($1::bool        AND g.public)
@@ -315,49 +318,50 @@ type V2GameCardsParams struct {
 }
 
 type V2GameCardsRow struct {
-	ID                           uuid.UUID      `json:"id"`
-	CreatedBy                    uuid.NullUUID  `json:"created_by"`
-	CreatedAt                    time.Time      `json:"created_at"`
-	ModifiedBy                   uuid.NullUUID  `json:"modified_by"`
-	ModifiedAt                   time.Time      `json:"modified_at"`
-	Name                         string         `json:"name"`
-	Description                  string         `json:"description"`
-	Icon                         []byte         `json:"icon"`
-	WorkshopID                   uuid.NullUUID  `json:"workshop_id"`
-	Public                       bool           `json:"public"`
-	PublicSponsoredApiKeyShareID uuid.NullUUID  `json:"public_sponsored_api_key_share_id"`
-	SystemMessageScenario        string         `json:"system_message_scenario"`
-	SystemMessageGameStart       string         `json:"system_message_game_start"`
-	ImageStyle                   string         `json:"image_style"`
-	Css                          string         `json:"css"`
-	StatusFields                 string         `json:"status_fields"`
-	Genre                        string         `json:"genre"`
-	Theme                        sql.NullString `json:"theme"`
-	FirstMessage                 sql.NullString `json:"first_message"`
-	FirstStatus                  sql.NullString `json:"first_status"`
-	FirstImage                   []byte         `json:"first_image"`
-	OriginallyCreatedBy          uuid.NullUUID  `json:"originally_created_by"`
-	PlayCount                    int32          `json:"play_count"`
-	CloneCount                   int32          `json:"clone_count"`
-	DeletedAt                    sql.NullTime   `json:"deleted_at"`
-	VoiceStyle                   string         `json:"voice_style"`
-	MayReadContent               bool           `json:"may_read_content"`
-	MayReadSettings              bool           `json:"may_read_settings"`
-	MayEditCard                  bool           `json:"may_edit_card"`
-	MayEditContent               bool           `json:"may_edit_content"`
-	MayEditSettings              bool           `json:"may_edit_settings"`
-	MayDelete                    bool           `json:"may_delete"`
-	MayCopy                      bool           `json:"may_copy"`
-	MayShare                     bool           `json:"may_share"`
-	MayPublish                   bool           `json:"may_publish"`
-	MayPlay                      bool           `json:"may_play"`
-	IsFavorite                   bool           `json:"is_favorite"`
-	CreatorName                  sql.NullString `json:"creator_name"`
-	WorkshopOrganisationID       uuid.NullUUID  `json:"workshop_organisation_id"`
-	CreatorOrganisationID        uuid.NullUUID  `json:"creator_organisation_id"`
-	OfOwnOrganisation            bool           `json:"of_own_organisation"`
-	CoverAt                      sql.NullTime   `json:"cover_at"`
-	Total                        int64          `json:"total"`
+	ID                           uuid.UUID       `json:"id"`
+	CreatedBy                    uuid.NullUUID   `json:"created_by"`
+	CreatedAt                    time.Time       `json:"created_at"`
+	ModifiedBy                   uuid.NullUUID   `json:"modified_by"`
+	ModifiedAt                   time.Time       `json:"modified_at"`
+	Name                         string          `json:"name"`
+	Description                  string          `json:"description"`
+	Icon                         []byte          `json:"icon"`
+	WorkshopID                   uuid.NullUUID   `json:"workshop_id"`
+	Public                       bool            `json:"public"`
+	PublicSponsoredApiKeyShareID uuid.NullUUID   `json:"public_sponsored_api_key_share_id"`
+	SystemMessageScenario        string          `json:"system_message_scenario"`
+	SystemMessageGameStart       string          `json:"system_message_game_start"`
+	ImageStyle                   string          `json:"image_style"`
+	Css                          string          `json:"css"`
+	StatusFields                 string          `json:"status_fields"`
+	Genre                        string          `json:"genre"`
+	Theme                        sql.NullString  `json:"theme"`
+	FirstMessage                 sql.NullString  `json:"first_message"`
+	FirstStatus                  sql.NullString  `json:"first_status"`
+	FirstImage                   []byte          `json:"first_image"`
+	OriginallyCreatedBy          uuid.NullUUID   `json:"originally_created_by"`
+	PlayCount                    int32           `json:"play_count"`
+	CloneCount                   int32           `json:"clone_count"`
+	DeletedAt                    sql.NullTime    `json:"deleted_at"`
+	VoiceStyle                   string          `json:"voice_style"`
+	Voices                       json.RawMessage `json:"voices"`
+	MayReadContent               bool            `json:"may_read_content"`
+	MayReadSettings              bool            `json:"may_read_settings"`
+	MayEditCard                  bool            `json:"may_edit_card"`
+	MayEditContent               bool            `json:"may_edit_content"`
+	MayEditSettings              bool            `json:"may_edit_settings"`
+	MayDelete                    bool            `json:"may_delete"`
+	MayCopy                      bool            `json:"may_copy"`
+	MayShare                     bool            `json:"may_share"`
+	MayPublish                   bool            `json:"may_publish"`
+	MayPlay                      bool            `json:"may_play"`
+	IsFavorite                   bool            `json:"is_favorite"`
+	CreatorName                  sql.NullString  `json:"creator_name"`
+	WorkshopOrganisationID       uuid.NullUUID   `json:"workshop_organisation_id"`
+	CreatorOrganisationID        uuid.NullUUID   `json:"creator_organisation_id"`
+	OfOwnOrganisation            bool            `json:"of_own_organisation"`
+	CoverAt                      sql.NullTime    `json:"cover_at"`
+	Total                        int64           `json:"total"`
 }
 
 // v2: the secure core's game queries (#344).
@@ -484,6 +488,7 @@ func (q *Queries) V2GameCards(ctx context.Context, arg V2GameCardsParams) ([]V2G
 			&i.CloneCount,
 			&i.DeletedAt,
 			&i.VoiceStyle,
+			&i.Voices,
 			&i.MayReadContent,
 			&i.MayReadSettings,
 			&i.MayEditCard,
@@ -690,32 +695,34 @@ UPDATE game SET
   system_message_game_start = $9::text,
   image_style               = $10::text,
   voice_style               = $11::text,
-  css                       = $12::text,
-  status_fields             = $13::text,
-  first_message             = $14::text,
-  first_status              = $15::text,
-  first_image               = $16::bytea
-WHERE id = $17::uuid AND deleted_at IS NULL
+  voices                    = $12::jsonb,
+  css                       = $13::text,
+  status_fields             = $14::text,
+  first_message             = $15::text,
+  first_status              = $16::text,
+  first_image               = $17::bytea
+WHERE id = $18::uuid AND deleted_at IS NULL
 `
 
 type V2UpdateGameParams struct {
-	ModifiedBy   uuid.UUID      `json:"modified_by"`
-	Name         string         `json:"name"`
-	Description  string         `json:"description"`
-	Icon         []byte         `json:"icon"`
-	Genre        string         `json:"genre"`
-	Theme        sql.NullString `json:"theme"`
-	Public       bool           `json:"public"`
-	Scenario     string         `json:"scenario"`
-	GameStart    string         `json:"game_start"`
-	ImageStyle   string         `json:"image_style"`
-	VoiceStyle   string         `json:"voice_style"`
-	Css          string         `json:"css"`
-	StatusFields string         `json:"status_fields"`
-	FirstMessage sql.NullString `json:"first_message"`
-	FirstStatus  sql.NullString `json:"first_status"`
-	FirstImage   []byte         `json:"first_image"`
-	ID           uuid.UUID      `json:"id"`
+	ModifiedBy   uuid.UUID       `json:"modified_by"`
+	Name         string          `json:"name"`
+	Description  string          `json:"description"`
+	Icon         []byte          `json:"icon"`
+	Genre        string          `json:"genre"`
+	Theme        sql.NullString  `json:"theme"`
+	Public       bool            `json:"public"`
+	Scenario     string          `json:"scenario"`
+	GameStart    string          `json:"game_start"`
+	ImageStyle   string          `json:"image_style"`
+	VoiceStyle   string          `json:"voice_style"`
+	Voices       json.RawMessage `json:"voices"`
+	Css          string          `json:"css"`
+	StatusFields string          `json:"status_fields"`
+	FirstMessage sql.NullString  `json:"first_message"`
+	FirstStatus  sql.NullString  `json:"first_status"`
+	FirstImage   []byte          `json:"first_image"`
+	ID           uuid.UUID       `json:"id"`
 }
 
 // Writes a game's card and content as the caller changed them; core/game.go
@@ -733,6 +740,7 @@ func (q *Queries) V2UpdateGame(ctx context.Context, arg V2UpdateGameParams) erro
 		arg.GameStart,
 		arg.ImageStyle,
 		arg.VoiceStyle,
+		arg.Voices,
 		arg.Css,
 		arg.StatusFields,
 		arg.FirstMessage,

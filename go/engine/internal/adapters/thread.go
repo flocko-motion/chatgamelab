@@ -55,7 +55,11 @@ type ThreadTurn struct {
 	// Text is the transcript, so the transcript stays text. Valid only
 	// without a Schema. A thread on a model that cannot speak answers a
 	// spoken turn as a plain one.
-	Speak        bool
+	Speak bool
+	// Voice is the built-in voice a spoken turn speaks in, by name; empty
+	// speaks in the adapter's own. A provider that fixes a voice per session
+	// opens a fresh one, seeded from the transcript, when it changes.
+	Voice        string
 	Continuation Continuation
 	// Summary is the story before the transcript, condensed once the thread
 	// neared its model's context window; empty when the transcript holds the

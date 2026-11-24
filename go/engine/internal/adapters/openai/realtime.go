@@ -31,14 +31,22 @@ const (
 	sessionMargin = 5 * time.Minute
 )
 
-// realtimeVoices are the voices a gpt-realtime model speaks in.
-var realtimeVoices = map[string]bool{
-	"alloy": true, "ash": true, "ballad": true, "coral": true, "echo": true,
-	"sage": true, "shimmer": true, "verse": true, "marin": true, "cedar": true,
+// RealtimeVoices are the voices a gpt-realtime model speaks in, as the
+// provider lists them, with the presentation listeners hear; alloy's is not
+// stated. Each speaks English natively and follows the conversation into
+// other languages.
+var RealtimeVoices = []adapters.BuiltinVoice{
+	{Name: "marin", Language: "en", Accent: "North American", Gender: "feminine"},
+	{Name: "cedar", Language: "en", Accent: "North American", Gender: "masculine"},
+	{Name: "alloy", Language: "en", Accent: "North American"},
+	{Name: "ash", Language: "en", Accent: "North American", Gender: "masculine"},
+	{Name: "ballad", Language: "en", Accent: "British", Gender: "masculine"},
+	{Name: "coral", Language: "en", Accent: "North American", Gender: "feminine"},
+	{Name: "echo", Language: "en", Accent: "North American", Gender: "masculine"},
+	{Name: "sage", Language: "en", Accent: "North American", Gender: "feminine"},
+	{Name: "shimmer", Language: "en", Accent: "North American", Gender: "feminine"},
+	{Name: "verse", Language: "en", Accent: "North American", Gender: "masculine"},
 }
-
-// ValidRealtimeVoice reports whether a name is a voice gpt-realtime speaks in.
-func ValidRealtimeVoice(name string) bool { return realtimeVoices[name] }
 
 // Realtime continues a conversation on a gpt-realtime model, a native
 // audio-out model: the model that writes a reply speaks it. It talks to the
@@ -74,7 +82,8 @@ type Realtime struct {
 	session *realtimeSession
 }
 
-// NewRealtime builds the adapter; an empty voice is DefaultVoice.
+// NewRealtime builds the adapter; voice is the one a turn without its own
+// speaks in, an empty one DefaultVoice.
 func NewRealtime(keys adapters.KeyFunc, model, voice string) *Realtime {
 	if voice == "" {
 		voice = DefaultVoice
@@ -130,7 +139,9 @@ func (r *Realtime) Continue(ctx context.Context, turn adapters.ThreadTurn) (adap
 // ready is the session a turn goes on in: the one held, if the turn's
 // continuation names it, or a fresh one seeded with the transcript.
 func (r *Realtime) ready(ctx context.Context, turn adapters.ThreadTurn) (*realtimeSession, error) {
-	if s := r.session; s != nil && r.now().Sub(s.opened) < sessionLimit-sessionMargin {
+	// The provider fixes a session's voice: another voice takes a fresh one.
+	sameVoice := func(s *realtimeSession) bool { return turn.Voice == "" || turn.Voice == s.voice }
+	if s := r.session; s != nil && sameVoice(s) && r.now().Sub(s.opened) < sessionLimit-sessionMargin {
 		switch turn.Continuation.ID {
 		case s.handle(s.turns):
 			return s, nil
@@ -144,7 +155,11 @@ func (r *Realtime) ready(ctx context.Context, turn adapters.ThreadTurn) (*realti
 		}
 	}
 	r.drop()
-	s, err := r.open(ctx, turn.System, turn.Summary, turn.Transcript)
+	voice := turn.Voice
+	if voice == "" {
+		voice = r.voice
+	}
+	s, err := r.open(ctx, voice, turn.System, turn.Summary, turn.Transcript)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +178,7 @@ func (r *Realtime) drop() {
 // open connects a fresh session, configures it with the System Message, and
 // seeds it with the summary, as the game's system message, and the
 // transcript, each exchange as it was sent.
-func (r *Realtime) open(ctx context.Context, system, summary string, transcript []adapters.Exchange) (*realtimeSession, error) {
+func (r *Realtime) open(ctx context.Context, voice, system, summary string, transcript []adapters.Exchange) (*realtimeSession, error) {
 	key, err := r.keys(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("resolve api key: %w", err)
@@ -180,7 +195,7 @@ func (r *Realtime) open(ctx context.Context, system, summary string, transcript 
 	// No read limit: an audio delta is large.
 	ws.SetReadLimit(-1)
 
-	s := &realtimeSession{ws: ws, opened: r.now(), events: make(chan realtimeEvent, 256), gone: make(chan struct{})}
+	s := &realtimeSession{ws: ws, voice: voice, opened: r.now(), events: make(chan realtimeEvent, 256), gone: make(chan struct{})}
 	go s.read()
 
 	created, err := s.next(ctx)
@@ -201,7 +216,7 @@ func (r *Realtime) open(ctx context.Context, system, summary string, transcript 
 		"output_modalities": []string{"audio"},
 		"audio": map[string]any{
 			"input":  map[string]any{"turn_detection": nil},
-			"output": map[string]any{"voice": r.voice, "format": map[string]any{"type": "audio/pcm", "rate": 24000}},
+			"output": map[string]any{"voice": voice, "format": map[string]any{"type": "audio/pcm", "rate": 24000}},
 		},
 	}})
 	if err == nil && summary != "" {
@@ -224,8 +239,10 @@ func (r *Realtime) open(ctx context.Context, system, summary string, transcript 
 
 // realtimeSession is one open session and what it holds.
 type realtimeSession struct {
-	ws     *websocket.Conn
-	id     string
+	ws *websocket.Conn
+	id string
+	// voice is the voice it speaks in, fixed as it opens.
+	voice  string
 	opened time.Time
 
 	// turns is how many turns the session has kept, the handle's number.

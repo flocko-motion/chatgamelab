@@ -60,8 +60,11 @@ type NPCDuoConfig struct {
 	GameStart string
 	// BuiltinVoices are the voices the two are cast in.
 	BuiltinVoices []adapters.BuiltinVoice
-	Language      string
-	IdleAfter     time.Duration
+	// VoiceChoices is the game's choice for each character's voice, by
+	// VoiceA and VoiceB; one it chose nothing for is any.
+	VoiceChoices map[string]VoiceChoice
+	Language     string
+	IdleAfter    time.Duration
 
 	PromptOverride map[string]string
 }
@@ -163,13 +166,17 @@ func NewNPCDuo(cfg NPCDuoConfig) (*Wiring, error) {
 			p[PromptDuoPolicy] + speakClause(cfg.Language)
 	}
 
-	// The second character's voice differs from the first's by default, so
-	// the two are told apart even when no cast comes.
+	// Each speaks in a voice of the gender the game chose until the cast
+	// comes, the second's another than the first's, so the two are told
+	// apart even when no cast comes.
+	choiceA, choiceB := choiceOf(cfg.VoiceChoices, VoiceA), choiceOf(cfg.VoiceChoices, VoiceB)
+	voiceA := fallbackVoice(cfg.BuiltinVoices, choiceA, cfg.Language)
+	voiceB := fallbackVoice(cfg.BuiltinVoices, choiceB, cfg.Language, voiceA)
 	liveA := blocks.NewLiveSession("live-a", cfg.Live, adapters.LiveConfig{
-		Voice: "marin", Scenario: character(prompts, first, second), Guardrail: cfg.Guardrail,
+		Voice: voiceA, Scenario: character(prompts, first, second), Guardrail: cfg.Guardrail,
 	}, cfg.IdleAfter)
 	liveB := blocks.NewLiveSession("live-b", cfg.Live, adapters.LiveConfig{
-		Voice: "cedar", Scenario: character(prompts, second, first), Guardrail: cfg.Guardrail,
+		Voice: voiceB, Scenario: character(prompts, second, first), Guardrail: cfg.Guardrail,
 	}, cfg.IdleAfter)
 	liveA.Seat, liveB.Seat = SeatFirst, SeatSecond
 	floor := &duoFloor{spoke: map[string]time.Time{}}
@@ -198,8 +205,9 @@ func NewNPCDuo(cfg NPCDuoConfig) (*Wiring, error) {
 
 	// Both characters, named and cast in voices, once, kept across a restart.
 	castBrief := blocks.NewOnceText("cast-brief", "A:\n"+first+"\n\nB:\n"+second).SendAgain()
-	cast := blocks.NewToolCall("cast", cfg.Tool, prompts[PromptCast]+castTail(cfg.BuiltinVoices, cfg.Language))
-	cast.Schema = castSchema(cfg.BuiltinVoices)
+	castFor := castFor{voices: cfg.BuiltinVoices, language: cfg.Language, a: choiceA, b: choiceB}
+	cast := blocks.NewToolCall("cast", cfg.Tool, prompts[PromptCast]+castFor.tail())
+	cast.Schema = castFor.schema()
 	cast.Keep = true
 
 	// The first character's first words, from who both are and the scene.
@@ -222,10 +230,15 @@ func NewNPCDuo(cfg NPCDuoConfig) (*Wiring, error) {
 	g.ConnectTextOut(castBrief, cast)
 	g.ConnectFieldToVoice(cast, "voiceA", liveA)
 	g.ConnectFieldToVoice(cast, "voiceB", liveB)
+	g.Speaks(VoiceA, liveA)
+	g.Speaks(VoiceB, liveB)
 	g.ConnectStructured(cast, outCast)
 	g.ConnectState(cast, gate)
-	// Without a cast both speak in their default voices, unnamed.
-	g.ConnectFailure(cast, blocks.NewFailureDrop("cast-failed"))
+	// Without a cast both speak in their fallback voices at once, unnamed.
+	castFallback := blocks.NewFailureReply("cast-fallback", map[string]string{"voiceA": voiceA, "voiceB": voiceB})
+	g.ConnectFailure(cast, castFallback)
+	g.ConnectFieldToVoice(castFallback, "voiceA", liveA)
+	g.ConnectFieldToVoice(castFallback, "voiceB", liveB)
 
 	g.ConnectTextOut(brief, greeting)
 	g.ConnectState(greeting, gate)
@@ -245,7 +258,7 @@ func NewNPCDuo(cfg NPCDuoConfig) (*Wiring, error) {
 		PromptDuoSceneLead: {lives, characters},
 		PromptDuoDirector:  {[]string{observer.NodeName()}, director},
 		PromptCast: {[]string{cast.NodeName()}, func(c Current) {
-			cast.SetSystem(c.Prompts[PromptCast] + castTail(cfg.BuiltinVoices, cfg.Language))
+			cast.SetSystem(c.Prompts[PromptCast] + castFor.tail())
 		}},
 		PromptDuoGreeting: {[]string{greeting.NodeName()}, func(c Current) {
 			greeting.SetSystem(c.Prompts[PromptDuoGreeting] + languageClause(cfg.Language))
@@ -356,33 +369,40 @@ func duoBrief(prompt, first, second, scene, guardrail, language string) string {
 	return brief
 }
 
-// castTail lists the voices to cast from, those of the game's language
-// first.
-func castTail(voices []adapters.BuiltinVoice, language string) string {
+// castFor is what the cast picks from: the built-in voices, the game's
+// language, and the gender the game chose for each character.
+type castFor struct {
+	voices   []adapters.BuiltinVoice
+	language string
+	a, b     VoiceChoice
+}
+
+// tail lists the voices to cast from, those of the game's language first,
+// and the gender each character is to speak in where the game chose one.
+func (c castFor) tail() string {
 	var b strings.Builder
-	if language != "" {
-		b.WriteString("\nBoth speak " + languageName(language) + ": pick voices that speak it natively, if any do.")
+	if c.language != "" {
+		b.WriteString("\nBoth speak " + languageName(c.language) + ": pick voices that speak it natively, if any do.")
+	}
+	for _, seat := range []struct {
+		name   string
+		choice VoiceChoice
+	}{{"A", c.a}, {"B", c.b}} {
+		if gender := presentation(seat.choice); gender != "" {
+			b.WriteString("\n" + seat.name + " speaks in a " + gender + " voice.")
+		}
 	}
 	b.WriteString("\nThe built-in voices:\n")
-	for _, v := range voices {
-		line := "- " + v.Name + ": speaks " + languageName(v.Language) + ", " + v.Accent
-		if v.Gender != "" {
-			line += ", " + v.Gender
-		}
-		b.WriteString(line + "\n")
-	}
+	b.WriteString(voiceList(castable(c.voices, VoiceAny, c.language)))
 	return b.String()
 }
 
-// castSchema is the cast's reply: a name and a voice for each.
-func castSchema(voices []adapters.BuiltinVoice) *adapters.Schema {
-	names := make([]any, 0, len(voices))
-	for _, v := range voices {
-		names = append(names, v.Name)
-	}
-	voice := func(who string) map[string]any {
+// schema is the cast's reply: a name and a voice for each, each voice one
+// of the gender the game chose for it.
+func (c castFor) schema() *adapters.Schema {
+	voice := func(who string, choice VoiceChoice) map[string]any {
 		f := map[string]any{"type": "string", "description": "the built-in voice " + who + " speaks in"}
-		if len(names) > 0 {
+		if names := voiceEnum(castable(c.voices, choice, c.language)); len(names) > 0 {
 			f["enum"] = names
 		}
 		return f
@@ -393,8 +413,8 @@ func castSchema(voices []adapters.BuiltinVoice) *adapters.Schema {
 	return &adapters.Schema{Name: "cast", Body: map[string]any{
 		"type": "object",
 		"properties": map[string]any{
-			"nameA": name("A"), "voiceA": voice("A"),
-			"nameB": name("B"), "voiceB": voice("B"),
+			"nameA": name("A"), "voiceA": voice("A", c.a),
+			"nameB": name("B"), "voiceB": voice("B", c.b),
 		},
 		"required":             []any{"nameA", "voiceA", "nameB", "voiceB"},
 		"additionalProperties": false,
@@ -406,6 +426,7 @@ func castSchema(voices []adapters.BuiltinVoice) *adapters.Schema {
 var npcDuoLayout = ports.Layout{
 	"gallery-image":      {X: 110, Y: 40},
 	"cast":               {X: 0, Y: 60},
+	"cast-fallback":      {X: 0, Y: 151},
 	"greeting":           {X: 220, Y: 60},
 	"start-game":         {X: 110, Y: 151},
 	"player-input-audio": {X: 110, Y: 230},

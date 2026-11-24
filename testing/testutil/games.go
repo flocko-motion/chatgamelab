@@ -195,6 +195,7 @@ func (c caller) UpdateGame(gameID string, game Game) (Game, error) {
 		SystemMessageGameStart: &game.SystemMessageGameStart,
 		ImageStyle:             &game.ImageStyle,
 		VoiceStyle:             &game.VoiceStyle,
+		Voices:                 game.Voices,
 		Css:                    &game.Css,
 		StatusFields:           &game.StatusFields,
 		FirstMessage:           game.FirstMessage,
@@ -315,15 +316,21 @@ func (c caller) GuestGetGameInfo(shareToken string) (GuestGameInfo, error) {
 
 // --- Voices ---
 
-// VoiceSample has the voice a game of the genre speaks in say its sample, for
-// the voice style and scenario as an editor's form holds them.
+// VoiceSample has the voice made for a voice set to custom say its sample,
+// for the voice style and scenario as an editor's form holds them.
 func (c caller) VoiceSample(genre, voiceStyle, scenario string) (VoiceSample, error) {
-	return decode[VoiceSample](c.api.PostApiVoicesSampleWithResponse(ctx(), apiclient.VoiceSampleReq{Genre: genre, VoiceStyle: voiceStyle, Scenario: scenario}))
+	return c.VoiceSampleFor("custom", genre, voiceStyle, scenario)
+}
+
+// VoiceSampleFor asks for a sample of a voice set to a choice, which only
+// custom is answered for.
+func (c caller) VoiceSampleFor(voice, genre, voiceStyle, scenario string) (VoiceSample, error) {
+	return decode[VoiceSample](c.api.PostApiVoicesSampleWithResponse(ctx(), apiclient.VoiceSampleReq{Voice: voice, Genre: genre, VoiceStyle: voiceStyle, Scenario: scenario}))
 }
 
 // NewVoice makes a new voice for a voice style and answers its sample.
 func (c caller) NewVoice(genre, voiceStyle, scenario string) (VoiceSample, error) {
-	return decode[VoiceSample](c.api.PostApiVoicesNewWithResponse(ctx(), apiclient.VoiceSampleReq{Genre: genre, VoiceStyle: voiceStyle, Scenario: scenario}))
+	return decode[VoiceSample](c.api.PostApiVoicesNewWithResponse(ctx(), apiclient.VoiceSampleReq{Voice: "custom", Genre: genre, VoiceStyle: voiceStyle, Scenario: scenario}))
 }
 
 // ReviewGame has a game's form reviewed: one point to improve.

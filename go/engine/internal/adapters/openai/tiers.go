@@ -53,6 +53,7 @@ func Platform() adapters.Platform {
 		UserKeys: true,
 		Toggles:  adapters.Toggles{Images: true, AudioOut: true, AudioIn: true, AudioLive: true},
 		Facts:    Models,
+		Voices:   map[adapters.ModelType][]adapters.BuiltinVoice{adapters.ModelLive: LiveVoices, adapters.ModelSpeech: RealtimeVoices},
 		Tiers: adapters.Ladder(
 			adapters.ModelSet{
 				adapters.ModelTooling: tooling,

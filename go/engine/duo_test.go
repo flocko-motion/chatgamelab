@@ -3,6 +3,7 @@ package engine_test
 import (
 	"context"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -133,5 +134,39 @@ func TestSplitDuo(t *testing.T) {
 	a, b = genre.SplitDuo("only one")
 	if a != "only one" || b != "" {
 		t.Errorf("split of one = %q, %q", a, b)
+	}
+}
+
+// A scene on the mock platform is cast from the mock's own tagged voices,
+// each character in the gender the game chose and the player's language.
+func TestDuoIsCastFromThePlatformsVoices(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	s, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre:    engine.GenreNPCDuo,
+		Scenario: "A knight." + genre.DuoSeparator + "A dragon.",
+		Language: "de",
+		Voices:   map[string]engine.VoiceChoice{"a": engine.VoiceFemale, "b": engine.VoiceMale},
+	}, mockOffers())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+
+	deadline := time.After(10 * time.Second)
+	for {
+		select {
+		case e := <-s.Events():
+			if e.Stream != "cast" {
+				continue
+			}
+			if !strings.Contains(e.Value, `"voiceA":"mock-greta"`) || !strings.Contains(e.Value, `"voiceB":"mock-hans"`) {
+				t.Errorf("cast %s, want A in mock-greta and B in mock-hans", e.Value)
+			}
+			return
+		case <-deadline:
+			t.Fatal("no cast came")
+		}
 	}
 }

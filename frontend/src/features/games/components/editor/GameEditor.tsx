@@ -14,6 +14,7 @@ import { useGameEditor, type GameEditor as Editor } from "../../hooks/useGameEdi
 import { useEditorNavigation, type EditorNavigation, type EditorView } from "../../hooks/useEditorNavigation";
 import { useVoicePreview, type VoicePreview } from "../../hooks/useVoicePreview";
 import { useGameReview } from "../../hooks/useGameReview";
+import { hasCustomVoice, useVoiceSlots } from "../../hooks/useGenreFields";
 import { CardSection, LookSection, StorySection } from "./EditorSections";
 import { SoundSection } from "./SoundSection";
 import { SharingSection } from "./SharingSection";
@@ -100,7 +101,13 @@ function EditorWindow(
     isOwner: props.isOwner,
   });
   const nav = useEditorNavigation(editor);
-  const preview = useVoicePreview(editor.values.genre, editor.values.voiceStyle, editor.values.systemMessageScenario);
+  const voiceSlots = useVoiceSlots(editor.values.genre);
+  const preview = useVoicePreview(
+    editor.values.genre,
+    editor.values.voiceStyle,
+    editor.values.systemMessageScenario,
+    hasCustomVoice(editor.values.voices, voiceSlots),
+  );
   const review = useGameReview(editor.values);
   const { adminAction } = editor;
 

@@ -37,6 +37,12 @@ called the *player*.
 - *Scenario* fills in what that genre needs, such as an adventure's background
   story.
 - *Image style* describes how the game's pictures look.
+- *Voice style* describes how the game's voices sound.
+- *Voices*: for each role its genre speaks in, such as a narrator or a
+  character, a choice of male, female or any; or custom, where the genre makes
+  a voice of its own from the voice style. With male, female or any, the
+  session casts a built-in voice that fits the scenario and speaks the
+  player's language, and keeps it for the whole session.
 - *Theme* picks the look of the playback-engine around the game.
 
 A game has a *cover*: one picture of it, drawn in its image style under the

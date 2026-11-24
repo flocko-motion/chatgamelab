@@ -342,3 +342,25 @@ func (s *GameCrudTestSuite) TestVoiceStyleIsKeptAndTravelsInTheFile() {
 	again := Must(alice.GetGameByID(copied.Id.String()))
 	s.Equal("deep, slow and a little hoarse", again.VoiceStyle)
 }
+
+// A game's voices, a choice per voice its genre speaks in, are part of its
+// content: kept, carried by the game file and by a copy. Only known choices
+// are kept; which voices there are is the engine's.
+func (s *GameCrudTestSuite) TestVoicesAreKeptAndTravel() {
+	alice := s.CreateUser("crud-voices")
+	game := Must(alice.UploadGame("bridge-troll"))
+
+	voices := map[string]string{"narrator": "female", "someday": "custom"}
+	updated := Must(alice.ChangeGame(game.Id.String(), testutil.GameUpdate{Voices: &voices}))
+	s.Equal(voices, *updated.Voices)
+
+	file := Must(alice.GetGameYAML(game.Id.String()))
+	s.Contains(file, "narrator: female")
+	copied := Must(alice.CloneGame(game.Id.String()))
+	again := Must(alice.ChangeGame(copied.Id.String(), testutil.GameUpdate{}))
+	s.Equal(voices, *again.Voices, "a copy keeps the voices")
+
+	robot := map[string]string{"narrator": "robot"}
+	_, err := alice.ChangeGame(game.Id.String(), testutil.GameUpdate{Voices: &robot})
+	s.Invalid(err, "an unknown choice is refused")
+}

@@ -102,7 +102,7 @@ export function EditorOverview({ editor, nav, preview, phone }: EditorOverviewPr
                   <GameCover game={editor.game} />
                 </div>
               )}
-              {page === "sound" && (
+              {page === "sound" && preview.custom && (
                 <div className={classes.thumb}>
                   <VoiceTile preview={preview} style={editor.values.voiceStyle.trim()} />
                 </div>

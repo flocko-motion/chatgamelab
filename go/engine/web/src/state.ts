@@ -198,6 +198,18 @@ export function allows(state: PlaybackEngineState, toggle: ToggleName): boolean 
   return tier?.toggles[toggle] ?? false;
 }
 
+/**
+ * The blocks still running while the game prepares, by name in the wiring's
+ * order, without the start itself: steps run side by side, and each drops out
+ * as it finishes. None once the game has begun.
+ */
+export function preparing(state: PlaybackEngineState): string[] {
+  if (state.started || !state.topology) return [];
+  return state.topology.nodes
+    .filter((node) => node.role !== "gate" && state.phases[node.name] === "working")
+    .map((node) => node.name);
+}
+
 /** Whether this genre makes pictures at all, which is when a pictures switch means something. */
 export function makesPictures(state: PlaybackEngineState): boolean {
   return (state.topology?.imagery ?? "") !== "";

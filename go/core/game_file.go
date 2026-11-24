@@ -36,7 +36,18 @@ func ImportGameFile(ctx context.Context, id uuid.UUID, file obj.GameFile) (*Game
 		GameStart:    &file.SystemMessageGameStart,
 		ImageStyle:   &file.ImageStyle,
 		VoiceStyle:   &file.VoiceStyle,
+		Voices:       voicesOrNone(file.Voices),
 		CSS:          &css,
 		StatusFields: &statusFields,
 	})
+}
+
+// voicesOrNone is a file's voices, none when it names none: an import
+// replaces every field the file holds, and a file without voices leaves
+// every voice to any.
+func voicesOrNone(voices map[string]string) map[string]string {
+	if voices == nil {
+		return map[string]string{}
+	}
+	return voices
 }

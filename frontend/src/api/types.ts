@@ -34,6 +34,8 @@ export type {
   UpdateGameReq,
   UserRoleInvite,
   VerifiedPageView,
+  VoiceChoice,
+  VoiceSlot,
   GameEmbedView,
   UserView,
   WorkshopParticipantView,

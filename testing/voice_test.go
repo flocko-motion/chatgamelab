@@ -42,6 +42,9 @@ func (s *VoiceTestSuite) voiceOutcome(user *testutil.UserClient, sessionID strin
 	return ""
 }
 
+// custom is the character's voice set to a voice of the game's own.
+var custom = &map[string]string{"character": "custom"}
+
 // The first session on a key makes the game's voice; the next one, and a
 // copy of the game with the same voice style, reuse it; another key makes
 // its own.
@@ -50,6 +53,7 @@ func (s *VoiceTestSuite) TestAVoiceIsMadeOncePerKeyAndStyle() {
 	Must(alice.AddApiKey("mock-voice-alice", "Alice's key", "mock"))
 	game := Must(alice.UploadGame("bridge-troll"))
 	game.VoiceStyle = "deep, slow and a little hoarse"
+	game.Voices = custom
 	Must(alice.UpdateGame(game.Id.String(), game))
 
 	first := Must(alice.CreateSession(testutil.ForGame(game.Id.String())))
@@ -60,6 +64,7 @@ func (s *VoiceTestSuite) TestAVoiceIsMadeOncePerKeyAndStyle() {
 
 	copied := Must(alice.UploadGame("bridge-troll"))
 	copied.VoiceStyle = game.VoiceStyle
+	copied.Voices = custom
 	Must(alice.UpdateGame(copied.Id.String(), copied))
 	other := Must(alice.CreateSession(testutil.ForGame(copied.Id.String())))
 	s.Equal("reused", s.voiceOutcome(alice, other), "another game with the same voice style reuses it")
@@ -69,6 +74,20 @@ func (s *VoiceTestSuite) TestAVoiceIsMadeOncePerKeyAndStyle() {
 	public := Must(alice.SetGamePublic(game.Id.String(), true))
 	bobs := Must(bob.CreateSession(testutil.ForGame(public.Id.String())))
 	s.Equal("created", s.voiceOutcome(bob, bobs), "another key makes its own")
+}
+
+// A character set to a built-in voice speaks in one, voice style or not:
+// no voice is made for it.
+func (s *VoiceTestSuite) TestABuiltInChoiceMakesNoVoice() {
+	frank := s.CreateUser("voice-frank")
+	Must(frank.AddApiKey("mock-voice-frank", "Frank's key", "mock"))
+	game := Must(frank.UploadGame("bridge-troll"))
+	game.VoiceStyle = "deep, slow and a little hoarse"
+	game.Voices = &map[string]string{"character": "female"}
+	Must(frank.UpdateGame(game.Id.String(), game))
+
+	id := Must(frank.CreateSession(testutil.ForGame(game.Id.String())))
+	s.Equal("built-in", s.voiceOutcome(frank, id))
 }
 
 // A game without a voice style speaks in the built-in voice.
@@ -108,19 +127,24 @@ func (s *VoiceTestSuite) TestAPreviewKeepsItsSampleUntilANewVoiceIsMade() {
 	game := Must(dana.UploadGame("bridge-troll"))
 	game.Genre = "npc-live"
 	game.VoiceStyle = style
+	game.Voices = &map[string]string{"character": "custom"}
 	Must(dana.UpdateGame(game.Id.String(), game))
 	id := Must(dana.CreateSession(testutil.ForGame(game.Id.String())))
 	s.Equal("reused", s.voiceOutcome(dana, id), "a game with the style speaks in the voice the preview made")
 }
 
-// A genre that makes no voice of its own, and an empty voice style, hear a
-// built-in voice; nothing is kept.
-func (s *VoiceTestSuite) TestWithoutAVoiceOfItsOwnTheBuiltInVoiceIsHeard() {
+// A voice set to a built-in choice is neither heard nor made in the editor,
+// as the session casts its own; custom without a voice style hears a
+// built-in voice, and nothing is kept.
+func (s *VoiceTestSuite) TestOnlyACustomVoiceIsHeard() {
 	erin := s.CreateUser("voice-erin")
 	Must(erin.AddApiKey("mock-voice-erin", "Erin's key", "mock"))
 
-	narrated := Must(erin.VoiceSample("adventure", "a warm narrator", ""))
-	s.False(narrated.OwnVoice)
-	s.False(Must(erin.VoiceSample("adventure", "a warm narrator", "")).Stored, "a built-in voice's sample is not kept")
-	s.False(Must(erin.VoiceSample("npc-live", "", "")).OwnVoice, "no voice style, no voice of its own")
+	for _, voice := range []string{"male", "female", "any"} {
+		_, err := erin.VoiceSampleFor(voice, "adventure", "a warm narrator", "")
+		s.Refused(err, testutil.CodeVoiceNotCustom, "no sample for a voice set to "+voice)
+	}
+	builtin := Must(erin.VoiceSample("npc-live", "", ""))
+	s.False(builtin.OwnVoice, "no voice style, no voice of its own")
+	s.False(builtin.Stored, "a built-in voice's sample is not kept")
 }

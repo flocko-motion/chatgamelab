@@ -10,6 +10,8 @@ var adventureLayout = ports.Layout{
 	"adapted-style":      {X: 199, Y: 1},
 	"condense-scenario":  {X: 400, Y: 1},
 	"condensed-scenario": {X: 287, Y: 2},
+	"cast":               {X: 0, Y: 1},
+	"cast-fallback":      {X: 0, Y: 75},
 	"start-game":         {X: 200, Y: 75},
 	"image-prompt":       {X: 286, Y: 130},
 	"image":              {X: 397, Y: 130},

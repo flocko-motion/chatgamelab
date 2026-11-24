@@ -44,6 +44,10 @@ type Thread struct {
 	// worded for a call to carry, empty when there is none.
 	system, constraints string
 
+	// Voice is the voice its spoken turns speak in until it is given one
+	// (SetVoice); empty speaks in the adapter's own. Set before Start.
+	Voice string
+
 	// Compaction is when and how the thread compacts. Set before Start; its
 	// Request changes during play through SetSummaryRequest. Guarded by mu.
 	Compaction Compaction
@@ -97,6 +101,8 @@ type threadState struct {
 	// transcript starts.
 	Summary string `json:"summary,omitempty"`
 	From    int    `json:"from,omitempty"`
+	// Voice is the voice its spoken turns speak in, once given one.
+	Voice string `json:"voice,omitempty"`
 }
 
 // Compaction is what a thread needs to compact itself: its model's context
@@ -144,6 +150,30 @@ func (t *Thread) SetSystem(system string) {
 	defer t.mu.Unlock()
 	t.system = system
 	t.state.Continuation = adapters.Continuation{}
+}
+
+// SetVoice gives the thread the voice its spoken turns speak in from the
+// next call on, kept with its state.
+func (t *Thread) SetVoice(voice string) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	t.state.Voice = voice
+}
+
+// givenVoice is the voice it was given, "" before any.
+func (t *Thread) givenVoice() string {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	return t.state.Voice
+}
+
+// voice is the voice its spoken turns speak in: the one given, or Voice.
+// Called with mu held.
+func (t *Thread) voice() string {
+	if t.state.Voice != "" {
+		return t.state.Voice
+	}
+	return t.Voice
 }
 
 // SetConstraints changes what a call carries of the youth-protection rule,
@@ -258,6 +288,7 @@ func (t *Thread) call(ctx context.Context, c threadCall) (adapters.ThreadReply, 
 		Directive:    c.directive,
 		Schema:       c.schema,
 		Speak:        c.speak,
+		Voice:        t.voice(),
 		Continuation: t.state.Continuation,
 		Summary:      t.state.Summary,
 		Transcript:   t.state.seed(),
@@ -383,7 +414,7 @@ func (t *Thread) compact(ctx context.Context, reseed bool, backoff []time.Durati
 func (t *Thread) ExportState() string {
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	if t.state.Continuation.ID == "" && len(t.state.Transcript) == 0 {
+	if t.state.Continuation.ID == "" && len(t.state.Transcript) == 0 && t.state.Voice == "" {
 		return ""
 	}
 	blob, err := json.Marshal(t.state)
@@ -516,12 +547,23 @@ type Threaded struct {
 
 	in       ports.TextInput
 	compacts chan struct{}
-	stream   ports.StreamBroadcast
-	whole    ports.TextBroadcast
-	audio    ports.AudioBroadcast
-	state    ports.StateBroadcast
-	meter    meter
-	spoken   spoken
+	// voiceIn takes the voice its thread's spoken turns speak in; once
+	// wired, the first call waits a while for it (VoiceWait).
+	voiceIn    ports.TextInput
+	voiceWired bool
+	// voiced closes once a voice has come; waited says the first call has
+	// waited for it.
+	voiced chan struct{}
+	waited bool
+	// VoiceWait is how long its first call waits for a voice wired to it.
+	// Set before Start.
+	VoiceWait time.Duration
+	stream    ports.StreamBroadcast
+	whole     ports.TextBroadcast
+	audio     ports.AudioBroadcast
+	state     ports.StateBroadcast
+	meter     meter
+	spoken    spoken
 }
 
 // spoken is the switch that has a block's calls spoken; off until set.
@@ -533,15 +575,18 @@ func (s *spoken) SetActive(on bool) { s.on.Store(on) }
 // blocks built on it before.
 func NewThreaded(name string, thread *Thread, prompt Prompt) *Threaded {
 	return &Threaded{
-		name:     name,
-		prompt:   newTunable(prompt),
-		thread:   thread,
-		seat:     thread.join(),
-		Backoff:  []time.Duration{time.Second, 2 * time.Second, 4 * time.Second, 8 * time.Second},
-		Attempts: 3,
-		in:       make(ports.TextInput, 16),
-		compacts: make(chan struct{}, 1),
-		meter:    meter{name: name},
+		name:      name,
+		prompt:    newTunable(prompt),
+		thread:    thread,
+		seat:      thread.join(),
+		Backoff:   []time.Duration{time.Second, 2 * time.Second, 4 * time.Second, 8 * time.Second},
+		Attempts:  3,
+		in:        make(ports.TextInput, 16),
+		compacts:  make(chan struct{}, 1),
+		voiceIn:   make(ports.TextInput, 1),
+		voiced:    make(chan struct{}),
+		VoiceWait: 3 * time.Second,
+		meter:     meter{name: name},
 	}
 }
 
@@ -555,6 +600,49 @@ func (b *Threaded) Thread() *Thread { return b.thread }
 // shows working meanwhile and pays for the summary. A request while one waits
 // is the same request.
 func (b *Threaded) Compact() { request(b.compacts) }
+
+// VoiceInPort takes the voice its thread's spoken turns speak in, by name.
+// Wiring it makes its first call wait for one; set before Start.
+func (b *Threaded) VoiceInPort() chan<- string {
+	b.voiceWired = true
+	return b.voiceIn
+}
+
+// holdVoice gives the thread each voice as it comes, so a call of another
+// block on the thread speaks in it too.
+func (b *Threaded) holdVoice(ctx context.Context) {
+	first := true
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case voice, open := <-b.voiceIn:
+			if !open {
+				return
+			}
+			b.thread.SetVoice(voice)
+			if first {
+				close(b.voiced)
+				first = false
+			}
+		}
+	}
+}
+
+// awaitVoice waits before its first call, wired for a voice and without
+// one, until it comes or VoiceWait has passed: the voice comes from
+// preparation, which the call may outrun.
+func (b *Threaded) awaitVoice(ctx context.Context) {
+	if !b.voiceWired || b.waited || b.thread.givenVoice() != "" {
+		return
+	}
+	b.waited = true
+	select {
+	case <-b.voiced:
+	case <-time.After(b.VoiceWait):
+	case <-ctx.Done():
+	}
+}
 
 func (b *Threaded) NodeName() string             { return b.name }
 func (b *Threaded) TextInPort() chan<- string    { return b.in }
@@ -582,6 +670,9 @@ func (b *Threaded) UsageOutPort() <-chan ports.Usage { return b.meter.usage.Subs
 func (b *Threaded) StateOutPort() <-chan ports.State { return b.state.Subscribe() }
 
 func (b *Threaded) Start(ctx context.Context) {
+	if b.voiceWired {
+		go b.holdVoice(ctx)
+	}
 	go func() {
 		defer func() {
 			b.stream.Close()
@@ -615,6 +706,7 @@ func (b *Threaded) Start(ctx context.Context) {
 				}
 
 				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
+				b.awaitVoice(ctx)
 				reply, err := b.call(ctx)
 				if ctx.Err() != nil {
 					return

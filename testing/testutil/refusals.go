@@ -24,6 +24,7 @@ const (
 	CodeInvalidInput             = "invalid_input"
 	CodeInvalidPlatform          = "invalid_platform"
 	CodeDuplicateName            = "duplicate_name"
+	CodeVoiceNotCustom           = "voice_not_custom"
 	CodeNameTooLong              = "name_too_long"
 	CodeProfaneName              = "profane_name"
 	CodeLastHead                 = "last_head"

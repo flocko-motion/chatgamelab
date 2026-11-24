@@ -4,6 +4,7 @@ go/engine/*.go
 go/engine/api/*.go
 go/engine/internal/adapters/*.go
 go/engine/internal/blocks/*.go
+go/engine/internal/genre/*.go
 go/engine/internal/ports/*.go
 go/events/*.go
 go/legal/*.go

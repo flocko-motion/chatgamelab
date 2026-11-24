@@ -18,6 +18,7 @@ func TestGameSpec(t *testing.T) {
 		ImageStyle:   "woodcut",
 		Theme:        &theme,
 		StatusFields: `[{"name":"Mood","value":"grumpy"}]`,
+		Voices:       map[string]string{"character": "female"},
 	}
 	spec := gameSpec(game, "de", Rule{Text: &rule})
 	want := engine.SessionSpec{
@@ -28,7 +29,7 @@ func TestGameSpec(t *testing.T) {
 	if spec.Genre != want.Genre || spec.Title != want.Title || spec.Scenario != want.Scenario ||
 		spec.InitPrompt != want.InitPrompt || spec.ImageStyle != want.ImageStyle || spec.Theme != want.Theme ||
 		spec.Language != want.Language || spec.Guardrail != want.Guardrail || spec.Status["Mood"] != "grumpy" ||
-		spec.Description != "Talk your way past a troll." {
+		spec.Description != "Talk your way past a troll." || spec.Voices["character"] != engine.VoiceFemale {
 		t.Errorf("spec %+v, want %+v", spec, want)
 	}
 }

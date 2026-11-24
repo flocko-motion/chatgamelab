@@ -3,6 +3,8 @@ package core
 import (
 	"bytes"
 	"context"
+	"encoding/json"
+	"maps"
 	"slices"
 	"strings"
 
@@ -34,6 +36,7 @@ type GameChanges struct {
 	GameStart    *string
 	ImageStyle   *string
 	VoiceStyle   *string
+	Voices       map[string]string // nil: unchanged
 	CSS          *string
 	StatusFields *string
 	FirstMessage *string // "": none
@@ -87,6 +90,7 @@ func UpdateGame(ctx context.Context, id uuid.UUID, ch GameChanges) (*GameCard, e
 		GameStart:    next.gameStart,
 		ImageStyle:   next.imageStyle,
 		VoiceStyle:   next.voiceStyle,
+		Voices:       voicesJSON(next.voices),
 		Css:          next.css,
 		StatusFields: next.statusFields,
 		FirstMessage: sqlString(next.firstMessage),
@@ -134,6 +138,9 @@ func (ch GameChanges) applyContent(row *gameRow) bool {
 	set(&row.gameStart, ch.GameStart, &changed)
 	set(&row.imageStyle, ch.ImageStyle, &changed)
 	set(&row.voiceStyle, ch.VoiceStyle, &changed)
+	if ch.Voices != nil && !maps.Equal(ch.Voices, row.voices) {
+		row.voices, changed = maps.Clone(ch.Voices), true
+	}
 	set(&row.css, ch.CSS, &changed)
 	set(&row.statusFields, ch.StatusFields, &changed)
 	setOptional(&row.firstMessage, ch.FirstMessage, &changed)
@@ -153,7 +160,49 @@ func (r gameRow) validate() error {
 	if !slices.Contains(engine.Genres(), engine.Genre(r.genre)) {
 		return refuse("unknown genre %q", r.genre)
 	}
+	return validVoices(r.voices)
+}
+
+// voiceChoices are the choices a voice may have.
+var voiceChoices = []engine.VoiceChoice{engine.VoiceMale, engine.VoiceFemale, engine.VoiceAny, engine.VoiceCustom}
+
+// maxVoices and maxVoiceName bound a game's voices: a genre speaks in a few.
+const (
+	maxVoices    = 16
+	maxVoiceName = 40
+)
+
+// validVoices refuses voices of no shape a game may have: a choice per named
+// voice, each a known one. Which voices there are is the engine's.
+func validVoices(voices map[string]string) error {
+	if len(voices) > maxVoices {
+		return refuse("a game has at most %d voices", maxVoices)
+	}
+	for name, choice := range voices {
+		if strings.TrimSpace(name) == "" || len(name) > maxVoiceName {
+			return refuse("a voice's name is 1 to %d characters", maxVoiceName)
+		}
+		if !slices.Contains(voiceChoices, engine.VoiceChoice(choice)) {
+			return refuse("unknown choice %q for the voice %q", choice, name)
+		}
+	}
 	return nil
+}
+
+// voicesFrom reads a game's stored voices; unreadable ones are none.
+func voicesFrom(stored []byte) map[string]string {
+	voices := map[string]string{}
+	_ = json.Unmarshal(stored, &voices)
+	return voices
+}
+
+// voicesJSON is a game's voices as stored, "{}" for none.
+func voicesJSON(voices map[string]string) []byte {
+	if len(voices) == 0 {
+		return []byte("{}")
+	}
+	stored, _ := json.Marshal(voices)
+	return stored
 }
 
 // set writes to into field if it is given and differs.
@@ -183,4 +232,11 @@ func setBytes(field *[]byte, to []byte, changed *bool) {
 	if to != nil && !bytes.Equal(to, *field) {
 		*field, *changed = to, true
 	}
+}
+
+// cloneVoices is a copy of a game's voices, empty for none.
+func cloneVoices(voices map[string]string) map[string]string {
+	out := make(map[string]string, len(voices))
+	maps.Copy(out, voices)
+	return out
 }

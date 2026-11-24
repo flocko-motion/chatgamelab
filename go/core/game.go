@@ -166,6 +166,7 @@ type gameRow struct {
 	gameStart    string
 	imageStyle   string
 	voiceStyle   string
+	voices       map[string]string // voice slot: choice; a slot left out is any
 	css          string
 	statusFields string
 	firstMessage *string
@@ -200,6 +201,7 @@ func gameRowFrom(ctx context.Context, r db.V2GameCardsRow) gameRow {
 		gameStart:    r.SystemMessageGameStart,
 		imageStyle:   r.ImageStyle,
 		voiceStyle:   r.VoiceStyle,
+		voices:       voicesFrom(r.Voices),
 		css:          r.Css,
 		statusFields: r.StatusFields,
 		firstMessage: nullString(r.FirstMessage),
@@ -329,7 +331,12 @@ func (c *GameContent) ImageStyle() string { return c.card.row.imageStyle }
 
 // VoiceStyle is how the game's voice sounds, in the designer's words; empty
 // leaves the voice to the engine.
-func (c *GameContent) VoiceStyle() string    { return c.card.row.voiceStyle }
+func (c *GameContent) VoiceStyle() string { return c.card.row.voiceStyle }
+
+// Voices is the game's choice for each voice its genre speaks in, by the
+// voice's name; a voice left out is any.
+func (c *GameContent) Voices() map[string]string { return cloneVoices(c.card.row.voices) }
+
 func (c *GameContent) CSS() string           { return c.card.row.css }
 func (c *GameContent) StatusFields() string  { return c.card.row.statusFields }
 func (c *GameContent) FirstMessage() *string { return c.card.row.firstMessage }

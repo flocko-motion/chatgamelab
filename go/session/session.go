@@ -147,6 +147,7 @@ type gameFacts struct {
 	GameStart    string
 	ImageStyle   string
 	VoiceStyle   string
+	Voices       map[string]string
 	Theme        *string
 	StatusFields string
 }
@@ -166,7 +167,7 @@ func readGame(ctx context.Context, read func() (*core.GameCard, error)) (*gameFa
 		card: card,
 		ID:   card.ID(), Genre: card.Genre(), Name: card.Name(), Description: card.Description(), Theme: card.Theme(),
 		Scenario: content.Scenario(), GameStart: content.GameStart(), ImageStyle: content.ImageStyle(), VoiceStyle: content.VoiceStyle(),
-		StatusFields: content.StatusFields(),
+		Voices: content.Voices(), StatusFields: content.StatusFields(),
 	}, nil
 }
 
@@ -196,6 +197,18 @@ func galleryImage(ctx context.Context, card *core.GameCard) []byte {
 	return cover.Image
 }
 
+// voiceChoices are a game's voices as the engine takes them.
+func voiceChoices(voices map[string]string) map[string]engine.VoiceChoice {
+	if len(voices) == 0 {
+		return nil
+	}
+	out := make(map[string]engine.VoiceChoice, len(voices))
+	for name, choice := range voices {
+		out[name] = engine.VoiceChoice(choice)
+	}
+	return out
+}
+
 // gameSpec assembles a session spec from a game, the player's language and
 // the youth-protection rule resolved for this play.
 func gameSpec(game *gameFacts, language string, rule Rule) engine.SessionSpec {
@@ -207,6 +220,7 @@ func gameSpec(game *gameFacts, language string, rule Rule) engine.SessionSpec {
 		InitPrompt:  game.GameStart,
 		ImageStyle:  game.ImageStyle,
 		VoiceStyle:  game.VoiceStyle,
+		Voices:      voiceChoices(game.Voices),
 		Language:    language,
 		Status:      statusValues(game.StatusFields),
 	}

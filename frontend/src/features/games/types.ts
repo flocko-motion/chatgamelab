@@ -7,6 +7,8 @@ export interface CreateGameFormData {
   imageStyle?: string;
   /** How the game's voice sounds: the narrator's, or the character's. */
   voiceStyle?: string;
+  /** The choice for each voice the genre speaks in, by the voice's name. */
+  voices?: Record<string, string>;
   statusFields?: string;
   /** One of the engine's genres; empty makes an adventure. */
   genre?: string;

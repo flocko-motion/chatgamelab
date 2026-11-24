@@ -11,6 +11,7 @@ interface GameYaml {
   system_message_game_start?: string;
   image_style?: string;
   voice_style?: string;
+  voices?: Record<string, unknown>;
   status_fields?: string;
   genre?: string;
   theme?: string;
@@ -29,6 +30,15 @@ export function parseGameYaml(content: string): Partial<CreateGameFormData> {
 
   const str = (v: unknown): string | undefined =>
     typeof v === "string" && v.trim() ? v.trim() : undefined;
+  // The choice for each voice, by its name; anything else is left out.
+  const voices = (v: unknown): Record<string, string> | undefined => {
+    if (!v || typeof v !== "object") return undefined;
+    const out: Record<string, string> = {};
+    for (const [name, choice] of Object.entries(v)) {
+      if (typeof choice === "string") out[name] = choice;
+    }
+    return out;
+  };
 
   return {
     name: str(parsed.name) ?? "",
@@ -38,6 +48,7 @@ export function parseGameYaml(content: string): Partial<CreateGameFormData> {
     systemMessageGameStart: str(parsed.system_message_game_start),
     imageStyle: str(parsed.image_style),
     voiceStyle: str(parsed.voice_style),
+    voices: voices(parsed.voices),
     statusFields: str(parsed.status_fields),
     genre: str(parsed.genre),
     theme: str(parsed.theme),

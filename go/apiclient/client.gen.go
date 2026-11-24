@@ -722,6 +722,30 @@ func (e VerifiedPageSort) Valid() bool {
 	}
 }
 
+// Defines values for VoiceChoice.
+const (
+	VoiceChoiceAny    VoiceChoice = "any"
+	VoiceChoiceCustom VoiceChoice = "custom"
+	VoiceChoiceFemale VoiceChoice = "female"
+	VoiceChoiceMale   VoiceChoice = "male"
+)
+
+// Valid indicates whether the value is a known member of the VoiceChoice enum.
+func (e VoiceChoice) Valid() bool {
+	switch e {
+	case VoiceChoiceAny:
+		return true
+	case VoiceChoiceCustom:
+		return true
+	case VoiceChoiceFemale:
+		return true
+	case VoiceChoiceMale:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for WorkshopFilter.
 const (
 	WorkshopFilterActive WorkshopFilter = "active"
@@ -935,21 +959,22 @@ type CreateApiKeyReq struct {
 
 // CreateGameReq defines model for CreateGameReq.
 type CreateGameReq struct {
-	Css                    *string `json:"css,omitempty"`
-	Description            *string `json:"description,omitempty"`
-	FirstImage             *[]byte `json:"firstImage,omitempty"`
-	FirstMessage           *string `json:"firstMessage,omitempty"`
-	FirstStatus            *string `json:"firstStatus,omitempty"`
-	Genre                  *string `json:"genre,omitempty"`
-	Icon                   *[]byte `json:"icon,omitempty"`
-	ImageStyle             *string `json:"imageStyle,omitempty"`
-	Name                   *string `json:"name,omitempty"`
-	Public                 *bool   `json:"public,omitempty"`
-	StatusFields           *string `json:"statusFields,omitempty"`
-	SystemMessageGameStart *string `json:"systemMessageGameStart,omitempty"`
-	SystemMessageScenario  *string `json:"systemMessageScenario,omitempty"`
-	Theme                  *string `json:"theme,omitempty"`
-	VoiceStyle             *string `json:"voiceStyle,omitempty"`
+	Css                    *string            `json:"css,omitempty"`
+	Description            *string            `json:"description,omitempty"`
+	FirstImage             *[]byte            `json:"firstImage,omitempty"`
+	FirstMessage           *string            `json:"firstMessage,omitempty"`
+	FirstStatus            *string            `json:"firstStatus,omitempty"`
+	Genre                  *string            `json:"genre,omitempty"`
+	Icon                   *[]byte            `json:"icon,omitempty"`
+	ImageStyle             *string            `json:"imageStyle,omitempty"`
+	Name                   *string            `json:"name,omitempty"`
+	Public                 *bool              `json:"public,omitempty"`
+	StatusFields           *string            `json:"statusFields,omitempty"`
+	SystemMessageGameStart *string            `json:"systemMessageGameStart,omitempty"`
+	SystemMessageScenario  *string            `json:"systemMessageScenario,omitempty"`
+	Theme                  *string            `json:"theme,omitempty"`
+	VoiceStyle             *string            `json:"voiceStyle,omitempty"`
+	Voices                 *map[string]string `json:"voices,omitempty"`
 }
 
 // CreateGameShareReq defines model for CreateGameShareReq.
@@ -1116,6 +1141,7 @@ type Game struct {
 	Tags                         []GameTag           `json:"tags"`
 	Theme                        *string             `json:"theme,omitempty"`
 	VoiceStyle                   string              `json:"voiceStyle"`
+	Voices                       *map[string]string  `json:"voices,omitempty"`
 	WorkshopId                   *openapi_types.UUID `json:"workshopId,omitempty"`
 }
 
@@ -1159,6 +1185,7 @@ type GameFile struct {
 	SystemMessageScenario  string             `json:"system_message_scenario"`
 	Theme                  *string            `json:"theme,omitempty"`
 	VoiceStyle             *string            `json:"voice_style,omitempty"`
+	Voices                 *map[string]string `json:"voices,omitempty"`
 }
 
 // GameFilter defines model for GameFilter.
@@ -1189,25 +1216,26 @@ type GameTag struct {
 
 // GameTemplate defines model for GameTemplate.
 type GameTemplate struct {
-	Css                    *string `json:"css,omitempty"`
-	Description            string  `json:"description"`
-	FirstImage             *[]byte `json:"firstImage,omitempty"`
-	FirstMessage           *string `json:"firstMessage,omitempty"`
-	FirstStatus            *string `json:"firstStatus,omitempty"`
-	Genre                  string  `json:"genre"`
-	HasContent             bool    `json:"hasContent"`
-	Icon                   []byte  `json:"icon"`
-	ImageStyle             *string `json:"imageStyle,omitempty"`
-	MayEditCard            bool    `json:"mayEditCard"`
-	MayEditContent         bool    `json:"mayEditContent"`
-	MayPublish             bool    `json:"mayPublish"`
-	Name                   string  `json:"name"`
-	Public                 bool    `json:"public"`
-	StatusFields           *string `json:"statusFields,omitempty"`
-	SystemMessageGameStart *string `json:"systemMessageGameStart,omitempty"`
-	SystemMessageScenario  *string `json:"systemMessageScenario,omitempty"`
-	Theme                  *string `json:"theme,omitempty"`
-	VoiceStyle             *string `json:"voiceStyle,omitempty"`
+	Css                    *string            `json:"css,omitempty"`
+	Description            string             `json:"description"`
+	FirstImage             *[]byte            `json:"firstImage,omitempty"`
+	FirstMessage           *string            `json:"firstMessage,omitempty"`
+	FirstStatus            *string            `json:"firstStatus,omitempty"`
+	Genre                  string             `json:"genre"`
+	HasContent             bool               `json:"hasContent"`
+	Icon                   []byte             `json:"icon"`
+	ImageStyle             *string            `json:"imageStyle,omitempty"`
+	MayEditCard            bool               `json:"mayEditCard"`
+	MayEditContent         bool               `json:"mayEditContent"`
+	MayPublish             bool               `json:"mayPublish"`
+	Name                   string             `json:"name"`
+	Public                 bool               `json:"public"`
+	StatusFields           *string            `json:"statusFields,omitempty"`
+	SystemMessageGameStart *string            `json:"systemMessageGameStart,omitempty"`
+	SystemMessageScenario  *string            `json:"systemMessageScenario,omitempty"`
+	Theme                  *string            `json:"theme,omitempty"`
+	VoiceStyle             *string            `json:"voiceStyle,omitempty"`
+	Voices                 *map[string]string `json:"voices,omitempty"`
 }
 
 // GameView defines model for GameView.
@@ -1249,6 +1277,7 @@ type GameView struct {
 	SystemMessageScenario        *string             `json:"systemMessageScenario,omitempty"`
 	Theme                        *string             `json:"theme,omitempty"`
 	VoiceStyle                   *string             `json:"voiceStyle,omitempty"`
+	Voices                       *map[string]string  `json:"voices,omitempty"`
 	WorkshopId                   *openapi_types.UUID `json:"workshopId,omitempty"`
 }
 
@@ -1263,11 +1292,11 @@ type Genre string
 
 // GenreInfo defines model for GenreInfo.
 type GenreInfo struct {
-	Fields      []GameField   `json:"fields"`
-	Id          Genre         `json:"id"`
-	MakesVoices bool          `json:"makesVoices"`
-	Needs       []Toggle      `json:"needs"`
-	Prompts     []GenrePrompt `json:"prompts"`
+	Fields     []GameField   `json:"fields"`
+	Id         Genre         `json:"id"`
+	Needs      []Toggle      `json:"needs"`
+	Prompts    []GenrePrompt `json:"prompts"`
+	VoiceSlots []VoiceSlot   `json:"voiceSlots"`
 }
 
 // GenrePrompt defines model for GenrePrompt.
@@ -2209,21 +2238,22 @@ type UpdateApiKeyReq struct {
 
 // UpdateGameReq defines model for UpdateGameReq.
 type UpdateGameReq struct {
-	Css                    *string `json:"css,omitempty"`
-	Description            *string `json:"description,omitempty"`
-	FirstImage             *[]byte `json:"firstImage,omitempty"`
-	FirstMessage           *string `json:"firstMessage,omitempty"`
-	FirstStatus            *string `json:"firstStatus,omitempty"`
-	Genre                  *string `json:"genre,omitempty"`
-	Icon                   *[]byte `json:"icon,omitempty"`
-	ImageStyle             *string `json:"imageStyle,omitempty"`
-	Name                   *string `json:"name,omitempty"`
-	Public                 *bool   `json:"public,omitempty"`
-	StatusFields           *string `json:"statusFields,omitempty"`
-	SystemMessageGameStart *string `json:"systemMessageGameStart,omitempty"`
-	SystemMessageScenario  *string `json:"systemMessageScenario,omitempty"`
-	Theme                  *string `json:"theme,omitempty"`
-	VoiceStyle             *string `json:"voiceStyle,omitempty"`
+	Css                    *string            `json:"css,omitempty"`
+	Description            *string            `json:"description,omitempty"`
+	FirstImage             *[]byte            `json:"firstImage,omitempty"`
+	FirstMessage           *string            `json:"firstMessage,omitempty"`
+	FirstStatus            *string            `json:"firstStatus,omitempty"`
+	Genre                  *string            `json:"genre,omitempty"`
+	Icon                   *[]byte            `json:"icon,omitempty"`
+	ImageStyle             *string            `json:"imageStyle,omitempty"`
+	Name                   *string            `json:"name,omitempty"`
+	Public                 *bool              `json:"public,omitempty"`
+	StatusFields           *string            `json:"statusFields,omitempty"`
+	SystemMessageGameStart *string            `json:"systemMessageGameStart,omitempty"`
+	SystemMessageScenario  *string            `json:"systemMessageScenario,omitempty"`
+	Theme                  *string            `json:"theme,omitempty"`
+	VoiceStyle             *string            `json:"voiceStyle,omitempty"`
+	Voices                 *map[string]string `json:"voices,omitempty"`
 }
 
 // UpdateGameShareReq defines model for UpdateGameShareReq.
@@ -2245,6 +2275,7 @@ type UpdateGameYAMLReq struct {
 	SystemMessageScenario  string             `json:"system_message_scenario"`
 	Theme                  *string            `json:"theme,omitempty"`
 	VoiceStyle             *string            `json:"voice_style,omitempty"`
+	Voices                 *map[string]string `json:"voices,omitempty"`
 }
 
 // UpdateInstitutionReq defines model for UpdateInstitutionReq.
@@ -2462,10 +2493,14 @@ type VerifiedPagesResp struct {
 	Pages []VerifiedPageView `json:"pages"`
 }
 
+// VoiceChoice defines model for VoiceChoice.
+type VoiceChoice string
+
 // VoiceSampleReq defines model for VoiceSampleReq.
 type VoiceSampleReq struct {
 	Genre      string `json:"genre"`
 	Scenario   string `json:"scenario"`
+	Voice      string `json:"voice"`
 	VoiceStyle string `json:"voiceStyle"`
 }
 
@@ -2475,6 +2510,12 @@ type VoiceSampleResp struct {
 	ContentType string `json:"contentType"`
 	OwnVoice    bool   `json:"ownVoice"`
 	Stored      bool   `json:"stored"`
+}
+
+// VoiceSlot defines model for VoiceSlot.
+type VoiceSlot struct {
+	Choices []VoiceChoice `json:"choices"`
+	Name    string        `json:"name"`
 }
 
 // Workshop defines model for Workshop.
@@ -4828,9 +4869,9 @@ type ClientInterface interface {
 	//
 	// answers its sample, as VoiceSampleEndpoint does. The voice made before for
 	// that key and style, and its sample, are deleted: every game with exactly
-	// this voice style on this key speaks in the new voice from now on. A genre
-	// that makes no voices of its own, or an empty voice style, makes none and
-	// only plays the built-in voice.
+	// this voice style on this key speaks in the new voice from now on. Only for
+	// a voice set to custom, as VoiceSampleEndpoint; an empty voice style makes
+	// none and only plays the built-in voice.
 	//
 	// Takes any type of body and a specified content type.
 	//
@@ -4841,26 +4882,28 @@ type ClientInterface interface {
 	//
 	// answers its sample, as VoiceSampleEndpoint does. The voice made before for
 	// that key and style, and its sample, are deleted: every game with exactly
-	// this voice style on this key speaks in the new voice from now on. A genre
-	// that makes no voices of its own, or an empty voice style, makes none and
-	// only plays the built-in voice.
+	// this voice style on this key speaks in the new voice from now on. Only for
+	// a voice set to custom, as VoiceSampleEndpoint; an empty voice style makes
+	// none and only plays the built-in voice.
 	//
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /api/voices/new (the `PostApiVoicesNew` operationId).
 	PostApiVoicesNew(ctx context.Context, body PostApiVoicesNewJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiVoicesSampleWithBody Has the voice a game of the genre speaks in say a
+	// PostApiVoicesSampleWithBody Has the voice made for a game's voice style say a
 	//
 	// neutral sample line, the same for every game, in the caller's language,
 	// and answers it as audio. It reads the form as it is, so a game not yet
 	// saved is heard too.
 	//
-	// A genre that makes voices of its own (makesVoices in /api/genres) speaks
-	// in the voice made for the voice style on the paying key: the first sample
-	// makes the voice when there is none and keeps the sample, and later ones
-	// play it without asking the provider (stored: true). Otherwise, and with an
-	// empty voice style, a built-in voice speaks, as the style steers it.
+	// Only a voice set to custom, in a genre that offers it, is heard (a choice
+	// in voiceSlots of /api/genres): with a built-in choice the session casts its
+	// own voice, so a sample would mislead, and anything else is refused with
+	// 400 voice_not_custom. The voice made for the voice style on the paying key
+	// speaks: the first sample makes the voice when there is none and keeps the
+	// sample, and later ones play it without asking the provider (stored: true).
+	// With an empty voice style a built-in voice speaks.
 	//
 	// The caller pays with their own keys, as in the editor: workshop,
 	// organisation, own, site; never a game's sponsor. None that speaks live:
@@ -4872,17 +4915,19 @@ type ClientInterface interface {
 	// Corresponds with POST /api/voices/sample (the `PostApiVoicesSample` operationId).
 	PostApiVoicesSampleWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiVoicesSample Has the voice a game of the genre speaks in say a
+	// PostApiVoicesSample Has the voice made for a game's voice style say a
 	//
 	// neutral sample line, the same for every game, in the caller's language,
 	// and answers it as audio. It reads the form as it is, so a game not yet
 	// saved is heard too.
 	//
-	// A genre that makes voices of its own (makesVoices in /api/genres) speaks
-	// in the voice made for the voice style on the paying key: the first sample
-	// makes the voice when there is none and keeps the sample, and later ones
-	// play it without asking the provider (stored: true). Otherwise, and with an
-	// empty voice style, a built-in voice speaks, as the style steers it.
+	// Only a voice set to custom, in a genre that offers it, is heard (a choice
+	// in voiceSlots of /api/genres): with a built-in choice the session casts its
+	// own voice, so a sample would mislead, and anything else is refused with
+	// 400 voice_not_custom. The voice made for the voice style on the paying key
+	// speaks: the first sample makes the voice when there is none and keeps the
+	// sample, and later ones play it without asking the provider (stored: true).
+	// With an empty voice style a built-in voice speaks.
 	//
 	// The caller pays with their own keys, as in the editor: workshop,
 	// organisation, own, site; never a game's sponsor. None that speaks live:
@@ -8848,9 +8893,9 @@ func (c *Client) GetApiVersion(ctx context.Context, reqEditors ...RequestEditorF
 //
 // answers its sample, as VoiceSampleEndpoint does. The voice made before for
 // that key and style, and its sample, are deleted: every game with exactly
-// this voice style on this key speaks in the new voice from now on. A genre
-// that makes no voices of its own, or an empty voice style, makes none and
-// only plays the built-in voice.
+// this voice style on this key speaks in the new voice from now on. Only for
+// a voice set to custom, as VoiceSampleEndpoint; an empty voice style makes
+// none and only plays the built-in voice.
 //
 // Takes any type of body and a specified content type.
 //
@@ -8871,9 +8916,9 @@ func (c *Client) PostApiVoicesNewWithBody(ctx context.Context, contentType strin
 //
 // answers its sample, as VoiceSampleEndpoint does. The voice made before for
 // that key and style, and its sample, are deleted: every game with exactly
-// this voice style on this key speaks in the new voice from now on. A genre
-// that makes no voices of its own, or an empty voice style, makes none and
-// only plays the built-in voice.
+// this voice style on this key speaks in the new voice from now on. Only for
+// a voice set to custom, as VoiceSampleEndpoint; an empty voice style makes
+// none and only plays the built-in voice.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -8890,17 +8935,19 @@ func (c *Client) PostApiVoicesNew(ctx context.Context, body PostApiVoicesNewJSON
 	return c.Client.Do(req)
 }
 
-// PostApiVoicesSampleWithBody Has the voice a game of the genre speaks in say a
+// PostApiVoicesSampleWithBody Has the voice made for a game's voice style say a
 //
 // neutral sample line, the same for every game, in the caller's language,
 // and answers it as audio. It reads the form as it is, so a game not yet
 // saved is heard too.
 //
-// A genre that makes voices of its own (makesVoices in /api/genres) speaks
-// in the voice made for the voice style on the paying key: the first sample
-// makes the voice when there is none and keeps the sample, and later ones
-// play it without asking the provider (stored: true). Otherwise, and with an
-// empty voice style, a built-in voice speaks, as the style steers it.
+// Only a voice set to custom, in a genre that offers it, is heard (a choice
+// in voiceSlots of /api/genres): with a built-in choice the session casts its
+// own voice, so a sample would mislead, and anything else is refused with
+// 400 voice_not_custom. The voice made for the voice style on the paying key
+// speaks: the first sample makes the voice when there is none and keeps the
+// sample, and later ones play it without asking the provider (stored: true).
+// With an empty voice style a built-in voice speaks.
 //
 // The caller pays with their own keys, as in the editor: workshop,
 // organisation, own, site; never a game's sponsor. None that speaks live:
@@ -8922,17 +8969,19 @@ func (c *Client) PostApiVoicesSampleWithBody(ctx context.Context, contentType st
 	return c.Client.Do(req)
 }
 
-// PostApiVoicesSample Has the voice a game of the genre speaks in say a
+// PostApiVoicesSample Has the voice made for a game's voice style say a
 //
 // neutral sample line, the same for every game, in the caller's language,
 // and answers it as audio. It reads the form as it is, so a game not yet
 // saved is heard too.
 //
-// A genre that makes voices of its own (makesVoices in /api/genres) speaks
-// in the voice made for the voice style on the paying key: the first sample
-// makes the voice when there is none and keeps the sample, and later ones
-// play it without asking the provider (stored: true). Otherwise, and with an
-// empty voice style, a built-in voice speaks, as the style steers it.
+// Only a voice set to custom, in a genre that offers it, is heard (a choice
+// in voiceSlots of /api/genres): with a built-in choice the session casts its
+// own voice, so a sample would mislead, and anything else is refused with
+// 400 voice_not_custom. The voice made for the voice style on the paying key
+// speaks: the first sample makes the voice when there is none and keeps the
+// sample, and later ones play it without asking the provider (stored: true).
+// With an empty voice style a built-in voice speaks.
 //
 // The caller pays with their own keys, as in the editor: workshop,
 // organisation, own, site; never a game's sponsor. None that speaks live:
@@ -18278,9 +18327,9 @@ type ClientWithResponsesInterface interface {
 	//
 	// answers its sample, as VoiceSampleEndpoint does. The voice made before for
 	// that key and style, and its sample, are deleted: every game with exactly
-	// this voice style on this key speaks in the new voice from now on. A genre
-	// that makes no voices of its own, or an empty voice style, makes none and
-	// only plays the built-in voice.
+	// this voice style on this key speaks in the new voice from now on. Only for
+	// a voice set to custom, as VoiceSampleEndpoint; an empty voice style makes
+	// none and only plays the built-in voice.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -18291,26 +18340,28 @@ type ClientWithResponsesInterface interface {
 	//
 	// answers its sample, as VoiceSampleEndpoint does. The voice made before for
 	// that key and style, and its sample, are deleted: every game with exactly
-	// this voice style on this key speaks in the new voice from now on. A genre
-	// that makes no voices of its own, or an empty voice style, makes none and
-	// only plays the built-in voice.
+	// this voice style on this key speaks in the new voice from now on. Only for
+	// a voice set to custom, as VoiceSampleEndpoint; an empty voice style makes
+	// none and only plays the built-in voice.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /api/voices/new (the `PostApiVoicesNew` operationId).
 	PostApiVoicesNewWithResponse(ctx context.Context, body PostApiVoicesNewJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiVoicesNewResponse, error)
 
-	// PostApiVoicesSampleWithBodyWithResponse Has the voice a game of the genre speaks in say a
+	// PostApiVoicesSampleWithBodyWithResponse Has the voice made for a game's voice style say a
 	//
 	// neutral sample line, the same for every game, in the caller's language,
 	// and answers it as audio. It reads the form as it is, so a game not yet
 	// saved is heard too.
 	//
-	// A genre that makes voices of its own (makesVoices in /api/genres) speaks
-	// in the voice made for the voice style on the paying key: the first sample
-	// makes the voice when there is none and keeps the sample, and later ones
-	// play it without asking the provider (stored: true). Otherwise, and with an
-	// empty voice style, a built-in voice speaks, as the style steers it.
+	// Only a voice set to custom, in a genre that offers it, is heard (a choice
+	// in voiceSlots of /api/genres): with a built-in choice the session casts its
+	// own voice, so a sample would mislead, and anything else is refused with
+	// 400 voice_not_custom. The voice made for the voice style on the paying key
+	// speaks: the first sample makes the voice when there is none and keeps the
+	// sample, and later ones play it without asking the provider (stored: true).
+	// With an empty voice style a built-in voice speaks.
 	//
 	// The caller pays with their own keys, as in the editor: workshop,
 	// organisation, own, site; never a game's sponsor. None that speaks live:
@@ -18322,17 +18373,19 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /api/voices/sample (the `PostApiVoicesSample` operationId).
 	PostApiVoicesSampleWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiVoicesSampleResponse, error)
 
-	// PostApiVoicesSampleWithResponse Has the voice a game of the genre speaks in say a
+	// PostApiVoicesSampleWithResponse Has the voice made for a game's voice style say a
 	//
 	// neutral sample line, the same for every game, in the caller's language,
 	// and answers it as audio. It reads the form as it is, so a game not yet
 	// saved is heard too.
 	//
-	// A genre that makes voices of its own (makesVoices in /api/genres) speaks
-	// in the voice made for the voice style on the paying key: the first sample
-	// makes the voice when there is none and keeps the sample, and later ones
-	// play it without asking the provider (stored: true). Otherwise, and with an
-	// empty voice style, a built-in voice speaks, as the style steers it.
+	// Only a voice set to custom, in a genre that offers it, is heard (a choice
+	// in voiceSlots of /api/genres): with a built-in choice the session casts its
+	// own voice, so a sample would mislead, and anything else is refused with
+	// 400 voice_not_custom. The voice made for the voice style on the paying key
+	// speaks: the first sample makes the voice when there is none and keeps the
+	// sample, and later ones play it without asking the provider (stored: true).
+	// With an empty voice style a built-in voice speaks.
 	//
 	// The caller pays with their own keys, as in the editor: workshop,
 	// organisation, own, site; never a game's sponsor. None that speaks live:
@@ -29318,9 +29371,9 @@ func (c *ClientWithResponses) GetApiVersionWithResponse(ctx context.Context, req
 //
 // answers its sample, as VoiceSampleEndpoint does. The voice made before for
 // that key and style, and its sample, are deleted: every game with exactly
-// this voice style on this key speaks in the new voice from now on. A genre
-// that makes no voices of its own, or an empty voice style, makes none and
-// only plays the built-in voice.
+// this voice style on this key speaks in the new voice from now on. Only for
+// a voice set to custom, as VoiceSampleEndpoint; an empty voice style makes
+// none and only plays the built-in voice.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -29337,9 +29390,9 @@ func (c *ClientWithResponses) PostApiVoicesNewWithBodyWithResponse(ctx context.C
 //
 // answers its sample, as VoiceSampleEndpoint does. The voice made before for
 // that key and style, and its sample, are deleted: every game with exactly
-// this voice style on this key speaks in the new voice from now on. A genre
-// that makes no voices of its own, or an empty voice style, makes none and
-// only plays the built-in voice.
+// this voice style on this key speaks in the new voice from now on. Only for
+// a voice set to custom, as VoiceSampleEndpoint; an empty voice style makes
+// none and only plays the built-in voice.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -29352,17 +29405,19 @@ func (c *ClientWithResponses) PostApiVoicesNewWithResponse(ctx context.Context, 
 	return ParsePostApiVoicesNewResponse(rsp)
 }
 
-// PostApiVoicesSampleWithBodyWithResponse Has the voice a game of the genre speaks in say a
+// PostApiVoicesSampleWithBodyWithResponse Has the voice made for a game's voice style say a
 //
 // neutral sample line, the same for every game, in the caller's language,
 // and answers it as audio. It reads the form as it is, so a game not yet
 // saved is heard too.
 //
-// A genre that makes voices of its own (makesVoices in /api/genres) speaks
-// in the voice made for the voice style on the paying key: the first sample
-// makes the voice when there is none and keeps the sample, and later ones
-// play it without asking the provider (stored: true). Otherwise, and with an
-// empty voice style, a built-in voice speaks, as the style steers it.
+// Only a voice set to custom, in a genre that offers it, is heard (a choice
+// in voiceSlots of /api/genres): with a built-in choice the session casts its
+// own voice, so a sample would mislead, and anything else is refused with
+// 400 voice_not_custom. The voice made for the voice style on the paying key
+// speaks: the first sample makes the voice when there is none and keeps the
+// sample, and later ones play it without asking the provider (stored: true).
+// With an empty voice style a built-in voice speaks.
 //
 // The caller pays with their own keys, as in the editor: workshop,
 // organisation, own, site; never a game's sponsor. None that speaks live:
@@ -29380,17 +29435,19 @@ func (c *ClientWithResponses) PostApiVoicesSampleWithBodyWithResponse(ctx contex
 	return ParsePostApiVoicesSampleResponse(rsp)
 }
 
-// PostApiVoicesSampleWithResponse Has the voice a game of the genre speaks in say a
+// PostApiVoicesSampleWithResponse Has the voice made for a game's voice style say a
 //
 // neutral sample line, the same for every game, in the caller's language,
 // and answers it as audio. It reads the form as it is, so a game not yet
 // saved is heard too.
 //
-// A genre that makes voices of its own (makesVoices in /api/genres) speaks
-// in the voice made for the voice style on the paying key: the first sample
-// makes the voice when there is none and keeps the sample, and later ones
-// play it without asking the provider (stored: true). Otherwise, and with an
-// empty voice style, a built-in voice speaks, as the style steers it.
+// Only a voice set to custom, in a genre that offers it, is heard (a choice
+// in voiceSlots of /api/genres): with a built-in choice the session casts its
+// own voice, so a sample would mislead, and anything else is refused with
+// 400 voice_not_custom. The voice made for the voice style on the paying key
+// speaks: the first sample makes the voice when there is none and keeps the
+// sample, and later ones play it without asking the provider (stored: true).
+// With an empty voice style a built-in voice speaks.
 //
 // The caller pays with their own keys, as in the editor: workshop,
 // organisation, own, site; never a game's sponsor. None that speaks live:

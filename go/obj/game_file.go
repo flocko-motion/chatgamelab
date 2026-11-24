@@ -17,9 +17,12 @@ type GameFile struct {
 	ImageStyle             string    `json:"image_style"`
 	// VoiceStyle is how the game's voice sounds; a file without one leaves it
 	// to the engine.
-	VoiceStyle   string `json:"voice_style,omitempty"`
-	CSS          string `json:"css"`
-	StatusFields string `json:"status_fields"`
+	VoiceStyle string `json:"voice_style,omitempty"`
+	// Voices is the game's choice for each voice its genre speaks in, by the
+	// voice's name; a file without them leaves every voice to any.
+	Voices       map[string]string `json:"voices,omitempty"`
+	CSS          string            `json:"css"`
+	StatusFields string            `json:"status_fields"`
 	// Genre is the engine genre; a file without one is an adventure.
 	Genre string `json:"genre"`
 	// Theme names the engine theme; without one the engine's default.
@@ -36,6 +39,7 @@ func NewGameFile(game Game) GameFile {
 		SystemMessageGameStart: game.SystemMessageGameStart,
 		ImageStyle:             game.ImageStyle,
 		VoiceStyle:             game.VoiceStyle,
+		Voices:                 game.Voices,
 		CSS:                    game.CSS,
 		StatusFields:           game.StatusFields,
 		Genre:                  game.Genre,

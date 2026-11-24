@@ -508,3 +508,49 @@ func TestRealtimeSeedsTheSummary(t *testing.T) {
 		t.Errorf("items %s\nwant  %s", got, want)
 	}
 }
+
+// A turn's voice is the session's: a session opens in it, and a turn in
+// another voice opens a fresh session in that one, seeded from the
+// transcript, as the provider fixes a session's voice once it has spoken. A
+// turn without one goes on in the session as it is.
+func TestRealtimeSpeaksInTheTurnsVoice(t *testing.T) {
+	fake := &fakeRealtime{}
+	r := testRealtime(fake.serve(t))
+	defer r.Close()
+
+	voiceOf := func(session int) string {
+		update, _ := json.Marshal(fake.sent(session, "session.update")[0]["session"])
+		for _, v := range []string{"cedar", "marin", "ash"} {
+			if strings.Contains(string(update), `"voice":"`+v+`"`) {
+				return v
+			}
+		}
+		return string(update)
+	}
+
+	first, err := r.Continue(context.Background(), adapters.ThreadTurn{Input: "one", Speak: true, Voice: "marin"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := voiceOf(1); got != "marin" {
+		t.Errorf("the session opened in %s, want the turn's voice marin", got)
+	}
+	second, err := r.Continue(context.Background(), adapters.ThreadTurn{
+		Input: "two", Continuation: first.Continuation, Transcript: []adapters.Exchange{{Input: "one", Reply: first.Text}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if fake.opened() != 1 {
+		t.Fatalf("%d sessions, want a turn without a voice to go on in the session", fake.opened())
+	}
+	if _, err := r.Continue(context.Background(), adapters.ThreadTurn{
+		Input: "three", Speak: true, Voice: "ash", Continuation: second.Continuation,
+		Transcript: []adapters.Exchange{{Input: "one", Reply: first.Text}, {Input: "two", Reply: second.Text}},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if fake.opened() != 2 || voiceOf(2) != "ash" {
+		t.Errorf("%d sessions, the last in %s: want a fresh session in ash", fake.opened(), voiceOf(fake.opened()))
+	}
+}

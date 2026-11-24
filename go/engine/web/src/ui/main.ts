@@ -127,6 +127,7 @@ const view = new View({
   background: required<HTMLElement>("#background"),
   scroll: required<HTMLElement>("#scroll"),
   feed: required<HTMLElement>("#feed"),
+  preparing: required<HTMLElement>("#preparing"),
   thinking: required<HTMLElement>("#thinking"),
   thinkingText: required<HTMLElement>("#thinking-text"),
   talk: required<HTMLButtonElement>("#talk"),

@@ -31,6 +31,14 @@ type LiveSession struct {
 	// the next conversation speaks in instead of the configured one.
 	voiceIn ports.TextInput
 	voice   string
+	// voiced closes once a voice has come; a conversation wired to be given
+	// one waits for it a while (VoiceWait) rather than open in another.
+	voiced     chan struct{}
+	voicedOnce sync.Once
+	voiceWired bool
+	// VoiceWait is how long a conversation wired to be given a voice waits
+	// for it before it opens in the configured one. Set before Start.
+	VoiceWait time.Duration
 	// styleIn is how the voice is meant to sound, in the author's words;
 	// style the latest, which joins the next conversation's instructions
 	// after VoiceLead.
@@ -182,6 +190,8 @@ func NewLiveSession(name string, live adapters.Live, cfg adapters.LiveConfig, id
 		injected:  make(ports.InjectionInput, 16),
 		opening:   make(ports.TextInput, 1),
 		voiceIn:   make(ports.TextInput, 1),
+		voiced:    make(chan struct{}),
+		VoiceWait: 3 * time.Second,
 		styleIn:   make(ports.TextInput, 1),
 		offers:    make(chan offer, 4),
 		active:    make(chan struct{}, 1),
@@ -219,8 +229,14 @@ func (b *LiveSession) TextInPort() chan<- string { return b.steer }
 // pause or a restart says none.
 func (b *LiveSession) OpeningInPort() chan<- string { return b.opening }
 
-// VoiceInPort takes the voice made for the game, by id.
-func (b *LiveSession) VoiceInPort() chan<- string { return b.voiceIn }
+// VoiceInPort takes the voice to speak in, by name or id. Wiring it makes
+// the first conversation wait for one.
+func (b *LiveSession) VoiceInPort() chan<- string {
+	b.mu.Lock()
+	b.voiceWired = true
+	b.mu.Unlock()
+	return b.voiceIn
+}
 
 // SecondaryTextInPort takes how the voice is meant to sound.
 func (b *LiveSession) SecondaryTextInPort() chan<- string { return b.styleIn }
@@ -344,6 +360,7 @@ func (b *LiveSession) holdVoice(ctx context.Context) {
 			b.mu.Lock()
 			b.voice = voice
 			b.mu.Unlock()
+			b.voicedOnce.Do(func() { close(b.voiced) })
 		}
 	}
 }
@@ -486,6 +503,7 @@ func (b *LiveSession) run(ctx context.Context) {
 
 // open passes both the prior ID and the transcript, whichever the provider honours.
 func (b *LiveSession) open(ctx context.Context, waiting offer) (adapters.LiveConn, error) {
+	b.awaitVoice(ctx)
 	b.mu.Lock()
 	cfg := b.cfg
 	cfg.Offer = waiting.sdp
@@ -514,20 +532,40 @@ func (b *LiveSession) open(ctx context.Context, waiting offer) (adapters.LiveCon
 	return conn, nil
 }
 
+// awaitVoice waits, for a conversation wired to be given a voice and still
+// without one, until the voice comes or VoiceWait has passed: the voice
+// comes from preparation, which the browser may outrun.
+func (b *LiveSession) awaitVoice(ctx context.Context) {
+	b.mu.Lock()
+	waits := b.voiceWired && b.voice == ""
+	b.mu.Unlock()
+	if !waits {
+		return
+	}
+	select {
+	case <-b.voiced:
+	case <-time.After(b.VoiceWait):
+	case <-ctx.Done():
+	}
+}
+
 // liveState is what a stored session keeps of the conversation.
 type liveState struct {
 	From string               `json:"from,omitempty"`
 	Said []adapters.Utterance `json:"said,omitempty"`
+	// Voice is the voice it was given, so a restored conversation speaks
+	// in it from its first word, before the voice is given again.
+	Voice string `json:"voice,omitempty"`
 }
 
-// ExportState keeps the transcript and the last conversation's ID, so a
-// session restored after a restart resumes the way an idle one does. Live
-// audio is never kept.
+// ExportState keeps the transcript, the last conversation's ID and the voice
+// it was given, so a session restored after a restart resumes the way an
+// idle one does, in the same voice. Live audio is never kept.
 func (b *LiveSession) ExportState() string {
 	b.mu.Lock()
-	state := liveState{From: b.resumeFrom, Said: append([]adapters.Utterance(nil), b.said...)}
+	state := liveState{From: b.resumeFrom, Said: append([]adapters.Utterance(nil), b.said...), Voice: b.voice}
 	b.mu.Unlock()
-	if state.From == "" && len(state.Said) == 0 {
+	if state.From == "" && len(state.Said) == 0 && state.Voice == "" {
 		return ""
 	}
 	blob, err := json.Marshal(state)
@@ -548,6 +586,7 @@ func (b *LiveSession) RestoreState(s string) {
 	defer b.mu.Unlock()
 	b.resumeFrom = state.From
 	b.said = state.Said
+	b.voice = state.Voice
 	// What was said before is in the stored journal already.
 	b.notedPlayer = len(state.Said)
 	b.restored = true

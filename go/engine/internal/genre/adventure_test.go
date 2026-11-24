@@ -9,10 +9,10 @@ import (
 	"engine/internal/adapters/mock"
 )
 
-// Adventure has its ten prompts, each under its own name.
+// Adventure has its eleven prompts, each under its own name.
 func TestAdventureHasItsPrompts(t *testing.T) {
 	want := []string{
-		"condense-scenario", "expand", "game-master", "image-style",
+		"cast", "condense-scenario", "expand", "game-master", "image-style",
 		"opening", "opening-expand", "rephrase", "rephrase-audio", "scene", "summary",
 	}
 	if got := slices.Sorted(maps.Keys(AdventurePrompts)); !slices.Equal(got, want) {

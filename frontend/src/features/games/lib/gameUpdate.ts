@@ -18,17 +18,27 @@ export type GameFormFields = Required<
     | "systemMessageGameStart"
     | "imageStyle"
     | "voiceStyle"
+    | "voices"
     | "statusFields"
     | "genre"
     | "theme"
   >
 >;
 
+/** Whether two field values are equal: a map of voices by its entries. */
+function same(a: unknown, b: unknown): boolean {
+  if (typeof a === "object" && a !== null && typeof b === "object" && b !== null) {
+    const entries = (o: object) => JSON.stringify(Object.entries(o).sort(([x], [y]) => x.localeCompare(y)));
+    return entries(a) === entries(b);
+  }
+  return a === b;
+}
+
 /** The fields that differ from what was loaded: what the dialog sends. */
 export function gameChanges(loaded: GameFormFields, edited: GameFormFields): GameChanges {
   const changes: GameChanges = {};
   for (const key of Object.keys(edited) as (keyof GameFormFields)[]) {
-    if (edited[key] !== loaded[key]) {
+    if (!same(edited[key], loaded[key])) {
       (changes as Record<string, unknown>)[key] = edited[key];
     }
   }
