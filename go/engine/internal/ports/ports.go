@@ -15,6 +15,9 @@ type (
 	Injection struct {
 		Kind InjectionKind
 		Text string
+		// To is the seat it is meant for where several conversations share
+		// one observer; empty reaches every one.
+		To string
 	}
 	InjectionKind string
 	// Fragment is a piece of a live conversation's transcript: who said it,

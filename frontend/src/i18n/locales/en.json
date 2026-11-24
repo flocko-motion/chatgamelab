@@ -821,7 +821,8 @@
       },
       "genres": {
         "adventure": "Adventure",
-        "npc-live": "Encounter"
+        "npc-live": "Character",
+        "npc-duo": "Discussion"
       },
       "features": {
         "images": "pictures",
@@ -866,7 +867,8 @@
           "question": "What do you want to make?",
           "pitch": {
             "adventure": "The player explores a world. The game tells what happens, paints pictures and keeps score.",
-            "encounter": "The player talks with one character, by voice. It stays in its role and answers live."
+            "encounter": "The player talks with one character, by voice. It stays in its role and answers live.",
+            "duo": "Two characters talk with each other by voice. The player listens in, or joins the conversation."
           }
         },
         "pages": {
@@ -903,7 +905,11 @@
             "titlePlaceholder": "Greta at the Lighthouse",
             "descriptionPlaceholder": "Visit Greta, the grumpy lighthouse keeper, and find out what she saw that night."
           },
-          "titleHint": "{{length}}/{{max}} · May become publicly visible – please no real names."
+          "titleHint": "{{length}}/{{max}} · May become publicly visible – please no real names.",
+          "duo": {
+            "titlePlaceholder": "Storm Night at the Lighthouse",
+            "descriptionPlaceholder": "Greta, the grumpy lighthouse keeper, and a far too cheerful tax inspector argue through a stormy night. Listen in, or take a side."
+          }
         },
         "story": {
           "adventure": {
@@ -921,6 +927,20 @@
             "gameStart": "How do they greet the player?",
             "gameStartHint": "The situation when the conversation starts; the first words are written from it.",
             "gameStartPlaceholder": "A stranger knocks at the lighthouse door in the middle of a storm…"
+          },
+          "duo": {
+            "scenario": "Who are the two characters?",
+            "scenarioHint": "Who each is, and why the two have something to talk or argue about.",
+            "scenarioPlaceholder": "Greta, a grumpy lighthouse keeper…",
+            "firstCharacter": "The first character",
+            "firstCharacterHint": "Who they are: personality, what they want, how they talk. They speak first.",
+            "firstCharacterPlaceholder": "Greta, a grumpy lighthouse keeper who wants to be left alone with her lamp…",
+            "secondCharacter": "The second character",
+            "secondCharacterHint": "Who they are, and why the two have something to talk or argue about.",
+            "secondCharacterPlaceholder": "Otto, a far too cheerful tax inspector who has come to count every candle…",
+            "gameStart": "Where are they, and how does it begin?",
+            "gameStartHint": "The scene both are in when it starts; the first character's first words are written from it.",
+            "gameStartPlaceholder": "A stormy night. Otto knocks at the lighthouse door, soaked to the bone…"
           }
         },
         "look": {
@@ -959,6 +979,10 @@
             "noKey": "None of the AI keys you can use speaks with a live voice, so there is nothing to hear for now.",
             "keyRejected": "The AI provider rejected the key. The voice could not be played.",
             "failed": "The voice could not be played. Please try again."
+          },
+          "duo": {
+            "voiceStyle": "The characters' voices",
+            "voiceStyleHint": "Each character is cast in a voice of its own."
           }
         },
         "download": {
@@ -991,6 +1015,12 @@
               "name": "Your game has no title yet.",
               "systemMessageScenario": "Say who the character is.",
               "systemMessageGameStart": "Say how the character greets the player.",
+              "imageStyle": "Pick an image style, so the pictures look alike."
+            },
+            "duo": {
+              "name": "Your game has no title yet.",
+              "systemMessageScenario": "Say who the two characters are.",
+              "systemMessageGameStart": "Say where the scene takes place and how it begins.",
               "imageStyle": "Pick an image style, so the pictures look alike."
             }
           }
@@ -1954,7 +1984,12 @@
       "live-session": "Character",
       "observer": "Director",
       "voice": "Generate voice",
-      "voice-brief": "Describe voice"
+      "voice-brief": "Describe voice",
+      "live-a": "First character",
+      "live-b": "Second character",
+      "director": "Director",
+      "cast": "Cast voices",
+      "cast-brief": "Characters"
     },
     "settings": {
       "scenario": "Scenario",
@@ -1996,7 +2031,20 @@
       "voice\u003elive-session:voice": "voice",
       "voice\u003elive-session:secondary": "voice style",
       "voice-brief\u003evoice:description": "description",
-      "voice-brief\u003evoice:voice": "fallback voice"
+      "voice-brief\u003evoice:voice": "fallback voice",
+      "cast-brief\u003ecast": "characters",
+      "cast\u003elive-a:voiceA": "voice",
+      "cast\u003elive-b:voiceB": "voice",
+      "cast\u003estart-game": "ready",
+      "greeting\u003elive-a": "first words",
+      "start-game\u003elive-a": "cue",
+      "start-game\u003elive-b": "cue",
+      "player-input-audio\u003elive-a": "speech",
+      "player-input-audio\u003elive-b": "speech",
+      "live-a\u003edirector": "transcript",
+      "live-b\u003edirector": "transcript",
+      "director\u003elive-a": "injection",
+      "director\u003elive-b": "injection"
     }
   },
   "mail": {

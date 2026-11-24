@@ -1,5 +1,5 @@
 import { Badge, Center, Loader, Paper, SimpleGrid, Stack, ThemeIcon, UnstyledButton } from "@mantine/core";
-import { IconCompass, IconMessageCircle, IconSparkles } from "@tabler/icons-react";
+import { IconCompass, IconMessageCircle, IconSparkles, IconUsersGroup } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { CardTitle, HelperText, SectionTitle } from "@components/typography";
 import { genreWording } from "../../lib/editorPages";
@@ -9,6 +9,7 @@ import classes from "./GameEditor.module.css";
 const GENRE_ICON: Record<string, React.ReactNode> = {
   adventure: <IconCompass size={36} />,
   "npc-live": <IconMessageCircle size={36} />,
+  "npc-duo": <IconUsersGroup size={36} />,
 };
 
 /**

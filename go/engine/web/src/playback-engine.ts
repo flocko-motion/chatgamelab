@@ -50,6 +50,8 @@ export class PlaybackEngine {
   /** The last run's id. */
   #runs = 0;
   #open: Utterance | null = null;
+  /** The second character's utterance still open, where a genre has two. */
+  #openPartner: Utterance | null = null;
   /** The player's last line, typed or as heard, given back if the engine drops its turn. */
   #said: string | null = null;
   /** Typed lines sent and not yet back on `said`, oldest first. */
@@ -90,6 +92,7 @@ export class PlaybackEngine {
     this.state.utterances = [];
     this.state.notes = [];
     this.#open = null;
+    this.#openPartner = null;
     this.#nextUtterance = 1;
     // What was heard of a clip still pending comes back with the history.
     this.#typed = [];
@@ -207,6 +210,15 @@ export class PlaybackEngine {
 
   /** Marks the player taking the floor, so the next reply starts a new line. */
   takeFloor(): void {
+    if (this.#openPartner) {
+      this.#openPartner.complete = true;
+      this.#openPartner = null;
+    }
+    this.#closeOpen();
+  }
+
+  /** Ends the first character's open utterance, as its own boundary does. */
+  #closeOpen(): void {
     if (this.#open) {
       this.#open.complete = true;
       this.#open = null;
@@ -276,12 +288,29 @@ export class PlaybackEngine {
       case "text":
         // An empty delta closes the utterance, ordered against the text it ends;
         // a discard drops it unfinished, as a broken reply is made again.
-        if (event.Value === "") this.takeFloor();
+        if (event.Value === "") this.#closeOpen();
         else if (event.Value === TEXT_DISCARD) this.#discard();
         else if (event.Value.startsWith(TEXT_REPLACE)) this.#replace(event.Value.slice(TEXT_REPLACE.length));
         else this.#extend(event.Value);
         // Something answered, so a fault reported earlier has passed.
         this.state.fault = null;
+        break;
+      case "text-b":
+        // The second character, its own utterances beside the first's.
+        if (event.Value === "") {
+          if (this.#openPartner) this.#openPartner.complete = true;
+          this.#openPartner = null;
+        } else {
+          if (!this.#openPartner) {
+            this.#openPartner = { id: this.#nextUtterance++, speaker: "npc", seat: "b", text: "", complete: false };
+            this.state.utterances.push(this.#openPartner);
+          }
+          this.#openPartner.text += event.Value;
+        }
+        this.state.fault = null;
+        break;
+      case "cast":
+        this.state.cast = parseCast(event.Value) ?? this.state.cast;
         break;
       case "said":
         this.#applySaid(event.Value);
@@ -700,4 +729,15 @@ function parseProps(value: string): Props | null {
     if (typeof field === "string") props[name] = field;
   }
   return props;
+}
+
+/** The cast's names, from its reply; null when it carries none. */
+function parseCast(value: string): { a: string; b: string } | null {
+  try {
+    const cast = JSON.parse(value) as { nameA?: unknown; nameB?: unknown };
+    if (typeof cast.nameA !== "string" || typeof cast.nameB !== "string") return null;
+    return { a: cast.nameA, b: cast.nameB };
+  } catch {
+    return null;
+  }
 }

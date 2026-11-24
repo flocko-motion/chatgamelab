@@ -46,6 +46,9 @@ type Genre string
 const (
 	GenreAdventure Genre = "adventure"
 	GenreNPCLive   Genre = "npc-live"
+	// GenreNPCDuo is two live characters talking to each other, with the
+	// player free to join in.
+	GenreNPCDuo Genre = "npc-duo"
 )
 
 // SessionSpec is everything a session needs, fully resolved so the engine never calls back into the platform.
@@ -148,7 +151,7 @@ const StreamHeartbeat = "heartbeat"
 
 // StreamNames is every stream a genre can wire, and the source of the generated TypeScript union.
 func StreamNames() []string {
-	return []string{"text", "said", "audio", "image", "props", "state", "usage", "connect", "pause", "settled", "error", "problem", "journal", StreamOver, StreamHeartbeat}
+	return []string{"text", "text-b", "cast", "said", "audio", "image", "props", "state", "usage", "connect", "pause", "settled", "error", "problem", "journal", StreamOver, StreamHeartbeat}
 }
 
 type Session struct {
@@ -319,7 +322,7 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 		s.usage.restore(from.state.Usage)
 		s.recorder.restore(from.history)
 		s.restoreJournal(from.history)
-		if conversed(from.history) || (w.Live != nil && w.Live.Conversed()) {
+		if conversed(from.history) || (w.Live != nil && w.Live.Conversed()) || (w.Partner != nil && w.Partner.Conversed()) {
 			w.Gate.Reopen()
 		}
 	}
@@ -371,6 +374,14 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 		invitations = w.Live.Invitations()
 		pauses = w.Live.Pauses()
 		stops = w.Live.Stops()
+	}
+	if w.Partner != nil {
+		// Two conversations are one scene to the player: either inviting
+		// has the browser connect both, either let go lets the other go too,
+		// and either stopping ends the game.
+		pauses = s.pairPauses(s.ctx, w.Live, w.Partner)
+		invitations = mergeStates(s.ctx, invitations, w.Partner.Invitations())
+		stops = mergeStates(s.ctx, stops, w.Partner.Stops())
 	}
 
 	s.merge(s.ctx)
@@ -530,15 +541,25 @@ func (s *Session) Usage() UsageReport { return s.usage.report() }
 func (s *Session) Prompts() map[string]string { return s.wiring.Prompts }
 
 // Connect brokers a browser's offer to talk to the provider directly; errors on a genre with no conversation.
-func (s *Session) Connect(ctx context.Context, offer string) (string, error) {
+// The seat names which conversation, where a genre holds two: empty is the
+// first, SeatPartner the second.
+func (s *Session) Connect(ctx context.Context, offer, seat string) (string, error) {
 	if err := s.playing(); err != nil {
 		return "", err
 	}
-	if s.wiring.Live == nil {
-		return "", fmt.Errorf("genre %q holds no live conversation", s.spec.Genre)
+	live := s.wiring.Live
+	switch seat {
+	case "":
+	case genre.SeatPartner:
+		live = s.wiring.Partner
+	default:
+		return "", fmt.Errorf("no seat %q", seat)
 	}
-	s.journal.Note(JournalClient, "connect", "the browser offers to open the audio connection")
-	answer, err := s.wiring.Live.Connect(ctx, offer)
+	if live == nil {
+		return "", fmt.Errorf("genre %q holds no live conversation at seat %q", s.spec.Genre, seat)
+	}
+	s.journal.Note(JournalClient, "connect", "the browser offers to open the audio connection "+seat)
+	answer, err := live.Connect(ctx, offer)
 	if err != nil {
 		s.journal.Fail(JournalClient, "connect-failed", err.Error())
 	}
@@ -639,8 +660,10 @@ func (s *Session) Inspect(name string) (NodeDetail, bool) {
 		fill := b.Thread().Fill()
 		detail.Thread = &fill
 	}
-	if live := s.wiring.Live; live != nil && live.NodeName() == name {
-		detail.Transcript = live.Transcript()
+	for _, live := range []*blocks.LiveSession{s.wiring.Live, s.wiring.Partner} {
+		if live != nil && live.NodeName() == name {
+			detail.Transcript = live.Transcript()
+		}
 	}
 	if observer, ok := s.wiring.Observers[name]; ok {
 		state := observer.State()
@@ -750,7 +773,69 @@ func (s *Session) Pause() error {
 		return fmt.Errorf("genre %q holds no live conversation", s.spec.Genre)
 	}
 	s.wiring.Live.Pause()
+	if s.wiring.Partner != nil {
+		s.wiring.Partner.Pause()
+	}
 	return nil
+}
+
+// pairPauses lets the other of two conversations go when one is let go, and
+// reports each pause once: the scene pauses as one.
+func (s *Session) pairPauses(ctx context.Context, first, second *blocks.LiveSession) <-chan ports.State {
+	out := make(chan ports.State, 4)
+	follow := func(from <-chan ports.State, other *blocks.LiveSession) {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case st, alive := <-from:
+				if !alive {
+					return
+				}
+				other.Pause()
+				select {
+				case out <- st:
+				case <-ctx.Done():
+					return
+				}
+			}
+		}
+	}
+	go follow(first.Pauses(), second)
+	go follow(second.Pauses(), first)
+	return out
+}
+
+// mergeStates is two state streams as one, until both close.
+func mergeStates(ctx context.Context, a, b <-chan ports.State) <-chan ports.State {
+	out := make(chan ports.State, 4)
+	var wg sync.WaitGroup
+	pump := func(in <-chan ports.State) {
+		defer wg.Done()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case st, alive := <-in:
+				if !alive {
+					return
+				}
+				select {
+				case out <- st:
+				case <-ctx.Done():
+					return
+				}
+			}
+		}
+	}
+	for _, in := range []<-chan ports.State{a, b} {
+		if in != nil {
+			wg.Add(1)
+			go pump(in)
+		}
+	}
+	go func() { wg.Wait(); close(out) }()
+	return out
 }
 
 // Ready closes when every block the first turn depends on has reported done.
@@ -766,6 +851,9 @@ func (s *Session) Topology() ports.Topology {
 	t.Theme = s.spec.Theme
 	t.Language = s.spec.Language
 	t.Imagery = string(s.wiring.Imagery)
+	if s.wiring.Partner != nil {
+		t.Seats = []string{"", genre.SeatPartner}
+	}
 	t.Inputs = make([]string, 0, len(s.wiring.Inputs))
 	for _, mode := range s.wiring.Inputs {
 		t.Inputs = append(t.Inputs, string(mode))
@@ -963,6 +1051,19 @@ func (s *Session) wire(spec SessionSpec) (*genre.Wiring, error) {
 			InitPrompt:     spec.initPrompt(),
 			PromptOverride: spec.PromptOverride,
 			IdleAfter:      spec.idleAfter(),
+		})
+	case GenreNPCDuo:
+		return genre.NewNPCDuo(genre.NPCDuoConfig{
+			Live:           &s.slots.live,
+			Tool:           &s.slots.tool,
+			GalleryImage:   spec.GalleryImage,
+			Scenario:       spec.Scenario,
+			Guardrail:      spec.Guardrail,
+			GameStart:      spec.InitPrompt,
+			BuiltinVoices:  openai.LiveVoices,
+			Language:       spec.Language,
+			IdleAfter:      spec.idleAfter(),
+			PromptOverride: spec.PromptOverride,
 		})
 	}
 	return nil, fmt.Errorf("unknown genre %q", spec.Genre)

@@ -81,12 +81,12 @@ func AcceptsKeys(id Platform) bool {
 }
 
 // Genres is every genre the engine runs.
-func Genres() []Genre { return []Genre{GenreAdventure, GenreNPCLive} }
+func Genres() []Genre { return []Genre{GenreAdventure, GenreNPCLive, GenreNPCDuo} }
 
 // Needs is the toggles a genre cannot run without.
 func (g Genre) Needs() []Toggle {
 	switch g {
-	case GenreNPCLive:
+	case GenreNPCLive, GenreNPCDuo:
 		return []Toggle{ToggleAudioLive}
 	}
 	return nil
@@ -112,6 +112,10 @@ func (g Genre) Fields() []GameField {
 	switch g {
 	case GenreNPCLive:
 		return []GameField{FieldScenario, FieldGameStart, FieldImageStyle, FieldVoiceStyle}
+	case GenreNPCDuo:
+		// Both characters share the scenario field; their voices are cast
+		// from who they are.
+		return []GameField{FieldScenario, FieldGameStart, FieldImageStyle}
 	}
 	return []GameField{FieldScenario, FieldGameStart, FieldImageStyle, FieldStatusFields, FieldVoiceStyle}
 }

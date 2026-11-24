@@ -1,7 +1,7 @@
 import { Select, Stack, Textarea, TextInput } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { Label } from "@components/typography";
-import { genreWording, STATUS_FIELDS_MAX } from "../../lib/editorPages";
+import { genreWording, joinDuo, splitDuo, STATUS_FIELDS_MAX } from "../../lib/editorPages";
 import { NAME_MAX, type GameEditor } from "../../hooks/useGameEditor";
 import { useThemeOptions } from "../../hooks/useEditorChoices";
 import { StatusFieldsEditor } from "../StatusFieldsEditor";
@@ -51,25 +51,54 @@ export function CardSection({ editor }: SectionProps) {
 /**
  * Story: the deeper part. An Adventure says what it is about and how it
  * begins, then the values it tracks; an Encounter who the character is and
- * how they greet the player.
+ * how they greet the player; a Duo who its two characters are, in two fields
+ * kept in the game's one scenario, and the scene they are in.
  */
 export function StorySection({ editor, shows }: SectionProps) {
   const { t } = useTranslation("common");
   const { values, set, rights } = editor;
   const wording = genreWording(values.genre);
+  const [first, second] = splitDuo(values.systemMessageScenario);
   return (
     <Stack gap="lg">
-      <Textarea
-        label={t(`games.editor.story.${wording}.scenario`)}
-        description={t(`games.editor.story.${wording}.scenarioHint`)}
-        placeholder={t(`games.editor.story.${wording}.scenarioPlaceholder`)}
-        value={values.systemMessageScenario}
-        onChange={(e) => set("systemMessageScenario", e.target.value)}
-        minRows={5}
-        autosize
-        readOnly={!rights.content}
-        required
-      />
+      {wording === "duo" ? (
+        <>
+          <Textarea
+            label={t("games.editor.story.duo.firstCharacter")}
+            description={t("games.editor.story.duo.firstCharacterHint")}
+            placeholder={t("games.editor.story.duo.firstCharacterPlaceholder")}
+            value={first}
+            onChange={(e) => set("systemMessageScenario", joinDuo(e.target.value, second))}
+            minRows={4}
+            autosize
+            readOnly={!rights.content}
+            required
+          />
+          <Textarea
+            label={t("games.editor.story.duo.secondCharacter")}
+            description={t("games.editor.story.duo.secondCharacterHint")}
+            placeholder={t("games.editor.story.duo.secondCharacterPlaceholder")}
+            value={second}
+            onChange={(e) => set("systemMessageScenario", joinDuo(first, e.target.value))}
+            minRows={4}
+            autosize
+            readOnly={!rights.content}
+            required
+          />
+        </>
+      ) : (
+        <Textarea
+          label={t(`games.editor.story.${wording}.scenario`)}
+          description={t(`games.editor.story.${wording}.scenarioHint`)}
+          placeholder={t(`games.editor.story.${wording}.scenarioPlaceholder`)}
+          value={values.systemMessageScenario}
+          onChange={(e) => set("systemMessageScenario", e.target.value)}
+          minRows={5}
+          autosize
+          readOnly={!rights.content}
+          required
+        />
+      )}
       <Textarea
         label={t(`games.editor.story.${wording}.gameStart`)}
         description={t(`games.editor.story.${wording}.gameStartHint`)}

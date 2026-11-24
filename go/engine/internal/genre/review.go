@@ -34,9 +34,14 @@ func reviewFieldWords(g string) string {
 		"- imageStyle: how the game's pictures look.\n" +
 		"- voiceStyle: how the game's voice sounds.\n"
 	if g == "npc-live" {
-		return "The game is an Encounter: the player talks by voice with one character.\n" + common +
+		return "The game is a Character: the player talks by voice with one character.\n" + common +
 			"- scenario: who the character is: personality, what they know, how they talk, and what they will never give in on.\n" +
 			"- gameStart: the situation when the conversation starts, from which the character's first words are written.\n"
+	}
+	if g == "npc-duo" {
+		return "The game is a Discussion: two characters talk with each other by voice, and the player may join in or only listen.\n" + common +
+			"- scenario: who the two characters are, the first and the second, each with personality, what they want and how they talk; they should have something to talk or argue about.\n" +
+			"- gameStart: the scene both are in when it begins, from which the first character's first words are written.\n"
 	}
 	return "The game is an Adventure: the AI narrates a world the player explores, with pictures and values it tracks.\n" + common +
 		"- scenario: the world, the player's role, the goal, and how the player knows they have won.\n" +
@@ -66,7 +71,7 @@ func Review(genre string, form ReviewForm, language string) (system, message str
 	field("gameStart", form.GameStart)
 	field("imageStyle", form.ImageStyle)
 	field("voiceStyle", form.VoiceStyle)
-	if genre != "npc-live" {
+	if genre != "npc-live" && genre != "npc-duo" {
 		field("statusFields", form.StatusFields)
 	}
 	return system, b.String(), &adapters.Schema{Name: "review", Body: map[string]any{

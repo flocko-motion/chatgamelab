@@ -303,6 +303,9 @@
         "properties": {
           "sdp": {
             "type": "string"
+          },
+          "seat": {
+            "type": "string"
           }
         },
         "required": [
@@ -1386,7 +1389,8 @@
       "Genre": {
         "enum": [
           "adventure",
-          "npc-live"
+          "npc-live",
+          "npc-duo"
         ],
         "type": "string"
       },
@@ -3947,6 +3951,12 @@
           "nodes": {
             "items": {
               "$ref": "#/components/schemas/TopologyNode"
+            },
+            "type": "array"
+          },
+          "seats": {
+            "items": {
+              "type": "string"
             },
             "type": "array"
           },

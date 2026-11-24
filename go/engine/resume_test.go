@@ -275,7 +275,7 @@ func TestResumedLiveGameOpensWithoutANewPortrait(t *testing.T) {
 	// The player presses resume: the conversation opens again.
 	connected := make(chan error, 1)
 	go func() {
-		_, err := resumed.Connect(ctx, "v=0 mock offer")
+		_, err := resumed.Connect(ctx, "v=0 mock offer", "")
 		connected <- err
 	}()
 	select {

@@ -43,6 +43,11 @@ type Wiring struct {
 	// Live is set by genres whose browser connects directly, for a transport to broker.
 	Live *blocks.LiveSession
 
+	// Partner is a second live conversation beside Live, for a genre of two
+	// characters: the browser connects to each, naming its seat (SeatPartner),
+	// and the two pause and resume together.
+	Partner *blocks.LiveSession
+
 	// Constrained are the blocks whose calls carry the constraints, by name,
 	// so their frequency can change while the game runs.
 	Constrained map[string]blocks.Constrained

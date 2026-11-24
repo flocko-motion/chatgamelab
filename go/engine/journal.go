@@ -105,7 +105,7 @@ type sinkJournal struct {
 func (j *sinkJournal) note(value string) {
 	switch j.stream {
 	case "audio":
-	case "text", "said":
+	case "text", "text-b", "said":
 		if value != "" {
 			j.open.WriteString(value)
 			return

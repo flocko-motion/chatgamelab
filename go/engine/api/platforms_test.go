@@ -56,7 +56,7 @@ func TestPlatformsJSON(t *testing.T) {
 			t.Errorf("toggle %q not stated", toggle)
 		}
 	}
-	if len(openai.Genres) != 2 || openai.Genres[0] != "adventure" || openai.Genres[1] != "npc-live" {
+	if len(openai.Genres) != 3 || openai.Genres[0] != "adventure" || openai.Genres[1] != "npc-live" || openai.Genres[2] != "npc-duo" {
 		t.Errorf("genres = %v", openai.Genres)
 	}
 
@@ -115,7 +115,7 @@ func TestListsJSON(t *testing.T) {
 		Needs []string `json:"needs"`
 	}
 	remarshal(t, engine.GenreList(), &genres)
-	want := map[string][]string{"adventure": {}, "npc-live": {"audio-live"}}
+	want := map[string][]string{"adventure": {}, "npc-live": {"audio-live"}, "npc-duo": {"audio-live"}}
 	if len(genres) != len(want) {
 		t.Fatalf("genres = %+v", genres)
 	}

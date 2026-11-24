@@ -477,3 +477,61 @@ func TestRulesAtRiskReachTheCharacterWhole(t *testing.T) {
 		t.Errorf("%d reminders, %d dropped; want 1 and 1", f.Reminders, f.Dropped)
 	}
 }
+
+// With a cast, each marked line goes to the character it names, BOTH to all,
+// and only one character is given a line to say per reply.
+func TestACastIsAddressedSeatBySeat(t *testing.T) {
+	model := newScriptedModel()
+	b, out := startObserver(t, ObserverConfig{
+		Tool: model, Beat: 20 * time.Millisecond, Quiet: time.Hour, Pause: time.Millisecond,
+		Cast: []string{"A", "B"}, KeepNudging: true,
+	})
+
+	model.replies <- "Stalled.\n" +
+		"[BACKGROUND A] Ich vermisse das Meer.\n" +
+		"[BACKGROUND BOTH] Draußen donnert es.\n" +
+		"[SPEECH B] Frag nach dem Logbuch.\n" +
+		"[SPEECH A] Schimpf über das Wetter.\n" +
+		"[BACKGROUND C] Niemand.\n" +
+		"[DIRECTION B] Werde misstrauisch."
+	b.TranscriptInPort() <- said("A", "Hm.", 1000)
+
+	var got []ports.Injection
+	deadline := time.After(3 * time.Second)
+	for len(got) < 4 {
+		select {
+		case in := <-out:
+			got = append(got, in)
+		case <-deadline:
+			t.Fatalf("injections so far %+v, want four", got)
+		}
+	}
+	want := []ports.Injection{
+		{Kind: ports.InjectBackground, Text: "Ich vermisse das Meer.", To: "A"},
+		{Kind: ports.InjectBackground, Text: "Draußen donnert es.", To: ""},
+		{Kind: ports.InjectSpeech, Text: "Frag nach dem Logbuch.", To: "B"},
+		{Kind: ports.InjectDirection, Text: "Werde misstrauisch.", To: "B"},
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("injection %d = %+v, want %+v", i, got[i], want[i])
+		}
+	}
+	select {
+	case in := <-out:
+		t.Errorf("one more went in: %+v", in)
+	case <-time.After(100 * time.Millisecond):
+	}
+}
+
+// With KeepNudging, a player who only listens never makes it stand down.
+func TestACastKeepsNudgingASilentPlayer(t *testing.T) {
+	b, _ := startObserver(t, ObserverConfig{
+		Beat: 10 * time.Millisecond, Absent: 20 * time.Millisecond, Cast: []string{"A", "B"}, KeepNudging: true,
+	})
+	b.TranscriptInPort() <- said("A", "Hallo.", 1000)
+	time.Sleep(100 * time.Millisecond)
+	if b.State().StandingDown {
+		t.Error("the observer stood down although the characters carry the scene")
+	}
+}

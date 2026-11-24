@@ -84,7 +84,7 @@ func editorPayer(ctx context.Context, fits func(core.PayerOffer) error, none str
 // an opening narration otherwise.
 func sampleLine(language string, genre engine.Genre) string {
 	key := "common.games.editor.sound.sampleLine.narration"
-	if genre == engine.GenreNPCLive {
+	if genre == engine.GenreNPCLive || genre == engine.GenreNPCDuo {
 		key = "common.games.editor.sound.sampleLine.greeting"
 	}
 	return lang.Text(language, key, nil)

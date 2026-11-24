@@ -39,6 +39,14 @@ type LiveSession struct {
 	// VoiceLead introduces the voice style in the instructions; the genre's
 	// words. Set before Start.
 	VoiceLead string
+	// Seat is this conversation's place where several share one observer:
+	// an injection addressed to another seat passes it by. Empty takes
+	// every injection. Set before Start.
+	Seat string
+	// Hear turns a transcript fragment into the one the transcript output
+	// carries, such as a speaker named by seat, or drops it (false). Nil
+	// passes every fragment as it is. Set before Start.
+	Hear func(ports.Fragment) (ports.Fragment, bool)
 
 	audio ports.AudioBroadcast
 	text  ports.TextBroadcast
@@ -394,6 +402,12 @@ func (b *LiveSession) run(ctx context.Context) {
 			}
 		}
 		b.journal.Note(b.name, "offer", fmt.Sprintf("an offer of %d bytes", len(waiting.sdp)))
+		// A pause asked for while no conversation was open belongs to none;
+		// left waiting, it would let the new one go at once.
+		select {
+		case <-b.pauseNow:
+		default:
+		}
 
 		conn, err := b.open(ctx, *waiting)
 		waiting = nil
@@ -654,6 +668,9 @@ func (b *LiveSession) instruct(ctx context.Context, conn adapters.LiveConn) {
 			if !open {
 				return
 			}
+			if in.To != "" && b.Seat != "" && in.To != b.Seat {
+				continue
+			}
 			if err := inject(ctx, conn, in); err != nil {
 				b.journal.Warn(b.name, "injection-rejected", string(in.Kind)+": "+err.Error())
 			}
@@ -782,7 +799,12 @@ func (b *LiveSession) handle(e adapters.LiveEvent) {
 		if e.Speaker == adapters.SpeakerPlayer {
 			speaker = SpeakerPlayer
 		}
-		b.heard.Send(ports.Fragment{Speaker: speaker, Text: e.Text, StartMs: e.StartMs, EndMs: e.EndMs, At: time.Now()})
+		fragment := ports.Fragment{Speaker: speaker, Text: e.Text, StartMs: e.StartMs, EndMs: e.EndMs, At: time.Now()}
+		if b.Hear == nil {
+			b.heard.Send(fragment)
+		} else if heard, keep := b.Hear(fragment); keep {
+			b.heard.Send(heard)
+		}
 		if e.Speaker == adapters.SpeakerPlayer {
 			// The player's own words are remembered but shown to nobody.
 			return
