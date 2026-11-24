@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"maps"
 	"math/rand/v2"
 	"slices"
 	"sync"
@@ -62,8 +63,16 @@ type SessionSpec struct {
 
 	Persist Persist `json:"-"`
 
-	// Guardrail is the platform's resolved youth-protection constraint.
+	// Guardrail is the platform's resolved youth-protection rule.
 	Guardrail string `json:"guardrail,omitempty"`
+
+	// GuardrailSource is where the guardrail came from, for a reader: the
+	// level of the platform's fallback chain that set it. Nil when unknown.
+	GuardrailSource *GuardrailSource `json:"guardrailSource,omitempty"`
+
+	// GuardrailEdit is the guardrail as staff or a head changed it during
+	// play, kept to from then on in place of Guardrail; nil keeps Guardrail.
+	GuardrailEdit *string `json:"guardrailEdit,omitempty"`
 
 	// Scenario is the designer's text, kept apart from Guardrail so an author has no lever on youth protection.
 	Scenario string `json:"scenario,omitempty"`
@@ -131,6 +140,23 @@ type SessionSpec struct {
 	Script []string `json:"script,omitempty"`
 	// ScriptIntervalMs is an int because a time.Duration would read a JSON number as nanoseconds.
 	ScriptIntervalMs int `json:"scriptIntervalMs,omitempty"`
+}
+
+// GuardrailSource is the level of the platform's fallback chain a guardrail
+// came from: Level a code such as "workshop", "organisation" or "site13",
+// Name the workshop's or organisation's name, empty for the site's.
+type GuardrailSource struct {
+	Level string `json:"level"`
+	Name  string `json:"name,omitempty"`
+}
+
+// guardrail is the guardrail the session keeps to: an edit, else the
+// resolved one.
+func (spec SessionSpec) guardrail() string {
+	if spec.GuardrailEdit != nil {
+		return *spec.GuardrailEdit
+	}
+	return spec.Guardrail
 }
 
 // SessionEvent is one item on the session-scoped stream; Stream names the output block it came from.
@@ -537,8 +563,47 @@ func (s *Session) forwardSignal(ctx context.Context, signal <-chan ports.State, 
 // Usage is what the session has spent so far, per block and per model.
 func (s *Session) Usage() UsageReport { return s.usage.report() }
 
-// Prompts are the genre's own prompts, after any the spec replaced.
-func (s *Session) Prompts() map[string]string { return s.wiring.Prompts }
+// Prompts are the prompts the session runs on now: the genre's own, after any
+// the spec replaced or a person edited during play.
+func (s *Session) Prompts() map[string]string { return s.wiring.CurrentPrompts() }
+
+// GuardrailReport is the session's guardrail for a reader: the one the
+// blocks keep to now and the one the platform resolved, where it came from,
+// the blocks that keep to it and how often each threaded block repeats it.
+// MayEdit says whether the reader may change it; whoever serves the engine
+// decides, and a server without roles lets everyone.
+type GuardrailReport struct {
+	Text        string           `json:"text"`
+	Resolved    string           `json:"resolved"`
+	Edited      bool             `json:"edited"`
+	Source      *GuardrailSource `json:"source,omitempty"`
+	ReadBy      []string         `json:"readBy"`
+	Frequencies []BlockFrequency `json:"frequencies"`
+	MayEdit     bool             `json:"mayEdit"`
+}
+
+// BlockFrequency is how often a threaded block's calls repeat the
+// guardrail: 1 every call, up to 10 every tenth.
+type BlockFrequency struct {
+	Block     string `json:"block"`
+	Frequency int    `json:"frequency"`
+}
+
+// Guardrail reports the session's guardrail.
+func (s *Session) Guardrail() GuardrailReport {
+	s.mu.Lock()
+	resolved, source := s.spec.Guardrail, s.spec.GuardrailSource
+	s.mu.Unlock()
+	text := s.wiring.CurrentGuardrail()
+	report := GuardrailReport{
+		Text: text, Resolved: resolved, Edited: text != resolved, Source: source,
+		ReadBy: slices.Clone(s.wiring.GuardrailUse.Blocks), Frequencies: []BlockFrequency{}, MayEdit: true,
+	}
+	for _, block := range slices.Sorted(maps.Keys(s.wiring.Constrained)) {
+		report.Frequencies = append(report.Frequencies, BlockFrequency{Block: block, Frequency: s.wiring.Constrained[block].ConstraintFrequency()})
+	}
+	return report
+}
 
 // Connect brokers a browser's offer to talk to the provider directly; errors on a genre with no conversation.
 // The seat names which conversation, where a genre holds two: empty is the
@@ -624,6 +689,18 @@ type NodeDetail struct {
 	// Observer is where a block following a conversation from the side
 	// stands: its pool, its timers, its figures and its log.
 	Observer *ObserverState `json:"observer,omitempty"`
+	// Prompts are the genre prompts the block runs on, each editable during
+	// play; a block on a thread runs on the thread's too.
+	Prompts []BlockPrompt `json:"prompts,omitempty"`
+}
+
+// BlockPrompt is one genre prompt as a block runs on it: its name, its text
+// now, the genre's own text, and whether the two differ.
+type BlockPrompt struct {
+	Name    string `json:"name"`
+	Text    string `json:"text"`
+	Default string `json:"default"`
+	Edited  bool   `json:"edited"`
 }
 
 // ObserverState is where an observer stands, for a reader.
@@ -668,6 +745,15 @@ func (s *Session) Inspect(name string) (NodeDetail, bool) {
 	if observer, ok := s.wiring.Observers[name]; ok {
 		state := observer.State()
 		detail.Observer = &state
+	}
+	if names := s.wiring.PromptsOf(name); len(names) > 0 {
+		current := s.wiring.CurrentPrompts()
+		for _, prompt := range names {
+			detail.Prompts = append(detail.Prompts, BlockPrompt{
+				Name: prompt, Text: current[prompt], Default: s.wiring.Defaults[prompt],
+				Edited: current[prompt] != s.wiring.Defaults[prompt],
+			})
+		}
 	}
 	if _, ok := s.wiring.Injectable[name]; ok {
 		detail.Injectable = true
@@ -1024,7 +1110,7 @@ func (s *Session) wire(spec SessionSpec) (*genre.Wiring, error) {
 			Window:              s.usage.window,
 			Image:               &s.slots.image,
 			Scenario:            spec.Scenario,
-			Guardrail:           spec.Guardrail,
+			Guardrail:           spec.guardrail(),
 			Description:         spec.Description,
 			ImageStyle:          spec.ImageStyle,
 			VoiceStyle:          spec.VoiceStyle,
@@ -1046,7 +1132,7 @@ func (s *Session) wire(spec SessionSpec) (*genre.Wiring, error) {
 			VoiceStyle:     spec.VoiceStyle,
 			Voices:         &s.slots.voices,
 			BuiltinVoices:  openai.LiveVoices,
-			Guardrail:      spec.Guardrail,
+			Guardrail:      spec.guardrail(),
 			Scenario:       spec.Scenario,
 			InitPrompt:     spec.initPrompt(),
 			PromptOverride: spec.PromptOverride,

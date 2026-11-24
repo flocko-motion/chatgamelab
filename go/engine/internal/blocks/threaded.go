@@ -44,7 +44,8 @@ type Thread struct {
 	// worded for a call to carry, empty when there is none.
 	system, constraints string
 
-	// Compaction is when and how the thread compacts. Set before Start.
+	// Compaction is when and how the thread compacts. Set before Start; its
+	// Request changes during play through SetSummaryRequest. Guarded by mu.
 	Compaction Compaction
 
 	// seats pass the turn round: a block calls when it holds its seat, and
@@ -133,6 +134,33 @@ func NewThread(name string, adapter adapters.Thread, system, constraints string)
 }
 
 func (t *Thread) NodeName() string { return t.name }
+
+// SetSystem changes the System Message from the next call on. The thread
+// keeps what it holds, and the next call starts a fresh provider thread
+// seeded from it, led by the new System Message: a provider takes the System
+// Message once, at the start of its thread.
+func (t *Thread) SetSystem(system string) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	t.system = system
+	t.state.Continuation = adapters.Continuation{}
+}
+
+// SetConstraints changes what a call carries of the youth-protection rule,
+// from the next call on.
+func (t *Thread) SetConstraints(constraints string) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	t.constraints = constraints
+}
+
+// SetSummaryRequest changes what the thread asks for when it compacts, from
+// the next compaction on.
+func (t *Thread) SetSummaryRequest(request string) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	t.Compaction.Request = request
+}
 
 // join gives a block its seat, the next in turn order. The first seat holds
 // the turn. Called while the graph is built, before anything runs.
@@ -287,7 +315,10 @@ func (t *Thread) takeLast() (adapters.Usage, bool) {
 // It reports what the summary request cost; a thread without a summary
 // request does nothing.
 func (t *Thread) CompactNow(ctx context.Context, backoff []time.Duration) adapters.Usage {
-	if t.Compaction.Request == "" {
+	t.mu.Lock()
+	request := t.Compaction.Request
+	t.mu.Unlock()
+	if request == "" {
 		return adapters.Usage{}
 	}
 	return t.compact(ctx, false, backoff)
@@ -469,7 +500,7 @@ type Threaded struct {
 	failing
 	constraining
 	name   string
-	prompt Prompt
+	prompt tunable[Prompt]
 	thread *Thread
 	seat   int
 
@@ -503,7 +534,7 @@ func (s *spoken) SetActive(on bool) { s.on.Store(on) }
 func NewThreaded(name string, thread *Thread, prompt Prompt) *Threaded {
 	return &Threaded{
 		name:     name,
-		prompt:   prompt,
+		prompt:   newTunable(prompt),
 		thread:   thread,
 		seat:     thread.join(),
 		Backoff:  []time.Duration{time.Second, 2 * time.Second, 4 * time.Second, 8 * time.Second},
@@ -513,6 +544,9 @@ func NewThreaded(name string, thread *Thread, prompt Prompt) *Threaded {
 		meter:    meter{name: name},
 	}
 }
+
+// SetPrompt changes its message from the next call on.
+func (b *Threaded) SetPrompt(prompt Prompt) { b.prompt.set(prompt) }
 
 // Thread is the thread the block takes part in.
 func (b *Threaded) Thread() *Thread { return b.thread }
@@ -603,7 +637,7 @@ func (b *Threaded) Start(ctx context.Context) {
 // retrying a failure that may pass after each backoff and a bad reply at once.
 func (b *Threaded) call(ctx context.Context) (string, error) {
 	calls := b.thread.calls(b.name)
-	message, constrain := b.prompt.message(b.thread.cued()), b.due(calls)
+	message, constrain := b.prompt.get().message(b.thread.cued()), b.due(calls)
 	speak := b.spoken.on.Load()
 	bad, retries := 0, 0
 	for {

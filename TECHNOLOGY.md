@@ -133,7 +133,7 @@ Here's a full list - and remember: each is just a piece of text.
 - Player Input Audio — spoken actions, one clip per press of the talk button
 
 **Set by organizations/workshops:**
-- Constraints — rules set by a teacher or facilitator (e.g. age-appropriate content)
+- The guardrail — the session's youth-protection rule, from its workshop, its organisation or the site's rule for the player's age group (e.g. age-appropriate content)
 
 **Detected automatically:**
 - Player Language Preference — the language the player's browser is set to
@@ -172,7 +172,7 @@ Here's a full list - and remember: each is just a piece of text.
 When a player starts a game, there's a preparation phase before any gameplay begins. The following inputs are fed into the Chat Game Lab game engine:
 - A game designed by a user (game scenario, status fields and image style)
 - The current language preference of the player who launches the game
-- Rules set up by the organization or workshop (the "constraints")
+- The youth-protection rule set up by the workshop, the organisation or the site (the "guardrail")
 - Templates and prompts that are part of the game engine of Chat Game Lab
 Each of those inputs is simply plain text - all human readable.
 
@@ -180,9 +180,9 @@ When a new game playing session is started by a player, three preparational proc
 
 **Generate Theme** — The AI reads the game scenario, the status fields, and the player's language preference to produce a visual theme. This includes a layout preset (e.g. "medieval", "cyberpunk", "pirate"), emoji icons for each status field (e.g. ❤️ for Health, 🪙 for Gold), and a thematic animation. The theme shapes how the game looks but has no effect on the story.
 
-**Fuse and Translate to English (Image Style Prompt)** — The game's image style (which the creator may have written in any language), the game scenario, the image prompt template, and any workshop constraints are combined and translated into English. The result is a stable prompt that guides image generation throughout the game. English is used because image generation models work best in English.
+**Fuse and Translate to English (Image Style Prompt)** — The game's image style (which the creator may have written in any language), the game scenario, the image prompt template, and the guardrail are combined and translated into English. The result is a stable prompt that guides image generation throughout the game. English is used because image generation models work best in English.
 
-**Fuse System Message** — The game scenario, status field names, workshop constraints, and the game engine prompt are combined and translated into English. The result is the **System Message** — a comprehensive instruction set that tells the AI how to run this particular game. It contains the scenario, the game rules, the status field definitions, and any workshop rules set by the teacher. English is used because LLMs follow instructions more reliably in English.
+**Fuse System Message** — The game scenario, status field names, the guardrail, and the game engine prompt are combined and translated into English. The result is the **System Message** — a comprehensive instruction set that tells the AI how to run this particular game. It contains the scenario, the game rules, the status field definitions, and the guardrail. English is used because LLMs follow instructions more reliably in English.
 
 ```mermaid
 graph TB
@@ -196,7 +196,7 @@ graph TB
     Status Fields"]
     TIMG["Template
     Image Prompt"]
-    CONSTRAINTS["Constraints"]
+    CONSTRAINTS["Guardrail"]
     TSYSMSG["Game Engine Prompt"]
 
 
@@ -243,7 +243,7 @@ From there, the game falls into a loop: the player sends an action, the engine g
 
 The following three steps run in parallel, streaming their results to the player as they complete:
 
-**Expand Plot to Prose** — The plot outline is expanded into 3-6 sentences of atmospheric narrative prose in the player's language. Workshop constraints are re-injected here to ensure the prose respects any rules set by the teacher (e.g. age-appropriate language). The text streams to the player word by word as it's generated.
+**Expand Plot to Prose** — The plot outline is expanded into 3-6 sentences of atmospheric narrative prose in the player's language. The guardrail is re-injected here so the prose keeps to the youth-protection rule (e.g. age-appropriate language). The text streams to the player word by word as it's generated.
 
 **Generate Image** — The image prompt from Generate Scene is combined with the **Image Style Prompt** (prepared during session initialization) to produce a scene illustration. The image renders progressively — the player sees it take shape while reading the story text.
 
@@ -280,7 +280,7 @@ graph TB
 
 
         EXPANDPROMPT["Expand Prompt"]
-        CONSTRAINT["Constraints"]
+        CONSTRAINT["Guardrail"]
         CONSTRAINT --> EXPAND
         EXPANDPROMPT --> EXPAND
 
@@ -363,9 +363,9 @@ The system message is the foundation of every game session. It's assembled from 
 > How to start the game:
 > *(game start inserted here — omitted if the author left the field empty)*
 
-If the game has workshop constraints set by a teacher, they are appended:
+If the session has a guardrail, it is appended:
 
-> NARRATION RULES must be respected: *(workshop constraints inserted here)*
+> NARRATION RULES must be respected: *(the guardrail inserted here)*
 
 ### Initialization Prompt
 
@@ -406,9 +406,9 @@ Turns the plot outline into narrative prose:
 
 > NARRATE the summary into prose in the players language (*(language name)*). STRICT RULES: 3-6 sentences. No headers, no markdown, no lists. Do NOT repeat status fields. End on an open note. Be brief and atmospheric. End on an open note, asking the player what they want to do next.
 
-If workshop constraints exist, they are appended:
+If the session has a guardrail, it is appended:
 
-> NARRATION RULES must be respected: *(workshop constraints)*
+> NARRATION RULES must be respected: *(the guardrail)*
 
 ### Expand Opening Scene to Prose Prompt
 
@@ -416,7 +416,7 @@ Used instead of the prompt above for the very first scene of a game. It stays a 
 
 > NARRATE the opening scene into prose in the players language (*(language name)*). This is the first thing the player reads - they know nothing yet. STRICT RULES: 4-6 sentences. No headers, no markdown, no lists. Do NOT repeat status fields. Tell it as a scene, with the same atmosphere as any other turn. Within the scene, make clear who the player character is and what situation they are in. Do not list choices: let people, objects and paths in the scene show what the player could do. Hint at what is at stake without spelling the goal out as an instruction. If the scenario explicitly asks you to explain the task, explain it plainly. End with an open question to the player.
 
-Workshop constraints are appended the same way as above.
+The guardrail is appended the same way as above.
 
 ### Image Generation Prompt
 
@@ -462,11 +462,11 @@ Used to compress long game scenarios into a short scene-guidance line:
 
 ### Translate Image Style
 
-Normalizes the image style to English (and adapts for workshop constraints if present):
+Normalizes the image style to English (and adapts it to the guardrail if there is one):
 
 > Translate this image style description to English. Return ONLY the translated description (max 50 words).
 
-With workshop constraints:
+With a guardrail:
 
 > Translate this image style description to English and adapt it based on the workshop constraints.
 > Consider how the constraints should affect the visual style (e.g., age-appropriate style, restricting violent content).

@@ -6,7 +6,7 @@ import { problemText, type Problem } from "@/common/lib/playability";
 import type { LaunchView } from "../hooks/usePlaybackLaunch";
 
 interface LaunchPanelProps {
-  view: Exclude<LaunchView, { kind: "playing" }>;
+  view: Exclude<LaunchView, { kind: "playing" } | { kind: "advanced" }>;
   onContinue: (id: string) => void;
   onStartAnew: () => void;
   onTryAgain: () => void;

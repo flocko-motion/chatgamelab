@@ -81,8 +81,13 @@ const (
 
 	// Session is a game being played: its story, state and insights.
 	Session Entity = "session"
-	// SessionRule is how often each block of a session repeats its rule.
+	// SessionRule is a session's guardrail, its youth-protection rule, as the
+	// session applies it during play: its text, and how often each of its
+	// blocks repeats it.
 	SessionRule Entity = "session rule"
+	// SessionPrompts are the genre prompts a session starts with, which the
+	// one starting it may adapt before it is handed to the playback-engine.
+	SessionPrompts Entity = "session prompts"
 	// ShareLink is a voucher: someone's money for plays of one game; whoever
 	// pays for it may see it.
 	ShareLink Entity = "share link"

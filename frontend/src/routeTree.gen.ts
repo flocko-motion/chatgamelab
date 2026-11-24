@@ -43,6 +43,7 @@ import { Route as InvitesParticipantTokenRouteImport } from './routes/invites/pa
 import { Route as InvitesGuestTokenRouteImport } from './routes/invites/guest.$token'
 import { Route as InvitesTokenAcceptRouteImport } from './routes/invites/$token.accept'
 import { Route as GamesGameIdPlayRouteImport } from './routes/games/$gameId/play'
+import { Route as GamesGameIdPlayAdvancedRouteImport } from './routes/games/$gameId/play.advanced'
 import { Route as AuthLogoutAuth0CallbackRouteImport } from './routes/auth/logout/auth0/callback'
 import { Route as AuthLoginAuth0CallbackRouteImport } from './routes/auth/login/auth0/callback'
 
@@ -217,6 +218,11 @@ const GamesGameIdPlayRoute = GamesGameIdPlayRouteImport.update({
   path: '/games/$gameId/play',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GamesGameIdPlayAdvancedRoute = GamesGameIdPlayAdvancedRouteImport.update({
+  id: '/advanced',
+  path: '/advanced',
+  getParentRoute: () => GamesGameIdPlayRoute,
+} as any)
 const AuthLogoutAuth0CallbackRoute = AuthLogoutAuth0CallbackRouteImport.update({
   id: '/auth/logout/auth0/callback',
   path: '/auth/logout/auth0/callback',
@@ -253,7 +259,7 @@ export interface FileRoutesByFullPath {
   '/my-workshop': typeof MyWorkshopIndexRoute
   '/play': typeof PlayIndexRoute
   '/sessions': typeof SessionsIndexRoute
-  '/games/$gameId/play': typeof GamesGameIdPlayRoute
+  '/games/$gameId/play': typeof GamesGameIdPlayRouteWithChildren
   '/invites/$token/accept': typeof InvitesTokenAcceptRoute
   '/invites/guest/$token': typeof InvitesGuestTokenRoute
   '/invites/participant/$token': typeof InvitesParticipantTokenRoute
@@ -265,6 +271,7 @@ export interface FileRoutesByFullPath {
   '/games/$gameId': typeof GamesGameIdIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
+  '/games/$gameId/play/advanced': typeof GamesGameIdPlayAdvancedRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -291,7 +298,7 @@ export interface FileRoutesByTo {
   '/my-workshop': typeof MyWorkshopIndexRoute
   '/play': typeof PlayIndexRoute
   '/sessions': typeof SessionsIndexRoute
-  '/games/$gameId/play': typeof GamesGameIdPlayRoute
+  '/games/$gameId/play': typeof GamesGameIdPlayRouteWithChildren
   '/invites/$token/accept': typeof InvitesTokenAcceptRoute
   '/invites/guest/$token': typeof InvitesGuestTokenRoute
   '/invites/participant/$token': typeof InvitesParticipantTokenRoute
@@ -303,6 +310,7 @@ export interface FileRoutesByTo {
   '/games/$gameId': typeof GamesGameIdIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
+  '/games/$gameId/play/advanced': typeof GamesGameIdPlayAdvancedRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -330,7 +338,7 @@ export interface FileRoutesById {
   '/my-workshop/': typeof MyWorkshopIndexRoute
   '/play/': typeof PlayIndexRoute
   '/sessions/': typeof SessionsIndexRoute
-  '/games/$gameId/play': typeof GamesGameIdPlayRoute
+  '/games/$gameId/play': typeof GamesGameIdPlayRouteWithChildren
   '/invites/$token/accept': typeof InvitesTokenAcceptRoute
   '/invites/guest/$token': typeof InvitesGuestTokenRoute
   '/invites/participant/$token': typeof InvitesParticipantTokenRoute
@@ -342,6 +350,7 @@ export interface FileRoutesById {
   '/games/$gameId/': typeof GamesGameIdIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
+  '/games/$gameId/play/advanced': typeof GamesGameIdPlayAdvancedRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -382,6 +391,7 @@ export interface FileRouteTypes {
     | '/games/$gameId'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
+    | '/games/$gameId/play/advanced'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -420,6 +430,7 @@ export interface FileRouteTypes {
     | '/games/$gameId'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
+    | '/games/$gameId/play/advanced'
   id:
     | '__root__'
     | '/'
@@ -458,6 +469,7 @@ export interface FileRouteTypes {
     | '/games/$gameId/'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
+    | '/games/$gameId/play/advanced'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -485,7 +497,7 @@ export interface RootRouteChildren {
   MyWorkshopIndexRoute: typeof MyWorkshopIndexRoute
   PlayIndexRoute: typeof PlayIndexRoute
   SessionsIndexRoute: typeof SessionsIndexRoute
-  GamesGameIdPlayRoute: typeof GamesGameIdPlayRoute
+  GamesGameIdPlayRoute: typeof GamesGameIdPlayRouteWithChildren
   InvitesTokenAcceptRoute: typeof InvitesTokenAcceptRoute
   InvitesGuestTokenRoute: typeof InvitesGuestTokenRoute
   InvitesParticipantTokenRoute: typeof InvitesParticipantTokenRoute
@@ -739,6 +751,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GamesGameIdPlayRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/games/$gameId/play/advanced': {
+      id: '/games/$gameId/play/advanced'
+      path: '/advanced'
+      fullPath: '/games/$gameId/play/advanced'
+      preLoaderRoute: typeof GamesGameIdPlayAdvancedRouteImport
+      parentRoute: typeof GamesGameIdPlayRoute
+    }
     '/auth/logout/auth0/callback': {
       id: '/auth/logout/auth0/callback'
       path: '/auth/logout/auth0/callback'
@@ -755,6 +774,18 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface GamesGameIdPlayRouteChildren {
+  GamesGameIdPlayAdvancedRoute: typeof GamesGameIdPlayAdvancedRoute
+}
+
+const GamesGameIdPlayRouteChildren: GamesGameIdPlayRouteChildren = {
+  GamesGameIdPlayAdvancedRoute: GamesGameIdPlayAdvancedRoute,
+}
+
+const GamesGameIdPlayRouteWithChildren = GamesGameIdPlayRoute._addFileChildren(
+  GamesGameIdPlayRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -781,7 +812,7 @@ const rootRouteChildren: RootRouteChildren = {
   MyWorkshopIndexRoute: MyWorkshopIndexRoute,
   PlayIndexRoute: PlayIndexRoute,
   SessionsIndexRoute: SessionsIndexRoute,
-  GamesGameIdPlayRoute: GamesGameIdPlayRoute,
+  GamesGameIdPlayRoute: GamesGameIdPlayRouteWithChildren,
   InvitesTokenAcceptRoute: InvitesTokenAcceptRoute,
   InvitesGuestTokenRoute: InvitesGuestTokenRoute,
   InvitesParticipantTokenRoute: InvitesParticipantTokenRoute,

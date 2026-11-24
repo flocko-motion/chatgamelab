@@ -21,7 +21,7 @@ type Parts struct {
 // of one reply, with what preparation made.
 type Compose struct {
 	name  string
-	build func(Parts) string
+	build tunable[func(Parts) string]
 
 	in     ports.TextInput
 	second ports.TextInput
@@ -33,14 +33,18 @@ type Compose struct {
 func NewCompose(name string, build func(Parts) string) *Compose {
 	return &Compose{
 		name:   name,
-		build:  build,
+		build:  newTunable(build),
 		in:     make(ports.TextInput, 16),
 		second: make(ports.TextInput, 16),
 		props:  make(ports.PropsInput, 16),
 	}
 }
 
-func (b *Compose) NodeName() string                   { return b.name }
+func (b *Compose) NodeName() string { return b.name }
+
+// SetBuild changes how it builds its text, from the next one on.
+func (b *Compose) SetBuild(build func(Parts) string) { b.build.set(build) }
+
 func (b *Compose) TextInPort() chan<- string          { return b.in }
 func (b *Compose) SecondaryTextInPort() chan<- string { return b.second }
 func (b *Compose) PropsInPort() chan<- ports.PropMap  { return b.props }
@@ -93,7 +97,7 @@ func (b *Compose) Start(ctx context.Context) {
 			}
 			for len(firsts) > 0 && len(seconds) > 0 {
 				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
-				b.out.Send(b.build(Parts{Text: firsts[0], Secondary: seconds[0], Props: maps.Clone(props)}))
+				b.out.Send(b.build.get()(Parts{Text: firsts[0], Secondary: seconds[0], Props: maps.Clone(props)}))
 				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 				firsts, seconds = firsts[1:], seconds[1:]
 			}

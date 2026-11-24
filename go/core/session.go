@@ -222,9 +222,18 @@ func CountMessage(ctx context.Context, id uuid.UUID) {
 	}
 }
 
-// MayTuneRuleFrequency is a flag for the playback-engine: whether the caller
-// may change, while playing, how often a session repeats the
-// youth-protection rule. Head and staff may ({Edit, SessionRule, Own}).
-func MayTuneRuleFrequency(ctx context.Context) bool {
+// MayEditGuardrail is a flag for the playback-engine: whether the caller may
+// change, while playing, their own session's guardrail (its youth-protection
+// rule): its text, and how often the session repeats it. Head and staff may
+// ({Edit, SessionRule, Own}).
+func MayEditGuardrail(ctx context.Context) bool {
 	return granted(ctx, rules.Edit, rules.SessionRule, rules.Own)
+}
+
+// MayPresetPrompts is a flag for the platform's launch: whether the caller
+// may adapt the genre prompts of a session they start, before it is handed
+// to the playback-engine. Admin, head and staff may ({Edit, SessionPrompts,
+// Own}).
+func MayPresetPrompts(ctx context.Context) bool {
+	return granted(ctx, rules.Edit, rules.SessionPrompts, rules.Own)
 }

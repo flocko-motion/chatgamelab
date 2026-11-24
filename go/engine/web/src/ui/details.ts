@@ -5,6 +5,7 @@
  * selected.
  */
 import type {
+  BlockPrompt,
   EdgeDetail,
   NodeDetail,
   ObserverState,
@@ -15,7 +16,7 @@ import type {
   UsageRecord,
 } from "../client.js";
 import type { PlaybackEngineState } from "../state.js";
-import { blockLabel, settingLabel, text as said, type TextKey } from "../texts.js";
+import { blockLabel, promptLabel, settingLabel, text as said, type TextKey } from "../texts.js";
 
 /** How a live model takes an injection; the engine lists the kinds a block takes. */
 type InjectionKind = "direction" | "background" | "speech";
@@ -225,6 +226,9 @@ export class Details {
       return;
     }
     const parts: HTMLElement[] = [facts(detail)];
+    // The prompts the block runs on, each open to a change: a player tries
+    // how the answers change, from the block's next call on.
+    if (detail.prompts?.length) parts.push(this.#promptsSection(detail.prompts));
     // A block that takes injections, such as an observer, takes them here,
     // so a player can try how the conversation it watches reacts.
     if (detail.injectable) parts.push(this.#injectionBox(name, detail.injections ?? []));
@@ -252,6 +256,73 @@ export class Details {
     if (detail.thread) parts.push(this.#compactButton(name));
 
     this.body.replaceChildren(...parts);
+  }
+
+  #promptsSection(prompts: BlockPrompt[]): HTMLElement {
+    const section = document.createElement("section");
+    section.className = "prompts";
+    section.append(text("h4", "", said("prompts.title")), text("p", "meta", said("prompts.hint")));
+    for (const prompt of prompts) section.append(this.#promptEditor(prompt));
+    return section;
+  }
+
+  /** One prompt, folded under its name, with its text to change and a way back. */
+  #promptEditor(prompt: BlockPrompt): HTMLElement {
+    const fold = document.createElement("details");
+    const summary = document.createElement("summary");
+    summary.textContent = promptLabel(prompt.name);
+    const mark = text("span", "edited-mark", said("prompts.edited"));
+    mark.hidden = !prompt.edited;
+    summary.append(" ", mark);
+
+    const form = document.createElement("form");
+    form.className = "injection";
+    const box = document.createElement("textarea");
+    box.rows = 8;
+    box.value = prompt.text;
+    box.setAttribute("aria-label", promptLabel(prompt.name));
+    const save = document.createElement("button");
+    save.type = "submit";
+    save.className = "injection-send";
+    save.textContent = said("prompts.save");
+    const reset = document.createElement("button");
+    reset.type = "button";
+    reset.className = "injection-send";
+    reset.textContent = said("prompts.reset");
+    reset.hidden = !prompt.edited;
+    reset.addEventListener("click", () => {
+      box.value = prompt.default;
+      form.requestSubmit();
+    });
+    const actions = document.createElement("div");
+    actions.className = "prompt-actions";
+    actions.append(save, reset);
+    const status = text("p", "meta", "");
+    form.append(box, actions, status);
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      save.disabled = true;
+      status.textContent = said("prompts.saving");
+      try {
+        await this.session.client.putApiEngineSessionsIdPromptsName(
+          this.session.id,
+          encodeURIComponent(prompt.name),
+          { text: box.value },
+        );
+        const edited = box.value !== prompt.default;
+        mark.hidden = !edited;
+        reset.hidden = !edited;
+        status.textContent = said("prompts.saved");
+      } catch {
+        status.textContent = said("prompts.failed");
+      } finally {
+        save.disabled = false;
+      }
+    });
+
+    fold.append(summary, form);
+    return fold;
   }
 
   #injectionBox(name: string, kinds: string[]): HTMLElement {

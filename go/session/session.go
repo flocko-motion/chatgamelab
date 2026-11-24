@@ -27,9 +27,10 @@ type Created struct {
 }
 
 // CreateGameSession launches a session of a game for the caller. As starting
-// a game anew, it replaces their earlier sessions of that game. The context
-// outlives the request, as the session's lifetime.
-func CreateGameSession(ctx context.Context, gameID uuid.UUID, language string) (*Created, error) {
+// a game anew, it replaces their earlier sessions of that game. Prompts adapt
+// the genre's prompts by name, for a caller who may (core.MayPresetPrompts).
+// The context outlives the request, as the session's lifetime.
+func CreateGameSession(ctx context.Context, gameID uuid.UUID, language string, prompts map[string]string) (*Created, error) {
 	start, err := core.StartGame(ctx, gameID)
 	if err != nil {
 		return nil, core.PlayRefusal(err)
@@ -43,14 +44,14 @@ func CreateGameSession(ctx context.Context, gameID uuid.UUID, language string) (
 	if err != nil {
 		return nil, err
 	}
-	return launch(ctx, game, chosen.Offer, chosen.Payer, nil, language, true)
+	return launch(ctx, game, chosen.Offer, chosen.Payer, nil, language, prompts, true)
 }
 
 // CreateShareSession launches a session from a share link, for a guest or a
 // signed-in player playing it. The link's key pays, and the play counts
 // against the link's limit with the launch. An embed link of the verified
 // mode starts only on its host's yes, asked with host's IDs.
-func CreateShareSession(ctx context.Context, token string, host core.HostIDs, language string) (*Created, error) {
+func CreateShareSession(ctx context.Context, token string, host core.HostIDs, language string, prompts map[string]string) (*Created, error) {
 	link, err := core.EmbedPlay(ctx, token, host)
 	if err != nil {
 		return nil, core.PlayRefusal(err)
@@ -67,19 +68,23 @@ func CreateShareSession(ctx context.Context, token string, host core.HostIDs, la
 	if err != nil {
 		return nil, err
 	}
-	return launch(ctx, game, chosen.Offer, chosen.Payer, link, language, false)
+	return launch(ctx, game, chosen.Offer, chosen.Payer, link, language, prompts, false)
 }
 
 // launch starts the session under a fresh id, in the store the core hands
 // out for it: its first save creates the session and does what the start
 // takes, all in one transaction, so a refused launch leaves nothing behind.
-func launch(ctx context.Context, game *gameFacts, offer engine.Offer, payer core.Payer, link *core.LinkPlay, language string, replace bool) (*Created, error) {
+func launch(ctx context.Context, game *gameFacts, offer engine.Offer, payer core.Payer, link *core.LinkPlay, language string, prompts map[string]string, replace bool) (*Created, error) {
+	if len(prompts) > 0 && !core.MayPresetPrompts(ctx) {
+		return nil, engine.Refuse(engine.ProblemDenied, "only admins, heads and staff adapt a session's prompts")
+	}
 	facts, err := core.ReadPlayRuleFacts(ctx, link)
 	if err != nil {
 		return nil, core.PlayRefusal(err)
 	}
 	spec := gameSpec(game, playerLanguage(core.PlayerLanguage(ctx), language), resolveRule(facts))
 	spec.GalleryImage = galleryImage(ctx, game.card)
+	spec.PromptOverride = prompts
 	store, player, err := core.LaunchStore(ctx, core.NewPlay{
 		Game: game.ID, Link: link, Payer: payer, Platform: string(offer.Platform),
 		Language: spec.Language, ReplaceEarlier: replace,
@@ -210,6 +215,7 @@ func gameSpec(game *gameFacts, language string, rule Rule) engine.SessionSpec {
 	}
 	if rule.Text != nil {
 		spec.Guardrail = *rule.Text
+		spec.GuardrailSource = &engine.GuardrailSource{Level: rule.Source, Name: rule.SourceName}
 	}
 	return spec
 }

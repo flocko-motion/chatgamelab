@@ -2,6 +2,7 @@ package genre
 
 import (
 	"fmt"
+	"maps"
 	"strings"
 	"time"
 
@@ -270,11 +271,38 @@ func NewNPCLive(cfg NPCLiveConfig) (*Wiring, error) {
 	// Without its first words the game starts all the same, on the cue alone.
 	g.ConnectFailure(greeting, blocks.NewFailureDrop("greeting-failed"))
 
-	// Speech only: GPT-Live cannot deliver user text into a conversation.
+	// Each prompt reaches its block again when it changes during play.
+	uses := map[string]PromptUse{
+		PromptConversationPolicy: {[]string{live.NodeName()}, func(c Current) {
+			live.SetScenario(cfg.Scenario + c.Prompts[PromptConversationPolicy] + speakClause(cfg.Language))
+		}},
+		PromptDirector: {[]string{observer.NodeName()}, func(c Current) {
+			observer.SetBrief(directorBrief(c.Prompts[PromptDirector], cfg.Scenario, c.Guardrail, cfg.Language))
+		}},
+		PromptGreeting: {[]string{greeting.NodeName()}, func(c Current) {
+			greeting.SetSystem(c.Prompts[PromptGreeting] + languageClause(cfg.Language))
+		}},
+		PromptVoiceBrief: {[]string{voiceBrief.NodeName()}, func(c Current) {
+			voiceBrief.SetSystem(c.Prompts[PromptVoiceBrief] + voiceBriefTail(cfg.BuiltinVoices, cfg.Language, cfg.Scenario))
+		}},
+	}
+	// The live session takes the guardrail on its own channel, the director
+	// judges by it and reminds the character of it.
+	guardrailUse := PromptUse{[]string{live.NodeName(), observer.NodeName()}, func(c Current) {
+		live.SetGuardrail(c.Guardrail)
+		observer.SetBrief(directorBrief(c.Prompts[PromptDirector], cfg.Scenario, c.Guardrail, cfg.Language))
+		observer.SetRules(c.Guardrail)
+	}}
+
 	w := &Wiring{
-		Graph:   g,
-		Prompts: prompts,
-		Inputs:  []ports.InputMode{ports.InputAudioFullDuplex},
+		Graph:        g,
+		Prompts:      prompts,
+		Defaults:     maps.Clone(NPCLivePrompts),
+		PromptUses:   uses,
+		Guardrail:    cfg.Guardrail,
+		GuardrailUse: guardrailUse,
+		// Speech only: GPT-Live cannot deliver user text into a conversation.
+		Inputs: []ports.InputMode{ports.InputAudioFullDuplex},
 		// One picture, kept in view for the whole conversation.
 		Imagery: ports.ImageryStanding,
 	}

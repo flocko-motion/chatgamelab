@@ -19,8 +19,9 @@ import (
 // failure output, and the block goes on with the next.
 type ToolCall struct {
 	failing
-	name, system string
-	tool         adapters.Tool
+	name   string
+	system tunable[string]
+	tool   adapters.Tool
 
 	// Backoff is the wait before each retry of a failure that may pass, so a
 	// call is made len(Backoff)+1 times at most. Set before Start.
@@ -56,7 +57,7 @@ func NewToolCall(name string, tool adapters.Tool, system string) *ToolCall {
 	}
 	return &ToolCall{
 		name:    name,
-		system:  system,
+		system:  newTunable(system),
 		tool:    tool,
 		Backoff: []time.Duration{time.Second, 2 * time.Second, 4 * time.Second, 8 * time.Second},
 		in:      make(ports.TextInput, 16),
@@ -64,7 +65,11 @@ func NewToolCall(name string, tool adapters.Tool, system string) *ToolCall {
 	}
 }
 
-func (b *ToolCall) NodeName() string           { return b.name }
+func (b *ToolCall) NodeName() string { return b.name }
+
+// SetSystem changes its system message from the next call on.
+func (b *ToolCall) SetSystem(system string) { b.system.set(system) }
+
 func (b *ToolCall) TextInPort() chan<- string  { return b.in }
 func (b *ToolCall) TextOutPort() <-chan string { return b.out.Subscribe() }
 
@@ -147,13 +152,13 @@ func (b *ToolCall) Start(ctx context.Context) {
 // ask makes one call: in text, or in JSON of the schema, tidied and checked.
 func (b *ToolCall) ask(ctx context.Context, text string) (string, adapters.Usage, error) {
 	if b.Schema == nil {
-		return b.tool.Query(ctx, b.system, text)
+		return b.tool.Query(ctx, b.system.get(), text)
 	}
 	structured, ok := b.tool.(adapters.SchemaTool)
 	if !ok {
 		return "", adapters.Usage{}, errors.New(b.name + ": its tool answers only in text, and it has a schema")
 	}
-	reply, used, err := structured.QuerySchema(ctx, b.system, text, *b.Schema)
+	reply, used, err := structured.QuerySchema(ctx, b.system.get(), text, *b.Schema)
 	if err != nil {
 		return "", used, err
 	}

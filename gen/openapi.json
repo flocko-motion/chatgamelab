@@ -229,6 +229,44 @@
         ],
         "type": "object"
       },
+      "BlockFrequency": {
+        "properties": {
+          "block": {
+            "type": "string"
+          },
+          "frequency": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "block",
+          "frequency"
+        ],
+        "type": "object"
+      },
+      "BlockPrompt": {
+        "properties": {
+          "default": {
+            "type": "string"
+          },
+          "edited": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "text",
+          "default",
+          "edited"
+        ],
+        "type": "object"
+      },
       "CheckNameResp": {
         "properties": {
           "available": {
@@ -559,6 +597,12 @@
           },
           "player": {
             "type": "string"
+          },
+          "promptOverride": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
           },
           "request": {
             "type": "string"
@@ -1296,6 +1340,9 @@
           "mayEditSettings": {
             "type": "boolean"
           },
+          "mayPresetPrompts": {
+            "type": "boolean"
+          },
           "mayPublish": {
             "type": "boolean"
           },
@@ -1366,6 +1413,7 @@
           "mayCopy",
           "mayShare",
           "mayPublish",
+          "mayPresetPrompts",
           "isFavorite",
           "playability",
           "hasContent",
@@ -1418,13 +1466,35 @@
               "$ref": "#/components/schemas/Toggle"
             },
             "type": "array"
+          },
+          "prompts": {
+            "items": {
+              "$ref": "#/components/schemas/GenrePrompt"
+            },
+            "type": "array"
           }
         },
         "required": [
           "id",
           "needs",
           "fields",
-          "makesVoices"
+          "makesVoices",
+          "prompts"
+        ],
+        "type": "object"
+      },
+      "GenrePrompt": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "text"
         ],
         "type": "object"
       },
@@ -1472,6 +1542,71 @@
         },
         "required": [
           "graph"
+        ],
+        "type": "object"
+      },
+      "GuardrailEditRequest": {
+        "properties": {
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "type": "object"
+      },
+      "GuardrailReport": {
+        "properties": {
+          "edited": {
+            "type": "boolean"
+          },
+          "frequencies": {
+            "items": {
+              "$ref": "#/components/schemas/BlockFrequency"
+            },
+            "type": "array"
+          },
+          "mayEdit": {
+            "type": "boolean"
+          },
+          "readBy": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "resolved": {
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/GuardrailSource"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "resolved",
+          "edited",
+          "readBy",
+          "frequencies",
+          "mayEdit"
+        ],
+        "type": "object"
+      },
+      "GuardrailSource": {
+        "properties": {
+          "level": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "level"
         ],
         "type": "object"
       },
@@ -2163,6 +2298,12 @@
           },
           "phase": {
             "type": "string"
+          },
+          "prompts": {
+            "items": {
+              "$ref": "#/components/schemas/BlockPrompt"
+            },
+            "type": "array"
           },
           "role": {
             "type": "string"
@@ -2939,6 +3080,17 @@
         },
         "required": [
           "shares"
+        ],
+        "type": "object"
+      },
+      "PromptEditRequest": {
+        "properties": {
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
         ],
         "type": "object"
       },
@@ -6668,6 +6820,103 @@
         "summary": "Renders a session's running wiring as text."
       }
     },
+    "/api/engine/sessions/{id}/guardrail": {
+      "get": {
+        "description": "rule its blocks keep to: the one now and the one resolved, where it came\nfrom, which blocks keep to it and how often each repeats it. mayEdit says\nwhether the caller may change it: staff and heads, in their own session.",
+        "operationId": "getApiEngineSessionsIdGuardrail",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuardrailReport"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Answers a session's guardrail, the youth-protection"
+      },
+      "put": {
+        "description": "Staff and heads only, in their own session: a lab experiment with\nguardrails, looser or stricter. The blocks that keep to it take the new one\nfrom their next call; what was done stays. The resolved guardrail clears\nthe edit.",
+        "operationId": "putApiEngineSessionsIdGuardrail",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuardrailEditRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Changes a session's guardrail during play."
+      }
+    },
     "/api/engine/sessions/{id}/history": {
       "get": {
         "operationId": "getApiEngineSessionsIdHistory",
@@ -7220,6 +7469,65 @@
           }
         ],
         "summary": "Answers the text a session is running on, by block."
+      }
+    },
+    "/api/engine/sessions/{id}/prompts/{name}": {
+      "put": {
+        "description": "Every player of the session may, to see how the AI's answers change: the\nyouth-protection rule travels with the calls on its own, so no prompt can\ndrop it. The blocks that run on the prompt take the new text from their\nnext call; the session keeps it, also across a resume.",
+        "operationId": "putApiEngineSessionsIdPromptsName",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromptEditRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Changes one of a session's prompts during play."
       }
     },
     "/api/engine/sessions/{id}/state": {

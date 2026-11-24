@@ -39,6 +39,8 @@ type GenreInfo struct {
 	// MakesVoices says the genre makes a voice of its own per key and voice
 	// style, which an editor may preview and remake.
 	MakesVoices bool `json:"makesVoices"`
+	// Prompts are the genre's own prompts, for a launch that adapts them.
+	Prompts []GenrePrompt `json:"prompts"`
 }
 
 // GenreList is every genre the engine runs, with its needs and the game's
@@ -50,7 +52,7 @@ func GenreList() []GenreInfo {
 		if needs == nil {
 			needs = []Toggle{}
 		}
-		out = append(out, GenreInfo{ID: g, Needs: needs, Fields: g.Fields(), MakesVoices: g.MakesVoices()})
+		out = append(out, GenreInfo{ID: g, Needs: needs, Fields: g.Fields(), MakesVoices: g.MakesVoices(), Prompts: g.Prompts()})
 	}
 	return out
 }

@@ -172,6 +172,18 @@ export interface BeatRequest {
   ms: number;
 }
 
+export interface BlockFrequency {
+  block: string;
+  frequency: number;
+}
+
+export interface BlockPrompt {
+  default: string;
+  edited: boolean;
+  name: string;
+  text: string;
+}
+
 export interface CheckNameResp {
   available: boolean;
   profane?: boolean;
@@ -288,6 +300,7 @@ export interface CreateRequest {
   language?: string;
   once: string;
   player?: string;
+  promptOverride?: Record<string, string>;
   request?: string;
   share?: string;
 }
@@ -525,6 +538,7 @@ export interface GameView {
   mayEditCard: boolean;
   mayEditContent: boolean;
   mayEditSettings: boolean;
+  mayPresetPrompts: boolean;
   mayPublish: boolean;
   mayShare: boolean;
   meta: GameMeta;
@@ -557,6 +571,12 @@ export interface GenreInfo {
   id: Genre;
   makesVoices: boolean;
   needs: Toggle[];
+  prompts: GenrePrompt[];
+}
+
+export interface GenrePrompt {
+  name: string;
+  text: string;
 }
 
 export interface GetCurrentUserResp {
@@ -573,6 +593,25 @@ export interface GetVersionResp {
 
 export interface GraphResponse {
   graph: string;
+}
+
+export interface GuardrailEditRequest {
+  text: string;
+}
+
+export interface GuardrailReport {
+  edited: boolean;
+  frequencies: BlockFrequency[];
+  mayEdit: boolean;
+  readBy: string[];
+  resolved: string;
+  source?: GuardrailSource;
+  text: string;
+}
+
+export interface GuardrailSource {
+  level: string;
+  name?: string;
 }
 
 export interface GuestGameInfoResp {
@@ -801,6 +840,7 @@ export interface NodeDetail {
   observer?: ObserverState;
   outputs: Sample[];
   phase: string;
+  prompts?: BlockPrompt[];
   role: string;
   thread?: ThreadFill;
   transcript?: TranscriptLine[];
@@ -1015,6 +1055,10 @@ export interface Price {
 
 export interface PrivateShareStatusResp {
   shares: ShareLinkView[];
+}
+
+export interface PromptEditRequest {
+  text: string;
 }
 
 export interface PublicWorkshopGame {
@@ -2596,6 +2640,45 @@ export class Api<
       }),
 
     /**
+     * @description rule its blocks keep to: the one now and the one resolved, where it came from, which blocks keep to it and how often each repeats it. mayEdit says whether the caller may change it: staff and heads, in their own session.
+     *
+     * @name GetApiEngineSessionsIdGuardrail
+     * @summary Answers a session's guardrail, the youth-protection
+     * @request GET:/api/engine/sessions/{id}/guardrail
+     * @secure
+     */
+    getApiEngineSessionsIdGuardrail: (id: string, params: RequestParams = {}) =>
+      this.request<GuardrailReport, Error>({
+        path: `/api/engine/sessions/${id}/guardrail`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Staff and heads only, in their own session: a lab experiment with guardrails, looser or stricter. The blocks that keep to it take the new one from their next call; what was done stays. The resolved guardrail clears the edit.
+     *
+     * @name PutApiEngineSessionsIdGuardrail
+     * @summary Changes a session's guardrail during play.
+     * @request PUT:/api/engine/sessions/{id}/guardrail
+     * @secure
+     */
+    putApiEngineSessionsIdGuardrail: (
+      id: string,
+      data: GuardrailEditRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error>({
+        path: `/api/engine/sessions/${id}/guardrail`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: "application/json",
+        ...params,
+      }),
+
+    /**
      * No description
      *
      * @name GetApiEngineSessionsIdHistory
@@ -2801,6 +2884,29 @@ export class Api<
         method: "GET",
         secure: true,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Every player of the session may, to see how the AI's answers change: the youth-protection rule travels with the calls on its own, so no prompt can drop it. The blocks that run on the prompt take the new text from their next call; the session keeps it, also across a resume.
+     *
+     * @name PutApiEngineSessionsIdPromptsName
+     * @summary Changes one of a session's prompts during play.
+     * @request PUT:/api/engine/sessions/{id}/prompts/{name}
+     * @secure
+     */
+    putApiEngineSessionsIdPromptsName: (
+      id: string,
+      name: string,
+      data: PromptEditRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error>({
+        path: `/api/engine/sessions/${id}/prompts/${name}`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: "application/json",
         ...params,
       }),
 

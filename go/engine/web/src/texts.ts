@@ -32,6 +32,16 @@ export function blockLabel(name: string): string {
 }
 
 /**
+ * What a genre prompt is called in a block's details, by its name in the
+ * wiring: "game-master" says less than "Game master (System Message)". A
+ * prompt with no text keeps its name.
+ */
+export function promptLabel(name: string): string {
+  const own = current.promptNames as Partial<Record<string, string>> | undefined;
+  return own?.[name] ?? (english.promptNames as Record<string, string>)[name] ?? name;
+}
+
+/**
  * What a game setting is called in the pipeline view, by the field it stands
  * for: "voiceStyle" says less than "Voice style". A setting with no field, or
  * one without a text, is called as its block would be.

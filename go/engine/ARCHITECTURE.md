@@ -87,6 +87,25 @@ set, written by hand.
 - Two genres justify neither a DSL nor a generic scheduler, so the graph stays
   Go and keeps its type safety.
 
+### Prompts and the guardrail
+
+What the blocks run on is text the genre gives them, and it may change while
+the game runs.
+
+- **Every genre prompt belongs to the blocks that run on it.** The wiring
+  says, per prompt, which blocks those are and how a changed text reaches
+  them; a test fails for a prompt without one. A block reads its text at each
+  call, so a change applies from its next call, and a call under way keeps
+  the text it began with. An edited prompt is filled like the genre's own,
+  templates included.
+- **The guardrail is one session-wide value**, the session's youth-protection
+  rule. It is no input and no part of the drawing: each block that keeps to
+  it reads it when it calls and words it its own way, as the genre says. The
+  wiring lists those blocks and how a changed guardrail reaches them.
+- **A change during play acts from now on.** What was done stays: work done
+  once, such as preparation, is not made again, and a live conversation
+  keeps the guardrail it opened with; the next one takes the new.
+
 ### Init, gate, loop
 
 A genre's graph is **P-shaped**: an init stem that runs once, a **gate**, and
@@ -101,6 +120,16 @@ which draws the wiring once and then tracks phases. That drawing, with the
 details of a selected block or wire beside it, is **insights**: what each
 block is doing, what it has carried and spent, and, for a block on a thread,
 how full the thread is.
+
+Insights are a lab as well as a view. A block's details list the genre
+prompts it runs on, a block on a thread its thread's too, each with its
+text now and the genre's own; any player changes one there, and the blocks
+that run on it take the new text from their next call. The session's
+guardrail has a tab of its own, as it belongs to no block: the text the
+blocks keep to now, the one resolved, where it came from, the blocks that
+keep to it and how often each threaded block repeats it. Whoever serves the
+engine says whether the reader may change it (`mayEdit`); a server without
+roles lets everyone.
 
 The drawing is placed by hand. Each genre keeps a layout beside its wiring
 (`adventure_layout.go`, `npclive_layout.go`) that gives every block its place,
@@ -376,7 +405,8 @@ every story and speech model has a window.
 
 The catalogue is exposed as `engine.Platforms()`, as the transport's
 `GET platforms`, and printed by `cmd/models`. Beside it, `GET genres` lists each
-genre with the toggles it needs and the game fields it reads, and `GET themes`
+genre with the toggles it needs, the game fields it reads and its own prompts
+as written, for a launch that adapts them, and `GET themes`
 the playback-engine's looks, for the game editor. The editor shows a genre's
 fields and no others: an Adventure reads the scenario, the game start, the
 image style, the status fields and the voice style; NPC-Live the scenario, the
@@ -451,7 +481,9 @@ thread.
   OpenAI carries no `instructions` over a previous response while input
   messages are stored; on Mistral the conversation's instructions as it
   starts. A fresh provider thread seeded from the transcript begins with it
-  again. The genre writes it.
+  again. The genre writes it. A System Message changed during play, by an
+  edited prompt or guardrail, gives way at the next call to a fresh provider
+  thread seeded from the transcript and led by the new one.
 - **Each call's message is a block's**: the player's input, or the game's own
   message, such as a block's prompt, sent as a developer
   message on OpenAI and as the user's on Mistral.
@@ -550,14 +582,18 @@ A session launches from a spec and the offers it may run on; the engine
 resolves nothing against platform data.
 
 - **Scenario and guardrail** — the designer's text and the platform's
-  youth-protection constraint, already resolved.
+  youth-protection rule, already resolved, with where the guardrail came
+  from: the level of the platform's fallback chain and its name.
 - **Starting message and description** — how the game starts, in the
   designer's words, and the game's idea in a sentence.
 - **Dice and constraint frequencies** — Adventure's opening values, rolled at
   launch, and how often each threaded block repeats the youth-protection
   rule.
 - **Genre prompts** — the mechanics, belonging to the genre as a named map. A
-  spec may replace any of them.
+  spec may replace any of them, and a change during play is stored as such a
+  replacement.
+- **The guardrail as changed during play**, kept to in place of the resolved
+  one; the resolved one stays beside it.
 - **Genre, title, image style.**
 - **Theme** — the playback-engine's look, one of its presets; empty is the
   default look. Listed by `GET themes`.
@@ -586,7 +622,8 @@ bearer handle scoped to one session, so an embedded playback-engine can hold it 
 key stays on the server.
 
 - **A session is its spec, its state and its event log.** The spec is fixed at
-  launch, apart from the player's preference; the state holds what blocks
+  launch, apart from what changes during play: the player's preference, the
+  constraint frequencies, edited prompts and an edited guardrail. The state holds what blocks
   export, such as conversation continuity and status values, and what the
   session has spent.
 - **History is the ordered log of what a player reads back**: text, pictures,
@@ -654,7 +691,8 @@ internals out of reach of any other module.
   unreachable 502, failed 500, any other 422.
 - **Creating goes through the transport, doing the serving side's work.**
   `POST sessions` names a game or a share token, the player's language and a
-  one-time key; the serving side supplies the function that launches the
+  one-time key, and may adapt the genre's prompts by name, which the serving
+  side allows or refuses; the serving side supplies the function that launches the
   session (the platform from its game and key cascade, the standalone launcher
   from its game file). A repeat of the one-time key within ten minutes answers
   the same session, and only to the caller who made it: the serving side names
@@ -843,6 +881,9 @@ session end to end with the headless playback-engine.
 - The story thread compacting itself near its model's context window: a
   reseed from text after spoken input, a summary otherwise; its fill shown in
   insights, and compaction on demand from there.
+- Prompts and the guardrail changed during play, from insights: each genre
+  prompt by any player, the guardrail and how often it repeats by whoever the
+  serving side lets, from the next call on.
 - Voice input on Adventure: push-to-talk in the playback-engine, one clip per
   press over the session's connection, heard and rephrased in one call on
   OpenAI's gpt-audio-1.5 or Mistral's Voxtral, the player's line on `said`.

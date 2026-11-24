@@ -81,7 +81,10 @@ and its last line tells the player why.
 
 A session plays on one AI platform at one quality tier (@platforms). The
 optional features *images*, *audio-in* and *audio-out* can be switched off or on
-at any time during play, if available. 
+at any time during play, if available. *Every player may change the prompts* of
+the game they are playing with the exception of the Guardrail prompt, 
+which only staff, head and admin may change. Changes apply to all API calls
+Heads and staff may also adapt them before a session starts*. 
 
 == AI platforms and tiers <platforms>
 
@@ -138,11 +141,12 @@ The player talks by voice with one character.
 
 == Youth protection
 
-Every session plays under exactly one youth-protection rule, on top of the AI
-provider's own safety measures. When the session is created, the platform
-supplies the stack of rules that apply (@jugendschutz); the stack, together
-with the platform's own guidance, is condensed into one concise rule, which the
-session keeps for its lifetime.
+Every session plays under exactly one youth-protection rule (Jugendschutz rule),
+also called its *guardrail*, on top of the AI provider's own safety measures.
+When the session is created, the platform supplies it from a fallback chain of
+rules (@jugendschutz), and the session keeps it. *Only staff and heads may change the guardrail*, of their own
+session, during play, to experiment with it; a change applies from the next AI
+call on.
 
 - *A designer has no influence on the rule.*
 - *The rule holds whatever the scenario says.* Scenario and rule stay separate.
@@ -239,9 +243,10 @@ The site's defaults:
 
 === Which rules apply
 
-A session's rule is composed when the session is created, from every level
-that applies, in the order below. The order is the priority when the stack is
-condensed. A change of role applies from the player's next session.
+A session's guardrail is chosen when the session is created, by a fallback
+chain: the first level in the order below that sets a rule gives the session
+its guardrail, and the levels after it do not count. A change of role applies
+from the player's next session.
 
 ==== Angemeldete Nutzer
 
@@ -294,9 +299,9 @@ signed-in players.
 
 === Transparency
 
-Insights (@insights) show which rules went into the session's rule,
-where each came from — a workshop, an organisation, or the site rule for U13,
-U13p or U18 — and the rule the session plays under.
+Insights (@insights) show the guardrail the session plays under and where it
+came from: a workshop, an organisation, or the site rule for U13, U13p or
+U18.
 
 === Registration
 

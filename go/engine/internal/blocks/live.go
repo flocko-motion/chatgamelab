@@ -189,7 +189,24 @@ func NewLiveSession(name string, live adapters.Live, cfg adapters.LiveConfig, id
 	}
 }
 
-func (b *LiveSession) NodeName() string                     { return b.name }
+func (b *LiveSession) NodeName() string { return b.name }
+
+// SetGuardrail changes the youth-protection rule the next conversation is
+// given on its own channel; an open one keeps the one it began with.
+func (b *LiveSession) SetGuardrail(guardrail string) {
+	b.mu.Lock()
+	b.cfg.Guardrail = guardrail
+	b.mu.Unlock()
+}
+
+// SetScenario changes the character's instructions from the next
+// conversation on; an open one keeps those it began with.
+func (b *LiveSession) SetScenario(scenario string) {
+	b.mu.Lock()
+	b.cfg.Scenario = scenario
+	b.mu.Unlock()
+}
+
 func (b *LiveSession) UseJournal(j *ports.Journal)          { b.journal = j }
 func (b *LiveSession) AudioInPort() chan<- ports.AudioChunk { return b.mic }
 
@@ -469,9 +486,9 @@ func (b *LiveSession) run(ctx context.Context) {
 
 // open passes both the prior ID and the transcript, whichever the provider honours.
 func (b *LiveSession) open(ctx context.Context, waiting offer) (adapters.LiveConn, error) {
+	b.mu.Lock()
 	cfg := b.cfg
 	cfg.Offer = waiting.sdp
-	b.mu.Lock()
 	cfg.ResumeFrom = b.resumeFrom
 	if b.voice != "" {
 		cfg.Voice = b.voice

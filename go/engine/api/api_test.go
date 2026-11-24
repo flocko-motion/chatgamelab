@@ -1,6 +1,7 @@
 package api_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -372,6 +373,84 @@ func TestPromptsAreReadable(t *testing.T) {
 	}
 	if prompts["conversation-policy"] != "Speak in rhymes." {
 		t.Errorf("the override is not what the session reports running on: %q", prompts["conversation-policy"])
+	}
+}
+
+// A prompt is edited during play by name; the session runs on the new text,
+// and a name the genre lacks is refused.
+func TestPromptIsEditable(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	session, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre: engine.GenreNPCLive, ID: "edit", Scenario: "You are the keeper of a bridge.",
+	}, mockOffers())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+	srv := newServer(t, "edit", session)
+
+	put := func(name, text string) int {
+		t.Helper()
+		body, _ := json.Marshal(map[string]string{"text": text})
+		req, _ := http.NewRequest(http.MethodPut, srv.URL+"/api/engine/sessions/edit/prompts/"+name, bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		resp.Body.Close()
+		return resp.StatusCode
+	}
+	if code := put("conversation-policy", "Speak in rhymes."); code != http.StatusOK {
+		t.Fatalf("the edit answered %d", code)
+	}
+	if got := session.Prompts()["conversation-policy"]; got != "Speak in rhymes." {
+		t.Errorf("the session runs on %q", got)
+	}
+	if code := put("conversation-polcy", "typo"); code != http.StatusUnprocessableEntity {
+		t.Errorf("a misspelled prompt answered %d", code)
+	}
+}
+
+// A session's guardrail is read and changed by its own route.
+func TestGuardrailIsEditable(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	session, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre: engine.GenreAdventure, ID: "guard", Guardrail: "No violence.",
+	}, mockOffers())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+	srv := newServer(t, "guard", session)
+
+	body, _ := json.Marshal(map[string]string{"text": "Gentle fights are fine."})
+	req, _ := http.NewRequest(http.MethodPut, srv.URL+"/api/engine/sessions/guard/guardrail", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("the edit answered %s", resp.Status)
+	}
+
+	resp, err = http.Get(srv.URL + "/api/engine/sessions/guard/guardrail")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	var report engine.GuardrailReport
+	if err := json.NewDecoder(resp.Body).Decode(&report); err != nil {
+		t.Fatal(err)
+	}
+	if report.Text != "Gentle fights are fine." || report.Resolved != "No violence." || !report.Edited || !report.MayEdit {
+		t.Errorf("the session reports %+v", report)
 	}
 }
 

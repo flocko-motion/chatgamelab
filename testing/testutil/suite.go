@@ -111,6 +111,16 @@ func (s *BaseSuite) DevUser() *UserClient {
 	return s.devUser
 }
 
+// DevHead and DevStaff are the preseeded dev organisation's first head and
+// first staff member, as the dev sign-in offers them.
+func (s *BaseSuite) DevHead() *UserClient {
+	return s.signedIn("00000000-0000-0000-0000-000000000003", "head-1", "head-1@dev.local")
+}
+
+func (s *BaseSuite) DevStaff() *UserClient {
+	return s.signedIn("00000000-0000-0000-0000-000000000005", "staff-1", "staff-1@dev.local")
+}
+
 // TokenLockTestRequested reports whether the token lock suite was asked for
 // with a threshold of 20 failures:
 //

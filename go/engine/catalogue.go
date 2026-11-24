@@ -1,12 +1,14 @@
 package engine
 
 import (
+	"maps"
 	"slices"
 
 	"engine/internal/adapters"
 	"engine/internal/adapters/mistral"
 	"engine/internal/adapters/mock"
 	"engine/internal/adapters/openai"
+	"engine/internal/genre"
 )
 
 // The catalogue's parts, re-exported so a caller can read them without importing internal/.
@@ -118,6 +120,31 @@ func (g Genre) Fields() []GameField {
 		return []GameField{FieldScenario, FieldGameStart, FieldImageStyle}
 	}
 	return []GameField{FieldScenario, FieldGameStart, FieldImageStyle, FieldStatusFields, FieldVoiceStyle}
+}
+
+// GenrePrompt is one of a genre's own prompts as it is written: a template
+// whose fields are filled for each session, which a spec's override may use
+// too.
+type GenrePrompt struct {
+	Name string `json:"name"`
+	Text string `json:"text"`
+}
+
+// Prompts are the genre's own prompts, by name, sorted: what a session runs
+// on unless its spec replaces one.
+func (g Genre) Prompts() []GenrePrompt {
+	defaults := genre.AdventurePrompts
+	switch g {
+	case GenreNPCLive:
+		defaults = genre.NPCLivePrompts
+	case GenreNPCDuo:
+		defaults = genre.NPCDuoPrompts
+	}
+	out := []GenrePrompt{}
+	for _, name := range slices.Sorted(maps.Keys(defaults)) {
+		out = append(out, GenrePrompt{Name: name, Text: defaults[name]})
+	}
+	return out
 }
 
 // MakesVoices reports whether the genre makes a voice of its own for a game,

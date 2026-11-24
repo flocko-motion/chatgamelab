@@ -299,7 +299,23 @@ func NewObserver(name string, cfg ObserverConfig) *Observer {
 	}
 }
 
-func (b *Observer) NodeName() string                        { return b.name }
+func (b *Observer) NodeName() string { return b.name }
+
+// SetRules changes the rules it reminds the character of, from the next
+// reminder on.
+func (b *Observer) SetRules(rules string) {
+	b.mu.Lock()
+	b.cfg.Rules = rules
+	b.mu.Unlock()
+}
+
+// SetBrief changes its system prompt from the next call on.
+func (b *Observer) SetBrief(brief string) {
+	b.mu.Lock()
+	b.cfg.Brief = brief
+	b.mu.Unlock()
+}
+
 func (b *Observer) TranscriptInPort() chan<- ports.Fragment { return b.in }
 
 // StateInPort takes the state of the conversation it follows: working while
@@ -645,7 +661,7 @@ func (b *Observer) think(ctx context.Context, replies chan<- reply) {
 		b.mu.Unlock()
 		return
 	}
-	prompt := b.promptLocked()
+	prompt, brief := b.promptLocked(), b.cfg.Brief
 	b.pending = nil
 	b.busySince = time.Now()
 	b.called = b.busySince
@@ -655,7 +671,7 @@ func (b *Observer) think(ctx context.Context, replies chan<- reply) {
 
 	go func() {
 		started := time.Now()
-		text, used, err := b.cfg.Tool.Query(ctx, b.cfg.Brief, prompt)
+		text, used, err := b.cfg.Tool.Query(ctx, brief, prompt)
 		if err == nil {
 			b.meter.bill(used)
 		}

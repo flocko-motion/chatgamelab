@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/providers/AuthProvider";
+import { AdvancedLaunchPanel } from "./components/AdvancedLaunchPanel";
 import { LaunchPanel } from "./components/LaunchPanel";
 import { usePlaybackLaunch } from "./hooks/usePlaybackLaunch";
 import { playbackURL, type PlaybackTarget } from "./playback";
@@ -28,13 +29,18 @@ export function PlaybackHost({ target }: { target: PlaybackTarget }) {
     );
   }
 
+  const back = isAuthenticated ? () => navigate({ to: "/games" }) : undefined;
+  if (view.kind === "advanced") {
+    return <AdvancedLaunchPanel game={view.game} onStart={launch.startWithPrompts} onBack={back} />;
+  }
+
   return (
     <LaunchPanel
       view={view}
       onContinue={launch.continueSession}
       onStartAnew={launch.startAnew}
       onTryAgain={launch.tryAgain}
-      onBack={isAuthenticated ? () => navigate({ to: "/games" }) : undefined}
+      onBack={back}
     />
   );
 }

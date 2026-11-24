@@ -102,6 +102,9 @@ func main() {
 			spec.ID = newID()
 			spec.Language = req.Language
 			spec.Persist = store
+			if len(req.PromptOverride) > 0 {
+				spec.PromptOverride = req.PromptOverride
+			}
 			// No gallery here: a drawn stand-in, the same for the same game.
 			spec.GalleryImage = mock.GalleryImage(spec.Scenario)
 			s, err := engine.Launch(context.WithoutCancel(ctx), spec, usable)

@@ -43,6 +43,10 @@ type GameView struct {
 	MayCopy         bool `json:"mayCopy"`
 	MayShare        bool `json:"mayShare"`   // in the caller's situation, if sharing is possible at all
 	MayPublish      bool `json:"mayPublish"` // making it private again is editing the card
+	// MayPresetPrompts: the caller may start the game with its genre's
+	// prompts adapted (advanced settings), as admin, head or staff, while
+	// they can start it at all.
+	MayPresetPrompts bool `json:"mayPresetPrompts"`
 
 	IsFavorite bool `json:"isFavorite"` // the caller's own mark
 
@@ -93,7 +97,7 @@ func GameViewOf(ctx context.Context) func(card *core.GameCard, err error) (GameV
 		if err != nil {
 			return GameView{}, err
 		}
-		return gameView(card, core.Playability(ctx, card)[card.ID()]), nil
+		return gameView(card, core.Playability(ctx, card)[card.ID()], core.MayPresetPrompts(ctx)), nil
 	}
 }
 
@@ -111,7 +115,7 @@ func Playability(refusal error) string {
 // gameView converts a game card, with every section the caller may see and
 // whether they can start it. It unlocks the sections on card itself, so a
 // view never mixes two games.
-func gameView(card *core.GameCard, refusal error) GameView {
+func gameView(card *core.GameCard, refusal error, mayPreset bool) GameView {
 	v := GameView{
 		ID:              card.ID(),
 		Meta:            GameMeta{CreatedAt: card.CreatedAt(), ModifiedAt: card.ModifiedAt()},
@@ -135,6 +139,7 @@ func gameView(card *core.GameCard, refusal error) GameView {
 		IsFavorite:      card.IsFavorite(),
 		Playability:     Playability(refusal),
 	}
+	v.MayPresetPrompts = mayPreset && refusal == nil
 	if c, err := card.AsGameContent(); err == nil {
 		v.HasContent = true
 		v.SystemMessageScenario = ptr(c.Scenario())
@@ -168,8 +173,8 @@ func GameViewPageOf(ctx context.Context) func(p core.Page[*core.GameCard], err e
 		if err != nil {
 			return Page[GameView]{}, err
 		}
-		refusals := core.Playability(ctx, p.Items...)
-		return pageOf(p, nil, func(card *core.GameCard) GameView { return gameView(card, refusals[card.ID()]) })
+		refusals, mayPreset := core.Playability(ctx, p.Items...), core.MayPresetPrompts(ctx)
+		return pageOf(p, nil, func(card *core.GameCard) GameView { return gameView(card, refusals[card.ID()], mayPreset) })
 	}
 }
 

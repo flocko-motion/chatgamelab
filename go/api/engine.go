@@ -55,6 +55,9 @@ type (
 	EngineEdgeReq       = engineapi.EdgeRequest
 	EngineEdgeDetail    = engine.EdgeDetail
 	EnginePrompts       = engineapi.Prompts
+	EnginePromptEditReq = engineapi.PromptEditRequest
+	EngineGuardrail     = engine.GuardrailReport
+	EngineGuardrailReq  = engineapi.GuardrailEditRequest
 	EngineGraphResp     = engineapi.GraphResponse
 	EngineFlowchartResp = engineapi.FlowchartResponse
 	EngineSessionEvent  = engine.SessionEvent
@@ -174,7 +177,7 @@ func (EngineConstraintFrequencyEndpoint) Handle(ctx context.Context, req EngineF
 	if err != nil {
 		return EngineAccepted{}, err
 	}
-	if !core.MayTuneRuleFrequency(ctx) {
+	if !core.MayEditGuardrail(ctx) {
 		return EngineAccepted{}, engineapi.Refusal(engine.Refuse(engine.ProblemDenied, "only staff and heads change how often the youth-protection rule repeats"))
 	}
 	return engineapi.ConstraintFrequencyEndpoint{API: Engine}.Handle(ctx, req)
@@ -391,6 +394,71 @@ func (EnginePromptsEndpoint) Handle(ctx context.Context, req EngineSessionReq) (
 		return nil, err
 	}
 	return engineapi.PromptsEndpoint{API: Engine}.Handle(ctx, req)
+}
+
+// EnginePromptEditEndpoint changes one of a session's prompts during play.
+//
+// Every player of the session may, to see how the AI's answers change: the
+// youth-protection rule travels with the calls on its own, so no prompt can
+// drop it. The blocks that run on the prompt take the new text from their
+// next call; the session keeps it, also across a resume.
+type EnginePromptEditEndpoint struct{}
+
+func (EnginePromptEditEndpoint) Method() string { return "PUT" }
+func (EnginePromptEditEndpoint) Path() string {
+	return "/api/engine/sessions/{id}/prompts/{name}"
+}
+func (EnginePromptEditEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
+func (EnginePromptEditEndpoint) Handle(ctx context.Context, req EnginePromptEditReq) (EngineAccepted, error) {
+	ctx, _, err := engineSession(ctx, req.ID, core.PlaySession)
+	if err != nil {
+		return EngineAccepted{}, err
+	}
+	return engineapi.PromptEditEndpoint{API: Engine}.Handle(ctx, req)
+}
+
+// EngineGuardrailEndpoint answers a session's guardrail, the youth-protection
+// rule its blocks keep to: the one now and the one resolved, where it came
+// from, which blocks keep to it and how often each repeats it. mayEdit says
+// whether the caller may change it: staff and heads, in their own session.
+type EngineGuardrailEndpoint struct{}
+
+func (EngineGuardrailEndpoint) Method() string             { return "GET" }
+func (EngineGuardrailEndpoint) Path() string               { return "/api/engine/sessions/{id}/guardrail" }
+func (EngineGuardrailEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
+func (EngineGuardrailEndpoint) Handle(ctx context.Context, req EngineSessionReq) (EngineGuardrail, error) {
+	ctx, _, err := engineSession(ctx, req.ID, core.InspectSession)
+	if err != nil {
+		return EngineGuardrail{}, err
+	}
+	report, err := engineapi.GuardrailEndpoint{API: Engine}.Handle(ctx, req)
+	if err != nil {
+		return report, err
+	}
+	report.MayEdit = core.MayEditGuardrail(ctx)
+	return report, nil
+}
+
+// EngineGuardrailEditEndpoint changes a session's guardrail during play.
+//
+// Staff and heads only, in their own session: a lab experiment with
+// guardrails, looser or stricter. The blocks that keep to it take the new one
+// from their next call; what was done stays. The resolved guardrail clears
+// the edit.
+type EngineGuardrailEditEndpoint struct{}
+
+func (EngineGuardrailEditEndpoint) Method() string             { return "PUT" }
+func (EngineGuardrailEditEndpoint) Path() string               { return "/api/engine/sessions/{id}/guardrail" }
+func (EngineGuardrailEditEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
+func (EngineGuardrailEditEndpoint) Handle(ctx context.Context, req EngineGuardrailReq) (EngineAccepted, error) {
+	ctx, _, err := engineSession(ctx, req.ID, core.PlaySession)
+	if err != nil {
+		return EngineAccepted{}, err
+	}
+	if !core.MayEditGuardrail(ctx) {
+		return EngineAccepted{}, engineapi.Refusal(engine.Refuse(engine.ProblemDenied, "only staff and heads change the guardrail"))
+	}
+	return engineapi.GuardrailEditEndpoint{API: Engine}.Handle(ctx, req)
 }
 
 // EngineGraphEndpoint renders a session's running wiring as text.
@@ -619,13 +687,13 @@ func createSession(ctx context.Context, req EngineCreateReq) (*engine.Session, e
 	var created *session.Created
 	var err error
 	if req.Share != "" {
-		created, err = session.CreateShareSession(lifetime, req.Share, core.HostIDs{Player: req.Player, Request: req.Request}, req.Language)
+		created, err = session.CreateShareSession(lifetime, req.Share, core.HostIDs{Player: req.Player, Request: req.Request}, req.Language, req.PromptOverride)
 	} else {
 		gameID, parseErr := uuid.Parse(req.Game)
 		if parseErr != nil {
 			return nil, engine.Refuse(engine.ProblemDenied, "no such game")
 		}
-		created, err = session.CreateGameSession(lifetime, gameID, req.Language)
+		created, err = session.CreateGameSession(lifetime, gameID, req.Language, req.PromptOverride)
 	}
 	if err != nil {
 		return nil, err

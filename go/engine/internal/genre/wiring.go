@@ -5,6 +5,7 @@ import (
 	"maps"
 	"slices"
 	"strings"
+	"sync"
 
 	"engine/internal/adapters"
 	"engine/internal/blocks"
@@ -15,8 +16,28 @@ import (
 type Wiring struct {
 	Graph *ports.Graph
 
-	// Prompts are the genre's after spec overrides, so a view can show them.
+	// Prompts are the genre's after spec overrides and edits during play, as
+	// the blocks run on them, so a view can show them. During play they are
+	// read through CurrentPrompts and changed through SetPrompt.
 	Prompts Prompts
+	// Defaults are the genre's own prompts, as they would run in this
+	// session, so a view can tell an edited prompt from the genre's.
+	Defaults Prompts
+	// PromptUses say, by prompt name, which block runs on each prompt and
+	// how a changed text reaches it.
+	PromptUses map[string]PromptUse
+	// Guardrail is the session's youth-protection rule as the blocks keep to
+	// it now: one value, which each block that keeps to it words its own way.
+	// During play it is read through CurrentGuardrail and changed through
+	// SetGuardrail.
+	Guardrail string
+	// GuardrailUse says which blocks keep to the guardrail and how a changed
+	// one reaches them.
+	GuardrailUse PromptUse
+	// Render fills a prompt's template as the genre does at launch; nil
+	// takes the text as it is.
+	Render    func(name, text string) (string, error)
+	promptsMu sync.Mutex
 
 	// Say and Speak are nil where a genre lacks that input or a dummy drives the graph.
 	// Speak refuses what the genre cannot take now, such as speech while
@@ -88,6 +109,81 @@ func (w *Wiring) SetConstraintFrequency(block string, n int) error {
 		return err
 	}
 	w.Constrained[block].SetConstraintFrequency(n)
+	return nil
+}
+
+// Current is what the blocks run on now: the prompts and the guardrail.
+type Current struct {
+	Prompts   Prompts
+	Guardrail string
+}
+
+// PromptUse is where a genre prompt, or the guardrail, goes: the blocks that
+// run on it, and how what they run on, with one part changed, reaches them
+// again. A thread's System Message is run on by every block on the thread.
+type PromptUse struct {
+	Blocks []string
+	Apply  func(Current)
+}
+
+// CurrentGuardrail is the guardrail the blocks keep to now.
+func (w *Wiring) CurrentGuardrail() string {
+	w.promptsMu.Lock()
+	defer w.promptsMu.Unlock()
+	return w.Guardrail
+}
+
+// SetGuardrail changes the guardrail during play: every block that keeps to
+// it takes the new one from its next call; what was done stays.
+func (w *Wiring) SetGuardrail(text string) {
+	w.promptsMu.Lock()
+	defer w.promptsMu.Unlock()
+	w.Guardrail = text
+	if w.GuardrailUse.Apply != nil {
+		w.GuardrailUse.Apply(Current{Prompts: maps.Clone(w.Prompts), Guardrail: text})
+	}
+}
+
+// CurrentPrompts are the prompts the blocks run on now.
+func (w *Wiring) CurrentPrompts() Prompts {
+	w.promptsMu.Lock()
+	defer w.promptsMu.Unlock()
+	return maps.Clone(w.Prompts)
+}
+
+// PromptsOf are the names of the prompts a block runs on, sorted.
+func (w *Wiring) PromptsOf(block string) []string {
+	var names []string
+	for name, use := range w.PromptUses {
+		if slices.Contains(use.Blocks, block) {
+			names = append(names, name)
+		}
+	}
+	slices.Sort(names)
+	return names
+}
+
+// SetPrompt changes one prompt during play: its block runs on the new text
+// from its next call. A prompt the genre lacks, or a template that does not
+// fill, is refused and changes nothing.
+func (w *Wiring) SetPrompt(name, text string) error {
+	use, ok := w.PromptUses[name]
+	if !ok {
+		return fmt.Errorf("no such prompt: %s (this genre has %s)", name, strings.Join(slices.Sorted(maps.Keys(w.PromptUses)), ", "))
+	}
+	if w.Render != nil {
+		rendered, err := w.Render(name, text)
+		if err != nil {
+			return err
+		}
+		text = rendered
+	}
+	w.promptsMu.Lock()
+	defer w.promptsMu.Unlock()
+	prompts := maps.Clone(w.Prompts)
+	prompts[name] = text
+	w.Prompts = prompts
+	use.Apply(Current{Prompts: maps.Clone(prompts), Guardrail: w.Guardrail})
 	return nil
 }
 

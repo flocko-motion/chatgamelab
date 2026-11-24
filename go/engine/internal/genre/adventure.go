@@ -535,12 +535,17 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	if err != nil {
 		return nil, err
 	}
-	prompts, err = renderPrompts(prompts, adventurePromptData{
+	data := adventurePromptData{
 		Language:     languageName(cfg.Language),
 		InputExample: inputExample(cfg.Status),
 		Status:       len(cfg.Status) > 0,
 		Dice:         dice(cfg.Dice),
-	})
+	}
+	prompts, err = renderPrompts(prompts, data)
+	if err != nil {
+		return nil, err
+	}
+	defaults, err := renderPrompts(AdventurePrompts, data)
 	if err != nil {
 		return nil, err
 	}
@@ -657,10 +662,48 @@ func NewAdventure(cfg AdventureConfig) (*Wiring, error) {
 	g.ConnectState(outline, speaker)
 	g.ConnectState(expand, speaker)
 
+	// Each prompt reaches its block again when it changes during play.
+	gameMaster := func(c Current) string {
+		return systemMessage(c.Prompts[PromptGameMaster], cfg.Scenario, cfg.StartingMessage, cfg.VoiceStyle, worded(c.Guardrail))
+	}
+	expandPrompt := func(c Current) {
+		expand.SetPrompt(blocks.Prompt{First: c.Prompts[PromptOpeningExpand], Then: c.Prompts[PromptExpand]})
+	}
+	// The thread is no block of the drawing: its prompts show with the blocks on it.
+	onStory := []string{outline.NodeName(), expand.NodeName()}
+	uses := map[string]PromptUse{
+		PromptRephrase:      {[]string{rephrase.NodeName()}, func(c Current) { rephrase.SetSystem(c.Prompts[PromptRephrase]) }},
+		PromptRephraseAudio: {[]string{hearing.NodeName()}, func(c Current) { hearing.SetSystem(c.Prompts[PromptRephraseAudio]) }},
+		PromptGameMaster:    {onStory, func(c Current) { story.SetSystem(gameMaster(c)) }},
+		PromptSummary:       {onStory, func(c Current) { story.SetSummaryRequest(c.Prompts[PromptSummary]) }},
+		PromptOpeningExpand: {[]string{expand.NodeName()}, expandPrompt},
+		PromptExpand:        {[]string{expand.NodeName()}, expandPrompt},
+		PromptScene: {[]string{picturePrompt.NodeName()}, func(c Current) {
+			picturePrompt.SetBuild(imagePrompt(c.Prompts[PromptScene], cfg.Description, cfg.Scenario))
+		}},
+		PromptCondenseScenario: {[]string{condenser.NodeName()}, func(c Current) { condenser.SetSystem(c.Prompts[PromptCondenseScenario]) }},
+		PromptImageStyle:       {[]string{adapter.NodeName()}, func(c Current) { adapter.SetSystem(c.Prompts[PromptImageStyle]) }},
+		PromptOpening:          {[]string{gate.NodeName()}, func(c Current) { gate.SetInitPrompt(c.Prompts[PromptOpening]) }},
+	}
+	// The story thread's System Message and calls carry the guardrail; the
+	// image style was adapted to it once, before the game, and stays.
+	guardrailUse := PromptUse{onStory, func(c Current) {
+		story.SetSystem(gameMaster(c))
+		story.SetConstraints(worded(c.Guardrail))
+	}}
+
 	w := &Wiring{
-		Graph:       g,
-		Gate:        gate,
-		Prompts:     prompts,
+		Graph:        g,
+		Gate:         gate,
+		Prompts:      prompts,
+		Defaults:     defaults,
+		PromptUses:   uses,
+		Guardrail:    cfg.Guardrail,
+		GuardrailUse: guardrailUse,
+		Render: func(name, text string) (string, error) {
+			rendered, err := renderPrompts(Prompts{name: text}, data)
+			return rendered[name], err
+		},
 		Constrained: constrained,
 		OnThread:    map[string]blocks.OnThread{outline.NodeName(): outline, expand.NodeName(): expand},
 		// The graph's shape is fixed; a toggle that is off stops its block

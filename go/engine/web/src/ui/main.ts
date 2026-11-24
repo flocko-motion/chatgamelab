@@ -21,6 +21,7 @@ import { Details } from "./details.js";
 import { startDebugging, type Debugging } from "./debug.js";
 import { Insights } from "./insights.js";
 import { InsightsTabs } from "./tabs.js";
+import { Guardrail } from "./guardrail.js";
 import { Problems } from "./problems.js";
 import { OptionsDialog } from "./options.js";
 import { mountBackground } from "./theme/backgrounds/index.js";
@@ -91,17 +92,27 @@ const details = new Details(
   required<HTMLElement>("#usage"),
   session,
 );
-const tabs = new InsightsTabs(
-  required<HTMLElement>(".insights-details"),
-  required<HTMLElement>("#insights-tabs"),
-  // A folded lower pane opens when one of its tabs is picked.
-  () => collapsibles.open("details"),
-);
 /** A block or wire picked anywhere opens its tab. */
 const pick = (show: () => Promise<void>): void => {
   tabs.select("block");
   void show();
 };
+const guardrail = new Guardrail(
+  required<HTMLElement>("#guardrail"),
+  session,
+  (name) => pick(() => details.show(name)),
+);
+const tabs = new InsightsTabs(
+  required<HTMLElement>(".insights-details"),
+  required<HTMLElement>("#insights-tabs"),
+  (tab) => {
+    // A folded lower pane opens when one of its tabs is picked.
+    collapsibles.open("details");
+    // The guardrail is read afresh whenever its tab opens: someone may have
+    // changed it, here or in another tab.
+    if (tab === "guardrail") void guardrail.show();
+  },
+);
 const problems = new Problems(
   required<HTMLElement>("#problems"),
   (source) => pick(() => details.show(source)),
@@ -258,6 +269,8 @@ void playback.restore(session).then(async () => {
     debugging?.relabel();
     view.render(playback.state);
   }
+  // A page that opens on the guardrail's tab reads it once the language is set.
+  if (tabs.current === "guardrail") void guardrail.show();
   playback.connect();
 });
 
