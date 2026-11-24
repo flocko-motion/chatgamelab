@@ -61,6 +61,7 @@ var Rules = map[Role]Grants{
 			{Delete, GameCard, Everywhere},
 			{Play, GameCard, Everywhere},    // with their own money: they read every game already
 			{Publish, GameCard, Everywhere}, // the admin is liable for what is public, so controls it both ways; v1: only workshop games and the admin's own
+			{Copy, GameContent, Everywhere},
 
 			{Share, GameCard, Own}, // if sharing is possible at all: who pays is the key share's (#451)
 			{Share, GameCard, Public},
@@ -132,16 +133,21 @@ var Rules = map[Role]Grants{
 			{List, ShareLink, PaidByOwnOrganisation},
 			{Manage, ShareLink, PaidByOwnOrganisation},
 
-			{Read, GameCard, OfOwnOrganisation}, // v1: any game of the organisation's workshops
+			// the organisation's games: made in its workshops, or by its head or
+			// staff while they are; they work on them as their designers do
+			{List, GameCard, OfOwnOrganisation},
+			{Read, GameCard, OfOwnOrganisation},
 			{Read, GameContent, OfOwnOrganisation},
 			{Read, GameSettings, OfOwnOrganisation},
-			{Edit, GameCard, OfOwnOrganisation}, // v1: any game of the organisation's workshops
+			{Edit, GameCard, OfOwnOrganisation},
 			{Edit, GameContent, OfOwnOrganisation},
 			{Edit, GameSettings, OfOwnOrganisation},
-			{Delete, GameCard, OfOwnOrganisation},
 			{Publish, GameCard, OfOwnOrganisation},
 			{Play, GameCard, OfOwnOrganisation},
-			{Edit, SessionRule, Own}, // tuning how often their session repeats the rule // they run the workshops: in workshop mode or not
+			{Share, GameCard, OfOwnOrganisation}, // embedding included
+			{Copy, GameContent, OfOwnOrganisation},
+			{Delete, GameCard, OfOwnOrganisationsWorkshop}, // moderating what is made there; a colleague's own game only its designer deletes
+			{Edit, SessionRule, Own},                       // tuning how often their session repeats the rule // they run the workshops: in workshop mode or not
 
 			{Share, GameCard, Own}, // if sharing is possible at all: who pays is the key share's (#451)
 			{Share, GameCard, Public},
@@ -219,16 +225,21 @@ var Rules = map[Role]Grants{
 			{List, ShareLink, PaidByOwnOrganisation},
 			{Manage, ShareLink, PaidByOwnOrganisation},
 
-			{Read, GameCard, OfOwnOrganisation}, // v1: any game of the organisation's workshops
+			// the organisation's games: made in its workshops, or by its head or
+			// staff while they are; they work on them as their designers do
+			{List, GameCard, OfOwnOrganisation},
+			{Read, GameCard, OfOwnOrganisation},
 			{Read, GameContent, OfOwnOrganisation},
 			{Read, GameSettings, OfOwnOrganisation},
-			{Edit, GameCard, OfOwnOrganisation}, // v1: any game of the organisation's workshops
+			{Edit, GameCard, OfOwnOrganisation},
 			{Edit, GameContent, OfOwnOrganisation},
 			{Edit, GameSettings, OfOwnOrganisation},
-			{Delete, GameCard, OfOwnOrganisation},
 			{Publish, GameCard, OfOwnOrganisation},
 			{Play, GameCard, OfOwnOrganisation},
-			{Edit, SessionRule, Own}, // tuning how often their session repeats the rule // they run the workshops: in workshop mode or not
+			{Share, GameCard, OfOwnOrganisation}, // embedding included
+			{Copy, GameContent, OfOwnOrganisation},
+			{Delete, GameCard, OfOwnOrganisationsWorkshop}, // moderating what is made there; a colleague's own game only its designer deletes
+			{Edit, SessionRule, Own},                       // tuning how often their session repeats the rule // they run the workshops: in workshop mode or not
 
 			{Share, GameCard, Own}, // if sharing is possible at all: who pays is the key share's (#451)
 			{Share, GameCard, Public},
@@ -295,8 +306,12 @@ var Rules = map[Role]Grants{
 			{Play, GameCard, Public},
 			{Read, GameSettings, Public}, // v1 shows a public game's settings to every account
 
+			// Copy is reading a game's content and creating a game, nothing
+			// more: a grant of its own for convenience. It holds exactly where
+			// both do (TestCopyIsReadingAndCreating).
 			{Copy, GameContent, Public}, // into a new private game of the caller's
 			{Copy, GameContent, Own},
+			{Copy, GameContent, ViaShareLink},
 
 			{List, ShareLink, PaidByOwnKey},
 			{Manage, ShareLink, PaidByOwnKey}, // the payer stops it; v1 let them only see it
@@ -325,6 +340,9 @@ var Rules = map[Role]Grants{
 
 			{List, ApiKeyShare, PaidByOwnKey},
 			{Manage, ApiKeyShare, PaidByOwnKey}, // taking a share back stops what draws from it
+		},
+		InWorkshop: {
+			{Copy, GameContent, OfCurrentWorkshop}, // reading the workshop's games and creating one
 		},
 	},
 

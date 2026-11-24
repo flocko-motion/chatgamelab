@@ -127,163 +127,191 @@ SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g
      ($1::bool        AND g.public)
   OR ($2::bool           AND g.created_by     = $3::uuid)
   OR ($4::bool      AND g.workshop_id    = $5::uuid)
-  OR ($6::bool  AND w.institution_id = $7::uuid)
-  OR ($8::bool     AND g.id = (
-        SELECT gs.game_id FROM game_share gs WHERE gs.token = $9::text AND gs.enabled))
-  OR  $10::bool, false)::bool                          AS may_read_content,
+  OR ($6::bool  AND o.of_own_organisation)
+  OR ($7::bool     AND g.id = (
+        SELECT gs.game_id FROM game_share gs WHERE gs.token = $8::text AND gs.enabled))
+  OR  $9::bool, false)::bool                          AS may_read_content,
   COALESCE(
-     ($11::bool       AND g.public)
-  OR ($12::bool          AND g.created_by     = $3::uuid)
-  OR ($13::bool     AND g.workshop_id    = $5::uuid)
-  OR ($14::bool AND w.institution_id = $7::uuid)
-  OR  $15::bool, false)::bool                         AS may_read_settings,
+     ($10::bool       AND g.public)
+  OR ($11::bool          AND g.created_by     = $3::uuid)
+  OR ($12::bool     AND g.workshop_id    = $5::uuid)
+  OR ($13::bool AND o.of_own_organisation)
+  OR  $14::bool, false)::bool                         AS may_read_settings,
   -- the actions
   COALESCE(
-     ($16::bool              AND g.created_by     = $3::uuid)
-  OR ($17::bool     AND w.institution_id = $7::uuid)
-  OR  $18::bool, false)::bool                        AS may_edit_card,
+     ($15::bool              AND g.created_by     = $3::uuid)
+  OR ($16::bool     AND o.of_own_organisation)
+  OR  $17::bool, false)::bool                        AS may_edit_card,
   COALESCE(
-     ($19::bool           AND g.created_by     = $3::uuid)
-  OR ($20::bool  AND w.institution_id = $7::uuid)
-  OR  $21::bool, false)::bool                     AS may_edit_content,
+     ($18::bool           AND g.created_by     = $3::uuid)
+  OR ($19::bool  AND o.of_own_organisation)
+  OR  $20::bool, false)::bool                     AS may_edit_content,
   COALESCE(
-     ($22::bool          AND g.created_by     = $3::uuid)
-  OR ($23::bool AND w.institution_id = $7::uuid)
-  OR  $24::bool, false)::bool                    AS may_edit_settings,
+     ($21::bool          AND g.created_by     = $3::uuid)
+  OR ($22::bool AND o.of_own_organisation)
+  OR  $23::bool, false)::bool                    AS may_edit_settings,
   COALESCE(
-     ($25::bool          AND g.created_by     = $3::uuid)
-  OR ($26::bool AND w.institution_id = $7::uuid)
+     ($24::bool                   AND g.created_by     = $3::uuid)
+  OR ($25::bool AND w.institution_id = $26::uuid)
   OR  $27::bool, false)::bool                         AS may_delete,
   COALESCE(
-     ($28::bool  AND g.public)
-  OR ($29::bool     AND g.created_by = $3::uuid), false)::bool  AS may_copy,
+     ($28::bool       AND g.public)
+  OR ($29::bool          AND g.created_by     = $3::uuid)
+  OR ($30::bool     AND g.workshop_id    = $5::uuid)
+  OR ($31::bool AND o.of_own_organisation)
+  OR ($32::bool    AND g.id = (
+        SELECT gs.game_id FROM game_share gs WHERE gs.token = $8::text AND gs.enabled))
+  OR  $33::bool, false)::bool                             AS may_copy,
   COALESCE(
-     ($30::bool AND g.public)
-  OR ($31::bool    AND g.created_by = $3::uuid), false)::bool  AS may_share,
+     ($34::bool       AND g.public)
+  OR ($35::bool          AND g.created_by = $3::uuid)
+  OR ($36::bool AND o.of_own_organisation), false)::bool AS may_share,
   COALESCE(
-     ($32::bool          AND g.created_by     = $3::uuid)
-  OR ($33::bool AND w.institution_id = $7::uuid)
-  OR  $34::bool, false)::bool                         AS may_publish,
+     ($37::bool          AND g.created_by     = $3::uuid)
+  OR ($38::bool AND o.of_own_organisation)
+  OR  $39::bool, false)::bool                         AS may_publish,
   COALESCE(
-     ($35::bool       AND g.public)
-  OR ($36::bool          AND g.created_by     = $3::uuid)
-  OR ($37::bool     AND g.workshop_id    = $5::uuid)
-  OR ($38::bool AND w.institution_id = $7::uuid)
-  OR ($39::bool    AND g.id = (
-        SELECT gs.game_id FROM game_share gs WHERE gs.token = $9::text AND gs.enabled))
-  OR  $40::bool, false)::bool                             AS may_play,
+     ($40::bool       AND g.public)
+  OR ($41::bool          AND g.created_by     = $3::uuid)
+  OR ($42::bool     AND g.workshop_id    = $5::uuid)
+  OR ($43::bool AND o.of_own_organisation)
+  OR ($44::bool    AND g.id = (
+        SELECT gs.game_id FROM game_share gs WHERE gs.token = $8::text AND gs.enabled))
+  OR  $45::bool, false)::bool                             AS may_play,
   -- the caller's own mark, no right: false for a guest
   EXISTS (SELECT 1 FROM user_favourite_game f
           WHERE f.game_id = g.id AND f.user_id = $3::uuid)  AS is_favorite,
   cu.name                                                                  AS creator_name,
+  -- the organisations the game belongs to: its workshop's, and the one its
+  -- creator is head or staff of; whether one of them is the caller's
+  w.institution_id                                                         AS workshop_organisation_id,
+  cr.institution_id                                                        AS creator_organisation_id,
+  o.of_own_organisation,
   gc.created_at                                                            AS cover_at,
   count(*) OVER ()                                                         AS total
 FROM game g
 LEFT JOIN app_user cu ON cu.id = g.created_by  -- the creator's public profile name
 LEFT JOIN workshop w  ON w.id  = g.workshop_id -- its organisation, for "of own organisation"
+LEFT JOIN user_role cr ON cr.id = (
+  SELECT ur.id FROM user_role ur
+  WHERE ur.user_id = g.created_by AND ur.role IN ('head', 'staff')
+  ORDER BY ur.created_at DESC
+  LIMIT 1
+)
+CROSS JOIN LATERAL (
+  SELECT COALESCE(w.institution_id  = $26::uuid
+               OR cr.institution_id = $26::uuid, false)::bool AS of_own_organisation
+) o
 LEFT JOIN game_cover gc ON gc.game_id = g.id   -- when its cover was made, not the picture
 WHERE g.deleted_at IS NULL
-  AND ($41::uuid IS NULL OR g.id = $41::uuid)
+  AND ($46::uuid IS NULL OR g.id = $46::uuid)
   -- gate
-  AND (  ($42::bool           AND g.public)
-      OR ($43::bool              AND g.created_by     = $3::uuid)
-      OR ($44::bool AND g.public
+  AND (  ($47::bool           AND g.public)
+      OR ($48::bool              AND g.created_by     = $3::uuid)
+      OR ($49::bool AND g.public
                                        AND g.workshop_id IS DISTINCT FROM $5::uuid)
-      OR ($45::bool  AND g.workshop_id    = $5::uuid
+      OR ($50::bool  AND g.workshop_id    = $5::uuid
                                        AND g.created_by     = $3::uuid)
-      OR ($46::bool         AND g.workshop_id    = $5::uuid)
-      OR ($47::bool     AND w.institution_id = $7::uuid)
-      OR ($48::bool        AND g.id = (
-            SELECT gs.game_id FROM game_share gs WHERE gs.token = $9::text AND gs.enabled))
-      OR  $49::bool )
+      OR ($51::bool         AND g.workshop_id    = $5::uuid)
+      OR ($52::bool     AND o.of_own_organisation)
+      OR ($53::bool        AND g.id = (
+            SELECT gs.game_id FROM game_share gs WHERE gs.token = $8::text AND gs.enabled))
+      OR  $54::bool )
   -- wishes
-  AND (NOT $50::bool       OR g.created_by = $3::uuid)
-  AND (NOT $51::bool    OR g.created_by IS DISTINCT FROM $3::uuid)
-  AND (NOT $52::bool    OR g.public)
-  AND (NOT $53::bool OR EXISTS (
+  AND (NOT $55::bool          OR g.created_by = $3::uuid)
+  AND (NOT $56::bool OR o.of_own_organisation)
+  AND (NOT $57::bool       OR g.created_by IS DISTINCT FROM $3::uuid)
+  AND (NOT $58::bool       OR g.public)
+  AND (NOT $59::bool    OR EXISTS (
         SELECT 1 FROM user_favourite_game f
         WHERE f.game_id = g.id AND f.user_id = $3::uuid))
-  AND (NOT $54::bool OR g.public_sponsored_api_key_share_id IS NOT NULL)
-  AND (COALESCE(cardinality($55::text[]), 0) = 0 OR g.genre = ANY($55::text[]))
-  AND ($56::text = ''        OR lower(g.name) LIKE '%' || lower($56::text) || '%')
+  AND (NOT $60::bool    OR g.public_sponsored_api_key_share_id IS NOT NULL)
+  AND (COALESCE(cardinality($61::text[]), 0) = 0 OR g.genre = ANY($61::text[]))
+  AND ($62::text = ''        OR lower(g.name) LIKE '%' || lower($62::text) || '%')
 ORDER BY
-  CASE WHEN $57::text = 'name'       AND $58::bool     THEN lower(g.name) END DESC,
-  CASE WHEN $57::text = 'name'       AND NOT $58::bool THEN lower(g.name) END ASC,
-  CASE WHEN $57::text = 'modifiedAt' AND $58::bool     THEN g.modified_at END DESC,
-  CASE WHEN $57::text = 'modifiedAt' AND NOT $58::bool THEN g.modified_at END ASC,
-  CASE WHEN $57::text = 'playCount'  AND $58::bool     THEN g.play_count END DESC,
-  CASE WHEN $57::text = 'playCount'  AND NOT $58::bool THEN g.play_count END ASC,
-  CASE WHEN $57::text = 'visibility' AND $58::bool     THEN g.public END DESC,
-  CASE WHEN $57::text = 'visibility' AND NOT $58::bool THEN g.public END ASC,
-  CASE WHEN $57::text = 'creator'    AND $58::bool     THEN lower(cu.name) END DESC,
-  CASE WHEN $57::text = 'creator'    AND NOT $58::bool THEN lower(cu.name) END ASC,
-  CASE WHEN $57::text = 'createdAt'  AND NOT $58::bool THEN g.created_at END ASC,
+  CASE WHEN $63::text = 'name'       AND $64::bool     THEN lower(g.name) END DESC,
+  CASE WHEN $63::text = 'name'       AND NOT $64::bool THEN lower(g.name) END ASC,
+  CASE WHEN $63::text = 'modifiedAt' AND $64::bool     THEN g.modified_at END DESC,
+  CASE WHEN $63::text = 'modifiedAt' AND NOT $64::bool THEN g.modified_at END ASC,
+  CASE WHEN $63::text = 'playCount'  AND $64::bool     THEN g.play_count END DESC,
+  CASE WHEN $63::text = 'playCount'  AND NOT $64::bool THEN g.play_count END ASC,
+  CASE WHEN $63::text = 'visibility' AND $64::bool     THEN g.public END DESC,
+  CASE WHEN $63::text = 'visibility' AND NOT $64::bool THEN g.public END ASC,
+  CASE WHEN $63::text = 'creator'    AND $64::bool     THEN lower(cu.name) END DESC,
+  CASE WHEN $63::text = 'creator'    AND NOT $64::bool THEN lower(cu.name) END ASC,
+  CASE WHEN $63::text = 'createdAt'  AND NOT $64::bool THEN g.created_at END ASC,
   g.created_at DESC,
   g.id
-LIMIT $60::int OFFSET $59::int
+LIMIT $66::int OFFSET $65::int
 `
 
 type V2GameCardsParams struct {
-	ContentPublic            bool           `json:"content_public"`
-	ContentOwn               bool           `json:"content_own"`
-	Caller                   uuid.NullUUID  `json:"caller"`
-	ContentWorkshop          bool           `json:"content_workshop"`
-	CurrentWorkshop          uuid.NullUUID  `json:"current_workshop"`
-	ContentOrganisation      bool           `json:"content_organisation"`
-	OwnOrganisation          uuid.NullUUID  `json:"own_organisation"`
-	ContentViaShare          bool           `json:"content_via_share"`
-	ShareToken               sql.NullString `json:"share_token"`
-	ContentEverywhere        bool           `json:"content_everywhere"`
-	SettingsPublic           bool           `json:"settings_public"`
-	SettingsOwn              bool           `json:"settings_own"`
-	SettingsWorkshop         bool           `json:"settings_workshop"`
-	SettingsOrganisation     bool           `json:"settings_organisation"`
-	SettingsEverywhere       bool           `json:"settings_everywhere"`
-	EditCardOwn              bool           `json:"edit_card_own"`
-	EditCardOrganisation     bool           `json:"edit_card_organisation"`
-	EditCardEverywhere       bool           `json:"edit_card_everywhere"`
-	EditContentOwn           bool           `json:"edit_content_own"`
-	EditContentOrganisation  bool           `json:"edit_content_organisation"`
-	EditContentEverywhere    bool           `json:"edit_content_everywhere"`
-	EditSettingsOwn          bool           `json:"edit_settings_own"`
-	EditSettingsOrganisation bool           `json:"edit_settings_organisation"`
-	EditSettingsEverywhere   bool           `json:"edit_settings_everywhere"`
-	DeleteOwn                bool           `json:"delete_own"`
-	DeleteOrganisation       bool           `json:"delete_organisation"`
-	DeleteEverywhere         bool           `json:"delete_everywhere"`
-	CopyPublic               bool           `json:"copy_public"`
-	CopyOwn                  bool           `json:"copy_own"`
-	SharePublic              bool           `json:"share_public"`
-	ShareOwn                 bool           `json:"share_own"`
-	PublishOwn               bool           `json:"publish_own"`
-	PublishOrganisation      bool           `json:"publish_organisation"`
-	PublishEverywhere        bool           `json:"publish_everywhere"`
-	PlayPublic               bool           `json:"play_public"`
-	PlayOwn                  bool           `json:"play_own"`
-	PlayWorkshop             bool           `json:"play_workshop"`
-	PlayOrganisation         bool           `json:"play_organisation"`
-	PlayViaShare             bool           `json:"play_via_share"`
-	PlayEverywhere           bool           `json:"play_everywhere"`
-	ID                       uuid.NullUUID  `json:"id"`
-	CardPublic               bool           `json:"card_public"`
-	CardOwn                  bool           `json:"card_own"`
-	CardPublicElsewhere      bool           `json:"card_public_elsewhere"`
-	CardOwnOfWorkshop        bool           `json:"card_own_of_workshop"`
-	CardWorkshop             bool           `json:"card_workshop"`
-	CardOrganisation         bool           `json:"card_organisation"`
-	CardViaShare             bool           `json:"card_via_share"`
-	CardEverywhere           bool           `json:"card_everywhere"`
-	OnlyOwn                  bool           `json:"only_own"`
-	OnlyOthers               bool           `json:"only_others"`
-	OnlyPublic               bool           `json:"only_public"`
-	OnlyFavorites            bool           `json:"only_favorites"`
-	OnlySponsored            bool           `json:"only_sponsored"`
-	Genres                   []string       `json:"genres"`
-	Search                   string         `json:"search"`
-	SortBy                   string         `json:"sort_by"`
-	SortDesc                 bool           `json:"sort_desc"`
-	PageOffset               int32          `json:"page_offset"`
-	PageSize                 sql.NullInt32  `json:"page_size"`
+	ContentPublic              bool           `json:"content_public"`
+	ContentOwn                 bool           `json:"content_own"`
+	Caller                     uuid.NullUUID  `json:"caller"`
+	ContentWorkshop            bool           `json:"content_workshop"`
+	CurrentWorkshop            uuid.NullUUID  `json:"current_workshop"`
+	ContentOrganisation        bool           `json:"content_organisation"`
+	ContentViaShare            bool           `json:"content_via_share"`
+	ShareToken                 sql.NullString `json:"share_token"`
+	ContentEverywhere          bool           `json:"content_everywhere"`
+	SettingsPublic             bool           `json:"settings_public"`
+	SettingsOwn                bool           `json:"settings_own"`
+	SettingsWorkshop           bool           `json:"settings_workshop"`
+	SettingsOrganisation       bool           `json:"settings_organisation"`
+	SettingsEverywhere         bool           `json:"settings_everywhere"`
+	EditCardOwn                bool           `json:"edit_card_own"`
+	EditCardOrganisation       bool           `json:"edit_card_organisation"`
+	EditCardEverywhere         bool           `json:"edit_card_everywhere"`
+	EditContentOwn             bool           `json:"edit_content_own"`
+	EditContentOrganisation    bool           `json:"edit_content_organisation"`
+	EditContentEverywhere      bool           `json:"edit_content_everywhere"`
+	EditSettingsOwn            bool           `json:"edit_settings_own"`
+	EditSettingsOrganisation   bool           `json:"edit_settings_organisation"`
+	EditSettingsEverywhere     bool           `json:"edit_settings_everywhere"`
+	DeleteOwn                  bool           `json:"delete_own"`
+	DeleteOrganisationWorkshop bool           `json:"delete_organisation_workshop"`
+	OwnOrganisation            uuid.NullUUID  `json:"own_organisation"`
+	DeleteEverywhere           bool           `json:"delete_everywhere"`
+	CopyPublic                 bool           `json:"copy_public"`
+	CopyOwn                    bool           `json:"copy_own"`
+	CopyWorkshop               bool           `json:"copy_workshop"`
+	CopyOrganisation           bool           `json:"copy_organisation"`
+	CopyViaShare               bool           `json:"copy_via_share"`
+	CopyEverywhere             bool           `json:"copy_everywhere"`
+	SharePublic                bool           `json:"share_public"`
+	ShareOwn                   bool           `json:"share_own"`
+	ShareOrganisation          bool           `json:"share_organisation"`
+	PublishOwn                 bool           `json:"publish_own"`
+	PublishOrganisation        bool           `json:"publish_organisation"`
+	PublishEverywhere          bool           `json:"publish_everywhere"`
+	PlayPublic                 bool           `json:"play_public"`
+	PlayOwn                    bool           `json:"play_own"`
+	PlayWorkshop               bool           `json:"play_workshop"`
+	PlayOrganisation           bool           `json:"play_organisation"`
+	PlayViaShare               bool           `json:"play_via_share"`
+	PlayEverywhere             bool           `json:"play_everywhere"`
+	ID                         uuid.NullUUID  `json:"id"`
+	CardPublic                 bool           `json:"card_public"`
+	CardOwn                    bool           `json:"card_own"`
+	CardPublicElsewhere        bool           `json:"card_public_elsewhere"`
+	CardOwnOfWorkshop          bool           `json:"card_own_of_workshop"`
+	CardWorkshop               bool           `json:"card_workshop"`
+	CardOrganisation           bool           `json:"card_organisation"`
+	CardViaShare               bool           `json:"card_via_share"`
+	CardEverywhere             bool           `json:"card_everywhere"`
+	OnlyOwn                    bool           `json:"only_own"`
+	OnlyOrganisation           bool           `json:"only_organisation"`
+	OnlyOthers                 bool           `json:"only_others"`
+	OnlyPublic                 bool           `json:"only_public"`
+	OnlyFavorites              bool           `json:"only_favorites"`
+	OnlySponsored              bool           `json:"only_sponsored"`
+	Genres                     []string       `json:"genres"`
+	Search                     string         `json:"search"`
+	SortBy                     string         `json:"sort_by"`
+	SortDesc                   bool           `json:"sort_desc"`
+	PageOffset                 int32          `json:"page_offset"`
+	PageSize                   sql.NullInt32  `json:"page_size"`
 }
 
 type V2GameCardsRow struct {
@@ -325,6 +353,9 @@ type V2GameCardsRow struct {
 	MayPlay                      bool           `json:"may_play"`
 	IsFavorite                   bool           `json:"is_favorite"`
 	CreatorName                  sql.NullString `json:"creator_name"`
+	WorkshopOrganisationID       uuid.NullUUID  `json:"workshop_organisation_id"`
+	CreatorOrganisationID        uuid.NullUUID  `json:"creator_organisation_id"`
+	OfOwnOrganisation            bool           `json:"of_own_organisation"`
 	CoverAt                      sql.NullTime   `json:"cover_at"`
 	Total                        int64          `json:"total"`
 }
@@ -346,6 +377,9 @@ type V2GameCardsRow struct {
 //	paging   sort order (the id breaks ties, so pages never overlap), page
 //
 // total counts every match across pages, after gate and wishes.
+// the organisation its creator is head or staff of now: their games are its too
+// "of own organisation" for games: made in one of its workshops, or by its
+// head or staff while they are; "of own organisation's workshop" is the first only
 // paging
 func (q *Queries) V2GameCards(ctx context.Context, arg V2GameCardsParams) ([]V2GameCardsRow, error) {
 	rows, err := q.db.QueryContext(ctx, v2GameCards,
@@ -355,7 +389,6 @@ func (q *Queries) V2GameCards(ctx context.Context, arg V2GameCardsParams) ([]V2G
 		arg.ContentWorkshop,
 		arg.CurrentWorkshop,
 		arg.ContentOrganisation,
-		arg.OwnOrganisation,
 		arg.ContentViaShare,
 		arg.ShareToken,
 		arg.ContentEverywhere,
@@ -374,12 +407,18 @@ func (q *Queries) V2GameCards(ctx context.Context, arg V2GameCardsParams) ([]V2G
 		arg.EditSettingsOrganisation,
 		arg.EditSettingsEverywhere,
 		arg.DeleteOwn,
-		arg.DeleteOrganisation,
+		arg.DeleteOrganisationWorkshop,
+		arg.OwnOrganisation,
 		arg.DeleteEverywhere,
 		arg.CopyPublic,
 		arg.CopyOwn,
+		arg.CopyWorkshop,
+		arg.CopyOrganisation,
+		arg.CopyViaShare,
+		arg.CopyEverywhere,
 		arg.SharePublic,
 		arg.ShareOwn,
+		arg.ShareOrganisation,
 		arg.PublishOwn,
 		arg.PublishOrganisation,
 		arg.PublishEverywhere,
@@ -399,6 +438,7 @@ func (q *Queries) V2GameCards(ctx context.Context, arg V2GameCardsParams) ([]V2G
 		arg.CardViaShare,
 		arg.CardEverywhere,
 		arg.OnlyOwn,
+		arg.OnlyOrganisation,
 		arg.OnlyOthers,
 		arg.OnlyPublic,
 		arg.OnlyFavorites,
@@ -456,6 +496,9 @@ func (q *Queries) V2GameCards(ctx context.Context, arg V2GameCardsParams) ([]V2G
 			&i.MayPlay,
 			&i.IsFavorite,
 			&i.CreatorName,
+			&i.WorkshopOrganisationID,
+			&i.CreatorOrganisationID,
+			&i.OfOwnOrganisation,
 			&i.CoverAt,
 			&i.Total,
 		); err != nil {

@@ -21,7 +21,7 @@ SELECT g.*,
      (@content_public::bool        AND g.public)
   OR (@content_own::bool           AND g.created_by     = sqlc.narg(caller)::uuid)
   OR (@content_workshop::bool      AND g.workshop_id    = sqlc.narg(current_workshop)::uuid)
-  OR (@content_organisation::bool  AND w.institution_id = sqlc.narg(own_organisation)::uuid)
+  OR (@content_organisation::bool  AND o.of_own_organisation)
   OR (@content_via_share::bool     AND g.id = (
         SELECT gs.game_id FROM game_share gs WHERE gs.token = sqlc.narg(share_token)::text AND gs.enabled))
   OR  @content_everywhere::bool, false)::bool                          AS may_read_content,
@@ -29,40 +29,46 @@ SELECT g.*,
      (@settings_public::bool       AND g.public)
   OR (@settings_own::bool          AND g.created_by     = sqlc.narg(caller)::uuid)
   OR (@settings_workshop::bool     AND g.workshop_id    = sqlc.narg(current_workshop)::uuid)
-  OR (@settings_organisation::bool AND w.institution_id = sqlc.narg(own_organisation)::uuid)
+  OR (@settings_organisation::bool AND o.of_own_organisation)
   OR  @settings_everywhere::bool, false)::bool                         AS may_read_settings,
   -- the actions
   COALESCE(
      (@edit_card_own::bool              AND g.created_by     = sqlc.narg(caller)::uuid)
-  OR (@edit_card_organisation::bool     AND w.institution_id = sqlc.narg(own_organisation)::uuid)
+  OR (@edit_card_organisation::bool     AND o.of_own_organisation)
   OR  @edit_card_everywhere::bool, false)::bool                        AS may_edit_card,
   COALESCE(
      (@edit_content_own::bool           AND g.created_by     = sqlc.narg(caller)::uuid)
-  OR (@edit_content_organisation::bool  AND w.institution_id = sqlc.narg(own_organisation)::uuid)
+  OR (@edit_content_organisation::bool  AND o.of_own_organisation)
   OR  @edit_content_everywhere::bool, false)::bool                     AS may_edit_content,
   COALESCE(
      (@edit_settings_own::bool          AND g.created_by     = sqlc.narg(caller)::uuid)
-  OR (@edit_settings_organisation::bool AND w.institution_id = sqlc.narg(own_organisation)::uuid)
+  OR (@edit_settings_organisation::bool AND o.of_own_organisation)
   OR  @edit_settings_everywhere::bool, false)::bool                    AS may_edit_settings,
   COALESCE(
-     (@delete_own::bool          AND g.created_by     = sqlc.narg(caller)::uuid)
-  OR (@delete_organisation::bool AND w.institution_id = sqlc.narg(own_organisation)::uuid)
+     (@delete_own::bool                   AND g.created_by     = sqlc.narg(caller)::uuid)
+  OR (@delete_organisation_workshop::bool AND w.institution_id = sqlc.narg(own_organisation)::uuid)
   OR  @delete_everywhere::bool, false)::bool                         AS may_delete,
   COALESCE(
-     (@copy_public::bool  AND g.public)
-  OR (@copy_own::bool     AND g.created_by = sqlc.narg(caller)::uuid), false)::bool  AS may_copy,
+     (@copy_public::bool       AND g.public)
+  OR (@copy_own::bool          AND g.created_by     = sqlc.narg(caller)::uuid)
+  OR (@copy_workshop::bool     AND g.workshop_id    = sqlc.narg(current_workshop)::uuid)
+  OR (@copy_organisation::bool AND o.of_own_organisation)
+  OR (@copy_via_share::bool    AND g.id = (
+        SELECT gs.game_id FROM game_share gs WHERE gs.token = sqlc.narg(share_token)::text AND gs.enabled))
+  OR  @copy_everywhere::bool, false)::bool                             AS may_copy,
   COALESCE(
-     (@share_public::bool AND g.public)
-  OR (@share_own::bool    AND g.created_by = sqlc.narg(caller)::uuid), false)::bool  AS may_share,
+     (@share_public::bool       AND g.public)
+  OR (@share_own::bool          AND g.created_by = sqlc.narg(caller)::uuid)
+  OR (@share_organisation::bool AND o.of_own_organisation), false)::bool AS may_share,
   COALESCE(
      (@publish_own::bool          AND g.created_by     = sqlc.narg(caller)::uuid)
-  OR (@publish_organisation::bool AND w.institution_id = sqlc.narg(own_organisation)::uuid)
+  OR (@publish_organisation::bool AND o.of_own_organisation)
   OR  @publish_everywhere::bool, false)::bool                         AS may_publish,
   COALESCE(
      (@play_public::bool       AND g.public)
   OR (@play_own::bool          AND g.created_by     = sqlc.narg(caller)::uuid)
   OR (@play_workshop::bool     AND g.workshop_id    = sqlc.narg(current_workshop)::uuid)
-  OR (@play_organisation::bool AND w.institution_id = sqlc.narg(own_organisation)::uuid)
+  OR (@play_organisation::bool AND o.of_own_organisation)
   OR (@play_via_share::bool    AND g.id = (
         SELECT gs.game_id FROM game_share gs WHERE gs.token = sqlc.narg(share_token)::text AND gs.enabled))
   OR  @play_everywhere::bool, false)::bool                             AS may_play,
@@ -70,11 +76,29 @@ SELECT g.*,
   EXISTS (SELECT 1 FROM user_favourite_game f
           WHERE f.game_id = g.id AND f.user_id = sqlc.narg(caller)::uuid)  AS is_favorite,
   cu.name                                                                  AS creator_name,
+  -- the organisations the game belongs to: its workshop's, and the one its
+  -- creator is head or staff of; whether one of them is the caller's
+  w.institution_id                                                         AS workshop_organisation_id,
+  cr.institution_id                                                        AS creator_organisation_id,
+  o.of_own_organisation,
   gc.created_at                                                            AS cover_at,
   count(*) OVER ()                                                         AS total
 FROM game g
 LEFT JOIN app_user cu ON cu.id = g.created_by  -- the creator's public profile name
 LEFT JOIN workshop w  ON w.id  = g.workshop_id -- its organisation, for "of own organisation"
+-- the organisation its creator is head or staff of now: their games are its too
+LEFT JOIN user_role cr ON cr.id = (
+  SELECT ur.id FROM user_role ur
+  WHERE ur.user_id = g.created_by AND ur.role IN ('head', 'staff')
+  ORDER BY ur.created_at DESC
+  LIMIT 1
+)
+-- "of own organisation" for games: made in one of its workshops, or by its
+-- head or staff while they are; "of own organisation's workshop" is the first only
+CROSS JOIN LATERAL (
+  SELECT COALESCE(w.institution_id  = sqlc.narg(own_organisation)::uuid
+               OR cr.institution_id = sqlc.narg(own_organisation)::uuid, false)::bool AS of_own_organisation
+) o
 LEFT JOIN game_cover gc ON gc.game_id = g.id   -- when its cover was made, not the picture
 WHERE g.deleted_at IS NULL
   AND (sqlc.narg(id)::uuid IS NULL OR g.id = sqlc.narg(id)::uuid)
@@ -86,18 +110,19 @@ WHERE g.deleted_at IS NULL
       OR (@card_own_of_workshop::bool  AND g.workshop_id    = sqlc.narg(current_workshop)::uuid
                                        AND g.created_by     = sqlc.narg(caller)::uuid)
       OR (@card_workshop::bool         AND g.workshop_id    = sqlc.narg(current_workshop)::uuid)
-      OR (@card_organisation::bool     AND w.institution_id = sqlc.narg(own_organisation)::uuid)
+      OR (@card_organisation::bool     AND o.of_own_organisation)
       OR (@card_via_share::bool        AND g.id = (
             SELECT gs.game_id FROM game_share gs WHERE gs.token = sqlc.narg(share_token)::text AND gs.enabled))
       OR  @card_everywhere::bool )
   -- wishes
-  AND (NOT @only_own::bool       OR g.created_by = sqlc.narg(caller)::uuid)
-  AND (NOT @only_others::bool    OR g.created_by IS DISTINCT FROM sqlc.narg(caller)::uuid)
-  AND (NOT @only_public::bool    OR g.public)
-  AND (NOT @only_favorites::bool OR EXISTS (
+  AND (NOT @only_own::bool          OR g.created_by = sqlc.narg(caller)::uuid)
+  AND (NOT @only_organisation::bool OR o.of_own_organisation)
+  AND (NOT @only_others::bool       OR g.created_by IS DISTINCT FROM sqlc.narg(caller)::uuid)
+  AND (NOT @only_public::bool       OR g.public)
+  AND (NOT @only_favorites::bool    OR EXISTS (
         SELECT 1 FROM user_favourite_game f
         WHERE f.game_id = g.id AND f.user_id = sqlc.narg(caller)::uuid))
-  AND (NOT @only_sponsored::bool OR g.public_sponsored_api_key_share_id IS NOT NULL)
+  AND (NOT @only_sponsored::bool    OR g.public_sponsored_api_key_share_id IS NOT NULL)
   AND (COALESCE(cardinality(@genres::text[]), 0) = 0 OR g.genre = ANY(@genres::text[]))
   AND (@search::text = ''        OR lower(g.name) LIKE '%' || lower(@search::text) || '%')
 -- paging

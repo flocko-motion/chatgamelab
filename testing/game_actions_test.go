@@ -46,8 +46,9 @@ func (s *GameActionsTestSuite) TestOthersMayCopyAPublicGameButNotEditIt() {
 	s.True(listed.MayCopy)
 }
 
-// An admin may edit anyone's game, but copy only public or own ones.
-func (s *GameActionsTestSuite) TestAnAdminMayEditAPrivateGameButNotCopyIt() {
+// An admin may edit and copy anyone's game: copying is reading the content
+// and creating a game.
+func (s *GameActionsTestSuite) TestAnAdminMayEditAndCopyAPrivateGame() {
 	alice := s.CreateUser("actions-admin-owner")
 	game := Must(alice.UploadGame("alien-first-contact"))
 
@@ -55,11 +56,10 @@ func (s *GameActionsTestSuite) TestAnAdminMayEditAPrivateGameButNotCopyIt() {
 	s.True(listed.MayEditCard)
 	s.True(listed.MayEditContent)
 	s.True(listed.MayEditSettings)
-	s.False(listed.MayCopy)
+	s.True(listed.MayCopy)
 }
 
-// A head may edit a guest's game of their organisation's workshop, not
-// copy it.
+// A head may edit and copy a guest's game of their organisation's workshop.
 func (s *GameActionsTestSuite) TestAHeadMayEditAGuestsGame() {
 	admin := s.DevUser()
 	inst := Must(admin.CreateInstitution("Actions Org"))
@@ -75,7 +75,7 @@ func (s *GameActionsTestSuite) TestAHeadMayEditAGuestsGame() {
 	s.True(listed.MayEditCard)
 	s.True(listed.MayEditContent)
 	s.True(listed.MayEditSettings)
-	s.False(listed.MayCopy)
+	s.True(listed.MayCopy)
 
 	// The guest, in their workshop, may edit their own game too.
 	own := Must(guest.GameInList(game.Id.String()))

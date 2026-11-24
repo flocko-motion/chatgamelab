@@ -79,17 +79,20 @@ func (e GameField) Valid() bool {
 
 // Defines values for GameFilter.
 const (
-	GameFilterFavorites GameFilter = "favorites"
-	GameFilterOthers    GameFilter = "others"
-	GameFilterOwn       GameFilter = "own"
-	GameFilterPublic    GameFilter = "public"
-	GameFilterSponsored GameFilter = "sponsored"
+	GameFilterFavorites    GameFilter = "favorites"
+	GameFilterOrganisation GameFilter = "organisation"
+	GameFilterOthers       GameFilter = "others"
+	GameFilterOwn          GameFilter = "own"
+	GameFilterPublic       GameFilter = "public"
+	GameFilterSponsored    GameFilter = "sponsored"
 )
 
 // Valid indicates whether the value is a known member of the GameFilter enum.
 func (e GameFilter) Valid() bool {
 	switch e {
 	case GameFilterFavorites:
+		return true
+	case GameFilterOrganisation:
 		return true
 	case GameFilterOthers:
 		return true
@@ -1188,6 +1191,7 @@ type GameView struct {
 	MayShare                     bool                `json:"mayShare"`
 	Meta                         GameMeta            `json:"meta"`
 	Name                         string              `json:"name"`
+	OrganisationId               *openapi_types.UUID `json:"organisationId,omitempty"`
 	OriginallyCreatedBy          *openapi_types.UUID `json:"originallyCreatedBy,omitempty"`
 	PlayCount                    int                 `json:"playCount"`
 	Playability                  string              `json:"playability"`

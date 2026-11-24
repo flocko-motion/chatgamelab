@@ -30,12 +30,12 @@ type gameCards struct{}
 // Several of them are one filter, met by a game of any of the genres.
 const genreFamily = "genre:"
 
-// Spec: the filters own, others, public, favorites and sponsored, and
-// genre:<id>; the orders createdAt (default, newest first), modifiedAt,
-// name, playCount, visibility and creator.
+// Spec: the filters own, others, organisation, public, favorites and
+// sponsored, and genre:<id>; the orders createdAt (default, newest first),
+// modifiedAt, name, playCount, visibility and creator.
 func (gameCards) Spec() ListSpec {
 	return ListSpec{
-		Filters:        []string{"own", "others", "public", "favorites", "sponsored"},
+		Filters:        []string{"own", "others", "organisation", "public", "favorites", "sponsored"},
 		FilterFamilies: []string{genreFamily},
 		Sorts:          []string{"createdAt", "modifiedAt", "name", "playCount", "visibility", "creator"},
 		DefaultSort:    "createdAt",
@@ -50,6 +50,7 @@ func (gameCards) Query(ctx context.Context, q ListQuery) (Page[*GameCard], error
 	p := &params
 	p.OnlyOwn = slices.Contains(q.Filter, "own")
 	p.OnlyOthers = slices.Contains(q.Filter, "others")
+	p.OnlyOrganisation = slices.Contains(q.Filter, "organisation")
 	p.OnlyPublic = slices.Contains(q.Filter, "public")
 	p.OnlyFavorites = slices.Contains(q.Filter, "favorites")
 	p.OnlySponsored = slices.Contains(q.Filter, "sponsored")
@@ -115,7 +116,7 @@ func ReadGameCardByLink(ctx context.Context, id uuid.UUID, token string) (*GameC
 func gameCardOf(ctx context.Context, r db.V2GameCardsRow) *GameCard {
 	return &GameCard{
 		caller:          from(ctx),
-		row:             gameRowFrom(r),
+		row:             gameRowFrom(ctx, r),
 		mayReadContent:  r.MayReadContent,
 		mayReadSettings: r.MayReadSettings,
 		mayEditCard:     r.MayEditCard,
@@ -173,12 +174,13 @@ type gameRow struct {
 
 	// settings
 	workshopID          *uuid.UUID
+	organisationID      *uuid.UUID // the organisation it belongs to, seen from the caller
 	sponsorID           *uuid.UUID
 	creatorID           *uuid.UUID
 	originallyCreatedBy *uuid.UUID
 }
 
-func gameRowFrom(r db.V2GameCardsRow) gameRow {
+func gameRowFrom(ctx context.Context, r db.V2GameCardsRow) gameRow {
 	return gameRow{
 		id:          r.ID,
 		name:        r.Name,
@@ -205,9 +207,25 @@ func gameRowFrom(r db.V2GameCardsRow) gameRow {
 		firstImage:   r.FirstImage,
 
 		workshopID:          ptrUUID(r.WorkshopID),
+		organisationID:      gameOrganisationOf(ctx, r),
 		sponsorID:           ptrUUID(r.PublicSponsoredApiKeyShareID),
 		creatorID:           ptrUUID(r.CreatedBy),
 		originallyCreatedBy: ptrUUID(r.OriginallyCreatedBy),
+	}
+}
+
+// gameOrganisationOf is the organisation a game belongs to, seen from the
+// caller: their own when it is theirs (it may be two organisations', its
+// workshop's and its creator's), otherwise its workshop's, otherwise the one
+// its creator is head or staff of; nil for an individual's game.
+func gameOrganisationOf(ctx context.Context, r db.V2GameCardsRow) *uuid.UUID {
+	switch {
+	case r.OfOwnOrganisation:
+		return from(ctx).Organisation()
+	case r.WorkshopOrganisationID.Valid:
+		return ptrUUID(r.WorkshopOrganisationID)
+	default:
+		return ptrUUID(r.CreatorOrganisationID)
 	}
 }
 
@@ -322,6 +340,7 @@ func (c *GameContent) FirstImage() []byte    { return c.card.row.firstImage }
 type GameSettings struct{ card *GameCard }
 
 func (s *GameSettings) WorkshopID() *uuid.UUID          { return s.card.row.workshopID }
+func (s *GameSettings) OrganisationID() *uuid.UUID      { return s.card.row.organisationID }
 func (s *GameSettings) SponsorID() *uuid.UUID           { return s.card.row.sponsorID }
 func (s *GameSettings) CreatorID() *uuid.UUID           { return s.card.row.creatorID }
 func (s *GameSettings) OriginallyCreatedBy() *uuid.UUID { return s.card.row.originallyCreatedBy }

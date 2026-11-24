@@ -333,8 +333,9 @@ func (s *GamePermissionsTestSuite) TestWhoCanSetGamePublic() {
 	s.True(updated.Public)
 }
 
-// TestWorkshopShareRequiresPublicGame tests that workshop shares can only
-// be created for public games, even by head/staff.
+// TestWorkshopShareRequiresPublicGame tests that someone else in the
+// workshop shares only public games; the designer shares their own, and the
+// organisation's head and staff share its games (#564).
 func (s *GamePermissionsTestSuite) TestWorkshopShareRequiresPublicGame() {
 	admin := s.DevUser()
 
@@ -359,16 +360,20 @@ func (s *GamePermissionsTestSuite) TestWorkshopShareRequiresPublicGame() {
 
 	invite := Must(head.CreateWorkshopInvite(wsIDStr))
 	guest := Must(s.JoinWorkshop(*invite.InviteToken))
+	other := Must(s.JoinWorkshop(*invite.InviteToken))
 
 	// Guest creates a private game
 	game := Must(guest.UploadGame("alien-first-contact"))
 	gameID := game.Id.String()
 	s.T().Logf("Game created (public=%v): %s", game.Public, gameID)
 
-	// Head tries to share the private game — should FAIL (non-owner, game not public)
-	_, err := head.CreateWorkshopGameShare(gameID, wsIDStr, nil)
-	s.Forbidden(err, "head should not be able to share a private game they don't own")
-	s.T().Logf("Head correctly rejected from sharing private game: %v", err)
+	// Another guest tries to share the private game — should FAIL (not theirs, not public)
+	_, err := other.CreateWorkshopGameShare(gameID, wsIDStr, nil)
+	s.Forbidden(err, "another guest should not be able to share a private game they don't own")
+
+	// The head shares it: a game of the organisation's workshop is the organisation's
+	_, err = head.CreateWorkshopGameShare(gameID, wsIDStr, nil)
+	s.NoError(err, "head shares the organisation's games")
 
 	// Guest (owner) can share their own private game — should SUCCEED
 	share, err := guest.CreateWorkshopGameShare(gameID, wsIDStr, nil)
@@ -376,12 +381,10 @@ func (s *GamePermissionsTestSuite) TestWorkshopShareRequiresPublicGame() {
 	s.NotEmpty(share.Token)
 	s.T().Logf("Owner shared own private game: token=%s", share.Token)
 
-	// Guest makes game public, now head can share too
+	// Guest makes game public, now the other guest can share it too
 	Must(guest.SetGamePublic(gameID, true))
 
-	// Head shares the now-public game — should SUCCEED
-	headShare, err := head.CreateWorkshopGameShare(gameID, wsIDStr, nil)
-	s.NoError(err, "head should be able to share a public game")
-	s.NotEmpty(headShare.Token)
-	s.T().Logf("Head shared public game: token=%s", headShare.Token)
+	otherShare, err := other.CreateWorkshopGameShare(gameID, wsIDStr, nil)
+	s.NoError(err, "anyone in the workshop should be able to share a public game")
+	s.NotEmpty(otherShare.Token)
 }

@@ -1075,6 +1075,7 @@
         "enum": [
           "own",
           "others",
+          "organisation",
           "public",
           "favorites",
           "sponsored"
@@ -1305,6 +1306,10 @@
             "$ref": "#/components/schemas/GameMeta"
           },
           "name": {
+            "type": "string"
+          },
+          "organisationId": {
+            "format": "uuid",
             "type": "string"
           },
           "originallyCreatedBy": {

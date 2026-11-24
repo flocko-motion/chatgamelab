@@ -186,7 +186,7 @@ func embedPage(ctx context.Context, card *GameCard, s EmbedSettings) (uuid.NullU
 	if s.VerifiedPage == nil {
 		return uuid.NullUUID{}, refuse("verifiedPageId is required for the verified mode")
 	}
-	org := gameOrganisation(ctx, card)
+	org := gameOrganisation(card)
 	pageOrg, err := store.Queries().V2VerifiedPageOrganisation(ctx, *s.VerifiedPage)
 	if err != nil || org == nil || pageOrg != *org {
 		return uuid.NullUUID{}, refuse("the verified page must be one of the game's organisation's")
@@ -210,18 +210,9 @@ func embedSource(ctx context.Context, card *GameCard, existing *GameEmbed, from 
 	return source, nil
 }
 
-// gameOrganisation is the organisation a game belongs to: its workshop's.
-func gameOrganisation(ctx context.Context, card *GameCard) *uuid.UUID {
-	if card.row.workshopID == nil {
-		return nil
-	}
-	w, err := ReadWorkshop(ctx, *card.row.workshopID)
-	if err != nil {
-		return nil
-	}
-	org := w.OrganisationID()
-	return &org
-}
+// gameOrganisation is the organisation a game belongs to, seen from the
+// caller: its workshop's, or the one its creator is head or staff of.
+func gameOrganisation(card *GameCard) *uuid.UUID { return card.row.organisationID }
 
 // Framing is the playback-engine page's frame-ancestors, and the origin
 // besides its own that handed-over CSS may load from ("" for none).

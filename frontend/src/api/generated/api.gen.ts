@@ -76,6 +76,7 @@ export type GameSort =
 export type GameFilter =
   | "own"
   | "others"
+  | "organisation"
   | "public"
   | "favorites"
   | "sponsored";
@@ -528,6 +529,8 @@ export interface GameView {
   mayShare: boolean;
   meta: GameMeta;
   name: string;
+  /** @format uuid */
+  organisationId?: string;
   /** @format uuid */
   originallyCreatedBy?: string;
   playCount: number;

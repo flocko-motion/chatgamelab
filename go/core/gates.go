@@ -28,6 +28,7 @@ func listGameCardsGates(ctx context.Context) db.V2GameCardsParams {
 	p.CardPublicElsewhere = granted(ctx, rules.List, rules.GameCard, rules.PublicElsewhere)
 	p.CardOwnOfWorkshop = granted(ctx, rules.List, rules.GameCard, rules.OwnOfCurrentWorkshop)
 	p.CardWorkshop = granted(ctx, rules.List, rules.GameCard, rules.OfCurrentWorkshop)
+	p.CardOrganisation = granted(ctx, rules.List, rules.GameCard, rules.OfOwnOrganisation)
 	p.CardEverywhere = granted(ctx, rules.List, rules.GameCard, rules.Everywhere)
 	return p
 }
@@ -83,15 +84,20 @@ func gameCardGates(ctx context.Context) db.V2GameCardsParams {
 		EditSettingsOrganisation: granted(ctx, rules.Edit, rules.GameSettings, rules.OfOwnOrganisation),
 		EditSettingsEverywhere:   granted(ctx, rules.Edit, rules.GameSettings, rules.Everywhere),
 
-		DeleteOwn:          granted(ctx, rules.Delete, rules.GameCard, rules.Own),
-		DeleteOrganisation: granted(ctx, rules.Delete, rules.GameCard, rules.OfOwnOrganisation),
-		DeleteEverywhere:   granted(ctx, rules.Delete, rules.GameCard, rules.Everywhere),
+		DeleteOwn:                  granted(ctx, rules.Delete, rules.GameCard, rules.Own),
+		DeleteOrganisationWorkshop: granted(ctx, rules.Delete, rules.GameCard, rules.OfOwnOrganisationsWorkshop),
+		DeleteEverywhere:           granted(ctx, rules.Delete, rules.GameCard, rules.Everywhere),
 
-		CopyPublic: granted(ctx, rules.Copy, rules.GameContent, rules.Public),
-		CopyOwn:    granted(ctx, rules.Copy, rules.GameContent, rules.Own),
+		CopyPublic:       granted(ctx, rules.Copy, rules.GameContent, rules.Public),
+		CopyOwn:          granted(ctx, rules.Copy, rules.GameContent, rules.Own),
+		CopyWorkshop:     granted(ctx, rules.Copy, rules.GameContent, rules.OfCurrentWorkshop),
+		CopyOrganisation: granted(ctx, rules.Copy, rules.GameContent, rules.OfOwnOrganisation),
+		CopyViaShare:     granted(ctx, rules.Copy, rules.GameContent, rules.ViaShareLink),
+		CopyEverywhere:   granted(ctx, rules.Copy, rules.GameContent, rules.Everywhere),
 
-		SharePublic: granted(ctx, rules.Share, rules.GameCard, rules.Public),
-		ShareOwn:    granted(ctx, rules.Share, rules.GameCard, rules.Own),
+		SharePublic:       granted(ctx, rules.Share, rules.GameCard, rules.Public),
+		ShareOwn:          granted(ctx, rules.Share, rules.GameCard, rules.Own),
+		ShareOrganisation: granted(ctx, rules.Share, rules.GameCard, rules.OfOwnOrganisation),
 
 		PublishOwn:          granted(ctx, rules.Publish, rules.GameCard, rules.Own),
 		PublishOrganisation: granted(ctx, rules.Publish, rules.GameCard, rules.OfOwnOrganisation),

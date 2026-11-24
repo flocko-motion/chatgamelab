@@ -48,6 +48,7 @@ type matrixWorld struct {
 	guestB                *testutil.UserClient
 	gIndivPriv, gIndivPub string // the individual's private and public games
 	gGuestA               string // the guest's game in workshop A
+	gStaffA               string // staff A's game outside any workshop: organisation A's through its designer
 
 	indivKey        string             // the individual's key (its own share)
 	sIndiv, sGuestA string             // the individual's session, the guest's in workshop A
@@ -81,6 +82,7 @@ func (s *PermissionMatrixTestSuite) SetupSuite() {
 	w.gIndivPub = Must(indiv.UploadGame("alien-first-contact")).Id.String()
 	Must(indiv.SetGamePublic(w.gIndivPub, true))
 	w.gGuestA = Must(guestA.UploadGame("alien-first-contact")).Id.String()
+	w.gStaffA = Must(staffA.UploadGame("alien-first-contact")).Id.String()
 
 	// keys and play: the individual's own key, workshop A's from its head
 	w.indivKey = Must(indiv.AddApiKey("mock-matrix-indiv", "Matrix Key", "mock")).Id.String()
@@ -152,6 +154,7 @@ func (s *PermissionMatrixTestSuite) TestGames() {
 	w := s.w
 	indivGame := func() string { return Must(w.by["indiv"].UploadGame("alien-first-contact")).Id.String() }
 	guestGame := func() string { return Must(w.by["guestA"].UploadGame("alien-first-contact")).Id.String() }
+	staffGame := func() string { return Must(w.by["staffA"].UploadGame("alien-first-contact")).Id.String() }
 	read := func(id string) func(*testutil.UserClient) error {
 		return func(c *testutil.UserClient) error { _, err := c.GetGameByID(id); return err }
 	}
@@ -172,11 +175,12 @@ func (s *PermissionMatrixTestSuite) TestGames() {
 
 	signedIn := []string{"admin", "headA", "staffA", "guestA", "indivA", "indiv", "headB"}
 	s.check([]cell{
-		// someone's private game: theirs and the admin's
+		// someone's private game: theirs and the admin's. Copying is reading
+		// the content and creating a game
 		{"read an individual's private game", []string{"admin", "indiv"}, read(w.gIndivPriv)},
 		{"read its content", []string{"admin", "indiv"}, content(w.gIndivPriv)},
 		{"rename it", []string{"admin", "indiv"}, rename(w.gIndivPriv)},
-		{"copy it", []string{"indiv"}, copyGame(w.gIndivPriv)},
+		{"copy it", []string{"admin", "indiv"}, copyGame(w.gIndivPriv)},
 		{"delete it", []string{"admin", "indiv"}, fresh(indivGame, del)},
 		{"publish it", []string{"admin", "indiv"}, fresh(indivGame, publish)},
 
@@ -193,9 +197,18 @@ func (s *PermissionMatrixTestSuite) TestGames() {
 		{"read a guest's game in workshop A", []string{"admin", "headA", "staffA", "guestA", "indivA"}, read(w.gGuestA)},
 		{"read its content", []string{"admin", "headA", "staffA", "guestA", "indivA"}, content(w.gGuestA)},
 		{"rename it", []string{"admin", "headA", "staffA", "guestA"}, rename(w.gGuestA)},
-		{"copy it", []string{"guestA"}, copyGame(w.gGuestA)},
+		{"copy it", []string{"admin", "headA", "staffA", "guestA", "indivA"}, copyGame(w.gGuestA)},
 		{"delete it", []string{"admin", "headA", "staffA", "guestA"}, fresh(guestGame, del)},
 		{"publish it", []string{"admin", "headA", "staffA", "guestA"}, fresh(guestGame, publish)},
+
+		// staff A's game outside any workshop: organisation A's, through its
+		// designer; head and staff work on it, only its designer deletes it
+		{"read staff A's game outside a workshop", []string{"admin", "headA", "staffA"}, read(w.gStaffA)},
+		{"read its content", []string{"admin", "headA", "staffA"}, content(w.gStaffA)},
+		{"rename it", []string{"admin", "headA", "staffA"}, rename(w.gStaffA)},
+		{"copy it", []string{"admin", "headA", "staffA"}, copyGame(w.gStaffA)},
+		{"delete it", []string{"admin", "staffA"}, fresh(staffGame, del)},
+		{"publish it", []string{"admin", "headA", "staffA"}, fresh(staffGame, publish)},
 	})
 }
 
