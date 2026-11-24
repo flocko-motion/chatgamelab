@@ -1,4 +1,5 @@
 import {
+  Badge,
   Card,
   Code,
   CopyButton,
@@ -17,7 +18,7 @@ import {
   DeleteIconButton,
   GenericIconButton,
 } from "@components/buttons";
-import { BodyText, HelperText, Label } from "@components/typography";
+import { BodyText, HelperText, ItemTitle, Label } from "@components/typography";
 import type { VerifiedPageView } from "@/api/types";
 import type { VerifiedPagesTabState } from "../hooks/useVerifiedPagesTab";
 import classes from "./VerifiedPagesTab.module.css";
@@ -39,38 +40,44 @@ export function VerifiedPagesTab({ state }: { state: VerifiedPagesTabState }) {
         <HelperText>{t("myOrganization.verifiedPages.empty")}</HelperText>
       ) : (
         state.pages.map((page) => (
-          <PageCard key={page.id} page={page} onRemove={() => state.askRemove(page)} />
+          <PageCard
+            key={page.id}
+            page={page}
+            onRemove={() => state.askRemove(page)}
+          />
         ))
       )}
 
-      <Card withBorder radius="md" padding="md">
-        <Stack gap="sm">
-          <Label>{t("myOrganization.verifiedPages.addTitle")}</Label>
-          <TextInput
-            label={t("myOrganization.verifiedPages.pageUrl")}
-            description={t("myOrganization.verifiedPages.pageUrlHint")}
-            placeholder="https://example.org/play"
-            value={draft.pageUrl}
-            onChange={(e) => draft.setPageUrl(e.currentTarget.value)}
-          />
-          <TextInput
-            label={t("myOrganization.verifiedPages.callbackUrl")}
-            description={t("myOrganization.verifiedPages.callbackUrlHint")}
-            placeholder="https://example.org/chatgamelab-callback"
-            value={draft.callbackUrl}
-            onChange={(e) => draft.setCallbackUrl(e.currentTarget.value)}
-          />
-          <Group justify="flex-end">
-            <ActionButton
-              onClick={() => void state.add()}
-              disabled={!draft.valid}
-              loading={state.adding}
-            >
-              {t("myOrganization.verifiedPages.add")}
-            </ActionButton>
-          </Group>
-        </Stack>
-      </Card>
+      {state.mayRegister && (
+        <Card withBorder radius="md" padding="md">
+          <Stack gap="sm">
+            <Label>{t("myOrganization.verifiedPages.addTitle")}</Label>
+            <TextInput
+              label={t("myOrganization.verifiedPages.pageUrl")}
+              description={t("myOrganization.verifiedPages.pageUrlHint")}
+              placeholder="https://example.org/play"
+              value={draft.pageUrl}
+              onChange={(e) => draft.setPageUrl(e.currentTarget.value)}
+            />
+            <TextInput
+              label={t("myOrganization.verifiedPages.callbackUrl")}
+              description={t("myOrganization.verifiedPages.callbackUrlHint")}
+              placeholder="https://example.org/chatgamelab-callback"
+              value={draft.callbackUrl}
+              onChange={(e) => draft.setCallbackUrl(e.currentTarget.value)}
+            />
+            <Group justify="flex-end">
+              <ActionButton
+                onClick={() => void state.add()}
+                disabled={!draft.valid}
+                loading={state.adding}
+              >
+                {t("myOrganization.verifiedPages.add")}
+              </ActionButton>
+            </Group>
+          </Stack>
+        </Card>
+      )}
 
       <Modal
         opened={state.removing !== null}
@@ -79,11 +86,18 @@ export function VerifiedPagesTab({ state }: { state: VerifiedPagesTabState }) {
       >
         <Stack gap="md">
           <BodyText size="sm">
-            {t("myOrganization.verifiedPages.removeWarning", { page: state.removing?.pageUrl ?? "" })}
+            {t("myOrganization.verifiedPages.removeWarning", {
+              page: state.removing?.pageUrl ?? "",
+            })}
           </BodyText>
           <Group justify="flex-end">
-            <CancelButton onClick={state.cancelRemove}>{t("cancel")}</CancelButton>
-            <DangerButton onClick={() => void state.confirmRemove()} loading={state.removePending}>
+            <CancelButton onClick={state.cancelRemove}>
+              {t("cancel")}
+            </CancelButton>
+            <DangerButton
+              onClick={() => void state.confirmRemove()}
+              loading={state.removePending}
+            >
               {t("myOrganization.verifiedPages.remove")}
             </DangerButton>
           </Group>
@@ -93,7 +107,13 @@ export function VerifiedPagesTab({ state }: { state: VerifiedPagesTabState }) {
   );
 }
 
-function PageCard({ page, onRemove }: { page: VerifiedPageView; onRemove: () => void }) {
+function PageCard({
+  page,
+  onRemove,
+}: {
+  page: VerifiedPageView;
+  onRemove: () => void;
+}) {
   const { t } = useTranslation("common");
   return (
     <Card withBorder radius="md" padding="md">
@@ -102,22 +122,37 @@ function PageCard({ page, onRemove }: { page: VerifiedPageView; onRemove: () => 
           <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
             <IconWorld size={16} style={{ flexShrink: 0 }} />
             <div className={classes.address}>
-              <BodyText size="sm" fw={500}>
-                {page.pageUrl}
-              </BodyText>
+              <ItemTitle>{page.pageUrl}</ItemTitle>
             </div>
+            <Badge
+              size="xs"
+              variant="light"
+              color={page.approvedAt ? "green" : "orange"}
+            >
+              {page.approvedAt
+                ? t("myOrganization.verifiedPages.approved")
+                : t("myOrganization.verifiedPages.waiting")}
+            </Badge>
           </Group>
           <Group gap="xs" wrap="nowrap">
             <HelperText>{t("myOrganization.verifiedPages.pageId")}</HelperText>
             <Code>{page.pageId}</Code>
             <CopyButton value={page.pageId}>
               {({ copied, copy }) => (
-                <Tooltip label={copied ? t("myOrganization.verifiedPages.copied") : t("myOrganization.verifiedPages.copy")}>
+                <Tooltip
+                  label={
+                    copied
+                      ? t("myOrganization.verifiedPages.copied")
+                      : t("myOrganization.verifiedPages.copy")
+                  }
+                >
                   <GenericIconButton
                     size="sm"
                     onClick={copy}
                     aria-label={t("myOrganization.verifiedPages.copy")}
-                    icon={copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+                    icon={
+                      copied ? <IconCheck size={14} /> : <IconCopy size={14} />
+                    }
                   />
                 </Tooltip>
               )}
@@ -125,7 +160,9 @@ function PageCard({ page, onRemove }: { page: VerifiedPageView; onRemove: () => 
           </Group>
           <div className={classes.address}>
             <HelperText>
-              {t("myOrganization.verifiedPages.callbackShown", { url: page.callbackUrl })}
+              {t("myOrganization.verifiedPages.callbackShown", {
+                url: page.callbackUrl,
+              })}
             </HelperText>
           </div>
         </Stack>

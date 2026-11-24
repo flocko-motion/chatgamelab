@@ -1,3 +1,7 @@
+// package: core/internal/rules / the grant table
+// type:    data
+// job:     who may do what: per role and context, one grant per line
+// limits:  vocabulary only (-> grants.go); gates turn it into queries (-> core/gates.go)
 package rules
 
 // Rules is who may do what. It is the only place access rights are set:
@@ -24,7 +28,9 @@ var Rules = map[Role]Grants{
 			{Edit, OrganisationSettings, Everywhere},
 			{Read, OrganisationDetails, Everywhere}, // a head confirms them, consenting
 			{Read, OrganisationRecord, Everywhere},
-			{Delete, Membership, Everywhere}, // never an organisation's last head
+			{Delete, Membership, Everywhere},   // never an organisation's last head
+			{List, VerifiedPage, Everywhere},   // the allow list of pages that embed games
+			{Manage, VerifiedPage, Everywhere}, // approving a page, or withdrawing the approval
 
 			{Create, WorkshopCard, Everywhere}, // in any organisation
 			{Read, WorkshopCard, Everywhere},

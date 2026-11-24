@@ -53,6 +53,7 @@ type GameEmbed struct {
 	Mode            EmbedMode
 	VerifiedPageID  *uuid.UUID
 	VerifiedPageURL *string
+	PageApproved    bool       // an admin approved the verified page; until then nothing starts
 	ShareID         uuid.UUID  // the share drawn for it, which pays
 	SourceShareID   *uuid.UUID // the share it is drawn from
 	KeyID           uuid.UUID
@@ -84,7 +85,8 @@ func loadGameEmbed(ctx context.Context, game uuid.UUID) (*GameEmbed, error) {
 	return &GameEmbed{
 		ID: r.ID, Token: r.Token, Enabled: r.Enabled, Mode: EmbedMode(r.EmbedMode.String),
 		VerifiedPageID: ptrUUID(r.VerifiedPageID), VerifiedPageURL: nullString(r.VerifiedPageUrl),
-		ShareID: r.ApiKeyShareID, SourceShareID: ptrUUID(r.SourceShareID),
+		PageApproved: r.VerifiedPageApproved,
+		ShareID:      r.ApiKeyShareID, SourceShareID: ptrUUID(r.SourceShareID),
 		KeyID: r.KeyID, KeyName: r.KeyName, Platform: r.Platform,
 		payingOrganisation: r.InstitutionID,
 	}, nil
@@ -234,8 +236,8 @@ func (f Framing) Framed() bool { return f.Ancestors != framedBySelf }
 const framedBySelf = "'self'"
 
 // EmbedFraming is who may frame the playback-engine opened for share token
-// or session: a verified page's origin for its embed link, otherwise the
-// platform alone.
+// or session: an approved verified page's origin for its embed link,
+// otherwise the platform alone.
 func EmbedFraming(ctx context.Context, token string, session *uuid.UUID) Framing {
 	self := Framing{Ancestors: framedBySelf}
 	if token == "" && session == nil {
@@ -251,7 +253,7 @@ func EmbedFraming(ctx context.Context, token string, session *uuid.UUID) Framing
 	switch {
 	case !r.Embed || !r.Enabled:
 		return self
-	case EmbedMode(r.EmbedMode.String) == EmbedVerified && r.VerifiedOrigin.Valid:
+	case EmbedMode(r.EmbedMode.String) == EmbedVerified && r.VerifiedOrigin.Valid && r.VerifiedPageApproved:
 		return Framing{Ancestors: r.VerifiedOrigin.String, AssetOrigin: r.VerifiedOrigin.String}
 	}
 	return self
@@ -300,7 +302,7 @@ func publicOnly(_, address string, _ syscall.RawConn) error {
 }
 
 // EmbedPlay opens the play behind a share token, for the engine's start. An
-// embed link starts on its host's yes only, asked with ids; its guest is
+// embed link starts on its approved page's yes only, asked with ids; its guest is
 // the player ID hashed with the link. Any other link opens as by
 // ShareLinkPlay.
 func EmbedPlay(ctx context.Context, token string, ids HostIDs) (*LinkPlay, error) {
@@ -312,7 +314,7 @@ func EmbedPlay(ctx context.Context, token string, ids HostIDs) (*LinkPlay, error
 		return openLinkPlay(ctx, row, token)
 	}
 	refused := engine.Refuse(engine.ProblemHostRefused, "the host page did not let this game start")
-	if !hostID.MatchString(ids.Player) || !hostID.MatchString(ids.Request) || row.callbackURL == "" {
+	if !hostID.MatchString(ids.Player) || !hostID.MatchString(ids.Request) || row.callbackURL == "" || !row.approved {
 		return nil, refused
 	}
 	if err := askHost(ctx, row.callbackURL, row.pageKey, ids); err != nil {

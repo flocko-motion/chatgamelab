@@ -159,7 +159,8 @@ func (q *Queries) V2DeleteLinkGuests(ctx context.Context, linkID uuid.NullUUID) 
 }
 
 const v2EmbedFraming = `-- name: V2EmbedFraming :many
-SELECT gs.embed, gs.enabled, gs.embed_mode, vp.origin AS verified_origin
+SELECT gs.embed, gs.enabled, gs.embed_mode, vp.origin AS verified_origin,
+  (vp.approved_at IS NOT NULL)::bool AS verified_page_approved
 FROM game_share gs
 LEFT JOIN verified_page vp ON vp.id = gs.verified_page_id
 WHERE ($1::text IS NOT NULL AND gs.token = $1::text)
@@ -173,10 +174,11 @@ type V2EmbedFramingParams struct {
 }
 
 type V2EmbedFramingRow struct {
-	Embed          bool           `json:"embed"`
-	Enabled        bool           `json:"enabled"`
-	EmbedMode      sql.NullString `json:"embed_mode"`
-	VerifiedOrigin sql.NullString `json:"verified_origin"`
+	Embed                bool           `json:"embed"`
+	Enabled              bool           `json:"enabled"`
+	EmbedMode            sql.NullString `json:"embed_mode"`
+	VerifiedOrigin       sql.NullString `json:"verified_origin"`
+	VerifiedPageApproved bool           `json:"verified_page_approved"`
 }
 
 // Who may frame the playback-engine for a share token, or for the session
@@ -195,6 +197,7 @@ func (q *Queries) V2EmbedFraming(ctx context.Context, arg V2EmbedFramingParams) 
 			&i.Enabled,
 			&i.EmbedMode,
 			&i.VerifiedOrigin,
+			&i.VerifiedPageApproved,
 		); err != nil {
 			return nil, err
 		}
@@ -211,7 +214,7 @@ func (q *Queries) V2EmbedFraming(ctx context.Context, arg V2EmbedFramingParams) 
 
 const v2GameEmbed = `-- name: V2GameEmbed :many
 SELECT gs.id, gs.token, gs.enabled, gs.embed_mode, gs.verified_page_id, gs.institution_id,
-  vp.page_url AS verified_page_url,
+  vp.page_url AS verified_page_url, (vp.approved_at IS NOT NULL)::bool AS verified_page_approved,
   gs.api_key_share_id, c.source_share_id,
   k.id AS key_id, k.name AS key_name, k.platform
 FROM game_share gs
@@ -222,18 +225,19 @@ WHERE gs.game_id = $1::uuid AND gs.embed
 `
 
 type V2GameEmbedRow struct {
-	ID              uuid.UUID      `json:"id"`
-	Token           string         `json:"token"`
-	Enabled         bool           `json:"enabled"`
-	EmbedMode       sql.NullString `json:"embed_mode"`
-	VerifiedPageID  uuid.NullUUID  `json:"verified_page_id"`
-	InstitutionID   uuid.NullUUID  `json:"institution_id"`
-	VerifiedPageUrl sql.NullString `json:"verified_page_url"`
-	ApiKeyShareID   uuid.UUID      `json:"api_key_share_id"`
-	SourceShareID   uuid.NullUUID  `json:"source_share_id"`
-	KeyID           uuid.UUID      `json:"key_id"`
-	KeyName         string         `json:"key_name"`
-	Platform        string         `json:"platform"`
+	ID                   uuid.UUID      `json:"id"`
+	Token                string         `json:"token"`
+	Enabled              bool           `json:"enabled"`
+	EmbedMode            sql.NullString `json:"embed_mode"`
+	VerifiedPageID       uuid.NullUUID  `json:"verified_page_id"`
+	InstitutionID        uuid.NullUUID  `json:"institution_id"`
+	VerifiedPageUrl      sql.NullString `json:"verified_page_url"`
+	VerifiedPageApproved bool           `json:"verified_page_approved"`
+	ApiKeyShareID        uuid.UUID      `json:"api_key_share_id"`
+	SourceShareID        uuid.NullUUID  `json:"source_share_id"`
+	KeyID                uuid.UUID      `json:"key_id"`
+	KeyName              string         `json:"key_name"`
+	Platform             string         `json:"platform"`
 }
 
 // A game's embed link, if it has one: its token, whether it is on, its mode
@@ -255,6 +259,7 @@ func (q *Queries) V2GameEmbed(ctx context.Context, gameID uuid.UUID) ([]V2GameEm
 			&i.VerifiedPageID,
 			&i.InstitutionID,
 			&i.VerifiedPageUrl,
+			&i.VerifiedPageApproved,
 			&i.ApiKeyShareID,
 			&i.SourceShareID,
 			&i.KeyID,

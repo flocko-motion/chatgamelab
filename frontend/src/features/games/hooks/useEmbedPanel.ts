@@ -125,6 +125,8 @@ export function useEmbedPanel(game: GameView) {
     incomplete: choices.on && !live && !save.isPending,
     /** The snippet for the host page, while the saved link is on. */
     snippet,
+    /** Saved and on, but its page still waits for an admin's approval: nothing starts yet. */
+    waitingForApproval: live && !embed?.verifiedPageApproved,
     setOn: (on: boolean) => change({ on }),
     setShare: (shareId: string | null) => change({ shareId }),
     setPage: (pageId: string | null) => change({ pageId }),

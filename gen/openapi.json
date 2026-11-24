@@ -179,6 +179,17 @@
         ],
         "type": "object"
       },
+      "ApproveVerifiedPageReq": {
+        "properties": {
+          "approved": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "approved"
+        ],
+        "type": "object"
+      },
       "AvailableKey": {
         "properties": {
           "isDefault": {
@@ -975,6 +986,9 @@
           "token": {
             "type": "string"
           },
+          "verifiedPageApproved": {
+            "type": "boolean"
+          },
           "verifiedPageId": {
             "format": "uuid",
             "type": "string"
@@ -988,6 +1002,7 @@
           "token",
           "enabled",
           "mode",
+          "verifiedPageApproved",
           "keyName",
           "platform"
         ],
@@ -4662,8 +4677,27 @@
         ],
         "type": "object"
       },
+      "VerifiedPageFilter": {
+        "enum": [
+          "waiting",
+          "approved"
+        ],
+        "type": "string"
+      },
+      "VerifiedPageSort": {
+        "enum": [
+          "status",
+          "organisation",
+          "createdAt"
+        ],
+        "type": "string"
+      },
       "VerifiedPageView": {
         "properties": {
+          "approvedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
           "callbackUrl": {
             "type": "string"
           },
@@ -4674,6 +4708,9 @@
           "id": {
             "format": "uuid",
             "type": "string"
+          },
+          "mayApprove": {
+            "type": "boolean"
           },
           "mayDelete": {
             "type": "boolean"
@@ -4689,6 +4726,9 @@
             "format": "uuid",
             "type": "string"
           },
+          "organisationName": {
+            "type": "string"
+          },
           "origin": {
             "type": "string"
           },
@@ -4702,6 +4742,7 @@
         "required": [
           "id",
           "organisationId",
+          "organisationName",
           "pageId",
           "origin",
           "pageUrl",
@@ -4709,7 +4750,26 @@
           "createdAt",
           "modifiedAt",
           "mayEdit",
-          "mayDelete"
+          "mayDelete",
+          "mayApprove"
+        ],
+        "type": "object"
+      },
+      "VerifiedPageViewPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/VerifiedPageView"
+            },
+            "type": "array"
+          },
+          "total": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
         ],
         "type": "object"
       },
@@ -11893,6 +11953,98 @@
         "summary": "Returns what a user did on the platform, counted. It"
       }
     },
+    "/api/verified-pages": {
+      "get": {
+        "description": "may see, waiting first: every one for an admin, the allow list.",
+        "operationId": "getApiVerified-pages",
+        "parameters": [
+          {
+            "explode": true,
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "items": {
+                "$ref": "#/components/schemas/VerifiedPageFilter"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/VerifiedPageSort"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortDir",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortDir"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifiedPageViewPage"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists a page of the verified pages the caller"
+      }
+    },
     "/api/verified-pages/{id}": {
       "delete": {
         "description": "for it start nothing until they get another.",
@@ -11993,6 +12145,63 @@
           }
         ],
         "summary": "Changes a verified page's address and"
+      }
+    },
+    "/api/verified-pages/{id}/approval": {
+      "put": {
+        "description": "approval, for an admin.",
+        "operationId": "putApiVerified-pagesIdApproval",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveVerifiedPageReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifiedPageView"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Approves a verified page or withdraws the"
       }
     },
     "/api/version": {

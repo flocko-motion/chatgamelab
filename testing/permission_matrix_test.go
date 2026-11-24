@@ -432,18 +432,31 @@ func (s *PermissionMatrixTestSuite) TestParticipantsAndStanding() {
 	})
 }
 
-// An organisation's verified pages (#340): its head and staff list and
-// register them, nobody else, the admin included.
+// An organisation's verified page (#340): its head and staff list and
+// register it; the admin lists every one and alone approves it.
 func (s *PermissionMatrixTestSuite) TestVerifiedPages() {
 	w := s.w
+	head := w.by["headA"]
 	list := func(c *testutil.UserClient) error { _, err := c.ListVerifiedPages(w.orgA); return err }
+	// an organisation has one page: each try removes it again
 	register := func(c *testutil.UserClient) error {
-		_, err := c.CreateVerifiedPage(w.orgA, "https://example.org/play", "https://example.org/cgl-callback")
-		return err
+		page, err := c.CreateVerifiedPage(w.orgA, "https://example.org/play", "https://example.org/cgl-callback")
+		if err != nil {
+			return err
+		}
+		return head.DeleteVerifiedPage(page.Id.String())
 	}
+	orgAPage := func() string {
+		if pages := Must(head.ListVerifiedPages(w.orgA)); len(pages) > 0 {
+			return pages[0].Id.String()
+		}
+		return Must(head.CreateVerifiedPage(w.orgA, "https://example.org/play", "https://example.org/cgl-callback")).Id.String()
+	}
+	approve := func(c *testutil.UserClient, id string) error { _, err := c.ApproveVerifiedPage(id, true); return err }
 	s.check([]cell{
-		{"list organisation A's verified pages", []string{"headA", "staffA"}, list},
-		{"register one", []string{"headA", "staffA"}, register},
+		{"list organisation A's verified page", []string{"admin", "headA", "staffA"}, list},
+		{"register it", []string{"headA", "staffA"}, register},
+		{"approve it", []string{"admin"}, fresh(orgAPage, approve)},
 	})
 }
 

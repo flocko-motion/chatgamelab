@@ -55,11 +55,61 @@ func (s *EmbedTestSuite) TestAGameEmbedsOnlyForAVerifiedPage() {
 	s.Nil(Must(w.head.GetGameEmbed(w.game)))
 }
 
+// approvedPage is the organisation's verified page for host h, approved by
+// the admin.
+func (s *EmbedTestSuite) approvedPage(w world, h *testutil.Host) testutil.VerifiedPage {
+	page := Must(w.head.CreateVerifiedPage(w.org, h.URL+"/play", h.URL+"/callback"))
+	return Must(s.DevUser().ApproveVerifiedPage(page.Id.String(), true))
+}
+
+// A verified page starts nothing until an admin approves it, and a change
+// of its address or callback withdraws the approval.
+func (s *EmbedTestSuite) TestAVerifiedPagePlaysOnlyOnceApproved() {
+	w := s.world()
+	h := s.StartHost()
+	page := Must(w.head.CreateVerifiedPage(w.org, h.URL+"/play", h.URL+"/callback"))
+	s.Nil(page.ApprovedAt)
+	embed := Must(w.head.SetGameEmbed(w.game, testutil.Embedding{Enabled: true, PaidBy: w.share, VerifiedPage: page.Id.String()}))
+	s.False(embed.VerifiedPageApproved)
+	start := func(request string) error {
+		_, err := s.Public().CreateSession(testutil.ForShare(embed.Token).FromHost("visitor-1", request))
+		return err
+	}
+
+	s.Refused(start("a"), testutil.CodeHostRefused, "not approved yet")
+	s.Contains(Must(s.Public().PlaybackPolicy("new&share="+embed.Token)), "frame-ancestors 'self'")
+
+	_, err := w.head.ApproveVerifiedPage(page.Id.String(), true)
+	s.Forbidden(err, "a head approves nothing")
+	approved := Must(s.DevUser().ApproveVerifiedPage(page.Id.String(), true))
+	s.NotNil(approved.ApprovedAt)
+	s.True(Must(w.head.GetGameEmbed(w.game)).VerifiedPageApproved)
+	MustSucceed(start("b"))
+
+	changed := Must(w.head.UpdateVerifiedPage(page.Id.String(), h.URL+"/elsewhere", h.URL+"/callback"))
+	s.Nil(changed.ApprovedAt, "a changed page waits for approval again")
+	s.Refused(start("c"), testutil.CodeHostRefused, "changed")
+}
+
+// An organisation has one verified page; the admin sees every one.
+func (s *EmbedTestSuite) TestAnOrganisationHasOneVerifiedPage() {
+	w := s.world()
+	page := Must(w.head.CreateVerifiedPage(w.org, "https://example.org/play", "https://example.org/callback"))
+	_, err := w.head.CreateVerifiedPage(w.org, "https://example.org/other", "https://example.org/callback")
+	s.Refused(err, testutil.CodeVerifiedPageExists)
+
+	var listed []string
+	for _, p := range Must(s.DevUser().ListAllVerifiedPages()) {
+		listed = append(listed, p.Id.String())
+	}
+	s.Contains(listed, page.Id.String())
+}
+
 // Off stops the snippet; on revives the same one.
 func (s *EmbedTestSuite) TestOffStopsTheSnippetAndOnRevivesIt() {
 	w := s.world()
 	h := s.StartHost()
-	page := Must(w.head.CreateVerifiedPage(w.org, h.URL+"/play", h.URL+"/callback")).Id.String()
+	page := s.approvedPage(w, h).Id.String()
 	first := Must(w.head.SetGameEmbed(w.game, testutil.Embedding{Enabled: true, PaidBy: w.share, VerifiedPage: page}))
 	s.Equal("verified", first.Mode)
 	start := testutil.ForShare(first.Token).FromHost("visitor-1", "request-1")
@@ -99,7 +149,7 @@ func (s *EmbedTestSuite) TestAStylesheetLoadsNothingFromAThirdSite() {
 func (s *EmbedTestSuite) TestAVerifiedPageStartsAGameOnlyOnItsHostsYes() {
 	w := s.world()
 	h := s.StartHost()
-	page := Must(w.head.CreateVerifiedPage(w.org, h.URL+"/play", h.URL+"/callback"))
+	page := s.approvedPage(w, h)
 	s.Len(page.PageId, 16)
 	s.Equal(h.URL, page.Origin)
 	embed := Must(w.head.SetGameEmbed(w.game, testutil.Embedding{
@@ -128,7 +178,7 @@ func (s *EmbedTestSuite) TestAVerifiedPageStartsAGameOnlyOnItsHostsYes() {
 func (s *EmbedTestSuite) TestAReturningVisitorIsTheSameGuest() {
 	w := s.world()
 	h := s.StartHost()
-	page := Must(w.head.CreateVerifiedPage(w.org, h.URL+"/play", h.URL+"/callback"))
+	page := s.approvedPage(w, h)
 	embed := Must(w.head.SetGameEmbed(w.game, testutil.Embedding{
 		Enabled: true, PaidBy: w.share, VerifiedPage: page.Id.String(),
 	}))

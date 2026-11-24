@@ -24,6 +24,9 @@ type GameEmbedView struct {
 	Mode            string     `json:"mode"`
 	VerifiedPageID  *uuid.UUID `json:"verifiedPageId,omitempty"`
 	VerifiedPageURL *string    `json:"verifiedPageUrl,omitempty"`
+	// VerifiedPageApproved: an admin approved the page; until then the game
+	// starts nothing there.
+	VerifiedPageApproved bool `json:"verifiedPageApproved"`
 	// SponsorKeyShareID is the share it draws from; KeyName and Platform
 	// name the key that pays.
 	SponsorKeyShareID *uuid.UUID `json:"sponsorKeyShareId,omitempty"`
@@ -39,15 +42,19 @@ func GameEmbedViewOf(e *core.GameEmbed, err error) (*GameEmbedView, error) {
 	}
 	return &GameEmbedView{
 		ID: e.ID, Token: e.Token, Enabled: e.Enabled, Mode: string(e.Mode),
-		VerifiedPageID: e.VerifiedPageID, VerifiedPageURL: e.VerifiedPageURL,
+		VerifiedPageID: e.VerifiedPageID, VerifiedPageURL: e.VerifiedPageURL, VerifiedPageApproved: e.PageApproved,
 		SponsorKeyShareID: e.SourceShareID, KeyName: e.KeyName, Platform: e.Platform,
 	}, nil
 }
 
 // VerifiedPageView is an organisation's verified page.
 type VerifiedPageView struct {
-	ID             uuid.UUID `json:"id"`
-	OrganisationID uuid.UUID `json:"organisationId"`
+	ID               uuid.UUID `json:"id"`
+	OrganisationID   uuid.UUID `json:"organisationId"`
+	OrganisationName string    `json:"organisationName"`
+	// ApprovedAt is when an admin approved it; null: not approved, its
+	// games start nothing.
+	ApprovedAt *time.Time `json:"approvedAt,omitempty"`
 	// PageID is what the host recognises in the callback.
 	PageID      string    `json:"pageId"`
 	Origin      string    `json:"origin"`
@@ -57,6 +64,7 @@ type VerifiedPageView struct {
 	ModifiedAt  time.Time `json:"modifiedAt"`
 	MayEdit     bool      `json:"mayEdit"`
 	MayDelete   bool      `json:"mayDelete"`
+	MayApprove  bool      `json:"mayApprove"`
 }
 
 // VerifiedPageViewOf converts one verified page, passing a loading error
@@ -83,8 +91,9 @@ func VerifiedPageViewsOf(pages []*core.VerifiedPage, err error) ([]VerifiedPageV
 
 func verifiedPageView(p *core.VerifiedPage) VerifiedPageView {
 	return VerifiedPageView{
-		ID: p.ID, OrganisationID: p.OrganisationID, PageID: p.PageID, Origin: p.Origin,
+		ID: p.ID, OrganisationID: p.OrganisationID, OrganisationName: p.OrganisationName, ApprovedAt: p.ApprovedAt,
+		PageID: p.PageID, Origin: p.Origin,
 		PageURL: p.PageURL, CallbackURL: p.CallbackURL, CreatedAt: p.CreatedAt, ModifiedAt: p.ModifiedAt,
-		MayEdit: p.MayEdit(), MayDelete: p.MayDelete(),
+		MayEdit: p.MayEdit(), MayDelete: p.MayDelete(), MayApprove: p.MayApprove(),
 	}
 }

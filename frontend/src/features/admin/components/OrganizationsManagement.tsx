@@ -46,6 +46,7 @@ import { OrganisationMembers } from "./OrganisationMembers";
 import { OrganizationStatusBadges } from "./OrganizationStatusBadges";
 import { OrganizationSuspendModal } from "./OrganizationSuspendModal";
 import { RecentRegistrationsList } from "./RecentRegistrationsList";
+import { VerifiedPagesApproval } from "./VerifiedPagesApproval";
 
 type OrganisationColumn = ListColumn<OrganisationView, OrganisationListSort>;
 
@@ -158,6 +159,15 @@ export function OrganizationsManagement() {
           empty={{ title: t("admin.organizations.empty") }}
           errorMessage={t("admin.organizations.loadError")}
         />
+
+        {/* The allow list of pages that embed games */}
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
+          <Stack gap="xs">
+            <CardTitle>{t("admin.verifiedPages.title")}</CardTitle>
+            <HelperText>{t("admin.verifiedPages.description")}</HelperText>
+            <VerifiedPagesApproval />
+          </Stack>
+        </Card>
 
         {/* Organisations that registered themselves lately */}
         <Card shadow="sm" padding="lg" radius="md" withBorder>

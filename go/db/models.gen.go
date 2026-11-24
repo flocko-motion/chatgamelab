@@ -264,6 +264,8 @@ type VerifiedPage struct {
 	CreatedBy     uuid.NullUUID `json:"created_by"`
 	CreatedAt     time.Time     `json:"created_at"`
 	ModifiedAt    time.Time     `json:"modified_at"`
+	ApprovedAt    sql.NullTime  `json:"approved_at"`
+	ApprovedBy    uuid.NullUUID `json:"approved_by"`
 }
 
 type Voice struct {

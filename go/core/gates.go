@@ -1,3 +1,7 @@
+// package: core / gates
+// type:    logic
+// job:     turns the grant table into the queries' parameters, one line per grant
+// limits:  the grants themselves (-> internal/rules); the SQL (-> db/queries)
 package core
 
 // The gates: which grants of the table (core/internal/rules) open which
@@ -41,10 +45,8 @@ func readGameCardGates(ctx context.Context, id uuid.UUID) db.V2GameCardsParams {
 	return p
 }
 
-// gameCardGates opens what list and read share: the sections by
-// {Read, GameContent} and {Read, GameSettings}, the actions by {Edit, <section>},
-// {Delete, GameCard}, {Copy, GameContent}, {Share, GameCard},
-// {Publish, GameCard} and {Play, GameCard}.
+// gameCardGates opens what list and read share: a game's sections and the
+// actions on it.
 func gameCardGates(ctx context.Context) db.V2GameCardsParams {
 	return db.V2GameCardsParams{
 		Caller:          account(ctx),
@@ -115,9 +117,8 @@ func readUserCardGates(ctx context.Context, id uuid.UUID) db.V2UsersParams {
 	return p
 }
 
-// userCardGates opens what list and read share: the sections by
-// {Read, UserAccount}, {Read, UserContact} and {Read, UserSecrets}, the
-// actions by {Edit, <section>} and {Delete, UserCard}.
+// userCardGates opens what list and read share: a user's sections and the
+// actions on them.
 func userCardGates(ctx context.Context) db.V2UsersParams {
 	return db.V2UsersParams{
 		Caller:          account(ctx),
@@ -168,10 +169,8 @@ func readOrganisationGates(ctx context.Context, id uuid.UUID) db.V2Organisations
 	return p
 }
 
-// organisationGates opens what list and read share: the sections by
-// {Read, OrganisationSettings}, {Read, OrganisationDetails} and
-// {Read, OrganisationRecord}, the actions by {Edit, <section>},
-// {Delete, OrganisationCard} and {Suspend, OrganisationCard}.
+// organisationGates opens what list and read share: an organisation's
+// sections and the actions on it.
 func organisationGates(ctx context.Context) db.V2OrganisationsParams {
 	declaration := legal.CurrentDeclaration()
 	return db.V2OrganisationsParams{
@@ -206,18 +205,15 @@ func listMembersGates(ctx context.Context, id uuid.UUID) db.V2UsersParams {
 	return p
 }
 
-// mayCreateOrganisation says whether the caller may register an
-// organisation and become its head, {Create, OrganisationCard, Own}, and
-// whether they may create organisations for others, {Create,
-// OrganisationCard, Everywhere}.
+// mayCreateOrganisation: registering one as its head (Own), or making them
+// for others (Everywhere).
 func mayCreateOrganisation(ctx context.Context) (asHead, forOthers bool) {
 	return granted(ctx, rules.Create, rules.OrganisationCard, rules.Own),
 		granted(ctx, rules.Create, rules.OrganisationCard, rules.Everywhere)
 }
 
-// mayConsentForOwnOrganisation says whether the caller may consent to the
-// declaration in their organisation's name, editing its details:
-// {Edit, OrganisationDetails, OfOwnOrganisation}.
+// mayConsentForOwnOrganisation: consenting in the organisation's name is
+// editing its details.
 func mayConsentForOwnOrganisation(ctx context.Context) bool {
 	return from(ctx).Organisation() != nil && granted(ctx, rules.Edit, rules.OrganisationDetails, rules.OfOwnOrganisation)
 }
@@ -228,11 +224,8 @@ func maySuspendOrganisations(ctx context.Context) bool {
 	return granted(ctx, rules.Suspend, rules.OrganisationCard, rules.Everywhere)
 }
 
-// mayRemoveMember says whether the caller may remove user from their
-// organisation: {Delete, Membership}. The user's role and organisation come
-// from their loaded row; a membership has no query of its own. A member is
-// head or staff of the organisation; a guest is of it through its workshop.
-// An individual taking part in one of its workshops is neither.
+// mayRemoveMember reads role and organisation from the loaded user: a
+// membership has no query. An individual in one of its workshops is no member.
 func mayRemoveMember(ctx context.Context, user *UserCard) bool {
 	own := from(ctx).Organisation()
 	isGuest := user.row.role == "guest"
@@ -269,10 +262,8 @@ func readWorkshopGates(ctx context.Context, id uuid.UUID) db.V2WorkshopsParams {
 	return p
 }
 
-// workshopGates opens what list and read share: the sections by
-// {Read, WorkshopSettings} and {List, WorkshopParticipants},
-// the actions by {Edit, <section>}, {Delete, WorkshopCard} and
-// {Manage, WorkshopParticipants}.
+// workshopGates opens what list and read share: a workshop's sections and
+// the actions on it.
 func workshopGates(ctx context.Context) db.V2WorkshopsParams {
 	return db.V2WorkshopsParams{
 		OwnOrganisation: ownOrganisation(ctx),
@@ -295,9 +286,7 @@ func workshopGates(ctx context.Context) db.V2WorkshopsParams {
 	}
 }
 
-// mayCreateWorkshop says whether the caller may create a workshop in
-// organisation org: {Create, WorkshopCard, OfOwnOrganisation} in their own,
-// {Create, WorkshopCard, Everywhere} in any.
+// mayCreateWorkshop: a workshop in organisation org, their own or any.
 func mayCreateWorkshop(ctx context.Context, org uuid.UUID) bool {
 	own := from(ctx).Organisation()
 	return granted(ctx, rules.Create, rules.WorkshopCard, rules.Everywhere) ||
@@ -313,23 +302,41 @@ func mayResetLoginCode(ctx context.Context, user *UserCard) bool {
 }
 
 // verifiedPageRights is what the caller may do with one organisation's
-// verified pages.
+// verified page.
 type verifiedPageRights struct {
 	create, list, edit, delete bool
 }
 
-// verifiedPageGates says what the caller may do with organisation org's
-// verified pages: {Create, List, Edit, Delete} on VerifiedPage,
-// OfOwnOrganisation, in their own organisation.
+// verifiedPageGates: what the caller may do with organisation org's
+// verified page, their own or, listing, any.
 func verifiedPageGates(ctx context.Context, org uuid.UUID) verifiedPageRights {
 	own := from(ctx).Organisation()
 	inOwn := own != nil && *own == org
 	return verifiedPageRights{
 		create: inOwn && granted(ctx, rules.Create, rules.VerifiedPage, rules.OfOwnOrganisation),
-		list:   inOwn && granted(ctx, rules.List, rules.VerifiedPage, rules.OfOwnOrganisation),
+		list: (inOwn && granted(ctx, rules.List, rules.VerifiedPage, rules.OfOwnOrganisation)) ||
+			granted(ctx, rules.List, rules.VerifiedPage, rules.Everywhere),
 		edit:   inOwn && granted(ctx, rules.Edit, rules.VerifiedPage, rules.OfOwnOrganisation),
 		delete: inOwn && granted(ctx, rules.Delete, rules.VerifiedPage, rules.OfOwnOrganisation),
 	}
+}
+
+// verifiedPageListScope: every verified page, the own organisation's, or
+// none (false, nil).
+func verifiedPageListScope(ctx context.Context) (all bool, org *uuid.UUID) {
+	if granted(ctx, rules.List, rules.VerifiedPage, rules.Everywhere) {
+		return true, nil
+	}
+	if granted(ctx, rules.List, rules.VerifiedPage, rules.OfOwnOrganisation) {
+		return false, from(ctx).Organisation()
+	}
+	return false, nil
+}
+
+// mayApproveVerifiedPages says whether the caller approves verified pages
+// and withdraws the approval: {Manage, VerifiedPage, Everywhere}.
+func mayApproveVerifiedPages(ctx context.Context) bool {
+	return granted(ctx, rules.Manage, rules.VerifiedPage, rules.Everywhere)
 }
 
 // listInvitesGates opens V2Invites for a list: the rows by {List, Invite}
@@ -361,10 +368,8 @@ func readInviteGates(ctx context.Context, id *uuid.UUID, token *string) (db.V2In
 	return p, err
 }
 
-// inviteGates opens what list and read share: the actions by
-// {Delete, Invite}, {Delete, HeadInvite}, {Use, Invite} and
-// {Use, HeadInvite}. An invite addressed by email is the caller's when the
-// email is theirs.
+// inviteGates opens the actions on invites; one addressed by email is the
+// caller's when the email is theirs.
 func inviteGates(ctx context.Context) (db.V2InvitesParams, error) {
 	p := db.V2InvitesParams{
 		Caller:          account(ctx),
@@ -388,9 +393,7 @@ func inviteGates(ctx context.Context) (db.V2InvitesParams, error) {
 	return p, nil
 }
 
-// mayCreateInvite says whether the caller may invite into organisation org:
-// as head, {Create, HeadInvite}; otherwise {Create, Invite}; in their own
-// organisation, or, for the admin, in any.
+// mayCreateInvite: inviting into organisation org, as head or otherwise.
 func mayCreateInvite(ctx context.Context, org uuid.UUID, asHead bool) bool {
 	own := from(ctx).Organisation()
 	inOwn := own != nil && *own == org
@@ -402,9 +405,8 @@ func mayCreateInvite(ctx context.Context, org uuid.UUID, asHead bool) bool {
 		(granted(ctx, rules.Create, rules.Invite, rules.OfOwnOrganisation) && inOwn)
 }
 
-// mayChangeRole says whether the caller may change user's role, and whether
-// only within their organisation, to head or staff: {Edit, Membership}
-// Everywhere (any role, the admin's) or MemberOfOwnOrganisation.
+// mayChangeRole: any role (Everywhere), or head and staff within the own
+// organisation.
 func mayChangeRole(ctx context.Context, user *UserCard) (any, withinOwn bool) {
 	own := from(ctx).Organisation()
 	inOwn := own != nil && user.row.memberOf != nil && *user.row.memberOf == *own
@@ -412,10 +414,8 @@ func mayChangeRole(ctx context.Context, user *UserCard) (any, withinOwn bool) {
 		granted(ctx, rules.Edit, rules.Membership, rules.MemberOfOwnOrganisation) && inOwn
 }
 
-// mayEnterWorkshop says whether the caller may work in a running workshop
-// of organisation org: {Enter, WorkshopCard, OfOwnOrganisation}, head and
-// staff in their organisation's; through an invite, {Enter, WorkshopCard,
-// ViaInvite}, an individual in any.
+// mayEnterWorkshop: a running workshop of organisation org, the own one's
+// or through an invite.
 func mayEnterWorkshop(ctx context.Context, org uuid.UUID, active, viaInvite bool) bool {
 	own := from(ctx).Organisation()
 	return active && ((viaInvite && granted(ctx, rules.Enter, rules.WorkshopCard, rules.ViaInvite)) ||
@@ -430,9 +430,8 @@ func keyGates(ctx context.Context) db.V2KeysParams {
 	}
 }
 
-// keyShareGates opens V2KeyShares, for a list or one share: the rows by
-// {List, ApiKeyShare}, the actions by {Share, ApiKey}, {Share, ApiKeyShare},
-// {Manage, ApiKeyShare} and {Delete, ApiKeyShare}.
+// keyShareGates opens V2KeyShares, for a list or one share: rows and
+// actions.
 func keyShareGates(ctx context.Context) db.V2KeySharesParams {
 	return db.V2KeySharesParams{
 		Caller:          account(ctx),
@@ -486,21 +485,16 @@ func shareLinkGates(ctx context.Context) db.V2ShareLinksParams {
 	}
 }
 
-// payerGrants says which of the shares that may pay for the caller's plays
-// they may use: their workshop's key, {Use, ApiKeyShare,
-// SharedWithCurrentWorkshop}; their organisation's free-use key, {Use,
-// ApiKeyShare, FreeUseOfOwnOrganisation}; their own default key, {Use,
-// ApiKey, Own}.
+// payerGrants: which keys may pay for the caller's plays: the workshop's,
+// the organisation's free-use key, their own.
 func payerGrants(ctx context.Context) (workshop, freeUse, own bool) {
 	return granted(ctx, rules.Use, rules.ApiKeyShare, rules.SharedWithCurrentWorkshop),
 		granted(ctx, rules.Use, rules.ApiKeyShare, rules.FreeUseOfOwnOrganisation),
 		granted(ctx, rules.Use, rules.ApiKey, rules.Own)
 }
 
-// mayDrawFromWorkshopKey says whether the caller may pay for share links
-// with workshop's key: {Share, ApiKeyShare, SharedWithOwnOrganisation} as
-// head or staff of its organisation org, {Share, ApiKeyShare,
-// SharedWithCurrentWorkshop} in it while it allows sharing.
+// mayDrawFromWorkshopKey: paying for share links with workshop's key, as
+// its organisation's head or staff, or in it while it allows sharing.
 func mayDrawFromWorkshopKey(ctx context.Context, org, workshop uuid.UUID) bool {
 	c := from(ctx)
 	own, current := c.Organisation(), c.CurrentWorkshop()

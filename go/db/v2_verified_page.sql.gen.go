@@ -7,13 +7,34 @@ package db
 
 import (
 	"context"
+	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 )
 
+const v2ApproveVerifiedPage = `-- name: V2ApproveVerifiedPage :exec
+UPDATE verified_page
+SET approved_at = CASE WHEN $1::uuid IS NULL THEN NULL ELSE now() END,
+    approved_by = $1::uuid
+WHERE id = $2::uuid
+`
+
+type V2ApproveVerifiedPageParams struct {
+	ApprovedBy uuid.NullUUID `json:"approved_by"`
+	ID         uuid.UUID     `json:"id"`
+}
+
+// An admin approves a verified page (approved_by set) or withdraws it (NULL).
+func (q *Queries) V2ApproveVerifiedPage(ctx context.Context, arg V2ApproveVerifiedPageParams) error {
+	_, err := q.db.ExecContext(ctx, v2ApproveVerifiedPage, arg.ApprovedBy, arg.ID)
+	return err
+}
+
 const v2CreateVerifiedPage = `-- name: V2CreateVerifiedPage :one
 INSERT INTO verified_page (institution_id, page_id, origin, page_url, callback_url, created_by)
 VALUES ($1::uuid, $2, $3, $4, $5, $6::uuid)
+ON CONFLICT (institution_id) DO NOTHING
 RETURNING id
 `
 
@@ -26,6 +47,8 @@ type V2CreateVerifiedPageParams struct {
 	CreatedBy     uuid.UUID `json:"created_by"`
 }
 
+// An organisation's verified page, unapproved; verified_page_institution_uniq
+// keeps it one per organisation.
 func (q *Queries) V2CreateVerifiedPage(ctx context.Context, arg V2CreateVerifiedPageParams) (uuid.UUID, error) {
 	row := q.db.QueryRowContext(ctx, v2CreateVerifiedPage,
 		arg.InstitutionID,
@@ -44,8 +67,8 @@ const v2DeleteVerifiedPage = `-- name: V2DeleteVerifiedPage :exec
 DELETE FROM verified_page WHERE id = $1::uuid
 `
 
-// Removes a verified page; the embed links set to it start nothing until
-// they get another (verified_page_id goes NULL).
+// Removes a verified page; its organisation's embedded games start nothing
+// until it has another.
 func (q *Queries) V2DeleteVerifiedPage(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, v2DeleteVerifiedPage, id)
 	return err
@@ -53,7 +76,11 @@ func (q *Queries) V2DeleteVerifiedPage(ctx context.Context, id uuid.UUID) error 
 
 const v2UpdateVerifiedPage = `-- name: V2UpdateVerifiedPage :exec
 UPDATE verified_page
-SET origin = $1, page_url = $2, callback_url = $3, modified_at = now()
+SET origin = $1, page_url = $2, callback_url = $3, modified_at = now(),
+    approved_at = CASE WHEN (origin, page_url, callback_url) IS DISTINCT FROM ($1::text, $2::text, $3::text)
+                       THEN NULL ELSE approved_at END,
+    approved_by = CASE WHEN (origin, page_url, callback_url) IS DISTINCT FROM ($1::text, $2::text, $3::text)
+                       THEN NULL ELSE approved_by END
 WHERE id = $4::uuid
 `
 
@@ -64,6 +91,8 @@ type V2UpdateVerifiedPageParams struct {
 	ID          uuid.UUID `json:"id"`
 }
 
+// Changes a verified page's address and callback; a change withdraws its
+// approval.
 func (q *Queries) V2UpdateVerifiedPage(ctx context.Context, arg V2UpdateVerifiedPageParams) error {
 	_, err := q.db.ExecContext(ctx, v2UpdateVerifiedPage,
 		arg.Origin,
@@ -88,38 +117,58 @@ func (q *Queries) V2VerifiedPageOrganisation(ctx context.Context, id uuid.UUID) 
 
 const v2VerifiedPages = `-- name: V2VerifiedPages :many
 
-SELECT id, institution_id, page_id, origin, page_url, callback_url, created_by, created_at, modified_at
-FROM verified_page
-WHERE institution_id = $1::uuid
-  AND ($2::uuid IS NULL OR id = $2::uuid)
-ORDER BY created_at, id
+SELECT v.id, v.institution_id, i.name AS institution_name, v.page_id, v.origin, v.page_url, v.callback_url,
+  v.approved_at, v.created_by, v.created_at, v.modified_at
+FROM verified_page v
+JOIN institution i ON i.id = v.institution_id
+WHERE ($1::uuid IS NULL OR v.institution_id = $1::uuid)
+  AND ($2::uuid IS NULL OR v.id = $2::uuid)
+ORDER BY v.approved_at IS NOT NULL, v.created_at, v.id
 `
 
 type V2VerifiedPagesParams struct {
-	InstitutionID uuid.UUID     `json:"institution_id"`
+	InstitutionID uuid.NullUUID `json:"institution_id"`
 	ID            uuid.NullUUID `json:"id"`
 }
 
+type V2VerifiedPagesRow struct {
+	ID              uuid.UUID     `json:"id"`
+	InstitutionID   uuid.UUID     `json:"institution_id"`
+	InstitutionName string        `json:"institution_name"`
+	PageID          string        `json:"page_id"`
+	Origin          string        `json:"origin"`
+	PageUrl         string        `json:"page_url"`
+	CallbackUrl     string        `json:"callback_url"`
+	ApprovedAt      sql.NullTime  `json:"approved_at"`
+	CreatedBy       uuid.NullUUID `json:"created_by"`
+	CreatedAt       time.Time     `json:"created_at"`
+	ModifiedAt      time.Time     `json:"modified_at"`
+}
+
 // v2: the secure core's queries for verified pages (#340): an
-// organisation's pages that may frame its embedded games, after the host's
-// yes. core/verified_page.go has checked that the caller may.
-// An organisation's verified pages, or one of them (id set).
-func (q *Queries) V2VerifiedPages(ctx context.Context, arg V2VerifiedPagesParams) ([]VerifiedPage, error) {
+// organisation's one page that may frame its embedded games, after an
+// admin's approval and the host's yes. core/verified_page.go has checked
+// that the caller may.
+// Verified pages: one organisation's (institution_id set), or every one;
+// one of them (id set).
+func (q *Queries) V2VerifiedPages(ctx context.Context, arg V2VerifiedPagesParams) ([]V2VerifiedPagesRow, error) {
 	rows, err := q.db.QueryContext(ctx, v2VerifiedPages, arg.InstitutionID, arg.ID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []VerifiedPage
+	var items []V2VerifiedPagesRow
 	for rows.Next() {
-		var i VerifiedPage
+		var i V2VerifiedPagesRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.InstitutionID,
+			&i.InstitutionName,
 			&i.PageID,
 			&i.Origin,
 			&i.PageUrl,
 			&i.CallbackUrl,
+			&i.ApprovedAt,
 			&i.CreatedBy,
 			&i.CreatedAt,
 			&i.ModifiedAt,

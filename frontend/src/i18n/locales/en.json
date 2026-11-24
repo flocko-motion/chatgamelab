@@ -215,6 +215,25 @@
   "common": {
     "actions": "Actions",
     "admin": {
+      "verifiedPages": {
+        "organisation": "Organisation",
+        "page": "Page",
+        "status": "Status",
+        "filters": {
+          "all": "All",
+          "waiting": "Waiting",
+          "approved": "Approved"
+        },
+        "title": "Pages that embed games",
+        "description": "Each organisation's verified page. Its games start there only once you approve it; a change of the page's address or callback waits for approval again.",
+        "empty": "No organisation has registered a page.",
+        "loadError": "The pages could not be loaded.",
+        "approved": "Approved",
+        "waiting": "Waiting for approval",
+        "callback": "Callback: {{url}}",
+        "approve": "Approve",
+        "withdraw": "Withdraw approval"
+      },
       "invites": {
         "actions": "Actions",
         "empty": "No pending invites.",
@@ -977,6 +996,7 @@
           }
         },
         "embed": {
+          "waitingForApproval": "The organisation's page waits for an admin's approval. Until then the game does not start there.",
           "toggle": "Embed on a website",
           "toggleHint": "Shows this game on your organisation's verified page, with nothing of ChatGameLab around it. Visitors play as guests; the key you choose pays.",
           "page": "Verified page",
@@ -1131,6 +1151,8 @@
     },
     "myOrganization": {
       "verifiedPages": {
+        "approved": "Approved",
+        "waiting": "Waiting for an admin's approval",
         "intro": "A verified page is a page on your organisation's website that may show your embedded games. Before a game starts there, ChatGameLab asks the page's callback whether to start it, with the page ID below and the visitor's and request's IDs your page passes on. Only an answer of {\"ok\": true} starts the game.",
         "empty": "No verified pages yet.",
         "addTitle": "Register a page",

@@ -22,6 +22,11 @@ func InviteCardViewPageOf(p core.Page[*core.InviteCard], err error) (Page[Invite
 	return pageOf(p, err, inviteCardView)
 }
 
+// VerifiedPageViewPageOf converts a page of verified pages.
+func VerifiedPageViewPageOf(p core.Page[*core.VerifiedPage], err error) (Page[VerifiedPageView], error) {
+	return pageOf(p, err, verifiedPageView)
+}
+
 func WorkshopViewPageOf(p core.Page[*core.WorkshopCard], err error) (Page[WorkshopView], error) {
 	return pageOf(p, err, workshopView)
 }

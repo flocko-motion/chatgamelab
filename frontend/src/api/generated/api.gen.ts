@@ -18,6 +18,10 @@ export type WorkshopSort =
 
 export type WorkshopFilter = "active";
 
+export type VerifiedPageSort = "status" | "organisation" | "createdAt";
+
+export type VerifiedPageFilter = "waiting" | "approved";
+
 export type UserSort = "name" | "email" | "role" | "organisation" | "createdAt";
 
 export type UserFilter = "noGuests";
@@ -148,6 +152,10 @@ export interface ApiKeyView {
   /** @format uuid */
   userId: string;
   userName: string;
+}
+
+export interface ApproveVerifiedPageReq {
+  approved: boolean;
 }
 
 export interface AvailableKey {
@@ -420,6 +428,7 @@ export interface GameEmbedView {
   /** @format uuid */
   sponsorKeyShareId?: string;
   token: string;
+  verifiedPageApproved: boolean;
   /** @format uuid */
   verifiedPageId?: string;
   verifiedPageUrl?: string;
@@ -1573,20 +1582,29 @@ export interface UserViewPage {
 }
 
 export interface VerifiedPageView {
+  /** @format date-time */
+  approvedAt?: string;
   callbackUrl: string;
   /** @format date-time */
   createdAt: string;
   /** @format uuid */
   id: string;
+  mayApprove: boolean;
   mayDelete: boolean;
   mayEdit: boolean;
   /** @format date-time */
   modifiedAt: string;
   /** @format uuid */
   organisationId: string;
+  organisationName: string;
   origin: string;
   pageId: string;
   pageUrl: string;
+}
+
+export interface VerifiedPageViewPage {
+  items: VerifiedPageView[];
+  total: number;
 }
 
 export interface VerifiedPagesResp {
@@ -4646,6 +4664,34 @@ export class Api<
       }),
 
     /**
+     * @description may see, waiting first: every one for an admin, the allow list.
+     *
+     * @name GetApiVerifiedPages
+     * @summary Lists a page of the verified pages the caller
+     * @request GET:/api/verified-pages
+     * @secure
+     */
+    getApiVerifiedPages: (
+      query?: {
+        filter?: VerifiedPageFilter[];
+        search?: string;
+        sortBy?: VerifiedPageSort;
+        sortDir?: SortDir;
+        limit?: number;
+        offset?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<VerifiedPageViewPage, Error>({
+        path: `/api/verified-pages`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description for it start nothing until they get another.
      *
      * @name DeleteApiVerifiedPagesId
@@ -4678,6 +4724,29 @@ export class Api<
       this.request<VerifiedPageView, Error>({
         path: `/api/verified-pages/${id}`,
         method: "PATCH",
+        body: data,
+        secure: true,
+        type: "application/json",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description approval, for an admin.
+     *
+     * @name PutApiVerifiedPagesIdApproval
+     * @summary Approves a verified page or withdraws the
+     * @request PUT:/api/verified-pages/{id}/approval
+     * @secure
+     */
+    putApiVerifiedPagesIdApproval: (
+      id: string,
+      data: ApproveVerifiedPageReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VerifiedPageView, Error>({
+        path: `/api/verified-pages/${id}/approval`,
+        method: "PUT",
         body: data,
         secure: true,
         type: "application/json",
