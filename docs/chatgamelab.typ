@@ -198,6 +198,14 @@ role.
 Anyone who writes a game is its *designer*: they author its scenario, title,
 image style, theme and genre.
 
+A game belongs to its designer. The head and staff of an organisation work
+together on all of the organisation's games: the games its head and staff
+write, and the games written in its workshops. They see, edit, publish, share,
+copy and play them as their designers do; a colleague's game outside a
+workshop is deleted only by its designer. Whether a game is the
+organisation's is read each time: a designer who leaves takes their games
+along.
+
 A game shows how often it has been played; every session started counts as a
 play.
 
