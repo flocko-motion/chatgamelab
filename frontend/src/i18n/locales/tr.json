@@ -711,6 +711,176 @@
           "title": "Kaydedilmemiş Değişiklikler"
         }
       },
+      "editor": {
+        "allSet": "Her şey hazır: oyunu oluştur.",
+        "backToOverview": "Genel bakışa dön",
+        "card": {
+          "adventure": {
+            "descriptionPlaceholder": "Orman seni yutmadan önce gizli hazineyi bul.",
+            "titlePlaceholder": "Karanlık Ormandaki Hazine"
+          },
+          "description": "Açıklama",
+          "descriptionHint": "Oyuncuların ne bekleyeceğini bilmeleri için galeriye bir veya iki cümle.",
+          "encounter": {
+            "descriptionPlaceholder": "Somurtkan deniz feneri bekçisi Greta'yı ziyaret et ve o gece ne gördüğünü öğren.",
+            "titlePlaceholder": "Deniz Fenerindeki Greta"
+          },
+          "title": "Başlık",
+          "titleHint": "{{length}}/{{max}} · Herkese açık olabilir – lütfen gerçek isim kullanma."
+        },
+        "delete": {
+          "confirm": "Kalıcı olarak sil",
+          "intro": "Önce indirerek kalıcı olarak kaldır.",
+          "keep": "Sakla",
+          "keepFile": "Dosyayı sakla; böylece oyunu daha sonra buraya veya başka bir ChatGameLab sunucusuna yeniden içe aktarabilirsin.",
+          "label": "Oyunu sil",
+          "whatGoes": "\"{{name}}\" kalıcı olarak silinecek: kartı, hikâyesi, görselleri ve paylaşım bağlantıları. Oyuncular artık oyunu başlatamayacak. Bu işlem geri alınamaz."
+        },
+        "done": "tamamlandı",
+        "doneButton": "Tamam",
+        "download": {
+          "button": "İndir",
+          "description": "Oyunu dosya olarak sakla veya başka bir ChatGameLab sunucusuna içe aktar.",
+          "title": "İndir"
+        },
+        "embed": {
+          "copy": "Kodu kopyala",
+          "incomplete": "Kodu almak için ödeme yapacak anahtarı ve sayfayı seç.",
+          "noKeys": "Ödeme yapmak için kullanabileceğin çalışan bir yapay zekâ anahtarın yok. Bir tane ekle veya kuruluşundan iste.",
+          "noPages": "Kuruluşunun henüz doğrulanmış bir sayfası yok. Kuruluş yöneticisi veya çalışanları kuruluş ayarlarından bir tane ekleyebilir.",
+          "offNote": "Kapalıyken kod hiçbir şey göstermez. Yeniden açıldığında aynı kod çalışır.",
+          "page": "Doğrulanmış sayfa",
+          "pageHint": "Oyun yalnızca orada ve sayfa her başlatma isteğine onay verdikten sonra çalışır.",
+          "paidBy": "Ödemeyi yapan",
+          "paidByPlaceholder": "Bir anahtar seç",
+          "payingNow": "Şimdi ödeme yapan",
+          "snippet": "Web siten için kod",
+          "snippetCss": "senin CSS'in",
+          "snippetHint": "Oyunun görünmesini istediğin yere ekle ve öğeye istediğin yüksekliği ver.",
+          "snippetPlayer": "ZİYARETÇİ-KİMLİĞİNİZ",
+          "snippetRequest": "İSTEK-KİMLİĞİNİZ",
+          "snippetVerifiedHint": "Sunucun ziyaretçinin ve bu sayfa görüntülemesinin kimliklerini ekler; sayfanın geri çağrısı her ikisini de alır.",
+          "styleLink": "Kendi CSS'inle biçimlendir →",
+          "toggle": "Bir web sitesine göm",
+          "toggleHint": "Bu oyunu, ChatGameLab'e ait başka hiçbir şey olmadan kuruluşunun doğrulanmış sayfasında gösterir. Ziyaretçiler konuk olarak oynar; seçtiğin anahtar ödeme yapar."
+        },
+        "fillIn": "Tüm bölümler yeşil olana kadar doldur.",
+        "genre": {
+          "pitch": {
+            "adventure": "Oyuncu bir dünyayı keşfeder. Oyun neler olduğunu anlatır, görseller oluşturur ve puan tutar.",
+            "encounter": "Oyuncu bir karakterle sesli olarak konuşur. Karakter rolünden çıkmaz ve anında yanıt verir."
+          },
+          "question": "Ne oluşturmak istiyorsun?"
+        },
+        "look": {
+          "imageStyle": "Görsel stili",
+          "imageStyleHint": "Kapak dâhil görsellerin nasıl görüneceği: çizgi film, suluboya, piksel sanatı…",
+          "imageStylePlaceholder": "yumuşak suluboya, soluk renkler"
+        },
+        "makeCopy": "Kopyamı oluştur",
+        "next": "sonraki",
+        "notDone": "henüz tamamlanmadı",
+        "open": "Aç",
+        "othersGame": "Bu oyun başka birine ait. Her şeye bakabilir ve değiştirmek için kendi kopyanı oluşturabilirsin.",
+        "pages": {
+          "card": {
+            "intro": "Oyuncuların galeride gördüğü şeyler: başlık ve kısa açıklama.",
+            "label": "Kart"
+          },
+          "look": {
+            "intro": "Oyunun görsellerinin ve sayfasının nasıl görüneceği.",
+            "label": "Görünüm"
+          },
+          "sharing": {
+            "intro": "Oyunu kimlerin bulup oynayabileceği.",
+            "label": "Paylaşım"
+          },
+          "sound": {
+            "intro": "Oyunun sesinin nasıl duyulacağı.",
+            "label": "Ses"
+          },
+          "story": {
+            "intro": "Oyunda neler olduğu ve nasıl başladığı.",
+            "label": "Hikâye"
+          }
+        },
+        "review": {
+          "button": "İncele",
+          "failed": "Oyun şu anda incelenemedi. Yine de kaydedebilirsin.",
+          "goTo": "{{page}} bölümüne git",
+          "later": "Daha sonra",
+          "looksGood": "İyi görünüyor. Bir kez oynayıp nasıl hissettirdiğine bak.",
+          "missing": {
+            "adventure": {
+              "imageStyle": "Görsellerin birbiriyle uyumlu olması için bir görsel stili seç.",
+              "name": "Oyununun henüz bir başlığı yok.",
+              "systemMessageGameStart": "Oyunun nasıl başladığını anlat.",
+              "systemMessageScenario": "Oyunun ne hakkında olduğunu anlat."
+            },
+            "encounter": {
+              "imageStyle": "Görsellerin birbiriyle uyumlu olması için bir görsel stili seç.",
+              "name": "Oyununun henüz bir başlığı yok.",
+              "systemMessageGameStart": "Karakterin oyuncuyu nasıl selamladığını anlat.",
+              "systemMessageScenario": "Karakterin kim olduğunu anlat."
+            }
+          }
+        },
+        "sound": {
+          "adventure": {
+            "voiceStyle": "Anlatıcının sesi",
+            "voiceStyleHint": "Hikâyenin sesli okunduğunda nasıl duyulacağı."
+          },
+          "builtInVoice": "Yerleşik ses",
+          "encounter": {
+            "voiceStyle": "Karakterin sesi",
+            "voiceStyleHint": "Karakterin nasıl duyulacağı."
+          },
+          "errors": {
+            "failed": "Ses oynatılamadı. Lütfen tekrar dene.",
+            "keyRejected": "Yapay zekâ sağlayıcısı anahtarı reddetti. Ses oynatılamadı.",
+            "noKey": "Kullanabileceğin yapay zekâ anahtarlarının hiçbiri canlı sesle konuşamıyor; bu yüzden şimdilik duyulacak bir şey yok."
+          },
+          "keepVoice": "Bunu sakla",
+          "listen": "Dinle",
+          "newVoice": "Yeni ses oluştur",
+          "newVoiceConfirm": "Mevcut ses silinecek ve aynı açıklamadan yeni bir ses oluşturulacak. Bu yapay zekâ anahtarında tam olarak bu açıklamaya sahip oyunlar da yeni sesi kullanacak.",
+          "noteDescription": "Açıklamayı değiştirmek zaten farklı bir ses oluşturur.",
+          "noteKeys": "Teknik nedenlerle her oturumun tam olarak bu sesi kullanacağını garanti edemeyiz: Ses, ödemeyi yapan yapay zekâ anahtarında oluşturulup saklanır; başka bir anahtarla ödenen oturum aynı açıklamadan kendi sesini alır.",
+          "play": "Ses örneğini oynat",
+          "sampleLine": {
+            "greeting": "Merhaba! İçeri gel, otur ve seni buraya getiren şeyi anlat.",
+            "narration": "Hikâye, dar bir patikanın bilinmeyene doğru uzandığı sessiz bir sabahla başlar."
+          },
+          "status": {
+            "builtIn": "Henüz açıklama yok: Sesi açıklayana kadar oyun yerleşik bir sesle konuşur.",
+            "ownVoice": "Bu açıklama için kendi yapay zekâ anahtarında oluşturulmuş özel bir ses.",
+            "steered": "Hikâyeyi, açıklamanın belirttiği özelliklere göre yerleşik bir ses okur."
+          },
+          "stop": "Örneği durdur"
+        },
+        "story": {
+          "adventure": {
+            "gameStart": "Nasıl başlıyor?",
+            "gameStartHint": "Oyuncunun gördüğü ilk sahne ve ne yapması gerektiğini nasıl anlayacağı.",
+            "gameStartPlaceholder": "Oyuncu karanlık bir ormanın kıyısında uyanır. Dar bir patika ağaçların arasına doğru uzanır…",
+            "scenario": "Oyun ne hakkında?",
+            "scenarioHint": "Dünya, oyuncunun rolü, hedef ve oyuncunun kazandığını nasıl anlayacağı.",
+            "scenarioPlaceholder": "Oyuncu gizli bir hazine arayan, gizemli bir ormandaki kâşiftir…"
+          },
+          "encounter": {
+            "gameStart": "Oyuncuyu nasıl selamlıyor?",
+            "gameStartHint": "Konuşma başladığındaki durum; ilk sözler buradan yazılır.",
+            "gameStartPlaceholder": "Fırtınanın ortasında bir yabancı deniz fenerinin kapısını çalar…",
+            "scenario": "Karakter kim?",
+            "scenarioHint": "Kişiliği, bildikleri, konuşma tarzı ve asla taviz vermeyeceği şeyler.",
+            "scenarioPlaceholder": "Sen, kıyıdaki her gemiyi tanıyan somurtkan deniz feneri bekçisi Greta'sın…"
+          }
+        },
+        "titleEdit": "Oyunu düzenle",
+        "titleNew": "Yeni oyun",
+        "titleView": "Oyun",
+        "untitled": "Başlıksız oyun"
+      },
       "empty": {
         "description": "Etkileşimli yapay zekâ destekli maceralara başlamak için ilk oyununuzu oluşturun.",
         "title": "Henüz oyun yok"
@@ -737,7 +907,7 @@
       },
       "genres": {
         "adventure": "Macera",
-        "npc-live": "NPC-Live"
+        "npc-live": "Karşılaşma"
       },
       "importExport": {
         "coverFailed": "Oyun içe aktarıldı, ancak kapak görseli kontrol edilemedi. Düzenleyicide yeni bir tane çizdirebilirsin.",
@@ -851,6 +1021,7 @@
       },
       "statusFieldsEditor": {
         "addField": "Yeni değer ekle",
+        "maxHint": "En fazla beş değer: Oyuncunun takip edebileceği birkaç değer, çok sayıdaki değerden daha iyidir.",
         "namePlaceholder": "İsim (örn. Sağlık)",
         "noFields": "Henüz değer yok. Yeni değer eklemek için + tuşuna basın.",
         "valuePlaceholder": "Başlangıç değeri (örn. 100)"
@@ -1205,6 +1376,23 @@
         "role-desc": "Rol (Z-A)"
       },
       "title": "Organizasyonum",
+      "verifiedPages": {
+        "add": "Sayfa kaydet",
+        "addTitle": "Sayfa kaydet",
+        "callbackShown": "Geri çağrı: {{url}}",
+        "callbackUrl": "Geri çağrı adresi",
+        "callbackUrlHint": "ChatGameLab her başlatmadan önce burada sorar. Birkaç saniye içinde yanıt vermelidir.",
+        "copied": "Kopyalandı",
+        "copy": "Sayfa kimliğini kopyala",
+        "empty": "Henüz doğrulanmış sayfa yok.",
+        "intro": "Doğrulanmış sayfa, kuruluşunun web sitesinde gömülü oyunlarını gösterebilecek bir sayfadır. Bir oyun orada başlamadan önce ChatGameLab, aşağıdaki sayfa kimliği ile sayfanın ilettiği ziyaretçi ve istek kimliklerini kullanarak sayfanın geri çağrısına oyunun başlatılıp başlatılmayacağını sorar. Oyunu yalnızca {\"ok\": true} yanıtı başlatır.",
+        "pageId": "Sayfa kimliği",
+        "pageUrl": "Sayfa adresi",
+        "pageUrlHint": "Oyunlarının gömüldüğü sayfa. Oyunları yalnızca bu web sitesi gösterebilir.",
+        "remove": "Sayfayı kaldır",
+        "removeTitle": "Bu sayfa kaldırılsın mı?",
+        "removeWarning": "{{page}} için gömülen oyunlar, başka bir sayfaya atanana kadar orada başlatılamaz."
+      },
       "workshops": {
         "activate": "Aktifleştir",
         "active": "Aktif",
@@ -1728,6 +1916,7 @@
     "orgApiKeys": "API Anahtarları",
     "orgConstraints": "Çocuk ve genç koruma istemi kısıtlaması",
     "orgMembers": "Üyeler",
+    "orgVerifiedPages": "Web siteleri",
     "orgWorkshops": "Atölyeler",
     "play": "Oyun Oyna",
     "rooms": "Odalar",
@@ -1773,6 +1962,7 @@
       "dropped": "atıldı",
       "droppedValue": "{{n}} (art arda çok fazla)",
       "empty": "henüz bir şey yok",
+      "entryAbsent": "oyuncu uzakta",
       "entryBackground": "arka plan gönderildi",
       "entryConversation": "konuşma",
       "entryDirection": "yönerge gönderildi",
@@ -1780,6 +1970,7 @@
       "entryError": "hata",
       "entryInjection": "elle eklendi",
       "entryLine": "söyledi",
+      "entryRules": "kurallar gönderildi",
       "entrySilence": "sessizlik",
       "entryThought": "düşünüyor",
       "failed": "{{n}} başarısız",
@@ -1803,9 +1994,11 @@
       "poolValue": "{{n}} parça · vuruş {{ms}} ms",
       "quietFor": "sessizlik süresi",
       "quietReplies": "yapılacak bir şey yok",
+      "reminders": "kurallar hatırlatıldı",
       "sent": "gönderildi",
       "sentValue": "{{d}} yönerge · {{b}} arka plan",
       "setBeat": "vuruşu ayarla (ms)",
+      "standingDown": "geri çekiliyor · oyuncu {{s}} süredir hiçbir şey söylemedi",
       "thinking": "düşünüyor · {{s}}",
       "waiting": "onu bekliyor"
     },
@@ -1842,6 +2035,10 @@
       "noGame": "Bu sayfada oynanacak bir oyun gerekiyor: Bir oyunun sayfasından aç.",
       "starting": "Oyun başlatılıyor…"
     },
+    "over": {
+      "contentPolicy": "Bu oyun yapay zekâ sağlayıcısı tarafından durduruldu: Konuşma, güvenlik kurallarının izin vermediği bir yöne gitti. Söylenen her şeyi okumaya devam edebilir ve istediğin zaman yeni bir oyun başlatabilirsin.",
+      "unknown": "Bu oyun sona erdi. Söylenen her şeyi okumaya devam edebilir ve istediğin zaman yeni bir oyun başlatabilirsin."
+    },
     "pipeline": {
       "compact": "Konuyu sıkıştır",
       "compactFailed": "Sıkıştırma başarısız",
@@ -1865,10 +2062,12 @@
       "denied": "Bu oyunu oynamana izin verilmiyor.",
       "failed": "Bir şeyler ters gitti ve oyun devam edemiyor.",
       "genre": "Kullanılabilir yapay zekâ anahtarı bu tür bir oyunu çalıştıramıyor.",
+      "hostRefused": "Bu oyunun gömülü olduğu web sitesi oyunun başlatılmasına izin vermedi.",
       "keyRejected": "Yapay zekâ sağlayıcısı bu oyunun anahtarını reddetti, bu nedenle oyun devam edemiyor. Oyunu kuran kişinin anahtarı kontrol etmesi gerekiyor.",
       "noCredit": "Üzgünüm, yapay zekâ kredisi tükendiği için oyun şu anda devam edemiyor.",
       "noKey": "Bu oyunu oynamak için kullanılabilir bir yapay zekâ anahtarı yok.",
       "noPlays": "Bu paylaşılan oyunda oynama hakkı kalmadı.",
+      "over": "Bu oyun sona erdiği için devam edemez.",
       "paused": "Atölye duraklatıldı. Oyun devam ettirildiğinde sürer.",
       "stale": "Bu oyuna artık devam edilemiyor.",
       "unknown": "Bu oyun oturumu mevcut değil.",
@@ -1892,6 +2091,7 @@
       "choose": "Başlamak için nasıl oynamak istediğini seç.",
       "connecting": "Bağlanıyor…",
       "ended": "Oyun sona erdi.",
+      "over": "Oyun sona erdi.",
       "reconnecting": "Yeniden bağlanıyor…",
       "settingScene": "Sahne hazırlanıyor…",
       "wakingCharacter": "Karakter uyanıyor…"

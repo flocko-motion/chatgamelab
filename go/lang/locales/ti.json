@@ -469,6 +469,7 @@
       "filters": {
         "all": "ኩሉ ጨዋታታት",
         "favorites": "ወደፍቲ",
+        "genre": "ዓይነት",
         "own": "ጨዋታታይ",
         "public": "ህቡራዊ",
         "sponsored": "ዝተሰናየ"
@@ -477,6 +478,12 @@
       "play": "ጫውታ",
       "reportGame": "ጨዋታ ኣቕርብ",
       "restart": "እንደገና ጀምር",
+      "resumeChoice": {
+        "continue": "ቀጽል",
+        "message": "ን«{{game}}» ድሮ ጀሚርካዮ ኢኻ። ካብ ዝተወዳኻሉ ትቕጽልዶ፣ ወይስ ካብ ሓድሽ ትጅምር? ካብ ሓድሽ ምጅማር ነቲ ዝነበረ ክፍለ ግዜኻ ይትክኦ።",
+        "startNew": "ካብ ሓድሽ ጀምር",
+        "title": "ትቕጽል ወይስ ካብ ሓድሽ ትጅምር?"
+      },
       "title": "ጸወታታት",
       "unfavorite": "ካብ ወደፍቲ ኣውጽእ",
       "workshop": "ስልጠና / ተቋማ"
@@ -491,6 +498,7 @@
       "aiQualityTier": {
         "description": "ሓደ ውድብ AI ጥራይ ምርጫ ጨዋታትካ ስትጥቀም ዝምክንያት ቁልፊኻ ተመርጽ። ዝልዕሉ ደረጃ ዋጋ ይንፍስ እዩ ግን ጥራይ ይሕብ። ባዶ ንናይ ሰርቨር ነባሪ ተወዲእ።"
       },
+      "check": "መፍትሕ መርምር",
       "createModal": {
         "keyDescription": "ቁልፊኹም ይተርክብ እና ብዕላማዊ ይተኣበራ።",
         "keyLabel": "API ቁልፊ",
@@ -521,6 +529,7 @@
         "platformRequired": "መድረኽ ኣስፈላጊ እዩ"
       },
       "key": "ቁልፊ",
+      "keyEndsWith": "እቲ መፍትሕ በዞም ፊደላት ይውዳእ",
       "keys": "ቁልፊታት",
       "noResults": "ካብ ምድላይካ ወይ ማጣሪያኻ ጋር ዝሰማማዕ ቁልፊ የለን።",
       "platform": "መድረኽ",
@@ -558,8 +567,15 @@
         "status-asc": "ዝሰርሑ ቁልፍታት ቀዳሞት"
       },
       "status": {
+        "checking": "ይምርመር ኣሎ…",
         "failed": "ቁልፊ ኣይሰርሕን",
-        "unknown": "ቁልፊ እዚ እቲ ጊዜ ኣይተጠቀመን",
+        "reasons": {
+          "key_rejected": "እቲ ኣቕራቢ ነዚ መፍትሕ ኣይቅበሎን። ብምሉኡ ከም ዝተቐድሐን ገና ንጡፍ ከም ዝኾነን ኣረጋግጽ።",
+          "no_credit": "እቲ ኣብዚ መፍትሕ ዝተኣሳሰረ ሕሳብ ዝኾነ ክሬዲት የብሉን። ካብቲ ኣቕራቢ ኣብልጾ።",
+          "no_key": "እቲ መፍትሕ ክንበብ ኣይተኻእለን።",
+          "unreachable": "እቲ ኣቕራቢ ኣይመለሰን። ድሕሪ ቁሩብ እዋን እንደገና ፈትን።"
+        },
+        "unknown": "ገና ኣይተመርመረን",
         "working": "ቁልፊ እዚ እየ ምስራሕ"
       },
       "statusColumn": "ደረጃ",
@@ -673,12 +689,18 @@
         "statusFieldsHint": "ጨዋታ ምንታይ ዋጋታት ክዕብል? ለ.ዝ.: ጤና፣ ነጥብታት፣ ኣሙንስን። ጨዋታ እዛ ዋጋታት ይኽትትላ።",
         "theme": "ገጽታ",
         "themeDefault": "ነባሪ መልክዕ",
-        "themeHint": "ጸወታኡ ዝጻወተሉ መልክዕ።"
+        "themeHint": "ጸወታኡ ዝጻወተሉ መልክዕ።",
+        "voiceStyle": "ቅዲ ድምጺ",
+        "voiceStyleHint": "ድምጹ ከመይ ከም ዝስማዕ፦ ናይቲ ገጸ-ባህሪ ድምጺ፣ ወይ ዛንታ ክንበብ ከሎ ናይ ተራኺ ድምጺ።",
+        "voiceStylePlaceholder": "ንኣብነት፣ ዓሚቝ፣ ቀስ ኢሉን ቁሩብ ዝደረቐን፣ ናይ ሓደ ኣረጋዊ"
       },
       "editModal": {
         "adminActionTitle": "ኣስታድሚን ግብሪ",
         "adminActionWarning": "ዘይዝነብረሉ ጨዋታ ንምርማዕ ትምልእ ኢኻ። እዚ ግብሪ ኣስታድሚን እዩ ንምምርማር ብቻ ንትጠቀም ይግባእ።",
         "gameDesignSection": "ዲዛይን ጨዋታ",
+        "othersGameNotice": "እዚ ጸወታ ናይ ካልእ ሰብ እዩ። ኩሉ ነገር ክትቅይር ትኽእል ኢኻ፦ ምስ ኣቐመጥካዮ ናትካ ጸወታ ይኸውን፣ እቲ ኦሪጅናል ድማ ከም ዘለዎ ይተርፍ።",
+        "saveAsOwn": "ከም ናተይ ጸወታ ኣቐምጦ",
+        "savedAsOwn": "ከም ናትካ ጸወታ ተቐሚጡ",
         "title": "ጨዋታ ኣስተኻኽል",
         "unsavedChanges": {
           "discard": "ለውጥ ሰርዝ",
@@ -686,6 +708,176 @@
           "message": "ንዘይተቐመጠ ለውጥ ኣለኻ። እነሆም ለውጦም ክትወስድ ትደሊ ዶ?",
           "title": "ለውጦም ዘይተቐመጡ"
         }
+      },
+      "editor": {
+        "allSet": "ኩሉ ተዳልዩ: ነቲ ጸወታ ፍጠር።",
+        "backToOverview": "ናብ ሓፈሻዊ ሓበሬታ ተመለስ",
+        "card": {
+          "adventure": {
+            "descriptionPlaceholder": "ቅድሚ እቲ ጫካ ንዓኻ ምውሓጡ፣ እቲ ተሓቢኡ ዘሎ ሃብቲ ድለዮ።",
+            "titlePlaceholder": "ሃብቲ ናይቲ ጸልማት ጫካ"
+          },
+          "description": "መግለጺ",
+          "descriptionHint": "ተጻወትቲ እንታይ ከም ዝጽበዮም ክፈልጡ፣ ንጋለሪ ሓንቲ ወይ ክልተ ሓረጋት።",
+          "encounter": {
+            "descriptionPlaceholder": "ንግረታ፣ እታ ኩርፍቲ ሓላዊት መብራህቲ ባሕሪ፣ በጺሕካ ኣብታ ለይቲ እንታይ ከም ዝረኣየት ፍለጥ።",
+            "titlePlaceholder": "ግረታ ኣብ መብራህቲ ባሕሪ"
+          },
+          "title": "ኣርእስቲ",
+          "titleHint": "{{length}}/{{max}} · ብህዝቢ ክርአ ይኽእል – ብኽብረትካ ሓቀኛ ስማት ኣይትጠቐም።"
+        },
+        "delete": {
+          "confirm": "ንዘለኣለም ሰርዞ",
+          "intro": "መጀመርታ ኣውርዶ፣ ንዘለኣለም ኣርሕቖ።",
+          "keep": "ኣቐምጦ",
+          "keepFile": "ነቲ ፋይል ኣቐምጦ፣ ድሕሪ ግዜ ነቲ ጸወታ ኣብዚ ወይ ኣብ ካልእ ChatGameLab ሰርቨር እንደገና ከተእትዎ ትኽእል።",
+          "label": "ጸወታ ሰርዝ",
+          "whatGoes": "\"{{name}}\" ንዘለኣለም ክጠፍእ እዩ: ካርዱ፣ ዛንታኡ፣ ስእልታቱን መካፈሊ ሊንካቱን። ተጻወትቲ ድሕሪ ሕጂ ክጅምርዎ ኣይክእሉን። እዚ ክትመልሶ ኣይትኽእልን።"
+        },
+        "done": "ተወዲኡ",
+        "doneButton": "ተወዲኡ",
+        "download": {
+          "button": "ኣውርድ",
+          "description": "እቲ ጸወታ ከም ፋይል፣ ንምዕቃብ ወይ ናብ ካልእ ChatGameLab ሰርቨር ንምእታው።",
+          "title": "ኣውርድ"
+        },
+        "embed": {
+          "copy": "እቲ snippet ቅዳሕ",
+          "incomplete": "እንታይ ከም ዝኸፍልን ነቲ ገጽን ምረጽ፣ ነቲ snippet ንምርካብ።",
+          "noKeys": "ንምኽፋል ዝሰርሕ ናይ AI መፍትሕ የብልካን። ሓደ ወስኽ፣ ወይ ንውድብካ ሕተት።",
+          "noPages": "ውድብካ ገና ዝተረጋገጸ ገጽ የብሉን። ሓላፊኡ ወይ ሰራሕተኛታቱ ኣብ ቅንብራት እቲ ውድብ ይውስኽዎ።",
+          "offNote": "እንተ ተዓጽዩ፣ እቲ snippet ሓንቲ ነገር ኣየርእየን። እንደገና እንተ ተኸፊቱ፣ እቲ ተመሳሳሊ snippet ይሰርሕ።",
+          "page": "ዝተረጋገጸ ገጽ",
+          "pageHint": "እቲ ጸወታ ኣብኡ ጥራይ እዩ ዝካየድ፣ እቲ ገጽ ንነፍሲ ወከፍ መጀመርታ እወ ካበለ ጥራይ።",
+          "paidBy": "ዝኸፍል",
+          "paidByPlaceholder": "መፍትሕ ምረጽ",
+          "payingNow": "ሕጂ ይኸፍል ኣሎ",
+          "snippet": "Snippet ንድሕረ-ገጽካ",
+          "snippetCss": "CSS ካ",
+          "snippetHint": "እቲ ጸወታ ክርአ ዝደለኻሉ ቦታ ኣእትዎ፣ ነቲ ኣካል ድማ እቲ ዝደለኻዮ ቁመት ሃቦ።",
+          "snippetPlayer": "መለለዪ-በጻሒኻ",
+          "snippetRequest": "መለለዪ-ሕቶኻ",
+          "snippetVerifiedHint": "ሰርቨርካ መለለዪ ናይቲ በጻሒን ናይዚ ምብጻሕ ገጽን የእቱ፤ callback ናይቲ ገጽካ ክልቲኦም ይቕበል።",
+          "styleLink": "ብናትካ CSS ኣስተካኽሎ →",
+          "toggle": "ኣብ ድሕረ-ገጽ ኣእቱ",
+          "toggleHint": "ነዚ ጸወታ ኣብ ዝተረጋገጸ ገጽ ውድብካ የርእዮ፣ ከባቢኡ ድማ ካብ ChatGameLab ዝኾነ ነገር የብሉን። በጻሕቲ ከም ኣጋይሽ ይጻወቱ፤ እቲ ዝመረጽካዮ መፍትሕ ይኸፍል።"
+        },
+        "fillIn": "ኩሎም ክፍልታት ክሳብ ኩሎም ቀጠልያ ዝኾኑ ምልኣዮም።",
+        "genre": {
+          "pitch": {
+            "adventure": "ተጻዋታይ ንዓለም ይድህስስ። እቲ ጸወታ እንታይ ከም ዝፍጠር ይነግር፣ ስእልታት ይስእል፣ ነጥቢ ድማ ይቖጽር።",
+            "encounter": "ተጻዋታይ ብድምጺ ምስ ሓደ ገጸ-ባህሪ ይዛረብ። ኣብ ተራኡ ይጸንዕን ብቐጥታ ይምልስን።"
+          },
+          "question": "እንታይ ክትሰርሕ ትደሊ?"
+        },
+        "look": {
+          "imageStyle": "ቅዲ ስእሊ",
+          "imageStyleHint": "ስእልታት፣ እቲ መሸፈኒ ስእሊ እውን ሓዊሱ፣ ከመይ ከም ዝመስሉ: ካርቱን፣ ዋተርኮሎር፣ ፒክሰል-ኣርት…",
+          "imageStylePlaceholder": "ልስሉስ ዋተርኮር፣ ዝተዳፈነ ሕብሪ"
+        },
+        "makeCopy": "ናተይ ቅዳሕ ፍጠር",
+        "next": "ቀጺል",
+        "notDone": "ገና ኣይተወደአን",
+        "open": "ክፈት",
+        "othersGame": "እዚ ጸወታ ናይ ካልእ ሰብ እዩ። ኩሉ ክትርኢን ንምቕያር ናትካ ቅዳሕ ክትገብርን ትኽእል።",
+        "pages": {
+          "card": {
+            "intro": "ተጻወትቲ ኣብ ጋለሪ ዝርእይዎ: ኣርእስትን ሓጺር መግለጽን።",
+            "label": "ካርድ"
+          },
+          "look": {
+            "intro": "ስእልታት እቲ ጸወታን ገጹን ከመይ ከም ዝመስሉ።",
+            "label": "መልክዕ"
+          },
+          "sharing": {
+            "intro": "መን ነቲ ጸወታ ክረኽቦን ክጻወቶን ይኽእል።",
+            "label": "ምክፋል"
+          },
+          "sound": {
+            "intro": "ድምጺ እቲ ጸወታ ከመይ ከም ዝስማዕ።",
+            "label": "ድምጺ"
+          },
+          "story": {
+            "intro": "ኣብቲ ጸወታ እንታይ ከም ዝፍጠርን ከመይ ከም ዝጅምርን።",
+            "label": "ዛንታ"
+          }
+        },
+        "review": {
+          "button": "ርአ",
+          "failed": "እቲ ጸወታ ሕጂ ክምርመር ኣይከኣለን። ከም ዝኾነ ከተቐምጦ ትኽእል።",
+          "goTo": "ናብ {{page}} ኪድ",
+          "later": "ድሕሪ ግዜ",
+          "looksGood": "ጽቡቕ ይመስል። ሓደ ግዜ ተጻወቶ እሞ ከመይ ከም ዝስምዓካ ርአ።",
+          "missing": {
+            "adventure": {
+              "imageStyle": "ስእልታት ክመሳሰሉ ቅዲ ስእሊ ምረጽ።",
+              "name": "ጸወታኻ ገና ኣርእስቲ የብሉን።",
+              "systemMessageGameStart": "እቲ ጸወታ ከመይ ከም ዝጅምር ንገር።",
+              "systemMessageScenario": "እቲ ጸወታ ብዛዕባ እንታይ ከም ዝኾነ ንገር።"
+            },
+            "encounter": {
+              "imageStyle": "ስእልታት ክመሳሰሉ ቅዲ ስእሊ ምረጽ።",
+              "name": "ጸወታኻ ገና ኣርእስቲ የብሉን።",
+              "systemMessageGameStart": "እቲ ገጸ-ባህሪ ንተጻዋታይ ከመይ ከም ዝሰላምቶ ንገር።",
+              "systemMessageScenario": "እቲ ገጸ-ባህሪ መን ከም ዝኾነ ንገር።"
+            }
+          }
+        },
+        "sound": {
+          "adventure": {
+            "voiceStyle": "ድምጺ እቲ ተራኺ",
+            "voiceStyleHint": "እቲ ዛንታ ብድምጺ ክንበብ ከሎ ከመይ ከም ዝስማዕ።"
+          },
+          "builtInVoice": "ውሽጣዊ ድምጺ",
+          "encounter": {
+            "voiceStyle": "ድምጺ እቲ ገጸ-ባህሪ",
+            "voiceStyleHint": "እቲ ገጸ-ባህሪ ከመይ ከም ዝስማዕ።"
+          },
+          "errors": {
+            "failed": "እቲ ድምጺ ክጻወት ኣይከኣለን። በጃኻ እንደገና ፈትን።",
+            "keyRejected": "ኣቕራቢ AI ነቲ መፍትሕ ኣይተቐበሎን። እቲ ድምጺ ክጻወት ኣይከኣለን።",
+            "noKey": "ካብቶም ክትጥቀመሎም ትኽእል መፍትሕታት AI ሓደ እኳ ብቐጥታ ዝዛረብ ድምጺ የብሉን፣ ስለዚ ሕጂ ዝስማዕ ነገር የለን።"
+          },
+          "keepVoice": "ነዚ ኣቐምጦ",
+          "listen": "ስምዓ",
+          "newVoice": "ሓድሽ ድምጺ ፍጠር",
+          "newVoiceConfirm": "እቲ ሕጂ ዘሎ ድምጺ ክስረዝ እዩ፣ ካብቲ ተመሳሳሊ መግለጺ ድማ ሓድሽ ክፍጠር እዩ። ኣብዚ AI መፍትሕ ብልክዕ እዚ መግለጺ ዘለዎም ጸወታታት እውን ነቲ ሓድሽ ድምጺ ክጥቀሙ እዮም።",
+          "noteDescription": "ነቲ መግለጺ ምቕያር ብዘይካ ካልእ ድምጺ ከም ዝፍጠር ይገብር።",
+          "noteKeys": "ብምኽንያት ቴክኒክ ነፍሲ ወከፍ ሰሌዳ ብብልክዕ ነዚ ድምጺ ከም ዝጥቀም ክንውስኽ ኣይንኽእልን። ድምጺ ኣብቲ ዝኸፍል ዘሎ AI መፍትሕ ይፍጠርን ይዕቀብን፣ ስለዚ ብካልእ መፍትሕ ዝኽፈል ሰሌዳ ካብቲ ተመሳሳሊ መግለጺ ናቱ ድምጺ ይረኽብ።",
+          "play": "ናይቲ ድምጺ ናሙና ኣጻውት",
+          "sampleLine": {
+            "greeting": "ሰላም! እቶ፣ ተቐመጥ፣ እዚ ቦታ እንታይ ከም ዘምጽኣካ ድማ ንገረኒ።",
+            "narration": "እቲ ዛንታ ኣብ ሓንቲ ጸጥ ዝበለት ንግሆ ይጅምር፣ ኣስተማማኒ መንገዲ ድማ ናብ ዘይተፈልጠ ይመርሕ።"
+          },
+          "status": {
+            "builtIn": "ገና መግለጺ የለን: እቲ ጸወታ ክሳብ ነቲ ድምጺ ትገልጾ ብውሽጣዊ ድምጺ ይዛረብ።",
+            "ownVoice": "ንዚ መግለጺ ዝተዳለወ ፍሉይ ድምጺ፣ ብ AI መፍትሕካ ዝተፈጥረ።",
+            "steered": "ውሽጣዊ ድምጺ ነቲ ዛንታ ከምቲ መግለጺ ዝብሎ የንብቦ።"
+          },
+          "stop": "ነቲ ናሙና ኣቋርጽ"
+        },
+        "story": {
+          "adventure": {
+            "gameStart": "ከመይ ይጅምር?",
+            "gameStartHint": "እታ ተጻዋታይ መጀመርታ ዝርእያ ትዕይንቲን እንታይ ከም ዝገብር ብኸመይ ከም ዝፈልጥን።",
+            "gameStartPlaceholder": "እቲ ተጻዋታይ ኣብ ዳርቻ ጸልማት ጫካ ይበራበር። ሓንቲ ጸባብ መንገዲ ናብ መንጎ ኣእዋም ትመርሕ…",
+            "scenario": "እቲ ጸወታ ብዛዕባ እንታይ እዩ?",
+            "scenarioHint": "ዓለም፣ ተራ ተጻወትቲ፣ ዕላማን ተጻወትቲ ከም ዝተዓወቱ ብኸመይ ከም ዝፈልጡን።",
+            "scenarioPlaceholder": "እቲ ተጻዋታይ ኣብ ሓደ ምስጢራዊ ጫካ ሃብቲ ዝደሊ መርማሪ እዩ…"
+          },
+          "encounter": {
+            "gameStart": "ንተጻዋታይ ከመይ ትሰላምቶ?",
+            "gameStartHint": "ዕላል ክጅምር ከሎ ዘሎ ኩነታት፤ እቶም ቀዳሞት ቃላት ካብኡ ይጽሓፉ።",
+            "gameStartPlaceholder": "ኣብ ማእከል ማዕበል፣ ሓደ ዘይተፈልጠ ሰብ ኣብ ማዕጾ መብራህቲ ባሕሪ ይኹሕኩሕ…",
+            "scenario": "እቲ ገጸ-ባህሪ መን እዩ?",
+            "scenarioHint": "ባህርያቱ፣ ዝፈልጦ፣ ኣገባብ ኣዘራርባኡን ኣብ እንታይ ፈጺሙ ከም ዘይለማለምን።",
+            "scenarioPlaceholder": "ንስኺ ግረታ ኢኺ፣ ኣብ ገማግም ባሕሪ ዘሎ ኩሉ መርከብ እትፈልጥ ኩርፍቲ ሓላዊት መብራህቲ ባሕሪ…"
+          }
+        },
+        "titleEdit": "ጸወታ ኣርም",
+        "titleNew": "ሓድሽ ጸወታ",
+        "titleView": "ጸወታ",
+        "untitled": "ጸወታ ብዘይ ኣርእስቲ"
       },
       "empty": {
         "description": "ጨዋታ ንጀምር ናብ ምፍጣር እንተለምን ተስፋፋሪ AI ጨዋታታት ትፈጥሩ።",
@@ -713,9 +905,18 @@
       },
       "genres": {
         "adventure": "ጀብዱ",
-        "npc-live": "NPC-ቀጥታ"
+        "npc-live": "ርክብ"
       },
       "importExport": {
+        "coverFailed": "እቲ ጸወታ ኣትዩ፣ ግን ሽፋኑ ክምርመር ኣይተኻእለን። ኣብ ኣርታዒ ሓድሽ ክትስእል ትኽእል ኢኻ።",
+        "coverNoKey": "እቲ ጸወታ ብዘይ ሽፋኑ ኣትዩ፦ ሽፋን ንምርመራ መፍትሕ API የድሊ።",
+        "coverRefused": "እቲ ጸወታ ብዘይ ሽፋኑ ኣትዩ፦ እቲ ስእሊ ሕጊ ሓለዋ መንእሰያት ኣይኽተልን።",
+        "coverUnsigned": "እቲ ጸወታ ብዘይ ሽፋኑ ኣትዩ፦ እቲ ስእሊ ብChatGameLab ኣይተላእከን፣ ወይ ካብ ዝተላእከሉ ግዜ ጀሚሩ ተቐይሩ።",
+        "errors": {
+          "noGame": "እዛ .cgl ፋይል ዝኾነ ጸወታ ኣይሓዘትን።",
+          "tooLarge": "እዛ ፋይል ካብ 1 MB ትዓቢ፣ ንፋይል ጸወታ ድማ ኣዝያ ዓባይ እያ።",
+          "unreadable": "እዛ ፋይል ከም ጸወታ ክትንበብ ኣይተኻእለን።"
+        },
         "exportButton": "ጨዋታ ኣውጽእ",
         "importButton": "ጨዋታ ኣቕብል"
       },
@@ -818,6 +1019,7 @@
       },
       "statusFieldsEditor": {
         "addField": "ሓድሽ ዋጋ ወስኽ",
+        "maxHint": "ክሳብ ሓሙሽተ ዋጋታት ጥራይ: ተጻዋታይ ክከታተሎም ዝኽእል ውሑዳት ዋጋታት ካብ ብዙሓት ይሓይሹ።",
         "namePlaceholder": "ስም (ለ.ዝ. ጤና)",
         "noFields": "እቲ ዋጋታት የለን። ብ + ሓድሽ ዋጋ ወስኽ።",
         "valuePlaceholder": "ዝጀመረሉ ዋጋ (ለ.ዝ. 100)"
@@ -990,6 +1192,7 @@
     "leaveTitle": "ማሕበር ውጽእ",
     "leaveWarning": "ናይ ማሕበር ሓበሬታን ኣባላትን መዳረሻ ትጥፈእ።",
     "list": {
+      "clearPicks": "ኩሉ ኣርእይ",
       "clearSearch": "ምድላይ ኣጽርይ",
       "filter": "ማጣሪያ",
       "hideDetails": "ዝርዝር ሓብእ",
@@ -1171,6 +1374,23 @@
         "role-desc": "ሚና (Z-A)"
       },
       "title": "ማሕበርይ",
+      "verifiedPages": {
+        "add": "ገጽ መዝግብ",
+        "addTitle": "ገጽ መዝግብ",
+        "callbackShown": "Callback: {{url}}",
+        "callbackUrl": "ኣድራሻ callback",
+        "callbackUrlHint": "ChatGameLab ቅድሚ ነፍሲ ወከፍ መጀመርታ ኣብዚ ይሓትት። ኣብ ውሽጢ ገለ ካልኢታት ክምልስ ኣለዎ።",
+        "copied": "ተቐዲሑ",
+        "copy": "መለለዪ ገጽ ቅዳሕ",
+        "empty": "ገና ዝተረጋገጹ ገጻት የለዉን።",
+        "intro": "ዝተረጋገጸ ገጽ፣ ኣብ ድሕረ-ገጽ ውድብካ ዘሎን እቶም ዝተኣተዉ ጸወታታትኩም ከርኢ ዝፍቀደሉን ገጽ እዩ። ኣብኡ ጸወታ ቅድሚ ምጅማሩ፣ ChatGameLab ነቲ callback እቲ ገጽ ክጅምር ድዩ ኣይክጅምርን ይሓትት፣ ምስቲ ኣብ ታሕቲ ዘሎ መለለዪ ገጽን ገጽኩም ዘመሓላልፎ መለለዪ በጻሕን ሕቶን። መልሲ {\"ok\": true} ጥራይ እዩ ነቲ ጸወታ ዝጅምሮ።",
+        "pageId": "መለለዪ ገጽ",
+        "pageUrl": "ኣድራሻ ገጽ",
+        "pageUrlHint": "እቲ ጸወታታትኩም ዝኣተዉሉ ገጽ። ድሕረ-ገጹ ጥራይ እዩ ከርእዮም ዝኽእል።",
+        "remove": "ገጽ ኣርሕቕ",
+        "removeTitle": "ነዚ ገጽ ክትኣርሕቖ ዲኻ?",
+        "removeWarning": "ን{{page}} ዝተኣተዉ ጸወታታት ካልእ ገጽ ክሳብ ዝረኽቡ ኣብኡ ድሕሪ ሕጂ ኣይጅምሩን።"
+      },
       "workshops": {
         "activate": "ኣንብር",
         "active": "እንዳለ",
@@ -1354,6 +1574,7 @@
         "failed": "ሕጂ ክጻወት ኣይከኣልን",
         "genre": "መፍትሕ AI ነዚ ዓይነት ጸወታ ከስርሖ ኣይኽእልን",
         "key_rejected": "መፍትሕ AI ተነጺጉ",
+        "no_credit": "ዝተረፈ ክሬዲት AI የለን",
         "no_key": "ዝርከብ መፍትሕ AI የለን",
         "no_plays": "ዝተረፈ ጸወታ የለን",
         "paused": "እቲ ዎርክሾፕ ተደውሱ ኣሎ",
@@ -1699,6 +1920,7 @@
     "orgApiKeys": "API ቁልፊታት",
     "orgConstraints": "ገደብ መምርሒ ሓለዋ መንእሰያት",
     "orgMembers": "ኣባላት",
+    "orgVerifiedPages": "ድሕረ-ገጻት",
     "orgWorkshops": "ወርክሾፕታት",
     "play": "ጨዋታ ጫውታ",
     "rooms": "ክፍሊታት",
@@ -1711,18 +1933,78 @@
       "condense-scenario": "ስናርዮ ኣሕጽር",
       "condensed-scenario": "ስናርዮ",
       "expand": "ተረኽ",
+      "gallery-image": "ስእሊ ጋለሪ",
+      "greeting": "ጽሑፍ ፍጠር",
       "image": "ስእሊ ስኣል",
       "image-prompt": "ስእሊ ግለጽ",
       "image-style": "ቅዲ ኣስተኻኽል",
       "live-session": "ባህርይ",
-      "observer": "ተዓዛቢ",
+      "observer": "ዳይሬክተር",
+      "opening-brief": "ከመይ ከም ዝጅምር",
       "outline": "ትዕይንቲ ውጠን",
       "portrait": "ስእሊ ገጽ ስኣል",
       "portrait-prompt": "ስእሊ ገጽ ግለጽ",
       "props-store": "ደረጃ ጸወታ",
       "rephrase": "ተግባር ብኻልእ ኣገባብ ደግም",
       "rephrase-audio": "ዘረባ ተረዳ",
-      "start-game": "ጀምር"
+      "start-game": "ጀምር",
+      "voice": "ድምጺ ፍጠር",
+      "voice-brief": "ድምጺ ግለጽ"
+    },
+    "director": {
+      "ago": "ቅድሚ {{s}}",
+      "beatRefused": "ተነጺጉ",
+      "beatSet": "ተዳልዩ",
+      "beats": "ቢትታት ምስ መስመራት",
+      "beatsValue": "{{n}} · {{lines}} መስመራት",
+      "calls": "ጻውዒታት ሞዴል",
+      "callsValue": "{{n}} · ናይ መወዳእታ {{s}}",
+      "character": "ገጸ-ባህሪ",
+      "characterSpoke": "ገጸ-ባህሪ ተዛሪቡ",
+      "counted": "ተቖጺሩ",
+      "doing": "ይገብር ኣሎ",
+      "dropped": "ተደርብዩ",
+      "droppedValue": "{{n}} (ብተኸታታሊ ብዙሓት)",
+      "empty": "ገና ምንም የለን",
+      "entryAbsent": "ተጻዋታይ የለን",
+      "entryBackground": "ድሕረ-ባይታ ተላኢኹ",
+      "entryConversation": "ዝርርብ",
+      "entryDirection": "መምርሒ ተላኢኹ",
+      "entryDropped": "ተደርብዩ",
+      "entryError": "ጌጋ",
+      "entryInjection": "ብኢድ ተኣትዩ",
+      "entryLine": "በሊዑ",
+      "entryRules": "ሕግታት ተላኢኾም",
+      "entrySilence": "ስቕታ",
+      "entryThought": "ይሓስብ",
+      "failed": "{{n}} ኣይተዓወተን",
+      "fragments": "ቁርጽራጻት",
+      "gap": "ጻውዒታት ብዝለዓለ ኩሉ",
+      "inARow": "መምርሒታት ብተኸታታሊ",
+      "injected": "ብኢድ ተኣትዩ",
+      "late": "ዝደንጎዩ ቁርጽራጻት",
+      "lateMark": "ደንጒዩ",
+      "lateValue": "{{n}} · ክሳብ {{ms}} ms",
+      "lines": "{{n}} መስመራት",
+      "listening": "ይሰምዕ ኣሎ",
+      "log": "መዝገብ ዳይሬክተር",
+      "notYet": "ገና ኣይኮነን",
+      "notices": "ሓበሬታ ስቕታ",
+      "now": "ዳይሬክተር ሕጂ",
+      "ofLimit": "{{n}} ካብ {{limit}}",
+      "player": "ተጻዋታይ",
+      "playerSpoke": "ተጻዋታይ ተዛሪቡ",
+      "pool": "ኣብ ፑል",
+      "poolValue": "{{n}} ቁርጽራጻት · ቢት {{ms}} ms",
+      "quietFor": "ካብ ዝሃደአሉ",
+      "quietReplies": "ዝግበር ነገር የለን",
+      "reminders": "ሕግታት ተዘኻኺሩ",
+      "sent": "ተላኢኹ",
+      "sentValue": "{{d}} መምርሒታት · {{b}} ድሕረ-ባይታ",
+      "setBeat": "ቢት ኣዳልው (ms)",
+      "standingDown": "ይቑጠብ ኣሎ · ተጻዋታይ {{s}} ንውሓት ገለ ኣይበለን",
+      "thinking": "ይሓስብ ኣሎ · {{s}}",
+      "waiting": "ንዕኡ ይጽበ ኣሎ"
     },
     "errors": {
       "connectionLost": "ርክብ ናብ ጸወታ ተቋሪጹ። እንደገና ንምፍታን ነዛ ገጽ እንደገና ጽዓና።",
@@ -1739,15 +2021,27 @@
     },
     "insights": {
       "close": "ዕጸው",
+      "collapse": "ኣጠቓልል",
       "empty": "ክሳብ ሕጂ ሓደ ነገር እውን ኣይተካየደን።",
-      "feed": "እንታይ ኣጋጢሙ",
+      "expand": "ዘርግሕ",
+      "feed": "ታሪኽ",
       "hide": "ሓበሬታታት ሓብእ",
       "label": "ሓበሬታታት",
-      "show": "ሓበሬታታት ኣርኢ"
+      "noProblems": "ክሳብ ሕጂ ጸገማት የለን።",
+      "pickBlock": "ኣብ መስመር ስራሕ ብሎክ ወይ ሽቦ ጠውቕ፣ እንታይ ከም ዝገበረ ንምንባብ።",
+      "settingEmpty": "እቲ ጸወታ ነዚ ባዶ ይገድፎ።",
+      "show": "ሓበሬታታት ኣርኢ",
+      "tabProblems": "ጸገማት",
+      "tabSelected": "ዝተመርጸ",
+      "tabUsage": "ኣጠቓቕማ"
     },
     "launch": {
       "noGame": "እዛ ገጽ ንምጽዋት ጸወታ ትደሊ፦ ካብ ገጽ ሓደ ጸወታ ክፈታ።",
       "starting": "ጸወታ ይጅምር ኣሎ…"
+    },
+    "over": {
+      "contentPolicy": "እዚ ጸወታ ብኣቕራቢ AI ተዓጽዩ: እቲ ዕላል ናብ ሕግታት ድሕነት ዘይፈቕዶ ኣንፈት ከይዱ። ኩሉ ዝተባህለ ክትንብብን መዓስ እውን ሓድሽ ጸወታ ክትጅምርን ትኽእል።",
+      "unknown": "እዚ ጸወታ ተወዲኡ። ኩሉ ዝተባህለ ክትንብብን መዓስ እውን ሓድሽ ጸወታ ክትጅምርን ትኽእል።"
     },
     "pipeline": {
       "compact": "ክር ኣጽብብ",
@@ -1755,15 +2049,29 @@
       "compacting": "ይጽበብ ኣሎ…",
       "copied": "ኣቀማምጣ ተቐዲሑ",
       "copyFailed": "ሰሌዳ ቅዳሕ የለን፦ ኣቀማምጣ ኣብ ኮንሶል ተመዝጊቡ",
-      "copyLayout": "ኣቀማምጣ ቅዳሕ"
+      "copyLayout": "ኣቀማምጣ ቅዳሕ",
+      "injectBackground": "ፍለጥ",
+      "injectBackgroundHint": "እቲ ገጸ-ባህሪ ብውሽጡ ብቃላቱ ዝሓስቦ፣ ሕጂ ከይተዛረበሉ፣ ንኣብነት፦ «ኣነ ተኹላ ሰብ እየ፣ ንሳ ድማ ቀስ ብቐስ ክትፈልጥ እደሊ።»",
+      "injectDirection": "ግበር",
+      "injectDirectionHint": "እቲ ገጸ-ባህሪ እንታይ ክገብር ከም ዘለዎ፣ ንኣብነት፦ «ተበሳጪ ኩን፣ ንተጻዋታይ ኣይትኣምኖን ኢኻ።»",
+      "injectSpeech": "በል",
+      "injectSpeechHint": "እቲ ገጸ-ባህሪ ብቓላቱ እንታይ ክብል ከም ዘለዎ፣ ንኣብነት፦ «ደው በል! መን ኣሎ?»",
+      "injection": "ነቲ ገጸ-ባህሪ እዚ ክገብር ንገሮ …",
+      "injectionFailed": "ክልኣኽ ኣይተኻእለን",
+      "injectionSend": "ልኣኽ",
+      "injectionSending": "ይልኣኽ ኣሎ…",
+      "injectionSent": "ናብ ዝርርብ ተላኢኹ"
     },
     "problems": {
       "denied": "ነዚ ጸወታ ክትጻወቶ ኣይተፈቕደልካን።",
       "failed": "ገለ ጌጋ ተፈጢሩ፣ ጸወታ ክቕጽል ኣይከኣለን።",
       "genre": "እቲ ዝርከብ ቁልፊ AI ነዚ ዓይነት ጸወታ ከካይዶ ኣይክእልን።",
+      "hostRefused": "እቲ እዚ ጸወታ ዝተኣተወሉ ድሕረ-ገጽ ክጅምር ኣይፈቐደን።",
       "keyRejected": "ኣቕራቢ AI ነቲ ቁልፊ ናይዚ ጸወታ ኣይተቐበሎን፣ ስለዚ ጸወታ ክቕጽል ኣይከኣለን። እቲ ጸወታ ዘዳለዎ ሰብ ነቲ ቁልፊ ክምርምሮ ኣለዎ።",
+      "noCredit": "ይቕሬታ፣ እቲ ክሬዲት AI ተወዲኡ እዩ፣ ስለዚ እቲ ጸወታ ንግዚኡ ክቕጽል ኣይክእልን።",
       "noKey": "ነዚ ጸወታ ንምጽዋት ዝርከብ ቁልፊ AI የለን።",
       "noPlays": "እዚ ዝተኻፈለ ጸወታ ዝተረፉ ዙራት ጸወታ የብሉን።",
+      "over": "እዚ ጸወታ ተወዲኡ እዩ፣ ስለዚ ክቕጽል ኣይክእልን።",
       "paused": "እቲ ዎርክሾፕ ተደውዩ ኣሎ። እቲ ጸወታ ምስ ቀጸለ ክቕጽል እዩ።",
       "stale": "እዚ ጸወታ ድሕሪ ሕጂ ክቕጽል ኣይከኣልን።",
       "unknown": "እዚ ክፍለ-ግዜ ጸወታ የለን።",
@@ -1774,10 +2082,20 @@
       "connected": "ሪሌይ፡ ተራኺቡ",
       "connecting": "ሪሌይ፡ ኣይሰርሕን ኣሎ"
     },
+    "settings": {
+      "cover": "ስእሊ ጋለሪ",
+      "description": "መግለጺ",
+      "gameStart": "ምጅማር ጸወታ",
+      "imageStyle": "ቅዲ ስእሊ",
+      "scenario": "ስነ-ኩነት",
+      "statusFields": "መስኮታት ኩነታት",
+      "voiceStyle": "መግለጺ ድምጺ"
+    },
     "status": {
       "choose": "ንምጅማር ከመይ ክትጻወት ከም እትደሊ ምረጽ።",
       "connecting": "ይራኸብ ኣሎ…",
       "ended": "ጸወታ ተወዲኡ።",
+      "over": "እቲ ጸወታ ተወዲኡ።",
       "reconnecting": "እንደገና ይራኸብ ኣሎ…",
       "settingScene": "እቲ ትዕይንቲ ይዳሎ ኣሎ…",
       "wakingCharacter": "እቲ ገጸ-ባህሪ ይበራበር ኣሎ…"
@@ -1795,10 +2113,14 @@
       "condensed-scenario\u0003econdense-scenario": "ሕቶ",
       "condensed-scenario\u0003eimage-prompt": "ስናርዮ",
       "condensed-scenario\u0003estart-game": "ድሉው",
+      "gallery-image\u0003estart-game": "ድሉው",
+      "greeting\u0003elive-session": "ቀዳሞት ቃላት",
+      "greeting\u0003estart-game": "ድሉው",
       "image-prompt\u0003eimage": "መምርሒ",
       "image-style\u0003eadapted-style": "መልሲ",
       "live-session\u0003eobserver": "ጽሕፈት",
-      "observer\u0003elive-session": "ሓበሬታ",
+      "observer\u0003elive-session": "ምእታው",
+      "opening-brief\u0003egreeting": "መምርሒ",
       "outline\u0003eexpand": "መደብ",
       "outline\u0003eimage-prompt": "ትዕይንቲ",
       "outline\u0003eprops-store": "ለውጥታት",
@@ -1811,7 +2133,12 @@
       "rephrase\u0003eoutline": "ተግባር",
       "rephrase-audio\u0003eoutline": "ተግባር",
       "start-game\u0003elive-session": "መእተዊ",
-      "start-game\u0003eoutline": "መምርሒ"
+      "start-game\u0003eoutline": "መምርሒ",
+      "voice\u0003elive-session:secondary": "ቅዲ ድምጺ",
+      "voice\u0003elive-session:voice": "ድምጺ",
+      "voice\u0003estart-game": "ድሉው",
+      "voice-brief\u0003evoice:description": "መግለጺ",
+      "voice-brief\u0003evoice:voice": "ተካኢ ድምጺ"
     }
   }
 }

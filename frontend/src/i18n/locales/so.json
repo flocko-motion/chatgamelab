@@ -1041,6 +1041,176 @@
           "title": "Isbeddelo aan la keydin"
         }
       },
+      "editor": {
+        "allSet": "Wax walba waa diyaar: ciyaarta samee.",
+        "backToOverview": "Ku noqo dulmarka",
+        "card": {
+          "adventure": {
+            "descriptionPlaceholder": "Soo hel hantida qarsoon ka hor inta aanu kayntu ku liqin.",
+            "titlePlaceholder": "Hantida Kaynta Madow"
+          },
+          "description": "Sharaxaad",
+          "descriptionHint": "Hal ama laba jumladood oo loogu talagalay bandhigga, si ciyaartoydu u ogaadaan waxa ay filan karaan.",
+          "encounter": {
+            "descriptionPlaceholder": "Booqo Greta, ilaaliyaha ciil badan ee iftiinka badda, oo ogow waxa ay habeenkaas aragtay.",
+            "titlePlaceholder": "Greta oo Joogta Iftiinka Badda"
+          },
+          "title": "Cinwaan",
+          "titleHint": "{{length}}/{{max}} · Waxaa laga yaabaa in si guud loo arko – fadlan ha isticmaalin magacyo dhab ah."
+        },
+        "delete": {
+          "confirm": "Si joogto ah u tirtir",
+          "intro": "Si joogto ah uga saar, marka hore soo dejiso.",
+          "keep": "Hayso",
+          "keepFile": "Hayso faylka, si aad ciyaarta mar dambe dib ugu soo gelin karto halkan ama server kale oo ChatGameLab ah.",
+          "label": "Tirtir ciyaarta",
+          "whatGoes": "\"{{name}}\" si joogto ah ayuu u lumi doonaa: kaarkiisa, sheekadiisa, sawirradiisa iyo xiriirrada wadaagga. Ciyaartoydu mar dambe ma bilaabi karaan. Tan dib looma celin karo."
+        },
+        "done": "dhammaatay",
+        "doneButton": "Dhammaatay",
+        "download": {
+          "button": "Soo dejiso",
+          "description": "Ciyaarta oo ah fayl, si loo kaydsado ama loogu soo geliyo server kale oo ChatGameLab ah.",
+          "title": "Soo dejin"
+        },
+        "embed": {
+          "copy": "Nuqul ka samee qaybta koodka",
+          "incomplete": "Dooro waxa lacagta bixinaya iyo bogga si aad u hesho qaybta koodka.",
+          "noKeys": "Ma lihid fure AI oo shaqaynaya oo lagu bixiyo lacagta. Mid ku dar ama ururkaaga waydii.",
+          "noPages": "Ururkaagu weli ma laha bog la xaqiijiyay. Madaxa ama shaqaalaha ururka ayaa ku dara dejimaha ururka.",
+          "offNote": "Marka la damiyo, qaybta koodku waxba ma muujinayso. Marka dib loo shido, isla qaybta koodku way shaqaynaysaa.",
+          "page": "Bog la xaqiijiyay",
+          "pageHint": "Ciyaartu halkaas oo keliya ayay ka shaqaysaa, waana marka boggu oggolaado bilow kasta.",
+          "paidBy": "Waxaa bixiya",
+          "paidByPlaceholder": "Dooro fure",
+          "payingNow": "Hadda bixinaya",
+          "snippet": "Qaybta koodka ee boggaaga",
+          "snippetCss": "CSS-kaaga",
+          "snippetHint": "Ku geli meesha ay ciyaartu ka muuqanayso, oo sii qaybta dhererka aad rabto.",
+          "snippetPlayer": "AQOONSIGA-BUQDEHAAGA",
+          "snippetRequest": "AQOONSIGA-CODSIGAAGA",
+          "snippetVerifiedHint": "Server-kaagu wuxuu geliyaa aqoonsiga booqdaha iyo aqoonsiga booqashadan bogga; callback-ka boggaagu labadaba wuu helayaa.",
+          "styleLink": "Ku qurxi CSS-kaaga →",
+          "toggle": "Ku dhex geli bog internet",
+          "toggleHint": "Ciyaartan wuxuu ku muujinayaa bogga la xaqiijiyay ee ururkaaga, iyadoo aan wax ChatGameLab ah ku hareeraysnayn. Booqdayaashu marti ahaan ayay u ciyaarayaan; furaha aad doorato ayaa bixinaya lacagta."
+        },
+        "fillIn": "Buuxi qaybaha ilaa dhammaantood cagaar noqdaan.",
+        "genre": {
+          "pitch": {
+            "adventure": "Ciyaartoygu wuxuu sahamiyaa adduun. Ciyaartu waxay sheegtaa waxa dhacaya, sawirro ayay samaysaa, dhibcahana way tirisaa.",
+            "encounter": "Ciyaartoygu cod ahaan ayuu ula hadlaa hal jilaa. Jilaagu doorkiisa ayuu ku sii jiraa oo si toos ah ayuu uga jawaabaa."
+          },
+          "question": "Maxaad rabtaa inaad samayso?"
+        },
+        "look": {
+          "imageStyle": "Qaabka sawirka",
+          "imageStyleHint": "Sida sawirradu u ekaanayaan, oo ay ku jirto sawirka daboolka: kartuun, midabbo-biyood, farshaxan pixels ah…",
+          "imageStylePlaceholder": "midabbo-biyood jilicsan, midabbo aan dhalaal badnayn"
+        },
+        "makeCopy": "Nuqulkayga samee",
+        "next": "xiga",
+        "notDone": "weli ma dhammaan",
+        "open": "Fur",
+        "othersGame": "Ciyaartan qof kale ayaa leh. Wax walba waad eegi kartaa, nuqul adiga kuu gaar ahna waad samaysan kartaa si aad u beddesho.",
+        "pages": {
+          "card": {
+            "intro": "Waxa ciyaartoydu ku arkaan bandhigga: cinwaanka iyo sharaxaad kooban.",
+            "label": "Kaarka"
+          },
+          "look": {
+            "intro": "Sida sawirrada ciyaarta iyo boggeedu u ekaanayaan.",
+            "label": "Muuqaalka"
+          },
+          "sharing": {
+            "intro": "Cidda heli karta oo ciyaari karta ciyaarta.",
+            "label": "Wadaagista"
+          },
+          "sound": {
+            "intro": "Sida codka ciyaartu u dhawaaqayo.",
+            "label": "Codka"
+          },
+          "story": {
+            "intro": "Waxa ciyaarta ka dhacaya iyo sida ay u bilaabato.",
+            "label": "Sheekada"
+          }
+        },
+        "review": {
+          "button": "Dib u eeg",
+          "failed": "Ciyaarta hadda lama dib u eegi karin. Si kastaba ha ahaatee waad kaydin kartaa.",
+          "goTo": "Tag {{page}}",
+          "later": "Mar dambe",
+          "looksGood": "Way wanaagsan tahay. Hal mar ciyaar oo eeg sida ay kuu dareensiiso.",
+          "missing": {
+            "adventure": {
+              "imageStyle": "Dooro qaab sawir si sawirradu isugu ekaadaan.",
+              "name": "Ciyaartaadu weli cinwaan ma laha.",
+              "systemMessageGameStart": "Sheeg sida ay ciyaartu u bilaabato.",
+              "systemMessageScenario": "Sheeg waxa ay ciyaartu ku saabsan tahay."
+            },
+            "encounter": {
+              "imageStyle": "Dooro qaab sawir si sawirradu isugu ekaadaan.",
+              "name": "Ciyaartaadu weli cinwaan ma laha.",
+              "systemMessageGameStart": "Sheeg sida jilaagu u soo dhaweeyo ciyaartoyga.",
+              "systemMessageScenario": "Sheeg qofka jilaagu yahay."
+            }
+          }
+        },
+        "sound": {
+          "adventure": {
+            "voiceStyle": "Codka sheekeeyaha",
+            "voiceStyleHint": "Sida ay sheekadu u dhawaaqayso marka cod dheer loo akhriyo."
+          },
+          "builtInVoice": "Cod ku dhex jira",
+          "encounter": {
+            "voiceStyle": "Codka jilaaga",
+            "voiceStyleHint": "Sida jilaagu u dhawaaqayo."
+          },
+          "errors": {
+            "failed": "Codka lama ciyaari karin. Fadlan mar kale isku day.",
+            "keyRejected": "Bixiyaha AI-ga ayaa diiday furaha. Codka lama ciyaari karin.",
+            "noKey": "Furayaasha AI ee aad isticmaali karto midkoodna cod toos ah kuma hadlo, sidaas darteed hadda wax la dhageysto ma jiraan."
+          },
+          "keepVoice": "Kan hayso",
+          "listen": "Dhageyso",
+          "newVoice": "Cod cusub samee",
+          "newVoiceConfirm": "Codka hadda jira waa la tirtirayaa, waxaana isla sharaxaadda laga samaynayaa cod cusub. Ciyaaraha leh sharaxaaddan saxda ah ee furahan AI-ga ah iyaguna waxay heli doonaan codka cusub.",
+          "noteDescription": "Beddelidda sharaxaadda waxay si kastaba keentaa cod kale.",
+          "noteKeys": "Sababo farsamo awgood ma ballanqaadi karno in kulan kastaa isticmaalo isla codkan: codka waxaa lagu sameeyaa oo lagu hayaa furaha AI-ga ee lacagta bixiya, sidaas darteed kulan uu fure kale bixiyo wuxuu sharaxaaddaas ka helayaa cod u gaar ah.",
+          "play": "Ciyaar muunad codka ah",
+          "sampleLine": {
+            "greeting": "Salaan! Soo gal, fadhiiso, oo ii sheeg waxa halkan ku keenay.",
+            "narration": "Sheekadu waxay ka bilaabataa subax deggan, iyadoo waddo cidhiidhi ahi u horseedayso meel aan la aqoon."
+          },
+          "status": {
+            "builtIn": "Weli sharaxaad ma jirto: ciyaartu waxay ku hadlaysaa cod ku dhex jira ilaa aad codka sharaxdo.",
+            "ownVoice": "Cod u gaar ah sharaxaaddan, oo lagu sameeyay furahaaga AI-ga.",
+            "steered": "Cod ku dhex jira ayaa sheekada akhriya, sida ay sharaxaadduna tilmaamayso."
+          },
+          "stop": "Jooji muunadda"
+        },
+        "story": {
+          "adventure": {
+            "gameStart": "Sidee ayay u bilaabataa?",
+            "gameStartHint": "Muuqaalka ugu horreeya ee ciyaartoygu arko iyo sida uu ku ogaanayo waxa uu samaynayo.",
+            "gameStartPlaceholder": "Ciyaartoygu wuxuu ku soo toosaa cidhifka kayn madow. Waddo cidhiidhi ah ayaa geedaha dhexdeeda u gudubta…",
+            "scenario": "Maxay ciyaartu ku saabsan tahay?",
+            "scenarioHint": "Adduunka, doorka ciyaartoyga, yoolka iyo sida uu ciyaartoygu ku ogaanayo inuu guulaystay.",
+            "scenarioPlaceholder": "Ciyaartoygu waa sahamiye ku jira kayn qarsoodi ah, isagoo raadinaya hanti qarsoon…"
+          },
+          "encounter": {
+            "gameStart": "Sidee ayuu ciyaartoyga u soo dhaweeyaa?",
+            "gameStartHint": "Xaaladda marka wada hadalku bilaabmo; erayada ugu horreeya ayaa laga qoraa.",
+            "gameStartPlaceholder": "Qof aan la aqoon ayaa albaabka iftiinka badda garaacaya bartamaha duufaan…",
+            "scenario": "Yaa jilaagu yahay?",
+            "scenarioHint": "Dabeecaddiisa, waxa uu yaqaan, sida uu u hadlo iyo waxa aanu marnaba ka tanaasulin.",
+            "scenarioPlaceholder": "Waxaad tahay Greta, ilaaliye iftiin-badeed oo ciil badan, kana yaqaanna markab kasta oo xeebta mara…"
+          }
+        },
+        "titleEdit": "Wax ka beddel ciyaarta",
+        "titleNew": "Ciyaar cusub",
+        "titleView": "Ciyaar",
+        "untitled": "Ciyaar aan cinwaan lahayn"
+      },
       "empty": {
         "description": "Abuur ciyaartaada ugu horeysa si aad u bilowdo khibrado is-dhexgal ah oo ay taageerto AI.",
         "title": "Weli ma jiraan ciyaaro"
@@ -1066,7 +1236,7 @@
       },
       "genres": {
         "adventure": "Tacabur",
-        "npc-live": "NPC-Toos ah"
+        "npc-live": "La kulan"
       },
       "guestPlay": {
         "welcome": {
@@ -1540,6 +1710,7 @@
       },
       "statusFieldsEditor": {
         "addField": "Ku dar qiime cusub",
+        "maxHint": "Ugu badnaan shan qiime: dhowr qiime oo ciyaartoygu raaci karo ayaa ka fiican kuwo badan.",
         "namePlaceholder": "Magac (tusaale: Caafimaad)",
         "noFields": "Qiimayaal ma jiraan. Guji + si aad qiime cusub u darto.",
         "valuePlaceholder": "Qiimaha bilowga (tusaale: 100)"
@@ -1873,6 +2044,23 @@
         "role-desc": "Doorka (Z-A)"
       },
       "title": "Ururkayga",
+      "verifiedPages": {
+        "add": "Diiwaangeli bog",
+        "addTitle": "Diiwaangeli bog",
+        "callbackShown": "Callback: {{url}}",
+        "callbackUrl": "Cinwaanka callback-ka",
+        "callbackUrlHint": "Halka ChatGameLab wax ku waydiiyo ka hor bilow kasta. Waa inuu ku jawaabaa dhawr ilbiriqsi gudahood.",
+        "copied": "La koobiyeeyay",
+        "copy": "Koobiyee aqoonsiga bogga",
+        "empty": "Weli ma jiraan bogag la xaqiijiyay.",
+        "intro": "Bog la xaqiijiyay waa bog ku yaal website-ka ururkaaga oo muujin kara ciyaaraha aad ku dhex gelisay. Ka hor inta aan ciyaar halkaas ka bilaaban, ChatGameLab wuxuu callback-ka bogga weydiinayaa in la bilaabo iyo in kale, isagoo adeegsanaya aqoonsiga bogga hoose iyo aqoonsiyada booqdaha iyo codsiga ee boggaagu gudbiyo. Keliya jawaabta {\"ok\": true} ayaa bilaabaysa ciyaarta.",
+        "pageId": "Aqoonsiga bogga",
+        "pageUrl": "Cinwaanka bogga",
+        "pageUrlHint": "Bogga ciyaarahaaga lagu dhex geliyay. Website-kiisa oo keliya ayaa muujin kara.",
+        "remove": "Ka saar bogga",
+        "removeTitle": "Boggan ma laga saaraa?",
+        "removeWarning": "Ciyaaraha lagu dhex geliyay {{page}} halkaas kama sii bilaabmi doonaan ilaa loo helo bog kale."
+      },
       "workshops": {
         "activate": "Hawlgeli",
         "active": "Firfircoon",
@@ -2383,6 +2571,7 @@
     "orgApiKeys": "Furayaasha API",
     "orgConstraints": "Xaddidaadda tilmaamaha ilaalinta dhallinyarada",
     "orgMembers": "Xubnaha",
+    "orgVerifiedPages": "Websites",
     "orgWorkshops": "Workshops",
     "play": "Ciyaar Ciyaar",
     "rooms": "Qolalka",
@@ -2427,6 +2616,7 @@
       "dropped": "la tuuray",
       "droppedValue": "{{n}} (isku xigxig aad u badan)",
       "empty": "weli waxba ma jiraan",
+      "entryAbsent": "ciyaartoygu wuu maqanyahay",
       "entryBackground": "asalka waa la diray",
       "entryConversation": "wada sheekaysi",
       "entryDirection": "tilmaanta waa la diray",
@@ -2434,6 +2624,7 @@
       "entryError": "khalad",
       "entryInjection": "gacanta lagu geliyay",
       "entryLine": "yidhi",
+      "entryRules": "xeerarka waa la diray",
       "entrySilence": "aamusnaan",
       "entryThought": "wuu fikirayaa",
       "failed": "{{n}} way fashilmeen",
@@ -2457,9 +2648,11 @@
       "poolValue": "{{n}} qaybood · wareeg {{ms}} ms",
       "quietFor": "aamusnaa muddo",
       "quietReplies": "wax la qabanayo ma jiro",
+      "reminders": "xeerarka ayaa lagu xusuusiyay",
       "sent": "la diray",
       "sentValue": "{{d}} tilmaamood · {{b}} asal",
       "setBeat": "deji wareegga (ms)",
+      "standingDown": "wuu hakaday · ciyaartoygu waxba ma oran {{s}}",
       "thinking": "wuu fikirayaa · {{s}}",
       "waiting": "wuu sugayaa"
     },
@@ -2496,6 +2689,10 @@
       "noGame": "Boggan wuxuu u baahan yahay ciyaar lagu ciyaaro: ka fur bogga ciyaar.",
       "starting": "Ciyaarta ayaa bilaabanaysa…"
     },
+    "over": {
+      "contentPolicy": "Ciyaartan waxaa joojiyay bixiyaha AI-ga: wada hadalku wuxuu u leexday meel aan xeerarkiisa badbaadadu oggolayn. Weli waad akhriyi kartaa wax kasta oo la sheegay, mar kasta oo aad rabtana ciyaar cusub waad bilaabi kartaa.",
+      "unknown": "Ciyaartani way dhammaatay. Weli waad akhriyi kartaa wax kasta oo la sheegay, mar kasta oo aad rabtana ciyaar cusub waad bilaabi kartaa."
+    },
     "pipeline": {
       "compact": "Soo koob mawduuca",
       "compactFailed": "Soo koobiddii way fashilantay",
@@ -2519,10 +2716,12 @@
       "denied": "Laguuma oggola inaad ciyaartan ciyaarto.",
       "failed": "Waxbaa khaldamay, ciyaartu ma sii socon karto.",
       "genre": "Furaha AI ee la heli karo ma wadi karo ciyaar noocan ah.",
+      "hostRefused": "Website-ka ciyaartan lagu dhex geliyay ma oggolaan inay bilaabato.",
       "keyRejected": "Bixiyaha AI wuu diiday furaha ciyaartan, sidaas darteed ciyaartu ma sii socon karto. Qofkii ciyaarta dejiyay waa inuu hubiyaa furaha.",
       "noCredit": "Waan ka xunnahay, lacagtii AI-ga way dhammaatay, sidaas darteed ciyaartu hadda ma sii socon karto.",
       "noKey": "Ma jiro furaha AI ee loo heli karo ciyaartan.",
       "noPlays": "Ciyaartan la wadaagay wax ciyaaro ah kama hadhin.",
+      "over": "Ciyaartani way dhammaatay, sidaas darteed ma sii socon karto.",
       "paused": "Aqoon-is-weydaarsigu wuu hakadanyahay. Ciyaartu way sii socon doontaa marka dib loo bilaabo.",
       "stale": "Ciyaartan mar dambe lama sii wadi karo.",
       "unknown": "Kalfadhigan ciyaartu ma jiro.",
@@ -2546,6 +2745,7 @@
       "choose": "Dooro sida loo ciyaarayo si aad u bilowdo.",
       "connecting": "Xidhiidh ayaa la samaynayaa…",
       "ended": "Ciyaartu way dhammaatay.",
+      "over": "Ciyaartu way dhammaatay.",
       "reconnecting": "Xidhiidhka ayaa dib loo samaynayaa…",
       "settingScene": "Muuqaalka ayaa la diyaarinayaa…",
       "wakingCharacter": "Dabeecadda ayaa la toosinayaa…"

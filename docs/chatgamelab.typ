@@ -338,7 +338,9 @@ within that. Several shared keys can be offered at once, and the player picks
 one. A revoked key stops working on the next turn.
 
 Drawing a game's cover is paid like a session of that game, for whoever has it
-drawn. 
+drawn. A voice preview and a review of the form are paid like a session, for
+whoever asks for them, but never by a game's sponsor: a sponsor pays only for
+playing.
 
 *An API-key share is like a credit-line, it allows it's holder to spend money.* 
 It belongs to the user who owns the API-key it, and only they share it

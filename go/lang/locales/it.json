@@ -469,6 +469,7 @@
       "filters": {
         "all": "Tutti i giochi",
         "favorites": "Preferiti",
+        "genre": "Genere",
         "own": "I miei giochi",
         "public": "Pubblici",
         "sponsored": "Sponsorizzati"
@@ -477,6 +478,12 @@
       "play": "Gioca",
       "reportGame": "Segnala gioco",
       "restart": "Ricomincia",
+      "resumeChoice": {
+        "continue": "Continua",
+        "message": "Hai già iniziato \"{{game}}\". Vuoi riprendere da dove avevi lasciato o ricominciare? Ricominciare sostituirà la sessione precedente.",
+        "startNew": "Ricomincia",
+        "title": "Continuare o ricominciare?"
+      },
       "title": "Giochi",
       "unfavorite": "Rimuovi dai preferiti",
       "workshop": "Laboratorio / Org"
@@ -491,6 +498,7 @@
       "aiQualityTier": {
         "description": "Scegli il livello di qualità IA per i tuoi giochi quando usi la tua chiave API. I livelli più alti costano di più ma possono avere una qualità superiore. Lascia vuoto per usare il valore predefinito del server."
       },
+      "check": "Controlla chiave",
       "createModal": {
         "keyDescription": "La tua chiave verrà crittografata e archiviata in modo sicuro.",
         "keyLabel": "Chiave API",
@@ -521,6 +529,7 @@
         "platformRequired": "La piattaforma è obbligatoria"
       },
       "key": "chiave",
+      "keyEndsWith": "La chiave termina con questi caratteri",
       "keys": "chiavi",
       "noResults": "Nessuna chiave corrisponde alla ricerca o al filtro.",
       "platform": "Piattaforma",
@@ -558,8 +567,15 @@
         "status-asc": "Prima le chiavi funzionanti"
       },
       "status": {
+        "checking": "Controllo in corso…",
         "failed": "La chiave non funziona",
-        "unknown": "Chiave non ancora utilizzata",
+        "reasons": {
+          "key_rejected": "Il provider rifiuta questa chiave. Controlla di averla copiata per intero e che sia ancora attiva.",
+          "no_credit": "L'account associato a questa chiave non ha più credito. Ricaricalo presso il provider.",
+          "no_key": "Non è stato possibile leggere la chiave.",
+          "unreachable": "Il provider non ha risposto. Riprova tra poco."
+        },
+        "unknown": "Non ancora controllata",
         "working": "La chiave funziona"
       },
       "statusColumn": "Stato",
@@ -673,12 +689,18 @@
         "statusFieldsHint": "Cosa deve tenere traccia il gioco? Ad esempio salute, punti o munizioni. Il gioco ricorda questi valori e li aggiorna durante la partita.",
         "theme": "Tema",
         "themeDefault": "Aspetto predefinito",
-        "themeHint": "L'aspetto con cui si gioca."
+        "themeHint": "L'aspetto con cui si gioca.",
+        "voiceStyle": "Stile della voce",
+        "voiceStyleHint": "Come suona la voce: quella del personaggio o quella del narratore quando la storia viene letta ad alta voce.",
+        "voiceStylePlaceholder": "es. profonda, lenta e un po' roca, un uomo anziano"
       },
       "editModal": {
         "adminActionTitle": "Azione amministratore",
         "adminActionWarning": "Stai modificando un gioco di cui non sei proprietario. Questa è un'azione amministrativa e dovrebbe essere utilizzata solo per scopi di moderazione.",
         "gameDesignSection": "Game design",
+        "othersGameNotice": "Questo gioco è di qualcun altro. Puoi modificare tutto: salvandolo diventerà un tuo gioco, mentre l'originale resterà invariato.",
+        "saveAsOwn": "Salva come mio gioco",
+        "savedAsOwn": "Salvato come tuo gioco",
         "title": "Modifica gioco",
         "unsavedChanges": {
           "discard": "Scarta modifiche",
@@ -686,6 +708,176 @@
           "message": "Hai modifiche non salvate. Sei sicuro di volerle scartare?",
           "title": "Modifiche non salvate"
         }
+      },
+      "editor": {
+        "allSet": "Tutto pronto: crea il gioco.",
+        "backToOverview": "Torna alla panoramica",
+        "card": {
+          "adventure": {
+            "descriptionPlaceholder": "Trova il tesoro nascosto prima che la foresta ti inghiotta.",
+            "titlePlaceholder": "Il tesoro della foresta oscura"
+          },
+          "description": "Descrizione",
+          "descriptionHint": "Una o due frasi per la galleria, così chi gioca sa cosa aspettarsi.",
+          "encounter": {
+            "descriptionPlaceholder": "Visita Greta, la burbera guardiana del faro, e scopri cosa ha visto quella notte.",
+            "titlePlaceholder": "Greta al faro"
+          },
+          "title": "Titolo",
+          "titleHint": "{{length}}/{{max}} · Potrebbe diventare visibile pubblicamente: non usare nomi reali."
+        },
+        "delete": {
+          "confirm": "Elimina definitivamente",
+          "intro": "Rimuovilo definitivamente, dopo averlo scaricato.",
+          "keep": "Conservalo",
+          "keepFile": "Conserva il file: potrai importare di nuovo il gioco più avanti, qui o su un altro server ChatGameLab.",
+          "label": "Elimina gioco",
+          "whatGoes": "\"{{name}}\" scomparirà definitivamente: la sua scheda, la storia, le immagini e i link di condivisione. Nessuno potrà più avviarlo. Non è possibile annullare questa azione."
+        },
+        "done": "fatto",
+        "doneButton": "Fatto",
+        "download": {
+          "button": "Scarica",
+          "description": "Il gioco come file, da conservare o importare su un altro server ChatGameLab.",
+          "title": "Scarica"
+        },
+        "embed": {
+          "copy": "Copia snippet",
+          "incomplete": "Scegli cosa paga e la pagina per ottenere lo snippet.",
+          "noKeys": "Non hai una chiave IA funzionante con cui pagare. Aggiungine una o chiedila alla tua organizzazione.",
+          "noPages": "La tua organizzazione non ha ancora nessuna pagina verificata. Il responsabile o il personale possono aggiungerne una nelle impostazioni dell'organizzazione.",
+          "offNote": "Quando è disattivato, lo snippet non mostra nulla. Riattivandolo, lo stesso snippet torna a funzionare.",
+          "page": "Pagina verificata",
+          "pageHint": "Il gioco funziona solo lì e solo dopo che la pagina ha approvato ogni avvio.",
+          "paidBy": "Pagato da",
+          "paidByPlaceholder": "Scegli una chiave",
+          "payingNow": "Pagamento in corso",
+          "snippet": "Snippet per il tuo sito web",
+          "snippetCss": "il tuo CSS",
+          "snippetHint": "Inseriscilo dove vuoi che appaia il gioco e assegna all'elemento l'altezza desiderata.",
+          "snippetPlayer": "ID-VISITATORE",
+          "snippetRequest": "ID-RICHIESTA",
+          "snippetVerifiedHint": "Il tuo server inserisce il proprio ID del visitatore e di questa visualizzazione della pagina; il callback della tua pagina riceve entrambi.",
+          "styleLink": "Personalizzalo con il tuo CSS →",
+          "toggle": "Incorpora in un sito web",
+          "toggleHint": "Mostra questo gioco sulla pagina verificata della tua organizzazione, senza elementi ChatGameLab intorno. I visitatori giocano come ospiti; paga la chiave che scegli."
+        },
+        "fillIn": "Compila le sezioni finché non sono tutte verdi.",
+        "genre": {
+          "pitch": {
+            "adventure": "Chi gioca esplora un mondo. Il gioco racconta ciò che accade, crea immagini e tiene il punteggio.",
+            "encounter": "Chi gioca parla con un personaggio usando la voce. Il personaggio resta nel proprio ruolo e risponde in tempo reale."
+          },
+          "question": "Che cosa vuoi creare?"
+        },
+        "look": {
+          "imageStyle": "Stile delle immagini",
+          "imageStyleHint": "L'aspetto delle immagini, inclusa la copertina: cartone animato, acquerello, pixel art…",
+          "imageStylePlaceholder": "acquerello delicato, colori tenui"
+        },
+        "makeCopy": "Crea una mia copia",
+        "next": "avanti",
+        "notDone": "non ancora finito",
+        "open": "Apri",
+        "othersGame": "Questo gioco appartiene a qualcun altro. Puoi guardare tutto e creare una tua copia da modificare.",
+        "pages": {
+          "card": {
+            "intro": "Ciò che chi gioca vede nella galleria: il titolo e una breve descrizione.",
+            "label": "Scheda"
+          },
+          "look": {
+            "intro": "L'aspetto delle immagini del gioco e della sua pagina.",
+            "label": "Aspetto"
+          },
+          "sharing": {
+            "intro": "Chi può trovare e giocare al gioco.",
+            "label": "Condivisione"
+          },
+          "sound": {
+            "intro": "Il suono della voce del gioco.",
+            "label": "Voce"
+          },
+          "story": {
+            "intro": "Ciò che accade nel gioco e come inizia.",
+            "label": "Storia"
+          }
+        },
+        "review": {
+          "button": "Controlla",
+          "failed": "Non è stato possibile controllare il gioco in questo momento. Puoi comunque salvarlo.",
+          "goTo": "Vai a {{page}}",
+          "later": "Più tardi",
+          "looksGood": "Sembra tutto a posto. Giocaci una volta e scopri che effetto fa.",
+          "missing": {
+            "adventure": {
+              "imageStyle": "Scegli uno stile per le immagini, così saranno coerenti tra loro.",
+              "name": "Il tuo gioco non ha ancora un titolo.",
+              "systemMessageGameStart": "Indica come inizia il gioco.",
+              "systemMessageScenario": "Indica di cosa parla il gioco."
+            },
+            "encounter": {
+              "imageStyle": "Scegli uno stile per le immagini, così saranno coerenti tra loro.",
+              "name": "Il tuo gioco non ha ancora un titolo.",
+              "systemMessageGameStart": "Indica come il personaggio dà il benvenuto a chi gioca.",
+              "systemMessageScenario": "Indica chi è il personaggio."
+            }
+          }
+        },
+        "sound": {
+          "adventure": {
+            "voiceStyle": "La voce del narratore",
+            "voiceStyleHint": "Il suono della storia quando viene letta ad alta voce."
+          },
+          "builtInVoice": "Voce integrata",
+          "encounter": {
+            "voiceStyle": "La voce del personaggio",
+            "voiceStyleHint": "Il suono della voce del personaggio."
+          },
+          "errors": {
+            "failed": "Non è stato possibile riprodurre la voce. Riprova.",
+            "keyRejected": "Il fornitore IA ha rifiutato la chiave. Non è stato possibile riprodurre la voce.",
+            "noKey": "Nessuna delle chiavi IA che puoi usare supporta una voce dal vivo, quindi per ora non c'è nulla da ascoltare."
+          },
+          "keepVoice": "Mantieni questa",
+          "listen": "Ascolta",
+          "newVoice": "Crea una nuova voce",
+          "newVoiceConfirm": "La voce attuale verrà eliminata e ne verrà creata una nuova partendo dalla stessa descrizione. Anche i giochi con esattamente questa descrizione e questa chiave IA useranno la nuova voce.",
+          "noteDescription": "Cambiare la descrizione produrrebbe comunque una voce diversa.",
+          "noteKeys": "Per motivi tecnici non possiamo garantire che ogni sessione usi esattamente questa voce: la voce viene creata e conservata sulla chiave IA che paga, quindi una sessione pagata da un'altra chiave riceverà una propria voce basata sulla stessa descrizione.",
+          "play": "Riproduci un esempio della voce",
+          "sampleLine": {
+            "greeting": "Ciao! Entra, siediti e dimmi cosa ti porta qui.",
+            "narration": "La storia inizia in una mattina tranquilla, quando uno stretto sentiero conduce verso l'ignoto."
+          },
+          "status": {
+            "builtIn": "Nessuna descrizione: il gioco parla con una voce integrata finché non descrivi la voce.",
+            "ownVoice": "Una voce propria per questa descrizione, creata con la tua chiave IA.",
+            "steered": "Una voce integrata legge la storia seguendo le indicazioni della descrizione."
+          },
+          "stop": "Interrompi l'esempio"
+        },
+        "story": {
+          "adventure": {
+            "gameStart": "Come inizia?",
+            "gameStartHint": "La prima scena che chi gioca vede e come capisce che cosa deve fare.",
+            "gameStartPlaceholder": "Chi gioca si sveglia ai margini di una foresta oscura. Uno stretto sentiero conduce tra gli alberi…",
+            "scenario": "Di cosa parla il gioco?",
+            "scenarioHint": "Il mondo, il ruolo di chi gioca, l'obiettivo e come capisce di aver vinto.",
+            "scenarioPlaceholder": "Chi gioca è un esploratore in una foresta misteriosa, alla ricerca di un tesoro nascosto…"
+          },
+          "encounter": {
+            "gameStart": "Come dà il benvenuto a chi gioca?",
+            "gameStartHint": "La situazione all'inizio della conversazione; le prime parole vengono scritte a partire da essa.",
+            "gameStartPlaceholder": "Uno sconosciuto bussa alla porta del faro nel bel mezzo di una tempesta…",
+            "scenario": "Chi è il personaggio?",
+            "scenarioHint": "La sua personalità, ciò che sa, il modo in cui parla e ciò su cui non cederà mai.",
+            "scenarioPlaceholder": "Sei Greta, una burbera guardiana del faro che conosce ogni nave della costa…"
+          }
+        },
+        "titleEdit": "Modifica gioco",
+        "titleNew": "Nuovo gioco",
+        "titleView": "Gioco",
+        "untitled": "Gioco senza titolo"
       },
       "empty": {
         "description": "Crea il tuo primo gioco per iniziare con avventure testuali basate sull'IA.",
@@ -713,9 +905,18 @@
       },
       "genres": {
         "adventure": "Avventura",
-        "npc-live": "NPC in tempo reale"
+        "npc-live": "Incontro"
       },
       "importExport": {
+        "coverFailed": "Il gioco è stato importato, ma non è stato possibile verificare la sua copertina. Puoi farne creare una nuova nell'editor.",
+        "coverNoKey": "Il gioco è stato importato senza copertina: per verificarla è necessaria una chiave API.",
+        "coverRefused": "Il gioco è stato importato senza copertina: l'immagine non rispetta le regole di tutela dei minori.",
+        "coverUnsigned": "Il gioco è stato importato senza copertina: l'immagine non è stata esportata da ChatGameLab oppure è stata modificata in seguito.",
+        "errors": {
+          "noGame": "Questo file .cgl non contiene alcun gioco.",
+          "tooLarge": "Questo file è più grande di 1 MB, una dimensione eccessiva per un file di gioco.",
+          "unreadable": "Non è stato possibile leggere questo file come gioco."
+        },
         "exportButton": "Esporta gioco",
         "importButton": "Importa gioco"
       },
@@ -818,6 +1019,7 @@
       },
       "statusFieldsEditor": {
         "addField": "Aggiungi nuovo valore",
+        "maxHint": "Al massimo cinque valori: pochi valori da seguire sono meglio di tanti.",
         "namePlaceholder": "Nome (es. Salute)",
         "noFields": "Ancora nessun valore. Clicca + per aggiungerne uno nuovo.",
         "valuePlaceholder": "Valore iniziale (es. 100)"
@@ -990,6 +1192,7 @@
     "leaveTitle": "Lascia organizzazione",
     "leaveWarning": "Perderai l'accesso a tutte le risorse e ai membri dell'organizzazione.",
     "list": {
+      "clearPicks": "Mostra tutto",
       "clearSearch": "Cancella ricerca",
       "filter": "Filtra",
       "hideDetails": "Nascondi dettagli",
@@ -1171,6 +1374,23 @@
         "role-desc": "Ruolo (Z-A)"
       },
       "title": "La mia organizzazione",
+      "verifiedPages": {
+        "add": "Registra pagina",
+        "addTitle": "Registra una pagina",
+        "callbackShown": "Callback: {{url}}",
+        "callbackUrl": "Indirizzo del callback",
+        "callbackUrlHint": "Qui ChatGameLab chiede il permesso prima di ogni avvio. Deve rispondere entro pochi secondi.",
+        "copied": "Copiato",
+        "copy": "Copia ID pagina",
+        "empty": "Non ci sono ancora pagine verificate.",
+        "intro": "Una pagina verificata è una pagina del sito web della tua organizzazione che può mostrare i giochi incorporati. Prima di avviare un gioco, ChatGameLab chiede al callback della pagina se può farlo, usando l'ID della pagina qui sotto e gli ID del visitatore e della richiesta forniti dalla tua pagina. Solo la risposta {\"ok\": true} avvia il gioco.",
+        "pageId": "ID pagina",
+        "pageUrl": "Indirizzo della pagina",
+        "pageUrlHint": "La pagina in cui sono incorporati i tuoi giochi. Solo il suo sito web può mostrarli.",
+        "remove": "Rimuovi pagina",
+        "removeTitle": "Rimuovere questa pagina?",
+        "removeWarning": "I giochi incorporati per {{page}} non potranno più essere avviati lì finché non verrà assegnata loro un'altra pagina."
+      },
       "workshops": {
         "activate": "Attiva",
         "active": "Attivo",
@@ -1349,6 +1569,7 @@
         "failed": "Al momento non è possibile giocare",
         "genre": "La chiave IA non può eseguire questo tipo di gioco",
         "key_rejected": "La chiave IA è stata rifiutata",
+        "no_credit": "Credito IA esaurito",
         "no_key": "Nessuna chiave IA disponibile",
         "no_plays": "Nessuna partita disponibile",
         "paused": "Il laboratorio è in pausa",
@@ -1693,6 +1914,7 @@
     "orgApiKeys": "Chiavi API",
     "orgConstraints": "Limitazione dei prompt per la tutela dei minori",
     "orgMembers": "Membri",
+    "orgVerifiedPages": "Siti web",
     "orgWorkshops": "Workshop",
     "play": "Gioca a un gioco",
     "rooms": "Stanze",
@@ -1705,18 +1927,78 @@
       "condense-scenario": "Accorcia scenario",
       "condensed-scenario": "Scenario",
       "expand": "Narra",
+      "gallery-image": "Immagine della galleria",
+      "greeting": "Genera testo",
       "image": "Disegna immagine",
       "image-prompt": "Descrivi immagine",
       "image-style": "Adatta stile",
       "live-session": "Personaggio",
-      "observer": "Osservatore",
+      "observer": "Regia",
+      "opening-brief": "Come inizia",
       "outline": "Pianifica scena",
       "portrait": "Disegna ritratto",
       "portrait-prompt": "Descrivi ritratto",
       "props-store": "Stato del gioco",
       "rephrase": "Riformula azione",
       "rephrase-audio": "Comprendi discorso",
-      "start-game": "Avvia"
+      "start-game": "Avvia",
+      "voice": "Genera voce",
+      "voice-brief": "Descrivi la voce"
+    },
+    "director": {
+      "ago": "{{s}} fa",
+      "beatRefused": "rifiutato",
+      "beatSet": "impostato",
+      "beats": "battute con righe",
+      "beatsValue": "{{n}} · {{lines}} righe",
+      "calls": "chiamate al modello",
+      "callsValue": "{{n}} · ultima {{s}}",
+      "character": "personaggio",
+      "characterSpoke": "il personaggio ha parlato",
+      "counted": "conteggiati",
+      "doing": "sta facendo",
+      "dropped": "scartati",
+      "droppedValue": "{{n}} (troppi consecutivi)",
+      "empty": "ancora nulla",
+      "entryAbsent": "giocatore assente",
+      "entryBackground": "contesto inviato",
+      "entryConversation": "conversazione",
+      "entryDirection": "istruzione inviata",
+      "entryDropped": "scartato",
+      "entryError": "errore",
+      "entryInjection": "inserito",
+      "entryLine": "ha detto",
+      "entryRules": "regole inviate",
+      "entrySilence": "silenzio",
+      "entryThought": "pensa",
+      "failed": "{{n}} non riusciti",
+      "fragments": "frammenti",
+      "gap": "chiamate al massimo ogni",
+      "inARow": "istruzioni consecutive",
+      "injected": "inseriti manualmente",
+      "late": "frammenti in ritardo",
+      "lateMark": "in ritardo",
+      "lateValue": "{{n}} · fino a {{ms}} ms",
+      "lines": "{{n}} righe",
+      "listening": "in ascolto",
+      "log": "registro della regia",
+      "notYet": "non ancora",
+      "notices": "avvisi di silenzio",
+      "now": "regia attuale",
+      "ofLimit": "{{n}} su {{limit}}",
+      "player": "giocatore",
+      "playerSpoke": "il giocatore ha parlato",
+      "pool": "nel gruppo",
+      "poolValue": "{{n}} frammenti · battuta {{ms}} ms",
+      "quietFor": "in silenzio da",
+      "quietReplies": "nulla da fare",
+      "reminders": "regole ricordate",
+      "sent": "inviati",
+      "sentValue": "{{d}} istruzioni · {{b}} contesto",
+      "setBeat": "imposta battuta (ms)",
+      "standingDown": "si ritira · il giocatore non ha detto nulla per {{s}}",
+      "thinking": "sta pensando · {{s}}",
+      "waiting": "in attesa"
     },
     "errors": {
       "connectionLost": "La connessione al gioco è stata persa. Ricarica la pagina per riprovare.",
@@ -1733,15 +2015,27 @@
     },
     "insights": {
       "close": "Chiudi",
+      "collapse": "Comprimi",
       "empty": "Non è ancora stato eseguito nulla.",
-      "feed": "Cosa è successo",
+      "expand": "Espandi",
+      "feed": "Cronologia",
       "hide": "Nascondi approfondimenti",
       "label": "Approfondimenti",
-      "show": "Mostra approfondimenti"
+      "noProblems": "Nessun problema finora.",
+      "pickBlock": "Fai clic su un blocco o su un collegamento nella pipeline per vedere cosa ha fatto.",
+      "settingEmpty": "Il gioco lascia vuoto questo campo.",
+      "show": "Mostra approfondimenti",
+      "tabProblems": "Problemi",
+      "tabSelected": "Selezionato",
+      "tabUsage": "Utilizzo"
     },
     "launch": {
       "noGame": "Questa pagina richiede un gioco: aprila dalla pagina di un gioco.",
       "starting": "Avvio del gioco…"
+    },
+    "over": {
+      "contentPolicy": "Questo gioco è stato interrotto dal fornitore IA: la conversazione ha preso una direzione che le sue regole di sicurezza non consentono. Puoi comunque rileggere tutto ciò che è stato detto e iniziare una nuova partita quando vuoi.",
+      "unknown": "Questo gioco è terminato. Puoi comunque rileggere tutto ciò che è stato detto e iniziare una nuova partita quando vuoi."
     },
     "pipeline": {
       "compact": "Compatta thread",
@@ -1749,15 +2043,29 @@
       "compacting": "Compattazione in corso…",
       "copied": "Layout copiato",
       "copyFailed": "Nessun appunto: layout registrato nella console",
-      "copyLayout": "Copia layout"
+      "copyLayout": "Copia layout",
+      "injectBackground": "Sapere",
+      "injectBackgroundHint": "Ciò che il personaggio pensa tra sé e sé, con parole sue, senza dirlo subito, ad es. \"Sono un licantropo e voglio che lei lo scopra lentamente.\"",
+      "injectDirection": "Fare",
+      "injectDirectionHint": "Ciò che il personaggio dovrebbe fare, ad es. \"Sii scontroso, non ti fidi del giocatore.\"",
+      "injectSpeech": "Dire",
+      "injectSpeechHint": "Ciò che il personaggio dovrebbe dire, con parole sue, ad es. \"Alt! Chi va là?\"",
+      "injection": "Di' al personaggio di …",
+      "injectionFailed": "Non è stato possibile inviarlo",
+      "injectionSend": "Invia",
+      "injectionSending": "Invio in corso…",
+      "injectionSent": "Inviato alla conversazione"
     },
     "problems": {
       "denied": "Non puoi giocare a questo gioco.",
       "failed": "Qualcosa è andato storto e il gioco non può continuare.",
       "genre": "La chiave API dell'IA disponibile non può eseguire questo tipo di gioco.",
+      "hostRefused": "Il sito web in cui questo gioco è incorporato non ne ha consentito l'avvio.",
       "keyRejected": "Il fornitore dell'IA ha rifiutato la chiave di questo gioco, quindi il gioco non può continuare. Chi ha configurato il gioco deve controllare la chiave.",
+      "noCredit": "Spiacenti, il credito IA è esaurito, quindi per ora il gioco non può continuare.",
       "noKey": "Non è disponibile alcuna chiave API dell'IA per giocare a questo gioco.",
       "noPlays": "Non sono rimaste partite per questo gioco condiviso.",
+      "over": "Questo gioco è terminato, quindi non può continuare.",
       "paused": "Il workshop è in pausa. Il gioco riprenderà quando verrà riattivato.",
       "stale": "Questo gioco non può più essere continuato.",
       "unknown": "Questa sessione di gioco non esiste.",
@@ -1768,10 +2076,20 @@
       "connected": "Relay: connesso",
       "connecting": "Relay: non in esecuzione"
     },
+    "settings": {
+      "cover": "Immagine della galleria",
+      "description": "Descrizione",
+      "gameStart": "Inizio del gioco",
+      "imageStyle": "Stile dell'immagine",
+      "scenario": "Scenario",
+      "statusFields": "Campi di stato",
+      "voiceStyle": "Stile della voce"
+    },
     "status": {
       "choose": "Scegli come giocare per iniziare.",
       "connecting": "Connessione…",
       "ended": "Il gioco è terminato.",
+      "over": "Il gioco è terminato.",
       "reconnecting": "Riconnessione…",
       "settingScene": "Impostazione della scena…",
       "wakingCharacter": "Risveglio del personaggio…"
@@ -1789,10 +2107,15 @@
       "condensed-scenario\u001econdense-scenario": "richiesta",
       "condensed-scenario\u001eimage-prompt": "scenario",
       "condensed-scenario\u001estart-game": "pronto",
+      "gallery-image\u0000start-game": "pronto",
+      "greeting\u0000live-session": "prime parole",
+      "greeting\u0000start-game": "pronto",
       "image-prompt\u001eimage": "prompt",
       "image-style\u001eadapted-style": "risposta",
       "live-session\u001eobserver": "trascrizione",
+      "observer\u0000live-session": "inserimento",
       "observer\u001elive-session": "suggerimento",
+      "opening-brief\u0000greeting": "indicazioni",
       "outline\u001eexpand": "piano",
       "outline\u001eimage-prompt": "scena",
       "outline\u001eprops-store": "modifiche",
@@ -1805,7 +2128,12 @@
       "rephrase\u001eoutline": "azione",
       "rephrase-audio\u001eoutline": "azione",
       "start-game\u001elive-session": "spunto",
-      "start-game\u001eoutline": "prompt"
+      "start-game\u001eoutline": "prompt",
+      "voice\u0000live-session:secondary": "stile della voce",
+      "voice\u0000live-session:voice": "voce",
+      "voice\u0000start-game": "pronto",
+      "voice-brief\u0000voice:description": "descrizione",
+      "voice-brief\u0000voice:voice": "voce alternativa"
     }
   }
 }

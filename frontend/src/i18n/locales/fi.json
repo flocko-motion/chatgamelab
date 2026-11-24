@@ -709,6 +709,176 @@
           "title": "Tallentamattomat muutokset"
         }
       },
+      "editor": {
+        "allSet": "Kaikki valmista: luo peli.",
+        "backToOverview": "Takaisin yleiskatsaukseen",
+        "card": {
+          "adventure": {
+            "descriptionPlaceholder": "Löydä piilotettu aarre ennen kuin metsä nielaisee sinut.",
+            "titlePlaceholder": "Pimeän metsän aarre"
+          },
+          "description": "Kuvaus",
+          "descriptionHint": "Yksi tai kaksi lausetta galleriaa varten, jotta pelaajat tietävät, mitä odottaa.",
+          "encounter": {
+            "descriptionPlaceholder": "Käy Gretan, äreän majakanvartijan, luona ja selvitä, mitä hän näki sinä yönä.",
+            "titlePlaceholder": "Greta majakalla"
+          },
+          "title": "Nimi",
+          "titleHint": "{{length}}/{{max}} · Voi tulla julkisesti näkyviin – älä käytä oikeita nimiä."
+        },
+        "delete": {
+          "confirm": "Poista pysyvästi",
+          "intro": "Poista pysyvästi, mutta lataa ensin.",
+          "keep": "Säilytä",
+          "keepFile": "Säilytä tiedosto, niin voit tuoda pelin myöhemmin uudelleen tänne tai toiselle ChatGameLab-palvelimelle.",
+          "label": "Poista peli",
+          "whatGoes": "\"{{name}}\" poistetaan pysyvästi: sen kortti, tarina, kuvat ja jakolinkit katoavat. Pelaajat eivät voi enää aloittaa sitä. Tätä ei voi kumota."
+        },
+        "done": "valmis",
+        "doneButton": "Valmis",
+        "download": {
+          "button": "Lataa",
+          "description": "Peli tiedostona säilytettäväksi tai tuotavaksi toiselle ChatGameLab-palvelimelle.",
+          "title": "Lataa"
+        },
+        "embed": {
+          "copy": "Kopioi koodinpätkä",
+          "incomplete": "Valitse maksaja ja sivu saadaksesi koodinpätkän.",
+          "noKeys": "Sinulla ei ole toimivaa tekoälyavainta maksamista varten. Lisää sellainen tai pyydä organisaatioltasi avainta.",
+          "noPages": "Organisaatiollasi ei ole vielä vahvistettua sivua. Sen johto tai työntekijät voivat lisätä sellaisen organisaation asetuksissa.",
+          "offNote": "Kun koodinpätkä on poissa käytöstä, se ei näytä mitään. Kun otat sen uudelleen käyttöön, sama koodinpätkä toimii.",
+          "page": "Vahvistettu sivu",
+          "pageHint": "Peli toimii vain siellä ja vasta, kun sivu hyväksyy jokaisen aloituksen.",
+          "paidBy": "Maksaja",
+          "paidByPlaceholder": "Valitse avain",
+          "payingNow": "Maksaa nyt",
+          "snippet": "Koodinpätkä verkkosivustollesi",
+          "snippetCss": "oma CSS:si",
+          "snippetHint": "Lisää se kohtaan, jossa pelin pitäisi näkyä, ja anna elementille haluamasi korkeus.",
+          "snippetPlayer": "KÄVIJÄSI-TUNNUS",
+          "snippetRequest": "PYYNTÖSI-TUNNUS",
+          "snippetVerifiedHint": "Palvelimesi lisää kävijän ja tämän sivun katselun tunnukset; sivusi callback saa molemmat.",
+          "styleLink": "Muotoile omalla CSS:lläsi →",
+          "toggle": "Upota verkkosivustolle",
+          "toggleHint": "Näyttää tämän pelin organisaatiosi vahvistetulla sivulla ilman ChatGameLabin muita elementtejä. Kävijät pelaavat vieraina; valitsemasi avain maksaa."
+        },
+        "fillIn": "Täytä osiot, kunnes kaikki ovat vihreitä.",
+        "genre": {
+          "pitch": {
+            "adventure": "Pelaaja tutkii maailmaa. Peli kertoo, mitä tapahtuu, luo kuvia ja pitää pisteitä.",
+            "encounter": "Pelaaja puhuu yhdelle hahmolle äänellä. Hahmo pysyy roolissaan ja vastaa reaaliajassa."
+          },
+          "question": "Mitä haluat tehdä?"
+        },
+        "look": {
+          "imageStyle": "Kuvatyyli",
+          "imageStyleHint": "Miltä kuvat, myös kansikuva, näyttävät: sarjakuva, vesiväri, pikselitaide…",
+          "imageStylePlaceholder": "pehmeä vesiväri, hillityt värit"
+        },
+        "makeCopy": "Tee oma kopio",
+        "next": "seuraava",
+        "notDone": "ei vielä valmis",
+        "open": "Avaa",
+        "othersGame": "Tämä peli kuuluu jollekin toiselle. Voit katsella kaikkea ja tehdä siitä oman kopiosi muokkaamista varten.",
+        "pages": {
+          "card": {
+            "intro": "Mitä pelaajat näkevät galleriassa: nimi ja lyhyt kuvaus.",
+            "label": "Kortti"
+          },
+          "look": {
+            "intro": "Miltä pelin kuvat ja sivu näyttävät.",
+            "label": "Ulkoasu"
+          },
+          "sharing": {
+            "intro": "Kuka voi löytää pelin ja pelata sitä.",
+            "label": "Jakaminen"
+          },
+          "sound": {
+            "intro": "Miltä pelin ääni kuulostaa.",
+            "label": "Ääni"
+          },
+          "story": {
+            "intro": "Mitä pelissä tapahtuu ja miten se alkaa.",
+            "label": "Tarina"
+          }
+        },
+        "review": {
+          "button": "Tarkista",
+          "failed": "Peliä ei voitu tarkistaa juuri nyt. Voit silti tallentaa sen.",
+          "goTo": "Siirry kohtaan {{page}}",
+          "later": "Myöhemmin",
+          "looksGood": "Näyttää hyvältä. Pelaa se kerran ja tunnustele, miltä se vaikuttaa.",
+          "missing": {
+            "adventure": {
+              "imageStyle": "Valitse kuvatyyli, jotta kuvat sopivat yhteen.",
+              "name": "Pelilläsi ei ole vielä nimeä.",
+              "systemMessageGameStart": "Kerro, miten peli alkaa.",
+              "systemMessageScenario": "Kerro, mistä pelissä on kyse."
+            },
+            "encounter": {
+              "imageStyle": "Valitse kuvatyyli, jotta kuvat sopivat yhteen.",
+              "name": "Pelilläsi ei ole vielä nimeä.",
+              "systemMessageGameStart": "Kerro, miten hahmo tervehtii pelaajaa.",
+              "systemMessageScenario": "Kerro, kuka hahmo on."
+            }
+          }
+        },
+        "sound": {
+          "adventure": {
+            "voiceStyle": "Kertojan ääni",
+            "voiceStyleHint": "Miltä tarina kuulostaa ääneen luettuna."
+          },
+          "builtInVoice": "Sisäänrakennettu ääni",
+          "encounter": {
+            "voiceStyle": "Hahmon ääni",
+            "voiceStyleHint": "Miltä hahmo kuulostaa."
+          },
+          "errors": {
+            "failed": "Ääntä ei voitu toistaa. Yritä uudelleen.",
+            "keyRejected": "Tekoälypalveluntarjoaja hylkäsi avaimen. Ääntä ei voitu toistaa.",
+            "noKey": "Yksikään käyttämistäsi tekoälyavaimista ei puhu reaaliaikaisella äänellä, joten tällä hetkellä ei ole mitään kuunneltavaa."
+          },
+          "keepVoice": "Säilytä tämä",
+          "listen": "Kuuntele",
+          "newVoice": "Luo uusi ääni",
+          "newVoiceConfirm": "Nykyinen ääni poistetaan ja samaan kuvaukseen perustuva uusi ääni luodaan. Myös tämän tekoälyavaimen pelit, joissa on täsmälleen sama kuvaus, saavat uuden äänen.",
+          "noteDescription": "Kuvauksen muuttaminen luo joka tapauksessa eri äänen.",
+          "noteKeys": "Teknisistä syistä emme voi luvata, että jokainen istunto käyttää täsmälleen tätä ääntä: ääni luodaan ja säilytetään maksavalla tekoälyavaimella, joten toisella avaimella maksettu istunto saa samasta kuvauksesta oman äänensä.",
+          "play": "Toista ääninäyte",
+          "sampleLine": {
+            "greeting": "Hei siellä! Tule sisään, istu alas ja kerro, mikä toi sinut tänne.",
+            "narration": "Tarina alkaa hiljaisena aamuna, kun kapea polku johtaa tuntemattomaan."
+          },
+          "status": {
+            "builtIn": "Kuvausta ei vielä ole: peli puhuu sisäänrakennetulla äänellä, kunnes kuvaat äänen.",
+            "ownVoice": "Tälle kuvaukselle on oma ääni, joka on luotu tekoälyavaimellasi.",
+            "steered": "Sisäänrakennettu ääni lukee tarinan kuvauksen mukaisesti."
+          },
+          "stop": "Pysäytä ääninäyte"
+        },
+        "story": {
+          "adventure": {
+            "gameStart": "Miten se alkaa?",
+            "gameStartHint": "Ensimmäinen kohtaus, jonka pelaaja näkee, ja miten hän tietää, mitä tehdä.",
+            "gameStartPlaceholder": "Pelaaja herää pimeän metsän laidalla. Kapea polku johtaa puiden väliin…",
+            "scenario": "Mistä pelissä on kyse?",
+            "scenarioHint": "Maailma, pelaajan rooli, tavoite ja se, mistä pelaaja tietää voittaneensa.",
+            "scenarioPlaceholder": "Pelaaja on tutkimusmatkailija salaperäisessä metsässä ja etsii piilotettua aarretta…"
+          },
+          "encounter": {
+            "gameStart": "Miten hän tervehtii pelaajaa?",
+            "gameStartHint": "Tilanne keskustelun alkaessa; ensimmäiset sanat kirjoitetaan sen perusteella.",
+            "gameStartPlaceholder": "Vieras koputtaa majakan oveen keskellä myrskyä…",
+            "scenario": "Kuka hahmo on?",
+            "scenarioHint": "Hänen persoonallisuutensa, tietonsa, puhetapansa ja se, mistä hän ei koskaan tingi.",
+            "scenarioPlaceholder": "Olet Greta, äreä majakanvartija, joka tuntee jokaisen rannikon laivan…"
+          }
+        },
+        "titleEdit": "Muokkaa peliä",
+        "titleNew": "Uusi peli",
+        "titleView": "Peli",
+        "untitled": "Nimetön peli"
+      },
       "empty": {
         "description": "Luo ensimmäinen pelisi ja aloita interaktiiviset AI-seikkailut.",
         "title": "Ei vielä pelejä"
@@ -735,7 +905,7 @@
       },
       "genres": {
         "adventure": "Seikkailu",
-        "npc-live": "NPC-Live"
+        "npc-live": "Kohtaaminen"
       },
       "importExport": {
         "coverFailed": "Peli tuotiin, mutta sen kansikuvaa ei voitu tarkistaa. Voit piirrättää uuden editorissa.",
@@ -849,6 +1019,7 @@
       },
       "statusFieldsEditor": {
         "addField": "Lisää uusi arvo",
+        "maxHint": "Enintään viisi arvoa: muutama seurattava arvo on parempi kuin monta.",
         "namePlaceholder": "Nimi (esim. Terveys)",
         "noFields": "Ei arvoja vielä. Lisää uusi napsauttamalla +.",
         "valuePlaceholder": "Alkuarvo (esim. 100)"
@@ -1203,6 +1374,23 @@
         "role-desc": "Rooli (Ö-A)"
       },
       "title": "Oma organisaationi",
+      "verifiedPages": {
+        "add": "Rekisteröi sivu",
+        "addTitle": "Rekisteröi sivu",
+        "callbackShown": "Callback: {{url}}",
+        "callbackUrl": "Callback-osoite",
+        "callbackUrlHint": "Täällä ChatGameLab kysyy ennen jokaista aloitusta. Sen on vastattava muutamassa sekunnissa.",
+        "copied": "Kopioitu",
+        "copy": "Kopioi sivun tunnus",
+        "empty": "Vahvistettuja sivuja ei vielä ole.",
+        "intro": "Vahvistettu sivu on organisaatiosi verkkosivuston sivu, jolla voidaan näyttää upotettuja pelejäsi. Ennen pelin aloitusta siellä ChatGameLab kysyy sivun callbackilta, saako peli alkaa. Kyselyssä käytetään alla olevaa sivun tunnusta sekä sivusi välittämiä kävijän ja pyynnön tunnuksia. Vain vastaus {\"ok\": true} aloittaa pelin.",
+        "pageId": "Sivun tunnus",
+        "pageUrl": "Sivun osoite",
+        "pageUrlHint": "Sivu, jolle pelisi on upotettu. Vain sen verkkosivusto saa näyttää ne.",
+        "remove": "Poista sivu",
+        "removeTitle": "Poistetaanko tämä sivu?",
+        "removeWarning": "Sivulle {{page}} upotetut pelit eivät enää käynnisty siellä, ennen kuin ne saavat toisen sivun."
+      },
       "workshops": {
         "activate": "Aktivoi",
         "active": "Aktiivinen",
@@ -1732,6 +1920,7 @@
     "orgApiKeys": "API-avaimet",
     "orgConstraints": "Nuoriso­suojelun promptirajoitus",
     "orgMembers": "Jäsenet",
+    "orgVerifiedPages": "Verkkosivustot",
     "orgWorkshops": "Työpajat",
     "play": "Pelaa peli",
     "rooms": "Huoneet",
@@ -1777,6 +1966,7 @@
       "dropped": "hylätty",
       "droppedValue": "{{n}} (liian monta peräkkäin)",
       "empty": "ei vielä mitään",
+      "entryAbsent": "pelaaja poissa",
       "entryBackground": "taustatieto lähetetty",
       "entryConversation": "keskustelu",
       "entryDirection": "ohje lähetetty",
@@ -1784,6 +1974,7 @@
       "entryError": "virhe",
       "entryInjection": "syötetty",
       "entryLine": "sanoi",
+      "entryRules": "säännöt lähetetty",
       "entrySilence": "hiljaisuus",
       "entryThought": "ajattelee",
       "failed": "{{n}} epäonnistui",
@@ -1807,9 +1998,11 @@
       "poolValue": "{{n}} fragmenttia · tahti {{ms}} ms",
       "quietFor": "hiljaisuutta kestänyt",
       "quietReplies": "ei mitään tehtävää",
+      "reminders": "säännöistä muistutettu",
       "sent": "lähetetty",
       "sentValue": "{{d}} ohjetta · {{b}} taustatietoa",
       "setBeat": "aseta tahti (ms)",
+      "standingDown": "vetäytyy · pelaaja ei ole sanonut mitään {{s}}",
       "thinking": "ajattelee · {{s}}",
       "waiting": "odottaa ohjausta"
     },
@@ -1846,6 +2039,10 @@
       "noGame": "Tämä sivu tarvitsee pelin: avaa se pelin sivulta.",
       "starting": "Peliä käynnistetään…"
     },
+    "over": {
+      "contentPolicy": "Tekoälypalveluntarjoaja lopetti tämän pelin: keskustelu eteni suuntaan, jota sen turvallisuussäännöt eivät salli. Voit silti lukea kaiken sanotun ja aloittaa uuden pelin milloin haluat.",
+      "unknown": "Peli on päättynyt. Voit silti lukea kaiken sanotun ja aloittaa uuden pelin milloin haluat."
+    },
     "pipeline": {
       "compact": "Tiivistä ketju",
       "compactFailed": "Tiivistäminen epäonnistui",
@@ -1869,10 +2066,12 @@
       "denied": "Et voi pelata tätä peliä.",
       "failed": "Jokin meni pieleen, eikä peli voi jatkua.",
       "genre": "Käytettävissä oleva tekoälyavain ei voi suorittaa tämän tyyppistä peliä.",
+      "hostRefused": "Verkkosivusto, jolle tämä peli on upotettu, ei sallinut sen aloittamista.",
       "keyRejected": "Tekoälypalveluntarjoaja hylkäsi tämän pelin avaimen, joten peli ei voi jatkua. Pelin määrittäjän on tarkistettava avain.",
       "noCredit": "Valitettavasti AI-saldo on käytetty loppuun, joten peli ei voi jatkua juuri nyt.",
       "noKey": "Tämän pelin pelaamiseen ei ole käytettävissä tekoälyavainta.",
       "noPlays": "Tätä jaettua peliä ei voi enää pelata.",
+      "over": "Peli on päättynyt, joten se ei voi jatkua.",
       "paused": "Työpaja on tauolla. Peli jatkuu, kun työpajaa jatketaan.",
       "stale": "Tätä peliä ei voi enää jatkaa.",
       "unknown": "Tätä pelisessiota ei ole olemassa.",
@@ -1896,6 +2095,7 @@
       "choose": "Valitse pelitapa aloittaaksesi.",
       "connecting": "Yhdistetään…",
       "ended": "Peli on päättynyt.",
+      "over": "Peli on päättynyt.",
       "reconnecting": "Yhdistetään uudelleen…",
       "settingScene": "Kohtausta valmistellaan…",
       "wakingCharacter": "Hahmo herää…"

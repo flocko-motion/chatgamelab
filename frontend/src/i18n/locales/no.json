@@ -709,6 +709,176 @@
           "title": "Ulagrede endringer"
         }
       },
+      "editor": {
+        "allSet": "Alt klart: opprett spillet.",
+        "backToOverview": "Tilbake til oversikten",
+        "card": {
+          "adventure": {
+            "descriptionPlaceholder": "Finn den skjulte skatten før skogen sluker deg.",
+            "titlePlaceholder": "Skatten i den mørke skogen"
+          },
+          "description": "Beskrivelse",
+          "descriptionHint": "En setning eller to til galleriet, så spillerne vet hva de kan forvente.",
+          "encounter": {
+            "descriptionPlaceholder": "Besøk Greta, den grettene fyrvokteren, og finn ut hva hun så den natten.",
+            "titlePlaceholder": "Greta på fyrtårnet"
+          },
+          "title": "Tittel",
+          "titleHint": "{{length}}/{{max}} · Kan bli offentlig synlig – ikke bruk ekte navn."
+        },
+        "delete": {
+          "confirm": "Slett for godt",
+          "intro": "Fjern det for godt, etter at du har lastet det ned.",
+          "keep": "Behold det",
+          "keepFile": "Behold filen, så kan du importere spillet på nytt senere, her eller på en annen ChatGameLab-server.",
+          "label": "Slett spill",
+          "whatGoes": "\"{{name}}\" blir borte for godt: kortet, historien, bildene og delingslenkene. Spillere kan ikke lenger starte det. Dette kan ikke angres."
+        },
+        "done": "ferdig",
+        "doneButton": "Ferdig",
+        "download": {
+          "button": "Last ned",
+          "description": "Spillet som en fil, for å ta vare på eller importere til en annen ChatGameLab-server.",
+          "title": "Last ned"
+        },
+        "embed": {
+          "copy": "Kopier kodebit",
+          "incomplete": "Velg hva som skal betale, og siden, for å få kodebiten.",
+          "noKeys": "Du har ingen fungerende KI-nøkkel å betale med. Legg til en, eller spør organisasjonen din om en.",
+          "noPages": "Organisasjonen din har ennå ingen verifisert side. Organisasjonens leder eller ansatte kan legge til en i organisasjonens innstillinger.",
+          "offNote": "Når den er slått av, viser kodebiten ingenting. Når den slås på igjen, fungerer den samme kodebiten.",
+          "page": "Verifisert side",
+          "pageHint": "Spillet kjører bare der, og bare etter at siden har godkjent hver start.",
+          "paidBy": "Betales av",
+          "paidByPlaceholder": "Velg en nøkkel",
+          "payingNow": "Betaler nå",
+          "snippet": "Kodebit for nettstedet ditt",
+          "snippetCss": "din CSS",
+          "snippetHint": "Sett den inn der spillet skal vises, og gi elementet høyden du ønsker.",
+          "snippetPlayer": "DIN-BESØKER-ID",
+          "snippetRequest": "DIN-FORESPØRSELS-ID",
+          "snippetVerifiedHint": "Serveren din fyller inn ID-en til besøkeren og til denne sidevisningen; tilbakekallet fra siden din får begge.",
+          "styleLink": "Utform den med din egen CSS →",
+          "toggle": "Bygg inn på et nettsted",
+          "toggleHint": "Viser dette spillet på organisasjonens verifiserte side, uten noe fra ChatGameLab rundt det. Besøkende spiller som gjester; nøkkelen du velger, betaler."
+        },
+        "fillIn": "Fyll ut delene til alle er grønne.",
+        "genre": {
+          "pitch": {
+            "adventure": "Spilleren utforsker en verden. Spillet forteller hva som skjer, lager bilder og holder oversikt over poeng.",
+            "encounter": "Spilleren snakker med én figur, med stemmen. Figuren holder seg i rollen og svarer direkte."
+          },
+          "question": "Hva vil du lage?"
+        },
+        "look": {
+          "imageStyle": "Bildestil",
+          "imageStyleHint": "Hvordan bildene ser ut, inkludert forsidebildet: tegnefilm, akvarell, pikselkunst …",
+          "imageStylePlaceholder": "myk akvarell, dempede farger"
+        },
+        "makeCopy": "Lag min kopi",
+        "next": "neste",
+        "notDone": "ikke ferdig ennå",
+        "open": "Åpne",
+        "othersGame": "Dette spillet tilhører noen andre. Du kan se på alt og lage din egen kopi for å endre det.",
+        "pages": {
+          "card": {
+            "intro": "Det spillerne ser i galleriet: tittelen og en kort beskrivelse.",
+            "label": "Kort"
+          },
+          "look": {
+            "intro": "Hvordan spillets bilder og side ser ut.",
+            "label": "Utseende"
+          },
+          "sharing": {
+            "intro": "Hvem som kan finne og spille spillet.",
+            "label": "Deling"
+          },
+          "sound": {
+            "intro": "Hvordan spillets stemme høres ut.",
+            "label": "Lyd"
+          },
+          "story": {
+            "intro": "Hva som skjer i spillet, og hvordan det begynner.",
+            "label": "Historie"
+          }
+        },
+        "review": {
+          "button": "Kontroller",
+          "failed": "Spillet kunne ikke kontrolleres akkurat nå. Du kan lagre det likevel.",
+          "goTo": "Gå til {{page}}",
+          "later": "Senere",
+          "looksGood": "Ser bra ut. Spill det én gang og kjenn etter hvordan det føles.",
+          "missing": {
+            "adventure": {
+              "imageStyle": "Velg en bildestil, slik at bildene passer sammen.",
+              "name": "Spillet ditt har ingen tittel ennå.",
+              "systemMessageGameStart": "Fortell hvordan spillet begynner.",
+              "systemMessageScenario": "Fortell hva spillet handler om."
+            },
+            "encounter": {
+              "imageStyle": "Velg en bildestil, slik at bildene passer sammen.",
+              "name": "Spillet ditt har ingen tittel ennå.",
+              "systemMessageGameStart": "Fortell hvordan figuren hilser på spilleren.",
+              "systemMessageScenario": "Fortell hvem figuren er."
+            }
+          }
+        },
+        "sound": {
+          "adventure": {
+            "voiceStyle": "Fortellerens stemme",
+            "voiceStyleHint": "Hvordan historien høres ut når den leses høyt."
+          },
+          "builtInVoice": "Innebygd stemme",
+          "encounter": {
+            "voiceStyle": "Figurens stemme",
+            "voiceStyleHint": "Hvordan figuren høres ut."
+          },
+          "errors": {
+            "failed": "Stemmen kunne ikke spilles av. Prøv igjen.",
+            "keyRejected": "KI-leverandøren avviste nøkkelen. Stemmen kunne ikke spilles av.",
+            "noKey": "Ingen av KI-nøklene du kan bruke, snakker med en direkte stemme, så det er ingenting å høre akkurat nå."
+          },
+          "keepVoice": "Behold denne",
+          "listen": "Lytt",
+          "newVoice": "Lag en ny stemme",
+          "newVoiceConfirm": "Den nåværende stemmen slettes, og en ny lages ut fra den samme beskrivelsen. Spill med nøyaktig denne beskrivelsen på denne KI-nøkkelen får også den nye stemmen.",
+          "noteDescription": "Hvis du endrer beskrivelsen, blir stemmen uansett en annen.",
+          "noteKeys": "Av tekniske grunner kan vi ikke love at hver økt bruker nøyaktig denne stemmen: En stemme lages og lagres på KI-nøkkelen som betaler, så en økt som betales av en annen nøkkel, får sin egen stemme fra den samme beskrivelsen.",
+          "play": "Spill av en prøve av stemmen",
+          "sampleLine": {
+            "greeting": "Hei! Kom inn, sett deg, og fortell meg hva som bringer deg hit.",
+            "narration": "Historien begynner en stille morgen, idet en smal sti fører inn i det ukjente."
+          },
+          "status": {
+            "builtIn": "Ingen beskrivelse ennå: Spillet snakker med en innebygd stemme til du beskriver stemmen.",
+            "ownVoice": "En egen stemme for denne beskrivelsen, laget med KI-nøkkelen din.",
+            "steered": "En innebygd stemme leser historien, slik beskrivelsen sier."
+          },
+          "stop": "Stopp prøven"
+        },
+        "story": {
+          "adventure": {
+            "gameStart": "Hvordan begynner det?",
+            "gameStartHint": "Den første scenen spilleren ser, og hvordan spilleren forstår hva som skal gjøres.",
+            "gameStartPlaceholder": "Spilleren våkner ved kanten av en mørk skog. En smal sti fører inn mellom trærne …",
+            "scenario": "Hva handler spillet om?",
+            "scenarioHint": "Verdenen, spillerens rolle, målet og hvordan spilleren vet at hen har vunnet.",
+            "scenarioPlaceholder": "Spilleren er en oppdagelsesreisende i en mystisk skog og leter etter en skjult skatt …"
+          },
+          "encounter": {
+            "gameStart": "Hvordan hilser figuren på spilleren?",
+            "gameStartHint": "Situasjonen når samtalen begynner; de første ordene skrives ut fra den.",
+            "gameStartPlaceholder": "En fremmed banker på fyrtårnsdøren midt i en storm …",
+            "scenario": "Hvem er figuren?",
+            "scenarioHint": "Personligheten, hva figuren vet, hvordan den snakker, og hva den aldri gir etter for.",
+            "scenarioPlaceholder": "Du er Greta, en gretten fyrvokter som kjenner hvert eneste skip langs kysten …"
+          }
+        },
+        "titleEdit": "Rediger spill",
+        "titleNew": "Nytt spill",
+        "titleView": "Spill",
+        "untitled": "Spill uten tittel"
+      },
       "empty": {
         "description": "Opprett ditt første spill for å komme i gang med interaktive AI-drevne eventyr.",
         "title": "Ingen spill ennå"
@@ -735,7 +905,7 @@
       },
       "genres": {
         "adventure": "Eventyr",
-        "npc-live": "NPC-direkte"
+        "npc-live": "Møte"
       },
       "importExport": {
         "coverFailed": "Spillet ble importert, men galleribildet kunne ikke kontrolleres. Du kan tegne et nytt i redigeringsverktøyet.",
@@ -849,6 +1019,7 @@
       },
       "statusFieldsEditor": {
         "addField": "Legg til ny verdi",
+        "maxHint": "Maksimalt fem verdier: Noen få verdier spilleren kan følge, er bedre enn mange.",
         "namePlaceholder": "Navn (f.eks. Helse)",
         "noFields": "Ingen verdier ennå. Klikk + for å legge til en ny verdi.",
         "valuePlaceholder": "Startverdi (f.eks. 100)"
@@ -1203,6 +1374,23 @@
         "role-desc": "Rolle (Å-A)"
       },
       "title": "Min organisasjon",
+      "verifiedPages": {
+        "add": "Registrer side",
+        "addTitle": "Registrer en side",
+        "callbackShown": "Tilbakekall: {{url}}",
+        "callbackUrl": "Adresse for tilbakekall",
+        "callbackUrlHint": "Her spør ChatGameLab før hver start. Den må svare innen noen få sekunder.",
+        "copied": "Kopiert",
+        "copy": "Kopier side-ID",
+        "empty": "Ingen verifiserte sider ennå.",
+        "intro": "En verifisert side er en side på organisasjonens nettsted som kan vise de innebygde spillene dine. Før et spill starter der, spør ChatGameLab sidens tilbakekall om det skal starte, med side-ID-en nedenfor og ID-ene til besøkeren og forespørselen som siden din sender videre. Bare svaret {\"ok\": true} starter spillet.",
+        "pageId": "Side-ID",
+        "pageUrl": "Adresse til siden",
+        "pageUrlHint": "Siden som spillene dine er bygget inn i. Bare nettstedet dens kan vise dem.",
+        "remove": "Fjern side",
+        "removeTitle": "Fjern denne siden?",
+        "removeWarning": "Spill som er bygget inn for {{page}}, slutter å starte der til de får en annen side."
+      },
       "workshops": {
         "activate": "Aktiver",
         "active": "Aktiv",
@@ -1726,6 +1914,7 @@
     "orgApiKeys": "API-nøkler",
     "orgConstraints": "Promptbegrensning for ungdomsvern",
     "orgMembers": "Medlemmer",
+    "orgVerifiedPages": "Nettsteder",
     "orgWorkshops": "Workshops",
     "play": "Spill et spill",
     "rooms": "Rom",
@@ -1771,6 +1960,7 @@
       "dropped": "forkastet",
       "droppedValue": "{{n}} (for mange på rad)",
       "empty": "ingenting ennå",
+      "entryAbsent": "spilleren er borte",
       "entryBackground": "bakgrunn sendt",
       "entryConversation": "samtale",
       "entryDirection": "instruks sendt",
@@ -1778,6 +1968,7 @@
       "entryError": "feil",
       "entryInjection": "sendt inn",
       "entryLine": "sa",
+      "entryRules": "reglene er sendt",
       "entrySilence": "stillhet",
       "entryThought": "tenker",
       "failed": "{{n}} mislyktes",
@@ -1801,9 +1992,11 @@
       "poolValue": "{{n}} fragmenter · taktslag {{ms}} ms",
       "quietFor": "stille i",
       "quietReplies": "ingenting å gjøre",
+      "reminders": "minnet om reglene",
       "sent": "sendt",
       "sentValue": "{{d}} instrukser · {{b}} bakgrunn",
       "setBeat": "angi taktslag (ms)",
+      "standingDown": "trakk seg tilbake · spilleren har ikke sagt noe på {{s}}",
       "thinking": "tenker · {{s}}",
       "waiting": "venter på det"
     },
@@ -1840,6 +2033,10 @@
       "noGame": "Denne siden trenger et spill for å kunne spilles: Åpne den fra siden til et spill.",
       "starting": "Starter spillet…"
     },
+    "over": {
+      "contentPolicy": "Dette spillet ble stoppet av KI-leverandøren: Samtalen gikk i en retning sikkerhetsreglene deres ikke tillater. Du kan fortsatt lese alt som ble sagt, og starte et nytt spill når du vil.",
+      "unknown": "Dette spillet er over. Du kan fortsatt lese alt som ble sagt, og starte et nytt spill når du vil."
+    },
     "pipeline": {
       "compact": "Komprimer tråd",
       "compactFailed": "Kunne ikke komprimere",
@@ -1863,10 +2060,12 @@
       "denied": "Du har ikke lov til å spille dette spillet.",
       "failed": "Noe gikk galt, og spillet kan ikke fortsette.",
       "genre": "Den tilgjengelige AI-nøkkelen kan ikke kjøre denne typen spill.",
+      "hostRefused": "Nettstedet dette spillet er bygget inn i, tillot ikke at det startet.",
       "keyRejected": "AI-leverandøren avviste nøkkelen til dette spillet, så spillet kan ikke fortsette. Den som satte opp spillet, må kontrollere nøkkelen.",
       "noCredit": "Beklager, AI-kreditten er brukt opp, så spillet kan ikke fortsette akkurat nå.",
       "noKey": "Det finnes ingen tilgjengelig AI-nøkkel for å spille dette spillet.",
       "noPlays": "Dette delte spillet har ingen spill igjen.",
+      "over": "Dette spillet er over, så det kan ikke fortsette.",
       "paused": "Workshopen er satt på pause. Spillet fortsetter når den startes igjen.",
       "stale": "Dette spillet kan ikke lenger fortsettes.",
       "unknown": "Denne spilløkten finnes ikke.",
@@ -1890,6 +2089,7 @@
       "choose": "Velg hvordan du vil spille for å begynne.",
       "connecting": "Kobler til…",
       "ended": "Spillet er over.",
+      "over": "Spillet er over.",
       "reconnecting": "Kobler til på nytt…",
       "settingScene": "Setter scenen…",
       "wakingCharacter": "Vekker figuren…"

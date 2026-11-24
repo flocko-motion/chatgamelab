@@ -1,13 +1,9 @@
 package testing
 
 import (
-	"archive/zip"
-	"bytes"
-	"io"
 	"strings"
 	"testing"
 
-	coverpic "cgl/picture"
 	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
@@ -115,7 +111,7 @@ func (s *GameCoverTestSuite) TestABroughtInPictureBecomesTheCover() {
 	user, gameID := s.designer("cover-upload")
 
 	picture := testutil.PNG(1200, 900)
-	game := Must(user.SetCover(gameID, picture, coverpic.Sign(picture)))
+	game := Must(user.SetCover(gameID, picture, testutil.SignCover(picture)))
 	s.NotNil(game.CoverAt)
 	stored := Must(user.GetCover(gameID))
 	s.True(testutil.IsJPEG(stored), "the cover is stored as a JPEG")
@@ -128,7 +124,7 @@ func (s *GameCoverTestSuite) TestABadUploadIsRefused() {
 	user, gameID := s.designer("cover-bad")
 
 	notAPicture := []byte("no picture at all")
-	_, err := user.SetCover(gameID, notAPicture, coverpic.Sign(notAPicture))
+	_, err := user.SetCover(gameID, notAPicture, testutil.SignCover(notAPicture))
 	s.Refused(err, testutil.CodeNotAPicture)
 	_, err = user.SetCover(gameID, make([]byte, 1<<20+1), "")
 	s.Refused(err, testutil.CodeFileTooLarge)
@@ -141,7 +137,7 @@ func (s *GameCoverTestSuite) TestNoKeyNoBroughtInCover() {
 	gameID := Must(user.UploadGame("alien-first-contact")).Id.String()
 
 	picture := testutil.PNG(60, 40)
-	_, err := user.SetCover(gameID, picture, coverpic.Sign(picture))
+	_, err := user.SetCover(gameID, picture, testutil.SignCover(picture))
 	s.Refused(err, testutil.CodeNoApiKey)
 	s.Nil(Must(user.ReadGame(gameID)).CoverAt)
 }
@@ -152,7 +148,7 @@ func (s *GameCoverTestSuite) TestOthersCannotBringInACover() {
 	stranger, _ := s.designer("cover-upload-stranger")
 
 	picture := testutil.PNG(60, 40)
-	_, err := stranger.SetCover(gameID, picture, coverpic.Sign(picture))
+	_, err := stranger.SetCover(gameID, picture, testutil.SignCover(picture))
 	s.NotFound(err)
 }
 
@@ -164,7 +160,7 @@ func (s *GameCoverTestSuite) TestAnUnsignedPictureIsRefused() {
 
 	_, err := user.SetCover(gameID, picture, "")
 	s.Refused(err, testutil.CodeCoverUnsigned)
-	_, err = user.SetCover(gameID, picture, coverpic.Sign(testutil.PNG(61, 40)))
+	_, err = user.SetCover(gameID, picture, testutil.SignCover(testutil.PNG(61, 40)))
 	s.Refused(err, testutil.CodeCoverUnsigned)
 	s.Nil(Must(user.ReadGame(gameID)).CoverAt)
 }
@@ -173,7 +169,8 @@ func (s *GameCoverTestSuite) TestAnUnsignedPictureIsRefused() {
 func (s *GameCoverTestSuite) TestAnExportedCoverComesBack() {
 	user, gameID := s.designer("cover-roundtrip")
 	Must(user.MakeCover(gameID, ""))
-	files := zipFiles(Must(user.GetGameCgl(gameID)))
+	_, files, err := testutil.CglFiles(Must(user.GetGameCgl(gameID)))
+	s.Require().NoError(err)
 
 	game := Must(user.SetCover(gameID, files["cover.jpg"], string(files["cover.sig"])))
 	s.NotNil(game.CoverAt)
@@ -184,29 +181,12 @@ func (s *GameCoverTestSuite) TestAnExportedCoverComesBack() {
 func (s *GameCoverTestSuite) TestTheCglFileHoldsTheGameAndItsCover() {
 	user, gameID := s.designer("cover-zip")
 
-	s.Equal([]string{"game.yaml"}, zipNames(Must(user.GetGameCgl(gameID))))
+	names := func() []string {
+		names, _, err := testutil.CglFiles(Must(user.GetGameCgl(gameID)))
+		s.Require().NoError(err)
+		return names
+	}
+	s.Equal([]string{"game.yaml"}, names())
 	Must(user.MakeCover(gameID, ""))
-	s.Equal([]string{"game.yaml", "cover.jpg", "cover.sig"}, zipNames(Must(user.GetGameCgl(gameID))))
-}
-
-// zipFiles reads a zip's files by name.
-func zipFiles(body []byte) map[string][]byte {
-	zr := Must(zip.NewReader(bytes.NewReader(body), int64(len(body))))
-	files := map[string][]byte{}
-	for _, f := range zr.File {
-		rc := Must(f.Open())
-		files[f.Name] = Must(io.ReadAll(rc))
-		rc.Close()
-	}
-	return files
-}
-
-// zipNames lists a zip's files in order.
-func zipNames(body []byte) []string {
-	zr := Must(zip.NewReader(bytes.NewReader(body), int64(len(body))))
-	var names []string
-	for _, f := range zr.File {
-		names = append(names, f.Name)
-	}
-	return names
+	s.Equal([]string{"game.yaml", "cover.jpg", "cover.sig"}, names())
 }
