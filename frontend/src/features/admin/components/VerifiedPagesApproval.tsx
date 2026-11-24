@@ -4,7 +4,7 @@ import type { VerifiedPageListSort } from "@/api/hooks";
 import type { VerifiedPageView } from "@/api/types";
 import { ListTable, type ListColumn } from "@components/ListTable";
 import { ActionButton, TextButton } from "@components/buttons";
-import { BodyText, HelperText } from "@components/typography";
+import { BodyText, HelperText, ItemTitle } from "@components/typography";
 import { VERIFIED_PAGE_LIST_PRESET, type VerifiedPageColumnKey } from "../lib/verifiedPageListPresets";
 import { useVerifiedPagesApproval } from "../hooks/useVerifiedPagesApproval";
 import classes from "./VerifiedPagesApproval.module.css";
@@ -49,9 +49,7 @@ export function VerifiedPagesApproval() {
       header: t("admin.verifiedPages.organisation"),
       sortBy: "organisation",
       render: (page) => (
-        <BodyText size="sm" fw={500}>
-          {page.organisationName}
-        </BodyText>
+        <ItemTitle lines={1}>{page.organisationName}</ItemTitle>
       ),
     },
     page: { key: "page", header: t("admin.verifiedPages.page"), render: address },
@@ -63,9 +61,7 @@ export function VerifiedPagesApproval() {
     <Card withBorder padding="sm" radius="md">
       <Stack gap="xs">
         <Group justify="space-between" wrap="nowrap" align="flex-start">
-          <BodyText size="sm" fw={500}>
-            {page.organisationName}
-          </BodyText>
+          <ItemTitle lines={1}>{page.organisationName}</ItemTitle>
           {status(page)}
         </Group>
         {address(page)}

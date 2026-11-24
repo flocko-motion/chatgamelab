@@ -18,7 +18,7 @@ import {
   DeleteIconButton,
   GenericIconButton,
 } from "@components/buttons";
-import { BodyText, HelperText, Label } from "@components/typography";
+import { BodyText, HelperText, ItemTitle, Label } from "@components/typography";
 import type { VerifiedPageView } from "@/api/types";
 import type { VerifiedPagesTabState } from "../hooks/useVerifiedPagesTab";
 import classes from "./VerifiedPagesTab.module.css";
@@ -122,9 +122,7 @@ function PageCard({
           <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
             <IconWorld size={16} style={{ flexShrink: 0 }} />
             <div className={classes.address}>
-              <BodyText size="sm" fw={500}>
-                {page.pageUrl}
-              </BodyText>
+              <ItemTitle>{page.pageUrl}</ItemTitle>
             </div>
             <Badge
               size="xs"
