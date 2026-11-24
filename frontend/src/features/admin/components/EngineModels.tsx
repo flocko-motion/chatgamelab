@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { ActionIcon, Badge, Group, Loader, Stack, Table, Tooltip, UnstyledButton } from "@mantine/core";
-import { IconAlertTriangle, IconCpu, IconPencil, IconPlus, IconTable } from "@tabler/icons-react";
+import { Fragment, useState, type ReactNode } from "react";
+import { ActionIcon, Badge, Group, Loader, Stack, Table, Text, Tooltip, UnstyledButton } from "@mantine/core";
+import { modals } from "@mantine/modals";
+import { IconAlertTriangle, IconArrowBackUp, IconCpu, IconPencil, IconPlus, IconTable } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { TextButton } from "@components/buttons";
 import { BodyText, HelperText, Label } from "@components/typography";
@@ -45,18 +46,20 @@ export function EngineModels() {
             busy={page.saving}
           >
             <Assignments page={page} platform={p} onOpen={(slot) => setSlotDraft({ platform: p.id, slot })} />
+            {p.configurable && <ResetAll page={page} platform={p} what="assignments" />}
           </SettingsCard>
           <SettingsCard
             icon={<IconTable size={20} />}
             title={t("serverSettings.models.table.title", { platform: p.name })}
             description={t(p.configurable ? "serverSettings.models.table.description" : "serverSettings.models.fixed")}
           >
-            <ModelTable platform={p} onOpen={(row) => setEntryDraft({ platform: p.id, row })} />
+            <ModelTable page={page} platform={p} onOpen={(row) => setEntryDraft({ platform: p.id, row })} />
             {p.configurable && (
-              <Group>
+              <Group justify="space-between">
                 <TextButton leftSection={<IconPlus size={16} />} onClick={() => setEntryDraft({ platform: p.id })}>
                   {t("serverSettings.models.table.add")}
                 </TextButton>
+                <ResetAll page={page} platform={p} what="entries" />
               </Group>
             )}
           </SettingsCard>
@@ -82,6 +85,30 @@ export function EngineModels() {
       />
     </Stack>
   );
+}
+
+/** Gives a platform's tiers, or its model table, back the defaults, after asking. */
+function ResetAll({ page, platform, what }: { page: EngineModelsPage; platform: EngineModelsPlatform; what: "assignments" | "entries" }) {
+  const { t } = useTranslation("common");
+  const ask = () =>
+    modals.openConfirmModal({
+      title: t(`serverSettings.models.resetAll.${what}.title`, { platform: platform.name }),
+      children: <Text size="sm">{t(`serverSettings.models.resetAll.${what}.message`)}</Text>,
+      labels: { confirm: t("serverSettings.models.resetAll.confirm"), cancel: t("cancel") },
+      onConfirm: () => void page.resetAll(platform.id, what).catch(() => undefined),
+    });
+  return (
+    <Group justify="flex-end">
+      <TextButton leftSection={<IconArrowBackUp size={16} />} onClick={ask} disabled={!page.anyChanged(platform, what)}>
+        {t("serverSettings.models.resetAll.button")}
+      </TextButton>
+    </Group>
+  );
+}
+
+/** A value that differs from the default, highlighted. */
+function Changed({ on, children }: { on: boolean; children: ReactNode }) {
+  return on ? <span className={classes.changed}>{children}</span> : <>{children}</>;
 }
 
 /** One platform's tiers × tasks; a table on wide screens, a list per task on a phone. */
@@ -141,7 +168,7 @@ function Assignments({
   );
 }
 
-/** A tier's task: its model, marked when the admin assigned it or it has no entry. */
+/** A tier's task: its model and a picture's quality, highlighted where they differ from the default. */
 function SlotCell({
   page,
   platform,
@@ -155,13 +182,16 @@ function SlotCell({
 }) {
   const { t } = useTranslation("common");
   const content = (
-    <Group gap={6} wrap="nowrap">
-      <span className={classes.modelName}>{slot.model}</span>
-      {slot.assigned && (
-        <Badge size="xs" variant="light" color="accent">
-          {t("serverSettings.models.changed")}
-        </Badge>
-      )}
+    <Group gap={6} wrap="nowrap" className={page.slotChanged(slot) ? classes.changedCell : undefined}>
+      <span className={classes.modelName}>
+        <Changed on={slot.model !== slot.default}>{slot.model}</Changed>
+        {slot.quality && (
+          <>
+            {" · "}
+            <Changed on={slot.quality !== slot.defaultQuality}>{t(`serverSettings.models.quality.${slot.quality}`)}</Changed>
+          </>
+        )}
+      </span>
       {page.unpriced(platform, slot.model) && (
         <Tooltip label={t("serverSettings.models.unpriced")} withArrow multiline w={260}>
           <IconAlertTriangle size={14} color="var(--mantine-color-orange-6)" aria-label={t("serverSettings.models.unpriced")} />
@@ -185,24 +215,43 @@ function SlotCell({
   );
 }
 
-/** One platform's model table; models no tier runs are greyed. */
-function ModelTable({ platform, onOpen }: { platform: EngineModelsPlatform; onOpen: (row: ModelTableRowView) => void }) {
+/** One platform's model table: each model with the tiers that run it; models no tier runs are greyed. */
+function ModelTable({
+  page,
+  platform,
+  onOpen,
+}: {
+  page: EngineModelsPage;
+  platform: EngineModelsPlatform;
+  onOpen: (row: ModelTableRowView) => void;
+}) {
   const { t } = useTranslation("common");
   return (
     <Stack gap={0} className={classes.rows}>
-      {platform.models.map((row) => (
+      {platform.models.map((row) => {
+        const changed = page.entryChanged(row);
+        const media = (list: string[]) => list.map((m) => t(`serverSettings.models.media.${m}`)).join(", ");
+        return (
         <div key={row.model} className={classes.row} data-unused={!row.inUse || undefined}>
           <Stack gap={2} className={classes.rowMain}>
             <Group gap={6} wrap="wrap">
-              <span className={classes.modelName}>{row.model}</span>
+              <span className={classes.modelName}>
+                <Changed on={changed.added}>{row.model}</Changed>
+              </span>
+              {page.usedBy(platform, row.model).map((use) => (
+                <Tooltip
+                  key={use.tier}
+                  withArrow
+                  label={use.types.map((type) => t(`serverSettings.models.types.${type}`)).join(", ")}
+                >
+                  <Badge size="xs" variant="filled" color="ink">
+                    {getAiQualityTierLabel(t, use.tier)}
+                  </Badge>
+                </Tooltip>
+              ))}
               {!row.inUse && (
                 <Badge size="xs" variant="outline" color="gray">
                   {t("serverSettings.models.table.unused")}
-                </Badge>
-              )}
-              {row.overridden && row.default && (
-                <Badge size="xs" variant="light" color="accent">
-                  {t("serverSettings.models.changed")}
                 </Badge>
               )}
               {!row.default && (
@@ -217,13 +266,21 @@ function ModelTable({ platform, onOpen }: { platform: EngineModelsPlatform; onOp
               )}
             </Group>
             <HelperText size="xs">
-              {t("serverSettings.models.table.media", {
-                takes: row.facts.in.map((m) => t(`serverSettings.models.media.${m}`)).join(", "),
-                makes: row.facts.out.map((m) => t(`serverSettings.models.media.${m}`)).join(", "),
-              })}
-              {row.facts.window ? ` · ${t("serverSettings.models.table.windowValue", { tokens: row.facts.window.toLocaleString() })}` : ""}
+              {t("serverSettings.models.table.takes")} <Changed on={changed.takes}>{media(row.facts.in)}</Changed>
+              {" · "}
+              {t("serverSettings.models.table.makes")} <Changed on={changed.makes}>{media(row.facts.out)}</Changed>
+              {row.facts.window ? (
+                <>
+                  {" · "}
+                  <Changed on={changed.window}>
+                    {t("serverSettings.models.table.windowValue", { tokens: row.facts.window.toLocaleString() })}
+                  </Changed>
+                </>
+              ) : null}
             </HelperText>
-            <BodyText size="sm">{priceLine(t, row.facts.price)}</BodyText>
+            <BodyText size="sm">
+              <PriceLine price={row.facts.price} changed={changed.price} />
+            </BodyText>
             <HelperText size="xs">
               {t("serverSettings.models.table.read", { date: row.facts.read, source: row.facts.source })}
             </HelperText>
@@ -241,15 +298,25 @@ function ModelTable({ platform, onOpen }: { platform: EngineModelsPlatform; onOp
             </Tooltip>
           )}
         </div>
-      ))}
+        );
+      })}
     </Stack>
   );
 }
 
-/** A price as one line: every rate the model has, in dollars. */
-function priceLine(t: (key: string, opts?: Record<string, unknown>) => string, price: Price): string {
-  const parts = PRICE_FIELDS.filter((f) => price[f]).map((f) =>
-    t(`serverSettings.models.price.${f}`, { value: `$${price[f]}` }),
+/** A price as one line: every rate the model has, in dollars, each highlighted where it differs from the code's. */
+function PriceLine({ price, changed }: { price: Price; changed: (field: keyof Price) => boolean }) {
+  const { t } = useTranslation("common");
+  const fields = PRICE_FIELDS.filter((f) => price[f] || changed(f));
+  if (fields.length === 0) return <>{t("serverSettings.models.price.none")}</>;
+  return (
+    <>
+      {fields.map((f, i) => (
+        <Fragment key={f}>
+          {i > 0 && " · "}
+          <Changed on={changed(f)}>{t(`serverSettings.models.price.${f}`, { value: `$${price[f] ?? 0}` })}</Changed>
+        </Fragment>
+      ))}
+    </>
   );
-  return parts.length ? parts.join(" · ") : t("serverSettings.models.price.none");
 }

@@ -1781,7 +1781,9 @@
         "title": "Izgled"
       },
       "constraints": {
-        "description": "Definišite obavezna AI pravila na osnovu dobne grupe igrača. Ova pravila zaštite maloljetnika dodaju se svakom AI pozivu. Primjenjuju se na sve prijavljene korisnike izvan režima radionice.",
+        "changed": "Izmijenjeno",
+        "description": "Obavezna AI pravila prema dobnoj grupi igrača. Primjenjuju se pri svakom AI pozivu prijavljenih korisnika izvan režima radionice. Svako pravilo počinje kao zadano na stranici; možete ga promijeniti i u bilo kojem trenutku vratiti na zadano.",
+        "reset": "Vrati na zadano",
         "title": "Pravila zaštite maloljetnika prema dobnim grupama",
         "u13Hint": "Ubacuje se u svaki AI upit za prijavljene korisnike uzrasta 13-17 bez evidentirane saglasnosti roditelja.",
         "u13Label": "Pravilo zaštite maloljetnika za korisnike od 13 do 17 godina, bez saglasnosti roditelja (U13)",
@@ -1813,11 +1815,115 @@
         "description": "Nivo kvaliteta koji se koristi kada je aktivan API ključ za besplatno korištenje. Viši nivoi koštaju više, ali mogu imati bolji kvalitet. Ostavite prazno za podrazumijevani nivo.",
         "title": "AI nivo kvaliteta za besplatno korištenje"
       },
+      "models": {
+        "assign": {
+          "cellLabel": "{{task}}, {{tier}}: {{model}}. Dodijeli drugi model",
+          "model": "Model",
+          "modelHint": "Samo modeli iz tabele modela koji odgovaraju ovom zadatku. Zadano: {{model}}",
+          "quality": "Kvalitet slike",
+          "qualityHint": "Glavni faktor koji utiče na cijenu i trajanje izrade slike. Zadano: {{quality}}",
+          "reset": "Vrati na zadano",
+          "title": "Dodijeli model",
+          "where": "{{task}} na nivou {{tier}}"
+        },
+        "assignments": {
+          "description": "Koji model koristi svaki nivo kvaliteta za pojedini zadatak. Kliknite na model da biste dodijelili drugi iz tabele modela. Nove sesije koriste izmjenu, a sesije koje su u toku zadržavaju svoje modele.",
+          "title": "{{platform}}: modeli po nivou"
+        },
+        "entry": {
+          "codeRead": "Vrijednosti enginea: od {{date}}, izvor: {{source}}",
+          "makes": "Proizvodi",
+          "model": "Naziv modela",
+          "modelHint": "Tačno onako kako ga pružalac usluge naziva, npr. gpt-6.2-sol",
+          "price": {
+            "audioInputPerMTok": "Audio ulaz po milionu tokena",
+            "audioOutputPerMTok": "Audio izlaz po milionu tokena",
+            "audioPerMinute": "Audio po minuti",
+            "cachedAudioInputPerMTok": "Keširani audio ulaz po milionu tokena",
+            "cachedInputPerMTok": "Keširani ulaz po milionu tokena",
+            "inputPerMTok": "Ulaz po milionu tokena",
+            "outputPerMTok": "Izlaz po milionu tokena",
+            "perImage": "Po slici"
+          },
+          "prices": "Cijene",
+          "pricesHint": "U dolarima, onako kako su navedene na stranici s cijenama pružaoca usluge. Ostavite polje prazno kada se model ne naplaćuje na taj način.",
+          "remove": "Ukloni model",
+          "reset": "Vrati vrijednosti enginea",
+          "takes": "Prima",
+          "window": "Kontekstni prozor (tokeni)",
+          "windowHint": "Koliko jedan poziv može sadržavati. Modelima za priče i pripovijedanje je potreban; u suprotnom se duga priča nikada ne skraćuje."
+        },
+        "fixed": "Modele ove platforme određuje engine i ovdje ih nije moguće mijenjati.",
+        "media": {
+          "audio": "audio",
+          "image": "slike",
+          "text": "tekst"
+        },
+        "price": {
+          "audioInputPerMTok": "audio ulaz {{value}}/M",
+          "audioOutputPerMTok": "audio izlaz {{value}}/M",
+          "audioPerMinute": "{{value}}/min",
+          "cachedAudioInputPerMTok": "keširani audio {{value}}/M",
+          "cachedInputPerMTok": "keširani ulaz {{value}}/M",
+          "inputPerMTok": "ulaz {{value}}/M",
+          "none": "Nema cijene",
+          "outputPerMTok": "izlaz {{value}}/M",
+          "perImage": "{{value}}/slika"
+        },
+        "probe": {
+          "answers": "Odgovara (trošak ${{cost}})",
+          "button": "Testiraj",
+          "failed": "Ne odgovara: {{message}}",
+          "none": "Modele za ovaj zadatak još nije moguće testirati."
+        },
+        "quality": {
+          "high": "visoka",
+          "low": "niska",
+          "medium": "srednja"
+        },
+        "refused": "Engine je odbio ovu izmjenu",
+        "resetAll": {
+          "assignments": {
+            "message": "Svaki nivo ponovo koristi model enginea za svaki zadatak, a slike koriste kvalitet enginea. Nove sesije koriste zadane vrijednosti, dok sesije koje su u toku zadržavaju svoje modele.",
+            "title": "{{platform}}: vratiti standardne modele?"
+          },
+          "button": "Vrati sve na zadano",
+          "confirm": "Vrati",
+          "entries": {
+            "message": "Svaki model enginea ponovo dobija vrijednosti enginea, a dodani modeli koje nijedan nivo ne koristi se uklanjaju. Dodani modeli koje neki nivo koristi zadržavaju svoje unose.",
+            "title": "{{platform}}: vratiti tabelu modela enginea?"
+          }
+        },
+        "table": {
+          "add": "Dodaj model",
+          "added": "Dodano",
+          "description": "Šta svaki model prima i proizvodi, njegove cijene u dolarima i njegov kontekstni prozor. Troškovi se izračunavaju na osnovu ovih vrijednosti. Modeli koje nijedan nivo ne koristi prikazani su zasivljeno. Izmjene modela enginea važe do sljedeće verzije aplikacije.",
+          "edit": "Uredi unos",
+          "makes": "proizvodi",
+          "read": "Cijena od {{date}}, izvor: {{source}}",
+          "stale": "Resetovano ažuriranjem",
+          "takes": "Prima",
+          "title": "{{platform}}: tabela modela",
+          "unused": "Ne koristi se",
+          "windowValue": "prozor {{tokens}} tokena"
+        },
+        "task": "Zadatak",
+        "types": {
+          "hearing": "Glasovni unos",
+          "image": "Slike",
+          "live": "Glas uživo",
+          "speech": "Pripovijedanje",
+          "story": "Priča",
+          "tooling": "Alati"
+        },
+        "unpriced": "Ovaj model nema unos u tabeli modela: njegovi troškovi se ne izračunavaju, a priča na njemu se nikada ne skraćuje."
+      },
       "notAuthorized": "Nemate dozvolu za pristup postavkama servera. Potreban je administratorski pristup.",
       "tabs": {
         "ai": "Vještačka inteligencija i ključevi",
         "branding": "Izgled",
         "general": "Općenito",
+        "models": "AI modeli",
         "youthProtection": "Zaštita mladih"
       },
       "title": "Postavke servera",

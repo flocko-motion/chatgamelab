@@ -30,7 +30,7 @@ const (
 	// The server embeds a copy of the locales; it mirrors localesDir.
 	serverLocalesDir = "go/lang/locales"
 
-	model       = "gpt-5.6-luna"
+	model       = "gpt-6-luna"
 	apiKeyEnv   = "OPENAI_API_KEY"
 	attempts    = 3
 	placeholder = "TODO: TRANSLATE"

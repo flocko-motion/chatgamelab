@@ -90,3 +90,39 @@ func (s *EngineModelsTestSuite) TestOnlyConfigurablePlatformsChange() {
 	_, err := admin.AssignEngineModel("mistral", "low", "story", "mistral-small-latest")
 	s.Invalid(err)
 }
+
+// A tier's pictures take the admin's quality; resetting the tiers brings the
+// default model and quality back.
+func (s *EngineModelsTestSuite) TestTheAdminSetsAPictureQualityAndResetsTheTiers() {
+	admin := s.DevUser()
+	before := Must(admin.EngineModels())
+	model, _ := testutil.AssignedModel(before, "openai", "high", "image")
+	_, def := testutil.PictureQuality(before, "openai", "high")
+
+	_, err := admin.AssignPicture("openai", "high", model, "ultra")
+	s.Invalid(err, "an unknown quality")
+
+	models := Must(admin.AssignPicture("openai", "high", model, "medium"))
+	quality, _ := testutil.PictureQuality(models, "openai", "high")
+	s.Equal("medium", quality)
+
+	models = Must(admin.ResetEngineModels("openai", "assignments"))
+	quality, _ = testutil.PictureQuality(models, "openai", "high")
+	s.Equal(def, quality)
+	_, assigned := testutil.AssignedModel(models, "openai", "high", "image")
+	s.False(assigned)
+}
+
+// Resetting the model table gives code models their figures back and removes
+// added models no tier runs.
+func (s *EngineModelsTestSuite) TestResettingTheModelTable() {
+	admin := s.DevUser()
+	Must(admin.AddTextModel("openai", "gpt-5.6-luna", 9, 9, 1_050_000))
+	Must(admin.AddTextModel("openai", "gpt-spare", 1, 1, 100_000))
+
+	models := Must(admin.ResetEngineModels("openai", "entries"))
+	row, _ := testutil.ModelRow(models, "openai", "gpt-5.6-luna")
+	s.False(row.Overridden)
+	_, listed := testutil.ModelRow(models, "openai", "gpt-spare")
+	s.False(listed)
+}

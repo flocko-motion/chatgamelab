@@ -1,4 +1,4 @@
-.PHONY: help rebase pr release prerelease sync check-clean-tree check-on-feature docs translate translate-check roadmap roadmap-local embed-kit
+.PHONY: help tools rebase pr release prerelease sync check-clean-tree check-on-feature docs translate translate-check roadmap roadmap-local embed-kit
 
 # The release line this copy of the file belongs to. Each major version keeps
 # its own copy, so these two lines are what differs from one line to the next:
@@ -13,12 +13,24 @@ help:
 	@echo "make release [YES=1]  $(DEV) -> $(MAIN), back into $(DEV), then cut the release from $(MAIN); YES=1 skips the prompt"
 	@echo "make prerelease       cut a prerelease (x.y.z-dev.N) from $(DEV)"
 	@echo "make sync             merge $(MAIN) back into $(DEV) through a pull request"
+	@echo "make tools            build the hand-run dev tools (probe, models, seedcovers, debug-relay) into bin/"
 	@echo "make docs             render the spec in docs/ to PDF in docs/build/"
 	@echo "make translate        translate changed UI texts into every language (before pushing)"
 	@echo "make translate-check  fail if any UI text still needs translating (what CI runs)"
 	@echo "make roadmap          rebuild the interactive roadmap from the issues now"
 	@echo "make roadmap-local    the interactive roadmap on http://localhost:8765, from the live issues or the last ones read"
 	@echo "make embed-kit        a blank website on http://localhost:8000 to try an embedded game on, with a verified page's callback"
+
+# The dev tools run by hand, compiled into bin/ (gitignored). Each is a Go
+# command of the workspace (go.work), so it builds from the repo root.
+TOOLS := go/engine/cmd/probe go/engine/cmd/models go/engine/cmd/debug-relay go/cmd/seedcovers
+
+tools:
+	@mkdir -p bin
+	@for t in $(TOOLS); do \
+		echo "bin/$$(basename $$t)"; \
+		go build -o bin/$$(basename $$t) ./$$t || exit 1; \
+	done
 
 # The spec is Typst; the PDFs are build output.
 docs:

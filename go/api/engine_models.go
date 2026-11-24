@@ -39,6 +39,10 @@ type ModelSlotView struct {
 	Type    engine.ModelType `json:"type"`
 	Model   string           `json:"model"`
 	Default string           `json:"default"`
+	// Quality is a picture's quality as it applies, DefaultQuality the
+	// code's; empty for a task that draws nothing.
+	Quality        string `json:"quality,omitempty"`
+	DefaultQuality string `json:"defaultQuality,omitempty"`
 	// Assigned: the admin assigned the model; ModifiedAt says when.
 	Assigned   bool       `json:"assigned"`
 	ModifiedAt *time.Time `json:"modifiedAt,omitempty"`
@@ -74,11 +78,42 @@ func (GetEngineModelsEndpoint) Handle(ctx context.Context, _ GetEngineModelsReq)
 // GetEngineModelsReq takes no parameters.
 type GetEngineModelsReq struct{}
 
+// ResetEngineModelsEndpoint gives a platform's tasks back their default
+// models ("assignments"), or its model table back the code's figures
+// ("entries", keeping the entries of added models a tier runs); admins only.
+// Answers the engine's models as they now are.
+type ResetEngineModelsEndpoint struct{}
+
+func (ResetEngineModelsEndpoint) Method() string             { return "POST" }
+func (ResetEngineModelsEndpoint) Path() string               { return "/api/system/engine-models/reset" }
+func (ResetEngineModelsEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
+func (ResetEngineModelsEndpoint) Handle(ctx context.Context, req ResetEngineModelsReq) (EngineModelsResp, error) {
+	if req.What == EngineModelsResetEntries {
+		return engineModelsView(core.ResetModelEntries(ctx, req.Platform, RunningVersion()))
+	}
+	return engineModelsView(core.ResetModelAssignments(ctx, req.Platform, RunningVersion()))
+}
+
+// EngineModelsReset names what a reset gives back.
+type EngineModelsReset string
+
+const (
+	EngineModelsResetAssignments EngineModelsReset = "assignments" // the models per tier
+	EngineModelsResetEntries     EngineModelsReset = "entries"     // the model table
+)
+
+// ResetEngineModelsReq is the platform and what to reset.
+type ResetEngineModelsReq struct {
+	Platform engine.Platform   `json:"platform"`
+	What     EngineModelsReset `json:"what"`
+}
+
 // AssignEngineModelEndpoint assigns a model to a tier's task; admins only.
 //
 // The model must be in the platform's model table and fit the task: a
 // hearing model takes audio, an image model makes pictures, a story or
-// speech model has a context window (400 otherwise). An empty model gives
+// speech model has a context window (400 otherwise). A picture takes a
+// quality (low, medium, high; empty keeps the tier's). An empty model gives
 // the task back its default. Answers the engine's models as they now are.
 type AssignEngineModelEndpoint struct{}
 
@@ -89,7 +124,7 @@ func (AssignEngineModelEndpoint) Auth() schemafapi.AuthLevel {
 }
 func (AssignEngineModelEndpoint) Handle(ctx context.Context, req AssignEngineModelReq) (EngineModelsResp, error) {
 	slot := engine.ModelSlot{Platform: req.Platform, Tier: req.Tier, Type: req.Type}
-	return engineModelsView(core.AssignModel(ctx, slot, req.Model, RunningVersion()))
+	return engineModelsView(core.AssignModel(ctx, slot, engine.SlotChoice{Model: req.Model, Quality: req.Quality}, RunningVersion()))
 }
 
 // AssignEngineModelReq is the tier's task and the model; empty resets it.
@@ -98,6 +133,8 @@ type AssignEngineModelReq struct {
 	Tier     engine.Tier      `json:"tier"`
 	Type     engine.ModelType `json:"type"`
 	Model    string           `json:"model"`
+	// Quality is a picture's quality: low, medium or high; empty keeps the tier's.
+	Quality string `json:"quality,omitempty"`
 }
 
 // SetEngineModelEntryEndpoint sets a model's entry in the model table, adding
@@ -200,6 +237,9 @@ func engineModelsView(stored core.EngineOverrides, err error) (EngineModelsResp,
 				}
 				used[model.Name] = true
 				slot := ModelSlotView{Tier: tier.Tier, Type: kind, Model: model.Name, Default: codeSet[kind].Name}
+				if kind == engine.ModelImage {
+					slot.Quality, slot.DefaultQuality = model.Params["quality"], codeSet[kind].Params["quality"]
+				}
 				if a, ok := assigned[engine.ModelSlot{Platform: p.ID, Tier: tier.Tier, Type: kind}]; ok {
 					slot.Assigned, slot.ModifiedAt = true, &a.ModifiedAt
 				}

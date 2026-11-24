@@ -1781,7 +1781,9 @@
         "title": "Apparence"
       },
       "constraints": {
-        "description": "Définissez des règles obligatoires pour l’IA en fonction du groupe d’âge du joueur. Ces règles de protection des mineurs accompagnent chaque appel à l’IA. Elles s’appliquent à tous les utilisateurs connectés en dehors du mode atelier.",
+        "changed": "Modifié",
+        "description": "Règles d'IA obligatoires selon le groupe d'âge du joueur. Elles s'appliquent à chaque appel d'IA des utilisateurs connectés en dehors du mode atelier. Chacune commence avec la valeur par défaut du site ; vous pouvez la modifier et revenir au défaut à tout moment.",
+        "reset": "Revenir au défaut",
         "title": "Règles de protection des mineurs par groupe d’âge",
         "u13Hint": "Injecté dans chaque prompt IA pour les utilisateurs connectés de 13 à 17 ans sans consentement parental enregistré.",
         "u13Label": "Règle de protection des mineurs pour les utilisateurs de 13 à 17 ans, sans consentement parental (U13)",
@@ -1813,11 +1815,115 @@
         "description": "Niveau de qualité utilisé quand la clé API en libre accès est active. Les niveaux supérieurs coûtent plus cher mais peuvent offrir une meilleure qualité. Laissez vide pour utiliser le niveau par défaut.",
         "title": "Niveau de qualité IA pour la clé en libre accès"
       },
+      "models": {
+        "assign": {
+          "cellLabel": "{{task}}, {{tier}} : {{model}}. Attribuer un autre modèle",
+          "model": "Modèle",
+          "modelHint": "Uniquement les modèles de la table des modèles compatibles avec cette tâche. Par défaut : {{model}}",
+          "quality": "Qualité de l'image",
+          "qualityHint": "Le principal facteur du coût et de la durée de génération d'une image. Par défaut : {{quality}}",
+          "reset": "Revenir au défaut",
+          "title": "Attribuer un modèle",
+          "where": "{{task}} au niveau {{tier}}"
+        },
+        "assignments": {
+          "description": "Modèle utilisé par chaque niveau de qualité pour chaque tâche. Cliquez sur un modèle pour en attribuer un autre depuis la table des modèles. Les nouvelles sessions utilisent la modification ; les sessions en cours conservent leurs modèles.",
+          "title": "{{platform}} : modèles par niveau"
+        },
+        "entry": {
+          "codeRead": "Valeurs du moteur : au {{date}}, source : {{source}}",
+          "makes": "Produit",
+          "model": "Nom du modèle",
+          "modelHint": "Exactement comme le nomme le fournisseur, par ex. gpt-6.2-sol",
+          "price": {
+            "audioInputPerMTok": "Entrée audio par million de tokens",
+            "audioOutputPerMTok": "Sortie audio par million de tokens",
+            "audioPerMinute": "Audio par minute",
+            "cachedAudioInputPerMTok": "Entrée audio en cache par million de tokens",
+            "cachedInputPerMTok": "Entrée en cache par million de tokens",
+            "inputPerMTok": "Entrée par million de tokens",
+            "outputPerMTok": "Sortie par million de tokens",
+            "perImage": "Par image"
+          },
+          "prices": "Tarifs",
+          "pricesHint": "En dollars, tels qu'indiqués sur la page tarifaire du fournisseur. Laissez un champ vide lorsque le modèle n'est pas facturé de cette manière.",
+          "remove": "Supprimer le modèle",
+          "reset": "Revenir aux valeurs du moteur",
+          "takes": "Accepte",
+          "window": "Fenêtre de contexte (tokens)",
+          "windowHint": "Quantité de contenu qu'un appel peut contenir. Les modèles d'histoire et de narration en ont besoin, sinon une longue histoire ne sera jamais raccourcie."
+        },
+        "fixed": "Les modèles de cette plateforme sont définis par le moteur et ne peuvent pas être modifiés ici.",
+        "media": {
+          "audio": "audio",
+          "image": "images",
+          "text": "texte"
+        },
+        "price": {
+          "audioInputPerMTok": "audio entrant {{value}}/M",
+          "audioOutputPerMTok": "audio sortant {{value}}/M",
+          "audioPerMinute": "{{value}}/min",
+          "cachedAudioInputPerMTok": "audio en cache {{value}}/M",
+          "cachedInputPerMTok": "entrée en cache {{value}}/M",
+          "inputPerMTok": "entrée {{value}}/M",
+          "none": "Aucun tarif",
+          "outputPerMTok": "sortie {{value}}/M",
+          "perImage": "{{value}}/image"
+        },
+        "probe": {
+          "answers": "Répond (coût : ${{cost}})",
+          "button": "Tester",
+          "failed": "Ne répond pas : {{message}}",
+          "none": "Les modèles pour cette tâche ne peuvent pas encore être testés."
+        },
+        "quality": {
+          "high": "élevée",
+          "low": "faible",
+          "medium": "moyenne"
+        },
+        "refused": "Le moteur a refusé cette modification",
+        "resetAll": {
+          "assignments": {
+            "message": "Chaque niveau utilise à nouveau le modèle du moteur pour chaque tâche, et les images utilisent la qualité du moteur. Les nouvelles sessions utilisent les valeurs par défaut ; les sessions en cours conservent leurs modèles.",
+            "title": "{{platform}} : revenir aux modèles par défaut ?"
+          },
+          "button": "Tout réinitialiser par défaut",
+          "confirm": "Réinitialiser",
+          "entries": {
+            "message": "Chaque modèle du moteur retrouve les valeurs du moteur, et les modèles ajoutés qu'aucun niveau n'utilise sont supprimés. Les modèles ajoutés utilisés par un niveau conservent leurs entrées.",
+            "title": "{{platform}} : revenir à la table des modèles du moteur ?"
+          }
+        },
+        "table": {
+          "add": "Ajouter un modèle",
+          "added": "Ajouté",
+          "description": "Ce que chaque modèle accepte et produit, ses tarifs en dollars et sa fenêtre de contexte. Les coûts sont calculés à partir de ces valeurs. Les modèles utilisés par aucun niveau sont grisés. Les modifications apportées aux modèles du moteur s'appliquent jusqu'à la prochaine version de l'application.",
+          "edit": "Modifier l'entrée",
+          "makes": "produit",
+          "read": "Tarif au {{date}}, source : {{source}}",
+          "stale": "Réinitialisé par la mise à jour",
+          "takes": "Accepte",
+          "title": "{{platform}} : table des modèles",
+          "unused": "Non utilisé",
+          "windowValue": "fenêtre de {{tokens}} tokens"
+        },
+        "task": "Tâche",
+        "types": {
+          "hearing": "Entrée vocale",
+          "image": "Images",
+          "live": "Voix en direct",
+          "speech": "Narration",
+          "story": "Histoire",
+          "tooling": "Outils"
+        },
+        "unpriced": "Ce modèle n'a aucune entrée dans la table des modèles : ses coûts ne sont pas calculés et une histoire générée avec lui ne sera jamais raccourcie."
+      },
       "notAuthorized": "Vous n’avez pas l’autorisation d’accéder aux paramètres du serveur. Accès administrateur requis.",
       "tabs": {
         "ai": "IA et clés",
         "branding": "Apparence",
         "general": "Général",
+        "models": "Modèles d'IA",
         "youthProtection": "Protection des jeunes"
       },
       "title": "Paramètres du serveur",

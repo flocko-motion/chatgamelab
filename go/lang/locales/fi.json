@@ -1786,7 +1786,9 @@
         "title": "Brändäys"
       },
       "constraints": {
-        "description": "Määritä pelaajan ikäryhmään perustuvat pakolliset tekoälysäännöt. Nämä nuorisosuojasäännöt liitetään jokaiseen tekoälykutsuun. Ne koskevat kaikkia kirjautuneita käyttäjiä työpajatilassa toimimisen ulkopuolella.",
+        "changed": "Muutettu",
+        "description": "Pelaajan ikäryhmän mukaiset pakolliset tekoälysäännöt. Ne koskevat kaikkia kirjautuneiden käyttäjien tekoälykutsuja työpajatilan ulkopuolella. Jokainen sääntö alkaa sivuston oletusarvosta; voit muuttaa sitä ja palata oletusarvoon milloin tahansa.",
+        "reset": "Takaisin oletusarvoon",
         "title": "Ikäryhmäkohtaiset nuorisosuojasäännöt",
         "u13Hint": "Lisätään jokaiseen tekoälykehotteeseen kirjautuneille 13–17-vuotiaille käyttäjille, joilla ei ole huoltajan suostumusta.",
         "u13Label": "13–17-vuotiaiden käyttäjien nuorisosuojasääntö ilman vanhempien suostumusta (U13)",
@@ -1818,11 +1820,115 @@
         "description": "Laatutaso, jota käytetään, kun vapaaseen käyttöön tarkoitettu API-avain on aktiivinen. Korkeammat tasot maksavat enemmän, mutta voivat tarjota parempaa laatua. Jätä tyhjäksi käyttääksesi oletustasoa.",
         "title": "Vapaaseen käyttöön tarkoitettu AI-laatutaso"
       },
+      "models": {
+        "assign": {
+          "cellLabel": "{{task}}, {{tier}}: {{model}}. Määritä toinen malli",
+          "model": "Malli",
+          "modelHint": "Vain mallit mallitaulukosta, jotka sopivat tähän tehtävään. Oletus: {{model}}",
+          "quality": "Kuvan laatu",
+          "qualityHint": "Tärkein kuvan kustannuksiin ja kestoon vaikuttava tekijä. Oletus: {{quality}}",
+          "reset": "Takaisin oletusarvoon",
+          "title": "Määritä malli",
+          "where": "{{task}} tasolla {{tier}}"
+        },
+        "assignments": {
+          "description": "Mitä mallia kukin laatutaso käyttää kussakin tehtävässä. Napsauta mallia määrittääksesi sen tilalle toisen mallin mallitaulukosta. Uudet istunnot käyttävät muutosta, käynnissä olevat istunnot säilyttävät mallinsa.",
+          "title": "{{platform}}: mallit tasoittain"
+        },
+        "entry": {
+          "codeRead": "Moottorin omat arvot: {{date}} alkaen, lähde: {{source}}",
+          "makes": "Tuottaa",
+          "model": "Mallin nimi",
+          "modelHint": "Täsmälleen siinä muodossa kuin palveluntarjoaja sen nimeää, esim. gpt-6.2-sol",
+          "price": {
+            "audioInputPerMTok": "Äänisyöte miljoonaa tokenia kohti",
+            "audioOutputPerMTok": "Äänituloste miljoonaa tokenia kohti",
+            "audioPerMinute": "Ääni minuuttia kohti",
+            "cachedAudioInputPerMTok": "Välimuistissa oleva äänisyöte miljoonaa tokenia kohti",
+            "cachedInputPerMTok": "Välimuistissa oleva syöte miljoonaa tokenia kohti",
+            "inputPerMTok": "Syöte miljoonaa tokenia kohti",
+            "outputPerMTok": "Tuloste miljoonaa tokenia kohti",
+            "perImage": "Kuvaa kohti"
+          },
+          "prices": "Hinnat",
+          "pricesHint": "Dollareina, sellaisina kuin palveluntarjoajan hinnastosivulla ilmoitetaan. Jätä kenttä tyhjäksi, jos mallia ei laskuteta tällä tavalla.",
+          "remove": "Poista malli",
+          "reset": "Takaisin moottorin omiin arvoihin",
+          "takes": "Ottaa vastaan",
+          "window": "Konteksti-ikkuna (tokenia)",
+          "windowHint": "Kuinka paljon yksi kutsu voi sisältää. Tarina- ja kerrontamallit tarvitsevat tämän, muuten pitkää tarinaa ei koskaan lyhennetä."
+        },
+        "fixed": "Moottori määrittää tämän alustan mallit, eikä niitä voi muuttaa täällä.",
+        "media": {
+          "audio": "ääni",
+          "image": "kuvat",
+          "text": "teksti"
+        },
+        "price": {
+          "audioInputPerMTok": "äänisyöte {{value}}/M",
+          "audioOutputPerMTok": "äänituloste {{value}}/M",
+          "audioPerMinute": "{{value}}/min",
+          "cachedAudioInputPerMTok": "välimuistissa oleva ääni {{value}}/M",
+          "cachedInputPerMTok": "välimuistissa {{value}}/M",
+          "inputPerMTok": "syöte {{value}}/M",
+          "none": "Ei hintaa",
+          "outputPerMTok": "tuloste {{value}}/M",
+          "perImage": "{{value}}/kuva"
+        },
+        "probe": {
+          "answers": "Vastaa (kustannus ${{cost}})",
+          "button": "Testaa",
+          "failed": "Ei vastaa: {{message}}",
+          "none": "Tämän tehtävän malleja ei voi vielä testata."
+        },
+        "quality": {
+          "high": "korkea",
+          "low": "matala",
+          "medium": "keskitaso"
+        },
+        "refused": "Moottori hylkäsi tämän muutoksen",
+        "resetAll": {
+          "assignments": {
+            "message": "Jokainen taso käyttää taas moottorin omaa mallia kaikissa tehtävissä ja kuvat moottorin omaa laatua. Uudet istunnot käyttävät oletuksia; käynnissä olevat istunnot säilyttävät mallinsa.",
+            "title": "{{platform}}: palautetaanko oletusmallit?"
+          },
+          "button": "Palauta kaikki oletuksiin",
+          "confirm": "Palauta",
+          "entries": {
+            "message": "Jokainen moottorin malli saa jälleen moottorin omat arvot, ja lisäämäsi mallit, joita mikään taso ei käytä, poistetaan. Tasojen käyttämien lisättyjen mallien tiedot säilytetään.",
+            "title": "{{platform}}: palautetaanko moottorin mallitaulukko?"
+          }
+        },
+        "table": {
+          "add": "Lisää malli",
+          "added": "Lisätty",
+          "description": "Mitä kukin malli ottaa vastaan ja tuottaa, sen hinnat dollareina sekä sen konteksti-ikkuna. Kustannukset lasketaan näiden arvojen perusteella. Mallit, joita mikään taso ei käytä, näkyvät harmaina. Moottorin omiin malleihin tehdyt muutokset ovat voimassa seuraavaan sovellusversioon asti.",
+          "edit": "Muokkaa tietuetta",
+          "makes": "tuottaa",
+          "read": "Hinta {{date}} alkaen, lähde: {{source}}",
+          "stale": "Päivitys palautti oletusarvon",
+          "takes": "Ottaa vastaan",
+          "title": "{{platform}}: mallitaulukko",
+          "unused": "Ei käytössä",
+          "windowValue": "ikkuna {{tokens}} tokenia"
+        },
+        "task": "Tehtävä",
+        "types": {
+          "hearing": "Puheentunnistus",
+          "image": "Kuvat",
+          "live": "Live-puhe",
+          "speech": "Kerronta",
+          "story": "Tarina",
+          "tooling": "Työkalut"
+        },
+        "unpriced": "Tätä mallia ei ole mallitaulukossa: sen kustannuksia ei lasketa, eikä sillä tuotettua tarinaa koskaan lyhennetä."
+      },
       "notAuthorized": "Sinulla ei ole oikeutta käyttää palvelinasetuksia. Ylläpitäjätaso vaaditaan.",
       "tabs": {
         "ai": "Tekoäly ja avaimet",
         "branding": "Brändäys",
         "general": "Yleiset",
+        "models": "Tekoälymallit",
         "youthProtection": "Nuorten suojaus"
       },
       "title": "Palvelinasetukset",

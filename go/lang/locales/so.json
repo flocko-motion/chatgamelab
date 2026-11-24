@@ -2487,7 +2487,9 @@
         "title": "Muuqaalka degelka"
       },
       "constraints": {
-        "description": "Qeex xeerar AI oo khasab ah oo ku salaysan kooxda da'da ciyaaryahanka. Xeerarkan ilaalinta carruurta waxay raacayaan wicitaan kasta oo AI ah. Waxay khuseeyaan dhammaan isticmaalayaasha galay nidaamka ee ka baxsan habka aqoon-is-weydaarsiga.",
+        "changed": "La beddelay",
+        "description": "Xeerarka AI ee khasabka ah, oo ku salaysan kooxda da'da ciyaartoyga. Waxay la socdaan wicitaan kasta oo AI ah oo ay sameeyaan isticmaalayaasha soo galay, marka laga reebo qaabka aqoon-is-weydaarsiga. Mid kastaa wuxuu ku bilaabmaa xeerka caadiga ah ee goobta; waad beddeli kartaa oo wakhti kasta ugu noqon kartaa caadiga.",
+        "reset": "Ku noqo caadiga",
         "title": "Xeerarka ilaalinta carruurta ee kooxaha da'da",
         "u13Hint": "Waxay ku dhex jirtaa jab kasta oo AI ah ee isticmaaleyaasha soo galay ee da'doodu tahay 13-17 iyadoo aan oggolaansho waalid keydka ku jirin.",
         "u13Label": "Xeerka ilaalinta carruurta ee isticmaalayaasha da'doodu tahay 13–17, aan haysan oggolaanshaha waalidka (U13)",
@@ -2499,10 +2501,114 @@
         "u18Label": "Xeerka ilaalinta carruurta ee isticmaalayaasha da'doodu tahay 18 iyo ka weyn (U18)",
         "u18Placeholder": "tusaale ahaan: Ka dhig nuxurka mid habboon. Ka fogow rabshado cad ama nuxur galmo."
       },
+      "models": {
+        "assign": {
+          "cellLabel": "{{task}}, {{tier}}: {{model}}. U qoondee nooc kale",
+          "model": "Nooca",
+          "modelHint": "Kaliya noocyada ku jira jadwalka noocyada ee ku habboon hawshan. Caadi: {{model}}",
+          "quality": "Tayada sawirka",
+          "qualityHint": "Qodobka ugu weyn ee saameeya kharashka iyo waqtiga sawirka. Caadi: {{quality}}",
+          "reset": "Ku noqo caadiga",
+          "title": "U qoondee nooc",
+          "where": "{{task}} heerka {{tier}}"
+        },
+        "assignments": {
+          "description": "Nooca ay heer kasta oo tayo ahi hawl kasta ku fuliso. Guji nooc si aad uga qoondeyso mid kale jadwalka noocyada. Kulamada cusub waxay isticmaalaan isbeddelka; kulamada socda waxay sii haystaan noocyadooda.",
+          "title": "{{platform}}: noocyada heer kasta"
+        },
+        "entry": {
+          "codeRead": "Tirooyinka matoorka: laga bilaabo {{date}}, isha: {{source}}",
+          "makes": "Soo saaraa",
+          "model": "Magaca nooca",
+          "modelHint": "Si sax ah sida uu bixiyuhu ugu magacaabo, tusaale ahaan gpt-6.2-sol",
+          "price": {
+            "audioInputPerMTok": "Gelinta codka halkii milyan Token",
+            "audioOutputPerMTok": "Soo saarista codka halkii milyan Token",
+            "audioPerMinute": "Codka halkii daqiiqo",
+            "cachedAudioInputPerMTok": "Gelinta codka kaydsan halkii milyan Token",
+            "cachedInputPerMTok": "Gelinta kaydsan halkii milyan Token",
+            "inputPerMTok": "Gelinta halkii milyan Token",
+            "outputPerMTok": "Soo saarista halkii milyan Token",
+            "perImage": "Sawirkiiba"
+          },
+          "prices": "Qiimayaasha",
+          "pricesHint": "Doollar ahaan, sida ku qoran bogga qiimayaasha bixiyaha. Meel bannaan ka tag haddii nooca aan sidaas loo dalacin.",
+          "remove": "Ka saar nooca",
+          "reset": "Ku noqo tirooyinka matoorka",
+          "takes": "Qaataa",
+          "window": "Daaqadda macnaha guud (Token)",
+          "windowHint": "Inta uu wicitaanku qaadi karo. Noocyada sheekada iyo warrintu way u baahan yihiin; haddii kale sheeko dheer marnaba lama soo gaabiyo."
+        },
+        "fixed": "Noocyada madalkan waxaa dejiyay matoorku, halkan lagumana beddeli karo.",
+        "media": {
+          "audio": "cod",
+          "image": "sawirro",
+          "text": "qoraal"
+        },
+        "price": {
+          "audioInputPerMTok": "cod gudaha {{value}}/M",
+          "audioOutputPerMTok": "cod dibadda {{value}}/M",
+          "audioPerMinute": "{{value}}/daqiiqo",
+          "cachedAudioInputPerMTok": "cod kaydsan {{value}}/M",
+          "cachedInputPerMTok": "gelin kaydsan {{value}}/M",
+          "inputPerMTok": "gelin {{value}}/M",
+          "none": "Qiime ma jiro",
+          "outputPerMTok": "soo saarid {{value}}/M",
+          "perImage": "{{value}}/sawir"
+        },
+        "probe": {
+          "answers": "Wuu ka jawaabaa (kharashka ${{cost}})",
+          "button": "Tijaabi",
+          "failed": "Kama jawaabo: {{message}}",
+          "none": "Noocyada hawshan wali lama tijaabin karo."
+        },
+        "quality": {
+          "high": "sare",
+          "low": "hoose",
+          "medium": "dhexdhexaad"
+        },
+        "refused": "Matoorku wuu diiday isbeddelkan",
+        "resetAll": {
+          "assignments": {
+            "message": "Heer kasta wuxuu hawl kasta mar kale ku fulinayaa nooca matoorka, sawirrana tayada matoorka. Kulamada cusub waxay isticmaalaan dejimaha caadiga ah; kulamada socda waxay sii haystaan noocyadooda.",
+            "title": "{{platform}}: ma loogu noqdaa noocyada caadiga ah?"
+          },
+          "button": "Dhammaan ugu celi caadiga",
+          "confirm": "Dib u celi",
+          "entries": {
+            "message": "Nooc kasta oo matoorka ah wuxuu mar kale helayaa tirooyinka matoorka, waxaana la saarayaa noocyada aad ku dartay ee aan heerna isticmaalin. Noocyada aad ku dartay ee heer isticmaalo waxay sii haystaan gelintooda.",
+            "title": "{{platform}}: ma loogu noqdaa jadwalka noocyada matoorka?"
+          }
+        },
+        "table": {
+          "add": "Ku dar nooc",
+          "added": "La daray",
+          "description": "Waxa nooc kastaa qaato oo soo saaro, qiimayaashiisa doollar ahaan iyo daaqaddiisa macnaha guud. Kharashyada waxaa laga xisaabiyaa tirooyinkan. Noocyada aan heerna isticmaalin waa la cawleeyaa. Isbeddellada lagu sameeyo noocyada matoorka waxay shaqaynayaan ilaa nooca xiga ee app-ka.",
+          "edit": "Wax ka beddel gelinta",
+          "makes": "soo saaraa",
+          "read": "Qiime laga bilaabo {{date}}, isha: {{source}}",
+          "stale": "Cusboonaysiin ayaa dib u dejisay",
+          "takes": "Qaataa",
+          "title": "{{platform}}: jadwalka noocyada",
+          "unused": "Lama isticmaalo",
+          "windowValue": "Daaqad {{tokens}} Token"
+        },
+        "task": "Hawl",
+        "types": {
+          "hearing": "Gelinta codka",
+          "image": "Sawirro",
+          "live": "Cod toos ah",
+          "speech": "Sheeko-akhrin",
+          "story": "Sheeko",
+          "tooling": "Qalab"
+        },
+        "unpriced": "Noocani kuma jiro jadwalka noocyada: kharashkiisa lama xisaabiyo, sheeko lagu sameeyana marnaba lama soo gaabiyo."
+      },
       "tabs": {
         "ai": "AI iyo furayaal",
         "branding": "Muuqaalka degelka",
         "general": "Guud",
+        "models": "Noocyada AI",
         "youthProtection": "Ilaalinta dhallinyarada"
       },
       "updates": {

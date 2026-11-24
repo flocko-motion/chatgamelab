@@ -1786,7 +1786,9 @@
         "title": "Wygląd"
       },
       "constraints": {
-        "description": "Zdefiniuj obowiązkowe zasady AI na podstawie grupy wiekowej gracza. Te zasady ochrony młodzieży są dołączane do każdego wywołania AI. Obowiązują wszystkich zalogowanych użytkowników poza trybem warsztatowym.",
+        "changed": "Zmieniono",
+        "description": "Obowiązkowe zasady AI zależne od grupy wiekowej gracza. Są stosowane przy każdym wywołaniu AI przez zalogowanych użytkowników poza trybem warsztatu. Każda zaczyna od ustawienia domyślnego witryny; możesz ją zmienić i w dowolnym momencie wrócić do ustawienia domyślnego.",
+        "reset": "Wróć do ustawienia domyślnego",
         "title": "Zasady ochrony młodzieży według grupy wiekowej",
         "u13Hint": "Dodawane do każdego promptu AI dla zalogowanych użytkowników w wieku 13–17 lat, którzy nie mają w systemie zgody rodziców.",
         "u13Label": "Zasady ochrony młodzieży dla użytkowników w wieku 13–17 lat, bez zgody rodziców (U13)",
@@ -1818,11 +1820,115 @@
         "description": "Poziom jakości używany, gdy aktywny jest klucz do darmowego użycia. Wyższe poziomy kosztują więcej, ale mogą dawać lepszą jakość. Pozostaw puste, aby użyć domyślnego poziomu.",
         "title": "Poziom jakości AI dla klucza darmowego"
       },
+      "models": {
+        "assign": {
+          "cellLabel": "{{task}}, {{tier}}: {{model}}. Przypisz inny model",
+          "model": "Model",
+          "modelHint": "Tylko modele z tabeli modeli, które pasują do tego zadania. Domyślnie: {{model}}",
+          "quality": "Jakość obrazu",
+          "qualityHint": "Najważniejszy czynnik wpływający na koszt i czas tworzenia obrazu. Domyślnie: {{quality}}",
+          "reset": "Wróć do ustawienia domyślnego",
+          "title": "Przypisz model",
+          "where": "{{task}} na poziomie {{tier}}"
+        },
+        "assignments": {
+          "description": "Który model obsługuje każde zadanie na danym poziomie jakości. Kliknij model, aby przypisać inny z tabeli modeli. Nowe sesje użyją zmiany, a trwające zachowają swoje modele.",
+          "title": "{{platform}}: modele według poziomu"
+        },
+        "entry": {
+          "codeRead": "Wartości silnika: z dnia {{date}}, źródło: {{source}}",
+          "makes": "Tworzy",
+          "model": "Nazwa modelu",
+          "modelHint": "Dokładnie tak, jak nazywa go dostawca, np. gpt-6.2-sol",
+          "price": {
+            "audioInputPerMTok": "Wejście audio na milion tokenów",
+            "audioOutputPerMTok": "Wyjście audio na milion tokenów",
+            "audioPerMinute": "Audio na minutę",
+            "cachedAudioInputPerMTok": "Buforowane wejście audio na milion tokenów",
+            "cachedInputPerMTok": "Buforowane wejście na milion tokenów",
+            "inputPerMTok": "Wejście na milion tokenów",
+            "outputPerMTok": "Wyjście na milion tokenów",
+            "perImage": "Za obraz"
+          },
+          "prices": "Ceny",
+          "pricesHint": "W dolarach, zgodnie z cennikiem dostawcy. Pozostaw pole puste, jeśli model nie jest w ten sposób rozliczany.",
+          "remove": "Usuń model",
+          "reset": "Wróć do wartości silnika",
+          "takes": "Przyjmuje",
+          "window": "Okno kontekstowe (tokeny)",
+          "windowHint": "Ile może zawierać jedno wywołanie. Modele historii i narracji potrzebują tej wartości, inaczej długa historia nigdy nie zostanie skrócona."
+        },
+        "fixed": "Modele tej platformy są ustalane przez silnik i nie można ich tutaj zmieniać.",
+        "media": {
+          "audio": "audio",
+          "image": "obrazy",
+          "text": "tekst"
+        },
+        "price": {
+          "audioInputPerMTok": "audio wejściowe {{value}}/M",
+          "audioOutputPerMTok": "audio wyjściowe {{value}}/M",
+          "audioPerMinute": "{{value}}/min",
+          "cachedAudioInputPerMTok": "buforowane audio {{value}}/M",
+          "cachedInputPerMTok": "buforowane wejście {{value}}/M",
+          "inputPerMTok": "wejście {{value}}/M",
+          "none": "Brak ceny",
+          "outputPerMTok": "wyjście {{value}}/M",
+          "perImage": "{{value}}/obraz"
+        },
+        "probe": {
+          "answers": "Odpowiada (koszt ${{cost}})",
+          "button": "Testuj",
+          "failed": "Nie odpowiada: {{message}}",
+          "none": "Modele dla tego zadania nie mogą być jeszcze testowane."
+        },
+        "quality": {
+          "high": "wysoka",
+          "low": "niska",
+          "medium": "średnia"
+        },
+        "refused": "Silnik odrzucił tę zmianę",
+        "resetAll": {
+          "assignments": {
+            "message": "Każdy poziom ponownie używa modelu silnika do każdego zadania, a obrazy są tworzone z jakością silnika. Nowe sesje użyją ustawień domyślnych, a trwające zachowają swoje modele.",
+            "title": "{{platform}}: wrócić do modeli domyślnych?"
+          },
+          "button": "Przywróć wszystkie ustawienia domyślne",
+          "confirm": "Przywróć",
+          "entries": {
+            "message": "Każdy model silnika ponownie otrzyma wartości silnika, a dodane modele, których nie używa żaden poziom, zostaną usunięte. Dodane modele używane przez jakiś poziom zachowają swoje wpisy.",
+            "title": "{{platform}}: wrócić do tabeli modeli silnika?"
+          }
+        },
+        "table": {
+          "add": "Dodaj model",
+          "added": "Dodano",
+          "description": "Co każdy model przyjmuje i tworzy, jego ceny w dolarach oraz okno kontekstowe. Na tej podstawie obliczane są koszty. Modele, których nie używa żaden poziom, są wyszarzone. Zmiany modeli silnika obowiązują do następnej wersji aplikacji.",
+          "edit": "Edytuj wpis",
+          "makes": "tworzy",
+          "read": "Cena z dnia {{date}}, źródło: {{source}}",
+          "stale": "Zresetowano podczas aktualizacji",
+          "takes": "Przyjmuje",
+          "title": "{{platform}}: tabela modeli",
+          "unused": "Nieużywany",
+          "windowValue": "okno {{tokens}} tokenów"
+        },
+        "task": "Zadanie",
+        "types": {
+          "hearing": "Wprowadzanie głosowe",
+          "image": "Obrazy",
+          "live": "Głos na żywo",
+          "speech": "Narracja",
+          "story": "Historia",
+          "tooling": "Narzędzia"
+        },
+        "unpriced": "Ten model nie ma wpisu w tabeli modeli: jego koszty nie są obliczane, a historia z jego użyciem nigdy nie zostanie skrócona."
+      },
       "notAuthorized": "Nie masz uprawnień do ustawień serwera. Wymagany dostęp administratora.",
       "tabs": {
         "ai": "AI i klucze",
         "branding": "Wygląd",
         "general": "Ogólne",
+        "models": "Modele AI",
         "youthProtection": "Ochrona młodzieży"
       },
       "title": "Ustawienia serwera",

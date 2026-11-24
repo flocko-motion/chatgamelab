@@ -39,7 +39,7 @@ func TestOverriddenModelReplacesItsSlotOnly(t *testing.T) {
 	defaultImage := tierModels(t, platformInfo(t, DefaultPlatforms(), PlatformOpenAI), TierLow)[ModelImage]
 
 	err := SetOverrides(Overrides{
-		Models: map[ModelSlot]string{{PlatformOpenAI, TierLow, ModelImage}: "gpt-image-next"},
+		Models: map[ModelSlot]SlotChoice{{PlatformOpenAI, TierLow, ModelImage}: {Model: "gpt-image-next"}},
 		Facts: map[Platform]map[string]ModelFactsOverride{PlatformOpenAI: {"gpt-image-next": {
 			In: []Medium{MediumText, MediumImage}, Out: []Medium{MediumImage}, Price: Price{OutputPerMTok: 30}, Since: "2026-11-24",
 		}}},
@@ -49,7 +49,7 @@ func TestOverriddenModelReplacesItsSlotOnly(t *testing.T) {
 	}
 	openaiNow := platformInfo(t, Platforms(), PlatformOpenAI)
 	low := tierModels(t, openaiNow, TierLow)[ModelImage]
-	if low.Name != "gpt-image-next" || low.Params[adapters.ParamQuality] != defaultImage.Params[adapters.ParamQuality] {
+	if low.Name != "gpt-image-next" || low.Params[adapters.ParamSize] != defaultImage.Params[adapters.ParamSize] {
 		t.Errorf("low image = %+v, want gpt-image-next with the slot's params %+v", low, defaultImage.Params)
 	}
 	if medium := tierModels(t, openaiNow, TierMedium)[ModelImage]; medium.Name == "gpt-image-next" {
@@ -104,20 +104,22 @@ func TestOverridesOnlyForConfigurablePlatforms(t *testing.T) {
 	if !platformInfo(t, Platforms(), PlatformOpenAI).Configurable || platformInfo(t, Platforms(), PlatformMistral).Configurable {
 		t.Fatal("OpenAI is configurable, Mistral is not")
 	}
-	kept := Overrides{Models: map[ModelSlot]string{{PlatformOpenAI, TierHigh, ModelStory}: "gpt-5.6-luna"}}
+	kept := Overrides{Models: map[ModelSlot]SlotChoice{{PlatformOpenAI, TierHigh, ModelStory}: {Model: "gpt-5.6-luna"}}}
 	if err := SetOverrides(kept); err != nil {
 		t.Fatal(err)
 	}
 	for name, o := range map[string]Overrides{
-		"mistral model": {Models: map[ModelSlot]string{{PlatformMistral, TierLow, ModelStory}: "m"}},
-		"mistral facts": {Facts: map[Platform]map[string]ModelFactsOverride{PlatformMistral: {"m": {}}}},
-		"unknown tier":  {Models: map[ModelSlot]string{{PlatformOpenAI, "ultra", ModelStory}: "m"}},
-		"unknown type":  {Models: map[ModelSlot]string{{PlatformOpenAI, TierLow, "dream"}: "m"}},
-		"empty name":    {Models: map[ModelSlot]string{{PlatformOpenAI, TierLow, ModelStory}: ""}},
-		"bad medium":    {Facts: map[Platform]map[string]ModelFactsOverride{PlatformOpenAI: {"m": {In: []Medium{"smell"}}}}},
+		"mistral model":   {Models: map[ModelSlot]SlotChoice{{PlatformMistral, TierLow, ModelStory}: {Model: "m"}}},
+		"mistral facts":   {Facts: map[Platform]map[string]ModelFactsOverride{PlatformMistral: {"m": {}}}},
+		"unknown tier":    {Models: map[ModelSlot]SlotChoice{{PlatformOpenAI, "ultra", ModelStory}: {Model: "m"}}},
+		"unknown type":    {Models: map[ModelSlot]SlotChoice{{PlatformOpenAI, TierLow, "dream"}: {Model: "m"}}},
+		"empty name":      {Models: map[ModelSlot]SlotChoice{{PlatformOpenAI, TierLow, ModelStory}: {Model: ""}}},
+		"quality on text": {Models: map[ModelSlot]SlotChoice{{PlatformOpenAI, TierLow, ModelStory}: {Model: "gpt-5.6-luna", Quality: "low"}}},
+		"unknown quality": {Models: map[ModelSlot]SlotChoice{{PlatformOpenAI, TierLow, ModelImage}: {Model: "gpt-image-2.5-flare", Quality: "ultra"}}},
+		"bad medium":      {Facts: map[Platform]map[string]ModelFactsOverride{PlatformOpenAI: {"m": {In: []Medium{"smell"}}}}},
 		// an assignment names a model in the model table, fitting its work
-		"model not in the table":   {Models: map[ModelSlot]string{{PlatformOpenAI, TierLow, ModelStory}: "gpt-nowhere"}},
-		"model unfit for the work": {Models: map[ModelSlot]string{{PlatformOpenAI, TierLow, ModelHearing}: "gpt-6.2-sol"}},
+		"model not in the table":   {Models: map[ModelSlot]SlotChoice{{PlatformOpenAI, TierLow, ModelStory}: {Model: "gpt-nowhere"}}},
+		"model unfit for the work": {Models: map[ModelSlot]SlotChoice{{PlatformOpenAI, TierLow, ModelHearing}: {Model: "gpt-6.2-sol"}}},
 		"story model loses its window": {Facts: map[Platform]map[string]ModelFactsOverride{PlatformOpenAI: {"gpt-6.2-sol": {
 			Price: Price{InputPerMTok: 1}, Since: "2026-11-24"}}}},
 	} {
@@ -146,5 +148,21 @@ func TestProbeModel(t *testing.T) {
 	}
 	if _, err := ProbeModel(context.Background(), Offer{ID: "k", Platform: PlatformOpenAI}, ModelTooling, "gpt-x"); err == nil {
 		t.Error("probing without a key went through")
+	}
+}
+
+// A picture's quality is the admin's to set per tier; its size stays the slot's.
+func TestOverriddenPictureQuality(t *testing.T) {
+	t.Cleanup(func() { _ = SetOverrides(Overrides{}) })
+	defaultImage := tierModels(t, platformInfo(t, DefaultPlatforms(), PlatformOpenAI), TierHigh)[ModelImage]
+	err := SetOverrides(Overrides{Models: map[ModelSlot]SlotChoice{
+		{PlatformOpenAI, TierHigh, ModelImage}: {Model: defaultImage.Name, Quality: "medium"},
+	}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := tierModels(t, platformInfo(t, Platforms(), PlatformOpenAI), TierHigh)[ModelImage]
+	if got.Params[adapters.ParamQuality] != "medium" || got.Params[adapters.ParamSize] != defaultImage.Params[adapters.ParamSize] {
+		t.Errorf("high image = %+v, want medium at the slot's size", got)
 	}
 }

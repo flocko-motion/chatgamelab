@@ -37,13 +37,25 @@ type ModelFactsOverride struct {
 	Since  string   `json:"since"` // YYYY-MM-DD
 }
 
+// SlotChoice is what an admin assigns to a slot: its model, and for a
+// picture its quality (empty keeps the slot's). The slot's other parameters,
+// such as a picture's size or a voice, stay.
+type SlotChoice struct {
+	Model   string `json:"model"`
+	Quality string `json:"quality,omitempty"`
+}
+
+// ImageQualities are the qualities an admin may draw a tier's pictures at,
+// cheapest first.
+func ImageQualities() []string { return []string{"low", "medium", "high"} }
+
 // OverrideSource is the source a model's facts name when an admin set them.
 const OverrideSource = "admin"
 
 // Overrides are the admin's changes to the catalogue: models by slot, and
 // facts by platform and model name. Only a configurable platform's apply.
 type Overrides struct {
-	Models map[ModelSlot]string
+	Models map[ModelSlot]SlotChoice
 	Facts  map[Platform]map[string]ModelFactsOverride
 }
 
@@ -67,7 +79,8 @@ func SetOverrides(o Overrides) error {
 
 // CheckOverrides says whether the engine takes these overrides, so the
 // platform stores none it would refuse: each names a configurable platform,
-// a known tier and model type, a model and known media; and the code's
+// a known tier and model type, a model, a known picture quality (pictures
+// only) and known media; and the code's
 // tables with the overrides on them hold together (catalogueProblems):
 // every model a tier is assigned is in the model table and fits its work, so
 // a model in use cannot leave the table.
@@ -83,8 +96,8 @@ func checked(o Overrides) (Overrides, error) {
 	for _, p := range defaultEntries() {
 		configurable[Platform(p.ID)] = p.Configurable
 	}
-	copied := Overrides{Models: map[ModelSlot]string{}, Facts: map[Platform]map[string]ModelFactsOverride{}}
-	for slot, model := range o.Models {
+	copied := Overrides{Models: map[ModelSlot]SlotChoice{}, Facts: map[Platform]map[string]ModelFactsOverride{}}
+	for slot, choice := range o.Models {
 		switch {
 		case !configurable[slot.Platform]:
 			return Overrides{}, fmt.Errorf("platform %q is not configurable", slot.Platform)
@@ -92,10 +105,14 @@ func checked(o Overrides) (Overrides, error) {
 			return Overrides{}, fmt.Errorf("unknown tier %q", slot.Tier)
 		case !knownModelType(slot.Type):
 			return Overrides{}, fmt.Errorf("unknown model type %q", slot.Type)
-		case model == "":
+		case choice.Model == "":
 			return Overrides{}, fmt.Errorf("%s %s %s: no model named", slot.Platform, slot.Tier, slot.Type)
+		case choice.Quality != "" && slot.Type != ModelImage:
+			return Overrides{}, fmt.Errorf("%s %s %s: only a picture has a quality", slot.Platform, slot.Tier, slot.Type)
+		case choice.Quality != "" && !slices.Contains(ImageQualities(), choice.Quality):
+			return Overrides{}, fmt.Errorf("%s %s %s: unknown quality %q", slot.Platform, slot.Tier, slot.Type, choice.Quality)
 		}
-		copied.Models[ModelSlot{slot.Platform, slot.Tier.Normal(), slot.Type}] = model
+		copied.Models[ModelSlot{slot.Platform, slot.Tier.Normal(), slot.Type}] = choice
 	}
 	for platform, facts := range o.Facts {
 		if !configurable[platform] {
@@ -143,7 +160,8 @@ func knownModelType(t ModelType) bool {
 }
 
 // apply is p with the overrides on it, sharing no map with the tables: a
-// replaced model keeps its slot's parameters; a model's entry is the admin's,
+// slot takes the admin's model, and a picture their quality, keeping its
+// other parameters; a model's entry is the admin's,
 // dated and sourced as theirs, keeping the code's media where the admin named
 // none.
 func (o Overrides) apply(p adapters.Platform) adapters.Platform {
@@ -154,8 +172,14 @@ func (o Overrides) apply(p adapters.Platform) adapters.Platform {
 	id := Platform(p.ID)
 	for i, tier := range p.Tiers {
 		for kind, model := range tier.Models {
-			if name, ok := o.Models[ModelSlot{id, tier.Tier, kind}]; ok {
-				model.Name = name
+			if choice, ok := o.Models[ModelSlot{id, tier.Tier, kind}]; ok {
+				model.Name = choice.Model
+				if choice.Quality != "" {
+					if model.Params == nil {
+						model.Params = map[string]string{}
+					}
+					model.Params[adapters.ParamQuality] = choice.Quality
+				}
 				p.Tiers[i].Models[kind] = model
 			}
 		}

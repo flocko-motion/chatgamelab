@@ -214,6 +214,7 @@ NARRATIVE STYLE:
 	// youth-protection rule. The style and the rule are the message.
 	PromptImageStyle: "Translate this image style description to English and adapt it based on the workshop constraints.\n" +
 		"Consider how the constraints should affect the visual style (e.g., age-appropriate style, restricting violent content).\n" +
+		"Replace names of artists, studios or brands with a neutral description of their visual style.\n" +
 		"Return ONLY the adapted image style description (max 50 words).",
 	// The story thread's summary request, sent as the game's own message once
 	// the thread nears its model's context window. The reply goes to the

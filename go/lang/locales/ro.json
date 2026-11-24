@@ -1784,7 +1784,9 @@
         "title": "Aspect"
       },
       "constraints": {
-        "description": "Definește reguli AI obligatorii pe baza grupei de vârstă a jucătorului. Aceste reguli de protecție a minorilor sunt incluse în fiecare apel AI. Se aplică tuturor utilizatorilor autentificați din afara modului atelier.",
+        "changed": "Modificat",
+        "description": "Reguli IA obligatorii în funcție de grupa de vârstă a jucătorului. Acestea se aplică la fiecare apel IA al utilizatorilor autentificați din afara modului atelier. Fiecare începe cu valoarea implicită a site-ului; o poți modifica și poți reveni oricând la valoarea implicită.",
+        "reset": "Revenire la valoarea implicită",
         "title": "Reguli de protecție a minorilor în funcție de vârstă",
         "u13Hint": "Este injectată în fiecare prompt AI pentru utilizatorii autentificați cu vârsta între 13-17 ani fără consimțământ parental înregistrat.",
         "u13Label": "Regula de protecție a minorilor pentru utilizatorii cu vârsta între 13 și 17 ani, fără consimțământul părinților (U13)",
@@ -1816,11 +1818,115 @@
         "description": "Nivelul de calitate folosit când este activă cheia API de utilizare liberă. Nivelurile mai mari costă mai mult, dar pot oferi calitate mai bună. Lasă gol pentru a folosi nivelul implicit.",
         "title": "Nivel IA pentru utilizare liberă"
       },
+      "models": {
+        "assign": {
+          "cellLabel": "{{task}}, {{tier}}: {{model}}. Atribuie alt model",
+          "model": "Model",
+          "modelHint": "Doar modelele din tabelul de modele care se potrivesc acestei sarcini. Implicit: {{model}}",
+          "quality": "Calitatea imaginilor",
+          "qualityHint": "Principalul factor care influențează costul și durata unei imagini. Implicit: {{quality}}",
+          "reset": "Revenire la valoarea implicită",
+          "title": "Atribuie un model",
+          "where": "{{task}} la nivelul {{tier}}"
+        },
+        "assignments": {
+          "description": "Ce model folosește fiecare nivel de calitate pentru fiecare sarcină. Fă clic pe un model pentru a atribui altul din tabelul de modele. Sesiunile noi folosesc modificarea; sesiunile în desfășurare își păstrează modelele.",
+          "title": "{{platform}}: modele pentru fiecare nivel"
+        },
+        "entry": {
+          "codeRead": "Valorile motorului: din {{date}}, sursa: {{source}}",
+          "makes": "Produce",
+          "model": "Numele modelului",
+          "modelHint": "Exact așa cum îl numește furnizorul, de ex. gpt-6.2-sol",
+          "price": {
+            "audioInputPerMTok": "Intrare audio per milion de tokeni",
+            "audioOutputPerMTok": "Ieșire audio per milion de tokeni",
+            "audioPerMinute": "Audio per minut",
+            "cachedAudioInputPerMTok": "Intrare audio stocată în cache per milion de tokeni",
+            "cachedInputPerMTok": "Intrare stocată în cache per milion de tokeni",
+            "inputPerMTok": "Intrare per milion de tokeni",
+            "outputPerMTok": "Ieșire per milion de tokeni",
+            "perImage": "Per imagine"
+          },
+          "prices": "Prețuri",
+          "pricesHint": "În dolari, așa cum sunt afișate pe pagina de prețuri a furnizorului. Lasă un câmp gol când modelul nu este tarifat în acel mod.",
+          "remove": "Elimină modelul",
+          "reset": "Revenire la valorile motorului",
+          "takes": "Primește",
+          "window": "Fereastră de context (tokeni)",
+          "windowHint": "Cât de mult poate cuprinde un apel. Modelele pentru povești și narațiuni au nevoie de aceasta; altfel, o poveste lungă nu va fi niciodată scurtată."
+        },
+        "fixed": "Modelele acestei platforme sunt stabilite de motor și nu pot fi modificate aici.",
+        "media": {
+          "audio": "audio",
+          "image": "imagini",
+          "text": "text"
+        },
+        "price": {
+          "audioInputPerMTok": "audio la intrare {{value}}/M",
+          "audioOutputPerMTok": "audio la ieșire {{value}}/M",
+          "audioPerMinute": "{{value}}/min",
+          "cachedAudioInputPerMTok": "audio stocat în cache {{value}}/M",
+          "cachedInputPerMTok": "intrare stocată în cache {{value}}/M",
+          "inputPerMTok": "intrare {{value}}/M",
+          "none": "Fără preț",
+          "outputPerMTok": "ieșire {{value}}/M",
+          "perImage": "{{value}}/imagine"
+        },
+        "probe": {
+          "answers": "Răspunde (cost ${{cost}})",
+          "button": "Testează",
+          "failed": "Nu răspunde: {{message}}",
+          "none": "Modelele pentru această sarcină nu pot fi testate încă."
+        },
+        "quality": {
+          "high": "ridicată",
+          "low": "scăzută",
+          "medium": "medie"
+        },
+        "refused": "Motorul a refuzat această modificare",
+        "resetAll": {
+          "assignments": {
+            "message": "Fiecare nivel va folosi din nou modelul motorului pentru fiecare sarcină, iar imaginile vor folosi calitatea motorului. Sesiunile noi folosesc valorile implicite; sesiunile în desfășurare își păstrează modelele.",
+            "title": "{{platform}}: revii la modelele implicite?"
+          },
+          "button": "Resetează totul la valorile implicite",
+          "confirm": "Resetează",
+          "entries": {
+            "message": "Fiecare model al motorului va primi din nou valorile motorului, iar modelele adăugate pe care nu le folosește niciun nivel vor fi eliminate. Modelele adăugate folosite de un nivel își păstrează înregistrările.",
+            "title": "{{platform}}: revii la tabelul de modele al motorului?"
+          }
+        },
+        "table": {
+          "add": "Adaugă un model",
+          "added": "Adăugat",
+          "description": "Ce primește și ce produce fiecare model, prețurile sale în dolari și fereastra sa de context. Costurile sunt calculate pe baza acestor valori. Modelele pe care nu le folosește niciun nivel sunt afișate cu gri. Modificările modelelor proprii ale motorului se aplică până la următoarea versiune a aplicației.",
+          "edit": "Editează înregistrarea",
+          "makes": "produce",
+          "read": "Preț din {{date}}, sursa: {{source}}",
+          "stale": "Resetat prin actualizare",
+          "takes": "Primește",
+          "title": "{{platform}}: tabelul de modele",
+          "unused": "Neutilizat",
+          "windowValue": "fereastră de {{tokens}} tokeni"
+        },
+        "task": "Sarcină",
+        "types": {
+          "hearing": "Intrare vocală",
+          "image": "Imagini",
+          "live": "Voce live",
+          "speech": "Narațiune",
+          "story": "Poveste",
+          "tooling": "Instrumente"
+        },
+        "unpriced": "Acest model nu are o înregistrare în tabelul de modele: costurile sale nu sunt calculate, iar o poveste generată cu acesta nu va fi niciodată scurtată."
+      },
       "notAuthorized": "Nu ai permisiunea de a accesa setările serverului. Este necesar acces de administrator.",
       "tabs": {
         "ai": "AI și chei",
         "branding": "Aspect",
         "general": "General",
+        "models": "Modele IA",
         "youthProtection": "Protecția tinerilor"
       },
       "title": "Setările serverului",

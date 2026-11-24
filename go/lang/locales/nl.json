@@ -1781,7 +1781,9 @@
         "title": "Vormgeving"
       },
       "constraints": {
-        "description": "Definieer verplichte AI-regels op basis van de leeftijdsgroep van de speler. Deze jeugd­beschermingsregels worden bij elke AI-aanroep meegestuurd. Ze gelden voor alle ingelogde gebruikers buiten de workshopmodus.",
+        "changed": "Gewijzigd",
+        "description": "Verplichte AI-regels op basis van de leeftijdsgroep van de speler. Ze gelden bij elke AI-aanroep van ingelogde gebruikers buiten de workshopmodus. Elke regel begint als de standaard van de site; je kunt deze wijzigen en op elk moment terugkeren naar de standaard.",
+        "reset": "Terug naar de standaard",
         "title": "Jeugd­beschermingsregels per leeftijdsgroep",
         "u13Hint": "Toegevoegd aan elke AI-prompt voor aangemelde gebruikers van 13-17 jaar zonder geregistreerde ouderlijke toestemming.",
         "u13Label": "Jeugd­beschermingsregel voor gebruikers van 13–17 jaar, zonder ouderlijke toestemming (U13)",
@@ -1813,11 +1815,115 @@
         "description": "Kwaliteitsniveau wanneer de gratis API-sleutel actief is. Hogere niveaus kosten meer maar kunnen betere kwaliteit hebben. Laat leeg om het standaardniveau te gebruiken.",
         "title": "Gratis AI-kwaliteitsniveau"
       },
+      "models": {
+        "assign": {
+          "cellLabel": "{{task}}, {{tier}}: {{model}}. Ander model toewijzen",
+          "model": "Model",
+          "modelHint": "Alleen modellen uit de modellijst die bij deze taak passen. Standaard: {{model}}",
+          "quality": "Beeldkwaliteit",
+          "qualityHint": "De belangrijkste factor voor de kosten en duur van een beeld. Standaard: {{quality}}",
+          "reset": "Terug naar de standaard",
+          "title": "Een model toewijzen",
+          "where": "{{task}} op niveau {{tier}}"
+        },
+        "assignments": {
+          "description": "Welk model elke kwaliteitslaag voor elke taak gebruikt. Klik op een model om een ander model uit de modellijst toe te wijzen. Nieuwe sessies gebruiken de wijziging; actieve sessies behouden hun modellen.",
+          "title": "{{platform}}: modellen per niveau"
+        },
+        "entry": {
+          "codeRead": "De eigen waarden van de engine: vanaf {{date}}, bron: {{source}}",
+          "makes": "Produceert",
+          "model": "Modelnaam",
+          "modelHint": "Precies zoals de aanbieder het model noemt, bijvoorbeeld gpt-6.2-sol",
+          "price": {
+            "audioInputPerMTok": "Audio-invoer per miljoen tokens",
+            "audioOutputPerMTok": "Audio-uitvoer per miljoen tokens",
+            "audioPerMinute": "Audio per minuut",
+            "cachedAudioInputPerMTok": "Gecachete audio-invoer per miljoen tokens",
+            "cachedInputPerMTok": "Gecachete invoer per miljoen tokens",
+            "inputPerMTok": "Invoer per miljoen tokens",
+            "outputPerMTok": "Uitvoer per miljoen tokens",
+            "perImage": "Per beeld"
+          },
+          "prices": "Prijzen",
+          "pricesHint": "In dollars, zoals vermeld op de prijspagina van de aanbieder. Laat een veld leeg als het model niet op die manier wordt gefactureerd.",
+          "remove": "Model verwijderen",
+          "reset": "Terug naar de waarden van de engine",
+          "takes": "Verwerkt",
+          "window": "Contextvenster (tokens)",
+          "windowHint": "Hoeveel een aanroep mag bevatten. Verhaal- en vertelmodellen hebben dit nodig, anders wordt een lang verhaal nooit ingekort."
+        },
+        "fixed": "De modellen van dit platform worden door de engine bepaald en kunnen hier niet worden gewijzigd.",
+        "media": {
+          "audio": "audio",
+          "image": "beelden",
+          "text": "tekst"
+        },
+        "price": {
+          "audioInputPerMTok": "audio in {{value}}/M",
+          "audioOutputPerMTok": "audio uit {{value}}/M",
+          "audioPerMinute": "{{value}}/min",
+          "cachedAudioInputPerMTok": "gecachete audio {{value}}/M",
+          "cachedInputPerMTok": "gecachet {{value}}/M",
+          "inputPerMTok": "invoer {{value}}/M",
+          "none": "Geen prijs",
+          "outputPerMTok": "uitvoer {{value}}/M",
+          "perImage": "{{value}}/beeld"
+        },
+        "probe": {
+          "answers": "Antwoordt (kosten ${{cost}})",
+          "button": "Testen",
+          "failed": "Antwoordt niet: {{message}}",
+          "none": "Modellen voor deze taak kunnen nog niet worden getest."
+        },
+        "quality": {
+          "high": "hoog",
+          "low": "laag",
+          "medium": "gemiddeld"
+        },
+        "refused": "De engine heeft deze wijziging geweigerd",
+        "resetAll": {
+          "assignments": {
+            "message": "Elk niveau gebruikt voor elke taak weer het eigen model van de engine, en beelden gebruiken weer de eigen kwaliteit van de engine. Nieuwe sessies gebruiken de standaarden; actieve sessies behouden hun modellen.",
+            "title": "{{platform}}: terug naar de standaardmodellen?"
+          },
+          "button": "Alles terugzetten naar de standaard",
+          "confirm": "Terugzetten",
+          "entries": {
+            "message": "Elk model van de engine krijgt de eigen waarden van de engine terug, en toegevoegde modellen die door geen enkel niveau worden gebruikt, worden verwijderd. Toegevoegde modellen die door een niveau worden gebruikt, behouden hun gegevens.",
+            "title": "{{platform}}: terug naar de modellijst van de engine?"
+          }
+        },
+        "table": {
+          "add": "Model toevoegen",
+          "added": "Toegevoegd",
+          "description": "Wat elk model verwerkt en produceert, de prijzen in dollars en het contextvenster. De kosten worden op basis van deze waarden berekend. Modellen die door geen enkel niveau worden gebruikt, worden grijs weergegeven. Wijzigingen aan de eigen modellen van de engine blijven gelden tot de volgende appversie.",
+          "edit": "Gegevens bewerken",
+          "makes": "produceert",
+          "read": "Prijs vanaf {{date}}, bron: {{source}}",
+          "stale": "Door update teruggezet",
+          "takes": "Verwerkt",
+          "title": "{{platform}}: modellijst",
+          "unused": "Niet in gebruik",
+          "windowValue": "venster {{tokens}} tokens"
+        },
+        "task": "Taak",
+        "types": {
+          "hearing": "Spraakinvoer",
+          "image": "Beelden",
+          "live": "Live stem",
+          "speech": "Vertelling",
+          "story": "Verhaal",
+          "tooling": "Hulpmiddelen"
+        },
+        "unpriced": "Dit model heeft geen vermelding in de modellijst: de kosten worden niet berekend en een verhaal dat dit model gebruikt, wordt nooit ingekort."
+      },
       "notAuthorized": "Je hebt geen toegang tot serverinstellingen. Admin-toegang vereist.",
       "tabs": {
         "ai": "AI en sleutels",
         "branding": "Vormgeving",
         "general": "Algemeen",
+        "models": "AI-modellen",
         "youthProtection": "Jeugdbescherming"
       },
       "title": "Serverinstellingen",

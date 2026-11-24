@@ -1786,7 +1786,9 @@
         "title": "Profilering"
       },
       "constraints": {
-        "description": "Definiera obligatoriska AI-regler baserade på spelarens åldersgrupp. Dessa ungdomsskyddsregler följer med varje AI-anrop. De gäller för alla inloggade användare utanför workshopläget.",
+        "changed": "Ändrad",
+        "description": "Obligatoriska AI-regler utifrån spelarens åldersgrupp. De gäller vid varje AI-anrop från inloggade användare utanför verkstadsläget. Alla börjar med webbplatsens standardvärde; ändra dem och återgå till standardvärdet när som helst.",
+        "reset": "Tillbaka till standardvärdet",
         "title": "Ungdomsskyddsregler efter åldersgrupp",
         "u13Hint": "Infogas i varje AI-prompt för inloggade användare i åldern 13–17 utan registrerat föräldrasamtycke.",
         "u13Label": "Ungdomsskyddsregel för användare i åldern 13–17 år utan föräldrasamtycke (U13)",
@@ -1818,11 +1820,115 @@
         "description": "Kvalitetsnivå som används när den fria API-nyckeln är aktiv. Högre nivåer kostar mer men kan ge bättre kvalitet. Lämna tomt för att använda standardnivån.",
         "title": "AI-kvalitetsnivå för fri nyckel"
       },
+      "models": {
+        "assign": {
+          "cellLabel": "{{task}}, {{tier}}: {{model}}. Tilldela en annan modell",
+          "model": "Modell",
+          "modelHint": "Endast modeller i modelltabellen som passar den här uppgiften. Standard: {{model}}",
+          "quality": "Bildkvalitet",
+          "qualityHint": "Den viktigaste faktorn för en bilds kostnad och tidsåtgång. Standard: {{quality}}",
+          "reset": "Tillbaka till standardvärdet",
+          "title": "Tilldela en modell",
+          "where": "{{task}} på nivån {{tier}}"
+        },
+        "assignments": {
+          "description": "Vilken modell varje kvalitetsnivå använder för varje uppgift. Klicka på en modell för att tilldela en annan från modelltabellen. Nya sessioner använder ändringen; pågående sessioner behåller sina modeller.",
+          "title": "{{platform}}: modeller per nivå"
+        },
+        "entry": {
+          "codeRead": "Motorns egna värden: från {{date}}, källa: {{source}}",
+          "makes": "Producerar",
+          "model": "Modellnamn",
+          "modelHint": "Exakt som leverantören namnger den, t.ex. gpt-6.2-sol",
+          "price": {
+            "audioInputPerMTok": "Ljudindata per miljon token",
+            "audioOutputPerMTok": "Ljudutdata per miljon token",
+            "audioPerMinute": "Ljud per minut",
+            "cachedAudioInputPerMTok": "Cachad ljudindata per miljon token",
+            "cachedInputPerMTok": "Cachad indata per miljon token",
+            "inputPerMTok": "Indata per miljon token",
+            "outputPerMTok": "Utdata per miljon token",
+            "perImage": "Per bild"
+          },
+          "prices": "Priser",
+          "pricesHint": "I dollar, enligt leverantörens prissida. Lämna ett fält tomt när modellen inte debiteras på det sättet.",
+          "remove": "Ta bort modellen",
+          "reset": "Tillbaka till motorns värden",
+          "takes": "Tar emot",
+          "window": "Kontextfönster (token)",
+          "windowHint": "Hur mycket ett anrop får innehålla. Berättelse- och narrationsmodeller behöver detta, annars förkortas en lång berättelse aldrig."
+        },
+        "fixed": "Den här plattformens modeller fastställs av motorn och kan inte ändras här.",
+        "media": {
+          "audio": "ljud",
+          "image": "bilder",
+          "text": "text"
+        },
+        "price": {
+          "audioInputPerMTok": "ljud in {{value}}/M",
+          "audioOutputPerMTok": "ljud ut {{value}}/M",
+          "audioPerMinute": "{{value}}/min",
+          "cachedAudioInputPerMTok": "cachat ljud {{value}}/M",
+          "cachedInputPerMTok": "cachat {{value}}/M",
+          "inputPerMTok": "indata {{value}}/M",
+          "none": "Inget pris",
+          "outputPerMTok": "utdata {{value}}/M",
+          "perImage": "{{value}}/bild"
+        },
+        "probe": {
+          "answers": "Svarar (kostnad ${{cost}})",
+          "button": "Testa",
+          "failed": "Svarar inte: {{message}}",
+          "none": "Modeller för den här uppgiften kan inte testas ännu."
+        },
+        "quality": {
+          "high": "hög",
+          "low": "låg",
+          "medium": "medel"
+        },
+        "refused": "Motorn avvisade den här ändringen",
+        "resetAll": {
+          "assignments": {
+            "message": "Varje nivå använder åter motorns egen modell för varje uppgift, och bilder använder motorns egen kvalitet. Nya sessioner använder standardvärdena; pågående sessioner behåller sina modeller.",
+            "title": "{{platform}}: återgå till standardmodellerna?"
+          },
+          "button": "Återställ allt till standardvärden",
+          "confirm": "Återställ",
+          "entries": {
+            "message": "Alla motorns modeller får tillbaka motorns egna värden, och tillagda modeller som inte används av någon nivå tas bort. Tillagda modeller som används av en nivå behåller sina poster.",
+            "title": "{{platform}}: återgå till motorns modelltabell?"
+          }
+        },
+        "table": {
+          "add": "Lägg till en modell",
+          "added": "Tillagd",
+          "description": "Vad varje modell tar emot och producerar, dess priser i dollar och dess kontextfönster. Kostnader beräknas utifrån dessa värden. Modeller som inte används av någon nivå är gråmarkerade. Ändringar av motorns egna modeller gäller fram till nästa appversion.",
+          "edit": "Redigera posten",
+          "makes": "producerar",
+          "read": "Pris från {{date}}, källa: {{source}}",
+          "stale": "Återställd genom uppdatering",
+          "takes": "Tar emot",
+          "title": "{{platform}}: modelltabell",
+          "unused": "Används inte",
+          "windowValue": "fönster {{tokens}} token"
+        },
+        "task": "Uppgift",
+        "types": {
+          "hearing": "Röstindata",
+          "image": "Bilder",
+          "live": "Direktröst",
+          "speech": "Narration",
+          "story": "Berättelse",
+          "tooling": "Verktyg"
+        },
+        "unpriced": "Den här modellen saknar en post i modelltabellen: kostnaderna beräknas inte, och en berättelse med den förkortas aldrig."
+      },
       "notAuthorized": "Du har inte behörighet att öppna serverinställningarna. Adminåtkomst krävs.",
       "tabs": {
         "ai": "AI och nycklar",
         "branding": "Profilering",
         "general": "Allmänt",
+        "models": "AI-modeller",
         "youthProtection": "Skydd för unga"
       },
       "title": "Serverinställningar",

@@ -1786,7 +1786,9 @@
         "title": "브랜딩"
       },
       "constraints": {
-        "description": "플레이어의 연령 그룹에 따라 의무적인 AI 규칙을 정의합니다. 이 청소년 보호 규칙은 모든 AI 호출에 적용됩니다. 워크숍 모드가 아닌 모든 로그인 사용자에게 적용됩니다.",
+        "changed": "변경됨",
+        "description": "플레이어의 연령대에 따른 필수 AI 규칙입니다. 워크숍 모드가 아닌 로그인한 사용자의 모든 AI 호출에 적용됩니다. 각 규칙은 사이트 기본값으로 시작하며, 언제든 변경하거나 기본값으로 되돌릴 수 있습니다.",
+        "reset": "기본값으로 되돌리기",
         "title": "연령 그룹별 청소년 보호 규칙",
         "u13Hint": "부모 동의가 등록되지 않은 13–17세 로그인 사용자에 대해 모든 AI 프롬프트에 삽입됩니다.",
         "u13Label": "부모 동의가 없는 13~17세 사용자를 위한 청소년 보호 규칙(U13)",
@@ -1818,11 +1820,115 @@
         "description": "무료 사용 API 키가 활성화될 때 사용하는 품질 등급입니다. 높은 등급일수록 비용이 더 들지만 품질이 향상될 수 있습니다. 비워 두면 기본 등급을 사용합니다.",
         "title": "무료 사용 AI 품질 등급"
       },
+      "models": {
+        "assign": {
+          "cellLabel": "{{task}}, {{tier}}: {{model}}. 다른 모델 할당",
+          "model": "모델",
+          "modelHint": "이 작업에 맞는 모델 표의 모델만 표시됩니다. 기본값: {{model}}",
+          "quality": "이미지 품질",
+          "qualityHint": "이미지의 비용과 소요 시간에 가장 큰 영향을 줍니다. 기본값: {{quality}}",
+          "reset": "기본값으로 되돌리기",
+          "title": "모델 할당",
+          "where": "{{tier}} 등급의 {{task}}"
+        },
+        "assignments": {
+          "description": "각 품질 등급에서 작업별로 실행할 모델입니다. 모델을 클릭하면 모델 표에서 다른 모델을 할당할 수 있습니다. 새 세션에는 변경 사항이 적용되며, 실행 중인 세션은 기존 모델을 유지합니다.",
+          "title": "{{platform}}: 등급별 모델"
+        },
+        "entry": {
+          "codeRead": "엔진 자체 값: {{date}} 기준, 출처: {{source}}",
+          "makes": "출력",
+          "model": "모델 이름",
+          "modelHint": "제공업체가 지정한 이름을 정확히 입력하세요. 예: gpt-6.2-sol",
+          "price": {
+            "audioInputPerMTok": "100만 토큰당 오디오 입력",
+            "audioOutputPerMTok": "100만 토큰당 오디오 출력",
+            "audioPerMinute": "분당 오디오",
+            "cachedAudioInputPerMTok": "100만 토큰당 캐시된 오디오 입력",
+            "cachedInputPerMTok": "100만 토큰당 캐시된 입력",
+            "inputPerMTok": "100만 토큰당 입력",
+            "outputPerMTok": "100만 토큰당 출력",
+            "perImage": "이미지당"
+          },
+          "prices": "가격",
+          "pricesHint": "제공업체의 가격 페이지에 표시된 달러 단위 가격을 입력하세요. 해당 방식으로 요금이 부과되지 않는 경우 입력란을 비워 두세요.",
+          "remove": "모델 제거",
+          "reset": "엔진 값으로 되돌리기",
+          "takes": "입력",
+          "window": "컨텍스트 창 (토큰)",
+          "windowHint": "호출 하나에 담을 수 있는 양입니다. 스토리 및 내레이션 모델에 필요하며, 이 값이 없으면 긴 스토리가 절대 축약되지 않습니다."
+        },
+        "fixed": "이 플랫폼의 모델은 엔진에서 설정하므로 여기서 변경할 수 없습니다.",
+        "media": {
+          "audio": "오디오",
+          "image": "이미지",
+          "text": "텍스트"
+        },
+        "price": {
+          "audioInputPerMTok": "오디오 입력 {{value}}/M",
+          "audioOutputPerMTok": "오디오 출력 {{value}}/M",
+          "audioPerMinute": "{{value}}/분",
+          "cachedAudioInputPerMTok": "캐시된 오디오 {{value}}/M",
+          "cachedInputPerMTok": "캐시된 입력 {{value}}/M",
+          "inputPerMTok": "입력 {{value}}/M",
+          "none": "가격 없음",
+          "outputPerMTok": "출력 {{value}}/M",
+          "perImage": "{{value}}/이미지"
+        },
+        "probe": {
+          "answers": "응답함 (비용 ${{cost}})",
+          "button": "테스트",
+          "failed": "응답하지 않음: {{message}}",
+          "none": "아직 이 작업의 모델은 테스트할 수 없습니다."
+        },
+        "quality": {
+          "high": "높음",
+          "low": "낮음",
+          "medium": "중간"
+        },
+        "refused": "엔진이 이 변경을 거부했습니다",
+        "resetAll": {
+          "assignments": {
+            "message": "모든 등급에서 모든 작업을 다시 엔진 자체 모델로 실행하며, 이미지는 엔진 자체 품질로 처리합니다. 새 세션에는 기본값이 적용되고, 실행 중인 세션은 기존 모델을 유지합니다.",
+            "title": "{{platform}}: 기본 모델로 되돌릴까요?"
+          },
+          "button": "모두 기본값으로 재설정",
+          "confirm": "재설정",
+          "entries": {
+            "message": "엔진의 모든 모델을 엔진 자체 값으로 되돌리고, 어떤 등급에서도 사용하지 않는 추가 모델은 제거합니다. 등급에서 사용하는 추가 모델은 항목을 유지합니다.",
+            "title": "{{platform}}: 엔진 모델 표로 되돌릴까요?"
+          }
+        },
+        "table": {
+          "add": "모델 추가",
+          "added": "추가됨",
+          "description": "각 모델의 입력 및 출력, 달러 단위 가격과 컨텍스트 창을 표시합니다. 비용은 이 값을 기준으로 계산됩니다. 어떤 등급에서도 사용하지 않는 모델은 회색으로 표시됩니다. 엔진 자체 모델의 변경 사항은 다음 앱 버전이 출시될 때까지 적용됩니다.",
+          "edit": "항목 편집",
+          "makes": "출력",
+          "read": "{{date}} 기준 가격, 출처: {{source}}",
+          "stale": "업데이트로 재설정됨",
+          "takes": "입력",
+          "title": "{{platform}}: 모델 표",
+          "unused": "사용되지 않음",
+          "windowValue": "창 {{tokens}} 토큰"
+        },
+        "task": "작업",
+        "types": {
+          "hearing": "음성 입력",
+          "image": "이미지",
+          "live": "실시간 음성",
+          "speech": "내레이션",
+          "story": "스토리",
+          "tooling": "도구"
+        },
+        "unpriced": "이 모델은 모델 표에 항목이 없습니다. 비용이 계산되지 않으며, 이 모델을 사용하는 스토리는 절대 축약되지 않습니다."
+      },
       "notAuthorized": "서버 설정에 접근할 권한이 없습니다. 관리자 권한이 필요합니다.",
       "tabs": {
         "ai": "AI 및 키",
         "branding": "브랜딩",
         "general": "일반",
+        "models": "AI 모델",
         "youthProtection": "청소년 보호"
       },
       "title": "서버 설정",

@@ -1660,12 +1660,12 @@
           "unused": "Not in use",
           "added": "Added",
           "stale": "Reset by update",
-          "media": "Takes {{takes}} · makes {{makes}}",
           "windowValue": "window {{tokens}} tokens",
-          "read": "Price from {{date}}, source: {{source}}"
+          "read": "Price from {{date}}, source: {{source}}",
+          "takes": "Takes",
+          "makes": "makes"
         },
         "task": "Task",
-        "changed": "Changed",
         "unpriced": "This model has no entry in the model table: its costs are not calculated, and a story on it is never shortened.",
         "refused": "The engine refused this change",
         "types": {
@@ -1698,7 +1698,9 @@
           "model": "Model",
           "modelHint": "Only models of the model table that fit this task. Default: {{model}}",
           "reset": "Back to the default",
-          "cellLabel": "{{task}}, {{tier}}: {{model}}. Assign another model"
+          "cellLabel": "{{task}}, {{tier}}: {{model}}. Assign another model",
+          "quality": "Picture quality",
+          "qualityHint": "The main lever on a picture's cost and time. Default: {{quality}}"
         },
         "probe": {
           "button": "Test",
@@ -1728,6 +1730,23 @@
           "codeRead": "The engine's own figures: from {{date}}, source: {{source}}",
           "reset": "Back to the engine's figures",
           "remove": "Remove the model"
+        },
+        "quality": {
+          "low": "low",
+          "medium": "medium",
+          "high": "high"
+        },
+        "resetAll": {
+          "button": "Reset all to defaults",
+          "confirm": "Reset",
+          "assignments": {
+            "title": "{{platform}}: back to the default models?",
+            "message": "Every tier runs every task on the engine's own model again, pictures at the engine's own quality. New sessions use the defaults; running sessions keep their models."
+          },
+          "entries": {
+            "title": "{{platform}}: back to the engine's model table?",
+            "message": "Every model of the engine gets the engine's own figures back, and models you added that no tier uses are removed. Added models a tier uses keep their entries."
+          }
         }
       }
     },

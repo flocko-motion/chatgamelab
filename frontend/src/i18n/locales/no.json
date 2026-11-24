@@ -1781,7 +1781,9 @@
         "title": "Profilering"
       },
       "constraints": {
-        "description": "Definer obligatoriske KI-regler basert på spillerens aldersgruppe. Disse reglene for ungdomsvern følger med hvert KI-kall. De gjelder for alle innloggede brukere utenfor workshopmodus.",
+        "changed": "Endret",
+        "description": "Obligatoriske KI-regler etter spillerens aldersgruppe. De følger med hvert KI-kall fra innloggede brukere utenfor verkstedmodus. Hver regel starter som nettstedets standard; endre den, og gå tilbake til standarden når som helst.",
+        "reset": "Tilbake til standard",
         "title": "Regler for ungdomsvern etter aldersgruppe",
         "u13Hint": "Settes inn i hver AI-forespørsel for påloggede brukere mellom 13 og 17 år uten registrert foreldresamtykke.",
         "u13Label": "Regel for ungdomsvern for brukere i alderen 13–17 år, uten foreldresamtykke (U13)",
@@ -1813,11 +1815,115 @@
         "description": "Kvalitetsnivå som brukes når fritt-bruk API-nøkkelen er aktiv. Høyere nivåer koster mer, men kan ha høyere kvalitet. La stå tomt for å bruke standardnivået.",
         "title": "Fritt-bruk AI-kvalitetsnivå"
       },
+      "models": {
+        "assign": {
+          "cellLabel": "{{task}}, {{tier}}: {{model}}. Tildel en annen modell",
+          "model": "Modell",
+          "modelHint": "Bare modeller fra modelltabellen som passer til denne oppgaven. Standard: {{model}}",
+          "quality": "Bildekvalitet",
+          "qualityHint": "Den viktigste faktoren for et bildes kostnad og tidsbruk. Standard: {{quality}}",
+          "reset": "Tilbake til standard",
+          "title": "Tildel en modell",
+          "where": "{{task}} på nivået {{tier}}"
+        },
+        "assignments": {
+          "description": "Hvilken modell hvert kvalitetsnivå bruker til hver oppgave. Klikk på en modell for å tildele en annen fra modelltabellen. Nye økter bruker endringen; pågående økter beholder modellene sine.",
+          "title": "{{platform}}: modeller per nivå"
+        },
+        "entry": {
+          "codeRead": "Motorens egne verdier: fra {{date}}, kilde: {{source}}",
+          "makes": "Produserer",
+          "model": "Modellnavn",
+          "modelHint": "Akkurat slik leverandøren navngir den, f.eks. gpt-6.2-sol",
+          "price": {
+            "audioInputPerMTok": "Lyd inn per million tokens",
+            "audioOutputPerMTok": "Lyd ut per million tokens",
+            "audioPerMinute": "Lyd per minutt",
+            "cachedAudioInputPerMTok": "Bufret lyd inn per million tokens",
+            "cachedInputPerMTok": "Bufret input per million tokens",
+            "inputPerMTok": "Input per million tokens",
+            "outputPerMTok": "Output per million tokens",
+            "perImage": "Per bilde"
+          },
+          "prices": "Priser",
+          "pricesHint": "I dollar, slik leverandørens prisside oppgir dem. La et felt stå tomt når modellen ikke faktureres på den måten.",
+          "remove": "Fjern modellen",
+          "reset": "Tilbake til motorens verdier",
+          "takes": "Tar inn",
+          "window": "Kontekstvindu (tokens)",
+          "windowHint": "Hvor mye et kall kan inneholde. Historie- og fortellermodeller trenger dette, ellers blir en lang historie aldri forkortet."
+        },
+        "fixed": "Denne plattformens modeller er fastsatt av motoren og kan ikke endres her.",
+        "media": {
+          "audio": "lyd",
+          "image": "bilder",
+          "text": "tekst"
+        },
+        "price": {
+          "audioInputPerMTok": "lyd inn {{value}}/M",
+          "audioOutputPerMTok": "lyd ut {{value}}/M",
+          "audioPerMinute": "{{value}}/min",
+          "cachedAudioInputPerMTok": "bufret lyd {{value}}/M",
+          "cachedInputPerMTok": "bufret {{value}}/M",
+          "inputPerMTok": "input {{value}}/M",
+          "none": "Ingen pris",
+          "outputPerMTok": "output {{value}}/M",
+          "perImage": "{{value}}/bilde"
+        },
+        "probe": {
+          "answers": "Svar (kostnad ${{cost}})",
+          "button": "Test",
+          "failed": "Svarer ikke: {{message}}",
+          "none": "Modeller for denne oppgaven kan ikke testes ennå."
+        },
+        "quality": {
+          "high": "høy",
+          "low": "lav",
+          "medium": "middels"
+        },
+        "refused": "Motoren avviste denne endringen",
+        "resetAll": {
+          "assignments": {
+            "message": "Hvert nivå bruker igjen motorens egen modell til hver oppgave, og bilder bruker motorens egen kvalitet. Nye økter bruker standardene; pågående økter beholder modellene sine.",
+            "title": "{{platform}}: tilbake til standardmodellene?"
+          },
+          "button": "Tilbakestill alt til standard",
+          "confirm": "Tilbakestill",
+          "entries": {
+            "message": "Alle motorens modeller får tilbake motorens egne verdier, og modeller du har lagt til som ikke brukes av noe nivå, fjernes. Modeller du har lagt til som brukes av et nivå, beholder oppføringene sine.",
+            "title": "{{platform}}: tilbake til motorens modelltabell?"
+          }
+        },
+        "table": {
+          "add": "Legg til en modell",
+          "added": "Lagt til",
+          "description": "Hva hver modell tar inn og produserer, prisene i dollar og kontekstvinduet. Kostnadene beregnes ut fra disse verdiene. Modeller som ikke brukes av noe nivå, vises i grått. Endringer i motorens egne modeller gjelder frem til neste appversjon.",
+          "edit": "Rediger oppføringen",
+          "makes": "produserer",
+          "read": "Pris fra {{date}}, kilde: {{source}}",
+          "stale": "Tilbakestilt av oppdatering",
+          "takes": "Tar inn",
+          "title": "{{platform}}: modelltabell",
+          "unused": "Ikke i bruk",
+          "windowValue": "vindu {{tokens}} tokens"
+        },
+        "task": "Oppgave",
+        "types": {
+          "hearing": "Taleinput",
+          "image": "Bilder",
+          "live": "Direktestemme",
+          "speech": "Fortelling",
+          "story": "Historie",
+          "tooling": "Verktøy"
+        },
+        "unpriced": "Denne modellen har ingen oppføring i modelltabellen: kostnadene beregnes ikke, og en historie på den blir aldri forkortet."
+      },
       "notAuthorized": "Du har ikke tillatelse til å få tilgang til serverinnstillinger. Krever admin-tilgang.",
       "tabs": {
         "ai": "KI og nøkler",
         "branding": "Profilering",
         "general": "Generelt",
+        "models": "KI-modeller",
         "youthProtection": "Ungdomsvern"
       },
       "title": "Serverinnstillinger",

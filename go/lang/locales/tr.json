@@ -1783,7 +1783,9 @@
         "title": "Marka görünümü"
       },
       "constraints": {
-        "description": "Oyuncunun yaş grubuna göre zorunlu yapay zekâ kuralları tanımlayın. Bu çocuk ve genç koruma kuralları her yapay zekâ çağrısıyla birlikte gönderilir. Atölye modu dışındaki tüm giriş yapmış kullanıcılar için geçerlidir.",
+        "changed": "Değiştirildi",
+        "description": "Oyuncunun yaş grubuna göre zorunlu yapay zekâ kuralları. Atölye modu dışındaki, oturum açmış kullanıcıların her yapay zekâ çağrısında uygulanırlar. Her biri site varsayılanıyla başlar; istediğiniz zaman değiştirebilir ve varsayılana dönebilirsiniz.",
+        "reset": "Varsayılana dön",
         "title": "Yaş grubuna göre çocuk ve genç koruma kuralları",
         "u13Hint": "13-17 yaş arasındaki, dosyada ebeveyn izni bulunmayan oturum açmış kullanıcıların her bir yapay zeka istemine eklenir.",
         "u13Label": "13-17 yaş arası, ebeveyn izni olmayan kullanıcılar için çocuk ve genç koruma kuralı (U13)",
@@ -1815,11 +1817,115 @@
         "description": "Ücretsiz kullanım API anahtarı etkin olduğunda kullanılacak kalite seviyesi. Daha yüksek seviyeler daha pahalıdır ancak kaliteyi artırabilir. Varsayılan seviye için boş bırakın.",
         "title": "Ücretsiz Kullanım Yapay Zekâ Kalite Seviyesi"
       },
+      "models": {
+        "assign": {
+          "cellLabel": "{{task}}, {{tier}}: {{model}}. Başka bir model ata",
+          "model": "Model",
+          "modelHint": "Yalnızca bu göreve uygun model tablosundaki modeller. Varsayılan: {{model}}",
+          "quality": "Görsel kalitesi",
+          "qualityHint": "Bir görselin maliyetini ve süresini en çok etkileyen ayar. Varsayılan: {{quality}}",
+          "reset": "Varsayılana dön",
+          "title": "Model ata",
+          "where": "{{tier}} katmanında {{task}}"
+        },
+        "assignments": {
+          "description": "Her kalite katmanının her görevi hangi modelde çalıştırdığı. Model tablosundan başka bir model atamak için bir modele tıklayın. Yeni oturumlar değişikliği kullanır; devam eden oturumlar mevcut modellerini korur.",
+          "title": "{{platform}}: katman başına modeller"
+        },
+        "entry": {
+          "codeRead": "Motorun kendi değerleri: {{date}} tarihli, kaynak: {{source}}",
+          "makes": "Üretir",
+          "model": "Model adı",
+          "modelHint": "Sağlayıcının adlandırdığı şekilde, ör. gpt-6.2-sol",
+          "price": {
+            "audioInputPerMTok": "Milyon token başına ses girişi",
+            "audioOutputPerMTok": "Milyon token başına ses çıkışı",
+            "audioPerMinute": "Dakika başına ses",
+            "cachedAudioInputPerMTok": "Milyon token başına önbelleğe alınmış ses girişi",
+            "cachedInputPerMTok": "Milyon token başına önbelleğe alınmış giriş",
+            "inputPerMTok": "Milyon token başına giriş",
+            "outputPerMTok": "Milyon token başına çıkış",
+            "perImage": "Görsel başına"
+          },
+          "prices": "Fiyatlar",
+          "pricesHint": "Sağlayıcının fiyat sayfasında listelendiği şekilde dolar cinsinden. Model bu şekilde ücretlendirilmiyorsa alanı boş bırakın.",
+          "remove": "Modeli kaldır",
+          "reset": "Motorun değerlerine dön",
+          "takes": "Alır",
+          "window": "Bağlam penceresi (token)",
+          "windowHint": "Bir çağrının ne kadar içerik barındırabileceği. Hikâye ve anlatım modellerinin buna ihtiyacı vardır; aksi hâlde uzun bir hikâye asla kısaltılmaz."
+        },
+        "fixed": "Bu platformun modelleri motor tarafından belirlenir ve buradan değiştirilemez.",
+        "media": {
+          "audio": "ses",
+          "image": "görseller",
+          "text": "metin"
+        },
+        "price": {
+          "audioInputPerMTok": "ses girişi {{value}}/M",
+          "audioOutputPerMTok": "ses çıkışı {{value}}/M",
+          "audioPerMinute": "{{value}}/dk",
+          "cachedAudioInputPerMTok": "önbelleğe alınmış ses {{value}}/M",
+          "cachedInputPerMTok": "önbelleğe alınmış giriş {{value}}/M",
+          "inputPerMTok": "giriş {{value}}/M",
+          "none": "Fiyat yok",
+          "outputPerMTok": "çıkış {{value}}/M",
+          "perImage": "{{value}}/görsel"
+        },
+        "probe": {
+          "answers": "Yanıtlıyor (maliyet: ${{cost}})",
+          "button": "Test et",
+          "failed": "Yanıtlamıyor: {{message}}",
+          "none": "Bu görev için modeller henüz test edilemiyor."
+        },
+        "quality": {
+          "high": "yüksek",
+          "low": "düşük",
+          "medium": "orta"
+        },
+        "refused": "Motor bu değişikliği reddetti",
+        "resetAll": {
+          "assignments": {
+            "message": "Her katman her görevi yeniden motorun kendi modelinde çalıştırır; görseller motorun kendi kalitesinde oluşturulur. Yeni oturumlar varsayılanları kullanır; devam eden oturumlar modellerini korur.",
+            "title": "{{platform}}: varsayılan modellere dönülsün mü?"
+          },
+          "button": "Tümünü varsayılanlara sıfırla",
+          "confirm": "Sıfırla",
+          "entries": {
+            "message": "Motorun her modeli yeniden motorun kendi değerlerine döner ve hiçbir katmanın kullanmadığı eklenmiş modeller kaldırılır. Bir katmanın kullandığı eklenmiş modeller kayıtlarını korur.",
+            "title": "{{platform}}: motorun model tablosuna dönülsün mü?"
+          }
+        },
+        "table": {
+          "add": "Model ekle",
+          "added": "Eklendi",
+          "description": "Her modelin aldığı ve ürettiği şeyler, dolar cinsinden fiyatları ve bağlam penceresi. Maliyetler bu değerlere göre hesaplanır. Hiçbir katmanın kullanmadığı modeller gri gösterilir. Motorun kendi modellerinde yapılan değişiklikler bir sonraki uygulama sürümüne kadar geçerlidir.",
+          "edit": "Kaydı düzenle",
+          "makes": "üretir",
+          "read": "{{date}} tarihli fiyat, kaynak: {{source}}",
+          "stale": "Güncellemeyle sıfırlandı",
+          "takes": "Alır",
+          "title": "{{platform}}: model tablosu",
+          "unused": "Kullanılmıyor",
+          "windowValue": "pencere {{tokens}} token"
+        },
+        "task": "Görev",
+        "types": {
+          "hearing": "Sesli giriş",
+          "image": "Görseller",
+          "live": "Canlı ses",
+          "speech": "Anlatım",
+          "story": "Hikâye",
+          "tooling": "Araçlar"
+        },
+        "unpriced": "Bu modelin model tablosunda bir kaydı yok: maliyetleri hesaplanmaz ve bu modeldeki bir hikâye asla kısaltılmaz."
+      },
       "notAuthorized": "Sunucu ayarlarına erişim izniniz yok. Yönetici erişimi gerekir.",
       "tabs": {
         "ai": "Yapay zekâ ve anahtarlar",
         "branding": "Marka görünümü",
         "general": "Genel",
+        "models": "Yapay zekâ modelleri",
         "youthProtection": "Gençlerin korunması"
       },
       "title": "Sunucu Ayarları",
