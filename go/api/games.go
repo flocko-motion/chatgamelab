@@ -49,11 +49,12 @@ func (ListGamesEndpoint) Handle(ctx context.Context, req ListGamesReq) (GameView
 type GameFilter string
 
 const (
-	GameFilterOwn       GameFilter = "own"       // the caller's games
-	GameFilterOthers    GameFilter = "others"    // everyone else's
-	GameFilterPublic    GameFilter = "public"    // public games
-	GameFilterFavorites GameFilter = "favorites" // the caller's favorites
-	GameFilterSponsored GameFilter = "sponsored" // games a key sponsors
+	GameFilterOwn          GameFilter = "own"          // the caller's games
+	GameFilterOthers       GameFilter = "others"       // everyone else's
+	GameFilterOrganisation GameFilter = "organisation" // the caller's organisation's: made in its workshops or by its head and staff
+	GameFilterPublic       GameFilter = "public"       // public games
+	GameFilterFavorites    GameFilter = "favorites"    // the caller's favorites
+	GameFilterSponsored    GameFilter = "sponsored"    // games a key sponsors
 )
 
 // GameSort orders the game list; the default is createdAt, newest first.

@@ -53,6 +53,17 @@ export function withGenreFilter(
   };
 }
 
+/**
+ * A game list without the organisation toggle, for someone in no
+ * organisation: it would list nothing for them. Whether one is in an
+ * organisation is a fact of their own profile; which games are the
+ * organisation's the server decides.
+ */
+export function withoutOrganisationFilter(list: GameListPresetConfig["list"]): GameListPresetConfig["list"] {
+  if (!list.toggles?.some((t) => t.value === "organisation")) return list;
+  return { ...list, toggles: list.toggles.filter((t) => t.value !== "organisation") };
+}
+
 const both = (by: GameListSort) => bothWays(by, (dir) => `games.sort.${by}-${dir}`);
 
 export const GAME_LIST_PRESETS: Record<GameListPreset, GameListPresetConfig> = {
@@ -61,6 +72,8 @@ export const GAME_LIST_PRESETS: Record<GameListPreset, GameListPresetConfig> = {
       toggles: [
         { value: "favorites", label: "allGames.filters.favorites" },
         { value: "own", label: "allGames.filters.own" },
+        // the caller's organisation's games: shown to its head and staff only (withoutOrganisationFilter)
+        { value: "organisation", label: "allGames.filters.organisation" },
         { value: "public", label: "allGames.filters.public" },
       ],
       sorts: [

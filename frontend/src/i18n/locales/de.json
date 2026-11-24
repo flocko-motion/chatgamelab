@@ -409,6 +409,7 @@
         "conditions": {
           "favorites": "einer deiner Favoriten",
           "own": "von dir",
+          "organisation": "von deiner Organisation",
           "sponsored": "gesponsert",
           "public": "öffentlich"
         },
@@ -419,6 +420,7 @@
         "all": "Alle Spiele",
         "favorites": "Favs",
         "own": "Meine",
+        "organisation": "Orga",
         "public": "Öffentlich",
         "sponsored": "Gesponsert",
         "genre": "Genre"
@@ -1030,7 +1032,9 @@
           "toggle": "Auf einer Website einbetten",
           "toggleHint": "Zeigt dieses Spiel auf der verifizierten Seite deiner Organisation, ohne etwas von ChatGameLab drumherum. Besucher spielen als Gäste; der gewählte Schlüssel bezahlt.",
           "page": "Verifizierte Seite",
-          "noPages": "Deine Organisation hat noch keine verifizierte Seite. Leitung oder Mitarbeitende legen sie in den Einstellungen der Organisation an.",
+          "noPages": "Registriere zuerst die Website deiner Organisation: die Seite, auf der eure Spiele laufen. Ein Admin gibt sie frei, dann kann das Spiel dort starten.",
+          "registerPage": "Website registrieren unter Meine Organisation → Websites",
+          "noOrganisation": "Einbetten gibt es für die Spiele einer Organisation: die in ihren Workshops geschrieben wurden oder von ihrer Leitung und ihren Mitarbeitenden. Dieses Spiel gehört zu keiner Organisation.",
           "paidBy": "Bezahlt von",
           "paidByPlaceholder": "Schlüssel wählen",
           "payingNow": "Bezahlt jetzt",

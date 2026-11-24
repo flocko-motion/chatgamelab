@@ -41,9 +41,9 @@ func (s *GameCopyTestSuite) TestACopyNamesTheOriginalCreator() {
 	s.Equal(1, Must(alice.ReadGame(game.Id.String())).CloneCount)
 }
 
-// Reading a game is not copying it: a guest reads their workshop's
-// games, but copies only public ones and their own.
-func (s *GameCopyTestSuite) TestReadingIsNotCopying() {
+// Copying is reading a game's content and creating a game: a guest who
+// reads their workshop's games copies them.
+func (s *GameCopyTestSuite) TestCopyingIsReadingAndCreating() {
 	admin := s.DevUser()
 	inst := Must(admin.CreateInstitution("Copy Org"))
 	head := s.CreateUser("copy-head")
@@ -54,9 +54,13 @@ func (s *GameCopyTestSuite) TestReadingIsNotCopying() {
 	second := Must(s.JoinWorkshop(*invite.InviteToken))
 	game := Must(first.UploadGame("alien-first-contact"))
 
-	s.False(Must(second.ReadGame(game.Id.String())).MayCopy)
-	_, err := second.CloneGame(game.Id.String())
-	s.Forbidden(err)
+	s.True(Must(second.ReadGame(game.Id.String())).MayCopy)
+	copied := Must(second.CloneGame(game.Id.String()))
+	s.NotEqual(game.Id, copied.Id)
+
+	outsider := s.CreateUser("copy-outsider")
+	_, err := outsider.CloneGame(game.Id.String())
+	s.True(testutil.DeniedAccess(err), "who cannot read it cannot copy it")
 }
 
 // A copy's name stays within the limit.

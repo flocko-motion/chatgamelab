@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useGameEmbed, useSetGameEmbed, useVerifiedPages, useWorkshop } from "@/api/hooks";
+import { useGameEmbed, useSetGameEmbed, useVerifiedPages } from "@/api/hooks";
 import type { GameView } from "@/api/types";
 import { engineRoot } from "@/features/play/playback";
 import { embedSnippet } from "../lib/embedSnippet";
@@ -17,24 +17,25 @@ interface Choices {
  * Embedding a game on another website, as the Sharing page sets it: the
  * toggle, the organisation's verified page it runs on, the key that pays,
  * and the snippet to copy. Embedding is for organisations, on their
- * verified page (the spec's Embedding), so the panel is offered for a game
- * of an organisation only and always sets the verified mode. Each change is
- * saved as soon as it is complete; until then (no key, no page) it stays
+ * verified page (the spec's Embedding), so the panel always sets the
+ * verified mode. It is shown wherever the game may be shared, and says what
+ * is to be done first while embedding cannot work yet (notices). Each change
+ * is saved as soon as it is complete; until then (no key, no page) it stays
  * here. The server decides who may embed (mayShare) and which pages are the
  * organisation's; the panel only shows what it answers.
  */
 export function useEmbedPanel(game: GameView) {
   const { t } = useTranslation("common");
-  const shown = game.mayShare && !!game.workshopId;
+  const organisation = game.organisationId;
+  const shown = game.mayShare;
   const { data: embed, isLoading } = useGameEmbed(game.id, shown);
   const save = useSetGameEmbed(game.id);
   const { keys, loading: keysLoading } = usePayingKeys();
 
-  // Verified pages are the game's organisation's: its workshop's. The list
-  // is answered to the organisation's head and staff only.
-  const { data: workshop } = useWorkshop(game.workshopId);
-  const organisation = workshop?.institution?.id;
-  const { data: pages } = useVerifiedPages(organisation);
+  // Verified pages are the game's organisation's, as the server names it
+  // (its workshop's, or its creator's). The list is answered to the
+  // organisation's head and staff only.
+  const { data: pages, isError: pagesHidden } = useVerifiedPages(organisation);
 
   const [draft, setDraft] = useState<Choices | null>(null);
   const saved: Choices = {
@@ -96,6 +97,19 @@ export function useEmbedPanel(game: GameView) {
   }
 
   const live = !!embed?.enabled && !draft;
+
+  // The page it runs on, or would: the chosen one, else the organisation's only one.
+  const page = pages?.find((p) => p.id === choices.pageId) ?? (pages?.length === 1 ? pages[0] : undefined);
+
+  // What is to be done first, in order. The first two leave nothing to
+  // embed on; a missing key leaves nothing to pay with. A page waiting for
+  // approval can be set up already.
+  const noOrganisation = !organisation;
+  const noPages = !noOrganisation && !!pages && !pagesHidden && pages.length === 0 && !embed?.verifiedPageId;
+  const noKeys = !keysLoading && keyOptions.length === 0;
+  const waitingForApproval =
+    !noOrganisation && !noPages && (live ? !embed?.verifiedPageApproved : !!page && !page.approvedAt);
+  const blocked = noOrganisation || noPages || noKeys;
   const snippet = live
     ? embedSnippet({
         loaderUrl: new URL("playback-engine/embed.js", engineRoot()).href,
@@ -120,13 +134,19 @@ export function useEmbedPanel(game: GameView) {
     /** The organisation's pages the game may run on, as the server lists them. */
     pageOptions,
     keyGroups: groups,
-    noKeys: !keysLoading && keyOptions.length === 0,
+    noKeys,
+    /** The game belongs to no organisation: embedding is for organisations' games. */
+    noOrganisation,
+    /** The organisation has no verified page yet: one is to be registered first. */
+    noPages,
+    /** Nothing to embed on or to pay with yet: the toggle cannot turn it on. */
+    blocked,
     /** On, but not saved yet: a key or a page is still to be chosen. */
     incomplete: choices.on && !live && !save.isPending,
     /** The snippet for the host page, while the saved link is on. */
     snippet,
-    /** Saved and on, but its page still waits for an admin's approval: nothing starts yet. */
-    waitingForApproval: live && !embed?.verifiedPageApproved,
+    /** Its page still waits for an admin's approval: nothing starts there yet. */
+    waitingForApproval,
     setOn: (on: boolean) => change({ on }),
     setShare: (shareId: string | null) => change({ shareId }),
     setPage: (pageId: string | null) => change({ pageId }),

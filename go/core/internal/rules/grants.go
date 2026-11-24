@@ -151,7 +151,10 @@ const (
 	Own        Relation = "own"     // created by the caller
 
 	OfCurrentWorkshop Relation = "of current workshop" // the workshop the caller is in
-	OfOwnOrganisation Relation = "of own organisation" // belongs to the caller's organisation, e.g. a game of one of its workshops, a member, a guest in one of its workshops
+	OfOwnOrganisation Relation = "of own organisation" // belongs to the caller's organisation, e.g. a member, a guest in one of its workshops, a game of one of its workshops or by its head or staff
+	// OfOwnOrganisationsWorkshop is narrower for games: made in one of the
+	// caller's organisation's workshops, not only by its head or staff.
+	OfOwnOrganisationsWorkshop Relation = "of own organisation's workshop"
 
 	MemberOfOwnOrganisation Relation = "member of own organisation" // head or staff of the caller's organisation; an individual is in none
 	GuestOfOwnOrganisation  Relation = "guest of own organisation"  // a guest in one of the caller's organisation's workshops

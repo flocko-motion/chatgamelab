@@ -409,6 +409,7 @@
         "conditions": {
           "favorites": "one of your favorites",
           "own": "yours",
+          "organisation": "your organisation's",
           "sponsored": "sponsored",
           "public": "public"
         },
@@ -419,6 +420,7 @@
         "all": "All Games",
         "favorites": "Faves",
         "own": "Mine",
+        "organisation": "Orga",
         "public": "Public",
         "sponsored": "Sponsored",
         "genre": "Genre"
@@ -1030,7 +1032,9 @@
           "toggle": "Embed on a website",
           "toggleHint": "Shows this game on your organisation's verified page, with nothing of ChatGameLab around it. Visitors play as guests; the key you choose pays.",
           "page": "Verified page",
-          "noPages": "Your organisation has no verified page yet. Its head or staff add one in the organisation's settings.",
+          "noPages": "Register your organisation's website first: the page your games will run on. An admin approves it, then the game can start there.",
+          "registerPage": "Register a website in My Organization → Websites",
+          "noOrganisation": "Embedding is for an organisation's games: the games written in its workshops, or by its head and staff. This game belongs to no organisation.",
           "paidBy": "Paid by",
           "paidByPlaceholder": "Choose a key",
           "payingNow": "Paying now",
