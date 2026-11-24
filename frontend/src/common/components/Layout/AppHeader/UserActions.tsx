@@ -4,6 +4,7 @@ import {
   Text,
   Tooltip,
 } from "@mantine/core";
+import { useBranding } from "@/providers/branding";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../../providers/AuthProvider";
 import {
@@ -19,7 +20,6 @@ import navClasses from "./DesktopNavigation.module.css";
 import { UserAvatar } from "../../UserAvatar";
 import { NotificationBell } from "../../NotificationBell";
 import { GuestUserMenu } from "../GuestUserMenu";
-import { EXTERNAL_LINKS } from "../../../../config/externalLinks";
 import type { AppHeaderProps } from "./types";
 
 export function UserActions({
@@ -44,6 +44,7 @@ export function UserActions({
   | "onExitWorkshopMode"
 >) {
   const { t } = useTranslation("common");
+  const branding = useBranding();
   const { logout: authLogout, backendUser } = useAuth();
 
   const handleLogout = () => {
@@ -55,13 +56,14 @@ export function UserActions({
   if (isSignedOut) {
     return (
       <Group gap="sm" wrap="nowrap">
+        {branding.contactUrl && (
         <Tooltip
-          label={EXTERNAL_LINKS.CONTACT.description}
+          label={t("header.contactHint")}
           position="bottom"
           withArrow
         >
           <UnstyledButton
-            onClick={() => window.open(EXTERNAL_LINKS.CONTACT.href, "_blank")}
+            onClick={() => window.open(branding.contactUrl, "_blank")}
             aria-label={t("header.contact")}
             className={navClasses.navButton}
           >
@@ -71,6 +73,7 @@ export function UserActions({
             </Text>
           </UnstyledButton>
         </Tooltip>
+        )}
         <LanguageSwitcher size="sm" variant="compact" />
       </Group>
     );

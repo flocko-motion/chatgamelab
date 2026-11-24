@@ -25,6 +25,13 @@ type Consent struct {
 	NewOrganisation bool // the consent registered the organisation; otherwise it renewed an existing one's
 }
 
+// Site is who sends the confirmation: the site's name and its operator,
+// as the site's branding says.
+type Site struct {
+	Name     string
+	Operator string
+}
+
 // berlin is the time zone of the dates in mails.
 var berlin = func() *time.Location {
 	loc, err := time.LoadLocation("Europe/Berlin")
@@ -37,10 +44,10 @@ var berlin = func() *time.Location {
 // Confirmations are the mails that confirm c: to the person who agreed, in
 // their language, and a copy in German to the operator's address (none when
 // it is empty). Each carries the full declaration.
-func Confirmations(c Consent, language, notify string) []mail.Message {
-	msgs := []mail.Message{confirmation(c, language, c.Email)}
+func Confirmations(c Consent, site Site, language, notify string) []mail.Message {
+	msgs := []mail.Message{confirmation(c, site, language, c.Email)}
 	if notify != "" {
-		forOperator := confirmation(c, BindingLanguage, notify)
+		forOperator := confirmation(c, site, BindingLanguage, notify)
 		forOperator.Subject = lang.Text(BindingLanguage, "mail.consent.copySubject", map[string]string{"subject": forOperator.Subject})
 		msgs = append(msgs, forOperator)
 	}
@@ -48,7 +55,7 @@ func Confirmations(c Consent, language, notify string) []mail.Message {
 }
 
 // confirmation is c's confirmation in language, to the address to.
-func confirmation(c Consent, language, to string) mail.Message {
+func confirmation(c Consent, site Site, language, to string) mail.Message {
 	d, ok := DeclarationByVersion(c.Version)
 	if !ok {
 		d = CurrentDeclaration() // a consent names a published version
@@ -58,6 +65,8 @@ func confirmation(c Consent, language, to string) mail.Message {
 		"organisation": c.Organisation,
 		"version":      d.Version,
 		"date":         formatDate(d.Date),
+		"siteName":     site.Name,
+		"operatorName": site.Operator,
 	}
 	text := func(key string) string { return lang.Text(language, "mail.consent."+key, vars) }
 

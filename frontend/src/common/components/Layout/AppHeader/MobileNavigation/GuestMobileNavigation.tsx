@@ -7,6 +7,7 @@ import {
   Text,
   useMantineTheme,
 } from "@mantine/core";
+import { useBranding } from "@/providers/branding";
 import { useModals } from "@mantine/modals";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../../../providers/AuthProvider";
@@ -15,7 +16,6 @@ import { useNavigate } from "@tanstack/react-router";
 import { ROUTES } from "@/common/routes/routes";
 import { LanguageSwitcher } from "../../../LanguageSwitcher";
 import { VersionDisplay } from "../../../VersionDisplay";
-import { EXTERNAL_LINKS } from "../../../../../config/externalLinks";
 import type { NavItem } from "../types";
 
 export interface GuestMobileNavigationProps {
@@ -32,6 +32,7 @@ export function GuestMobileNavigation({
   onClose,
 }: GuestMobileNavigationProps) {  
   const { t } = useTranslation("common");
+  const branding = useBranding();
   const { t: tAuth } = useTranslation("auth");
   const { logout: authLogout, backendUser } = useAuth();
   const theme = useMantineTheme();
@@ -129,9 +130,10 @@ export function GuestMobileNavigation({
 
         <Stack gap={4}>
           {/* Contact */}
+          {branding.contactUrl && (
           <UnstyledButton
             onClick={() => {
-              window.open(EXTERNAL_LINKS.CONTACT.href, "_blank");
+              window.open(branding.contactUrl, "_blank");
               onClose();
             }}
             py="sm"
@@ -149,6 +151,7 @@ export function GuestMobileNavigation({
               {t("header.contact")}
             </Text>
           </UnstyledButton>
+          )}
 
           <UnstyledButton
             onClick={() => {

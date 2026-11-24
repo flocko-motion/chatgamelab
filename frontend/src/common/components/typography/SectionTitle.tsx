@@ -13,7 +13,7 @@ import type { ReactNode } from 'react';
  * - Card headings (use CardTitle)
  * 
  * @example
- * <SectionTitle>Why Choose ChatGameLab?</SectionTitle>
+ * <SectionTitle>Settings</SectionTitle>
  */
 
 export interface SectionTitleProps {

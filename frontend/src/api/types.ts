@@ -4,6 +4,8 @@
  */
 export type {
   AcceptInviteResp,
+  Branding,
+  SiteResp,
   ConsentStatusView,
   CreateGameReq,
   DeclarationResp,

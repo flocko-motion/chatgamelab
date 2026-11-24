@@ -7,11 +7,11 @@
       "u13p": "13–17 Jahre, mit Zustimmung der Eltern",
       "u18": "18 Jahre oder älter",
       "under13": "Unter 13 Jahre",
-      "u13Description": "Du kannst ChatGameLab nutzen. Für dein Konto gelten stärkere Schutzeinstellungen.",
-      "u13pDescription": "Du kannst ChatGameLab nutzen, wenn deine Eltern einverstanden sind.",
-      "u18Description": "Du kannst ChatGameLab nutzen.",
-      "under13Description": "Du kannst noch kein eigenes Konto erstellen. Wenn du unter 13 bist, kannst du ChatGameLab nur zusammen mit einer Jugendeinrichtung nutzen.",
-      "under13Blocker": "Du kannst noch kein eigenes Konto erstellen. Wenn du unter 13 bist, kannst du ChatGameLab nur zusammen mit einer Jugendeinrichtung nutzen."
+      "u13Description": "Du kannst {{siteName}} nutzen. Für dein Konto gelten stärkere Schutzeinstellungen.",
+      "u13pDescription": "Du kannst {{siteName}} nutzen, wenn deine Eltern einverstanden sind.",
+      "u18Description": "Du kannst {{siteName}} nutzen.",
+      "under13Description": "Du kannst noch kein eigenes Konto erstellen. Wenn du unter 13 bist, kannst du {{siteName}} nur zusammen mit einer Jugendeinrichtung nutzen.",
+      "under13Blocker": "Du kannst noch kein eigenes Konto erstellen. Wenn du unter 13 bist, kannst du {{siteName}} nur zusammen mit einer Jugendeinrichtung nutzen."
     },
     "login": {
       "auth0Button": "Mit Auth0 anmelden",
@@ -99,10 +99,10 @@
       "agreeSuffix2": "zu",
       "alreadyHaveAccount": "Bereits ein Konto?",
       "backButton": "Zurück",
-      "chooseType": "Wie möchtest du ChatGameLab nutzen?",
+      "chooseType": "Wie möchtest du {{siteName}} nutzen?",
       "continueButton": "Weiter zur Registrierung",
       "description": "Wir nutzen Auth0 als Authentifizierungsanbieter zur Verwaltung der Benutzerkonten. Du wirst zu Auth0 weitergeleitet, um dein Konto zu erstellen, und dann hierher zurückgeführt, um dein Profil zu vervollständigen.",
-      "educatorDescription": "Nutze ChatGameLab in Workshops, im Unterricht oder in deiner Organisation",
+      "educatorDescription": "Nutze {{siteName}} in Workshops, im Unterricht oder in deiner Organisation",
       "individualDescription": "Erstelle und spiele KI-gestützte Textabenteuer",
       "individualTitle": "Persönliches Konto",
       "loginLink": "Anmelden",
@@ -110,7 +110,7 @@
       "termsOfService": "Nutzungsbedingungen",
       "title": "Konto erstellen",
       "organizationTitle": "Als Organisation registrieren",
-      "organizationIntro": "Für Jugendeinrichtungen, Schulen und andere Einrichtungen, die ChatGameLab in Workshops nutzen möchten.",
+      "organizationIntro": "Für Jugendeinrichtungen, Schulen und andere Einrichtungen, die {{siteName}} in Workshops nutzen möchten.",
       "organizationStep1": "Du legst über Auth0 deinen Zugang an (E-Mail und Passwort).",
       "organizationStep2": "Du gibst die Angaben zu dir und deiner Einrichtung ein, legst die Jugendschutz-Regel fest und stimmst der Einverständniserklärung zu.",
       "organizationStep3": "Nach dem Absenden ist die Organisation sofort freigeschaltet und du kannst Workshops anlegen.",
@@ -143,7 +143,7 @@
       "subtitle": "Nach dem Absenden ist eure Organisation sofort freigeschaltet und du bist Organisationsleitung.",
       "personSection": "Angaben zu deiner Person",
       "accountNameLabel": "Anzeigename",
-      "accountNameDescription": "So erscheinst du in ChatGameLab (höchstens 24 Zeichen).",
+      "accountNameDescription": "So erscheinst du in {{siteName}} (höchstens 24 Zeichen).",
       "personNameLabel": "Vor- und Nachname",
       "personFunctionLabel": "Funktion in der Einrichtung",
       "personFunctionPlaceholder": "z. B. Leitung, pädagogische Fachkraft",
@@ -204,10 +204,10 @@
         "title": "Einverständniserklärung bestätigen",
         "introExisting": "Für eure Organisation „{{name}}“ gibt es jetzt eine Einverständniserklärung, die online bestätigt wird. Sie ersetzt die bisher unterschriebene Nutzungsvereinbarung. Bitte lies sie und stimme im Namen eurer Einrichtung zu.",
         "introNewVersion": "Die Einverständniserklärung wurde aktualisiert (Version {{version}}). Bitte lies die neue Fassung und stimme im Namen eurer Organisation „{{name}}“ zu.",
-        "oneHeadIsEnough": "Es reicht, wenn eine Organisationsleitung zustimmt. Bis dahin ist eure Organisation ausgesetzt: Ihre Mitglieder können ChatGameLab nicht nutzen.",
+        "oneHeadIsEnough": "Es reicht, wenn eine Organisationsleitung zustimmt. Bis dahin ist eure Organisation ausgesetzt: Ihre Mitglieder können {{siteName}} nicht nutzen.",
         "emailDescription": "An diese Adresse schicken wir die Bestätigung mit dem Text der Erklärung.",
         "submit": "Zustimmen",
-        "introWithdrawn": "Die Zustimmung eurer Organisation „{{name}}“ zur Einverständniserklärung wurde widerrufen, deshalb ist sie ausgesetzt. Bitte lies die Erklärung und stimme im Namen eurer Einrichtung zu, um ChatGameLab wieder zu nutzen.",
+        "introWithdrawn": "Die Zustimmung eurer Organisation „{{name}}“ zur Einverständniserklärung wurde widerrufen, deshalb ist sie ausgesetzt. Bitte lies die Erklärung und stimme im Namen eurer Einrichtung zu, um {{siteName}} wieder zu nutzen.",
         "logout": "Abmelden"
       }
     }
@@ -558,8 +558,6 @@
     },
     "error": "Fehler",
     "footer": {
-      "copyright": "JFF - Institut für Medienpädagogik",
-      "jffTitle": "JFF - Institut für Medienpädagogik",
       "programmedBy": "Programmiert von"
     },
     "games": {
@@ -1041,7 +1039,7 @@
         "embed": {
           "waitingForApproval": "Die Seite der Organisation wartet auf die Freigabe durch einen Admin. Bis dahin startet das Spiel dort nicht.",
           "toggle": "Auf einer Website einbetten",
-          "toggleHint": "Zeigt dieses Spiel auf der verifizierten Seite deiner Organisation, ohne etwas von ChatGameLab drumherum. Besucher spielen als Gäste; der gewählte Schlüssel bezahlt.",
+          "toggleHint": "Zeigt dieses Spiel auf der verifizierten Seite deiner Organisation, ohne etwas von {{siteName}} drumherum. Besucher spielen als Gäste; der gewählte Schlüssel bezahlt.",
           "page": "Verifizierte Seite",
           "noPages": "Registriere zuerst die Website deiner Organisation: die Seite, auf der eure Spiele laufen. Ein Admin gibt sie frei, dann kann das Spiel dort starten.",
           "registerPage": "Website registrieren unter Meine Organisation → Websites",
@@ -1080,30 +1078,12 @@
       "openUserMenu": "Benutzermenü öffnen",
       "organization": "Organisation",
       "profile": "Profil",
-      "workshop": "Workshop"
+      "workshop": "Workshop",
+      "contactHint": "Schreib dem Team von {{siteName}}"
     },
     "help": "Hilfe",
     "home": {
       "codeCta": "Code eingeben",
-      "features": {
-        "create": {
-          "description": "Entwirf interaktive Text-Adventures mit KI",
-          "title": "Abenteuer erstellen"
-        },
-        "learn": {
-          "description": "Perfekt für Bildungsworkshops und Unterrichtsaktivitäten",
-          "title": "Lernen \u0026 Lehren"
-        },
-        "play": {
-          "description": "Schließ dich Freunden bei kollaborativen Geschichtensitzungen an",
-          "title": "Gemeinsam spielen"
-        },
-        "title": "Warum ChatGameLab?",
-        "understand": {
-          "description": "Erkunde, wie KI-Modelle Geschichten erstellen und lerne, wie sie funktionieren",
-          "title": "KI verstehen"
-        }
-      },
       "loginCta": "Anmelden und loslegen",
       "splashDescription": "Eine Lernplattform zum Erstellen und Spielen von KI-gestützten Text-Adventures. Perfekt für Lehrer, Schüler und kreative Geschichtenerzähler."
     },
@@ -1201,13 +1181,13 @@
       "verifiedPages": {
         "approved": "Freigegeben",
         "waiting": "Wartet auf die Freigabe durch einen Admin",
-        "intro": "Eine verifizierte Seite ist eine Seite auf der Website deiner Organisation, die eure eingebetteten Spiele zeigen darf. Bevor dort ein Spiel startet, fragt ChatGameLab den Callback der Seite, ob es starten soll, mit der Seiten-ID unten und den IDs von Besucher und Anfrage, die eure Seite mitgibt. Nur die Antwort {\"ok\": true} startet das Spiel.",
+        "intro": "Eine verifizierte Seite ist eine Seite auf der Website deiner Organisation, die eure eingebetteten Spiele zeigen darf. Bevor dort ein Spiel startet, fragt {{siteName}} den Callback der Seite, ob es starten soll, mit der Seiten-ID unten und den IDs von Besucher und Anfrage, die eure Seite mitgibt. Nur die Antwort {\"ok\": true} startet das Spiel.",
         "empty": "Noch keine verifizierten Seiten.",
         "addTitle": "Seite registrieren",
         "pageUrl": "Adresse der Seite",
         "pageUrlHint": "Die Seite, in die eure Spiele eingebettet sind. Nur ihre Website darf sie zeigen.",
         "callbackUrl": "Callback-Adresse",
-        "callbackUrlHint": "Hier fragt ChatGameLab vor jedem Start. Sie muss innerhalb weniger Sekunden antworten.",
+        "callbackUrlHint": "Hier fragt {{siteName}} vor jedem Start. Sie muss innerhalb weniger Sekunden antworten.",
         "add": "Seite registrieren",
         "editTitle": "Seite ändern",
         "editReapproval": "Diese Adresse liegt auf einer anderen Website und wartet erneut auf die Freigabe durch einen Admin; bis dahin starten dort keine Spiele. Ein anderer Port oder Pfad auf derselben Website bleibt freigegeben.",
@@ -1450,7 +1430,7 @@
         "consented": "Eure Organisation hat am {{date}} der Version {{version}} zugestimmt.",
         "withdraw": "Zustimmung widerrufen",
         "withdrawTitle": "Zustimmung widerrufen?",
-        "withdrawConfirm": "Ohne Zustimmung ist eure Organisation ausgesetzt: Kein Mitglied kann ChatGameLab nutzen, bis eine Leitung wieder zustimmt. Ihre Daten bleiben erhalten.",
+        "withdrawConfirm": "Ohne Zustimmung ist eure Organisation ausgesetzt: Kein Mitglied kann {{siteName}} nutzen, bis eine Leitung wieder zustimmt. Ihre Daten bleiben erhalten.",
         "withdrawFailed": "Das hat nicht geklappt. Bitte erneut versuchen."
       }
     },
@@ -1623,6 +1603,48 @@
         "nextCheckIn": "Die nächste Suche ist in {{seconds}} s möglich.",
         "checkRunningElsewhere": "Es läuft schon eine Suche; ihr Ergebnis erscheint hier.",
         "reloading": "{{version}} ist installiert. Die Seite lädt damit neu."
+      },
+      "branding": {
+        "title": "Erscheinungsbild",
+        "description": "Wie sich diese Seite zeigt: ihr Name im Browser-Tab und in Texten, wer sie betreibt und welche Links sie anzeigt. Lass einen Link leer, um ihn auszublenden.",
+        "hidden": "Ausgeblendet",
+        "reset": "Zurück zum Standard",
+        "groups": {
+          "identity": "Name und Betreiber",
+          "links": "Links",
+          "credit": "Hinweis in der Fußzeile"
+        },
+        "fields": {
+          "siteName": "Name der Seite",
+          "operatorName": "Betreiber",
+          "operatorUrl": "Website des Betreibers",
+          "supportEmail": "Support-E-Mail",
+          "websiteUrl": "Website",
+          "contactUrl": "Kontakt",
+          "privacyUrl": "Datenschutzerklärung",
+          "termsUrl": "Nutzungsbedingungen",
+          "educatorInfoUrl": "Infos für Fachkräfte",
+          "helpUrl": "Hilfe",
+          "gameTipsUrl": "Tipps zum Spielebauen",
+          "apiKeyFaqUrl": "Fragen zu KI-Schlüsseln",
+          "aiInsightsUrl": "Über die KI-Einblicke",
+          "reportGameUrl": "Spiel melden",
+          "creditName": "Programmiert von",
+          "creditUrl": "Deren Website"
+        },
+        "changed": "Geändert",
+        "resetTo": "Zurück zum Standard: {{value}}",
+        "errors": {
+          "nameRequired": "Die Seite braucht einen Namen.",
+          "notEmail": "Das ist keine E-Mail-Adresse.",
+          "notUrl": "Das ist keine Web-Adresse. Sie beginnt mit https:// oder http://."
+        }
+      },
+      "tabs": {
+        "general": "Allgemein",
+        "branding": "Erscheinungsbild",
+        "ai": "KI und Schlüssel",
+        "youthProtection": "Jugendschutz"
       }
     },
     "settings": "Einstellungen",
@@ -1655,11 +1677,11 @@
         "title": "Mehr zu diesem Workshop"
       },
       "about": {
-        "oneLiner": "Diese Textabenteuer sind mit dem ChatGameLab entstanden: selbst gebaut, ohne Programmieren, live erzählt von einer KI.",
+        "oneLiner": "Diese Textabenteuer sind mit {{siteName}} entstanden: selbst gebaut, ohne Programmieren, live erzählt von einer KI.",
         "details": "Die Macher*innen beschreiben Welt, Figuren und Regeln in eigenen Worten. Beim Spielen erzählt eine KI die Geschichte daraus live weiter: Sie reagiert auf jede Eingabe und erfindet dazu passende Bilder — zwei Runden laufen deshalb nie gleich ab. Wer selbst eines baut, merkt schnell, wie stark die eigenen Anweisungen das Ergebnis prägen und wo eine KI an ihre Grenzen stößt. Genau darum geht es: KI nicht erklärt bekommen, sondern ausprobieren.",
         "more": "Mehr erfahren",
         "less": "Weniger",
-        "link": "Mehr über das ChatGameLab"
+        "link": "Mehr über {{siteName}}"
       },
       "unavailable": {
         "title": "Diese Seite ist nicht verfügbar",
@@ -1676,7 +1698,7 @@
       "copyLogin": "Anmelden \u0026 kopieren",
       "playNoKey": "Für diesen Workshop ist kein API-Key hinterlegt, deshalb kann hier nicht gespielt werden.",
       "cta": {
-        "title": "Erstelle selbst ein ChatGameLab-Spiel",
+        "title": "Erstelle selbst ein Spiel mit {{siteName}}",
         "text": "Ein eigenes Textabenteuer zu bauen ist kostenlos und dauert nur wenige Minuten.",
         "button": "Kostenlos loslegen"
       }
@@ -1686,8 +1708,8 @@
     },
     "organisationSuspended": {
       "title": "Organisation ausgesetzt",
-      "byAdmin": "Der Betreiber hat den Zugang deiner Organisation zum ChatGameLab ausgesetzt. Deine Daten bleiben erhalten.",
-      "consentWanted": "Der Zugang deiner Organisation zum ChatGameLab ist ausgesetzt, bis eine ihrer Leitungen der aktuellen Einverständniserklärung zustimmt. Deine Daten bleiben erhalten.",
+      "byAdmin": "Der Betreiber hat den Zugang deiner Organisation zu {{siteName}} ausgesetzt. Deine Daten bleiben erhalten.",
+      "consentWanted": "Der Zugang deiner Organisation zu {{siteName}} ist ausgesetzt, bis eine ihrer Leitungen der aktuellen Einverständniserklärung zustimmt. Deine Daten bleiben erhalten.",
       "contact": "Bei Fragen wende dich an",
       "logout": "Abmelden"
     }
@@ -1734,7 +1756,6 @@
     "fresh": {
       "title": "Neue Spiele",
       "viewAll": "Zur Galerie",
-      "by": "von {{name}}",
       "empty": "Noch keine neuen Spiele."
     },
     "popular": {
@@ -1745,10 +1766,8 @@
     },
     "links": {
       "educators": "Für Pädagog*innen",
-      "about": "Über ChatGameLab",
-      "jff": "JFF – Institut für Medienpädagogik"
-    },
-    "someone": "jemandem"
+      "about": "Über {{siteName}}"
+    }
   },
   "errors": {
     "aiError": "Der KI-Dienst hat einen Fehler festgestellt. Bitte versuche es erneut.",
@@ -2160,12 +2179,12 @@
   },
   "mail": {
     "consent": {
-      "subjectRegistered": "ChatGameLab: Organisation „{{organisation}}“ freigeschaltet – Einverständniserklärung",
-      "subjectRenewed": "ChatGameLab: Einverständniserklärung für „{{organisation}}“ bestätigt (Version {{version}})",
+      "subjectRegistered": "{{siteName}}: Organisation „{{organisation}}“ freigeschaltet – Einverständniserklärung",
+      "subjectRenewed": "{{siteName}}: Einverständniserklärung für „{{organisation}}“ bestätigt (Version {{version}})",
       "copySubject": "Kopie: {{subject}}",
       "greeting": "Hallo {{name}},",
-      "registered": "die Organisation „{{organisation}}“ ist im ChatGameLab freigeschaltet. Du bist Organisationsleitung und kannst jetzt Workshops anlegen.",
-      "renewed": "danke! Für die Organisation „{{organisation}}“ im ChatGameLab liegt jetzt die Zustimmung zur aktuellen Einverständniserklärung vor.",
+      "registered": "die Organisation „{{organisation}}“ ist bei {{siteName}} freigeschaltet. Du bist Organisationsleitung und kannst jetzt Workshops anlegen.",
+      "renewed": "danke! Für die Organisation „{{organisation}}“ bei {{siteName}} liegt jetzt die Zustimmung zur aktuellen Einverständniserklärung vor.",
       "agreed": "Du hast im Namen deiner Einrichtung der folgenden Einverständniserklärung zugestimmt.",
       "bindingInGerman": "Die Erklärung ist auf Deutsch verbindlich und folgt deshalb auf Deutsch.",
       "organisation": "Einrichtung",
@@ -2177,7 +2196,7 @@
       "version": "Version",
       "versionValue": "{{version}} (Stand {{date}})",
       "checksum": "Prüfsumme",
-      "signature": "Dein ChatGameLab-Team\nJFF – Jugend Film Fernsehen e.V."
+      "signature": "Dein Team von {{siteName}}\n{{operatorName}}"
     }
   }
 }

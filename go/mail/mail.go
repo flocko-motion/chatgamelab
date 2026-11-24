@@ -22,10 +22,6 @@ import (
 //	SMTP_FROM      "ChatGameLab <noreply@chatgamelab.eu>" by default
 //	ORG_REGISTRATION_NOTIFY_EMAIL  receives a copy of every organisation's consent
 
-// defaultNotifyAddress receives a copy of every organisation's consent unless
-// ORG_REGISTRATION_NOTIFY_EMAIL names another.
-const defaultNotifyAddress = "chatgamelab@jff.de"
-
 // keptLimit is how many sent mails development mode keeps.
 const keptLimit = 50
 
@@ -61,9 +57,10 @@ func Sent() []Message {
 	return out
 }
 
-// NotifyAddress is where copies of organisations' consents go.
-func NotifyAddress() string {
-	return strings.TrimSpace(functional.EnvOrDefault("ORG_REGISTRATION_NOTIFY_EMAIL", defaultNotifyAddress))
+// NotifyAddress is where copies of organisations' consents go:
+// ORG_REGISTRATION_NOTIFY_EMAIL, or else fallback, the site's support address.
+func NotifyAddress(fallback string) string {
+	return strings.TrimSpace(functional.EnvOrDefault("ORG_REGISTRATION_NOTIFY_EMAIL", fallback))
 }
 
 // Send delivers msg; without SMTP_HOST it only logs it. A failure is logged

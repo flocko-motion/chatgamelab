@@ -37,7 +37,7 @@ import {
 } from "../lib/gameListPresets";
 import type { GameEditRights } from "./useGameEditor";
 import { useFavoriteState } from "./useFavoriteState";
-import { useGameNavigation } from "./useGameNavigation";
+import { useGameNavigation } from "@/common/hooks/useGameNavigation";
 import { useGameSessionState } from "./useGameSessionState";
 
 export interface UseGamesTableOptions {

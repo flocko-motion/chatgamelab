@@ -31,18 +31,6 @@
 }
 
 /* A card that opens a game: white, ink outline, offset shadow. */
-.itemCard {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  background: var(--mantine-color-white);
-  border: 2px solid var(--mantine-color-ink-5);
-  border-radius: var(--mantine-radius-sm);
-  box-shadow: 4px 4px 0 var(--mantine-color-ink-5);
-  overflow: hidden;
-  text-align: left;
-}
-
 .itemBody {
   display: flex;
   flex-direction: column;
@@ -66,17 +54,6 @@
 }
 
 /* A cover with a genre chip in its bottom left corner. */
-.cover {
-  position: relative;
-  border-bottom: 2px solid var(--mantine-color-ink-5);
-}
-
-.genreOnCover {
-  position: absolute;
-  left: 8px;
-  bottom: 8px;
-}
-
 /* ---------- Hero: the greeting and the prompt ---------- */
 
 .hero {
@@ -235,16 +212,19 @@
   }
 }
 
-.tiles {
+/* Game cards, one size in every section: four fit beside the lab panel,
+   and a full-width row keeps that width. On a phone, two per row. */
+.cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, 184px);
+  gap: 18px;
 }
 
-.discoveries {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 22px;
+@media (max-width: 36em) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
 }
 
 /* Your lab so far: big numbers, two per row. */

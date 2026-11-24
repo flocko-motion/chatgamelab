@@ -7,6 +7,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"cgl/core/internal/store"
 	"cgl/db"
 	"cgl/legal"
 	"cgl/log"
@@ -196,9 +197,17 @@ func recordConsent(ctx context.Context, q *db.Queries, id, account uuid.UUID, c 
 }
 
 // confirmConsent mails the confirmation of c: to the person, in language, and
-// a copy to the operator. A mail that fails is logged; the consent stands.
-func confirmConsent(c legal.Consent, language string) {
-	for _, msg := range legal.Confirmations(c, language, mail.NotifyAddress()) {
+// a copy to the site's operator. A mail that fails is logged; the consent
+// stands.
+func confirmConsent(ctx context.Context, c legal.Consent, language string) {
+	b := DefaultBranding()
+	if stored, err := storedBranding(ctx, store.Queries()); err == nil {
+		b = applyBranding(stored)
+	} else {
+		log.Warn("site branding unreadable, mailing with its defaults", "error", err)
+	}
+	site := legal.Site{Name: b.SiteName, Operator: b.OperatorName}
+	for _, msg := range legal.Confirmations(c, site, language, mail.NotifyAddress(b.SupportEmail)) {
 		_ = mail.Send(msg) // Send logs its failures
 	}
 }

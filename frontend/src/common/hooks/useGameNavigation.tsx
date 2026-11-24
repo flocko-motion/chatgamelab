@@ -16,8 +16,8 @@ import type { Game, SessionView } from "@/api/types";
 type GameRef = Pick<Game, "id" | "name"> & { mayPresetPrompts?: boolean };
 
 /**
- * Shared hook for game play/continue/restart navigation logic.
- * Used by the game lists (GamesTable) and the game page.
+ * Playing a game from a tile: start it, continue the caller's session of
+ * it, or start anew. Used by the game lists (GamesTable) and the dashboard.
  */
 export function useGameNavigation() {
   const navigate = useNavigate();

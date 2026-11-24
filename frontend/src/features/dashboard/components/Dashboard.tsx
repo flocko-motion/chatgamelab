@@ -1,7 +1,6 @@
 import { Anchor } from "@mantine/core";
+import { useBranding } from "@/providers/branding";
 import { useTranslation } from "react-i18next";
-import { EXTERNAL_LINKS } from "@/config/externalLinks";
-import { HELP_LINKS } from "@/config/helpLinks";
 import { useAdmin } from "@/common/hooks/useAdmin";
 import { useDashboard } from "../hooks/useDashboard";
 import { Hero } from "./Hero";
@@ -15,6 +14,7 @@ import classes from "./Dashboard.module.css";
  */
 export function DashboardContent() {
   const { t } = useTranslation("dashboard");
+  const branding = useBranding();
   const { isAdmin } = useAdmin();
   const data = useDashboard();
   const { go } = data;
@@ -27,27 +27,33 @@ export function DashboardContent() {
 
       <div className={classes.split}>
         {isAdmin ? (
-          <FreshGames games={data.freshGames} onPlay={go.play} onSeeAll={go.gallery} />
+          <FreshGames games={data.freshGames} card={data.card} onSeeAll={go.gallery} />
         ) : (
-          <OwnGames games={data.ownGames} loading={data.ownGamesLoading} onOpen={go.open} onSeeAll={go.ownGames} />
+          <OwnGames games={data.ownGames} loading={data.ownGamesLoading} card={data.card} onSeeAll={go.ownGames} />
         )}
         <LabPanel data={data} />
       </div>
 
-      {!isAdmin && <FreshGames games={data.freshGames} onPlay={go.play} onSeeAll={go.gallery} />}
+      {!isAdmin && <FreshGames games={data.freshGames} card={data.card} onSeeAll={go.gallery} />}
 
       <PopularGames games={data.popularGames} onPlay={go.play} />
 
       <footer className={classes.links}>
-        <Anchor href={HELP_LINKS.EDUCATOR_INFO} target="_blank" rel="noopener noreferrer">
-          {t("links.educators")}
-        </Anchor>
-        <Anchor href={EXTERNAL_LINKS.CHATGAMELAB.href} target="_blank" rel="noopener noreferrer">
-          {t("links.about")}
-        </Anchor>
-        <Anchor href={EXTERNAL_LINKS.JFF.href} target="_blank" rel="noopener noreferrer">
-          {t("links.jff")}
-        </Anchor>
+        {branding.educatorInfoUrl && (
+          <Anchor href={branding.educatorInfoUrl} target="_blank" rel="noopener noreferrer">
+            {t("links.educators")}
+          </Anchor>
+        )}
+        {branding.websiteUrl && (
+          <Anchor href={branding.websiteUrl} target="_blank" rel="noopener noreferrer">
+            {t("links.about")}
+          </Anchor>
+        )}
+        {branding.operatorUrl && branding.operatorName && (
+          <Anchor href={branding.operatorUrl} target="_blank" rel="noopener noreferrer">
+            {branding.operatorName}
+          </Anchor>
+        )}
       </footer>
     </div>
   );

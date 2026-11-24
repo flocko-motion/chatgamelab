@@ -20,6 +20,9 @@ var openEndpoints = map[string]schemafapi.AuthLevel{
 	"GET /api/users/me":          schemafapi.AuthOptional,
 	"GET /api/dev/mails":         schemafapi.AuthNone, // dev mode only
 
+	// how the site presents itself, shown on the login page
+	"GET /api/site": schemafapi.AuthNone,
+
 	// the declaration an organisation consents to, read before signing up
 	"GET /api/legal/institution-declaration": schemafapi.AuthNone,
 

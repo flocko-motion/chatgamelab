@@ -6,7 +6,7 @@ import { GAME_LIST_PRESETS } from "../lib/gameListPresets";
 import { emptyListDescription, getGameDateLabel } from "../lib";
 import { useGamesTable, type UseGamesTableOptions } from "../hooks/useGamesTable";
 import { useGameColumns } from "./useGameColumns";
-import { GameCard } from "./GameCard";
+import { GameCard } from "@components/GameCard";
 import { GameEditor } from "./editor/GameEditor";
 import { SponsorGameModal } from "./SponsorGameModal";
 import { WorkshopBadges } from "./WorkshopBadges";

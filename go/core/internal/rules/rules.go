@@ -352,6 +352,8 @@ var Rules = map[Role]Grants{
 	// Everyone is every caller's baseline.
 	Everyone: {
 		Always: {
+			{Read, SiteBranding, Everywhere}, // the login page shows it, before anyone signs in
+
 			{Read, OrganisationCard, OfOwnOrganisation}, // head's and staff's, theirs
 			{Read, OrganisationCard, OfCurrentWorkshop}, // whoever takes part in a workshop, its organisation's; no membership
 			{Read, WorkshopCard, Public},                // one with a public page

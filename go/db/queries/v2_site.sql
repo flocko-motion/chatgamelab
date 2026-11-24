@@ -26,9 +26,17 @@ SELECT
   prompt_constraint_u13,
   prompt_constraint_u13p,
   prompt_constraint_u18,
-  free_use_api_key_id
+  free_use_api_key_id,
+  branding
 FROM system_settings
 LIMIT 1;
+
+-- name: V2UpdateSiteBranding :exec
+-- Stores what the admin changed of the site's branding (#573).
+UPDATE system_settings
+SET
+  branding = @branding,
+  modified_at = now();
 
 -- name: V2UpdateDefaultAiQualityTier :exec
 UPDATE system_settings

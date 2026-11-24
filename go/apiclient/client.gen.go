@@ -924,6 +924,26 @@ type BlockPrompt struct {
 	Text    string `json:"text"`
 }
 
+// Branding defines model for Branding.
+type Branding struct {
+	AiInsightsUrl   string `json:"aiInsightsUrl"`
+	ApiKeyFaqUrl    string `json:"apiKeyFaqUrl"`
+	ContactUrl      string `json:"contactUrl"`
+	CreditName      string `json:"creditName"`
+	CreditUrl       string `json:"creditUrl"`
+	EducatorInfoUrl string `json:"educatorInfoUrl"`
+	GameTipsUrl     string `json:"gameTipsUrl"`
+	HelpUrl         string `json:"helpUrl"`
+	OperatorName    string `json:"operatorName"`
+	OperatorUrl     string `json:"operatorUrl"`
+	PrivacyUrl      string `json:"privacyUrl"`
+	ReportGameUrl   string `json:"reportGameUrl"`
+	SiteName        string `json:"siteName"`
+	SupportEmail    string `json:"supportEmail"`
+	TermsUrl        string `json:"termsUrl"`
+	WebsiteUrl      string `json:"websiteUrl"`
+}
+
 // CheckNameResp defines model for CheckNameResp.
 type CheckNameResp struct {
 	Available bool  `json:"available"`
@@ -2151,6 +2171,12 @@ type ShareLinkView struct {
 	WorkshopName  *string             `json:"workshopName,omitempty"`
 }
 
+// SiteResp defines model for SiteResp.
+type SiteResp struct {
+	Branding Branding `json:"branding"`
+	Defaults Branding `json:"defaults"`
+}
+
 // Snapshot defines model for Snapshot.
 type Snapshot struct {
 	Choosing     bool              `json:"choosing"`
@@ -2345,6 +2371,11 @@ type UpdateInstitutionReq struct {
 // UpdateMyLanguageReq defines model for UpdateMyLanguageReq.
 type UpdateMyLanguageReq struct {
 	Language string `json:"language"`
+}
+
+// UpdateSiteBrandingReq defines model for UpdateSiteBrandingReq.
+type UpdateSiteBrandingReq struct {
+	Branding map[string]string `json:"branding"`
 }
 
 // UpdateSystemSettingsReq defines model for UpdateSystemSettingsReq.
@@ -2939,6 +2970,9 @@ type PostApiNotificationsAcknowledgeJSONRequestBody = AcknowledgeNotificationReq
 
 // PatchApiSystemSettingsJSONRequestBody defines body for PatchApiSystemSettings for application/json ContentType.
 type PatchApiSystemSettingsJSONRequestBody = UpdateSystemSettingsReq
+
+// PatchApiSystemSettingsBrandingJSONRequestBody defines body for PatchApiSystemSettingsBranding for application/json ContentType.
+type PatchApiSystemSettingsBrandingJSONRequestBody = UpdateSiteBrandingReq
 
 // PatchApiSystemSettingsFreeUseKeyJSONRequestBody defines body for PatchApiSystemSettingsFreeUseKey for application/json ContentType.
 type PatchApiSystemSettingsFreeUseKeyJSONRequestBody = SetSystemFreeUseApiKeyReq
@@ -4557,6 +4591,14 @@ type ClientInterface interface {
 	// Corresponds with DELETE /api/sessions/{id} (the `DeleteApiSessionsId` operationId).
 	DeleteApiSessionsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetApiSite Returns how the site presents itself.
+	//
+	// Public: the login page shows it before anyone signs in. The branding as it
+	// applies, and the defaults a field the admin never set shows.
+	//
+	// Corresponds with GET /api/site (the `GetApiSite` operationId).
+	GetApiSite(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetApiStatus Service status
 	//
 	// Mode (development or production), uptime, last backup, active identity providers, and every registered status provider.
@@ -4600,6 +4642,28 @@ type ClientInterface interface {
 	//
 	// Corresponds with PATCH /api/system/settings (the `PatchApiSystemSettings` operationId).
 	PatchApiSystemSettings(ctx context.Context, body PatchApiSystemSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchApiSystemSettingsBrandingWithBody Changes the site's branding; admins only.
+	//
+	// Fields by name: a value sets the field (an empty one hides a link or
+	// address; the site name cannot be empty), null gives it back its default.
+	// Fields not sent stay. Answers how the site now presents itself.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PATCH /api/system/settings/branding (the `PatchApiSystemSettingsBranding` operationId).
+	PatchApiSystemSettingsBrandingWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchApiSystemSettingsBranding Changes the site's branding; admins only.
+	//
+	// Fields by name: a value sets the field (an empty one hides a link or
+	// address; the site name cannot be empty), null gives it back its default.
+	// Fields not sent stay. Answers how the site now presents itself.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PATCH /api/system/settings/branding (the `PatchApiSystemSettingsBranding` operationId).
+	PatchApiSystemSettingsBranding(ctx context.Context, body PatchApiSystemSettingsBrandingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PatchApiSystemSettingsFreeUseKeyWithBody Sets or clears the site-wide free-use API
 	//
@@ -8191,6 +8255,24 @@ func (c *Client) DeleteApiSessionsId(ctx context.Context, id string, reqEditors 
 	return c.Client.Do(req)
 }
 
+// GetApiSite Returns how the site presents itself.
+//
+// Public: the login page shows it before anyone signs in. The branding as it
+// applies, and the defaults a field the admin never set shows.
+//
+// Corresponds with GET /api/site (the `GetApiSite` operationId).
+func (c *Client) GetApiSite(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiSiteRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 // GetApiStatus Service status
 //
 // Mode (development or production), uptime, last backup, active identity providers, and every registered status provider.
@@ -8275,6 +8357,48 @@ func (c *Client) PatchApiSystemSettingsWithBody(ctx context.Context, contentType
 // Corresponds with PATCH /api/system/settings (the `PatchApiSystemSettings` operationId).
 func (c *Client) PatchApiSystemSettings(ctx context.Context, body PatchApiSystemSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPatchApiSystemSettingsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PatchApiSystemSettingsBrandingWithBody Changes the site's branding; admins only.
+//
+// Fields by name: a value sets the field (an empty one hides a link or
+// address; the site name cannot be empty), null gives it back its default.
+// Fields not sent stay. Answers how the site now presents itself.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PATCH /api/system/settings/branding (the `PatchApiSystemSettingsBranding` operationId).
+func (c *Client) PatchApiSystemSettingsBrandingWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchApiSystemSettingsBrandingRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PatchApiSystemSettingsBranding Changes the site's branding; admins only.
+//
+// Fields by name: a value sets the field (an empty one hides a link or
+// address; the site name cannot be empty), null gives it back its default.
+// Fields not sent stay. Answers how the site now presents itself.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PATCH /api/system/settings/branding (the `PatchApiSystemSettingsBranding` operationId).
+func (c *Client) PatchApiSystemSettingsBranding(ctx context.Context, body PatchApiSystemSettingsBrandingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchApiSystemSettingsBrandingRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -14441,6 +14565,33 @@ func NewDeleteApiSessionsIdRequest(server string, id string) (*http.Request, err
 	return req, nil
 }
 
+// NewGetApiSiteRequest constructs an http.Request for the GetApiSite method
+func NewGetApiSiteRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/site")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetApiStatusRequest constructs an http.Request for the GetApiStatus method
 func NewGetApiStatusRequest(server string) (*http.Request, error) {
 	var err error
@@ -14543,6 +14694,46 @@ func NewPatchApiSystemSettingsRequestWithBody(server string, contentType string,
 	}
 
 	operationPath := fmt.Sprintf("/api/system/settings")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPatchApiSystemSettingsBrandingRequest calls the generic PatchApiSystemSettingsBranding builder with application/json body
+func NewPatchApiSystemSettingsBrandingRequest(server string, body PatchApiSystemSettingsBrandingJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchApiSystemSettingsBrandingRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPatchApiSystemSettingsBrandingRequestWithBody constructs an http.Request for the PatchApiSystemSettingsBranding method, with any body, and a specified content type
+func NewPatchApiSystemSettingsBrandingRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/system/settings/branding")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -17977,6 +18168,16 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with DELETE /api/sessions/{id} (the `DeleteApiSessionsId` operationId).
 	DeleteApiSessionsIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiSessionsIdResponse, error)
 
+	// GetApiSiteWithResponse Returns how the site presents itself.
+	//
+	// Public: the login page shows it before anyone signs in. The branding as it
+	// applies, and the defaults a field the admin never set shows.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/site (the `GetApiSite` operationId).
+	GetApiSiteWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiSiteResponse, error)
+
 	// GetApiStatusWithResponse Service status
 	//
 	// Mode (development or production), uptime, last backup, active identity providers, and every registered status provider.
@@ -18026,6 +18227,28 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with PATCH /api/system/settings (the `PatchApiSystemSettings` operationId).
 	PatchApiSystemSettingsWithResponse(ctx context.Context, body PatchApiSystemSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchApiSystemSettingsResponse, error)
+
+	// PatchApiSystemSettingsBrandingWithBodyWithResponse Changes the site's branding; admins only.
+	//
+	// Fields by name: a value sets the field (an empty one hides a link or
+	// address; the site name cannot be empty), null gives it back its default.
+	// Fields not sent stay. Answers how the site now presents itself.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /api/system/settings/branding (the `PatchApiSystemSettingsBranding` operationId).
+	PatchApiSystemSettingsBrandingWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchApiSystemSettingsBrandingResponse, error)
+
+	// PatchApiSystemSettingsBrandingWithResponse Changes the site's branding; admins only.
+	//
+	// Fields by name: a value sets the field (an empty one hides a link or
+	// address; the site name cannot be empty), null gives it back its default.
+	// Fields not sent stay. Answers how the site now presents itself.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /api/system/settings/branding (the `PatchApiSystemSettingsBranding` operationId).
+	PatchApiSystemSettingsBrandingWithResponse(ctx context.Context, body PatchApiSystemSettingsBrandingJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchApiSystemSettingsBrandingResponse, error)
 
 	// PatchApiSystemSettingsFreeUseKeyWithBodyWithResponse Sets or clears the site-wide free-use API
 	//
@@ -24187,6 +24410,54 @@ func (r DeleteApiSessionsIdResponse) ContentType() string {
 	return ""
 }
 
+type GetApiSiteResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *SiteResp
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiSiteResponse) GetJSON200() *SiteResp {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiSiteResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiSiteResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiSiteResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiSiteResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiSiteResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetApiStatusResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -24373,6 +24644,54 @@ func (r PatchApiSystemSettingsResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r PatchApiSystemSettingsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PatchApiSystemSettingsBrandingResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *SiteResp
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r PatchApiSystemSettingsBrandingResponse) GetJSON200() *SiteResp {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PatchApiSystemSettingsBrandingResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PatchApiSystemSettingsBrandingResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PatchApiSystemSettingsBrandingResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchApiSystemSettingsBrandingResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PatchApiSystemSettingsBrandingResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -28787,6 +29106,22 @@ func (c *ClientWithResponses) DeleteApiSessionsIdWithResponse(ctx context.Contex
 	return ParseDeleteApiSessionsIdResponse(rsp)
 }
 
+// GetApiSiteWithResponse Returns how the site presents itself.
+//
+// Public: the login page shows it before anyone signs in. The branding as it
+// applies, and the defaults a field the admin never set shows.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/site (the `GetApiSite` operationId).
+func (c *ClientWithResponses) GetApiSiteWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiSiteResponse, error) {
+	rsp, err := c.GetApiSite(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiSiteResponse(rsp)
+}
+
 // GetApiStatusWithResponse Service status
 //
 // Mode (development or production), uptime, last backup, active identity providers, and every registered status provider.
@@ -28865,6 +29200,40 @@ func (c *ClientWithResponses) PatchApiSystemSettingsWithResponse(ctx context.Con
 		return nil, err
 	}
 	return ParsePatchApiSystemSettingsResponse(rsp)
+}
+
+// PatchApiSystemSettingsBrandingWithBodyWithResponse Changes the site's branding; admins only.
+//
+// Fields by name: a value sets the field (an empty one hides a link or
+// address; the site name cannot be empty), null gives it back its default.
+// Fields not sent stay. Answers how the site now presents itself.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /api/system/settings/branding (the `PatchApiSystemSettingsBranding` operationId).
+func (c *ClientWithResponses) PatchApiSystemSettingsBrandingWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchApiSystemSettingsBrandingResponse, error) {
+	rsp, err := c.PatchApiSystemSettingsBrandingWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchApiSystemSettingsBrandingResponse(rsp)
+}
+
+// PatchApiSystemSettingsBrandingWithResponse Changes the site's branding; admins only.
+//
+// Fields by name: a value sets the field (an empty one hides a link or
+// address; the site name cannot be empty), null gives it back its default.
+// Fields not sent stay. Answers how the site now presents itself.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /api/system/settings/branding (the `PatchApiSystemSettingsBranding` operationId).
+func (c *ClientWithResponses) PatchApiSystemSettingsBrandingWithResponse(ctx context.Context, body PatchApiSystemSettingsBrandingJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchApiSystemSettingsBrandingResponse, error) {
+	rsp, err := c.PatchApiSystemSettingsBranding(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchApiSystemSettingsBrandingResponse(rsp)
 }
 
 // PatchApiSystemSettingsFreeUseKeyWithBodyWithResponse Sets or clears the site-wide free-use API
@@ -33610,6 +33979,39 @@ func ParseDeleteApiSessionsIdResponse(rsp *http.Response) (*DeleteApiSessionsIdR
 	return response, nil
 }
 
+// ParseGetApiSiteResponse parses an HTTP response from a GetApiSiteWithResponse call
+func ParseGetApiSiteResponse(rsp *http.Response) (*GetApiSiteResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiSiteResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SiteResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetApiStatusResponse parses an HTTP response from a GetApiStatusWithResponse call
 func ParseGetApiStatusResponse(rsp *http.Response) (*GetApiStatusResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -33725,6 +34127,39 @@ func ParsePatchApiSystemSettingsResponse(rsp *http.Response) (*PatchApiSystemSet
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest SystemSettings
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePatchApiSystemSettingsBrandingResponse parses an HTTP response from a PatchApiSystemSettingsBrandingWithResponse call
+func ParsePatchApiSystemSettingsBrandingResponse(rsp *http.Response) (*PatchApiSystemSettingsBrandingResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchApiSystemSettingsBrandingResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SiteResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

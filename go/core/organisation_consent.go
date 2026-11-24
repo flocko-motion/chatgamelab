@@ -138,7 +138,7 @@ func ConsentToDeclaration(ctx context.Context, id uuid.UUID, d DeclarationConsen
 	if err != nil {
 		return OrganisationConsent{}, err
 	}
-	confirmConsent(consent, language)
+	confirmConsent(ctx, consent, language)
 	return ReadOrganisationConsent(ctx, id)
 }
 

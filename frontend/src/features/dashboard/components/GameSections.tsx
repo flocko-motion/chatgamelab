@@ -5,9 +5,10 @@ import { useGame } from "@/api/hooks";
 import type { GameView, SessionView } from "@/api/types";
 import { GameCover } from "@components/GameCover";
 import { GenreChip } from "@components/GenreChip";
-import { Critter } from "@components/Critter";
+import { GameCard } from "@components/GameCard";
 import { HelperText, ItemTitle, Kicker, SectionTitle } from "@components/typography";
 import { formatRelativeTime } from "@/common/lib/formatters";
+import type { DashboardData } from "../hooks/useDashboard";
 import classes from "./Dashboard.module.css";
 
 /** A section's head: title, and a hint or a link to see everything. */
@@ -67,35 +68,40 @@ export function ContinueGames({ sessions, onOpen }: { sessions: SessionView[]; o
   );
 }
 
-/** A square tile for one of the user's own games. */
-function OwnGameTile({ game, onOpen }: { game: GameView; onOpen: () => void }) {
-  const { t, i18n } = useTranslation("dashboard");
+type CardActions = DashboardData["card"];
+
+/** A game as the game list shows it, compact: play or continue, edit, favourite. */
+function DashboardGameCard({ game, card, date }: { game: GameView; card: CardActions; date?: string }) {
+  const { t, i18n } = useTranslation("common");
   return (
-    <UnstyledButton className={`${classes.itemCard} ${classes.wobble}`} onClick={onOpen}>
-      <div className={classes.cover}>
-        <GameCover game={game} flush ratio="1/1" />
-        <span className={classes.genreOnCover}><GenreChip genre={game.genre} size="sm" /></span>
-      </div>
-      <div className={classes.itemBody}>
-        <ItemTitle>{game.name}</ItemTitle>
-        <span className={classes.monoMeta}>
-          {t("popular.plays", { count: game.playCount })} ·{" "}
-          {formatRelativeTime(game.meta?.modifiedAt ?? game.meta?.createdAt, i18n.language)}
-        </span>
-      </div>
-    </UnstyledButton>
+    <GameCard
+      compact
+      game={game}
+      onOpen={(canStartNew) => card.open(game, canStartNew)}
+      playLabel={t("allGames.play")}
+      hasSession={!!card.session(game)}
+      continueLabel={t("allGames.continue")}
+      onEdit={() => card.edit(game)}
+      editLabel={card.mayEdit(game) ? t("editGame") : t("games.editor.open")}
+      isOwner={card.isOwner(game)}
+      isFavorite={game.isFavorite}
+      onToggleFavorite={() => card.toggleFavorite(game)}
+      favoriteLabel={t("allGames.favorite")}
+      unfavoriteLabel={t("allGames.unfavorite")}
+      dateLabel={date ? formatRelativeTime(date, i18n.language) : undefined}
+    />
   );
 }
 
 export function OwnGames({
   games,
   loading,
-  onOpen,
+  card,
   onSeeAll,
 }: {
   games: GameView[];
   loading: boolean;
-  onOpen: (g: GameView) => void;
+  card: CardActions;
   onSeeAll: () => void;
 }) {
   const { t } = useTranslation("dashboard");
@@ -108,9 +114,14 @@ export function OwnGames({
       {!loading && games.length === 0 ? (
         <HelperText>{t("ownGames.empty")}</HelperText>
       ) : (
-        <div className={classes.tiles}>
+        <div className={classes.cards}>
           {games.map((game) => (
-            <OwnGameTile key={game.id} game={game} onOpen={() => onOpen(game)} />
+            <DashboardGameCard
+              key={game.id}
+              game={game}
+              card={card}
+              date={game.meta?.modifiedAt ?? game.meta?.createdAt}
+            />
           ))}
         </div>
       )}
@@ -118,25 +129,13 @@ export function OwnGames({
   );
 }
 
-/** Who made a game: their critter and name. */
-function Creator({ game }: { game: GameView }) {
-  const { t } = useTranslation("dashboard");
-  const name = game.creatorName ?? t("someone");
-  return (
-    <span className={classes.meta}>
-      <Critter seed={game.creatorId ?? name} size={20} />
-      {t("fresh.by", { name })}
-    </span>
-  );
-}
-
 export function FreshGames({
   games,
-  onPlay,
+  card,
   onSeeAll,
 }: {
   games: GameView[];
-  onPlay: (g: GameView) => void;
+  card: CardActions;
   onSeeAll: () => void;
 }) {
   const { t } = useTranslation("dashboard");
@@ -144,18 +143,9 @@ export function FreshGames({
   return (
     <section>
       <SectionHead title={t("fresh.title")} action={<SeeAll label={t("fresh.viewAll")} onClick={onSeeAll} />} />
-      <div className={classes.discoveries}>
+      <div className={classes.cards}>
         {games.map((game) => (
-          <UnstyledButton key={game.id} className={`${classes.itemCard} ${classes.wobble}`} onClick={() => onPlay(game)}>
-            <div className={classes.cover}>
-              <GameCover game={game} flush />
-              <span className={classes.genreOnCover}><GenreChip genre={game.genre} size="sm" /></span>
-            </div>
-            <div className={classes.itemBody}>
-              <ItemTitle>{game.name}</ItemTitle>
-              <Creator game={game} />
-            </div>
-          </UnstyledButton>
+          <DashboardGameCard key={game.id} game={game} card={card} date={game.meta?.createdAt} />
         ))}
       </div>
     </section>

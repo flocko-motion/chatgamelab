@@ -208,6 +208,25 @@ export interface BlockPrompt {
   text: string;
 }
 
+export interface Branding {
+  aiInsightsUrl: string;
+  apiKeyFaqUrl: string;
+  contactUrl: string;
+  creditName: string;
+  creditUrl: string;
+  educatorInfoUrl: string;
+  gameTipsUrl: string;
+  helpUrl: string;
+  operatorName: string;
+  operatorUrl: string;
+  privacyUrl: string;
+  reportGameUrl: string;
+  siteName: string;
+  supportEmail: string;
+  termsUrl: string;
+  websiteUrl: string;
+}
+
 export interface CheckNameResp {
   available: boolean;
   profane?: boolean;
@@ -1350,6 +1369,11 @@ export interface ShareLinkView {
   workshopName?: string;
 }
 
+export interface SiteResp {
+  branding: Branding;
+  defaults: Branding;
+}
+
 export interface Snapshot {
   choosing: boolean;
   conversation?: string;
@@ -1518,6 +1542,10 @@ export interface UpdateInstitutionReq {
 
 export interface UpdateMyLanguageReq {
   language: string;
+}
+
+export interface UpdateSiteBrandingReq {
+  branding: Record<string, string>;
 }
 
 export interface UpdateSystemSettingsReq {
@@ -4440,6 +4468,21 @@ export class Api<
       }),
 
     /**
+     * @description Public: the login page shows it before anyone signs in. The branding as it applies, and the defaults a field the admin never set shows.
+     *
+     * @name GetApiSite
+     * @summary Returns how the site presents itself.
+     * @request GET:/api/site
+     */
+    getApiSite: (params: RequestParams = {}) =>
+      this.request<SiteResp, Error>({
+        path: `/api/site`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Mode (development or production), uptime, last backup, active identity providers, and every registered status provider.
      *
      * @name GetApiStatus
@@ -4502,6 +4545,28 @@ export class Api<
     ) =>
       this.request<SystemSettings, Error>({
         path: `/api/system/settings`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: "application/json",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Fields by name: a value sets the field (an empty one hides a link or address; the site name cannot be empty), null gives it back its default. Fields not sent stay. Answers how the site now presents itself.
+     *
+     * @name PatchApiSystemSettingsBranding
+     * @summary Changes the site's branding; admins only.
+     * @request PATCH:/api/system/settings/branding
+     * @secure
+     */
+    patchApiSystemSettingsBranding: (
+      data: UpdateSiteBrandingReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<SiteResp, Error>({
+        path: `/api/system/settings/branding`,
         method: "PATCH",
         body: data,
         secure: true,

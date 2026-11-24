@@ -286,6 +286,77 @@
         ],
         "type": "object"
       },
+      "Branding": {
+        "properties": {
+          "aiInsightsUrl": {
+            "type": "string"
+          },
+          "apiKeyFaqUrl": {
+            "type": "string"
+          },
+          "contactUrl": {
+            "type": "string"
+          },
+          "creditName": {
+            "type": "string"
+          },
+          "creditUrl": {
+            "type": "string"
+          },
+          "educatorInfoUrl": {
+            "type": "string"
+          },
+          "gameTipsUrl": {
+            "type": "string"
+          },
+          "helpUrl": {
+            "type": "string"
+          },
+          "operatorName": {
+            "type": "string"
+          },
+          "operatorUrl": {
+            "type": "string"
+          },
+          "privacyUrl": {
+            "type": "string"
+          },
+          "reportGameUrl": {
+            "type": "string"
+          },
+          "siteName": {
+            "type": "string"
+          },
+          "supportEmail": {
+            "type": "string"
+          },
+          "termsUrl": {
+            "type": "string"
+          },
+          "websiteUrl": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "siteName",
+          "operatorName",
+          "operatorUrl",
+          "supportEmail",
+          "websiteUrl",
+          "contactUrl",
+          "privacyUrl",
+          "termsUrl",
+          "educatorInfoUrl",
+          "helpUrl",
+          "gameTipsUrl",
+          "apiKeyFaqUrl",
+          "aiInsightsUrl",
+          "reportGameUrl",
+          "creditName",
+          "creditUrl"
+        ],
+        "type": "object"
+      },
       "CheckNameResp": {
         "properties": {
           "available": {
@@ -3943,6 +4014,21 @@
         ],
         "type": "object"
       },
+      "SiteResp": {
+        "properties": {
+          "branding": {
+            "$ref": "#/components/schemas/Branding"
+          },
+          "defaults": {
+            "$ref": "#/components/schemas/Branding"
+          }
+        },
+        "required": [
+          "branding",
+          "defaults"
+        ],
+        "type": "object"
+      },
       "Snapshot": {
         "properties": {
           "choosing": {
@@ -4511,6 +4597,20 @@
         },
         "required": [
           "language"
+        ],
+        "type": "object"
+      },
+      "UpdateSiteBrandingReq": {
+        "properties": {
+          "branding": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "branding"
         ],
         "type": "object"
       },
@@ -11539,6 +11639,35 @@
         "summary": "Deletes one of the caller's sessions; someone"
       }
     },
+    "/api/site": {
+      "get": {
+        "description": "Public: the login page shows it before anyone signs in. The branding as it\napplies, and the defaults a field the admin never set shows.",
+        "operationId": "getApiSite",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Returns how the site presents itself."
+      }
+    },
     "/api/status": {
       "get": {
         "description": "Mode (development or production), uptime, last backup, active identity providers, and every registered status provider.",
@@ -11685,6 +11814,53 @@
           }
         ],
         "summary": "Updates the site-wide settings; admins only."
+      }
+    },
+    "/api/system/settings/branding": {
+      "patch": {
+        "description": "Fields by name: a value sets the field (an empty one hides a link or\naddress; the site name cannot be empty), null gives it back its default.\nFields not sent stay. Answers how the site now presents itself.",
+        "operationId": "patchApiSystemSettingsBranding",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSiteBrandingReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Changes the site's branding; admins only."
       }
     },
     "/api/system/settings/free-use-key": {

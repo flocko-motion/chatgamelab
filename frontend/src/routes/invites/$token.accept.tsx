@@ -23,6 +23,7 @@ import { TextButton } from "@/common/components/buttons/TextButton";
 import { LanguageSwitcher } from "@/common/components/LanguageSwitcher";
 import { acceptInvite, fetchInvite } from "@/api/hooks";
 import { useAuth, rememberGuestCode } from "@/providers/AuthProvider";
+import { useBranding } from "@/providers/branding";
 import { ROUTES } from "@/common/routes/routes";
 import { ErrorCodes } from "@/common/types/errorCodes";
 import { buildShareUrl } from "@/common/lib/url";
@@ -44,6 +45,7 @@ function InvitePageLayout({
   showLanguageSwitcher?: boolean;
 }) {
   const { t } = useTranslation("common");
+  const branding = useBranding();
   return (
     <Container size="sm" py="xl">
       <Stack gap="xl" align="center">
@@ -57,7 +59,7 @@ function InvitePageLayout({
           <Stack gap="sm" align="center" ta="center" mt="md">
             <Image
               src={logo}
-              alt="ChatGameLab Logo"
+              alt={branding.siteName}
               w={{ base: 200, sm: 280, lg: 350 }}
               h={{ base: 200, sm: 280, lg: 350 }}
               fit="contain"

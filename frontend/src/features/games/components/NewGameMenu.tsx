@@ -1,8 +1,8 @@
 import { Box, Menu } from "@mantine/core";
+import { useBranding } from "@/providers/branding";
 import { IconChevronDown, IconFlag, IconPlus, IconTools, IconUpload } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { ActionButton } from "@components/buttons";
-import { HELP_LINKS } from "@/config/helpLinks";
 
 export interface NewGameMenuProps {
   onCreate: () => void;
@@ -15,6 +15,7 @@ export interface NewGameMenuProps {
  */
 export function NewGameMenu({ onCreate, onImport }: NewGameMenuProps) {
   const { t } = useTranslation("common");
+  const branding = useBranding();
   return (
     <Box visibleFrom="sm">
       <Menu position="bottom-end" withinPortal>
@@ -36,7 +37,7 @@ export function NewGameMenu({ onCreate, onImport }: NewGameMenuProps) {
           <Menu.Item
             leftSection={<IconFlag size={16} />}
             component="a"
-            href={HELP_LINKS.REPORT_GAME}
+            href={branding.reportGameUrl}
             target="_blank"
             rel="noopener noreferrer"
           >

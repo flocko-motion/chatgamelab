@@ -7,12 +7,12 @@ import {
   Text,
   useMantineTheme,
 } from "@mantine/core";
+import { useBranding } from "@/providers/branding";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../../../providers/AuthProvider";
 import { IconLogout, IconMail } from "@tabler/icons-react";
 import { LanguageSwitcher } from "../../../LanguageSwitcher";
 import { VersionDisplay } from "../../../VersionDisplay";
-import { EXTERNAL_LINKS } from "../../../../../config/externalLinks";
 import type { NavItem } from "../types";
 
 export interface WorkshopModeMobileNavigationProps {
@@ -32,6 +32,7 @@ export function WorkshopModeMobileNavigation({
   onClose,
 }: WorkshopModeMobileNavigationProps) {
   const { t } = useTranslation("common");
+  const branding = useBranding();
   const { backendUser } = useAuth();
   const theme = useMantineTheme();
 
@@ -111,9 +112,10 @@ export function WorkshopModeMobileNavigation({
 
         <Stack gap={4}>
           {/* Contact */}
+          {branding.contactUrl && (
           <UnstyledButton
             onClick={() => {
-              window.open(EXTERNAL_LINKS.CONTACT.href, "_blank");
+              window.open(branding.contactUrl, "_blank");
               onClose();
             }}
             py="sm"
@@ -131,6 +133,7 @@ export function WorkshopModeMobileNavigation({
               {t("header.contact")}
             </Text>
           </UnstyledButton>
+          )}
 
           {/* Leave Workshop Mode */}
           <UnstyledButton

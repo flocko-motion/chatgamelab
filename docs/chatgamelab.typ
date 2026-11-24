@@ -223,7 +223,9 @@ run workshops and play.
 == Roles
 
 - *Admin* — runs the site: sets the site-wide youth-protection rules per age
-  group, the AI quality tiers and the site's free-use key, and upgrades the
+  group, the AI quality tiers and the site's free-use key, sets how the site
+  presents itself (its name, its operator, its support address and the links
+  it shows; everyone sees these, also before signing in), and upgrades the
   site to new releases
 - *Head* — is a user who *is* part of an organisation, leads it, manages its staff, workshops and rules, runs workshops.
 - *Staff* — is a user who *is* part of an organisation, runs workshops within it.

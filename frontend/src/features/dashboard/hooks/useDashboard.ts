@@ -1,5 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import {
+  useAddFavorite,
+  useRemoveFavorite,
   useCurrentUser,
   useGamePage,
   useGameSessionMap,
@@ -11,10 +13,15 @@ import {
 import type { GameView, SessionView } from "@/api/types";
 import { ROUTES } from "@/common/routes/routes";
 import { useWorkshopMode } from "@/providers/WorkshopModeProvider";
+import { useGameNavigation } from "@/common/hooks/useGameNavigation";
+import { useAdmin } from "@/common/hooks/useAdmin";
 import { RECENT_WORKSHOPS_PRESET } from "../lib/recentWorkshops";
 
-/** How many of each the dashboard shows. */
-const COUNTS = { continue: 3, own: 4, fresh: 4, popular: 8, workshops: 4 } as const;
+/**
+ * How many of each the dashboard shows. New games fill a full-width row (six
+ * cards), or, for admins, the column beside the lab panel (four).
+ */
+const COUNTS = { continue: 3, own: 4, fresh: 6, freshBeside: 4, popular: 8, workshops: 4 } as const;
 
 /**
  * Everything the dashboard shows, and where its parts lead: the user and
@@ -24,18 +31,22 @@ const COUNTS = { continue: 3, own: 4, fresh: 4, popular: 8, workshops: 4 } as co
 export function useDashboard() {
   const navigate = useNavigate();
   const { enterWorkshopMode } = useWorkshopMode();
+  const { isAdmin } = useAdmin();
 
   const { data: user } = useCurrentUser();
   const { data: stats } = useUserStats();
   const { data: sessions = [], isLoading: sessionsLoading } = useUserSessions();
   const { sessionMap } = useGameSessionMap();
+  const { openGame } = useGameNavigation();
+  const addFavorite = useAddFavorite();
+  const removeFavorite = useRemoveFavorite();
 
   const institutionId = user?.role?.institution?.id;
   const { data: organisation } = useOrganisation(institutionId);
   const { items: workshops } = useWorkshopList(institutionId, RECENT_WORKSHOPS_PRESET);
 
   const own = useGamePage({ sortBy: "modifiedAt", sortDir: "desc", filters: ["own"], limit: COUNTS.own });
-  const fresh = useGamePage({ sortBy: "createdAt", sortDir: "desc", filters: ["public", "others"], limit: COUNTS.fresh });
+  const fresh = useGamePage({ sortBy: "createdAt", sortDir: "desc", filters: ["public", "others"], limit: isAdmin ? COUNTS.freshBeside : COUNTS.fresh });
   const popular = useGamePage({ sortBy: "playCount", sortDir: "desc", filters: ["public"], limit: COUNTS.popular });
   // Only the count matters: how many public games the platform has.
   const publicGames = useGamePage({ filters: ["public"], limit: 1 });
@@ -44,6 +55,21 @@ export function useDashboard() {
   const play = (game: Pick<GameView, "id">) => {
     const session = sessionMap.get(game.id);
     navigate({ to: (session?.id ? `/sessions/${session.id}` : `/games/${game.id}/play`) as "/" });
+  };
+
+  /**
+   * What a game's tile does, as in the game list: a click opens it (start,
+   * or continue the caller's session of it), Edit opens it in the editor,
+   * the star marks a favourite. The server's flags say what the caller may.
+   */
+  const card = {
+    session: (game: GameView) => sessionMap.get(game.id),
+    open: (game: GameView, canStartNew: boolean) => openGame(game, sessionMap.get(game.id), canStartNew),
+    edit: (game: GameView) => navigate({ to: "/games/$gameId", params: { gameId: game.id } }),
+    mayEdit: (game: GameView) => game.mayEditCard || game.mayEditContent || game.mayEditSettings,
+    isOwner: (game: GameView) => !!user?.id && game.creatorId === user.id,
+    toggleFavorite: (game: GameView) =>
+      game.isFavorite ? removeFavorite.mutate(game.id) : addFavorite.mutate(game.id),
   };
 
   return {
@@ -63,12 +89,12 @@ export function useDashboard() {
     popularGames: popular.data?.items ?? [],
     workshops: institutionId ? workshops.slice(0, COUNTS.workshops) : [],
     mayCreateWorkshop: !!organisation?.mayCreateWorkshop,
+    card,
     go: {
       createAbout: (about: string) =>
         navigate({ to: ROUTES.GAME_CREATE as "/", search: about.trim() ? { about: about.trim() } : {} }),
       session: (session: SessionView) => navigate({ to: `/sessions/${session.id}` as "/" }),
       play,
-      open: (game: Pick<GameView, "id">) => navigate({ to: "/games/$gameId", params: { gameId: game.id } }),
       gallery: () => navigate({ to: ROUTES.ALL_GAMES as "/" }),
       ownGames: () => navigate({ to: ROUTES.ALL_GAMES as "/", search: { only: "own" } }),
       workshop: async (id: string, name: string) => {
