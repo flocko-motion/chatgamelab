@@ -10,6 +10,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strconv"
 	"sync"
 	"time"
 
@@ -135,6 +137,16 @@ func (s *BaseSuite) StartHost() *Host {
 	s.T().Cleanup(server.Close)
 	h.URL = server.URL
 	return h
+}
+
+// OnAnotherPort is the host's address on another port: the same scheme
+// and host, so the same site.
+func (h *Host) OnAnotherPort() string {
+	// httptest's address always parses, with a numeric port
+	u, _ := url.Parse(h.URL)
+	port, _ := strconv.Atoi(u.Port())
+	u.Host = u.Hostname() + ":" + strconv.Itoa(port%60000+1)
+	return u.String()
 }
 
 // SaysYes answers {"ok": true}.

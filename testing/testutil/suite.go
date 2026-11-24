@@ -128,4 +128,3 @@ func (s *BaseSuite) DevStaff() *UserClient {
 func TokenLockTestRequested() bool {
 	return os.Getenv("TOKEN_LOCK_TEST") == "1" && os.Getenv("TOKEN_LOCK_MAX_FAILURES") == "20"
 }
-

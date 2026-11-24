@@ -83,8 +83,8 @@ A session plays on one AI platform at one quality tier (@platforms). The
 optional features *images*, *audio-in* and *audio-out* can be switched off or on
 at any time during play, if available. *Every player may change the prompts* of
 the game they are playing with the exception of the Guardrail prompt, 
-which only staff, head and admin may change. Changes apply to all API calls
-Heads and staff may also adapt them before a session starts*. 
+which only staff, head and admin may change. Changes apply to all API calls.
+Heads and staff may also adapt them before a session starts.
 
 == AI platforms and tiers <platforms>
 
@@ -405,4 +405,9 @@ show the organisation's games.
 Before a game starts on a verified page, the platform asks the page's callback,
 naming the page ID, the host's ID of its visitor and an ID of the request. Only
 a yes within a few seconds starts the game.
+
+Every start on a verified page is a new game. One visitor ID of the host is
+one guest per embed link: a returning visitor plays as the same guest, another
+visitor as another guest. That guest exists only for embedded play: the host
+page is its only way in.
 
