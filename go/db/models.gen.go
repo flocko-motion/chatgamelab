@@ -207,15 +207,16 @@ type NotificationAck struct {
 }
 
 type SystemSetting struct {
-	ID                   uuid.UUID      `json:"id"`
-	CreatedAt            time.Time      `json:"created_at"`
-	ModifiedAt           time.Time      `json:"modified_at"`
-	DefaultAiQualityTier string         `json:"default_ai_quality_tier"`
-	FreeUseAiQualityTier sql.NullString `json:"free_use_ai_quality_tier"`
-	PromptConstraintU13  sql.NullString `json:"prompt_constraint_u13"`
-	PromptConstraintU13p sql.NullString `json:"prompt_constraint_u13p"`
-	PromptConstraintU18  sql.NullString `json:"prompt_constraint_u18"`
-	FreeUseApiKeyID      uuid.NullUUID  `json:"free_use_api_key_id"`
+	ID                   uuid.UUID       `json:"id"`
+	CreatedAt            time.Time       `json:"created_at"`
+	ModifiedAt           time.Time       `json:"modified_at"`
+	DefaultAiQualityTier string          `json:"default_ai_quality_tier"`
+	FreeUseAiQualityTier sql.NullString  `json:"free_use_ai_quality_tier"`
+	PromptConstraintU13  sql.NullString  `json:"prompt_constraint_u13"`
+	PromptConstraintU13p sql.NullString  `json:"prompt_constraint_u13p"`
+	PromptConstraintU18  sql.NullString  `json:"prompt_constraint_u18"`
+	FreeUseApiKeyID      uuid.NullUUID   `json:"free_use_api_key_id"`
+	Branding             json.RawMessage `json:"branding"`
 }
 
 type UserFavouriteGame struct {

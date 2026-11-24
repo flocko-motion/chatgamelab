@@ -142,6 +142,9 @@ const (
 	SiteSettings Entity = "site settings"
 	// SiteRules are the site's youth-protection rules per age group.
 	SiteRules Entity = "site rules"
+	// SiteBranding is how the site presents itself: its name, operator,
+	// support address and links. The admin edits it as a site setting.
+	SiteBranding Entity = "site branding"
 )
 
 // Relation says which entities a grant covers, seen from the caller; the

@@ -254,6 +254,51 @@
   color: var(--mantine-color-highlight-7);
 }
 
+/* The compact tile: the same parts, tighter; the name may take two lines. */
+.card[data-compact] .overlayTop,
+.card[data-compact] .overlayBottom {
+  left: 8px;
+  right: 8px;
+}
+
+.card[data-compact] .overlayTop {
+  top: 8px;
+}
+
+.card[data-compact] .overlayBottom {
+  bottom: 8px;
+}
+
+.card[data-compact] .playCircle {
+  width: clamp(44px, 30%, 64px);
+}
+
+.card[data-compact] .body {
+  gap: 3px;
+  padding: 8px 10px 0;
+}
+
+.card[data-compact] .body h3 {
+  font-size: 16px;
+}
+
+/* Edit as a round pencil, like the star. */
+.editRound {
+  display: inline-flex;
+  border-radius: 50%;
+  border: 2px solid var(--mantine-color-ink-5);
+  background: var(--mantine-color-white);
+}
+
+.card[data-compact] .playText {
+  white-space: nowrap;
+}
+
+.card[data-compact] .foot {
+  margin-top: var(--mantine-spacing-xs);
+  padding: 6px 10px 8px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .card,
   .card:hover,

@@ -17,7 +17,7 @@ interface HelpLinkProps {
  * without cluttering the UI.
  *
  * @example
- * <HelpLink href={HELP_LINKS.GAME_TIPS} />
+ * <HelpLink href={branding.gameTipsUrl} />
  */
 export function HelpLink({ href, label, size = 16 }: HelpLinkProps) {
   const { t } = useTranslation("common");

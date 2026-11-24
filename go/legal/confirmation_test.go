@@ -15,7 +15,7 @@ func TestConfirmations(t *testing.T) {
 		At: time.Date(2026, 11, 20, 9, 30, 0, 0, time.UTC), Version: CurrentDeclaration().Version,
 		NewOrganisation: true,
 	}
-	msgs := Confirmations(c, "en", "copy@example.org")
+	msgs := Confirmations(c, Site{Name: "ChatGameLab", Operator: "JFF"}, "en", "copy@example.org")
 	if len(msgs) != 2 {
 		t.Fatalf("want 2 mails, got %d", len(msgs))
 	}
@@ -41,7 +41,7 @@ func TestConfirmations(t *testing.T) {
 		t.Error("the date is Berlin's")
 	}
 
-	renewed := Confirmations(Consent{Organisation: "JZ Nord", Version: "1.0"}, "de", "")
+	renewed := Confirmations(Consent{Organisation: "JZ Nord", Version: "1.0"}, Site{Name: "ChatGameLab", Operator: "JFF"}, "de", "")
 	if len(renewed) != 1 || !strings.Contains(renewed[0].Subject, "Einverständniserklärung für „JZ Nord“ bestätigt (Version 1.0)") {
 		t.Errorf("renewed consent without a copy: %+v", renewed)
 	}

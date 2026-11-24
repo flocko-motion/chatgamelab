@@ -107,7 +107,7 @@ func registerWithOrganisation(ctx context.Context, id uuid.UUID, r Registration)
 	if err != nil {
 		return nil, err
 	}
-	confirmConsent(consent, language)
+	confirmConsent(ctx, consent, language)
 	return ReadUser(ctx, id)
 }
 

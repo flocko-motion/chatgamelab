@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
+import { useBranding } from "@/providers/branding";
 import { ActionIcon, Alert, Badge, Group, Modal, Skeleton, Stack, Text, ThemeIcon } from "@mantine/core";
 import { IconAlertCircle, IconAlertTriangle, IconArrowLeft, IconCopy, IconHeartFilled, IconSparkles } from "@tabler/icons-react";
 import { useModals } from "@mantine/modals";
@@ -8,7 +9,6 @@ import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
 import { ActionButton, CancelButton, GenericButtonWithText } from "@components/buttons";
 import { HelpLink } from "@components/HelpLink";
 import { HelperText, Label, SectionTitle } from "@components/typography";
-import { HELP_LINKS } from "@/config/helpLinks";
 import type { CreateGameFormData } from "../../types";
 import { useGameEditor, type GameEditor as Editor } from "../../hooks/useGameEditor";
 import { useEditorNavigation, type EditorNavigation, type EditorView } from "../../hooks/useEditorNavigation";
@@ -90,6 +90,7 @@ function EditorWindow(
   props: GameEditorProps & { phone: boolean; onCloseRequest: (close: () => void) => void },
 ) {
   const { t } = useTranslation("common");
+  const branding = useBranding();
   const { phone } = props;
   const modals = useModals();
   const editor = useGameEditor({
@@ -148,7 +149,7 @@ function EditorWindow(
         <Modal.Title>
           <Group gap="sm">
             <Label>{title}</Label>
-            <HelpLink href={HELP_LINKS.GAME_TIPS} />
+            <HelpLink href={branding.gameTipsUrl} />
             {editor.game?.publicSponsoredApiKeyShareId && (
               <Badge size="sm" color="pink" variant="light" leftSection={<IconHeartFilled size={12} />}>
                 {t("games.sponsor.sponsored")}

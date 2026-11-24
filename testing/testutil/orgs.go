@@ -273,6 +273,16 @@ func (c caller) GetSystemSettings() (SystemSettings, error) {
 	return decode[SystemSettings](c.api.GetApiSystemSettingsWithResponse(ctx()))
 }
 
+// GetSite is how the site presents itself; public.
+func (c caller) GetSite() (Site, error) {
+	return decode[Site](c.api.GetApiSiteWithResponse(ctx()))
+}
+
+// SetSiteBranding sets branding fields, by name, to the values given.
+func (c caller) SetSiteBranding(fields map[string]string) (Site, error) {
+	return decode[Site](c.api.PatchApiSystemSettingsBrandingWithResponse(ctx(), apiclient.UpdateSiteBrandingReq{Branding: fields}))
+}
+
 // GetUpdates is the site's running version and the versions it may upgrade to.
 func (c caller) GetUpdates() (UpdateState, error) {
 	return decode[UpdateState](c.api.GetApiUpdatesWithResponse(ctx()))

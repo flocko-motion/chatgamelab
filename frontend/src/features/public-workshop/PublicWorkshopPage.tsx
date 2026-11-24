@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useBranding } from "@/providers/branding";
 import {
   Alert,
   Anchor,
@@ -32,7 +33,6 @@ import type {
 import { useAuth } from "@/providers/AuthProvider";
 import { ROUTES } from "@/common/routes/routes";
 import { useCopyGameIntent } from "@/common/hooks/useCopyGameIntent";
-import { EXTERNAL_LINKS } from "@/config/externalLinks";
 import { publicWorkshopPath } from "@/common/lib/publicWorkshop";
 import { buildShareUrl } from "@/common/lib/url";
 import { takeReturnTo } from "@/common/lib/returnTo";
@@ -126,7 +126,7 @@ export function PublicWorkshopPage({
       <Stack gap="xl">
         <Stack gap="xs">
           <Title order={1}>{page.name}</Title>
-          <AboutChatGameLab />
+          <AboutSite />
           {page.description && (
             <Text style={{ whiteSpace: "pre-line" }}>{page.description}</Text>
           )}
@@ -172,9 +172,10 @@ export function PublicWorkshopPage({
   );
 }
 
-/** One line on what ChatGameLab is, for visitors who have never heard of it. */
-function AboutChatGameLab() {
+/** One line on what the site is, for visitors who have never heard of it. */
+function AboutSite() {
   const { t } = useTranslation("common");
+  const branding = useBranding();
 
   return (
     <Stack gap={2}>
@@ -190,7 +191,7 @@ function AboutChatGameLab() {
         <Text size="sm" c="dimmed" mt="xs">
           {t("publicWorkshop.about.details")}{" "}
           <Anchor
-            href={EXTERNAL_LINKS.CHATGAMELAB.href}
+            href={branding.websiteUrl}
             target="_blank"
             rel="noopener noreferrer"
             size="sm"

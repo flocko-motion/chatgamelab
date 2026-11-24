@@ -109,6 +109,9 @@ export {
 } from "./useSystem";
 export type { CheckMark, CheckRefused } from "./useSystem";
 
+// The site's branding
+export { useSite, useUpdateSiteBranding } from "./useSite";
+
 // Notifications
 export {
   useNotifications,

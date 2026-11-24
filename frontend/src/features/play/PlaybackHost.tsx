@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/providers/AuthProvider";
+import { useBranding } from "@/providers/branding";
 import { AdvancedLaunchPanel } from "./components/AdvancedLaunchPanel";
 import { LaunchPanel } from "./components/LaunchPanel";
 import { usePlaybackLaunch } from "./hooks/usePlaybackLaunch";
@@ -12,6 +13,7 @@ import { playbackURL, type PlaybackTarget } from "./playback";
  */
 export function PlaybackHost({ target }: { target: PlaybackTarget }) {
   const { i18n } = useTranslation();
+  const branding = useBranding();
   const navigate = useNavigate();
   const { isLoading, isAuthenticated } = useAuth();
   const launch = usePlaybackLaunch(target, i18n.language, !isLoading);
@@ -22,7 +24,7 @@ export function PlaybackHost({ target }: { target: PlaybackTarget }) {
       <iframe
         key={view.id}
         src={playbackURL(view.id, i18n.language)}
-        title="ChatGameLab"
+        title={branding.siteName}
         allow="microphone; autoplay; clipboard-write; fullscreen"
         style={{ flex: 1, width: "100%", border: 0, display: "block" }}
       />

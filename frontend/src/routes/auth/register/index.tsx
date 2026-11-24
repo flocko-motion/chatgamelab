@@ -1,4 +1,5 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { useBranding } from "@/providers/branding";
 import {
   Container,
   Paper,
@@ -22,7 +23,6 @@ import {
   IconArrowLeft,
 } from "@tabler/icons-react";
 import { ROUTES } from "@/common/routes/routes";
-import { HELP_LINKS } from "@/config/helpLinks";
 import { LanguageSwitcher } from "@components/LanguageSwitcher";
 import { setRegistrationIntent } from "@/features/organization-registration";
 
@@ -34,6 +34,7 @@ type RegisterStep = "choose-type" | "individual-register" | "organization-regist
 
 function RegisterComponent() {
   const { t } = useTranslation("auth");
+  const branding = useBranding();
   const { loginWithAuth0, loginWithRole, isDevMode, user } = useAuth();
   const router = useRouter();
   const [step, setStep] = useState<RegisterStep>("choose-type");
@@ -85,10 +86,7 @@ function RegisterComponent() {
                 {t("registerPage.title", "Create Your Account")}
               </SectionTitle>
               <BodyText size="sm">
-                {t(
-                  "registerPage.chooseType",
-                  "How would you like to use ChatGameLab?",
-                )}
+                {t("registerPage.chooseType")}
               </BodyText>
             </Stack>
 
@@ -152,7 +150,7 @@ function RegisterComponent() {
                 <BodyText size="sm" component="span">
                   {t("registerPage.agreePrefix", "I agree to the")}{" "}
                   <Anchor
-                    href={HELP_LINKS.TERMS_OF_SERVICE}
+                    href={branding.termsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     size="sm"
@@ -161,7 +159,7 @@ function RegisterComponent() {
                   </Anchor>{" "}
                   {t("registerPage.agreeSuffix", "and")}{" "}
                   <Anchor
-                    href={HELP_LINKS.PRIVACY_POLICY}
+                    href={branding.privacyUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     size="sm"

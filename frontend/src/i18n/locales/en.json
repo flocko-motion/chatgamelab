@@ -7,11 +7,11 @@
       "u13p": "13–17 years, with parental consent",
       "u18": "18 years or older",
       "under13": "Under 13 years",
-      "u13Description": "You can use ChatGameLab. Stronger protection settings will apply to your account.",
-      "u13pDescription": "You can use ChatGameLab if your parents agree.",
-      "u18Description": "You can use ChatGameLab.",
-      "under13Description": "You can't create your own account yet. If you're under 13, you can only use ChatGameLab through a youth organization.",
-      "under13Blocker": "You can't create your own account yet. If you're under 13, you can only use ChatGameLab through a youth organization."
+      "u13Description": "You can use {{siteName}}. Stronger protection settings will apply to your account.",
+      "u13pDescription": "You can use {{siteName}} if your parents agree.",
+      "u18Description": "You can use {{siteName}}.",
+      "under13Description": "You can't create your own account yet. If you're under 13, you can only use {{siteName}} through a youth organization.",
+      "under13Blocker": "You can't create your own account yet. If you're under 13, you can only use {{siteName}} through a youth organization."
     },
     "login": {
       "auth0Button": "Login with Auth0",
@@ -99,10 +99,10 @@
       "agreeSuffix2": "",
       "alreadyHaveAccount": "Already have an account?",
       "backButton": "Back",
-      "chooseType": "How would you like to use ChatGameLab?",
+      "chooseType": "How would you like to use {{siteName}}?",
       "continueButton": "Continue to Registration",
       "description": "We use Auth0 as our authentication provider to manage user accounts. You will be redirected to Auth0 to create your account, then returned here to complete your profile.",
-      "educatorDescription": "Use ChatGameLab in workshops, classrooms, or your organization",
+      "educatorDescription": "Use {{siteName}} in workshops, classrooms, or your organization",
       "individualDescription": "Create and play AI-powered text adventures",
       "individualTitle": "Personal Account",
       "loginLink": "Log in",
@@ -110,7 +110,7 @@
       "termsOfService": "Terms of Service",
       "title": "Create Your Account",
       "organizationTitle": "Register as an organisation",
-      "organizationIntro": "For youth centres, schools and other institutions that want to use ChatGameLab in workshops.",
+      "organizationIntro": "For youth centres, schools and other institutions that want to use {{siteName}} in workshops.",
       "organizationStep1": "You create your login with Auth0 (e-mail and password).",
       "organizationStep2": "You enter details about yourself and your institution, set the youth-protection rule and agree to the declaration.",
       "organizationStep3": "Once you send the form, the organisation is activated right away and you can create workshops.",
@@ -143,7 +143,7 @@
       "subtitle": "Once you send the form, your organisation is activated right away and you are its head.",
       "personSection": "About you",
       "accountNameLabel": "Display name",
-      "accountNameDescription": "How you appear in ChatGameLab (at most 24 characters).",
+      "accountNameDescription": "How you appear in {{siteName}} (at most 24 characters).",
       "personNameLabel": "First and last name",
       "personFunctionLabel": "Role in the institution",
       "personFunctionPlaceholder": "e.g. head, youth worker",
@@ -204,10 +204,10 @@
         "title": "Confirm the declaration",
         "introExisting": "Your organisation “{{name}}” now has a declaration that is confirmed online. It replaces the user agreement you signed before. Please read it and agree on behalf of your institution.",
         "introNewVersion": "The declaration has been updated (version {{version}}). Please read the new version and agree on behalf of your organisation “{{name}}”.",
-        "oneHeadIsEnough": "It is enough if one head of the organisation agrees. Until then your organisation is suspended: its members cannot use ChatGameLab.",
+        "oneHeadIsEnough": "It is enough if one head of the organisation agrees. Until then your organisation is suspended: its members cannot use {{siteName}}.",
         "emailDescription": "We send the confirmation with the text of the declaration to this address.",
         "submit": "Agree",
-        "introWithdrawn": "The consent of your organisation “{{name}}” to the declaration was withdrawn, so it is suspended. Please read the declaration and agree on behalf of your institution to use ChatGameLab again.",
+        "introWithdrawn": "The consent of your organisation “{{name}}” to the declaration was withdrawn, so it is suspended. Please read the declaration and agree on behalf of your institution to use {{siteName}} again.",
         "logout": "Log out"
       }
     }
@@ -558,8 +558,6 @@
     },
     "error": "Error",
     "footer": {
-      "copyright": "JFF - Institut für Medienpädagogik",
-      "jffTitle": "JFF - Institute for Educational Research and Innovation",
       "programmedBy": "Programmed by"
     },
     "games": {
@@ -1041,7 +1039,7 @@
         "embed": {
           "waitingForApproval": "The organisation's page waits for an admin's approval. Until then the game does not start there.",
           "toggle": "Embed on a website",
-          "toggleHint": "Shows this game on your organisation's verified page, with nothing of ChatGameLab around it. Visitors play as guests; the key you choose pays.",
+          "toggleHint": "Shows this game on your organisation's verified page, with nothing of {{siteName}} around it. Visitors play as guests; the key you choose pays.",
           "page": "Verified page",
           "noPages": "Register your organisation's website first: the page your games will run on. An admin approves it, then the game can start there.",
           "registerPage": "Register a website in My Organization → Websites",
@@ -1080,30 +1078,12 @@
       "openUserMenu": "Open user menu",
       "organization": "Organization",
       "profile": "Profile",
-      "workshop": "Workshop"
+      "workshop": "Workshop",
+      "contactHint": "Get in touch with the {{siteName}} team"
     },
     "help": "Help",
     "home": {
       "codeCta": "Enter code",
-      "features": {
-        "create": {
-          "description": "Design interactive text adventures powered by AI",
-          "title": "Create Adventures"
-        },
-        "learn": {
-          "description": "Perfect for educational workshops and classroom activities",
-          "title": "Learn \u0026 Teach"
-        },
-        "play": {
-          "description": "Join friends in collaborative storytelling sessions",
-          "title": "Play Together"
-        },
-        "title": "Why Choose ChatGameLab?",
-        "understand": {
-          "description": "Explore how AI models create stories and learn how they work",
-          "title": "Understand AI"
-        }
-      },
       "loginCta": "Login and Explore",
       "splashDescription": "An educational platform for creating and playing AI-powered text-adventure games. Perfect for teachers, students, and creative storytellers."
     },
@@ -1201,13 +1181,13 @@
       "verifiedPages": {
         "approved": "Approved",
         "waiting": "Waiting for an admin's approval",
-        "intro": "A verified page is a page on your organisation's website that may show your embedded games. Before a game starts there, ChatGameLab asks the page's callback whether to start it, with the page ID below and the visitor's and request's IDs your page passes on. Only an answer of {\"ok\": true} starts the game.",
+        "intro": "A verified page is a page on your organisation's website that may show your embedded games. Before a game starts there, {{siteName}} asks the page's callback whether to start it, with the page ID below and the visitor's and request's IDs your page passes on. Only an answer of {\"ok\": true} starts the game.",
         "empty": "No verified pages yet.",
         "addTitle": "Register a page",
         "pageUrl": "Page address",
         "pageUrlHint": "The page your games are embedded in. Only its website may show them.",
         "callbackUrl": "Callback address",
-        "callbackUrlHint": "Where ChatGameLab asks before each start. It must answer within a few seconds.",
+        "callbackUrlHint": "Where {{siteName}} asks before each start. It must answer within a few seconds.",
         "add": "Register page",
         "editTitle": "Change the page",
         "editReapproval": "This address is on another site, which waits for an admin's approval again; until then, games stop starting there. Another port or path on the same site stays approved.",
@@ -1450,7 +1430,7 @@
         "consented": "Your organisation agreed to version {{version}} on {{date}}.",
         "withdraw": "Withdraw consent",
         "withdrawTitle": "Withdraw the consent?",
-        "withdrawConfirm": "Without the consent your organisation is suspended: no member can use ChatGameLab until a head agrees again. Its data is kept.",
+        "withdrawConfirm": "Without the consent your organisation is suspended: no member can use {{siteName}} until a head agrees again. Its data is kept.",
         "withdrawFailed": "That did not work. Please try again."
       }
     },
@@ -1623,6 +1603,48 @@
         "nextCheckIn": "The next check is possible in {{seconds}} s.",
         "checkRunningElsewhere": "A check is already running; its result shows here.",
         "reloading": "{{version}} is installed. The page reloads with it."
+      },
+      "branding": {
+        "title": "Branding",
+        "description": "How this site presents itself: its name in the browser tab and in texts, who runs it, and the links it shows. Leave a link empty to hide it.",
+        "hidden": "Hidden",
+        "reset": "Back to the default",
+        "groups": {
+          "identity": "Name and operator",
+          "links": "Links",
+          "credit": "Credit in the footer"
+        },
+        "fields": {
+          "siteName": "Site name",
+          "operatorName": "Operator",
+          "operatorUrl": "Operator's website",
+          "supportEmail": "Support email",
+          "websiteUrl": "Website",
+          "contactUrl": "Contact",
+          "privacyUrl": "Privacy policy",
+          "termsUrl": "Terms of use",
+          "educatorInfoUrl": "Information for educators",
+          "helpUrl": "Help",
+          "gameTipsUrl": "Tips for making games",
+          "apiKeyFaqUrl": "Questions about AI keys",
+          "aiInsightsUrl": "About the AI insights",
+          "reportGameUrl": "Report a game",
+          "creditName": "Programmed by",
+          "creditUrl": "Their website"
+        },
+        "changed": "Changed",
+        "resetTo": "Back to the default: {{value}}",
+        "errors": {
+          "nameRequired": "The site needs a name.",
+          "notEmail": "This is not an email address.",
+          "notUrl": "This is not a web address. It starts with https:// or http://."
+        }
+      },
+      "tabs": {
+        "general": "General",
+        "branding": "Branding",
+        "ai": "AI and keys",
+        "youthProtection": "Youth protection"
       }
     },
     "settings": "Settings",
@@ -1655,11 +1677,11 @@
         "title": "More about this workshop"
       },
       "about": {
-        "oneLiner": "These text adventures were made with ChatGameLab: built by hand, without programming, told live by an AI.",
+        "oneLiner": "These text adventures were made with {{siteName}}: built by hand, without programming, told live by an AI.",
         "details": "Their makers describe the world, the characters and the rules in their own words. While you play, an AI keeps telling the story from there: it reacts to whatever you type and invents matching pictures — so no two rounds play out the same way. Building one yourself quickly shows how strongly your own instructions shape the result, and where an AI reaches its limits. That is the whole point: not having AI explained to you, but trying it out.",
         "more": "Learn more",
         "less": "Less",
-        "link": "More about ChatGameLab"
+        "link": "More about {{siteName}}"
       },
       "unavailable": {
         "title": "This page is not available",
@@ -1676,7 +1698,7 @@
       "copyLogin": "Log in to copy",
       "playNoKey": "This workshop has no API key, so its games can't be played here.",
       "cta": {
-        "title": "Make your own ChatGameLab game",
+        "title": "Make your own game with {{siteName}}",
         "text": "Building your own text adventure is free and takes only a few minutes.",
         "button": "Start for free"
       }
@@ -1686,8 +1708,8 @@
     },
     "organisationSuspended": {
       "title": "Organisation suspended",
-      "byAdmin": "The operator has suspended your organisation's access to ChatGameLab. Your data is kept.",
-      "consentWanted": "Your organisation's access to ChatGameLab is suspended until one of its heads agrees to the current declaration of consent. Your data is kept.",
+      "byAdmin": "The operator has suspended your organisation's access to {{siteName}}. Your data is kept.",
+      "consentWanted": "Your organisation's access to {{siteName}} is suspended until one of its heads agrees to the current declaration of consent. Your data is kept.",
       "contact": "If you have questions, please contact",
       "logout": "Log out"
     }
@@ -1734,7 +1756,6 @@
     "fresh": {
       "title": "New games",
       "viewAll": "See the gallery",
-      "by": "by {{name}}",
       "empty": "No new games yet."
     },
     "popular": {
@@ -1745,10 +1766,8 @@
     },
     "links": {
       "educators": "For educators",
-      "about": "About ChatGameLab",
-      "jff": "JFF – Institut für Medienpädagogik"
-    },
-    "someone": "someone"
+      "about": "About {{siteName}}"
+    }
   },
   "errors": {
     "aiError": "The AI service encountered an error. Please try again.",
@@ -2160,12 +2179,12 @@
   },
   "mail": {
     "consent": {
-      "subjectRegistered": "ChatGameLab: organisation “{{organisation}}” is active – declaration of consent",
-      "subjectRenewed": "ChatGameLab: declaration of consent for “{{organisation}}” confirmed (version {{version}})",
+      "subjectRegistered": "{{siteName}}: organisation “{{organisation}}” is active – declaration of consent",
+      "subjectRenewed": "{{siteName}}: declaration of consent for “{{organisation}}” confirmed (version {{version}})",
       "copySubject": "Copy: {{subject}}",
       "greeting": "Hello {{name}},",
-      "registered": "the organisation “{{organisation}}” is now active on ChatGameLab. You are its head and can create workshops now.",
-      "renewed": "thank you! ChatGameLab now has the organisation “{{organisation}}”'s consent to the current declaration of consent.",
+      "registered": "the organisation “{{organisation}}” is now active on {{siteName}}. You are its head and can create workshops now.",
+      "renewed": "thank you! {{siteName}} now has the organisation “{{organisation}}”'s consent to the current declaration of consent.",
       "agreed": "In the name of your organisation, you agreed to the following declaration of consent.",
       "bindingInGerman": "The declaration is binding in German, so it follows in German.",
       "organisation": "Organisation",
@@ -2177,7 +2196,7 @@
       "version": "Version",
       "versionValue": "{{version}} (as of {{date}})",
       "checksum": "Checksum",
-      "signature": "Your ChatGameLab team\nJFF – Jugend Film Fernsehen e.V."
+      "signature": "Your {{siteName}} team\n{{operatorName}}"
     }
   }
 }

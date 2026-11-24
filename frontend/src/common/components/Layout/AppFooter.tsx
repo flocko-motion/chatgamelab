@@ -3,28 +3,18 @@ import { useTranslation } from 'react-i18next';
 import { HelperText } from '../typography';
 import { VersionDisplay } from '../VersionDisplay';
 import { useResponsiveDesign } from '../../hooks/useResponsiveDesign';
-import { EXTERNAL_LINKS } from '../../../config/externalLinks';
-
-export interface FooterLink {
-  label: string;
-  href: string;
-}
+import { useBranding } from '@/providers/branding';
 
 export interface AppFooterProps {
-  links?: FooterLink[];
   showVersion?: boolean;
   transparent?: boolean;
   darkMode?: boolean;
 }
 
-const defaultLinks: FooterLink[] = [
-  { label: 'omnitopos.net', href: 'https://omnitopos.net' },
-  { label: 'JFF - Institut für Medienpädagogik', href: EXTERNAL_LINKS.JFF.href },
-];
-
-export function AppFooter({ links = defaultLinks, showVersion = true, darkMode = false }: AppFooterProps) {
+export function AppFooter({ showVersion = true, darkMode = false }: AppFooterProps) {
   const { mobileBreakpoint } = useResponsiveDesign();
   const { t } = useTranslation('common');
+  const branding = useBranding();
 
   const dimmedStyles = {
     backgroundColor: 'var(--mantine-color-gray-1)',
@@ -56,30 +46,41 @@ export function AppFooter({ links = defaultLinks, showVersion = true, darkMode =
           {/* Desktop: Full footer with all links */}
           <Box visibleFrom={mobileBreakpoint}>
             <Group gap="xs" justify="center" wrap="wrap">
-              <HelperText c={textColor}>
-                {t('footer.programmedBy')}{' '}
-                <Anchor href={links[0]?.href} target="_blank" size="sm" c={linkColor}>
-                  {links[0]?.label}
-                </Anchor>
-              </HelperText>
-              <HelperText c={textColor}>|</HelperText>
-              <HelperText c={textColor}>
-                <Anchor href={links[1]?.href} target="_blank" size="sm" c={linkColor} title={t('footer.jffTitle')}>
-                  {links[1]?.label}
-                </Anchor>
-              </HelperText>
-              <HelperText c={textColor}>|</HelperText>
-              <HelperText c={textColor}>
-                <Anchor href={EXTERNAL_LINKS.CONTACT.href} target="_blank" size="sm" c={linkColor}>
-                  {t('header.contact')}
-                </Anchor>
-              </HelperText>
-              {showVersion && (
-                <>
-                  <HelperText c={textColor}>|</HelperText>
-                  <VersionDisplay darkMode={darkMode} />
-                </>
-              )}
+              {[
+                branding.creditName && (
+                  <HelperText key="credit" c={textColor}>
+                    {t('footer.programmedBy')}{' '}
+                    {branding.creditUrl ? (
+                      <Anchor href={branding.creditUrl} target="_blank" size="sm" c={linkColor}>
+                        {branding.creditName}
+                      </Anchor>
+                    ) : (
+                      branding.creditName
+                    )}
+                  </HelperText>
+                ),
+                branding.operatorName && (
+                  <HelperText key="operator" c={textColor}>
+                    {branding.operatorUrl ? (
+                      <Anchor href={branding.operatorUrl} target="_blank" size="sm" c={linkColor}>
+                        {branding.operatorName}
+                      </Anchor>
+                    ) : (
+                      branding.operatorName
+                    )}
+                  </HelperText>
+                ),
+                branding.contactUrl && (
+                  <HelperText key="contact" c={textColor}>
+                    <Anchor href={branding.contactUrl} target="_blank" size="sm" c={linkColor}>
+                      {t('header.contact')}
+                    </Anchor>
+                  </HelperText>
+                ),
+                showVersion && <VersionDisplay key="version" darkMode={darkMode} />,
+              ]
+                .filter(Boolean)
+                .flatMap((item, i) => (i === 0 ? [item] : [<HelperText key={`sep${i}`} c={textColor}>|</HelperText>, item]))}
             </Group>
           </Box>
 

@@ -7,6 +7,7 @@ import {
   Text,
   useMantineTheme,
 } from "@mantine/core";
+import { useBranding } from "@/providers/branding";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../../../providers/AuthProvider";
 import {
@@ -18,7 +19,6 @@ import {
 } from "@tabler/icons-react";
 import { LanguageSwitcher } from "../../../LanguageSwitcher";
 import { VersionDisplay } from "../../../VersionDisplay";
-import { EXTERNAL_LINKS } from "../../../../../config/externalLinks";
 import type { NavItem } from "../types";
 
 export interface MobileNavigationProps {
@@ -43,6 +43,7 @@ export function MobileNavigation({
   onClose,
 }: MobileNavigationProps) {
   const { t } = useTranslation("common");
+  const branding = useBranding();
   const { logout: authLogout } = useAuth();
   const theme = useMantineTheme();
 
@@ -142,9 +143,10 @@ export function MobileNavigation({
         <Divider my="xs" color={theme.other.layout.lineLight} />
 
         <Stack gap={4}>
+          {branding.websiteUrl && (
           <UnstyledButton
             onClick={() => {
-              window.open(EXTERNAL_LINKS.CHATGAMELAB.href, "_blank");
+              window.open(branding.websiteUrl, "_blank");
               onClose();
             }}
             py="sm"
@@ -162,6 +164,7 @@ export function MobileNavigation({
               {t("header.contact")}
             </Text>
           </UnstyledButton>
+          )}
 
           <UnstyledButton
             onClick={() => {

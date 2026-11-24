@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 
 	"github.com/google/uuid"
 )
@@ -68,7 +69,8 @@ SELECT
   prompt_constraint_u13,
   prompt_constraint_u13p,
   prompt_constraint_u18,
-  free_use_api_key_id
+  free_use_api_key_id,
+  branding
 FROM system_settings
 LIMIT 1
 `
@@ -86,6 +88,7 @@ func (q *Queries) V2GetSystemSettings(ctx context.Context) (SystemSetting, error
 		&i.PromptConstraintU13p,
 		&i.PromptConstraintU18,
 		&i.FreeUseApiKeyID,
+		&i.Branding,
 	)
 	return i, err
 }
@@ -149,6 +152,19 @@ SET
 
 func (q *Queries) V2UpdatePromptConstraintU18(ctx context.Context, promptConstraintU18 sql.NullString) error {
 	_, err := q.db.ExecContext(ctx, v2UpdatePromptConstraintU18, promptConstraintU18)
+	return err
+}
+
+const v2UpdateSiteBranding = `-- name: V2UpdateSiteBranding :exec
+UPDATE system_settings
+SET
+  branding = $1,
+  modified_at = now()
+`
+
+// Stores what the admin changed of the site's branding (#573).
+func (q *Queries) V2UpdateSiteBranding(ctx context.Context, branding json.RawMessage) error {
+	_, err := q.db.ExecContext(ctx, v2UpdateSiteBranding, branding)
 	return err
 }
 

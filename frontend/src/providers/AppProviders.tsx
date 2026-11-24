@@ -14,6 +14,7 @@ import { router } from "../config/router";
 import { auth0Config } from "../config/auth0";
 import { AuthProvider } from "./AuthProvider";
 import { WorkshopModeProvider } from "./WorkshopModeProvider";
+import { SiteProvider } from "./SiteProvider";
 
 // Initialize i18n
 import "../i18n";
@@ -46,11 +47,13 @@ export function AppProviders() {
             <ModalsProvider>
               <Notifications />
               <GlobalErrorModal />
-              <AuthProvider>
-                <WorkshopModeProvider>
-                  <RouterProvider router={router} />
-                </WorkshopModeProvider>
-              </AuthProvider>
+              <SiteProvider>
+                <AuthProvider>
+                  <WorkshopModeProvider>
+                    <RouterProvider router={router} />
+                  </WorkshopModeProvider>
+                </AuthProvider>
+              </SiteProvider>
             </ModalsProvider>
           </ErrorBoundary>
         </MantineProvider>

@@ -1,295 +1,76 @@
-import {
-  Container,
-  Title,
-  Text,
-  Stack,
-  Card,
-  Group,
-  Badge,
-  Select,
-  Button,
-  Alert,
-  Loader,
-  Textarea,
-} from "@mantine/core";
-import {
-  IconKey,
-  IconAlertCircle,
-  IconSparkles,
-  IconCircleCheck,
-  IconCircleX,
-  IconCircleMinus,
-} from "@tabler/icons-react";
+import { useState } from "react";
+import { Alert, Container, Group, Loader, Stack, Tabs } from "@mantine/core";
+import { IconAlertCircle, IconBrush, IconRefresh, IconShieldLock, IconSparkles } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { PageTitle } from "@components/typography";
 import { useAuth } from "@/providers/AuthProvider";
 import { isAdmin } from "@/common/lib/roles";
-import {
-  useSystemSettings,
-  useUpdateSystemSettings,
-  useSetSystemFreeUseKey,
-  useApiKeys,
-} from "@/api/hooks";
+import { useServerSettings } from "../hooks/useServerSettings";
 import { SiteUpdates } from "./SiteUpdates";
-import {
-  getAiQualityTierOptions,
-  normalizeAiQualityTier,
-} from "@/common/lib/aiQualityTier";
+import { SiteBranding } from "./SiteBranding";
+import { AiSettings } from "./AiSettings";
+import { YouthProtectionSettings } from "./YouthProtectionSettings";
 
+/** The site's settings, for the admin, one topic per tab. */
 export function ServerSettings() {
   const { t } = useTranslation("common");
   const { backendUser } = useAuth();
-
-  const { data: settings, isLoading: settingsLoading } = useSystemSettings();
-  const { data: apiKeys, isLoading: keysLoading } = useApiKeys();
-  const setFreeUseKey = useSetSystemFreeUseKey();
-  const updateSettings = useUpdateSystemSettings();
+  const state = useServerSettings();
+  const [tab, setTab] = useState<string | null>("general");
 
   if (!isAdmin(backendUser)) {
     return (
       <Container size="xl" py="xl">
-        <Alert
-          icon={<IconAlertCircle size={16} />}
-          title={t("error")}
-          color="red"
-        >
+        <Alert icon={<IconAlertCircle size={16} />} title={t("error")} color="red">
           {t("serverSettings.notAuthorized")}
         </Alert>
       </Container>
     );
   }
 
-  if (settingsLoading || keysLoading) {
-    return (
-      <Container size="xl" py="xl">
-        <Group justify="center" py="xl">
-          <Loader />
-        </Group>
-      </Container>
-    );
-  }
-
-  // Get the admin's own keys for the Select dropdown
-  const keys = apiKeys?.apiKeys ?? [];
-  const keyOptions = keys.map((key) => ({
-    value: key.id!,
-    label: `${key.name || ""} (${key.platform || ""})`,
-  }));
-
-  // Current free-use key info comes from system settings (visible to any admin)
-  const hasCurrentKey = !!settings?.freeUseApiKeyId;
-
   return (
-    <Container size="xl" py="xl">
+    <Container size="lg" py="xl">
       <Stack gap="lg">
-        <Title order={2}>{t("serverSettings.title")}</Title>
+        <PageTitle>{t("serverSettings.title")}</PageTitle>
 
-        <SiteUpdates />
+        <Tabs value={tab} onChange={setTab} keepMounted={false}>
+          <Tabs.List>
+            <Tabs.Tab value="general" leftSection={<IconRefresh size={16} />}>
+              {t("serverSettings.tabs.general")}
+            </Tabs.Tab>
+            <Tabs.Tab value="branding" leftSection={<IconBrush size={16} />}>
+              {t("serverSettings.tabs.branding")}
+            </Tabs.Tab>
+            <Tabs.Tab value="ai" leftSection={<IconSparkles size={16} />}>
+              {t("serverSettings.tabs.ai")}
+            </Tabs.Tab>
+            <Tabs.Tab value="youth" leftSection={<IconShieldLock size={16} />}>
+              {t("serverSettings.tabs.youthProtection")}
+            </Tabs.Tab>
+          </Tabs.List>
 
-        {/* Default AI Quality Tier */}
-        <Card shadow="sm" padding="lg" radius="md" withBorder>
-          <Stack gap="md">
-            <Group gap="xs">
-              <IconSparkles size={20} />
-              <Text fw={600} size="sm">
-                {t("serverSettings.defaultTier.title")}
-              </Text>
-            </Group>
-            <Text size="sm" c="dimmed">
-              {t("serverSettings.defaultTier.description")}
-            </Text>
-            <Select
-              data={getAiQualityTierOptions(t)}
-              value={normalizeAiQualityTier(settings?.defaultAiQualityTier) || "medium"}
-              onChange={(value) => {
-                if (value) {
-                  updateSettings.mutate({ defaultAiQualityTier: value });
-                }
-              }}
-              disabled={updateSettings.isPending}
-              size="sm"
-              style={{ maxWidth: 300 }}
-            />
-            <Text size="xs" c="dimmed" fs="italic">
-              {t("aiQualityTier.newSessionsOnly")}
-            </Text>
-          </Stack>
-        </Card>
-
-        {/* Free-Use Key Section */}
-        <Card shadow="sm" padding="lg" radius="md" withBorder>
-          <Stack gap="md">
-            <Group gap="xs">
-              <IconKey size={20} />
-              <Text fw={600} size="sm">
-                {t("serverSettings.freeUseKey.title")}
-              </Text>
-            </Group>
-            <Text size="sm" c="dimmed">
-              {t("serverSettings.freeUseKey.description")}
-            </Text>
-
-            {hasCurrentKey && (
-              <Group gap="sm" wrap="wrap">
-                <Badge color="cyan" variant="light" size="lg">
-                  {settings.freeUseApiKeyName || "?"} (
-                  {settings.freeUseApiKeyPlatform || "?"})
-                </Badge>
-                {settings.freeUseApiKeyWorking === true && (
-                  <Group gap={4}>
-                    <IconCircleCheck
-                      size={16}
-                      color="var(--mantine-color-green-6)"
-                    />
-                    <Text size="xs" c="green">
-                      {t("serverSettings.freeUseKey.working")}
-                    </Text>
-                  </Group>
-                )}
-                {settings.freeUseApiKeyWorking === false && (
-                  <Group gap={4}>
-                    <IconCircleX size={16} color="var(--mantine-color-red-6)" />
-                    <Text size="xs" c="red">
-                      {t("serverSettings.freeUseKey.notWorking")}
-                    </Text>
-                  </Group>
-                )}
-                {settings.freeUseApiKeyWorking == null && (
-                  <Group gap={4}>
-                    <IconCircleMinus
-                      size={16}
-                      color="var(--mantine-color-gray-5)"
-                    />
-                    <Text size="xs" c="dimmed">
-                      {t("serverSettings.freeUseKey.untested")}
-                    </Text>
-                  </Group>
-                )}
-                <Button
-                  variant="subtle"
-                  color="red"
-                  size="xs"
-                  onClick={() => setFreeUseKey.mutate({ apiKeyId: null })}
-                  loading={setFreeUseKey.isPending}
-                >
-                  {t("serverSettings.freeUseKey.remove")}
-                </Button>
-              </Group>
-            )}
-
-            <Select
-              placeholder={
-                hasCurrentKey
-                  ? t("serverSettings.freeUseKey.replacePlaceholder")
-                  : t("serverSettings.freeUseKey.selectPlaceholder")
-              }
-              data={keyOptions}
-              onChange={(value) => {
-                if (value) {
-                  setFreeUseKey.mutate({ apiKeyId: value });
-                }
-              }}
-              disabled={keyOptions.length === 0 || setFreeUseKey.isPending}
-              clearable={false}
-              size="sm"
-              style={{ maxWidth: 400 }}
-            />
-
-            {keyOptions.length === 0 && (
-              <Text size="xs" c="dimmed">
-                {t("serverSettings.freeUseKey.noKeys")}
-              </Text>
-            )}
-
-            <Text size="sm" c="dimmed">
-              {t("serverSettings.freeUseTier.description")}
-            </Text>
-            <Select
-              label={t("serverSettings.freeUseTier.title")}
-              data={getAiQualityTierOptions(t, { includeEmpty: true })}
-              value={normalizeAiQualityTier(settings?.freeUseAiQualityTier)}
-              onChange={(value) => {
-                updateSettings.mutate({
-                  freeUseAiQualityTier: value || "",
-                });
-              }}
-              disabled={updateSettings.isPending}
-              size="sm"
-              style={{ maxWidth: 300 }}
-            />
-            <Text size="xs" c="dimmed" fs="italic">
-              {t("aiQualityTier.newSessionsOnly")}
-            </Text>
-          </Stack>
-        </Card>
-        {/* Age-Based Constraint Prompts */}
-        <Card shadow="sm" padding="lg" radius="md" withBorder>
-          <Stack gap="md">
-            <Text fw={600} size="sm">
-              {t("serverSettings.constraints.title")}
-            </Text>
-            <Text size="sm" c="dimmed">
-              {t("serverSettings.constraints.description")}
-            </Text>
-            {/* u13: 13-17, no parental consent (strictest) */}
-            <Textarea
-              label={t("serverSettings.constraints.u13Label")}
-              placeholder={t("serverSettings.constraints.u13Placeholder")}
-              description={t("serverSettings.constraints.u13Hint")}
-              size="sm"
-              minRows={3}
-              maxRows={6}
-              autosize
-              maxLength={500}
-              defaultValue={settings?.promptConstraintU13 || ""}
-              key={`constraint-u13-${settings?.promptConstraintU13 || ""}`}
-              disabled={updateSettings.isPending}
-              onBlur={(event) => {
-                const nextValue = event.currentTarget.value;
-                if ((settings?.promptConstraintU13 || "") === nextValue) return;
-                updateSettings.mutate({ promptConstraintU13: nextValue });
-              }}
-            />
-            {/* u13p: 13-17, with parental consent */}
-            <Textarea
-              label={t("serverSettings.constraints.u13pLabel")}
-              placeholder={t("serverSettings.constraints.u13pPlaceholder")}
-              description={t("serverSettings.constraints.u13pHint")}
-              size="sm"
-              minRows={3}
-              maxRows={6}
-              autosize
-              maxLength={500}
-              defaultValue={settings?.promptConstraintU13p || ""}
-              key={`constraint-u13p-${settings?.promptConstraintU13p || ""}`}
-              disabled={updateSettings.isPending}
-              onBlur={(event) => {
-                const nextValue = event.currentTarget.value;
-                if ((settings?.promptConstraintU13p || "") === nextValue) return;
-                updateSettings.mutate({ promptConstraintU13p: nextValue });
-              }}
-            />
-            {/* u18: 18+ */}
-            <Textarea
-              label={t("serverSettings.constraints.u18Label")}
-              placeholder={t("serverSettings.constraints.u18Placeholder")}
-              description={t("serverSettings.constraints.u18Hint")}
-              size="sm"
-              minRows={3}
-              maxRows={6}
-              autosize
-              maxLength={500}
-              defaultValue={settings?.promptConstraintU18 || ""}
-              key={`constraint-u18-${settings?.promptConstraintU18 || ""}`}
-              disabled={updateSettings.isPending}
-              onBlur={(event) => {
-                const nextValue = event.currentTarget.value;
-                if ((settings?.promptConstraintU18 || "") === nextValue) return;
-                updateSettings.mutate({ promptConstraintU18: nextValue });
-              }}
-            />
-          </Stack>
-        </Card>
+          <Tabs.Panel value="general" pt="lg">
+            <SiteUpdates />
+          </Tabs.Panel>
+          <Tabs.Panel value="branding" pt="lg">
+            <SiteBranding />
+          </Tabs.Panel>
+          <Tabs.Panel value="ai" pt="lg">
+            {state.loading ? <Centered /> : <AiSettings state={state} />}
+          </Tabs.Panel>
+          <Tabs.Panel value="youth" pt="lg">
+            {state.loading ? <Centered /> : <YouthProtectionSettings state={state} />}
+          </Tabs.Panel>
+        </Tabs>
       </Stack>
     </Container>
+  );
+}
+
+function Centered() {
+  return (
+    <Group justify="center" py="xl">
+      <Loader />
+    </Group>
   );
 }

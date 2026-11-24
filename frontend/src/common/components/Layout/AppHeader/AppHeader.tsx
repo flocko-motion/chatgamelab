@@ -12,6 +12,7 @@ import { useDisclosure, useElementSize } from "@mantine/hooks";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
+import { useBranding } from "@/providers/branding";
 import { useResponsiveDesign } from "../../../hooks/useResponsiveDesign";
 import { ROUTES } from "../../../routes/routes";
 import logoLandscape from "@/assets/logos/colorful/ChatGameLab-Logo-2025-Landscape-Colorful-Black-Text-Transparent.png";
@@ -43,6 +44,7 @@ export function AppHeader({
     useDisclosure(false);
   const { isMobile: isViewportMobile } = useResponsiveDesign();
   const { t } = useTranslation("common");
+  const branding = useBranding();
   const navigate = useNavigate();
   const theme = useMantineTheme();
 
@@ -167,7 +169,7 @@ export function AppHeader({
             >
               <Image
                 src={logoLandscape}
-                alt="ChatGameLab Logo"
+                alt={branding.siteName}
                 h={{ base: 36, sm: 50 }}
                 w="auto"
                 fit="contain"
@@ -253,7 +255,7 @@ export function AppHeader({
         title={
           <Image
             src={logoLandscape}
-            alt="ChatGameLab Logo"
+            alt={branding.siteName}
             h={40}
             w="auto"
             fit="contain"

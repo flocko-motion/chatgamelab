@@ -371,6 +371,15 @@ func (s *PermissionMatrixTestSuite) TestInvitesAndSite() {
 		// so are its updates: the versions it may upgrade to, and the upgrade
 		{"see the site's updates", []string{"admin"},
 			func(c *testutil.UserClient) error { _, err := c.GetUpdates(); return err }},
+		// how the site presents itself is everyone's to see, before signing
+		// in too; the admin sets it
+		{"read the site's branding", roles,
+			func(c *testutil.UserClient) error { _, err := c.GetSite(); return err }},
+		{"change the site's branding", []string{"admin"},
+			func(c *testutil.UserClient) error {
+				_, err := c.SetSiteBranding(map[string]string{"siteName": "ChatGameLab"})
+				return err
+			}},
 	})
 }
 

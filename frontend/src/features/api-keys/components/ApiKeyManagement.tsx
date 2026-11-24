@@ -1,4 +1,5 @@
 import { Alert, Badge, Card, Code, Group, Modal, Select, Stack, ThemeIcon, Tooltip } from "@mantine/core";
+import { useBranding } from "@/providers/branding";
 import { useTranslation } from "react-i18next";
 import {
   IconAlertCircle,
@@ -19,7 +20,6 @@ import { InfoCard } from "@components/cards";
 import { ListTable, type ListColumn } from "@components/ListTable";
 import { BodyText, HelperText, Label, PageTitle } from "@components/typography";
 import { HelpLink } from "@components/HelpLink";
-import { HELP_LINKS } from "@/config/helpLinks";
 import type { OwnApiKey, OwnKeyListSort } from "@/api/hooks";
 import {
   getAiQualityTierOptions,
@@ -39,6 +39,7 @@ import { NewKeyFields } from "./NewKeyFields";
  */
 export function ApiKeyManagement() {
   const { t } = useTranslation("common");
+  const branding = useBranding();
   const { isMobile } = useResponsiveDesign();
   const state = useApiKeyManagement(t);
   const { list, defaultKey } = state;
@@ -214,7 +215,7 @@ export function ApiKeyManagement() {
       <Stack gap="xs">
         <Group gap="sm" align="center">
           <PageTitle>{t("apiKeys.title")}</PageTitle>
-          <HelpLink href={HELP_LINKS.API_KEY_FAQ} />
+          <HelpLink href={branding.apiKeyFaqUrl} />
         </Group>
         <HelperText>{t("apiKeys.subtitle")}</HelperText>
       </Stack>

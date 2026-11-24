@@ -1,9 +1,9 @@
 import { Alert, Anchor, Box, Card, Checkbox, Container, Group, Loader, Stack, TextInput } from "@mantine/core";
+import { useBranding } from "@/providers/branding";
 import { IconAlertCircle, IconBuilding, IconMail, IconUser } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { ActionButton, TextButton } from "@components/buttons";
 import { BodyText, CardTitle, ErrorText, HelperText, SectionTitle } from "@components/typography";
-import { HELP_LINKS } from "@/config/helpLinks";
 import { useOrganisationForm } from "../hooks/useOrganisationForm";
 import { DeclarationConsent } from "./DeclarationConsent";
 import { YouthProtectionField } from "./YouthProtectionField";
@@ -30,6 +30,7 @@ export function OrganizationRegistrationForm({
   onCancel,
 }: OrganizationRegistrationFormProps) {
   const { t } = useTranslation("auth");
+  const branding = useBranding();
   const f = useOrganisationForm({ initialName, initialEmail, onSubmitted });
 
   if (f.loadFailed) {
@@ -186,11 +187,11 @@ export function OrganizationRegistrationForm({
                 label={
                   <BodyText size="sm" component="span">
                     {t("registerPage.agreePrefix")}{" "}
-                    <Anchor href={HELP_LINKS.TERMS_OF_SERVICE} target="_blank" rel="noopener noreferrer" size="sm">
+                    <Anchor href={branding.termsUrl} target="_blank" rel="noopener noreferrer" size="sm">
                       {t("registerPage.termsOfService")}
                     </Anchor>{" "}
                     {t("registerPage.agreeSuffix")}{" "}
-                    <Anchor href={HELP_LINKS.PRIVACY_POLICY} target="_blank" rel="noopener noreferrer" size="sm">
+                    <Anchor href={branding.privacyUrl} target="_blank" rel="noopener noreferrer" size="sm">
                       {t("registerPage.privacyPolicy")}
                     </Anchor>
                     {t("registerPage.agreeSuffix2") && ` ${t("registerPage.agreeSuffix2")}`}

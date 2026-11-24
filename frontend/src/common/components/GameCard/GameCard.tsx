@@ -7,6 +7,7 @@ import {
   IconHeartFilled,
   IconPlayerPlay,
   IconPlayerPlayFilled,
+  IconPencil,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { blocksContinue, unplayable } from "@/common/lib/playability";
@@ -74,6 +75,13 @@ export interface GameCardProps {
 
   // Extra content among the facts (e.g. the workshop, for admins)
   extra?: ReactNode;
+
+  /**
+   * The smaller tile, for a few games among other things (the dashboard):
+   * the same parts and actions, tighter: no description, no "my game"
+   * badge, Edit as a round pencil.
+   */
+  compact?: boolean;
 }
 
 /**
@@ -85,7 +93,7 @@ export interface GameCardProps {
  * favourite star; below it the facts (plays, date), the name, who made it
  * (their critter) and the description; at the foot what a click does and
  * Edit (opens it in the editor), which line up across a row. Hover lifts
- * the card with a little wobble.
+ * the card with a little wobble. Compact, it is the same tile, smaller.
  */
 export function GameCard({
   game,
@@ -104,6 +112,7 @@ export function GameCard({
   dateLabel,
   isWorkshopGame = false,
   extra,
+  compact = false,
 }: GameCardProps) {
   const { t } = useTranslation("common");
   const sponsored = !!game.publicSponsoredApiKeyShareId;
@@ -122,6 +131,7 @@ export function GameCard({
       padding={0}
       onClick={play}
       data-unplayable={held || undefined}
+      data-compact={compact || undefined}
     >
       <div className={classes.cover}>
         <GameCover game={game} flush />
@@ -162,7 +172,7 @@ export function GameCard({
           )}
         </div>
         <div className={classes.overlayBottom}>
-          <GenreChip genre={game.genre} />
+          <GenreChip genre={game.genre} size={compact ? "sm" : undefined} />
           {sponsored && (
             <Tooltip label={t("games.sponsor.sponsoredTooltip")} withArrow multiline w={250}>
               <span className={classes.sponsorTag} style={{ cursor: "help" }}>
@@ -192,11 +202,11 @@ export function GameCard({
           <span className={classes.creator}>
             <Critter seed={game.creatorId ?? game.creatorName} size={20} />
             <span className={classes.creatorName}>{game.creatorName}</span>
-            {isOwner && <span className={classes.mine}>{t("games.badges.myGame")}</span>}
+            {isOwner && !compact && <span className={classes.mine}>{t("games.badges.myGame")}</span>}
           </span>
         )}
 
-        {game.description && <p className={classes.description}>{game.description}</p>}
+        {!compact && game.description && <p className={classes.description}>{game.description}</p>}
 
         {(isWorkshopGame || extra) && (
           <div className={classes.tags}>
@@ -221,7 +231,21 @@ export function GameCard({
           </span>
         )}
         <span className={classes.edit} onClick={(e) => e.stopPropagation()}>
-          <EditButtonWithText onClick={onEdit}>{editLabel}</EditButtonWithText>
+          {compact ? (
+            <Tooltip label={editLabel} withArrow>
+              <span className={classes.editRound}>
+                <GenericIconButton
+                  icon={<IconPencil size={16} />}
+                  color="ink"
+                  size="sm"
+                  onClick={onEdit}
+                  aria-label={`${editLabel}: ${game.name}`}
+                />
+              </span>
+            </Tooltip>
+          ) : (
+            <EditButtonWithText onClick={onEdit}>{editLabel}</EditButtonWithText>
+          )}
         </span>
       </div>
     </Card>
