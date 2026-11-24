@@ -312,6 +312,26 @@ func mayResetLoginCode(ctx context.Context, user *UserCard) bool {
 		user.row.role == "guest" && own != nil && user.row.organisationID != nil && *user.row.organisationID == *own
 }
 
+// verifiedPageRights is what the caller may do with one organisation's
+// verified pages.
+type verifiedPageRights struct {
+	create, list, edit, delete bool
+}
+
+// verifiedPageGates says what the caller may do with organisation org's
+// verified pages: {Create, List, Edit, Delete} on VerifiedPage,
+// OfOwnOrganisation, in their own organisation.
+func verifiedPageGates(ctx context.Context, org uuid.UUID) verifiedPageRights {
+	own := from(ctx).Organisation()
+	inOwn := own != nil && *own == org
+	return verifiedPageRights{
+		create: inOwn && granted(ctx, rules.Create, rules.VerifiedPage, rules.OfOwnOrganisation),
+		list:   inOwn && granted(ctx, rules.List, rules.VerifiedPage, rules.OfOwnOrganisation),
+		edit:   inOwn && granted(ctx, rules.Edit, rules.VerifiedPage, rules.OfOwnOrganisation),
+		delete: inOwn && granted(ctx, rules.Delete, rules.VerifiedPage, rules.OfOwnOrganisation),
+	}
+}
+
 // listInvitesGates opens V2Invites for a list: the rows by {List, Invite}
 // and {List, HeadInvite}.
 func listInvitesGates(ctx context.Context) (db.V2InvitesParams, error) {

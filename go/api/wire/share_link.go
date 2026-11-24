@@ -31,6 +31,10 @@ type ShareLinkView struct {
 	Source    string `json:"source"`
 	KeyName   string `json:"keyName"`
 	MayManage bool   `json:"mayManage"`
+	// Embed marks a game's embed link, which plays framed on another
+	// website; Enabled is false while embedding is switched off.
+	Embed   bool `json:"embed"`
+	Enabled bool `json:"enabled"`
 }
 
 // ShareLinkViewOf converts one share link, passing a loading error through.
@@ -67,6 +71,10 @@ func shareLinkView(l *core.ShareLinkCard) ShareLinkView {
 		ApiKeyShareID: l.ShareID, InstitutionID: l.PayingOrganisation, WorkshopID: l.WorkshopID,
 		Remaining: l.Remaining, AiQualityTier: l.Tier, CreatedBy: l.CreatedBy, CreatedAt: l.CreatedAt,
 		Source: source, KeyName: l.KeyName, MayManage: l.MayManage(),
+		Embed: l.Embed, Enabled: l.Enabled,
+	}
+	if l.Embed {
+		v.ShareURL = ""
 	}
 	if l.WorkshopName != nil {
 		v.WorkshopName = *l.WorkshopName

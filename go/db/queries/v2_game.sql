@@ -23,7 +23,7 @@ SELECT g.*,
   OR (@content_workshop::bool      AND g.workshop_id    = sqlc.narg(current_workshop)::uuid)
   OR (@content_organisation::bool  AND w.institution_id = sqlc.narg(own_organisation)::uuid)
   OR (@content_via_share::bool     AND g.id = (
-        SELECT gs.game_id FROM game_share gs WHERE gs.token = sqlc.narg(share_token)::text))
+        SELECT gs.game_id FROM game_share gs WHERE gs.token = sqlc.narg(share_token)::text AND gs.enabled))
   OR  @content_everywhere::bool, false)::bool                          AS may_read_content,
   COALESCE(
      (@settings_public::bool       AND g.public)
@@ -64,7 +64,7 @@ SELECT g.*,
   OR (@play_workshop::bool     AND g.workshop_id    = sqlc.narg(current_workshop)::uuid)
   OR (@play_organisation::bool AND w.institution_id = sqlc.narg(own_organisation)::uuid)
   OR (@play_via_share::bool    AND g.id = (
-        SELECT gs.game_id FROM game_share gs WHERE gs.token = sqlc.narg(share_token)::text))
+        SELECT gs.game_id FROM game_share gs WHERE gs.token = sqlc.narg(share_token)::text AND gs.enabled))
   OR  @play_everywhere::bool, false)::bool                             AS may_play,
   -- the caller's own mark, no right: false for a guest
   EXISTS (SELECT 1 FROM user_favourite_game f
@@ -88,7 +88,7 @@ WHERE g.deleted_at IS NULL
       OR (@card_workshop::bool         AND g.workshop_id    = sqlc.narg(current_workshop)::uuid)
       OR (@card_organisation::bool     AND w.institution_id = sqlc.narg(own_organisation)::uuid)
       OR (@card_via_share::bool        AND g.id = (
-            SELECT gs.game_id FROM game_share gs WHERE gs.token = sqlc.narg(share_token)::text))
+            SELECT gs.game_id FROM game_share gs WHERE gs.token = sqlc.narg(share_token)::text AND gs.enabled))
       OR  @card_everywhere::bool )
   -- wishes
   AND (NOT @only_own::bool       OR g.created_by = sqlc.narg(caller)::uuid)

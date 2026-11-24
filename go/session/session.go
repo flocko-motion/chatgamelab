@@ -48,9 +48,10 @@ func CreateGameSession(ctx context.Context, gameID uuid.UUID, language string) (
 
 // CreateShareSession launches a session from a share link, for a guest or a
 // signed-in player playing it. The link's key pays, and the play counts
-// against the link's limit with the launch.
-func CreateShareSession(ctx context.Context, token string, language string) (*Created, error) {
-	link, err := core.ShareLinkPlay(ctx, token)
+// against the link's limit with the launch. An embed link of the verified
+// mode starts only on its host's yes, asked with host's IDs.
+func CreateShareSession(ctx context.Context, token string, host core.HostIDs, language string) (*Created, error) {
+	link, err := core.EmbedPlay(ctx, token, host)
 	if err != nil {
 		return nil, core.PlayRefusal(err)
 	}

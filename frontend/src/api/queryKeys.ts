@@ -68,6 +68,7 @@ export const queryKeys = {
   institutionMembersBase: ["institution-members"] as const,
   institutionMembers: (institutionId: string) =>
     ["institution-members", institutionId] as const,
+  verifiedPages: (institutionId: string) => ["verified-pages", institutionId] as const,
 
   // Organisations registering themselves
   declaration: ["declaration"] as const,

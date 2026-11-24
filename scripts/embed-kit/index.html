@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Embed test kit</title>
+  <style>
+    :root { color-scheme: light; --line: #d6d0c4; --ink: #222; --dim: #6b6458; --mark: #b4235a; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 15px/1.5 system-ui, sans-serif; color: var(--ink); background: #f4efe6; }
+    header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--line); background: #fff; }
+    header h1 { margin: 0; font-size: 1.15rem; }
+    header p { margin: 0.25rem 0 0; color: var(--dim); }
+    main { display: grid; grid-template-columns: minmax(18rem, 26rem) 1fr; gap: 1.25rem; padding: 1.25rem; }
+    @media (max-width: 52rem) { main { grid-template-columns: 1fr; } }
+    section { background: #fff; border: 1px solid var(--line); border-radius: 0.5rem; padding: 1rem; margin-bottom: 1.25rem; }
+    h2 { margin: 0 0 0.5rem; font-size: 1rem; }
+    label { display: block; margin: 0.5rem 0 0.25rem; font-weight: 600; font-size: 0.9rem; }
+    textarea, input[type=text] { width: 100%; font: 13px/1.4 ui-monospace, monospace; padding: 0.5rem; border: 1px solid var(--line); border-radius: 0.35rem; }
+    textarea { min-height: 9rem; resize: vertical; }
+    .row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.75rem; }
+    button { font: inherit; padding: 0.4rem 0.9rem; border: 1px solid var(--line); border-radius: 0.35rem; background: #fff; cursor: pointer; }
+    button.primary { background: var(--mark); border-color: var(--mark); color: #fff; }
+    .hint { color: var(--dim); font-size: 0.85rem; margin: 0.25rem 0 0; }
+    code { font-size: 0.85rem; background: #f4efe6; padding: 0 0.25rem; border-radius: 0.2rem; }
+    #stage { resize: both; overflow: hidden; width: 100%; height: 34rem; min-width: 8rem; min-height: 4rem;
+             border: 2px dashed var(--mark); border-radius: 0.5rem; background: #fff8f2; }
+    #stage:empty::before { content: "Paste a snippet and press Run."; display: block; padding: 1rem; color: var(--dim); }
+    #size { color: var(--dim); font-size: 0.85rem; }
+    .answers label { display: inline-flex; gap: 0.3rem; align-items: center; font-weight: normal; margin-right: 0.9rem; }
+    #log { list-style: none; margin: 0.5rem 0 0; padding: 0; max-height: 14rem; overflow: auto; font: 12px/1.45 ui-monospace, monospace; }
+    #log li { border-top: 1px solid var(--line); padding: 0.3rem 0; overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Embed test kit</h1>
+    <p>Another website, on another origin than ChatGameLab (<code>{{PLATFORM}}</code>), to try an embedded game on.</p>
+  </header>
+  <main>
+    <div>
+      <section>
+        <h2>1. The snippet</h2>
+        <label for="snippet">Embed snippet</label>
+        <textarea id="snippet" spellcheck="false" placeholder='&lt;div data-cgl-embed data-token="…"&gt;&lt;/div&gt;
+&lt;script src="{{PLATFORM}}/api/engine/playback-engine/embed.js" async&gt;&lt;/script&gt;'></textarea>
+        <label for="token">…or just the token</label>
+        <input id="token" type="text" spellcheck="false" placeholder="the embed link's token" />
+        <label for="css">The host's CSS (handed into the game)</label>
+        <textarea id="css" spellcheck="false">:root { --cgl-accent: #b4235a; --cgl-font: Georgia, serif; --cgl-radius: 1.25rem; }
+[data-part="player-message"] { font-style: italic; }</textarea>
+        <p class="hint">Styled against <code>docs/embed-styling.md</code>.</p>
+      </section>
+
+      <section>
+        <h2>2. A verified page</h2>
+        <p class="hint">Register this page in My organisation → Websites:<br />
+          page <code id="page-url"></code><br />callback <code id="callback-url"></code></p>
+        <label for="player">Player ID</label>
+        <input id="player" type="text" value="alice" />
+        <label for="request">Request ID</label>
+        <input id="request" type="text" placeholder="new on every Run when empty" />
+        <p class="hint">Filled into every <code>[data-cgl-embed]</code> on Run. Leave the player empty for a game on any website.</p>
+        <label>The callback answers</label>
+        <div class="answers">
+          <label><input type="radio" name="answer" value="yes" checked /> yes</label>
+          <label><input type="radio" name="answer" value="no" /> no</label>
+          <label><input type="radio" name="answer" value="silent" /> nothing (8 s)</label>
+        </div>
+        <label>What the callback was asked</label>
+        <ul id="log"></ul>
+      </section>
+    </div>
+
+    <div>
+      <section>
+        <h2>3. The game</h2>
+        <div class="row" style="margin: 0 0 0.75rem">
+          <button class="primary" id="run" type="button">Run</button>
+          <button id="clear" type="button">Clear</button>
+          <button data-size="14rem,6rem" type="button">Small</button>
+          <button data-size="24rem,28rem" type="button">Medium</button>
+          <button data-size="100%,36rem" type="button">Large</button>
+          <span id="size"></span>
+        </div>
+        <div id="stage"></div>
+        <p class="hint">Drag the stage's corner: a small frame shows only the controls, a medium one the conversation, a large one the whole game.</p>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const PLATFORM = "{{PLATFORM}}";
+    const $ = (id) => document.getElementById(id);
+    $("page-url").textContent = location.origin + "/";
+    $("callback-url").textContent = location.origin + "/callback";
+
+    function snippet() {
+      const pasted = $("snippet").value.trim();
+      if (pasted) return pasted;
+      const token = $("token").value.trim();
+      if (!token) return "";
+      return `<div data-cgl-embed data-token="${token.replace(/[^A-Za-z0-9_-]/g, "")}" style="height: 100%"></div>\n` +
+        `<script src="${PLATFORM}/api/engine/playback-engine/embed.js" async><\/script>`;
+    }
+
+    // The host's CSS goes in a <style data-cgl> block, which the loader hands over.
+    function hostStyle() {
+      document.querySelectorAll("style[data-cgl]").forEach((s) => s.remove());
+      const style = document.createElement("style");
+      style.dataset.cgl = "";
+      style.textContent = $("css").value;
+      document.head.append(style);
+    }
+
+    function run() {
+      const html = snippet();
+      if (!html) return;
+      hostStyle();
+      const stage = $("stage");
+      stage.replaceChildren();
+      const template = document.createElement("template");
+      template.innerHTML = html;
+      const player = $("player").value.trim();
+      const request = $("request").value.trim() || "r" + Date.now();
+      template.content.querySelectorAll("[data-cgl-embed]").forEach((el) => {
+        if (!el.style.height) el.style.height = "100%";
+        if (player) { el.dataset.player = player; el.dataset.request = request; }
+      });
+      // Scripts parsed into a template do not run: they are made anew.
+      const scripts = [...template.content.querySelectorAll("script")];
+      scripts.forEach((s) => s.remove());
+      stage.append(template.content);
+      scripts.forEach((old) => {
+        const s = document.createElement("script");
+        for (const { name, value } of old.attributes) s.setAttribute(name, value);
+        // A fresh copy each time, so the loader mounts the new embeds.
+        if (s.src) s.src = s.src + (s.src.includes("?") ? "&" : "?") + "run=" + Date.now();
+        s.textContent = old.textContent;
+        document.body.append(s);
+      });
+    }
+
+    $("run").addEventListener("click", run);
+    $("clear").addEventListener("click", () => $("stage").replaceChildren());
+    document.querySelectorAll("[data-size]").forEach((b) => b.addEventListener("click", () => {
+      const [w, h] = b.dataset.size.split(",");
+      Object.assign($("stage").style, { width: w, height: h });
+    }));
+    new ResizeObserver(([e]) => {
+      $("size").textContent = `${Math.round(e.contentRect.width)} × ${Math.round(e.contentRect.height)} px`;
+    }).observe($("stage"));
+
+    document.querySelectorAll("input[name=answer]").forEach((r) => r.addEventListener("change", () =>
+      fetch("/answer", { method: "POST", body: JSON.stringify({ answer: r.value }) })));
+
+    async function poll() {
+      try {
+        const s = await (await fetch("/state")).json();
+        document.querySelector(`input[name=answer][value=${s.answer}]`).checked = true;
+        $("log").replaceChildren(...s.log.map((entry) => {
+          const li = document.createElement("li");
+          li.textContent = `${entry.at}  ${JSON.stringify(entry.asked)}  → ${entry.answer}`;
+          return li;
+        }));
+      } catch { /* the kit's server is gone */ }
+      setTimeout(poll, 1500);
+    }
+    poll();
+  </script>
+</body>
+</html>

@@ -59,6 +59,21 @@ That floor is enforced automatically.
 - **Readability over performance.** The core is the code people review for
   rights; it is written to be read.
 
+### Embedding plays in the platform's frame (#340)
+
+- **One frame for every host.** An embedded game is the playback-engine in an
+  iframe on the host page; the host page never reaches into it, so it never
+  reads a player's conversation. A host styles it through the handed-over
+  CSS contract (`docs/embed-styling.md`).
+- **The core decides who may frame it.** The playback-engine page's
+  `Content-Security-Policy` comes from `core.EmbedFraming`: `frame-ancestors`
+  is `'self'`, `*` for an embed link on any website, or a verified page's
+  origin; framed elsewhere, `img-src` and `font-src` keep handed-over CSS to
+  the platform, `data:` and the verified origin.
+- **The host's yes is an access decision**, so the core asks it
+  (`core.EmbedPlay`): it posts to the callback in its own records, follows no
+  redirect and gives up after a few seconds.
+
 ### Insights are part of playing (#455)
 
 - **Every player has them.** Insights (spec: Insights) show the workings of

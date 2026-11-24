@@ -10,10 +10,16 @@ import { refusalOf, type CreateRequest, type EngineClient } from "./client.js";
 import { explain } from "./state.js";
 import { notice, type Notice } from "./texts.js";
 
-/** What `new` names: a game, or a share token. */
+/**
+ * What `new` names: a game, or a share token. A share embedded on a verified
+ * page also carries the host's ID of its visitor and of this request, which
+ * the host is asked about before the game starts.
+ */
 export interface Selector {
   readonly kind: "game" | "share";
   readonly id: string;
+  readonly player?: string;
+  readonly request?: string;
 }
 
 /** The little the playback-engine keeps, such as browser storage; never throws. */
@@ -37,7 +43,12 @@ export function opening(params: URLSearchParams): Opening {
     const game = params.get("game");
     const share = params.get("share");
     if (game) return { kind: "new", selector: { kind: "game", id: game } };
-    if (share) return { kind: "new", selector: { kind: "share", id: share } };
+    if (share) {
+      const player = params.get("player");
+      const request = params.get("request");
+      const host = { ...(player === null ? {} : { player }), ...(request === null ? {} : { request }) };
+      return { kind: "new", selector: { kind: "share", id: share, ...hostIds(host) } };
+    }
   }
   return { kind: "nothing" };
 }
@@ -65,7 +76,9 @@ export async function create(
   pending.set(onceKey, once);
 
   const body: CreateRequest =
-    selector.kind === "game" ? { game: selector.id, language, once } : { share: selector.id, language, once };
+    selector.kind === "game"
+      ? { game: selector.id, language, once }
+      : { share: selector.id, ...hostIds(selector), language, once };
   try {
     const { data } = await client.postApiEngineSessions(body);
     pending.remove(onceKey);
@@ -77,6 +90,13 @@ export async function create(
     pending.remove(onceKey);
     return { notice: explain(refusal) };
   }
+}
+
+/** The host's IDs a share carries: both, once either is named, or none. */
+function hostIds(ids: { player?: string; request?: string }): { player?: string; request?: string } {
+  return ids.player !== undefined || ids.request !== undefined
+    ? { player: ids.player ?? "", request: ids.request ?? "" }
+    : {};
 }
 
 function randomKey(): string {

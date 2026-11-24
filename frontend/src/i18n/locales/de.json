@@ -956,6 +956,23 @@
       }
     },
     "myOrganization": {
+      "verifiedPages": {
+        "intro": "Eine verifizierte Seite ist eine Seite auf der Website deiner Organisation, die eure eingebetteten Spiele zeigen darf. Bevor dort ein Spiel startet, fragt ChatGameLab den Callback der Seite, ob es starten soll, mit der Seiten-ID unten und den IDs von Besucher und Anfrage, die eure Seite mitgibt. Nur die Antwort {\"ok\": true} startet das Spiel.",
+        "empty": "Noch keine verifizierten Seiten.",
+        "addTitle": "Seite registrieren",
+        "pageUrl": "Adresse der Seite",
+        "pageUrlHint": "Die Seite, in die eure Spiele eingebettet sind. Nur ihre Website darf sie zeigen.",
+        "callbackUrl": "Callback-Adresse",
+        "callbackUrlHint": "Hier fragt ChatGameLab vor jedem Start. Sie muss innerhalb weniger Sekunden antworten.",
+        "add": "Seite registrieren",
+        "pageId": "Seiten-ID",
+        "copy": "Seiten-ID kopieren",
+        "copied": "Kopiert",
+        "callbackShown": "Callback: {{url}}",
+        "remove": "Seite entfernen",
+        "removeTitle": "Diese Seite entfernen?",
+        "removeWarning": "Für {{page}} eingebettete Spiele starten dort nicht mehr, bis sie eine andere Seite bekommen."
+      },
       "actions": "Aktionen",
       "apiKeys": {
         "aboutDescription": "Hier freigegebene API-Schlüssel stehen allen Mitgliedern Ihrer Organisation zum Spielen zur Verfügung.",
@@ -1568,6 +1585,7 @@
     "myOrganization": "Meine Organisation",
     "myWorkshop": "Mein Workshop",
     "orgApiKeys": "API-Schlüssel",
+    "orgVerifiedPages": "Websites",
     "orgConstraints": "Jugendschutz-Prompt-Einschränkung",
     "orgMembers": "Mitglieder",
     "orgWorkshops": "Workshops",
@@ -1593,7 +1611,8 @@
       "denied": "Du darfst dieses Spiel nicht spielen.",
       "paused": "Der Workshop ist pausiert. Das Spiel geht weiter, sobald er fortgesetzt wird.",
       "failed": "Etwas ist schiefgelaufen, das Spiel kann nicht weitergehen.",
-      "over": "Dieses Spiel ist zu Ende und kann nicht weitergehen."
+      "over": "Dieses Spiel ist zu Ende und kann nicht weitergehen.",
+      "hostRefused": "Die Website, in die dieses Spiel eingebettet ist, hat den Start nicht erlaubt."
     },
     "errors": {
       "serverUnreachable": "Der Spielserver ist nicht erreichbar.",

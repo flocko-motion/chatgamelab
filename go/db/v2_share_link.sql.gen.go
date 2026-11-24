@@ -13,6 +13,42 @@ import (
 	"github.com/google/uuid"
 )
 
+const v2CreateEmbedLink = `-- name: V2CreateEmbedLink :one
+INSERT INTO game_share (game_id, token, api_key_share_id, institution_id, created_by,
+                        embed, enabled, embed_mode, verified_page_id)
+VALUES ($1, $2, $3, $4::uuid, $5::uuid,
+        true, $6, $7::text, $8::uuid)
+RETURNING id
+`
+
+type V2CreateEmbedLinkParams struct {
+	GameID         uuid.UUID     `json:"game_id"`
+	Token          string        `json:"token"`
+	ApiKeyShareID  uuid.UUID     `json:"api_key_share_id"`
+	InstitutionID  uuid.NullUUID `json:"institution_id"`
+	CreatedBy      uuid.UUID     `json:"created_by"`
+	Enabled        bool          `json:"enabled"`
+	EmbedMode      string        `json:"embed_mode"`
+	VerifiedPageID uuid.NullUUID `json:"verified_page_id"`
+}
+
+// A game's embed link; game_share_embed_uniq keeps it one per game.
+func (q *Queries) V2CreateEmbedLink(ctx context.Context, arg V2CreateEmbedLinkParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, v2CreateEmbedLink,
+		arg.GameID,
+		arg.Token,
+		arg.ApiKeyShareID,
+		arg.InstitutionID,
+		arg.CreatedBy,
+		arg.Enabled,
+		arg.EmbedMode,
+		arg.VerifiedPageID,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const v2CreatePublicPageLink = `-- name: V2CreatePublicPageLink :one
 INSERT INTO game_share (game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, public_page)
 VALUES ($1, $2, $3, $4, $5, $6, $7::uuid, true)
@@ -122,6 +158,122 @@ func (q *Queries) V2DeleteLinkGuests(ctx context.Context, linkID uuid.NullUUID) 
 	return err
 }
 
+const v2EmbedFraming = `-- name: V2EmbedFraming :many
+SELECT gs.embed, gs.enabled, gs.embed_mode, vp.origin AS verified_origin
+FROM game_share gs
+LEFT JOIN verified_page vp ON vp.id = gs.verified_page_id
+WHERE ($1::text IS NOT NULL AND gs.token = $1::text)
+   OR ($2::uuid IS NOT NULL
+       AND gs.id = (SELECT s.game_share_id FROM game_session s WHERE s.id = $2::uuid))
+`
+
+type V2EmbedFramingParams struct {
+	Token   sql.NullString `json:"token"`
+	Session uuid.NullUUID  `json:"session"`
+}
+
+type V2EmbedFramingRow struct {
+	Embed          bool           `json:"embed"`
+	Enabled        bool           `json:"enabled"`
+	EmbedMode      sql.NullString `json:"embed_mode"`
+	VerifiedOrigin sql.NullString `json:"verified_origin"`
+}
+
+// Who may frame the playback-engine for a share token, or for the session
+// it plays (session set): an embed link's switch, mode and verified origin.
+func (q *Queries) V2EmbedFraming(ctx context.Context, arg V2EmbedFramingParams) ([]V2EmbedFramingRow, error) {
+	rows, err := q.db.QueryContext(ctx, v2EmbedFraming, arg.Token, arg.Session)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []V2EmbedFramingRow
+	for rows.Next() {
+		var i V2EmbedFramingRow
+		if err := rows.Scan(
+			&i.Embed,
+			&i.Enabled,
+			&i.EmbedMode,
+			&i.VerifiedOrigin,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const v2GameEmbed = `-- name: V2GameEmbed :many
+SELECT gs.id, gs.token, gs.enabled, gs.embed_mode, gs.verified_page_id, gs.institution_id,
+  vp.page_url AS verified_page_url,
+  gs.api_key_share_id, c.source_share_id,
+  k.id AS key_id, k.name AS key_name, k.platform
+FROM game_share gs
+JOIN api_key_share c        ON c.id = gs.api_key_share_id
+JOIN api_key k              ON k.id = c.api_key_id
+LEFT JOIN verified_page vp  ON vp.id = gs.verified_page_id
+WHERE gs.game_id = $1::uuid AND gs.embed
+`
+
+type V2GameEmbedRow struct {
+	ID              uuid.UUID      `json:"id"`
+	Token           string         `json:"token"`
+	Enabled         bool           `json:"enabled"`
+	EmbedMode       sql.NullString `json:"embed_mode"`
+	VerifiedPageID  uuid.NullUUID  `json:"verified_page_id"`
+	InstitutionID   uuid.NullUUID  `json:"institution_id"`
+	VerifiedPageUrl sql.NullString `json:"verified_page_url"`
+	ApiKeyShareID   uuid.UUID      `json:"api_key_share_id"`
+	SourceShareID   uuid.NullUUID  `json:"source_share_id"`
+	KeyID           uuid.UUID      `json:"key_id"`
+	KeyName         string         `json:"key_name"`
+	Platform        string         `json:"platform"`
+}
+
+// A game's embed link, if it has one: its token, whether it is on, its mode
+// and verified page, and the share that pays with its source and key.
+func (q *Queries) V2GameEmbed(ctx context.Context, gameID uuid.UUID) ([]V2GameEmbedRow, error) {
+	rows, err := q.db.QueryContext(ctx, v2GameEmbed, gameID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []V2GameEmbedRow
+	for rows.Next() {
+		var i V2GameEmbedRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Token,
+			&i.Enabled,
+			&i.EmbedMode,
+			&i.VerifiedPageID,
+			&i.InstitutionID,
+			&i.VerifiedPageUrl,
+			&i.ApiKeyShareID,
+			&i.SourceShareID,
+			&i.KeyID,
+			&i.KeyName,
+			&i.Platform,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const v2GameSponsor = `-- name: V2GameSponsor :one
 SELECT public_sponsored_api_key_share_id FROM game WHERE id = $1::uuid
 `
@@ -204,6 +356,7 @@ func (q *Queries) V2SetGameSponsor(ctx context.Context, arg V2SetGameSponsorPara
 const v2ShareLinks = `-- name: V2ShareLinks :many
 
 SELECT gs.id, gs.created_at, gs.created_by, gs.token, gs.remaining, gs.ai_quality_tier, gs.public_page,
+  gs.embed, gs.enabled,
   gs.game_id, g.name AS game_name,
   gs.workshop_id, w.name AS workshop_name,
   gs.api_key_share_id, c.source_share_id,
@@ -225,13 +378,14 @@ WHERE ($7::uuid IS NULL OR gs.id = $7::uuid)
   -- wishes
   AND ($8::uuid IS NULL OR gs.game_id = $8::uuid)
   AND ($9::uuid IS NULL OR k.id = $9::uuid)
+  AND ($10::bool IS NULL OR gs.embed = $10::bool)
   -- gate
-  AND (  ($10::bool          AND gs.created_by = $2::uuid)
-      OR ($11::bool         AND g.created_by = $2::uuid)
-      OR ($12::bool          AND k.user_id = $2::uuid)
-      OR ($13::bool AND COALESCE(src.institution_id, gs.institution_id) = $6::uuid)
+  AND (  ($11::bool          AND gs.created_by = $2::uuid)
+      OR ($12::bool         AND g.created_by = $2::uuid)
+      OR ($13::bool          AND k.user_id = $2::uuid)
+      OR ($14::bool AND COALESCE(src.institution_id, gs.institution_id) = $6::uuid)
       -- those in a workshop share its links; the public page's are the page's
-      OR ($14::bool     AND gs.workshop_id = $15::uuid AND NOT gs.public_page) )
+      OR ($15::bool     AND gs.workshop_id = $16::uuid AND NOT gs.public_page) )
 ORDER BY gs.created_at DESC, gs.id
 `
 
@@ -245,6 +399,7 @@ type V2ShareLinksParams struct {
 	ID                 uuid.NullUUID `json:"id"`
 	Game               uuid.NullUUID `json:"game"`
 	KeyID              uuid.NullUUID `json:"key_id"`
+	Embed              sql.NullBool  `json:"embed"`
 	CardOwn            bool          `json:"card_own"`
 	CardGame           bool          `json:"card_game"`
 	CardKey            bool          `json:"card_key"`
@@ -261,6 +416,8 @@ type V2ShareLinksRow struct {
 	Remaining          sql.NullInt32  `json:"remaining"`
 	AiQualityTier      sql.NullString `json:"ai_quality_tier"`
 	PublicPage         bool           `json:"public_page"`
+	Embed              bool           `json:"embed"`
+	Enabled            bool           `json:"enabled"`
 	GameID             uuid.UUID      `json:"game_id"`
 	GameName           string         `json:"game_name"`
 	WorkshopID         uuid.NullUUID  `json:"workshop_id"`
@@ -283,8 +440,8 @@ type V2ShareLinksRow struct {
 // The share links the caller may see, for a list or for one link (id set):
 // those they made, of their games, paid by their keys, paid by their
 // organisation's keys, and their current workshop's. Wishes narrow it: one
-// game, one key. The paying organisation is the source share's, or, for a
-// link v1 made without one, the link's own.
+// game, one key, embed links or not. The paying organisation is the source
+// share's, or, for a link v1 made without one, the link's own.
 func (q *Queries) V2ShareLinks(ctx context.Context, arg V2ShareLinksParams) ([]V2ShareLinksRow, error) {
 	rows, err := q.db.QueryContext(ctx, v2ShareLinks,
 		arg.ManageOwn,
@@ -296,6 +453,7 @@ func (q *Queries) V2ShareLinks(ctx context.Context, arg V2ShareLinksParams) ([]V
 		arg.ID,
 		arg.Game,
 		arg.KeyID,
+		arg.Embed,
 		arg.CardOwn,
 		arg.CardGame,
 		arg.CardKey,
@@ -318,6 +476,8 @@ func (q *Queries) V2ShareLinks(ctx context.Context, arg V2ShareLinksParams) ([]V
 			&i.Remaining,
 			&i.AiQualityTier,
 			&i.PublicPage,
+			&i.Embed,
+			&i.Enabled,
 			&i.GameID,
 			&i.GameName,
 			&i.WorkshopID,
@@ -342,6 +502,36 @@ func (q *Queries) V2ShareLinks(ctx context.Context, arg V2ShareLinksParams) ([]V
 		return nil, err
 	}
 	return items, nil
+}
+
+const v2UpdateEmbedLink = `-- name: V2UpdateEmbedLink :exec
+UPDATE game_share
+SET enabled = $1, embed_mode = $2::text, verified_page_id = $3::uuid,
+    api_key_share_id = $4, institution_id = $5::uuid
+WHERE id = $6::uuid AND embed
+`
+
+type V2UpdateEmbedLinkParams struct {
+	Enabled        bool          `json:"enabled"`
+	EmbedMode      string        `json:"embed_mode"`
+	VerifiedPageID uuid.NullUUID `json:"verified_page_id"`
+	ApiKeyShareID  uuid.UUID     `json:"api_key_share_id"`
+	InstitutionID  uuid.NullUUID `json:"institution_id"`
+	ID             uuid.UUID     `json:"id"`
+}
+
+// Changes an embed link's switch, mode, verified page and what pays; its
+// token stays.
+func (q *Queries) V2UpdateEmbedLink(ctx context.Context, arg V2UpdateEmbedLinkParams) error {
+	_, err := q.db.ExecContext(ctx, v2UpdateEmbedLink,
+		arg.Enabled,
+		arg.EmbedMode,
+		arg.VerifiedPageID,
+		arg.ApiKeyShareID,
+		arg.InstitutionID,
+		arg.ID,
+	)
+	return err
 }
 
 const v2UpdateShareLink = `-- name: V2UpdateShareLink :exec

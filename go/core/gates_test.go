@@ -145,6 +145,7 @@ var vocabulary = map[string]string{
 	"Manage":                    string(rules.Manage),
 	"UserSecrets":               string(rules.UserSecrets),
 	"HeadInvite":                string(rules.HeadInvite),
+	"VerifiedPage":              string(rules.VerifiedPage),
 	"SharedWithMe":              string(rules.SharedWithMe),
 	"ViaInvite":                 string(rules.ViaInvite),
 	"ViaInviteLink":             string(rules.ViaInviteLink),

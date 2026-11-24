@@ -28,6 +28,7 @@ export type {
   TierModels,
   UpdateGameReq,
   UserRoleInvite,
+  VerifiedPageView,
   UserView,
   WorkshopParticipantView,
   WorkshopView,

@@ -161,6 +161,7 @@ const PROBLEM_TEXT: Record<Problem, TextKey> = {
   paused: "problems.paused",
   failed: "problems.failed",
   over: "problems.over",
+  host_refused: "problems.hostRefused",
 };
 
 /** A refusal as a notice: its problem says what to tell the player, its message is the detail. */

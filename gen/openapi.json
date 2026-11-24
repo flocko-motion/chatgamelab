@@ -543,6 +543,12 @@
           "once": {
             "type": "string"
           },
+          "player": {
+            "type": "string"
+          },
+          "request": {
+            "type": "string"
+          },
           "share": {
             "type": "string"
           }
@@ -574,6 +580,21 @@
         },
         "required": [
           "name"
+        ],
+        "type": "object"
+      },
+      "CreateVerifiedPageReq": {
+        "properties": {
+          "callbackUrl": {
+            "type": "string"
+          },
+          "pageUrl": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pageUrl",
+          "callbackUrl"
         ],
         "type": "object"
       },
@@ -918,6 +939,57 @@
         },
         "required": [
           "available"
+        ],
+        "type": "object"
+      },
+      "GameEmbedResp": {
+        "properties": {
+          "embed": {
+            "$ref": "#/components/schemas/GameEmbedView"
+          }
+        },
+        "type": "object"
+      },
+      "GameEmbedView": {
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "keyName": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "sponsorKeyShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          },
+          "verifiedPageId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "verifiedPageUrl": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "token",
+          "enabled",
+          "mode",
+          "keyName",
+          "platform"
         ],
         "type": "object"
       },
@@ -3327,6 +3399,29 @@
         },
         "type": "object"
       },
+      "SetGameEmbedReq": {
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "sponsorKeyShareId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "verifiedPageId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "enabled",
+          "mode"
+        ],
+        "type": "object"
+      },
       "SetInstitutionFreeUseKeyReq": {
         "properties": {
           "shareId": {
@@ -3435,6 +3530,12 @@
             "format": "uuid",
             "type": "string"
           },
+          "embed": {
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
           "gameId": {
             "format": "uuid",
             "type": "string"
@@ -3485,7 +3586,9 @@
           "createdAt",
           "source",
           "keyName",
-          "mayManage"
+          "mayManage",
+          "embed",
+          "enabled"
         ],
         "type": "object"
       },
@@ -4041,6 +4144,21 @@
         },
         "type": "object"
       },
+      "UpdateVerifiedPageReq": {
+        "properties": {
+          "callbackUrl": {
+            "type": "string"
+          },
+          "pageUrl": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pageUrl",
+          "callbackUrl"
+        ],
+        "type": "object"
+      },
       "UpdateWorkshopReq": {
         "properties": {
           "active": {
@@ -4479,6 +4597,71 @@
         "required": [
           "items",
           "total"
+        ],
+        "type": "object"
+      },
+      "VerifiedPageView": {
+        "properties": {
+          "callbackUrl": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "mayDelete": {
+            "type": "boolean"
+          },
+          "mayEdit": {
+            "type": "boolean"
+          },
+          "modifiedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "organisationId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "origin": {
+            "type": "string"
+          },
+          "pageId": {
+            "type": "string"
+          },
+          "pageUrl": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "organisationId",
+          "pageId",
+          "origin",
+          "pageUrl",
+          "callbackUrl",
+          "createdAt",
+          "modifiedAt",
+          "mayEdit",
+          "mayDelete"
+        ],
+        "type": "object"
+      },
+      "VerifiedPagesResp": {
+        "properties": {
+          "pages": {
+            "items": {
+              "$ref": "#/components/schemas/VerifiedPageView"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "pages"
         ],
         "type": "object"
       },
@@ -7738,6 +7921,108 @@
         "summary": "Takes a game's cover from its .cgl file."
       }
     },
+    "/api/games/{id}/embed": {
+      "get": {
+        "description": "the game.",
+        "operationId": "getApiGamesIdEmbed",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameEmbedResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Reads a game's embed link, for whoever may share"
+      },
+      "put": {
+        "description": "for whoever may share the game. Its token never changes: off keeps it,\non brings back the same snippet.",
+        "operationId": "putApiGamesIdEmbed",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetGameEmbedReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameEmbedResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Sets a game's embed link, making it the first time,"
+      }
+    },
     "/api/games/{id}/favourite": {
       "delete": {
         "description": "answers the same whatever the game: it gives nothing away.",
@@ -9244,6 +9529,108 @@
           }
         ],
         "summary": "Suspends an organisation and answers with the"
+      }
+    },
+    "/api/institutions/{id}/verified-pages": {
+      "get": {
+        "description": "head and staff.",
+        "operationId": "getApiInstitutionsIdVerified-pages",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifiedPagesResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Lists an organisation's verified pages, for its"
+      },
+      "post": {
+        "description": "with a new page ID, for its head and staff.",
+        "operationId": "postApiInstitutionsIdVerified-pages",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateVerifiedPageReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifiedPageView"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Registers a verified page for an organisation,"
       }
     },
     "/api/invites": {
@@ -11352,6 +11739,108 @@
           }
         ],
         "summary": "Returns what a user did on the platform, counted. It"
+      }
+    },
+    "/api/verified-pages/{id}": {
+      "delete": {
+        "description": "for it start nothing until they get another.",
+        "operationId": "deleteApiVerified-pagesId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Removes a verified page; the games embedded"
+      },
+      "patch": {
+        "description": "callback; its page ID stays.",
+        "operationId": "patchApiVerified-pagesId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateVerifiedPageReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifiedPageView"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Changes a verified page's address and"
       }
     },
     "/api/version": {

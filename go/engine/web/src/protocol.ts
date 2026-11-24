@@ -76,6 +76,7 @@ export type Problem =
   | "paused"
   | "failed"
   | "over"
+  | "host_refused"
   ;
 
 /** Every problem; an error code outside it is a failure. */
@@ -92,6 +93,7 @@ export const PROBLEMS: readonly Problem[] = [
   "paused",
   "failed",
   "over",
+  "host_refused",
 ];
 
 /** Why a game is over: an `over` event's value, and the snapshot's. */

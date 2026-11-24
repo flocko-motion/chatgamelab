@@ -358,15 +358,34 @@ Erasing a user removes their sessions along with their account.
 
 = Embedding
 
-A game can run on another website, with no platform around it. The platform
-then serves as the admin interface: designers write and edit the game there, and
-export it for embedding. Players visit only the host website.
+A game can run on another website, with no platform around it, as part of
+another project. The platform then serves as the editor: designers write and
+edit the game there, and embed it on the host website. Players visit only the
+host website.
 
 - *An embedded game is one game*, framed by the host page and sized by it.
-- *Players need no account*: the host page is the way in.
+- *Players need no account*: the host page is the way in. They play as guests.
+- *A changed game reaches the host by itself*: the frame always plays the game
+  as it is now.
 
-== Open questions
+== The embed link
 
-- *What an export contains*, and how a changed game reaches the host website.
-- *Who pays* for an embedded game's sessions, and which keys it offers.
-- *Which youth-protection rule* an embedded game plays under.
+Only verified pages can embed a game. Admins maintain that allow list. 
+A game has one embed link, switched on or off; the host page holds it in its snippet. 
+Switching it off stops the
+snippet; switching it on again brings back the same snippet. 
+
+The embed is configured to a shared API keys whose share pays for its sessions,
+at its tier, with the link's play limit and the key's caveats, like a share
+link. Changing the paying key keeps the snippet.
+
+== Verified pages
+
+A verified page belongs to an organisation; its head and staff register and
+manage it, and an admin needs to approve it. Only one verified page per organisation.
+It is defined by a page address and a callback address. 
+
+Before a game starts on a verified page, the platform asks the page's callback,
+naming the page ID, the host's ID of its visitor and an ID of the request. Only
+a yes within a few seconds starts the game.
+

@@ -241,7 +241,7 @@ export class View {
   /** A line of the player's, typed or as heard, as a bubble on the right. */
   #playerLine(text: string, pending = false): HTMLElement {
     const action = element("div", pending ? "player-action pending" : "player-action");
-    const bubble = element("div", "bubble");
+    const bubble = part(element("div", "bubble"), "player-message");
     const words = element("span", "bubble-text");
     bubble.append(words);
     action.append(bubble);
@@ -298,7 +298,7 @@ export class View {
     this.elements.props.hidden = entries.length === 0;
     this.elements.props.replaceChildren(
       ...entries.map(([key, value]) => {
-        const field = element("div", "field");
+        const field = part(element("div", "field"), "status-field");
         if (!first && previous[key] !== undefined && previous[key] !== value) {
           field.classList.add("changed");
         }
@@ -328,7 +328,7 @@ export class View {
 
     if (!state.image.startsWith("data:") && !state.image.startsWith("http")) {
       // A placeholder adapter returns text where a real one returns bytes.
-      this.#append(element("div", "system-message", state.image));
+      this.#append(part(element("div", "system-message", state.image), "system-message"));
       return;
     }
 
@@ -407,13 +407,13 @@ export class View {
     // Correcting blocks are wired to the character, so their findings never reach this feed.
 
     for (let i = this.#renderedNotes; i < state.notes.length; i++) {
-      this.#append(element("div", "system-message", String(state.notes[i])));
+      this.#append(part(element("div", "system-message", String(state.notes[i])), "system-message"));
     }
     this.#renderedNotes = state.notes.length;
 
     // Why the game is over, always the last line, after anything still arriving.
     if (state.over) {
-      this.#overLine ??= element("div", "system-message over", text(overText(state.over)));
+      this.#overLine ??= part(element("div", "system-message over", text(overText(state.over))), "system-message");
       if (this.elements.feed.lastElementChild !== this.#overLine) this.#append(this.#overLine);
     }
   }
@@ -456,7 +456,7 @@ export class View {
   }
 
   #illustrate(card: HTMLElement, src: string): void {
-    const frame = element("button", "scene-image") as HTMLButtonElement;
+    const frame = part(element("button", "scene-image") as HTMLButtonElement, "picture");
     frame.type = "button";
     frame.setAttribute("aria-label", "Enlarge the picture");
     const image = document.createElement("img");
@@ -488,7 +488,7 @@ export class View {
 
 /** A scene card. Its four corners are always there; the theme decides which show. */
 function sceneCard(): HTMLElement {
-  const card = element("article", "scene-card");
+  const card = part(element("article", "scene-card"), "message");
   const scene = element("div", "game-scene");
   for (const corner of ["tl", "tr", "bl", "br"]) {
     scene.append(element("span", `corner ${corner}`));
@@ -499,7 +499,7 @@ function sceneCard(): HTMLElement {
 }
 
 function divider(): HTMLElement {
-  const line = element("div", "divider");
+  const line = part(element("div", "divider"), "divider");
   line.setAttribute("aria-hidden", "true");
   line.append(element("span", "divider-symbol"));
   return line;
@@ -515,4 +515,14 @@ function element(tag: string, className: string, text?: string): HTMLElement {
 /** Inline style, because a stylesheet display rule overrides `hidden`. */
 function show(element: HTMLElement, visible: boolean): void {
   element.style.display = visible ? "" : "none";
+}
+
+/**
+ * Names node as a part of the styling contract (docs/embed-styling.md): a
+ * host's CSS selects it as [data-part="…"], so its classes stay free to
+ * change.
+ */
+function part<T extends HTMLElement>(node: T, name: string): T {
+  node.dataset["part"] = name;
+  return node;
 }

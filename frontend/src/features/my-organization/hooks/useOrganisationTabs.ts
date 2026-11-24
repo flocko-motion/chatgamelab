@@ -1,12 +1,13 @@
 import { useCallback, useMemo } from "react";
 import { useNavigate } from "@tanstack/react-router";
 
-export type OrganisationTab = "members" | "workshops" | "apikeys" | "constraints";
+export type OrganisationTab = "members" | "workshops" | "apikeys" | "pages" | "constraints";
 
 export const ORGANISATION_TABS: readonly OrganisationTab[] = [
   "members",
   "workshops",
   "apikeys",
+  "pages",
   "constraints",
 ];
 
@@ -19,6 +20,8 @@ interface UseOrganisationTabsOptions {
   mayWorkshops: boolean;
   /** Who may list the keys given to the organisation sees them. */
   mayApiKeys: boolean;
+  /** The server answers the organisation's verified pages to the caller. */
+  mayVerifiedPages: boolean;
   /** Heads see the organisation's constraints. */
   canEditSettings: boolean;
 }
@@ -34,6 +37,7 @@ export function useOrganisationTabs({
   autoCreateWorkshop,
   mayWorkshops,
   mayApiKeys,
+  mayVerifiedPages,
   canEditSettings,
 }: UseOrganisationTabsOptions) {
   const navigate = useNavigate();
@@ -45,9 +49,10 @@ export function useOrganisationTabs({
           t === "members" ||
           (t === "workshops" && mayWorkshops) ||
           (t === "apikeys" && mayApiKeys) ||
+          (t === "pages" && mayVerifiedPages) ||
           (t === "constraints" && canEditSettings),
       ),
-    [mayWorkshops, mayApiKeys, canEditSettings],
+    [mayWorkshops, mayApiKeys, mayVerifiedPages, canEditSettings],
   );
   const wanted = tab ?? (autoCreateWorkshop ? "workshops" : undefined);
   const current = wanted && visible.includes(wanted) ? wanted : visible[0];

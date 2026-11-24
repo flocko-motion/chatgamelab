@@ -167,6 +167,10 @@ const (
 	// OrganisationRecord is an organisation's standing: its consent status,
 	// how it registered itself, and an admin's suspension with its reason.
 	OrganisationRecord Entity = "organisation record"
+	// VerifiedPage is an organisation's page on its own website that may
+	// frame the organisation's embedded games: its page ID, origin, address
+	// and callback, which says yes or no to every start there.
+	VerifiedPage Entity = "verified page"
 	// Membership is a user's role in an organisation. Deleting it removes
 	// the user from the organisation; they keep their account, as an
 	// individual.

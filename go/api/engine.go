@@ -9,6 +9,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"net/url"
 
 	"cgl/session"
 	"engine"
@@ -477,7 +478,49 @@ func (EnginePlaybackIndexEndpoint) Method() string             { return "GET" }
 func (EnginePlaybackIndexEndpoint) Path() string               { return "/api/engine/playback-engine/" }
 func (EnginePlaybackIndexEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthOptional }
 func (EnginePlaybackIndexEndpoint) HandleRaw(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Set("Content-Security-Policy", playbackPolicy(r))
 	return engineapi.PlaybackIndexEndpoint{}.HandleRaw(w, r)
+}
+
+// playbackPolicy is the playback-engine page's Content-Security-Policy:
+// who may frame it, by the embed link or session it opens
+// (core.EmbedFraming), and, framed on another website or styled by a
+// stylesheet in its address, where CSS may load from: stylesheets from the
+// platform, that stylesheet's origin and a verified page's; fonts and
+// pictures from the platform, data: and blob: URLs and a verified page's
+// own origin. So handed-over CSS cannot send anything to a third site.
+func playbackPolicy(r *http.Request) string {
+	q := r.URL.Query()
+	token, session := q.Get("share"), (*uuid.UUID)(nil)
+	if id, err := uuid.Parse(q.Get("session")); err == nil {
+		// a session's own address: its link decides, whatever else is named
+		token, session = "", &id
+	}
+	framing := core.EmbedFraming(r.Context(), token, session)
+	policy := "frame-ancestors " + framing.Ancestors
+	sheet := stylesheetOrigin(q.Get("css"))
+	if !framing.Framed() && sheet == "" {
+		return policy
+	}
+	assets, styles := "'self' data: blob:", "'self' 'unsafe-inline'"
+	if framing.AssetOrigin != "" {
+		assets += " " + framing.AssetOrigin
+		styles += " " + framing.AssetOrigin
+	}
+	if sheet != "" {
+		styles += " " + sheet
+	}
+	return policy + "; img-src " + assets + "; font-src " + assets + "; style-src " + styles
+}
+
+// stylesheetOrigin is the origin of an https stylesheet address, or "" for
+// any other value; the playback-engine loads no other.
+func stylesheetOrigin(raw string) string {
+	u, err := url.Parse(raw)
+	if err != nil || u.Scheme != "https" || u.Host == "" {
+		return ""
+	}
+	return "https://" + u.Host
 }
 
 // EnginePlaybackFileEndpoint serves a playback-engine file beside its page.
@@ -576,7 +619,7 @@ func createSession(ctx context.Context, req EngineCreateReq) (*engine.Session, e
 	var created *session.Created
 	var err error
 	if req.Share != "" {
-		created, err = session.CreateShareSession(lifetime, req.Share, req.Language)
+		created, err = session.CreateShareSession(lifetime, req.Share, core.HostIDs{Player: req.Player, Request: req.Request}, req.Language)
 	} else {
 		gameID, parseErr := uuid.Parse(req.Game)
 		if parseErr != nil {

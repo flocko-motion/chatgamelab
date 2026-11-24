@@ -59,6 +59,7 @@ type AppUser struct {
 	PrivateShareID       uuid.NullUUID  `json:"private_share_id"`
 	AgeGroup             sql.NullString `json:"age_group"`
 	RegisteredAt         sql.NullTime   `json:"registered_at"`
+	OutsideID            sql.NullString `json:"outside_id"`
 }
 
 type BackupLog struct {
@@ -133,17 +134,21 @@ type GameSessionEvent struct {
 }
 
 type GameShare struct {
-	ID            uuid.UUID      `json:"id"`
-	GameID        uuid.UUID      `json:"game_id"`
-	Token         string         `json:"token"`
-	ApiKeyShareID uuid.UUID      `json:"api_key_share_id"`
-	InstitutionID uuid.NullUUID  `json:"institution_id"`
-	WorkshopID    uuid.NullUUID  `json:"workshop_id"`
-	Remaining     sql.NullInt32  `json:"remaining"`
-	AiQualityTier sql.NullString `json:"ai_quality_tier"`
-	CreatedBy     uuid.NullUUID  `json:"created_by"`
-	CreatedAt     time.Time      `json:"created_at"`
-	PublicPage    bool           `json:"public_page"`
+	ID             uuid.UUID      `json:"id"`
+	GameID         uuid.UUID      `json:"game_id"`
+	Token          string         `json:"token"`
+	ApiKeyShareID  uuid.UUID      `json:"api_key_share_id"`
+	InstitutionID  uuid.NullUUID  `json:"institution_id"`
+	WorkshopID     uuid.NullUUID  `json:"workshop_id"`
+	Remaining      sql.NullInt32  `json:"remaining"`
+	AiQualityTier  sql.NullString `json:"ai_quality_tier"`
+	CreatedBy      uuid.NullUUID  `json:"created_by"`
+	CreatedAt      time.Time      `json:"created_at"`
+	PublicPage     bool           `json:"public_page"`
+	Embed          bool           `json:"embed"`
+	Enabled        bool           `json:"enabled"`
+	EmbedMode      sql.NullString `json:"embed_mode"`
+	VerifiedPageID uuid.NullUUID  `json:"verified_page_id"`
 }
 
 type GameTag struct {
@@ -247,6 +252,18 @@ type UserRoleInvite struct {
 	DeletedAt     sql.NullTime   `json:"deleted_at"`
 	AcceptedAt    sql.NullTime   `json:"accepted_at"`
 	AcceptedBy    uuid.NullUUID  `json:"accepted_by"`
+}
+
+type VerifiedPage struct {
+	ID            uuid.UUID     `json:"id"`
+	InstitutionID uuid.UUID     `json:"institution_id"`
+	PageID        string        `json:"page_id"`
+	Origin        string        `json:"origin"`
+	PageUrl       string        `json:"page_url"`
+	CallbackUrl   string        `json:"callback_url"`
+	CreatedBy     uuid.NullUUID `json:"created_by"`
+	CreatedAt     time.Time     `json:"created_at"`
+	ModifiedAt    time.Time     `json:"modified_at"`
 }
 
 type Voice struct {

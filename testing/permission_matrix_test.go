@@ -432,6 +432,21 @@ func (s *PermissionMatrixTestSuite) TestParticipantsAndStanding() {
 	})
 }
 
+// An organisation's verified pages (#340): its head and staff list and
+// register them, nobody else, the admin included.
+func (s *PermissionMatrixTestSuite) TestVerifiedPages() {
+	w := s.w
+	list := func(c *testutil.UserClient) error { _, err := c.ListVerifiedPages(w.orgA); return err }
+	register := func(c *testutil.UserClient) error {
+		_, err := c.CreateVerifiedPage(w.orgA, "https://example.org/play", "https://example.org/cgl-callback")
+		return err
+	}
+	s.check([]cell{
+		{"list organisation A's verified pages", []string{"headA", "staffA"}, list},
+		{"register one", []string{"headA", "staffA"}, register},
+	})
+}
+
 // A workshop's public page is the one place where someone not signed in
 // reads public games, download included: the workshop published them. A
 // game it does not show is not there for anyone.

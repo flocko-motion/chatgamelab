@@ -15,6 +15,11 @@ type CreateRequest struct {
 	// Game or Share names what to play: a game, or a share token.
 	Game  string `json:"game,omitempty"`
 	Share string `json:"share,omitempty"`
+	// Player and Request come from the page a share is embedded in, for a
+	// share whose host says yes to every start: the host's ID of its visitor
+	// and of this request. The serving side passes them to the host.
+	Player  string `json:"player,omitempty"`
+	Request string `json:"request,omitempty"`
 	// Language is the player's, as the playback-engine knows it.
 	Language string `json:"language,omitempty"`
 	// Once is a key the playback-engine makes for one intent to start, so a

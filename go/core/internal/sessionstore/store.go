@@ -44,10 +44,13 @@ type NewSession struct {
 	ReplaceEarlier bool      // deletes the player's earlier sessions of the game
 }
 
-// NewGuest is the account of a guest playing through a share link.
+// NewGuest is the account of a guest playing through a share link. A guest
+// with an OutsideID (a verified page's visitor) is the one guest that ID
+// already is on the link, if there is one.
 type NewGuest struct {
-	Name    string
-	ShareID uuid.UUID
+	Name      string
+	ShareID   uuid.UUID
+	OutsideID string
 }
 
 // ErrNoPlaysLeft: the share link has no plays left.
@@ -96,7 +99,16 @@ func (l *launchStore) SaveState(ctx context.Context, sessionID string, stored en
 
 	var replaced []uuid.UUID
 	err = store.InTx(ctx, func(q *db.Queries) error {
-		if g := l.meta.Guest; g != nil {
+		if g := l.meta.Guest; g != nil && g.OutsideID != "" {
+			known, err := q.V2OutsideGuest(ctx, db.V2OutsideGuestParams{
+				ID: l.meta.UserID, Name: sql.NullString{String: g.Name, Valid: true},
+				PrivateShareID: uuid.NullUUID{UUID: g.ShareID, Valid: true}, OutsideID: g.OutsideID,
+			})
+			if err != nil {
+				return fmt.Errorf("find the guest: %w", err)
+			}
+			l.meta.UserID = known
+		} else if g != nil {
 			if _, err := q.V2CreateGuestUser(ctx, db.V2CreateGuestUserParams{
 				ID: l.meta.UserID, Name: sql.NullString{String: g.Name, Valid: true}, PrivateShareID: uuid.NullUUID{UUID: g.ShareID, Valid: true},
 			}); err != nil {

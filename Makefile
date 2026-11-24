@@ -1,4 +1,4 @@
-.PHONY: help rebase pr release prerelease sync check-clean-tree check-on-feature docs translate translate-check roadmap roadmap-local
+.PHONY: help rebase pr release prerelease sync check-clean-tree check-on-feature docs translate translate-check roadmap roadmap-local embed-kit
 
 # The release line this copy of the file belongs to. Each major version keeps
 # its own copy, so these two lines are what differs from one line to the next:
@@ -18,6 +18,7 @@ help:
 	@echo "make translate-check  fail if any UI text still needs translating (what CI runs)"
 	@echo "make roadmap          rebuild the interactive roadmap from the issues now"
 	@echo "make roadmap-local    the interactive roadmap on http://localhost:8765, from the live issues or the last ones read"
+	@echo "make embed-kit        a blank website on http://localhost:8000 to try an embedded game on, with a verified page's callback"
 
 # The spec is Typst; the PDFs are build output.
 docs:
@@ -339,3 +340,6 @@ roadmap-local:
 	(sleep 1 && while ! curl -sf -o /dev/null http://localhost:8765/api/local; do sleep 1; done; \
 	 open http://localhost:8765 2>/dev/null || xdg-open http://localhost:8765 2>/dev/null || true) & \
 	python3 roadmap/serve.py "$(ROADMAP_LOCAL)" 8765 $$fresh
+
+embed-kit:
+	python3 scripts/embed-kit/kit.py

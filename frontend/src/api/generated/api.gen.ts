@@ -277,6 +277,8 @@ export interface CreateRequest {
   game?: string;
   language?: string;
   once: string;
+  player?: string;
+  request?: string;
   share?: string;
 }
 
@@ -287,6 +289,11 @@ export interface CreateResponse {
 export interface CreateUserReq {
   email?: string;
   name: string;
+}
+
+export interface CreateVerifiedPageReq {
+  callbackUrl: string;
+  pageUrl: string;
 }
 
 export interface CreateWorkshopEmailInviteReq {
@@ -397,6 +404,25 @@ export interface Game {
 
 export interface GameApiKeyStatusResp {
   available: boolean;
+}
+
+export interface GameEmbedResp {
+  embed?: GameEmbedView;
+}
+
+export interface GameEmbedView {
+  enabled: boolean;
+  /** @format uuid */
+  id: string;
+  keyName: string;
+  mode: string;
+  platform: string;
+  /** @format uuid */
+  sponsorKeyShareId?: string;
+  token: string;
+  /** @format uuid */
+  verifiedPageId?: string;
+  verifiedPageUrl?: string;
 }
 
 export interface GameFile {
@@ -1128,6 +1154,15 @@ export interface SetActiveWorkshopReq {
   workshopId?: string;
 }
 
+export interface SetGameEmbedReq {
+  enabled: boolean;
+  mode: string;
+  /** @format uuid */
+  sponsorKeyShareId?: string;
+  /** @format uuid */
+  verifiedPageId?: string;
+}
+
 export interface SetInstitutionFreeUseKeyReq {
   /** @format uuid */
   shareId?: string;
@@ -1175,6 +1210,8 @@ export interface ShareLinkView {
   createdAt: string;
   /** @format uuid */
   createdBy?: string;
+  embed: boolean;
+  enabled: boolean;
   /** @format uuid */
   gameId: string;
   gameName?: string;
@@ -1370,6 +1407,11 @@ export interface UpdateUserReq {
   name?: string;
 }
 
+export interface UpdateVerifiedPageReq {
+  callbackUrl: string;
+  pageUrl: string;
+}
+
 export interface UpdateWorkshopReq {
   active?: boolean;
   aiQualityTier?: string;
@@ -1510,6 +1552,27 @@ export interface UserView {
 export interface UserViewPage {
   items: UserView[];
   total: number;
+}
+
+export interface VerifiedPageView {
+  callbackUrl: string;
+  /** @format date-time */
+  createdAt: string;
+  /** @format uuid */
+  id: string;
+  mayDelete: boolean;
+  mayEdit: boolean;
+  /** @format date-time */
+  modifiedAt: string;
+  /** @format uuid */
+  organisationId: string;
+  origin: string;
+  pageId: string;
+  pageUrl: string;
+}
+
+export interface VerifiedPagesResp {
+  pages: VerifiedPageView[];
 }
 
 export interface Workshop {
@@ -3019,6 +3082,46 @@ export class Api<
       }),
 
     /**
+     * @description the game.
+     *
+     * @name GetApiGamesIdEmbed
+     * @summary Reads a game's embed link, for whoever may share
+     * @request GET:/api/games/{id}/embed
+     * @secure
+     */
+    getApiGamesIdEmbed: (id: string, params: RequestParams = {}) =>
+      this.request<GameEmbedResp, Error>({
+        path: `/api/games/${id}/embed`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description for whoever may share the game. Its token never changes: off keeps it, on brings back the same snippet.
+     *
+     * @name PutApiGamesIdEmbed
+     * @summary Sets a game's embed link, making it the first time,
+     * @request PUT:/api/games/{id}/embed
+     * @secure
+     */
+    putApiGamesIdEmbed: (
+      id: string,
+      data: SetGameEmbedReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<GameEmbedResp, Error>({
+        path: `/api/games/${id}/embed`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: "application/json",
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description answers the same whatever the game: it gives nothing away.
      *
      * @name DeleteApiGamesIdFavourite
@@ -3573,6 +3676,49 @@ export class Api<
     ) =>
       this.request<OrganisationSuspensionView, Error>({
         path: `/api/institutions/${id}/suspension`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: "application/json",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description head and staff.
+     *
+     * @name GetApiInstitutionsIdVerifiedPages
+     * @summary Lists an organisation's verified pages, for its
+     * @request GET:/api/institutions/{id}/verified-pages
+     * @secure
+     */
+    getApiInstitutionsIdVerifiedPages: (
+      id: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<VerifiedPagesResp, Error>({
+        path: `/api/institutions/${id}/verified-pages`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description with a new page ID, for its head and staff.
+     *
+     * @name PostApiInstitutionsIdVerifiedPages
+     * @summary Registers a verified page for an organisation,
+     * @request POST:/api/institutions/{id}/verified-pages
+     * @secure
+     */
+    postApiInstitutionsIdVerifiedPages: (
+      id: string,
+      data: CreateVerifiedPageReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VerifiedPageView, Error>({
+        path: `/api/institutions/${id}/verified-pages`,
         method: "POST",
         body: data,
         secure: true,
@@ -4444,6 +4590,46 @@ export class Api<
         path: `/api/users/${id}/stats`,
         method: "GET",
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description for it start nothing until they get another.
+     *
+     * @name DeleteApiVerifiedPagesId
+     * @summary Removes a verified page; the games embedded
+     * @request DELETE:/api/verified-pages/{id}
+     * @secure
+     */
+    deleteApiVerifiedPagesId: (id: string, params: RequestParams = {}) =>
+      this.request<MessageResp, Error>({
+        path: `/api/verified-pages/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description callback; its page ID stays.
+     *
+     * @name PatchApiVerifiedPagesId
+     * @summary Changes a verified page's address and
+     * @request PATCH:/api/verified-pages/{id}
+     * @secure
+     */
+    patchApiVerifiedPagesId: (
+      id: string,
+      data: UpdateVerifiedPageReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<VerifiedPageView, Error>({
+        path: `/api/verified-pages/${id}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: "application/json",
         format: "json",
         ...params,
       }),

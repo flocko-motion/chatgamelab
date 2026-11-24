@@ -34,6 +34,8 @@ type ShareLinkCard struct {
 	Remaining  *int32  // plays left; nil: unlimited
 	Tier       *string // the AI quality tier it plays at; nil: its source's
 	PublicPage bool    // made by a workshop's public page
+	Embed      bool    // a game's embed link (embed.go)
+	Enabled    bool    // false: an embed link switched off
 
 	GameID       uuid.UUID
 	GameName     string
@@ -59,6 +61,8 @@ func (l *ShareLinkCard) MayManage() bool { return l.mayManage }
 type ShareLinkFilter struct {
 	Game *uuid.UUID // one game's
 	Key  *uuid.UUID // paid by one key
+	// Embed narrows to embed links (true) or the others (false); nil: both.
+	Embed *bool
 }
 
 // ListShareLinks lists the share links the caller may see, {List,
@@ -67,6 +71,9 @@ func ListShareLinks(ctx context.Context, f ShareLinkFilter) ([]*ShareLinkCard, e
 	p := shareLinkGates(ctx)
 	p.Game = nullUUID(f.Game)
 	p.KeyID = nullUUID(f.Key)
+	if f.Embed != nil {
+		p.Embed = sql.NullBool{Bool: *f.Embed, Valid: true}
+	}
 	return loadShareLinks(ctx, p)
 }
 
@@ -94,7 +101,7 @@ func loadShareLinks(ctx context.Context, p db.V2ShareLinksParams) ([]*ShareLinkC
 	for i, r := range rows {
 		l := &ShareLinkCard{
 			ID: r.ID, CreatedAt: r.CreatedAt, CreatedBy: ptrUUID(r.CreatedBy), Token: r.Token,
-			Tier: nullString(r.AiQualityTier), PublicPage: r.PublicPage,
+			Tier: nullString(r.AiQualityTier), PublicPage: r.PublicPage, Embed: r.Embed, Enabled: r.Enabled,
 			GameID: r.GameID, GameName: r.GameName,
 			WorkshopID: ptrUUID(r.WorkshopID), WorkshopName: nullString(r.WorkshopName),
 			ShareID: r.ApiKeyShareID, SourceShareID: ptrUUID(r.SourceShareID),
