@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KI-Benchmark</title>
+<style>
+  :root {
+    --bg: #f6f5f1; --panel: #ffffff; --fg: #1c1c1a; --muted: #6a6a64; --line: #e0dfd8;
+    --accent: #2f5fd0; --accent-fg: #fff; --ok: #1f7a3a; --warn: #a15c00; --err: #b42318;
+    --soft: #efeee8; --shadow: 0 1px 2px rgba(0,0,0,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #151517; --panel: #1f1f23; --fg: #ececea; --muted: #a2a29c; --line: #34343a;
+      --accent: #7aa2ff; --accent-fg: #0d1020; --ok: #5fd08a; --warn: #f0b35a; --err: #ff8a7a;
+      --soft: #29292e; --shadow: none; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { display: flex; align-items: center; gap: 20px; padding: 12px 20px;
+    border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 5; }
+  header h1 { font-size: 17px; margin: 0; }
+  .tabs { display: flex; gap: 4px; }
+  .tab { padding: 6px 12px; border-radius: 7px; color: var(--muted); font-size: 14px; }
+  .tab.active { background: var(--soft); color: var(--fg); font-weight: 600; }
+  .tab small { font-size: 11px; }
+  .layout { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 53px); }
+  aside { border-right: 1px solid var(--line); padding: 14px 10px; background: var(--panel); }
+  aside .runlist { margin-top: 10px; display: grid; gap: 2px; }
+  .navbtn { display: block; width: 100%; text-align: left; border: 0; background: none; color: var(--fg);
+    padding: 8px 10px; border-radius: 7px; cursor: pointer; font: inherit; }
+  .navbtn:hover { background: var(--soft); }
+  .navbtn.active { background: var(--soft); font-weight: 600; }
+  .navbtn .sub { display: block; font-size: 12px; color: var(--muted); font-weight: 400; }
+  .sectionlabel { font-size: 12px; color: var(--muted); padding: 12px 10px 4px; text-transform: uppercase; letter-spacing: .04em; }
+  main { padding: 20px 24px 60px; min-width: 0; }
+  h2 { font-size: 20px; margin: 0 0 4px; }
+  h3 { font-size: 16px; margin: 0; }
+  .muted { color: var(--muted); }
+  .small { font-size: 13px; }
+  button.primary, button.secondary { font: inherit; border-radius: 8px; padding: 8px 14px; cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--accent-fg); border: 0; font-weight: 600; }
+  button.primary:disabled { opacity: .5; cursor: default; }
+  button.secondary { background: var(--panel); color: var(--fg); border: 1px solid var(--line); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; box-shadow: var(--shadow); }
+  .stack { display: grid; gap: 16px; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  label.chk { display: inline-flex; gap: 6px; align-items: center; padding: 6px 10px; border: 1px solid var(--line);
+    border-radius: 8px; cursor: pointer; background: var(--panel); }
+  label.chk .tag { font-size: 11px; color: var(--warn); }
+  textarea, input[type=text], input[type=password], input[type=number], select {
+    font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+  textarea { width: 100%; min-height: 220px; font-size: 13px; line-height: 1.5; }
+  .err { color: var(--err); } .ok { color: var(--ok); }
+  .slow { color: var(--warn); font-weight: 600; } .tooslow { color: var(--err); font-weight: 600; }
+  .tag { font-size: 11px; color: var(--warn); }
+  .badge { font-size: 11px; padding: 1px 7px; border-radius: 99px; background: var(--soft); color: var(--muted); }
+  .badge.running { color: var(--warn); } .badge.stopped, .badge.error { color: var(--err); }
+  .progress { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin-bottom: 16px;
+    display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .bar { flex: 1; min-width: 160px; height: 8px; background: var(--soft); border-radius: 99px; overflow: hidden; }
+  .bar > div { height: 100%; background: var(--accent); transition: width .4s; }
+  .runhead { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 14px; }
+  .kpis { display: flex; gap: 22px; flex-wrap: wrap; margin: 6px 0 0; }
+  .kpi b { display: block; font-size: 18px; }
+  .kpi span { font-size: 12px; color: var(--muted); }
+  details.prompt { margin: 0 0 18px; }
+  details.prompt pre { white-space: pre-wrap; font-size: 13px; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 8px; padding: 12px; margin: 8px 0 0; }
+  .model { margin-bottom: 22px; }
+  .model > h3 { margin: 0 0 8px; font-size: 17px; }
+  .qrow { display: grid; grid-template-columns: 190px 1fr; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .qmeta b.q { font-size: 15px; display: block; margin-bottom: 4px; }
+  .qmeta dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; font-size: 13px; }
+  .qmeta dt { color: var(--muted); } .qmeta dd { margin: 0; font-variant-numeric: tabular-nums; }
+  .imgs { display: flex; gap: 10px; flex-wrap: wrap; }
+  .imgs figure { margin: 0; width: min(420px, 100%); }
+  .imgs.thumbs figure { width: 220px; }
+  .imgs img { width: 100%; display: block; border-radius: 8px; cursor: zoom-in; background: var(--soft); aspect-ratio: 1; object-fit: cover; }
+  .imgs figcaption { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .rate { display: flex; gap: 2px; margin-top: 5px; }
+  .rate button { flex: 1; min-width: 0; padding: 4px 0; font: 12px/1 system-ui, sans-serif; color: var(--muted);
+    background: var(--soft); border: 0; border-radius: 4px; cursor: pointer; font-variant-numeric: tabular-nums; }
+  .rate button:hover { color: var(--fg); outline: 1px solid var(--line); }
+  .rate button.on { color: #fff; font-weight: 700; }
+  .rv { font-weight: 700; }
+  #lightbox .lbrate { width: min(520px, 100%); }
+  #lightbox .lbrate .rate button { font-size: 14px; padding: 7px 0; background: rgba(255,255,255,.12); color: #ddd; }
+  #lightbox .lbhint { color: #aaa; font-size: 12px; }
+  .placeholder { width: min(420px, 100%); aspect-ratio: 1; border-radius: 8px; background: var(--soft);
+    display: grid; place-items: center; color: var(--muted); font-size: 13px; text-align: center; padding: 12px; }
+  .placeholder.err { color: var(--err); }
+  .imgs.thumbs .placeholder { width: 220px; }
+  table.sum { border-collapse: collapse; width: 100%; font-size: 14px; background: var(--panel); }
+  table.sum th, table.sum td { border-bottom: 1px solid var(--line); padding: 7px 10px; text-align: left; vertical-align: top; }
+  table.sum th { font-size: 12px; color: var(--muted); font-weight: 600; }
+  table.sum td.num, table.sum th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  table.sum td.model { font-weight: 600; }
+  .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 22px; }
+  #lightbox { position: fixed; inset: 0; background: rgba(0,0,0,.88); display: none; z-index: 20;
+    align-items: center; justify-content: center; flex-direction: column; gap: 10px; padding: 20px; }
+  #lightbox.open { display: flex; }
+  #lightbox img { max-width: 100%; max-height: calc(100vh - 90px); border-radius: 6px; }
+  #lightbox .cap { color: #eee; font-size: 14px; text-align: center; }
+  #lightbox .lbnav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,.12);
+    color: #fff; border: 0; font-size: 28px; width: 48px; height: 64px; border-radius: 8px; cursor: pointer; }
+  #lightbox .prev { left: 14px; } #lightbox .next { right: 14px; }
+  #lightbox .close { position: absolute; top: 14px; right: 16px; background: none; border: 0; color: #fff; font-size: 28px; cursor: pointer; }
+  .comingsoon { padding: 40px; text-align: center; color: var(--muted); }
+  @media (max-width: 800px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { border-right: 0; border-bottom: 1px solid var(--line); }
+    aside .runlist { max-height: 220px; overflow-y: auto; }
+    .qrow { grid-template-columns: 1fr; }
+    main { padding: 16px; }
+    header { flex-wrap: wrap; padding: 10px 16px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>KI-Benchmark</h1>
+  <nav class="tabs">
+    <span class="tab active">Bilder</span>
+    <span class="tab" title="kommt später">Texte <small>(bald)</small></span>
+    <span class="tab" title="kommt später">Audio <small>(bald)</small></span>
+  </nav>
+</header>
+<div class="layout">
+  <aside>
+    <button class="navbtn" data-view="new">＋ Neuer Test</button>
+    <button class="navbtn" data-view="summary">Alle Läufe zusammen</button>
+    <div class="sectionlabel">Läufe</div>
+    <div class="runlist" id="runlist"></div>
+  </aside>
+  <main id="main"></main>
+</div>
+<div id="lightbox">
+  <button class="close" aria-label="Schließen">×</button>
+  <button class="lbnav prev" aria-label="Vorheriges Bild">‹</button>
+  <img alt="">
+  <div class="cap"></div>
+  <div class="lbrate"></div>
+  <div class="lbhint">Eindruck: 0 unterirdisch – 10 überragend · Tasten 0–9 bewerten, 10 per Klick · ← → blättern · Esc schließt</div>
+  <button class="lbnav next" aria-label="Nächstes Bild">›</button>
+</div>
+
+<script>
+const S = { server: null, runs: [], view: { type: "new" }, extraModels: [], form: null, msg: "" };
+const QORDER = ["low", "medium", "high"];
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const nf = (d) => new Intl.NumberFormat("de-DE", { minimumFractionDigits: d, maximumFractionDigits: d });
+const ct = (usd) => usd == null ? "–" : nf(usd * 100 < 1 ? 2 : usd * 100 < 10 ? 2 : 1).format(usd * 100) + " ct";
+const per1000 = (usd) => usd == null ? "–" : nf(2).format(usd * 1000) + " $";
+const sec = (s) => s == null ? "–" : nf(1).format(s) + " s";
+const secC = (s) => { if (s == null) return "–"; const c = s > 45 ? "tooslow" : s > 30 ? "slow" : ""; return c ? `<span class="${c}">${sec(s)}</span>` : sec(s); };
+const provisional = (m) => (S.server?.image.provisional_prices || []).includes(m);
+const int = (n) => n == null ? "–" : nf(0).format(n);
+const median = (a) => { if (!a.length) return null; const b = [...a].sort((x, y) => x - y), m = b.length >> 1; return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; };
+const avg = (a) => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+const when = (iso) => { const d = new Date(iso); return d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" }) + " " + d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }); };
+const whenShort = (iso) => { const d = new Date(iso); return d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" }) + " · " + d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }); };
+const modelOrder = (m) => { const i = (S.server?.image.model_order || []).indexOf(m); return i < 0 ? 99 : i; };
+const byModelOrder = (a, b) => modelOrder(a) - modelOrder(b) || a.localeCompare(b);
+
+async function api(path, body) {
+  const r = await fetch(path, body === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || "Fehler");
+  return j;
+}
+
+/* ---------- Daten aufbereiten ---------- */
+function runRecords(run) {
+  // flache Liste: {model, quality, rec}
+  const out = [];
+  for (const v of run.results || []) for (const rec of v.runs || []) out.push({ model: v.model, quality: v.quality, rec });
+  return out;
+}
+function runTotals(run) {
+  const all = runRecords(run);
+  const recs = all.filter(x => !x.rec.error && !x.rec.skipped);
+  const cost = recs.reduce((s, x) => s + (x.rec.cost_usd || 0), 0);
+  const time = recs.reduce((s, x) => s + (x.rec.final_s || 0), 0);
+  return { n: recs.length, errors: all.filter(x => x.rec.error).length, skipped: all.filter(x => x.rec.skipped).length, cost, time };
+}
+function imageTokens(u) { return u ? (u.output_tokens_details?.image_tokens ?? u.output_tokens) : null; }
+function textOutTokens(u) { return u?.output_tokens_details?.text_tokens || 0; }
+function groupByModel(items) {
+  const models = {};
+  for (const it of items) (models[it.model] ??= {})[it.quality] ??= [], models[it.model][it.quality].push(it);
+  return Object.keys(models).sort(byModelOrder).map(m => ({ model: m, q: models[m] }));
+}
+function histMedian(model, quality, size) {
+  return median(S.runs.filter(r => r.size === size).flatMap(runRecords)
+    .filter(x => x.model === model && x.quality === quality && x.rec.final_s != null).map(x => x.rec.final_s));
+}
+function estimatePerImage(model, quality, size) {
+  const hist = S.runs.filter(r => r.size === size).flatMap(runRecords)
+    .filter(x => x.model === model && x.quality === quality && !x.rec.error && x.rec.cost_usd != null);
+  if (hist.length) return { usd: avg(hist.map(x => x.rec.cost_usd)), secs: median(hist.map(x => x.rec.final_s)), measured: true };
+  const fb = S.server.image.fallback_estimates[model]?.[quality];
+  return { usd: fb ?? null, secs: null, measured: false };
+}
+
+/* ---------- Seitenleiste ---------- */
+function renderSidebar() {
+  document.querySelectorAll("aside .navbtn[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === S.view.type));
+  const list = $("#runlist");
+  const runs = [...S.runs].reverse();
+  if (!runs.length) { list.innerHTML = `<div class="muted small" style="padding:6px 10px">Noch keine Läufe.</div>`; return; }
+  list.innerHTML = runs.map(r => {
+    const t = runTotals(r);
+    const status = r.status === "done" ? "" : `<span class="badge ${r.status}">${{ running: "läuft", stopped: "abgebrochen", error: "Fehler" }[r.status] || r.status}</span>`;
+    return `<button class="navbtn ${S.view.type === "run" && S.view.id === r.id ? "active" : ""}" data-run="${esc(r.id)}">
+      ${esc(whenShort(r.started))} ${status}
+      <span class="sub">${t.n} Bilder · ${ct(t.cost)}${r.label ? " · " + esc(r.label) : ""}</span></button>`;
+  }).join("");
+}
+
+/* ---------- Fortschritt ---------- */
+function progressHtml() {
+  const s = S.server;
+  if (!s?.busy) return "";
+  const c = s.current;
+  const pct = c ? Math.round(100 * c.done / c.total) : 0;
+  const what = c ? `Lauf ${c.job_nr} von ${c.job_total} · Bild ${c.done + 1} von ${c.total}: <b>${esc(c.label)}</b>` : "Startet …";
+  const more = s.queued ? ` · danach noch ${s.queued} Lauf/Läufe` : "";
+  return `<div class="progress"><span>⏳ ${what}${more}</span><div class="bar"><div style="width:${pct}%"></div></div>
+    <button class="secondary" id="stopbtn" ${s.stopping ? "disabled" : ""}>${s.stopping ? "Wird gestoppt …" : "Stoppen"}</button></div>`;
+}
+
+/* ---------- Ansicht: Neuer Test ---------- */
+function renderNew() {
+  const s = S.server, im = s.image;
+  const f = S.form ??= { models: [...im.default_models], qualities: [...im.qualities], size: im.sizes[0], prompt: im.default_prompt, count: 2, label: "", max_seconds: im.default_max_seconds };
+  const allModels = [...new Set([...im.default_models, ...S.extraModels, ...f.models])].sort(byModelOrder);
+  const keyBlock = s.has_key
+    ? `<div class="row"><span class="ok">✓ OpenAI-Schlüssel ist hinterlegt (${esc(s.key_hint)})</span>
+         <button class="secondary" id="forgetkey">Schlüssel entfernen</button></div>`
+    : `<div class="stack" style="gap:8px">
+         <div><b>OpenAI-API-Schlüssel</b><div class="muted small">Wird nur auf diesem Rechner benutzt und direkt an OpenAI geschickt.</div></div>
+         <div class="row"><input type="password" id="keyinput" placeholder="sk-…" style="flex:1;min-width:240px" autocomplete="off">
+           <button class="primary" id="savekey">Prüfen &amp; speichern</button></div>
+         <label class="row small" style="gap:6px"><input type="checkbox" id="remember" checked> im Mac-Schlüsselbund merken (dann muss ich ihn nicht wieder eingeben)</label>
+       </div>`;
+  let est = 0, secs = 0, unknown = false, estMeasured = true, skipped = [];
+  for (const m of f.models) for (const q of f.qualities) {
+    const hm = histMedian(m, q, f.size);
+    if (hm != null && hm > f.max_seconds) { skipped.push(`${m} ${q}`); continue; }
+    const e = estimatePerImage(m, q, f.size);
+    if (e.usd == null) unknown = true; else est += e.usd;
+    if (e.secs != null) secs += e.secs; else estMeasured = false;
+  }
+  const nImg = f.models.length * f.qualities.length - skipped.length;
+  $("#main").innerHTML = `${progressHtml()}
+  <div class="stack" style="max-width:900px">
+    <div><h2>Neuer Bild-Test</h2><div class="muted">Alle angehakten Modelle × Qualitäten bekommen denselben Prompt. Jeder Lauf erscheint links als eigener Eintrag.</div></div>
+    ${S.msg ? `<div class="card ${S.msg.startsWith("✓") ? "ok" : "err"}">${esc(S.msg)}</div>` : ""}
+    <div class="card">${keyBlock}</div>
+    <div class="card stack">
+      <div><b>Modelle</b>
+        <div class="row" style="margin-top:6px">${allModels.map(m => {
+          const priced = !!im.prices_per_million[m];
+          const tag = !priced ? "Preis unbekannt" : provisional(m) ? "Preis vorläufig" : "";
+          return `<label class="chk"><input type="checkbox" data-model="${esc(m)}" ${f.models.includes(m) ? "checked" : ""}> ${esc(m)}${tag ? ` <span class="tag">${tag}</span>` : ""}</label>`;
+        }).join("")}
+        <button class="secondary" id="findmodels" ${s.has_key ? "" : "disabled"}>Weitere Modelle bei OpenAI suchen</button></div>
+      </div>
+      <div><b>Qualitätsstufen</b>
+        <div class="row" style="margin-top:6px">${im.qualities.map(q =>
+          `<label class="chk"><input type="checkbox" data-quality="${q}" ${f.qualities.includes(q) ? "checked" : ""}> ${q}</label>`).join("")}</div>
+      </div>
+      <div class="row">
+        <label>Bildgröße <select id="size">${im.sizes.map(z => `<option ${z === f.size ? "selected" : ""}>${z}</option>`).join("")}</select></label>
+        <label>Anzahl Läufe <input type="number" id="count" min="1" max="10" value="${f.count}" style="width:70px"></label>
+        <label title="Bilder, die länger brauchen, werden abgebrochen; zu langsame Stufen gar nicht erst versucht">Zeitlimit <input type="number" id="maxsec" min="5" max="600" value="${f.max_seconds}" style="width:70px"> s</label>
+        <label>Notiz (optional) <input type="text" id="label" value="${esc(f.label)}" placeholder="z. B. Realismus-Test" style="width:220px"></label>
+      </div>
+      <div><div class="row" style="justify-content:space-between"><b>Prompt</b>
+          <button class="secondary small" id="resetprompt">Standard-Prompt wiederherstellen</button></div>
+        <textarea id="prompt" style="margin-top:6px">${esc(f.prompt)}</textarea></div>
+      <div class="row" style="justify-content:space-between">
+        <div class="small">
+          <b>bis zu ${nImg * f.count} Bilder</b> (${nImg} pro Lauf × ${f.count})
+          · geschätzt <b>${ct(est * f.count)}</b>${unknown ? " + Modelle mit unbekanntem Preis" : ""}
+          ${estMeasured && secs ? ` · Dauer ca. ${Math.round(secs * f.count / 60 * 10) / 10} min` : ""}
+          <div class="muted">Schätzung aus bisherigen Läufen, sonst aus der Preisliste.
+            Höhere Stufen werden übersprungen, wenn die Stufe darunter mehr als ⅓ des Zeitlimits braucht.</div>
+          ${skipped.length ? `<div class="muted">Wird übersprungen (bisher über ${f.max_seconds} s): ${esc(skipped.join(", "))}</div>` : ""}
+        </div>
+        <button class="primary" id="start" ${s.has_key && nImg ? "" : "disabled"}>Test starten</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------- Ansicht: ein Lauf ---------- */
+/* Bewertung 0–10: Farbe von rot (0) über gelb nach grün (10) */
+const rateColor = (v) => `hsl(${v * 12}, 70%, 42%)`;
+function ratingHtml(runId, model, quality, runNr, value) {
+  const btns = Array.from({ length: 11 }, (_, n) =>
+    `<button class="${value === n ? "on" : ""}" style="${value === n ? `background:${rateColor(n)}` : ""}"
+      data-rate="${n}" data-rrun="${esc(runId)}" data-rmodel="${esc(model)}" data-rq="${esc(quality)}" data-rnr="${runNr}"
+      title="${n === 0 ? "0 = unterirdisch" : n === 10 ? "10 = überragend" : n}">${n}</button>`).join("");
+  return `<div class="rate" title="Eindruck: 0 unterirdisch – 10 überragend">${btns}</div>`;
+}
+function imgFigure(runId, rec, caption, idx, model, quality) {
+  if (rec.skipped) return `<div class="placeholder">${esc(rec.skipped)}</div>`;
+  if (rec.error) return `<div class="placeholder err">${rec.timeout ? "" : "Fehler:<br>"}${esc(rec.error)}</div>`;
+  if (!rec.file) return `<div class="placeholder">wird erzeugt …</div>`;
+  return `<figure><img loading="lazy" src="/results/${esc(runId)}/${esc(rec.file)}" data-lb="${idx}" alt="">
+    ${caption ? `<figcaption>${caption}</figcaption>` : ""}
+    ${ratingHtml(runId, model, quality, rec.run || 1, rec.rating)}</figure>`;
+}
+const fmtRating = (v) => v == null ? "–" : `<span class="rv" style="color:${rateColor(v)}">${nf(1).format(v)}</span>`;
+let LB = []; // Bilder für die Großansicht der aktuellen Seite
+
+function renderRun(id) {
+  const idx = S.runs.findIndex(r => r.id === id);
+  const run = S.runs[idx];
+  if (!run) { S.view = { type: "new" }; return render(); }
+  const t = runTotals(run);
+  const older = S.runs[idx - 1], newer = S.runs[idx + 1];
+  LB = [];
+  const pending = run.status === "running";
+  const groups = groupByModel(runRecords(run));
+  const sections = groups.map(g => `<section class="model"><h3>${esc(g.model)}</h3>${
+    QORDER.filter(q => g.q[q]).map(q => {
+      const { rec } = g.q[q][0];
+      const u = rec.usage;
+      const i = LB.push({ src: rec.file && `/results/${run.id}/${rec.file}`, cap: `${g.model} · ${q} · ${sec(rec.final_s)} · ${ct(rec.cost_usd)} · Lauf ${whenShort(run.started)}`,
+        runId: run.id, model: g.model, quality: q, rec }) - 1;
+      return `<div class="qrow"><div class="qmeta"><b class="q">${q}</b>
+        ${rec.skipped ? `<span class="muted small">übersprungen</span>` : rec.error ? `<span class="err small">${rec.timeout ? "zu langsam" : "fehlgeschlagen"}</span>` : `<dl>
+          <dt>Eindruck</dt><dd><b>${rec.rating == null ? "–" : fmtRating(rec.rating)}</b></dd>
+          <dt>Dauer</dt><dd>${secC(rec.final_s)}</dd>
+          <dt>Bild-Tokens</dt><dd>${int(imageTokens(u))}</dd>
+          ${textOutTokens(u) ? `<dt>Text-Tokens</dt><dd>${int(textOutTokens(u))}</dd>` : ""}
+          <dt>Eingabe-Tokens</dt><dd>${int(u?.input_tokens)}</dd>
+          <dt>Kosten/Bild</dt><dd><b>${ct(rec.cost_usd)}</b>${provisional(g.model) ? ' <span class="tag">vorläufig</span>' : ""}</dd>
+          <dt>1000 Bilder</dt><dd>${per1000(rec.cost_usd)}</dd></dl>`}
+        </div><div class="imgs">${imgFigure(run.id, rec, "", i, g.model, q)}</div></div>`;
+    }).join("")}</section>`).join("");
+  $("#main").innerHTML = `${progressHtml()}
+    <div class="runhead">
+      <div><h2>Lauf vom ${esc(when(run.started))}</h2>
+        <div class="muted small">${esc(run.size)} · PNG${run.max_seconds ? ` · Zeitlimit ${run.max_seconds} s` : ""}${run.label ? " · " + esc(run.label) : ""}${run.status !== "done" ? ` · <span class="badge ${run.status}">${{ running: "läuft", stopped: "abgebrochen", error: "Fehler" }[run.status]}</span>` : ""}</div>
+        <div class="kpis">
+          <div class="kpi"><b>${t.n}</b><span>Bilder${t.errors ? ` · ${t.errors} Fehler/zu langsam` : ""}${t.skipped ? ` · ${t.skipped} übersprungen` : ""}</span></div>
+          <div class="kpi"><b>${ct(t.cost)}</b><span>Kosten gesamt (berechnet)</span></div>
+          <div class="kpi"><b>${nf(1).format(t.time / 60)} min</b><span>Rechenzeit gesamt</span></div>
+        </div></div>
+      <div class="row">
+        <button class="secondary" data-run="${older ? esc(older.id) : ""}" ${older ? "" : "disabled"} title="Taste ←">‹ älterer Lauf</button>
+        <button class="secondary" data-run="${newer ? esc(newer.id) : ""}" ${newer ? "" : "disabled"} title="Taste →">neuerer Lauf ›</button>
+      </div>
+    </div>
+    <details class="prompt"><summary>Prompt anzeigen</summary><pre>${esc(run.prompt)}</pre></details>
+    ${sections || `<div class="muted">${pending ? "Das erste Bild wird gerade erzeugt …" : "Keine Ergebnisse."}</div>`}
+    <p class="muted small">Kosten = berechnet aus den von OpenAI gemeldeten Tokens × Preisliste (mit der echten Abrechnung abgeglichen). Zeit = vom Absenden bis das fertige Bild auf diesem Rechner ist.</p>`;
+}
+
+/* ---------- Ansicht: alle Läufe zusammen ---------- */
+function renderSummary() {
+  const prompts = [...new Set(S.runs.map(r => r.prompt))];
+  const pf = S.view.prompt ?? (prompts.length ? prompts.length - 1 : 0);
+  const runs = S.runs.filter(r => prompts[pf] === undefined || r.prompt === prompts[pf]);
+  const items = runs.flatMap(r => runRecords(r).map(x => ({ ...x, run: r })));
+  const groups = groupByModel(items);
+  LB = [];
+  const rows = groups.map(g => {
+    const qs = QORDER.filter(q => g.q[q]);
+    return qs.map((q, k) => {
+      const ok = g.q[q].filter(x => !x.rec.error && !x.rec.skipped);
+      const bad = g.q[q].filter(x => x.rec.error).length, skp = g.q[q].filter(x => x.rec.skipped).length;
+      const times = ok.map(x => x.rec.final_s).filter(v => v != null);
+      const cost = avg(ok.map(x => x.rec.cost_usd).filter(v => v != null));
+      const tok = avg(ok.map(x => imageTokens(x.rec.usage)).filter(v => v != null));
+      const rated = ok.map(x => x.rec.rating).filter(v => v != null);
+      return `<tr>${k === 0 ? `<td class="model" rowspan="${qs.length}">${esc(g.model)}</td>` : ""}
+        <td>${q}</td><td class="num">${ok.length}${bad ? ` <span class="err">(+${bad} Fehler)</span>` : ""}${skp ? ` <span class="muted">(${skp} übersprungen)</span>` : ""}</td>
+        <td class="num"><b>${fmtRating(avg(rated))}</b>${rated.length ? `<br><span class="muted small">${rated.length} von ${ok.length} bewertet</span>` : ""}</td>
+        <td class="num"><b>${secC(median(times))}</b>${times.length > 1 ? `<br><span class="muted small">${sec(Math.min(...times))} – ${sec(Math.max(...times))}</span>` : ""}</td>
+        <td class="num">${int(tok)}</td><td class="num"><b>${ct(cost)}</b>${provisional(g.model) ? '<br><span class="tag">vorläufig</span>' : ""}</td><td class="num">${per1000(cost)}</td></tr>`;
+    }).join("");
+  }).join("");
+  const sections = groups.map(g => `<section class="model"><h3>${esc(g.model)}</h3>${
+    QORDER.filter(q => g.q[q]).map(q => `<div class="qrow"><div class="qmeta"><b class="q">${q}</b>
+      <span class="muted small">${g.q[q].length} Bild(er)</span></div>
+      <div class="imgs thumbs">${g.q[q].map(x => {
+        const i = LB.push({ src: x.rec.file && `/results/${x.run.id}/${x.rec.file}`, cap: `${g.model} · ${q} · ${sec(x.rec.final_s)} · ${ct(x.rec.cost_usd)} · Lauf ${whenShort(x.run.started)}`,
+          runId: x.run.id, model: g.model, quality: q, rec: x.rec }) - 1;
+        return imgFigure(x.run.id, x.rec, `${esc(whenShort(x.run.started))} · ${secC(x.rec.final_s)} · ${ct(x.rec.cost_usd)}`, i, g.model, q);
+      }).join("")}</div></div>`).join("")}</section>`).join("");
+  $("#main").innerHTML = `${progressHtml()}
+    <div class="runhead"><div><h2>Alle Läufe zusammen</h2>
+      <div class="muted small">${runs.length} Lauf/Läufe mit diesem Prompt · Zeiten als Median (mittlerer Wert), darunter schnellster – langsamster Lauf ·
+        <span class="slow">gelb</span> = über 30 s, <span class="tooslow">rot</span> = über 45 s.</div></div>
+      ${prompts.length > 1 ? `<label class="small">Prompt <select id="promptfilter">${prompts.map((p, i) =>
+        `<option value="${i}" ${i === pf ? "selected" : ""}>${esc(p.slice(0, 60))}… (${S.runs.filter(r => r.prompt === p).length} Läufe)</option>`).join("")}</select></label>` : ""}
+    </div>
+    ${rows ? `<div class="tablewrap"><table class="sum"><tr><th>Modell</th><th>Qualität</th><th class="num">Bilder</th><th class="num">Ø Eindruck</th><th class="num">Dauer</th>
+      <th class="num">Ø Bild-Tokens</th><th class="num">Ø Kosten/Bild</th><th class="num">1000 Bilder</th></tr>${rows}</table></div>` : `<div class="muted">Noch keine Läufe.</div>`}
+    ${sections}`;
+}
+
+/* ---------- Zeichnen & Ereignisse ---------- */
+function render() {
+  if (!S.server) return;
+  renderSidebar();
+  if (S.view.type === "run") renderRun(S.view.id);
+  else if (S.view.type === "summary") renderSummary();
+  else renderNew();
+}
+
+function readForm() {
+  if (S.view.type !== "new" || !S.form || !$("#prompt")) return;
+  S.form.models = [...document.querySelectorAll("[data-model]:checked")].map(e => e.dataset.model);
+  S.form.qualities = [...document.querySelectorAll("[data-quality]:checked")].map(e => e.dataset.quality);
+  S.form.size = $("#size").value;
+  S.form.count = Math.max(1, Math.min(10, parseInt($("#count").value) || 1));
+  S.form.prompt = $("#prompt").value;
+  S.form.label = $("#label").value;
+  S.form.max_seconds = Math.max(5, Math.min(600, parseInt($("#maxsec").value) || 45));
+}
+
+document.addEventListener("change", (e) => {
+  if (e.target.id === "promptfilter") { S.view.prompt = +e.target.value; render(); return; }
+  if (S.view.type === "new" && e.target.closest("#main") && e.target.id !== "keyinput" && e.target.id !== "remember") { readForm(); render(); }
+});
+
+document.addEventListener("click", async (e) => {
+  const t = e.target.closest("button, img[data-lb]");
+  if (!t) return;
+  if (t.dataset.view) { readForm(); S.view = { type: t.dataset.view }; S.msg = ""; render(); window.scrollTo(0, 0); return; }
+  if (t.dataset.run !== undefined && t.dataset.run) { readForm(); S.view = { type: "run", id: t.dataset.run }; render(); window.scrollTo(0, 0); return; }
+  if (t.dataset.lb !== undefined) return openLb(+t.dataset.lb);
+  if (t.dataset.rate !== undefined) return rate(t.dataset.rrun, t.dataset.rmodel, t.dataset.rq, +t.dataset.rnr, +t.dataset.rate);
+  try {
+    if (t.id === "savekey") {
+      t.disabled = true; t.textContent = "Prüfe …";
+      const r = await api("/api/key", { key: $("#keyinput").value, remember: $("#remember").checked });
+      S.extraModels = r.models.filter(m => !S.server.image.default_models.includes(m));
+      S.msg = "✓ Schlüssel funktioniert." + (r.saved ? " Er ist im Mac-Schlüsselbund gespeichert." : "");
+      await refresh();
+    } else if (t.id === "forgetkey") {
+      if (!confirm("Schlüssel von dieser Seite und aus dem Mac-Schlüsselbund entfernen?")) return;
+      await api("/api/key/forget", {}); S.msg = ""; await refresh();
+    } else if (t.id === "findmodels") {
+      readForm(); t.disabled = true; t.textContent = "Suche …";
+      const r = await api("/api/models");
+      S.extraModels = r.models.filter(m => !S.server.image.default_models.includes(m));
+      S.msg = `✓ Bildmodelle in deinem Konto: ${r.models.join(", ") || "keine"}`;
+      render();
+    } else if (t.id === "resetprompt") {
+      readForm(); S.form.prompt = S.server.image.default_prompt; render();
+    } else if (t.id === "start") {
+      readForm(); t.disabled = true;
+      await api("/api/runs", { ...S.form });
+      S.msg = ""; S.view = { type: "followlatest", since: S.runs.length };
+      await refresh();
+    } else if (t.id === "stopbtn") {
+      await api("/api/stop", {}); await refresh();
+    }
+  } catch (err) { S.msg = err.message; render(); }
+});
+
+/* Großansicht */
+let lbIdx = 0;
+function openLb(i) { const list = LB.filter(x => x.src); if (!LB[i]?.src) return; lbIdx = list.indexOf(LB[i]); showLb(); $("#lightbox").classList.add("open"); }
+function showLb() {
+  const list = LB.filter(x => x.src); const it = list[(lbIdx + list.length) % list.length]; lbIdx = list.indexOf(it);
+  $("#lightbox img").src = it.src; $("#lightbox .cap").textContent = it.cap + `  (${lbIdx + 1}/${list.length})`;
+  $("#lightbox .lbrate").innerHTML = ratingHtml(it.runId, it.model, it.quality, it.rec.run || 1, it.rec.rating);
+}
+async function rate(runId, model, quality, runNr, value) {
+  const run = S.runs.find(r => r.id === runId);
+  const v = run?.results.find(x => x.model === model && x.quality === quality);
+  const rec = v?.runs.find(r => (r.run || 1) === runNr);
+  if (!rec) return;
+  const newVal = rec.rating === value ? null : value; // nochmal klicken = Bewertung entfernen
+  rec.rating = newVal;
+  const lbOpen = $("#lightbox").classList.contains("open");
+  render();
+  if (lbOpen) showLb();
+  try { await api("/api/rate", { run_id: runId, model, quality, run: runNr, rating: newVal }); }
+  catch (err) { alert("Bewertung nicht gespeichert: " + err.message); }
+}
+$("#lightbox").addEventListener("click", (e) => {
+  if (e.target.closest(".lbrate, .lbhint")) return;
+  if (e.target.classList.contains("prev")) { lbIdx--; showLb(); }
+  else if (e.target.classList.contains("next")) { lbIdx++; showLb(); }
+  else if (e.target.tagName !== "IMG") $("#lightbox").classList.remove("open");
+});
+document.addEventListener("keydown", (e) => {
+  if (e.target.matches("input, textarea, select")) return;
+  const lb = $("#lightbox").classList.contains("open");
+  if (lb) {
+    if (e.key === "Escape") $("#lightbox").classList.remove("open");
+    if (e.key === "ArrowLeft") { lbIdx--; showLb(); }
+    if (e.key === "ArrowRight") { lbIdx++; showLb(); }
+    if (/^[0-9]$/.test(e.key)) {
+      const it = LB.filter(x => x.src)[lbIdx];
+      if (it) rate(it.runId, it.model, it.quality, it.rec.run || 1, +e.key);
+    }
+    return;
+  }
+  if (S.view.type === "run" && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+    const i = S.runs.findIndex(r => r.id === S.view.id) + (e.key === "ArrowLeft" ? -1 : 1);
+    if (S.runs[i]) { S.view = { type: "run", id: S.runs[i].id }; render(); window.scrollTo(0, 0); }
+  }
+});
+
+/* Laden & Aktualisieren */
+let lastSig = "";
+async function refresh() {
+  const [server, runs] = await Promise.all([api("/api/state"), api("/api/runs")]);
+  S.server = server; S.runs = runs;
+  if (S.view.type === "followlatest") {
+    if (runs.length > S.view.since) S.view = { type: "run", id: runs[runs.length - 1].id };
+    else if (!server.busy) S.view = { type: "new" };
+  }
+  // Wenn ein neuer Lauf startet und man den vorherigen laufenden ansieht: mitgehen
+  if (S.view.type === "run" && server.current && S.view.following) S.view.id = server.current.run_id;
+  const sig = JSON.stringify([server, runs.map(r => [r.id, r.status, (r.results || []).length])]);
+  const formFocused = S.view.type === "new" && document.activeElement?.closest?.("#main");
+  if (sig !== lastSig && !formFocused) { lastSig = sig; readForm(); render(); }
+  else if (sig !== lastSig) { lastSig = sig; renderSidebar(); }
+}
+setInterval(() => { if (S.server?.busy || S.view.type === "followlatest") refresh().catch(() => {}); }, 2500);
+refresh().catch(err => { $("#main").innerHTML = `<div class="card err">Server nicht erreichbar: ${esc(err.message)}</div>`; });
+</script>
+</body>
+</html>
