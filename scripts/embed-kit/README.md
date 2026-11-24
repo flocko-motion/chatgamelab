@@ -32,7 +32,8 @@ approved it:
 - Each Run asks the kit's callback, which answers as the page says (yes, no,
   or nothing for 8 seconds; the platform waits 5) and lists what it was
   asked.
-- Until the page is approved, and after its address or callback changes,
-  nothing starts.
+- Until the page is approved, nothing starts. The approval holds for the
+  site (scheme and host): another port or path keeps it, another host
+  (`localhost` and `127.0.0.1` are two) needs approving again.
 - The same player ID plays as the same guest; another player ID is another
   guest. Without a player ID the game does not start.

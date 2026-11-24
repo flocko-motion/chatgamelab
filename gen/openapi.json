@@ -4896,13 +4896,13 @@
           "organisationName": {
             "type": "string"
           },
-          "origin": {
-            "type": "string"
-          },
           "pageId": {
             "type": "string"
           },
           "pageUrl": {
+            "type": "string"
+          },
+          "site": {
             "type": "string"
           }
         },
@@ -4911,7 +4911,7 @@
           "organisationId",
           "organisationName",
           "pageId",
-          "origin",
+          "site",
           "pageUrl",
           "callbackUrl",
           "createdAt",

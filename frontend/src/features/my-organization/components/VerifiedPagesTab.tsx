@@ -16,6 +16,7 @@ import {
   CancelButton,
   DangerButton,
   DeleteIconButton,
+  EditIconButton,
   GenericIconButton,
 } from "@components/buttons";
 import { BodyText, HelperText, ItemTitle, Label } from "@components/typography";
@@ -43,15 +44,23 @@ export function VerifiedPagesTab({ state }: { state: VerifiedPagesTabState }) {
           <PageCard
             key={page.id}
             page={page}
+            onEdit={() => state.startEdit(page)}
             onRemove={() => state.askRemove(page)}
           />
         ))
       )}
 
-      {state.mayRegister && (
+      {(state.mayRegister || state.editing) && (
         <Card withBorder radius="md" padding="md">
           <Stack gap="sm">
-            <Label>{t("myOrganization.verifiedPages.addTitle")}</Label>
+            <Label>
+              {state.editing
+                ? t("myOrganization.verifiedPages.editTitle")
+                : t("myOrganization.verifiedPages.addTitle")}
+            </Label>
+            {state.editing?.approvedAt && state.leavesSite && (
+              <HelperText c="orange.8">{t("myOrganization.verifiedPages.editReapproval")}</HelperText>
+            )}
             <TextInput
               label={t("myOrganization.verifiedPages.pageUrl")}
               description={t("myOrganization.verifiedPages.pageUrlHint")}
@@ -67,12 +76,17 @@ export function VerifiedPagesTab({ state }: { state: VerifiedPagesTabState }) {
               onChange={(e) => draft.setCallbackUrl(e.currentTarget.value)}
             />
             <Group justify="flex-end">
+              {state.editing && (
+                <CancelButton onClick={state.cancelEdit}>{t("cancel")}</CancelButton>
+              )}
               <ActionButton
-                onClick={() => void state.add()}
+                onClick={() => void state.submit()}
                 disabled={!draft.valid}
-                loading={state.adding}
+                loading={state.submitting}
               >
-                {t("myOrganization.verifiedPages.add")}
+                {state.editing
+                  ? t("myOrganization.verifiedPages.save")
+                  : t("myOrganization.verifiedPages.add")}
               </ActionButton>
             </Group>
           </Stack>
@@ -109,9 +123,11 @@ export function VerifiedPagesTab({ state }: { state: VerifiedPagesTabState }) {
 
 function PageCard({
   page,
+  onEdit,
   onRemove,
 }: {
   page: VerifiedPageView;
+  onEdit: () => void;
   onRemove: () => void;
 }) {
   const { t } = useTranslation("common");
@@ -166,12 +182,20 @@ function PageCard({
             </HelperText>
           </div>
         </Stack>
-        {page.mayDelete && (
-          <DeleteIconButton
-            onClick={onRemove}
-            aria-label={t("myOrganization.verifiedPages.remove")}
-          />
-        )}
+        <Group gap={4} wrap="nowrap">
+          {page.mayEdit && (
+            <EditIconButton
+              onClick={onEdit}
+              aria-label={t("myOrganization.verifiedPages.edit")}
+            />
+          )}
+          {page.mayDelete && (
+            <DeleteIconButton
+              onClick={onRemove}
+              aria-label={t("myOrganization.verifiedPages.remove")}
+            />
+          )}
+        </Group>
       </Group>
     </Card>
   );

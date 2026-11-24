@@ -192,6 +192,7 @@ export {
 export {
   useVerifiedPages,
   useCreateVerifiedPage,
+  useUpdateVerifiedPage,
   useDeleteVerifiedPage,
   useAllVerifiedPages,
   useApproveVerifiedPage,

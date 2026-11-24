@@ -1,17 +1,23 @@
 package mock
 
 import (
+	_ "embed"
 	"encoding/binary"
 	"math"
 )
 
-// The mock speaks in tones rather than words. Raw PCM16 at 24 kHz is exactly
-// what a realtime session sends, so the player decodes this through the same
-// path it will use for real speech — which is the point of a mock: exercise the
-// machinery, not the content.
+// voiceSample is the mock's voice preview: one spoken line ("Hello! This is
+// the mock voice. …"), raw PCM16 at 24 kHz mono, made once with OpenAI's
+// speech API (gpt-4o-mini-tts, voice marin) by the project's owner, whose
+// output it is. A designer previewing a voice on the mock hears speech.
 //
-// A recorded file would need decoding or header-stripping first, and would put
-// a binary asset with a licence into the repository for no gain.
+//go:embed voice-sample.pcm
+var voiceSample []byte
+
+// In conversation the mock speaks in tones rather than words. Raw PCM16 at
+// 24 kHz is exactly what a realtime session sends, so the player decodes this
+// through the same path it will use for real speech — which is the point of a
+// mock: exercise the machinery, not the content.
 const (
 	sampleRate    = 24_000
 	frameSamples  = 480 // 20 ms, the granularity real audio streams at

@@ -2,6 +2,8 @@ package testing
 
 import (
 	"fmt"
+	"net/url"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -63,7 +65,7 @@ func (s *EmbedTestSuite) approvedPage(w world, h *testutil.Host) testutil.Verifi
 }
 
 // A verified page starts nothing until an admin approves it, and a change
-// of its address or callback withdraws the approval.
+// of its site (scheme and host) withdraws the approval; port and path are free.
 func (s *EmbedTestSuite) TestAVerifiedPagePlaysOnlyOnceApproved() {
 	w := s.world()
 	h := s.StartHost()
@@ -86,9 +88,37 @@ func (s *EmbedTestSuite) TestAVerifiedPagePlaysOnlyOnceApproved() {
 	s.True(Must(w.head.GetGameEmbed(w.game)).VerifiedPageApproved)
 	MustSucceed(start("b"))
 
-	changed := Must(w.head.UpdateVerifiedPage(page.Id.String(), h.URL+"/elsewhere", h.URL+"/callback"))
-	s.Nil(changed.ApprovedAt, "a changed page waits for approval again")
-	s.Refused(start("c"), testutil.CodeHostRefused, "changed")
+	// The admin approved the site: another path or port on it keeps the approval.
+	moved := Must(w.head.UpdateVerifiedPage(page.Id.String(), otherPort(h.URL)+"/elsewhere", h.URL+"/callback"))
+	s.NotNil(moved.ApprovedAt, "a new path and port on the same site stay approved")
+	MustSucceed(start("c"))
+
+	// Another host is another site, and waits for approval again.
+	elsewhere := strings.Replace(h.URL, "127.0.0.1", "localhost", 1)
+	changed := Must(w.head.UpdateVerifiedPage(page.Id.String(), elsewhere+"/play", elsewhere+"/callback"))
+	s.Nil(changed.ApprovedAt, "a page on another site waits for approval again")
+	s.Refused(start("d"), testutil.CodeHostRefused, "changed")
+}
+
+// A page's callback answers for its site, so it is on that site; port and
+// path are free.
+func (s *EmbedTestSuite) TestAVerifiedPagesCallbackIsOnItsSite() {
+	w := s.world()
+	h := s.StartHost()
+	elsewhere := strings.Replace(h.URL, "127.0.0.1", "localhost", 1)
+
+	_, err := w.head.CreateVerifiedPage(w.org, h.URL+"/play", elsewhere+"/callback")
+	s.Invalid(err, "a callback on another host")
+	page := Must(w.head.CreateVerifiedPage(w.org, otherPort(h.URL)+"/play", h.URL+"/hooks/start"))
+	s.Equal("http://127.0.0.1", page.Site, "the site has no port")
+}
+
+// otherPort is address with another port, on the same scheme and host.
+func otherPort(address string) string {
+	u := Must(url.Parse(address))
+	port := Must(strconv.Atoi(u.Port()))
+	u.Host = u.Hostname() + ":" + strconv.Itoa(port%60000+1)
+	return u.String()
 }
 
 // A game its designer, head or staff, wrote outside any workshop is the
@@ -171,7 +201,7 @@ func (s *EmbedTestSuite) TestAVerifiedPageStartsAGameOnlyOnItsHostsYes() {
 	h := s.StartHost()
 	page := s.approvedPage(w, h)
 	s.Len(page.PageId, 16)
-	s.Equal(h.URL, page.Origin)
+	s.Equal("http://127.0.0.1", page.Site)
 	embed := Must(w.head.SetGameEmbed(w.game, testutil.Embedding{
 		Enabled: true, PaidBy: w.share, VerifiedPage: page.Id.String(),
 	}))
@@ -189,8 +219,9 @@ func (s *EmbedTestSuite) TestAVerifiedPageStartsAGameOnlyOnItsHostsYes() {
 	}
 
 	policy := Must(s.Public().PlaybackPolicy("new&share=" + embed.Token))
-	s.Contains(policy, "frame-ancestors "+h.URL)
-	s.Contains(policy, "img-src 'self' data: blob: "+h.URL)
+	// Any port on the approved site may frame the game.
+	s.Contains(policy, "frame-ancestors http://127.0.0.1:*")
+	s.Contains(policy, "img-src 'self' data: blob: http://127.0.0.1:*")
 }
 
 // A returning visitor of a verified page is the same guest; another

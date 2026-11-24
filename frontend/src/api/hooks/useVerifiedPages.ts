@@ -8,6 +8,7 @@ import type {
   MessageResp,
   VerifiedPageFilter,
   VerifiedPageSort,
+  UpdateVerifiedPageReq,
   VerifiedPageView,
 } from "../generated/api.gen";
 import { useEntityList, type List, type ListPreset } from "../lists";
@@ -42,6 +43,20 @@ export function useCreateVerifiedPage() {
       api.postApiInstitutionsIdVerifiedPages(institutionId, page).then((r) => r.data),
     onSuccess: (_, { institutionId }) =>
       queryClient.invalidateQueries({ queryKey: queryKeys.verifiedPages(institutionId) }),
+    onError: handleApiError,
+  });
+}
+
+/** Changes a verified page's address and callback; its page ID stays, a change waits for approval again. */
+export function useUpdateVerifiedPage() {
+  const queryClient = useQueryClient();
+  return useMutation<VerifiedPageView, ApiError, { id: string; institutionId: string } & UpdateVerifiedPageReq>({
+    mutationFn: ({ id, pageUrl, callbackUrl }) =>
+      api.patchApiVerifiedPagesId(id, { pageUrl, callbackUrl }).then((r) => r.data),
+    onSuccess: (_, { institutionId }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.verifiedPages(institutionId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.allVerifiedPages });
+    },
     onError: handleApiError,
   });
 }

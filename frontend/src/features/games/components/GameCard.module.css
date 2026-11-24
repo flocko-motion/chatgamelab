@@ -91,9 +91,11 @@
   transform: scale(1);
 }
 
+/* A filled play triangle, nudged right to sit in the circle's optical centre. */
 .playIcon {
-  width: 55%;
-  height: 55%;
+  width: 45%;
+  height: 45%;
+  margin-left: 6%;
 }
 
 .overlayTop,
@@ -235,6 +237,10 @@
   margin-top: var(--mantine-spacing-sm);
   padding: 10px 14px 12px;
   border-top: 1px dashed var(--mantine-color-gray-3);
+}
+
+.edit {
+  margin-left: auto;
 }
 
 .playText {

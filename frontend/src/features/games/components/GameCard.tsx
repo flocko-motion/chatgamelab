@@ -6,7 +6,7 @@ import {
   IconSchool,
   IconHeartFilled,
   IconPlayerPlay,
-  IconDeviceGamepad2,
+  IconPlayerPlayFilled,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { blocksContinue, unplayable } from "@/common/lib/playability";
@@ -137,7 +137,7 @@ export function GameCard({
           aria-label={`${playText}: ${game.name}`}
         >
           <span className={classes.playCircle}>
-            <IconDeviceGamepad2 className={classes.playIcon} stroke={1.75} aria-hidden />
+            <IconPlayerPlayFilled className={classes.playIcon} aria-hidden />
           </span>
         </button>
         <div className={classes.overlayTop}>
@@ -212,14 +212,17 @@ export function GameCard({
         {problem && <UnplayableNote problem={problem} />}
       </div>
 
-      {/* The foot: what a click does (left), editing (right). */}
-      <div className={classes.foot} onClick={(e) => e.stopPropagation()}>
+      {/* The foot: what a click does (left), editing (right). The play text
+          is part of the tile, so a click on it plays; Edit only edits. */}
+      <div className={classes.foot}>
         {play && (
           <span className={classes.playText} aria-hidden>
             {playText} →
           </span>
         )}
-        <EditButtonWithText onClick={onEdit}>{editLabel}</EditButtonWithText>
+        <span className={classes.edit} onClick={(e) => e.stopPropagation()}>
+          <EditButtonWithText onClick={onEdit}>{editLabel}</EditButtonWithText>
+        </span>
       </div>
     </Card>
   );

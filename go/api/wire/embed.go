@@ -56,8 +56,10 @@ type VerifiedPageView struct {
 	// games start nothing.
 	ApprovedAt *time.Time `json:"approvedAt,omitempty"`
 	// PageID is what the host recognises in the callback.
-	PageID      string    `json:"pageId"`
-	Origin      string    `json:"origin"`
+	PageID string `json:"pageId"`
+	// Site is what the admin approves, scheme://host: any port and path
+	// on it may frame the games and answer as the callback.
+	Site        string    `json:"site"`
 	PageURL     string    `json:"pageUrl"`
 	CallbackURL string    `json:"callbackUrl"`
 	CreatedAt   time.Time `json:"createdAt"`
@@ -92,7 +94,7 @@ func VerifiedPageViewsOf(pages []*core.VerifiedPage, err error) ([]VerifiedPageV
 func verifiedPageView(p *core.VerifiedPage) VerifiedPageView {
 	return VerifiedPageView{
 		ID: p.ID, OrganisationID: p.OrganisationID, OrganisationName: p.OrganisationName, ApprovedAt: p.ApprovedAt,
-		PageID: p.PageID, Origin: p.Origin,
+		PageID: p.PageID, Site: p.Site,
 		PageURL: p.PageURL, CallbackURL: p.CallbackURL, CreatedAt: p.CreatedAt, ModifiedAt: p.ModifiedAt,
 		MayEdit: p.MayEdit(), MayDelete: p.MayDelete(), MayApprove: p.MayApprove(),
 	}

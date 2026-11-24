@@ -2398,9 +2398,9 @@ type VerifiedPageView struct {
 	ModifiedAt       time.Time          `json:"modifiedAt"`
 	OrganisationId   openapi_types.UUID `json:"organisationId"`
 	OrganisationName string             `json:"organisationName"`
-	Origin           string             `json:"origin"`
 	PageId           string             `json:"pageId"`
 	PageUrl          string             `json:"pageUrl"`
+	Site             string             `json:"site"`
 }
 
 // VerifiedPageViewPage defines model for VerifiedPageViewPage.

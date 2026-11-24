@@ -3,10 +3,10 @@ import { useGenres, useNewVoice, useVoiceSample, type VoiceSample } from "@/api/
 import { extractRawErrorCode } from "@/common/types/errorCodes";
 import { genreWording } from "../lib/editorPages";
 
-/** A sample as played: for which genre and voice style, and where to play it from. */
+/** A sample as played: for which genre and voice style, and its audio. */
 interface Heard {
   key: string;
-  url: string;
+  audio: Blob;
 }
 
 /** Why a sample could not be heard, as a translation key. */
@@ -39,37 +39,62 @@ export function useVoicePreview(genre: string, voiceStyle: string, scenario: str
   const [heard, setHeard] = useState<Heard | null>(null);
   const [playing, setPlaying] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
-  const audio = useRef<HTMLAudioElement | null>(null);
+  // Played through an audio context unlocked by the click itself: making a
+  // voice takes longer than a browser keeps a click's permission to play,
+  // so a player started once the sample arrives would stay silent.
+  const context = useRef<AudioContext | null>(null);
+  const source = useRef<AudioBufferSourceNode | null>(null);
 
   const stop = useCallback(() => {
-    audio.current?.pause();
-    audio.current = null;
+    const node = source.current;
+    source.current = null;
+    if (node) {
+      node.onended = null;
+      node.stop();
+    }
     setPlaying(false);
   }, []);
 
-  const start = (url: string) => {
+  /** Unlocks playing, while the click that asks for it is still handled. */
+  const unlock = () => {
+    context.current ??= new AudioContext();
+    void context.current.resume();
+    return context.current;
+  };
+
+  const start = async (ac: AudioContext, audio: Blob) => {
     stop();
-    const player = new Audio(url);
-    player.onended = () => setPlaying(false);
-    audio.current = player;
-    setPlaying(true);
-    player.play().catch(() => setPlaying(false));
+    try {
+      const buffer = await ac.decodeAudioData(await audio.arrayBuffer());
+      const node = ac.createBufferSource();
+      node.buffer = buffer;
+      node.connect(ac.destination);
+      node.onended = () => {
+        if (source.current === node) stop();
+      };
+      source.current = node;
+      setPlaying(true);
+      node.start();
+    } catch {
+      setPlaying(false);
+      setFailed("games.editor.sound.errors.failed");
+    }
   };
 
   const keep = (got: VoiceSample) => {
-    if (heard) URL.revokeObjectURL(heard.url);
-    const next = { key, url: URL.createObjectURL(got.audio) };
+    const next = { key, audio: got.audio };
     setHeard(next);
-    return next;
+    return next.audio;
   };
 
   /** Plays the sample, or stops it while it plays. */
   const play = async () => {
     if (playing) return stop();
+    const ac = unlock();
     setFailed(null);
-    if (heard?.key === key) return start(heard.url);
+    if (heard?.key === key) return start(ac, heard.audio);
     try {
-      start(keep(await sample.mutateAsync({ genre, voiceStyle: style, scenario })).url);
+      await start(ac, keep(await sample.mutateAsync({ genre, voiceStyle: style, scenario })));
     } catch (error) {
       setFailed(errorKey(error));
     }
@@ -78,9 +103,10 @@ export function useVoicePreview(genre: string, voiceStyle: string, scenario: str
   /** Replaces the voice for the style on the paying key, and plays the new one. */
   const renew = async () => {
     stop();
+    const ac = unlock();
     setFailed(null);
     try {
-      start(keep(await renewal.mutateAsync({ genre, voiceStyle: style, scenario })).url);
+      await start(ac, keep(await renewal.mutateAsync({ genre, voiceStyle: style, scenario })));
     } catch (error) {
       setFailed(errorKey(error));
     }
@@ -89,15 +115,10 @@ export function useVoicePreview(genre: string, voiceStyle: string, scenario: str
   // The sample stops, and its audio goes, when the editor closes.
   useEffect(
     () => () => {
-      audio.current?.pause();
+      source.current?.stop();
+      void context.current?.close();
     },
     [],
-  );
-  useEffect(
-    () => () => {
-      if (heard) URL.revokeObjectURL(heard.url);
-    },
-    [heard],
   );
 
   return {

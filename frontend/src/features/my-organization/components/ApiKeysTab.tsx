@@ -1,4 +1,4 @@
-import { Alert, Badge, Card, Group, Modal, Select, Stack, Tooltip } from "@mantine/core";
+import { Alert, Badge, Card, Group, Modal, SegmentedControl, Select, Stack, Tooltip } from "@mantine/core";
 import { IconInfoCircle, IconKey, IconPlus } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import type { OrganisationKeyListSort } from "@/api/hooks";
@@ -17,6 +17,7 @@ import { ORG_KEY_COLUMNS, type OrgKeyColumnKey } from "../lib/orgKeyListPresets"
 import { useOrgApiKeysTab, type OrgApiKeysTabState } from "../hooks/useOrgApiKeysTab";
 import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
 import { OrgKeyDetails } from "./OrgKeyDetails";
+import { NewKeyFields } from "@/features/api-keys/components/NewKeyFields";
 
 interface ApiKeysTabProps {
   institutionId: string;
@@ -70,12 +71,12 @@ export function ApiKeysTab({
   };
 
   const shareAction = isMobile ? (
-    <Tooltip label={t("myOrganization.apiKeys.shareKey")} withArrow>
+    <Tooltip label={t("myOrganization.apiKeys.addKey")} withArrow>
       <PlusIconButton
         onClick={shareModal.open}
         variant="filled"
         disabled={!state.canShare}
-        aria-label={t("myOrganization.apiKeys.shareKey")}
+        aria-label={t("myOrganization.apiKeys.addKey")}
       />
     </Tooltip>
   ) : (
@@ -84,7 +85,7 @@ export function ApiKeysTab({
       onClick={shareModal.open}
       disabled={!state.canShare}
     >
-      {t("myOrganization.apiKeys.shareKey")}
+      {t("myOrganization.apiKeys.addKey")}
     </ActionButton>
   );
 
@@ -167,25 +168,46 @@ export function ApiKeysTab({
         title={t("myOrganization.apiKeys.shareKeyTitle")}
       >
         <Stack gap="md">
-          <Select
-            label={t("myOrganization.apiKeys.selectKey")}
-            placeholder={t("myOrganization.apiKeys.selectKeyPlaceholder")}
-            data={shareModal.keys.map((key) => ({
-              value: key.id || "",
-              label: `${key.name || t("unnamed")} (${key.platform})`,
-            }))}
-            value={shareModal.selectedKeyId}
-            onChange={shareModal.select}
-          />
+          {shareModal.keys.length > 0 && shareModal.newKey.available && (
+            <SegmentedControl
+              fullWidth
+              value={shareModal.mode}
+              onChange={(value) => shareModal.setMode(value as "own" | "new")}
+              data={[
+                { value: "own", label: t("myOrganization.apiKeys.modeOwn") },
+                { value: "new", label: t("myOrganization.apiKeys.modeNew") },
+              ]}
+            />
+          )}
+
+          {shareModal.mode === "own" ? (
+            <Select
+              label={t("myOrganization.apiKeys.selectKey")}
+              placeholder={t("myOrganization.apiKeys.selectKeyPlaceholder")}
+              data={shareModal.keys.map((key) => ({
+                value: key.id || "",
+                label: `${key.name || t("unnamed")} (${state.platformName(key.platform)})`,
+              }))}
+              value={shareModal.selectedKeyId}
+              onChange={shareModal.select}
+            />
+          ) : (
+            <>
+              <HelperText>{t("myOrganization.apiKeys.newKeyHint")}</HelperText>
+              <NewKeyFields form={shareModal.newKey} />
+            </>
+          )}
 
           <Group justify="flex-end" mt="md">
             <TextButton onClick={shareModal.close}>{t("cancel")}</TextButton>
             <ActionButton
               onClick={shareModal.submit}
               loading={shareModal.loading}
-              disabled={!shareModal.selectedKeyId}
+              disabled={!shareModal.ready}
             >
-              {t("myOrganization.apiKeys.share")}
+              {shareModal.mode === "new"
+                ? t("myOrganization.apiKeys.addAndShare")
+                : t("myOrganization.apiKeys.share")}
             </ActionButton>
           </Group>
         </Stack>

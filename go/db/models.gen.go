@@ -258,7 +258,7 @@ type VerifiedPage struct {
 	ID            uuid.UUID     `json:"id"`
 	InstitutionID uuid.UUID     `json:"institution_id"`
 	PageID        string        `json:"page_id"`
-	Origin        string        `json:"origin"`
+	Site          string        `json:"site"`
 	PageUrl       string        `json:"page_url"`
 	CallbackUrl   string        `json:"callback_url"`
 	CreatedBy     uuid.NullUUID `json:"created_by"`

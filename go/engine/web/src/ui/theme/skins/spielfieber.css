@@ -1,0 +1,401 @@
+/* Spielfieber: a flat cartoon city game. Warm light grey panels in thick
+   wine-red frames, round wine buttons with white icons, Poppins for what is
+   said and a wide geometric capital for every label, the way a game's HUD
+   sets its level and points. Made for live voice games embedded on another
+   site, so everything is slim: thin card frames, small gaps, no drop shadows;
+   the thick frame goes around the whole game, once. */
+
+main[data-preset="spielfieber"] {
+  --skin-wine: #62383f;
+  --skin-wine-dark: #4a2a30;
+  --skin-panel: #e4dfde;
+  --skin-paper: #f8f8f8;
+  --skin-line: #dddddd;
+  --skin-ink: #333333;
+  --skin-green: #077b54;
+  --skin-amber: #c9822b;
+  --skin-text: Poppins, Inter, system-ui, sans-serif;
+  --skin-display: Orbitron, Poppins, sans-serif;
+  --bar-height: 4rem;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  background: var(--skin-panel);
+  color: var(--skin-ink);
+  font-family: var(--skin-text);
+}
+
+/* The theme's colours where the page reads them from the preset, so what is
+   drawn from these (the send button, the focus ring, the scrollbar) is wine. */
+main[data-preset="spielfieber"] .scene-area,
+main[data-preset="spielfieber"] .launch-panel,
+main[data-preset="spielfieber"] .options-dialog {
+  --game-player-color: var(--skin-wine);
+  --game-player-border-color: var(--skin-wine);
+  --game-corner-color: var(--skin-wine);
+  --game-ai-font-color: var(--skin-ink);
+  --game-message-font: var(--skin-text);
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="spielfieber"] .game-header {
+  background: var(--skin-wine);
+  color: #ffffff;
+  border-bottom: 0;
+  box-shadow: none;
+  padding: 0.5rem 0.9rem;
+}
+
+main[data-preset="spielfieber"] .game-title strong {
+  font: 700 0.85rem var(--skin-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+main[data-preset="spielfieber"] .badge {
+  font-family: var(--skin-display);
+  border-radius: 6px;
+}
+
+main[data-preset="spielfieber"] .badge[data-state="ready"] {
+  background: var(--skin-panel);
+  color: var(--skin-wine);
+}
+
+/* Status values as the HUD's level badge: a light grey tile, its name in the
+   display face above a bold value. */
+main[data-preset="spielfieber"] .statusbar {
+  gap: 0.4rem;
+  padding: 0.4rem 0.5rem;
+  background: var(--skin-panel);
+  border-bottom: 2px solid var(--skin-wine);
+}
+
+main[data-preset="spielfieber"] .field {
+  gap: 0.4rem;
+  padding: 0.25rem 0.6rem;
+  background: var(--skin-paper);
+  border: 2px solid var(--skin-wine);
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+main[data-preset="spielfieber"] .field::before { content: none; }
+
+main[data-preset="spielfieber"] .field-name {
+  font: 700 0.6rem var(--skin-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--skin-wine);
+}
+
+main[data-preset="spielfieber"] .field-value {
+  font: 700 0.9rem var(--skin-text);
+  color: var(--skin-ink);
+}
+
+/* The welcome dialog: a light panel in a thick wine frame. */
+main[data-preset="spielfieber"] .launch-panel,
+main[data-preset="spielfieber"] .options-dialog {
+  max-width: 30rem;
+  margin: auto;
+  padding: 1rem;
+  gap: 0.75rem;
+  background: var(--skin-panel);
+  border: 5px solid var(--skin-wine);
+  border-radius: 16px;
+  flex: 0 1 auto;
+}
+
+main[data-preset="spielfieber"] .options-title {
+  font: 700 1rem var(--skin-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--skin-wine);
+}
+
+main[data-preset="spielfieber"] .launch-action,
+main[data-preset="spielfieber"] .options-start {
+  font: 600 0.9rem var(--skin-text);
+  border: 2px solid var(--skin-wine);
+  border-radius: 10px;
+  padding: 0.4rem 1.1rem;
+}
+
+main[data-preset="spielfieber"] .launch-action.primary,
+main[data-preset="spielfieber"] .options-start {
+  background: var(--skin-wine);
+  color: #ffffff;
+}
+
+main[data-preset="spielfieber"] .offer-card {
+  background: var(--skin-paper);
+  border-radius: 10px;
+}
+
+/* ── The scene ──────────────────────────────────────────────────────── */
+
+/* The panel, a little lighter towards the top like daylight over the city. */
+main[data-preset="spielfieber"] .scene-area {
+  background: linear-gradient(#ebe7e6, var(--skin-panel) 60%);
+}
+
+main[data-preset="spielfieber"] .scenes {
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+main[data-preset="spielfieber"] .feed { gap: 0.5rem; }
+
+main[data-preset="spielfieber"] .scene-card { animation-duration: 0.25s; }
+main[data-preset="spielfieber"] .scene-card:hover { transform: none; }
+
+main[data-preset="spielfieber"] .game-scene {
+  gap: 0.75rem;
+  padding: 0.55rem 0.75rem;
+  background: var(--skin-paper);
+  border: 2px solid var(--skin-wine);
+  border-radius: 12px 12px 12px 4px;
+  /* A flat offset instead of a soft shadow, the cartoon way of lifting. */
+  box-shadow: 0 2px 0 rgba(98, 56, 63, 0.25);
+}
+
+main[data-preset="spielfieber"] .game-scene.with-image { padding: 0.5rem; }
+
+main[data-preset="spielfieber"] .narrative {
+  font: 400 0.9375rem/1.5 var(--skin-text);
+  color: var(--skin-ink);
+}
+
+main[data-preset="spielfieber"] .corner { display: none !important; }
+
+main[data-preset="spielfieber"] .scene-image,
+main[data-preset="spielfieber"] .scene-image img,
+main[data-preset="spielfieber"] .scene-image::after {
+  border-radius: 8px;
+}
+
+main[data-preset="spielfieber"] .scene-image { box-shadow: 0 0 0 2px var(--skin-wine); }
+main[data-preset="spielfieber"] .scene-image::before { content: none; }
+
+main[data-preset="spielfieber"] .divider { display: none; }
+
+/* Two characters: each name on a tab above its card, slanted like the label
+   over the game's points bar; the second character in the site's green. */
+main[data-preset="spielfieber"] .speaker-name {
+  display: inline-block;
+  margin: 0 0 -2px 0.5rem;
+  padding: 0.15rem 0.85rem 0.1rem;
+  background: var(--skin-wine);
+  color: #ffffff;
+  opacity: 1;
+  font: 700 0.6rem/1.3 var(--skin-display);
+  letter-spacing: 0.08em;
+  clip-path: polygon(0.4rem 0, 100% 0, calc(100% - 0.4rem) 100%, 0 100%);
+  /* A name, one line: a long one is cut short rather than becoming a block. */
+  max-width: calc(100% - 1rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+main[data-preset="spielfieber"] .scene-card.seat-a { margin-right: 1.5rem; }
+main[data-preset="spielfieber"] .scene-card.seat-b {
+  margin-left: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+main[data-preset="spielfieber"] .scene-card.seat-b .speaker-name {
+  margin: 0 0.5rem -2px 0;
+  background: var(--skin-green);
+}
+main[data-preset="spielfieber"] .scene-card.seat-b .game-scene {
+  align-self: stretch;
+  filter: none;
+  border-color: var(--skin-green);
+  border-radius: 12px 12px 4px 12px;
+  box-shadow: 0 2px 0 rgba(7, 123, 84, 0.25);
+}
+
+/* ── The player ─────────────────────────────────────────────────────── */
+
+main[data-preset="spielfieber"] .bubble {
+  max-width: 85%;
+  padding: 0.4rem 0.75rem;
+  background: var(--skin-wine);
+  color: #ffffff;
+  border: 0;
+  border-radius: 12px 12px 4px 12px;
+  box-shadow: none;
+  font: 500 0.9rem/1.45 var(--skin-text);
+}
+
+main[data-preset="spielfieber"] .bubble::before { content: none; }
+
+main[data-preset="spielfieber"] .typing {
+  width: fit-content;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+  padding: 0.3rem 0.7rem;
+  background: var(--skin-paper);
+  color: var(--skin-wine);
+  border: 2px solid var(--skin-wine);
+  border-radius: 999px;
+  box-shadow: none;
+  font: 600 0.75rem var(--skin-text);
+}
+
+main[data-preset="spielfieber"] .dots i { width: 6px; height: 6px; }
+
+main[data-preset="spielfieber"] .system-message {
+  padding: 0.35rem 0.7rem;
+  background: var(--skin-paper);
+  border: 2px dashed var(--skin-wine);
+  border-radius: 10px;
+  color: var(--skin-wine);
+  font: 500 0.8rem var(--skin-text);
+}
+
+/* ── The bar ────────────────────────────────────────────────────────── */
+
+main[data-preset="spielfieber"] .scene-dock { padding: 0 0.5rem 0.5rem; }
+
+/* A light panel in the wine frame, like the site's dialog in small. */
+main[data-preset="spielfieber"] .inline-input {
+  gap: 0.5rem;
+  padding: 0 0.5rem;
+  background: var(--skin-paper);
+  color: var(--skin-ink);
+  font-family: var(--skin-text);
+  border: 3px solid var(--skin-wine);
+  border-radius: 14px;
+  box-shadow: none;
+}
+
+main[data-preset="spielfieber"] .notice {
+  font: 600 0.8rem var(--skin-text);
+  color: var(--skin-wine);
+}
+
+main[data-preset="spielfieber"] .audio-control { gap: 0.5rem; }
+
+/* The round wine button with a white icon. */
+main[data-preset="spielfieber"] .audio-button {
+  width: 2.75rem;
+  height: 2.75rem;
+  background: var(--skin-wine);
+  border: 0;
+  color: #ffffff;
+}
+
+main[data-preset="spielfieber"] .audio-button svg { width: 24px; height: 24px; }
+
+/* The state, set like the HUD's labels. */
+main[data-preset="spielfieber"] .audio-label {
+  font: 700 0.65rem var(--skin-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--skin-wine);
+  opacity: 1;
+  min-width: 0;
+}
+
+/* Listening: the site's green, breathing. */
+main[data-preset="spielfieber"] .audio-control[data-state="live"] .audio-button {
+  background: var(--skin-green);
+  border-color: var(--skin-green);
+  animation-name: skin-spielfieber-listening;
+}
+
+main[data-preset="spielfieber"] .audio-control[data-state="live"] .audio-label { color: var(--skin-green); }
+
+main[data-preset="spielfieber"] .audio-control[data-state="paused"] .audio-button {
+  background: var(--skin-wine);
+  border-color: var(--skin-wine);
+}
+
+main[data-preset="spielfieber"] .audio-control[data-state="pausing"] .audio-button,
+main[data-preset="spielfieber"] .audio-control[data-state="resuming"] .audio-button {
+  background: var(--skin-amber);
+  border-color: var(--skin-amber);
+}
+
+@keyframes skin-spielfieber-listening {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(7, 123, 84, 0.45); }
+  50% { box-shadow: 0 0 0 7px rgba(7, 123, 84, 0); }
+}
+
+main[data-preset="spielfieber"] .hold-button {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: var(--skin-wine);
+  color: #ffffff;
+}
+
+main[data-preset="spielfieber"] .input-wrap input {
+  height: 2.375rem;
+  padding: 0 2.6rem 0 0.8rem;
+  background: #ffffff;
+  color: var(--skin-ink);
+  font: 400 0.9rem var(--skin-text);
+  border: 2px solid var(--skin-line);
+  border-radius: 999px;
+}
+
+main[data-preset="spielfieber"] .input-wrap input::placeholder { color: #888888; opacity: 1; }
+main[data-preset="spielfieber"] .input-wrap input:focus { border-color: var(--skin-wine); }
+
+main[data-preset="spielfieber"] .send {
+  right: 0.3rem;
+  width: 1.85rem;
+  height: 1.85rem;
+  background: var(--skin-wine);
+  color: #ffffff;
+  border: 0;
+}
+
+main[data-preset="spielfieber"] .send:hover:not([disabled]) { background: var(--skin-wine-dark); }
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* The character's picture in a wine frame, a few pixels wide. */
+main[data-preset="spielfieber"] .standing-image { padding: 0.5rem 0 0.25rem; }
+
+main[data-preset="spielfieber"] .standing-image img {
+  border: 3px solid var(--skin-wine);
+  border-radius: 12px;
+  background: var(--skin-paper);
+}
+
+/* ── Embedded ───────────────────────────────────────────────────────── */
+
+/* On another site the game is one panel in the thick wine frame, the frame
+   the site draws round its dialogs. */
+body[data-embedded] main[data-preset="spielfieber"] {
+  border: 5px solid var(--skin-wine);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* Small: the bar is the frame. Its own wine frame is the outer one, so the
+   panel's goes, and the bar takes the panel's thicker frame and rounding. */
+@media (max-width: 15rem), (max-height: 10rem) {
+  body[data-embedded] main[data-preset="spielfieber"] {
+    border: 0;
+    border-radius: 0;
+  }
+  body[data-embedded] main[data-preset="spielfieber"] .inline-input {
+    border-width: 5px;
+    border-radius: 16px;
+    padding: 0 0.6rem;
+    justify-content: center;
+  }
+  body[data-embedded] main[data-preset="spielfieber"] .audio-label { font-size: 0.7rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="spielfieber"] .audio-control[data-state="live"] .audio-button { animation: none; }
+}

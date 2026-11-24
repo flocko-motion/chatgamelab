@@ -306,19 +306,11 @@ func (t Tool) Query(ctx context.Context, system, user string) (string, adapters.
 
 // Say answers a quarter second of tone, pitched by the voice, so a test can
 // tell two voices' samples apart, and bills that quarter second.
+// Say answers the recorded mock voice, whatever the line: a voice preview
+// on the mock platform says something a designer hears as speech.
 func (l Live) Say(ctx context.Context, req adapters.SayRequest) ([]byte, adapters.Usage, error) {
 	wait(ctx, l.Pace)
-	const seconds = 0.25
-	n := int(seconds * adapters.SayRate)
-	pitch := 220 + len(req.Voice)*10
-	pcm := make([]byte, 2*n)
-	for i := 0; i < n; i++ {
-		// A square wave: enough to be audio, no maths package needed.
-		v := int16(2000)
-		if (i*pitch*2/adapters.SayRate)%2 == 1 {
-			v = -2000
-		}
-		pcm[2*i], pcm[2*i+1] = byte(v), byte(uint16(v)>>8)
-	}
+	pcm := bytes.Clone(voiceSample)
+	seconds := float64(len(pcm)) / 2 / adapters.SayRate
 	return pcm, adapters.Usage{Model: "mock-live", AudioSeconds: seconds}, nil
 }

@@ -15,6 +15,12 @@
     @media (max-width: 52rem) { main { grid-template-columns: 1fr; } }
     section { background: #fff; border: 1px solid var(--line); border-radius: 0.5rem; padding: 1rem; margin-bottom: 1.25rem; }
     h2 { margin: 0 0 0.5rem; font-size: 1rem; }
+    details.panel { background: #fff; border: 1px solid var(--line); border-radius: 0.5rem; padding: 0.75rem 1rem; margin-bottom: 1.25rem; }
+    details.panel > summary { cursor: pointer; font-weight: 700; font-size: 1rem; list-style: none; display: flex; justify-content: space-between; }
+    details.panel > summary::-webkit-details-marker { display: none; }
+    details.panel > summary::after { content: "▸"; color: var(--dim); transition: transform 0.15s; }
+    details.panel[open] > summary::after { transform: rotate(90deg); }
+    details.panel[open] > summary { margin-bottom: 0.5rem; }
     label { display: block; margin: 0.5rem 0 0.25rem; font-weight: 600; font-size: 0.9rem; }
     textarea, input[type=text] { width: 100%; font: 13px/1.4 ui-monospace, monospace; padding: 0.5rem; border: 1px solid var(--line); border-radius: 0.35rem; }
     textarea { min-height: 9rem; resize: vertical; }
@@ -27,6 +33,10 @@
              border: 2px dashed var(--mark); border-radius: 0.5rem; background: #fff8f2; }
     #stage:empty::before { content: "Paste a snippet and press Run."; display: block; padding: 1rem; color: var(--dim); }
     #size { color: var(--dim); font-size: 0.85rem; }
+    .status { margin: 0 0 0.75rem; padding: 0.5rem 0.75rem; border-radius: 0.4rem; background: #f3efe9; font-size: 0.9rem; }
+    .status:empty { display: none; }
+    .status[data-tone="ok"] { background: #e6f4ea; color: #1e5631; }
+    .status[data-tone="bad"] { background: #fde8e8; color: #8a1c1c; }
     .answers label { display: inline-flex; gap: 0.3rem; align-items: center; font-weight: normal; margin-right: 0.9rem; }
     #log { list-style: none; margin: 0.5rem 0 0; padding: 0; max-height: 14rem; overflow: auto; font: 12px/1.45 ui-monospace, monospace; }
     #log li { border-top: 1px solid var(--line); padding: 0.3rem 0; overflow-wrap: anywhere; }
@@ -39,8 +49,8 @@
   </header>
   <main>
     <div>
-      <section>
-        <h2>1. The snippet</h2>
+      <details class="panel" id="panel-snippet" open>
+        <summary>1. The snippet</summary>
         <label for="snippet">Embed snippet</label>
         <textarea id="snippet" spellcheck="false" placeholder='&lt;div data-cgl-embed data-token="…"&gt;&lt;/div&gt;
 &lt;script src="{{PLATFORM}}/api/engine/playback-engine/embed.js" async&gt;&lt;/script&gt;'></textarea>
@@ -50,26 +60,20 @@
         <textarea id="css" spellcheck="false">:root { --cgl-accent: #b4235a; --cgl-font: Georgia, serif; --cgl-radius: 1.25rem; }
 [data-part="player-message"] { font-style: italic; }</textarea>
         <p class="hint">Styled against <code>docs/embed-styling.md</code>.</p>
-      </section>
+      </details>
 
-      <section>
-        <h2>2. A verified page</h2>
+      <details class="panel" id="panel-page" open>
+        <summary>2. The verified page</summary>
         <p class="hint">Register this page in My organisation → Websites:<br />
           page <code id="page-url"></code><br />callback <code id="callback-url"></code></p>
-        <label for="player">Player ID</label>
+        <label for="player">Player ID (required)</label>
         <input id="player" type="text" value="alice" />
+        <p class="hint">The host's ID of its visitor: the same ID plays as the same guest, another ID as another guest. A real host page makes one per visitor and keeps it.</p>
         <label for="request">Request ID</label>
-        <input id="request" type="text" placeholder="new on every Run when empty" />
-        <p class="hint">Filled into every <code>[data-cgl-embed]</code> on Run. Games start only once an admin has approved the page.</p>
-        <label>The callback answers</label>
-        <div class="answers">
-          <label><input type="radio" name="answer" value="yes" checked /> yes</label>
-          <label><input type="radio" name="answer" value="no" /> no</label>
-          <label><input type="radio" name="answer" value="silent" /> nothing (8 s)</label>
-        </div>
-        <label>What the callback was asked</label>
-        <ul id="log"></ul>
-      </section>
+        <input id="request" type="text" />
+        <p class="hint">Made anew on every load of this page, as a host does on each page view.</p>
+        <p class="hint">Both are filled into every <code>[data-cgl-embed]</code> on Run. A game starts only on this page's callback answering yes, once an admin has approved the page.</p>
+      </details>
     </div>
 
     <div>
@@ -83,8 +87,21 @@
           <button data-size="100%,36rem" type="button">Large</button>
           <span id="size"></span>
         </div>
+        <p id="status" class="status" aria-live="polite"></p>
         <div id="stage"></div>
         <p class="hint">Drag the stage's corner: a small frame shows only the controls, a medium one the conversation, a large one the whole game.</p>
+      </section>
+
+      <section>
+        <h2>4. Callback monitor</h2>
+        <p class="hint">Every question the platform asks this page's callback, newest first, live.</p>
+        <label>The callback answers</label>
+        <div class="answers">
+          <label><input type="radio" name="answer" value="yes" checked /> yes</label>
+          <label><input type="radio" name="answer" value="no" /> no</label>
+          <label><input type="radio" name="answer" value="silent" /> nothing (8 s)</label>
+        </div>
+        <ul id="log"></ul>
       </section>
     </div>
   </main>
@@ -94,6 +111,18 @@
     const $ = (id) => document.getElementById(id);
     $("page-url").textContent = location.origin + "/";
     $("callback-url").textContent = location.origin + "/callback";
+
+    // What was entered last stays over a reload, in this browser.
+    const KEPT = ["snippet", "token", "css", "player"];
+    for (const id of KEPT) {
+      try {
+        const kept = localStorage.getItem("embed-kit:" + id);
+        if (kept !== null) $(id).value = kept;
+      } catch { /* no storage here: start empty */ }
+      $(id).addEventListener("input", () => {
+        try { localStorage.setItem("embed-kit:" + id, $(id).value); } catch { /* not kept */ }
+      });
+    }
 
     function snippet() {
       const pasted = $("snippet").value.trim();
@@ -113,20 +142,60 @@
       document.head.append(style);
     }
 
+    // Which panels are open stays over a reload; the snippet starts closed
+    // once one is kept, as it is filled in once.
+    for (const panel of document.querySelectorAll("details.panel")) {
+      try {
+        const kept = localStorage.getItem("embed-kit:open:" + panel.id);
+        if (kept !== null) panel.open = kept === "1";
+        else if (panel.id === "panel-snippet" && ($("snippet").value || $("token").value)) panel.open = false;
+      } catch { /* no storage: as written */ }
+      panel.addEventListener("toggle", () => {
+        try { localStorage.setItem("embed-kit:open:" + panel.id, panel.open ? "1" : "0"); } catch { /* not kept */ }
+      });
+    }
+
+    // A request ID per load of this page, as a host makes one per page view.
+    $("request").value = "r" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+    // What the last Run is waiting for: the callback's question, which tells
+    // whether the frame reached the platform at all.
+    let waiting = null;
+    function status(text, tone) {
+      $("status").textContent = text;
+      if (tone) $("status").dataset.tone = tone; else delete $("status").dataset.tone;
+    }
+
     function run() {
       const html = snippet();
-      if (!html) return;
+      if (!html) { status("Paste a snippet or a token first.", "bad"); return; }
+      const player = $("player").value.trim();
+      if (!player) { status("A player ID is required: a verified page starts a game only with one.", "bad"); return; }
       hostStyle();
       const stage = $("stage");
       stage.replaceChildren();
       const template = document.createElement("template");
       template.innerHTML = html;
-      const player = $("player").value.trim();
-      const request = $("request").value.trim() || "r" + Date.now();
+      const request = $("request").value.trim();
       template.content.querySelectorAll("[data-cgl-embed]").forEach((el) => {
-        if (!el.style.height) el.style.height = "100%";
-        if (player) { el.dataset.player = player; el.dataset.request = request; }
+        // The stage is the room the host gives: the frame fills it, whatever
+        // height the pasted snippet names, so its sizes can be tried.
+        el.style.height = "100%";
+        el.dataset.player = player;
+        el.dataset.request = request;
       });
+      clearTimeout(waiting?.timer);
+      waiting = {
+        player, request,
+        timer: setTimeout(() => {
+          if (!waiting) return;
+          waiting = null;
+          status("No callback came within 8 seconds, so the game did not reach the platform. " +
+            `Is this page open at exactly the registered address (${location.origin}; localhost and 127.0.0.1 differ)? ` +
+            "Is the page approved, and embedding on for this game?", "bad");
+        }, 8000),
+      };
+      status(`Waiting for the callback (player ${player}, request ${request})…`);
       // Scripts parsed into a template do not run: they are made anew.
       const scripts = [...template.content.querySelectorAll("script")];
       scripts.forEach((s) => s.remove());
@@ -147,17 +216,41 @@
       const [w, h] = b.dataset.size.split(",");
       Object.assign($("stage").style, { width: w, height: h });
     }));
+    // The stage's size stays over a reload too, however it was set.
+    try {
+      const size = JSON.parse(localStorage.getItem("embed-kit:size") ?? "null");
+      if (size) Object.assign($("stage").style, { width: size.width, height: size.height });
+    } catch { /* no storage, or nothing kept */ }
     new ResizeObserver(([e]) => {
       $("size").textContent = `${Math.round(e.contentRect.width)} × ${Math.round(e.contentRect.height)} px`;
+      const { width, height } = $("stage").style;
+      if (width || height) {
+        try { localStorage.setItem("embed-kit:size", JSON.stringify({ width, height })); } catch { /* not kept */ }
+      }
     }).observe($("stage"));
 
     document.querySelectorAll("input[name=answer]").forEach((r) => r.addEventListener("change", () =>
       fetch("/answer", { method: "POST", body: JSON.stringify({ answer: r.value }) })));
 
+    // The newest question seen, to tell a new one from the ones before.
+    let total = null;
     async function poll() {
       try {
         const s = await (await fetch("/state")).json();
         document.querySelector(`input[name=answer][value=${s.answer}]`).checked = true;
+        // The log holds the newest first; its length grows with each question
+        // until it is cut at 50, so a new question is a new first entry.
+        const first = s.log[0];
+        const key = first ? first.at + JSON.stringify(first.asked) : "";
+        if (total === null) total = key;
+        if (key !== total) {
+          total = key;
+          const { playerId, requestId } = first.asked;
+          const tone = first.answer === "yes" ? "ok" : "bad";
+          const said = first.answer === "yes" ? "the game starts" : first.answer === "no" ? "the game is refused" : "no answer, the game is refused";
+          if (waiting) { clearTimeout(waiting.timer); waiting = null; }
+          status(`${first.at} The callback was asked (player ${playerId}, request ${requestId}) and answered ${first.answer}: ${said}.`, tone);
+        }
         $("log").replaceChildren(...s.log.map((entry) => {
           const li = document.createElement("li");
           li.textContent = `${entry.at}  ${JSON.stringify(entry.asked)}  → ${entry.answer}`;

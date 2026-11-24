@@ -2,7 +2,6 @@ import { useCallback, useMemo, useState } from "react";
 import {
   useApiKeys,
   useCheckApiKey,
-  useCreateApiKey,
   useDeleteApiKey,
   useOwnApiKeys,
   usePlatforms,
@@ -14,22 +13,7 @@ import type { PlatformInfo } from "@/api/types";
 import { isListNarrowed } from "@/common/lib/listNarrowed";
 import { useAuth } from "@/providers/AuthProvider";
 import { ownKeyListPreset, type KeyPlatform } from "../lib/ownKeyListPresets";
-
-interface CreateErrors {
-  name?: string;
-  platform?: string;
-  key?: string;
-}
-
-/** A key name that says whose key it is, for which platform, and since when. */
-function defaultKeyName(platformName: string, userName: string | undefined): string {
-  const now = new Date();
-  const date = [now.getDate(), now.getMonth() + 1]
-    .map((n) => String(n).padStart(2, "0"))
-    .concat(String(now.getFullYear()).slice(-2))
-    .join(".");
-  return [userName, platformName, date].filter(Boolean).join(" ");
-}
+import { useNewKeyForm } from "./useNewKeyForm";
 
 /**
  * Everything the key page does, for ApiKeyManagement to render: the caller's
@@ -115,41 +99,18 @@ export function useApiKeyManagement(t: (key: string) => string) {
   };
 
   // ── Adding ──────────────────────────────────────────────────────────────
-  const createApiKey = useCreateApiKey();
+  const newKey = useNewKeyForm(t);
   const [creating, setCreating] = useState(false);
-  const [createName, setCreateName] = useState("");
-  const [createPlatform, setCreatePlatform] = useState("");
-  const [createKey, setCreateKey] = useState("");
-  const [createErrors, setCreateErrors] = useState<CreateErrors>({});
-
-  const choosePlatform = (id: string) => {
-    setCreatePlatform(id);
-    setCreateName(defaultKeyName(platformOf(id)?.name ?? id, backendUser?.name));
-  };
-
   const openCreate = () => {
-    const first = keyPlatforms.find((p) => p.supported);
-    setCreateKey("");
-    setCreateErrors({});
-    if (first) choosePlatform(first.id);
+    newKey.reset();
     setCreating(true);
   };
-
   const submitCreate = async () => {
-    const errors: CreateErrors = {};
-    if (!createName.trim()) errors.name = t("apiKeys.errors.nameRequired");
-    if (!createPlatform) errors.platform = t("apiKeys.errors.platformRequired");
-    if (!createKey.trim()) errors.key = t("apiKeys.errors.keyRequired");
-    setCreateErrors(errors);
-    if (Object.keys(errors).length > 0) return;
-    try {
-      const created = await createApiKey.mutateAsync({ name: createName, platform: createPlatform, key: createKey });
-      setCreating(false);
-      // A new key is checked at once, so its owner learns now whether it works.
-      void runCheck(created.id, created.apiKeyId);
-    } catch {
-      // shown by the mutation's error handler
-    }
+    const created = await newKey.submit();
+    if (!created) return;
+    setCreating(false);
+    // A new key is checked at once, so its owner learns now whether it works.
+    void runCheck(created.id, created.apiKeyId);
   };
 
   // ── Deleting ────────────────────────────────────────────────────────────
@@ -189,17 +150,8 @@ export function useApiKeyManagement(t: (key: string) => string) {
     createModal: {
       opened: creating,
       close: () => setCreating(false),
-      platforms: keyPlatforms.filter((p) => p.supported),
-      tiers: platformOf(createPlatform)?.info?.tiers ?? [],
-      name: createName,
-      setName: setCreateName,
-      platform: createPlatform,
-      setPlatform: choosePlatform,
-      key: createKey,
-      setKey: setCreateKey,
-      errors: createErrors,
+      form: newKey,
       submit: submitCreate,
-      loading: createApiKey.isPending,
     },
     deleteModal: {
       item: deleting,

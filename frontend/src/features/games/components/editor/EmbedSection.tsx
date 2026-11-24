@@ -1,36 +1,37 @@
-import { Anchor, Code, CopyButton, Divider, Select, Stack, Switch } from "@mantine/core";
+import { Anchor, Code, CopyButton, Select, Stack, Switch } from "@mantine/core";
 import { IconCheck, IconCopy } from "@tabler/icons-react";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import type { GameView } from "@/api/types";
 import { GenericButtonWithText } from "@components/buttons";
-import { CardTitle, HelperText } from "@components/typography";
+import { BodyText, HelperText, Label } from "@components/typography";
 import { EMBED_STYLING_DOCS_URL } from "../../lib/embedSnippet";
-import { useEmbedPanel } from "../../hooks/useEmbedPanel";
+import type { EmbedPanel } from "../../hooks/useEmbedPanel";
+import { SharingBlock } from "./SharingBlock";
 
 /**
- * Embedding, on the Sharing page: a toggle like "public" that shows the
- * panel when on. The organisation's verified page the game runs on, what
- * pays for it, and the snippet for the host page. Shown wherever the server
- * lets the caller share the game; while embedding cannot work yet, it says
- * what is to be done first, in order, and the toggle stays off.
+ * Embedding, on the Sharing page: a block with a toggle like "public" that
+ * shows the panel when on. The organisation's verified page the game runs
+ * on, what pays for it, and the snippet for the host page. The Sharing page
+ * shows it where the panel is `shown` (the server lets the caller share the
+ * game); while embedding cannot work yet, it says what is to be done first,
+ * in order, and the toggle stays off.
  */
-export function EmbedSection({ game }: { game: GameView }) {
+export function EmbedSection({ panel }: { panel: EmbedPanel }) {
   const { t } = useTranslation("common");
-  const panel = useEmbedPanel(game);
-  if (!panel.shown) return null;
 
   return (
-    <Stack gap="xs">
-      <Divider />
-      <Switch
-        label={t("games.editor.embed.toggle")}
-        checked={panel.on}
-        onChange={(e) => panel.setOn(e.currentTarget.checked)}
-        disabled={panel.loading || panel.saving || (!panel.on && panel.blocked)}
-      />
-      <HelperText>{t("games.editor.embed.toggleHint")}</HelperText>
-
+    <SharingBlock
+      title={t("games.editor.embed.toggle")}
+      description={t("games.editor.embed.toggleHint")}
+      control={
+        <Switch
+          aria-label={t("games.editor.embed.toggle")}
+          checked={panel.on}
+          onChange={(e) => panel.setOn(e.currentTarget.checked)}
+          disabled={panel.loading || panel.saving || (!panel.on && panel.blocked)}
+        />
+      }
+    >
       {panel.noOrganisation && <HelperText c="orange.8">{t("games.editor.embed.noOrganisation")}</HelperText>}
       {panel.noPages && (
         <Stack gap={4}>
@@ -52,16 +53,12 @@ export function EmbedSection({ game }: { game: GameView }) {
 
       {panel.on && (
         <Stack gap="md" mt="xs">
-          {panel.pageOptions.length > 0 && (
-            <Select
-              label={t("games.editor.embed.page")}
-              description={t("games.editor.embed.pageHint")}
-              data={panel.pageOptions}
-              value={panel.pageId}
-              onChange={panel.setPage}
-              disabled={panel.saving}
-              allowDeselect={false}
-            />
+          {panel.pageUrl && (
+            <Stack gap={2}>
+              <Label>{t("games.editor.embed.page")}</Label>
+              <BodyText size="sm">{panel.pageUrl}</BodyText>
+              <HelperText>{t("games.editor.embed.pageHint")}</HelperText>
+            </Stack>
           )}
 
           {!panel.noKeys && (
@@ -80,7 +77,7 @@ export function EmbedSection({ game }: { game: GameView }) {
 
           {panel.snippet && (
             <Stack gap="xs">
-              <CardTitle>{t("games.editor.embed.snippet")}</CardTitle>
+              <Label>{t("games.editor.embed.snippet")}</Label>
               <HelperText>{t("games.editor.embed.snippetHint")}</HelperText>
               <HelperText>{t("games.editor.embed.snippetVerifiedHint")}</HelperText>
               <Code block>{panel.snippet}</Code>
@@ -104,6 +101,6 @@ export function EmbedSection({ game }: { game: GameView }) {
           )}
         </Stack>
       )}
-    </Stack>
+    </SharingBlock>
   );
 }

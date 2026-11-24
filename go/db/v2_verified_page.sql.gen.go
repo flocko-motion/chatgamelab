@@ -32,7 +32,7 @@ func (q *Queries) V2ApproveVerifiedPage(ctx context.Context, arg V2ApproveVerifi
 }
 
 const v2CreateVerifiedPage = `-- name: V2CreateVerifiedPage :one
-INSERT INTO verified_page (institution_id, page_id, origin, page_url, callback_url, created_by)
+INSERT INTO verified_page (institution_id, page_id, site, page_url, callback_url, created_by)
 VALUES ($1::uuid, $2, $3, $4, $5, $6::uuid)
 ON CONFLICT (institution_id) DO NOTHING
 RETURNING id
@@ -41,7 +41,7 @@ RETURNING id
 type V2CreateVerifiedPageParams struct {
 	InstitutionID uuid.UUID `json:"institution_id"`
 	PageID        string    `json:"page_id"`
-	Origin        string    `json:"origin"`
+	Site          string    `json:"site"`
 	PageUrl       string    `json:"page_url"`
 	CallbackUrl   string    `json:"callback_url"`
 	CreatedBy     uuid.UUID `json:"created_by"`
@@ -53,7 +53,7 @@ func (q *Queries) V2CreateVerifiedPage(ctx context.Context, arg V2CreateVerified
 	row := q.db.QueryRowContext(ctx, v2CreateVerifiedPage,
 		arg.InstitutionID,
 		arg.PageID,
-		arg.Origin,
+		arg.Site,
 		arg.PageUrl,
 		arg.CallbackUrl,
 		arg.CreatedBy,
@@ -76,26 +76,24 @@ func (q *Queries) V2DeleteVerifiedPage(ctx context.Context, id uuid.UUID) error 
 
 const v2UpdateVerifiedPage = `-- name: V2UpdateVerifiedPage :exec
 UPDATE verified_page
-SET origin = $1, page_url = $2, callback_url = $3, modified_at = now(),
-    approved_at = CASE WHEN (origin, page_url, callback_url) IS DISTINCT FROM ($1::text, $2::text, $3::text)
-                       THEN NULL ELSE approved_at END,
-    approved_by = CASE WHEN (origin, page_url, callback_url) IS DISTINCT FROM ($1::text, $2::text, $3::text)
-                       THEN NULL ELSE approved_by END
+SET site = $1, page_url = $2, callback_url = $3, modified_at = now(),
+    approved_at = CASE WHEN site IS DISTINCT FROM $1::text THEN NULL ELSE approved_at END,
+    approved_by = CASE WHEN site IS DISTINCT FROM $1::text THEN NULL ELSE approved_by END
 WHERE id = $4::uuid
 `
 
 type V2UpdateVerifiedPageParams struct {
-	Origin      string    `json:"origin"`
+	Site        string    `json:"site"`
 	PageUrl     string    `json:"page_url"`
 	CallbackUrl string    `json:"callback_url"`
 	ID          uuid.UUID `json:"id"`
 }
 
-// Changes a verified page's address and callback; a change withdraws its
-// approval.
+// Changes a verified page's address and callback; a change of its site
+// (scheme and host) withdraws its approval, a new port or path keeps it.
 func (q *Queries) V2UpdateVerifiedPage(ctx context.Context, arg V2UpdateVerifiedPageParams) error {
 	_, err := q.db.ExecContext(ctx, v2UpdateVerifiedPage,
-		arg.Origin,
+		arg.Site,
 		arg.PageUrl,
 		arg.CallbackUrl,
 		arg.ID,
@@ -117,7 +115,7 @@ func (q *Queries) V2VerifiedPageOrganisation(ctx context.Context, id uuid.UUID) 
 
 const v2VerifiedPages = `-- name: V2VerifiedPages :many
 
-SELECT v.id, v.institution_id, i.name AS institution_name, v.page_id, v.origin, v.page_url, v.callback_url,
+SELECT v.id, v.institution_id, i.name AS institution_name, v.page_id, v.site, v.page_url, v.callback_url,
   v.approved_at, v.created_by, v.created_at, v.modified_at
 FROM verified_page v
 JOIN institution i ON i.id = v.institution_id
@@ -136,7 +134,7 @@ type V2VerifiedPagesRow struct {
 	InstitutionID   uuid.UUID     `json:"institution_id"`
 	InstitutionName string        `json:"institution_name"`
 	PageID          string        `json:"page_id"`
-	Origin          string        `json:"origin"`
+	Site            string        `json:"site"`
 	PageUrl         string        `json:"page_url"`
 	CallbackUrl     string        `json:"callback_url"`
 	ApprovedAt      sql.NullTime  `json:"approved_at"`
@@ -165,7 +163,7 @@ func (q *Queries) V2VerifiedPages(ctx context.Context, arg V2VerifiedPagesParams
 			&i.InstitutionID,
 			&i.InstitutionName,
 			&i.PageID,
-			&i.Origin,
+			&i.Site,
 			&i.PageUrl,
 			&i.CallbackUrl,
 			&i.ApprovedAt,

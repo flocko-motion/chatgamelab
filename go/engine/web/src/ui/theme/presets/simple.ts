@@ -637,6 +637,42 @@ const educationalPreset: PresetDefinition = {
   },
 };
 
+/** Spielfieber - a flat cartoon city game: wine-red frames on warm light
+ * grey, made for live voice games embedded on another site. The skin draws
+ * the rest. */
+const spielfieberPreset: PresetDefinition = {
+  theme: {
+    corners: { style: "none", color: "brown" },
+    background: { tint: "neutral", animation: "none" },
+    player: {
+      color: "brown",
+      indicator: "none",
+      indicatorBlink: false,
+      bgColor: "white",
+      fontColor: "dark",
+      borderColor: "brown",
+    },
+    gameMessage: {
+      dropCap: false,
+      dropCapColor: "brown",
+      bgColor: "white",
+      fontColor: "dark",
+      borderColor: "brown",
+    },
+    cards: { borderThickness: "thin" },
+    thinking: { text: "Loading next level...", style: "dots", streamingCursor: "none" },
+    typography: { messages: "sans" },
+    statusFields: {
+      bgColor: "white",
+      accentColor: "brown",
+      borderColor: "brown",
+      fontColor: "dark",
+    },
+    header: { bgColor: "white", fontColor: "dark", accentColor: "brown" },
+    divider: { style: "none", color: "brown" },
+  },
+};
+
 export const SIMPLE_PRESETS: Record<string, PresetDefinition> = {
   default: defaultPreset,
   minimal: minimalPreset,
@@ -656,4 +692,5 @@ export const SIMPLE_PRESETS: Record<string, PresetDefinition> = {
   sunshine: sunshinePreset,
   storybook: storybookPreset,
   educational: educationalPreset,
+  spielfieber: spielfieberPreset,
 };

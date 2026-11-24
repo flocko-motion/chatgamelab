@@ -55,21 +55,47 @@ body[data-embedded] [data-part="header"] {
   display: none !important;
 }
 
-/* Medium and small: the conversation, without pictures and status values. */
+/* Medium and small: the conversation, without status values. */
 @media (max-width: 39.99rem), (max-height: 29.99rem) {
   body[data-embedded] [data-part="status"],
   body[data-embedded] #background,
-  body[data-embedded] #standing,
   body[data-embedded] [data-part="picture"],
   body[data-embedded] .corner,
   body[data-embedded] [data-part="divider"] {
     display: none !important;
+  }
+  /* Medium is the size embedding is made for. A session's one picture (the
+     character a live genre talks as) stays in sight: a band across the top,
+     a third of the frame, filled edge to edge, the conversation scrolling
+     below it. The height overrides the full game's, which view.ts sets
+     inline when the picture comes; with no picture there is no band. */
+  body[data-embedded] .scene-area:has(#standing:not([hidden])) {
+    --standing-height: 34vh !important;
+  }
+  body[data-embedded] .scene-area:not(:has(#standing:not([hidden]))) {
+    --standing-height: 0px !important;
+  }
+  body[data-embedded] #standing {
+    padding: 0.5rem 0.5rem 0;
+    box-sizing: border-box;
+  }
+  body[data-embedded] #standing img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 25%;
+    border-radius: var(--cgl-radius, var(--radius-md));
+  }
+  /* No scrollbar along the frame's edge; the conversation still scrolls. */
+  body[data-embedded] #scroll {
+    scrollbar-width: none;
   }
 }
 
 /* Small: the controls alone. */
 @media (max-width: 15rem), (max-height: 10rem) {
   body[data-embedded] #scroll,
+  body[data-embedded] #standing,
   body[data-embedded] #thinking {
     display: none !important;
   }
@@ -77,7 +103,47 @@ body[data-embedded] [data-part="header"] {
   body[data-embedded] [data-part="scene"] {
     background: transparent;
   }
+  /* The bar is the whole frame, edge to edge, for every theme: no column and
+     no gap around it. The theme's own look of the bar stays (its border, its
+     inset rules and outlines); a drop shadow it casts falls outside the frame
+     and is cut off, so no theme needs a rule of its own here. */
   body[data-embedded] #dock {
+    position: absolute;
+    inset: 0;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+  body[data-embedded] #compose {
     position: static;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+  }
+  /* A frame lower than the button shrinks it, so it stays whole and round. */
+  body[data-embedded] #talk {
+    width: min(3.25rem, calc(100vh - 1rem));
+    height: min(3.25rem, calc(100vh - 1rem));
+  }
+  body[data-embedded] #talk svg {
+    width: 55%;
+    height: 55%;
+  }
+  /* A line while it connects or cannot play: one line, cut short. */
+  body[data-embedded] #notice-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* Very narrow: the button alone, without the word saying its state (the
+   button's icon shows it, and its label stays for screen readers), and while
+   it connects the spinner alone. */
+@media (max-width: 14rem) {
+  body[data-embedded] #audio-label,
+  body[data-embedded] .notice.waiting #notice-text {
+    display: none;
   }
 }

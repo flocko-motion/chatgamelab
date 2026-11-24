@@ -398,7 +398,9 @@ link. Changing the paying key keeps the snippet.
 
 A verified page belongs to an organisation; its head and staff register and
 manage it, and an admin needs to approve it. Only one verified page per organisation.
-It is defined by a page address and a callback address. 
+It is defined by a page address and a callback address on the same site.
+The admin approves the site, its scheme and host: any port and path on it may
+show the organisation's games.
 
 Before a game starts on a verified page, the platform asks the page's callback,
 naming the page ID, the host's ID of its visitor and an ID of the request. Only
