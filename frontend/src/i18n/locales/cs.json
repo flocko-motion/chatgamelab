@@ -709,6 +709,176 @@
           "title": "Neuložené změny"
         }
       },
+      "editor": {
+        "allSet": "Vše připraveno: vytvořte hru.",
+        "backToOverview": "Zpět na přehled",
+        "card": {
+          "adventure": {
+            "descriptionPlaceholder": "Najděte skrytý poklad, než vás les pohltí.",
+            "titlePlaceholder": "Poklad temného lesa"
+          },
+          "description": "Popis",
+          "descriptionHint": "Jedna nebo dvě věty do galerie, aby hráči věděli, co je čeká.",
+          "encounter": {
+            "descriptionPlaceholder": "Navštivte Gretu, mrzutou majákovou správkyni, a zjistěte, co té noci viděla.",
+            "titlePlaceholder": "Greta na majáku"
+          },
+          "title": "Název",
+          "titleHint": "{{length}}/{{max}} · Může být veřejně viditelný – nepoužívejte prosím skutečná jména."
+        },
+        "delete": {
+          "confirm": "Smazat nadobro",
+          "intro": "Odstranit nadobro, nejdřív stáhnout.",
+          "keep": "Ponechat",
+          "keepFile": "Ponechte si soubor a hru můžete později znovu importovat sem nebo na jiný server ChatGameLab.",
+          "label": "Smazat hru",
+          "whatGoes": "„{{name}}“ bude nadobro pryč: její karta, příběh, obrázky i odkazy pro sdílení. Hráči ji už nebudou moci spustit. Tuto akci nelze vrátit zpět."
+        },
+        "done": "hotovo",
+        "doneButton": "Hotovo",
+        "download": {
+          "button": "Stáhnout",
+          "description": "Hra jako soubor pro uchování nebo import na jiný server ChatGameLab.",
+          "title": "Stáhnout"
+        },
+        "embed": {
+          "copy": "Kopírovat úryvek kódu",
+          "incomplete": "Vyberte, co bude platit, a stránku, abyste získali úryvek kódu.",
+          "noKeys": "Nemáte žádný funkční klíč AI, kterým by bylo možné platit. Přidejte nějaký nebo o něj požádejte svou organizaci.",
+          "noPages": "Vaše organizace zatím nemá ověřenou stránku. Její vedoucí nebo pracovníci ji přidají v nastavení organizace.",
+          "offNote": "Když je vypnutý, úryvek kódu nic nezobrazí. Po opětovném zapnutí bude fungovat tentýž úryvek.",
+          "page": "Ověřená stránka",
+          "pageHint": "Hra běží pouze tam a pouze poté, co stránka schválí každé spuštění.",
+          "paidBy": "Platí",
+          "paidByPlaceholder": "Vyberte klíč",
+          "payingNow": "Platí nyní",
+          "snippet": "Úryvek kódu pro váš web",
+          "snippetCss": "vaše CSS",
+          "snippetHint": "Vložte jej tam, kde se má hra zobrazit, a nastavte prvku požadovanou výšku.",
+          "snippetPlayer": "ID-VÁŠEHO-NÁVŠTĚVNÍKA",
+          "snippetRequest": "ID-VÁŠEHO-POŽADAVKU",
+          "snippetVerifiedHint": "Váš server doplní ID návštěvníka a tohoto zobrazení stránky; callback vaší stránky obdrží obě.",
+          "styleLink": "Upravte vzhled vlastním CSS →",
+          "toggle": "Vložit na web",
+          "toggleHint": "Zobrazí tuto hru na ověřené stránce vaší organizace bez čehokoli od ChatGameLab kolem ní. Návštěvníci hrají jako hosté; vybraný klíč platí."
+        },
+        "fillIn": "Vyplňte jednotlivé části, dokud nebudou všechny zelené.",
+        "genre": {
+          "pitch": {
+            "adventure": "Hráč prozkoumává svět. Hra vypráví, co se děje, vytváří obrázky a vede skóre.",
+            "encounter": "Hráč hlasem mluví s jednou postavou. Ta zůstává ve své roli a odpovídá v reálném čase."
+          },
+          "question": "Co chcete vytvořit?"
+        },
+        "look": {
+          "imageStyle": "Styl obrázků",
+          "imageStyleHint": "Jak obrázky vypadají, včetně titulního: kreslený, akvarelový, pixelový…",
+          "imageStylePlaceholder": "jemný akvarel, tlumené barvy"
+        },
+        "makeCopy": "Vytvořit vlastní kopii",
+        "next": "další",
+        "notDone": "zatím není hotovo",
+        "open": "Otevřít",
+        "othersGame": "Tato hra patří někomu jinému. Můžete si vše prohlédnout a vytvořit vlastní kopii, kterou pak upravíte.",
+        "pages": {
+          "card": {
+            "intro": "Co hráči uvidí v galerii: název a krátký popis.",
+            "label": "Karta"
+          },
+          "look": {
+            "intro": "Jak vypadají obrázky hry a její stránka.",
+            "label": "Vzhled"
+          },
+          "sharing": {
+            "intro": "Kdo může hru najít a hrát.",
+            "label": "Sdílení"
+          },
+          "sound": {
+            "intro": "Jak zní hlas hry.",
+            "label": "Zvuk"
+          },
+          "story": {
+            "intro": "Co se ve hře děje a jak začíná.",
+            "label": "Příběh"
+          }
+        },
+        "review": {
+          "button": "Zkontrolovat",
+          "failed": "Hru se nyní nepodařilo zkontrolovat. Přesto ji můžete uložit.",
+          "goTo": "Přejít na {{page}}",
+          "later": "Později",
+          "looksGood": "Vypadá to dobře. Jednou si ji zahrajte a zjistěte, jaký z ní máte pocit.",
+          "missing": {
+            "adventure": {
+              "imageStyle": "Vyberte styl obrázků, aby k sobě obrázky ladily.",
+              "name": "Vaše hra zatím nemá název.",
+              "systemMessageGameStart": "Popište, jak hra začíná.",
+              "systemMessageScenario": "Popište, o čem hra je."
+            },
+            "encounter": {
+              "imageStyle": "Vyberte styl obrázků, aby k sobě obrázky ladily.",
+              "name": "Vaše hra zatím nemá název.",
+              "systemMessageGameStart": "Popište, jak postava hráče pozdraví.",
+              "systemMessageScenario": "Popište, kdo postava je."
+            }
+          }
+        },
+        "sound": {
+          "adventure": {
+            "voiceStyle": "Hlas vypravěče",
+            "voiceStyleHint": "Jak zní příběh při předčítání."
+          },
+          "builtInVoice": "Vestavěný hlas",
+          "encounter": {
+            "voiceStyle": "Hlas postavy",
+            "voiceStyleHint": "Jak postava zní."
+          },
+          "errors": {
+            "failed": "Hlas se nepodařilo přehrát. Zkuste to prosím znovu.",
+            "keyRejected": "Poskytovatel AI klíč odmítl. Hlas se nepodařilo přehrát.",
+            "noKey": "Žádný z klíčů AI, které můžete použít, nemluví živým hlasem, takže zatím není co poslouchat."
+          },
+          "keepVoice": "Ponechat tento",
+          "listen": "Poslechnout",
+          "newVoice": "Vytvořit nový hlas",
+          "newVoiceConfirm": "Současný hlas bude smazán a ze stejného popisu vznikne nový. Hry s přesně tímto popisem na tomto klíči AI také získají nový hlas.",
+          "noteDescription": "Změnou popisu by stejně vznikl jiný hlas.",
+          "noteKeys": "Z technických důvodů nemůžeme zaručit, že každá relace použije přesně tento hlas: hlas se vytvoří a uchovává na klíči AI, který platí, takže relace zaplacená jiným klíčem získá vlastní hlas ze stejného popisu.",
+          "play": "Přehrát ukázku hlasu",
+          "sampleLine": {
+            "greeting": "Dobrý den! Pojďte dál, posaďte se a řekněte mi, co vás sem přivádí.",
+            "narration": "Příběh začíná tichého rána, kdy úzká stezka vede do neznáma."
+          },
+          "status": {
+            "builtIn": "Zatím bez popisu: hra mluví vestavěným hlasem, dokud hlas nepopíšete.",
+            "ownVoice": "Vlastní hlas pro tento popis, vytvořený na vašem klíči AI.",
+            "steered": "Příběh předčítá vestavěný hlas podle zadaného popisu."
+          },
+          "stop": "Zastavit ukázku"
+        },
+        "story": {
+          "adventure": {
+            "gameStart": "Jak to začíná?",
+            "gameStartHint": "První scéna, kterou hráč uvidí, a jak pozná, co má dělat.",
+            "gameStartPlaceholder": "Hráč se probudí na okraji temného lesa. Úzká stezka vede mezi stromy…",
+            "scenario": "O čem hra je?",
+            "scenarioHint": "Svět, role hráče, cíl a jak hráč pozná, že vyhrál.",
+            "scenarioPlaceholder": "Hráč je průzkumníkem v tajemném lese a hledá skrytý poklad…"
+          },
+          "encounter": {
+            "gameStart": "Jak pozdraví hráče?",
+            "gameStartHint": "Situace, ve které rozhovor začíná; z ní se odvodí první slova.",
+            "gameStartPlaceholder": "Uprostřed bouře zaklepe cizinec na dveře majáku…",
+            "scenario": "Kdo je tato postava?",
+            "scenarioHint": "Její osobnost, co ví, jak mluví a v čem nikdy neustoupí.",
+            "scenarioPlaceholder": "Jste Greta, mrzutá majáková správkyně, která zná každou loď na pobřeží…"
+          }
+        },
+        "titleEdit": "Upravit hru",
+        "titleNew": "Nová hra",
+        "titleView": "Hra",
+        "untitled": "Hra bez názvu"
+      },
       "empty": {
         "description": "Vytvořte svou první hru a začněte s interaktivními dobrodružstvími poháněnými AI.",
         "title": "Zatím žádné hry"
@@ -735,7 +905,7 @@
       },
       "genres": {
         "adventure": "Dobrodružství",
-        "npc-live": "NPC-Live"
+        "npc-live": "Setkání"
       },
       "importExport": {
         "coverFailed": "Hra byla importována, ale její titulní obrázek se nepodařilo ověřit. V editoru můžeš vytvořit nový.",
@@ -849,6 +1019,7 @@
       },
       "statusFieldsEditor": {
         "addField": "Přidat novou hodnotu",
+        "maxHint": "Nejvýše pět hodnot: několik hodnot, které může hráč sledovat, je lepších než mnoho.",
         "namePlaceholder": "Název (např. Životy)",
         "noFields": "Zatím žádné hodnoty. Klikněte na + a přidejte novou.",
         "valuePlaceholder": "Počáteční hodnota (např. 100)"
@@ -1203,6 +1374,23 @@
         "role-desc": "Role (Z–A)"
       },
       "title": "Moje organizace",
+      "verifiedPages": {
+        "add": "Registrovat stránku",
+        "addTitle": "Registrovat stránku",
+        "callbackShown": "Callback: {{url}}",
+        "callbackUrl": "Adresa callbacku",
+        "callbackUrlHint": "Zde se ChatGameLab ptá před každým spuštěním. Stránka musí odpovědět během několika sekund.",
+        "copied": "Zkopírováno",
+        "copy": "Kopírovat ID stránky",
+        "empty": "Zatím žádné ověřené stránky.",
+        "intro": "Ověřená stránka je stránka na webu vaší organizace, která může zobrazovat vaše vložené hry. Než se na ní hra spustí, ChatGameLab se callbacku stránky zeptá, zda ji má spustit, a předá mu níže uvedené ID stránky a ID návštěvníka a požadavku, která vaše stránka předává dál. Hru spustí pouze odpověď {\"ok\": true}.",
+        "pageId": "ID stránky",
+        "pageUrl": "Adresa stránky",
+        "pageUrlHint": "Stránka, do které jsou vloženy vaše hry. Zobrazovat je smí pouze její web.",
+        "remove": "Odebrat stránku",
+        "removeTitle": "Odebrat tuto stránku?",
+        "removeWarning": "Hry vložené pro {{page}} se tam přestanou spouštět, dokud jim nepřiřadíte jinou stránku."
+      },
       "workshops": {
         "activate": "Aktivovat",
         "active": "Aktivní",
@@ -1726,6 +1914,7 @@
     "orgApiKeys": "API klíče",
     "orgConstraints": "Omezení promptů na ochranu dětí a mládeže",
     "orgMembers": "Členové",
+    "orgVerifiedPages": "Weby",
     "orgWorkshops": "Workshopy",
     "play": "Zahrát si hru",
     "rooms": "Místnosti",
@@ -1771,6 +1960,7 @@
       "dropped": "zahozeno",
       "droppedValue": "{{n}} (příliš mnoho za sebou)",
       "empty": "zatím nic",
+      "entryAbsent": "hráč nepřítomen",
       "entryBackground": "pozadí odesláno",
       "entryConversation": "konverzace",
       "entryDirection": "pokyn odeslán",
@@ -1778,6 +1968,7 @@
       "entryError": "chyba",
       "entryInjection": "ručně vloženo",
       "entryLine": "řekl(a)",
+      "entryRules": "pravidla odeslána",
       "entrySilence": "ticho",
       "entryThought": "myslí si",
       "failed": "{{n}} selhalo",
@@ -1801,9 +1992,11 @@
       "poolValue": "{{n}} fragmentů · takt {{ms}} ms",
       "quietFor": "v klidu po dobu",
       "quietReplies": "není co dělat",
+      "reminders": "připomenuta pravidla",
       "sent": "odesláno",
       "sentValue": "{{d}} pokynů · {{b}} pozadí",
       "setBeat": "nastavit takt (ms)",
+      "standingDown": "ustoupil · hráč {{s}} nic neřekl",
       "thinking": "přemýšlí · {{s}}",
       "waiting": "čeká na režii"
     },
@@ -1840,6 +2033,10 @@
       "noGame": "Tato stránka potřebuje hru: otevři ji ze stránky hry.",
       "starting": "Hra se spouští…"
     },
+    "over": {
+      "contentPolicy": "Tuto hru ukončil poskytovatel AI: konverzace se vydala směrem, který jeho bezpečnostní pravidla nepovolují. Stále si můžete přečíst vše, co bylo řečeno, a kdykoli začít novou hru.",
+      "unknown": "Tato hra skončila. Stále si můžete přečíst vše, co bylo řečeno, a kdykoli začít novou hru."
+    },
     "pipeline": {
       "compact": "Zkomprimovat vlákno",
       "compactFailed": "Komprimace se nezdařila",
@@ -1863,10 +2060,12 @@
       "denied": "Tuto hru nesmíš hrát.",
       "failed": "Něco se pokazilo a hra nemůže pokračovat.",
       "genre": "Dostupný klíč AI nemůže spustit tento typ hry.",
+      "hostRefused": "Web, do kterého je tato hra vložena, nedovolil její spuštění.",
       "keyRejected": "Poskytovatel AI odmítl klíč této hry, takže hra nemůže pokračovat. Ten, kdo hru nastavil, musí klíč zkontrolovat.",
       "noCredit": "Je nám líto, kredit AI byl vyčerpán, takže hra nyní nemůže pokračovat.",
       "noKey": "Pro hraní této hry není k dispozici žádný klíč AI.",
       "noPlays": "V této sdílené hře už nezbývá žádné hraní.",
+      "over": "Tato hra skončila, takže nemůže pokračovat.",
       "paused": "Workshop je pozastaven. Hra bude pokračovat, jakmile bude obnoven.",
       "stale": "V této hře už nelze pokračovat.",
       "unknown": "Tato herní relace neexistuje.",
@@ -1890,6 +2089,7 @@
       "choose": "Pro začátek si vyber, jak chceš hrát.",
       "connecting": "Připojování…",
       "ended": "Hra skončila.",
+      "over": "Hra skončila.",
       "reconnecting": "Opětovné připojování…",
       "settingScene": "Připravuje se scéna…",
       "wakingCharacter": "Postava se probouzí…"

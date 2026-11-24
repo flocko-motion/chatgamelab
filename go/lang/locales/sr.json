@@ -469,6 +469,7 @@
       "filters": {
         "all": "Све игре",
         "favorites": "Омиљене",
+        "genre": "Жанр",
         "own": "Моје игре",
         "public": "Јавне",
         "sponsored": "Спонзорисане"
@@ -477,6 +478,12 @@
       "play": "Играј",
       "reportGame": "Prijavi igru",
       "restart": "Поново покрени",
+      "resumeChoice": {
+        "continue": "Настави",
+        "message": "Већ си започео/започела игру „{{game}}“. Да ли желиш да наставиш тамо где си стао/стала или да почнеш испочетка? Почетак испочетка замењује претходну сесију.",
+        "startNew": "Почни испочетка",
+        "title": "Наставити или почети испочетка?"
+      },
       "title": "Игре",
       "unfavorite": "Уклони из фаворита",
       "workshop": "Radionica / Org"
@@ -491,6 +498,7 @@
       "aiQualityTier": {
         "description": "Изаберите ниво квалитета АИ за своје игре када користите сопствени API кључ. Виши нивои коштају више, али могу имати бољи квалитет. Оставите празно за подразумевани сервер."
       },
+      "check": "Провери кључ",
       "createModal": {
         "keyDescription": "Ваш кључ ће бити шифрован и безбедно сачуван.",
         "keyLabel": "API кључ",
@@ -521,6 +529,7 @@
         "platformRequired": "Платформа је обавезна"
       },
       "key": "кључ",
+      "keyEndsWith": "Кључ се завршава овим знаковима",
       "keys": "кључеви",
       "noResults": "Ниједан кључ не одговара вашој претрази или филтеру.",
       "platform": "Платформа",
@@ -558,8 +567,15 @@
         "status-asc": "Исправни кључеви прво"
       },
       "status": {
+        "checking": "Провера у току…",
         "failed": "Кључ не ради",
-        "unknown": "Кључ још није коришћен",
+        "reasons": {
+          "key_rejected": "Пружалац одбија овај кључ. Провери да ли је цео ископиран и да ли је још активан.",
+          "no_credit": "На налогу повезаном са овим кључем више нема кредита. Допуни га код пружаоца услуге.",
+          "no_key": "Кључ није могао да се прочита.",
+          "unreachable": "Пружалац није одговорио. Покушај поново за тренутак."
+        },
+        "unknown": "Још није проверен",
         "working": "Кључ ради"
       },
       "statusColumn": "Статус",
@@ -673,12 +689,18 @@
         "statusFieldsHint": "Шта игра треба да прати? На пример здравље, поене или муницију. Игра памти ове вредности и ажурира их током играња.",
         "theme": "Тема",
         "themeDefault": "Подразумевани изглед",
-        "themeHint": "Изглед у коме се игра игра."
+        "themeHint": "Изглед у коме се игра игра.",
+        "voiceStyle": "Стил гласа",
+        "voiceStyleHint": "Како глас звучи: глас лика или приповедача када се прича чита наглас.",
+        "voiceStylePlaceholder": "нпр. дубок, спор и помало промукао, глас старца"
       },
       "editModal": {
         "adminActionTitle": "Administratorska radnja",
         "adminActionWarning": "Uređujete igru koja vam ne pripada. Ovo je administrativna radnja i treba je koristiti samo u svrhe moderacije.",
         "gameDesignSection": "Dizajn igre",
+        "othersGameNotice": "Ова игра је туђа. Можеш да промениш било шта: чувањем постаје твоја игра, а оригинал остаје непромењен.",
+        "saveAsOwn": "Сачувај као моју игру",
+        "savedAsOwn": "Сачувано као твоја игра",
         "title": "Уреди игру",
         "unsavedChanges": {
           "discard": "Одбаци измене",
@@ -686,6 +708,176 @@
           "message": "Имате несачуване измене. Да ли сигурно желите да их одбаците?",
           "title": "Несачуване измене"
         }
+      },
+      "editor": {
+        "allSet": "Sve je spremno: napravite igru.",
+        "backToOverview": "Nazad na pregled",
+        "card": {
+          "adventure": {
+            "descriptionPlaceholder": "Pronađite skriveno blago pre nego što vas šuma proguta.",
+            "titlePlaceholder": "Blago mračne šume"
+          },
+          "description": "Opis",
+          "descriptionHint": "Jedna ili dve rečenice za galeriju, da igrači znaju šta da očekuju.",
+          "encounter": {
+            "descriptionPlaceholder": "Posetite Gretu, namrgođenu čuvarku svetionika, i saznajte šta je videla te noći.",
+            "titlePlaceholder": "Greta na svetioniku"
+          },
+          "title": "Naslov",
+          "titleHint": "{{length}}/{{max}} · Može postati javno vidljivo – molimo vas, bez pravih imena."
+        },
+        "delete": {
+          "confirm": "Trajno obriši",
+          "intro": "Trajno uklonite igru, uz prethodno preuzimanje.",
+          "keep": "Zadrži je",
+          "keepFile": "Zadržite datoteku i kasnije ponovo uvezite igru, ovde ili na drugom ChatGameLab serveru.",
+          "label": "Obriši igru",
+          "whatGoes": "„{{name}}“ će biti trajno uklonjena: njena kartica, priča, slike i linkovi za deljenje. Igrači više neće moći da je pokrenu. Ovo se ne može opozvati."
+        },
+        "done": "završeno",
+        "doneButton": "Završi",
+        "download": {
+          "button": "Preuzmi",
+          "description": "Igra kao datoteka, za čuvanje ili uvoz na drugi ChatGameLab server.",
+          "title": "Preuzimanje"
+        },
+        "embed": {
+          "copy": "Kopiraj isečak koda",
+          "incomplete": "Izaberite šta plaća i stranicu da biste dobili isečak koda.",
+          "noKeys": "Nemate nijedan ispravan AI ključ kojim možete da platite. Dodajte ga ili zatražite od svoje organizacije.",
+          "noPages": "Vaša organizacija još nema verifikovanu stranicu. Rukovodstvo ili zaposleni mogu da je dodaju u podešavanjima organizacije.",
+          "offNote": "Kada je isključena, ova komponenta ne prikazuje ništa. Kada je ponovo uključite, isti isečak koda će raditi.",
+          "page": "Verifikovana stranica",
+          "pageHint": "Igra radi samo tamo i samo nakon što stranica odobri svako pokretanje.",
+          "paidBy": "Plaća",
+          "paidByPlaceholder": "Izaberite ključ",
+          "payingNow": "Trenutno plaća",
+          "snippet": "Isečak koda za vaš veb-sajt",
+          "snippetCss": "vaš CSS",
+          "snippetHint": "Postavite ga tamo gde igra treba da se pojavi i zadajte elementu željenu visinu.",
+          "snippetPlayer": "ID-VAŠEG-POSetioca",
+          "snippetRequest": "ID-VAŠEG-ZAHTEVA",
+          "snippetVerifiedHint": "Vaš server unosi ID posetioca i ID ovog prikaza stranice; povratni poziv vaše stranice dobija oba.",
+          "styleLink": "Uredite izgled sopstvenim CSS-om →",
+          "toggle": "Ugradi na veb-sajt",
+          "toggleHint": "Prikazuje ovu igru na verifikovanoj stranici vaše organizacije, bez ičega iz ChatGameLab-a oko nje. Posetioci igraju kao gosti; izabrani ključ plaća."
+        },
+        "fillIn": "Popunjavajte odeljke dok svi ne postanu zeleni.",
+        "genre": {
+          "pitch": {
+            "adventure": "Igrač istražuje svet. Igra pripoveda šta se dešava, stvara slike i vodi rezultat.",
+            "encounter": "Igrač razgovara sa jednim likom glasom. Lik ostaje u svojoj ulozi i odgovara uživo."
+          },
+          "question": "Šta želite da napravite?"
+        },
+        "look": {
+          "imageStyle": "Stil slika",
+          "imageStyleHint": "Kako slike izgledaju, uključujući naslovnu sliku: crtani stil, akvarel, piksel-art…",
+          "imageStylePlaceholder": "nežan akvarel, prigušene boje"
+        },
+        "makeCopy": "Napravi moju kopiju",
+        "next": "sledeće",
+        "notDone": "još nije završeno",
+        "open": "Otvori",
+        "othersGame": "Ova igra pripada nekom drugom. Možete sve da pogledate i napravite sopstvenu kopiju kako biste je izmenili.",
+        "pages": {
+          "card": {
+            "intro": "Ono što igrači vide u galeriji: naslov i kratak opis.",
+            "label": "Kartica"
+          },
+          "look": {
+            "intro": "Kako izgledaju slike igre i njena stranica.",
+            "label": "Izgled"
+          },
+          "sharing": {
+            "intro": "Ko može da pronađe i igra igru.",
+            "label": "Deljenje"
+          },
+          "sound": {
+            "intro": "Kako zvuči glas igre.",
+            "label": "Zvuk"
+          },
+          "story": {
+            "intro": "Šta se dešava u igri i kako ona počinje.",
+            "label": "Priča"
+          }
+        },
+        "review": {
+          "button": "Proveri",
+          "failed": "Igra sada nije mogla da bude proverena. Ipak možete da je sačuvate.",
+          "goTo": "Idi na {{page}}",
+          "later": "Kasnije",
+          "looksGood": "Izgleda dobro. Odigrajte je jednom i proverite kakav je osećaj.",
+          "missing": {
+            "adventure": {
+              "imageStyle": "Izaberite stil slika da bi slike bile ujednačene.",
+              "name": "Vaša igra još nema naslov.",
+              "systemMessageGameStart": "Opišite kako igra počinje.",
+              "systemMessageScenario": "Opišite o čemu je igra."
+            },
+            "encounter": {
+              "imageStyle": "Izaberite stil slika da bi slike bile ujednačene.",
+              "name": "Vaša igra još nema naslov.",
+              "systemMessageGameStart": "Opišite kako lik pozdravlja igrača.",
+              "systemMessageScenario": "Opišite ko je lik."
+            }
+          }
+        },
+        "sound": {
+          "adventure": {
+            "voiceStyle": "Glas pripovedača",
+            "voiceStyleHint": "Kako priča zvuči kada se čita naglas."
+          },
+          "builtInVoice": "Ugrađeni glas",
+          "encounter": {
+            "voiceStyle": "Glas lika",
+            "voiceStyleHint": "Kako lik zvuči."
+          },
+          "errors": {
+            "failed": "Glas nije mogao da se reprodukuje. Pokušajte ponovo.",
+            "keyRejected": "AI provajder je odbio ključ. Glas nije mogao da se reprodukuje.",
+            "noKey": "Nijedan AI ključ koji možete da koristite ne govori glasom uživo, pa za sada nema ničega što biste mogli da čujete."
+          },
+          "keepVoice": "Zadrži ovaj glas",
+          "listen": "Slušaj",
+          "newVoice": "Napravi novi glas",
+          "newVoiceConfirm": "Trenutni glas će biti obrisan, a novi će biti napravljen na osnovu istog opisa. Igre sa potpuno istim opisom na ovom AI ključu takođe će dobiti novi glas.",
+          "noteDescription": "Promenom opisa ionako nastaje drugačiji glas.",
+          "noteKeys": "Iz tehničkih razloga ne možemo da obećamo da će svaka sesija koristiti baš ovaj glas: glas se pravi i čuva na AI ključu koji plaća, pa sesija koju plaća drugi ključ dobija sopstveni glas na osnovu istog opisa.",
+          "play": "Reprodukuj uzorak glasa",
+          "sampleLine": {
+            "greeting": "Zdravo! Uđite, sedite i recite mi šta vas dovodi ovamo.",
+            "narration": "Priča počinje jednog tihog jutra, dok uzana staza vodi u nepoznato."
+          },
+          "status": {
+            "builtIn": "Još nema opisa: igra govori ugrađenim glasom dok ne opišete glas.",
+            "ownVoice": "Sopstveni glas za ovaj opis, napravljen pomoću vašeg AI ključa.",
+            "steered": "Ugrađeni glas čita priču onako kako opis nalaže."
+          },
+          "stop": "Zaustavi uzorak"
+        },
+        "story": {
+          "adventure": {
+            "gameStart": "Kako počinje?",
+            "gameStartHint": "Prva scena koju igrač vidi i način na koji saznaje šta treba da uradi.",
+            "gameStartPlaceholder": "Igrač se budi na ivici mračne šume. Uzana staza vodi među drveće…",
+            "scenario": "O čemu je igra?",
+            "scenarioHint": "Svet, uloga igrača, cilj i način na koji igrač zna da je pobedio.",
+            "scenarioPlaceholder": "Igrač je istraživač u tajanstvenoj šumi i traži skriveno blago…"
+          },
+          "encounter": {
+            "gameStart": "Kako pozdravlja igrača?",
+            "gameStartHint": "Situacija u trenutku kada razgovor počinje; prve reči se pišu na osnovu nje.",
+            "gameStartPlaceholder": "Usred oluje, neznanac kuca na vrata svetionika…",
+            "scenario": "Ko je lik?",
+            "scenarioHint": "Njegova ličnost, ono što zna, način na koji govori i ono oko čega nikada neće popustiti.",
+            "scenarioPlaceholder": "Vi ste Greta, namrgođena čuvarka svetionika koja poznaje svaki brod na obali…"
+          }
+        },
+        "titleEdit": "Uredi igru",
+        "titleNew": "Nova igra",
+        "titleView": "Igra",
+        "untitled": "Igra bez naslova"
       },
       "empty": {
         "description": "Направите своју прву игру и започните интерактивне АИ авантуре.",
@@ -713,9 +905,18 @@
       },
       "genres": {
         "adventure": "Авантура",
-        "npc-live": "NPC уживо"
+        "npc-live": "Susret"
       },
       "importExport": {
+        "coverFailed": "Игра је увезена, али њена насловна слика није могла да се провери. У уређивачу можеш да нацрташ нову.",
+        "coverNoKey": "Игра је увезена без насловне слике: за проверу слике потребан је API кључ.",
+        "coverRefused": "Игра је увезена без насловне слике: слика не поштује правило о заштити малолетника.",
+        "coverUnsigned": "Игра је увезена без насловне слике: слика није извезена из ChatGameLab-а или је у међувремену измењена.",
+        "errors": {
+          "noGame": "Ова .cgl датотека не садржи игру.",
+          "tooLarge": "Ова датотека је већа од 1 MB, што је превелико за датотеку игре.",
+          "unreadable": "Ова датотека није могла да се прочита као игра."
+        },
         "exportButton": "Извези игру",
         "importButton": "Увези игру"
       },
@@ -818,6 +1019,7 @@
       },
       "statusFieldsEditor": {
         "addField": "Додај нову вредност",
+        "maxHint": "Najviše pet vrednosti: nekoliko vrednosti koje igrač može da prati bolje je od mnogo njih.",
         "namePlaceholder": "Назив (нпр. Здравље)",
         "noFields": "Још нема вредности. Кликните + да додате нову.",
         "valuePlaceholder": "Почетна вредност (нпр. 100)"
@@ -990,6 +1192,7 @@
     "leaveTitle": "Напусти организацију",
     "leaveWarning": "Изгубићете приступ свим ресурсима и члановима организације.",
     "list": {
+      "clearPicks": "Прикажи све",
       "clearSearch": "Обриши претрагу",
       "filter": "Филтер",
       "hideDetails": "Сакриј детаље",
@@ -1171,6 +1374,23 @@
         "role-desc": "Улога (Š-A)"
       },
       "title": "Моја организација",
+      "verifiedPages": {
+        "add": "Registruj stranicu",
+        "addTitle": "Registrujte stranicu",
+        "callbackShown": "Povratni poziv: {{url}}",
+        "callbackUrl": "Adresa povratnog poziva",
+        "callbackUrlHint": "Ovde ChatGameLab pita pre svakog pokretanja. Stranica mora da odgovori u roku od nekoliko sekundi.",
+        "copied": "Kopirano",
+        "copy": "Kopiraj ID stranice",
+        "empty": "Još nema verifikovanih stranica.",
+        "intro": "Verifikovana stranica je stranica na veb-sajtu vaše organizacije koja sme da prikazuje vaše ugrađene igre. Pre nego što se igra tamo pokrene, ChatGameLab pita povratni poziv stranice da li da je pokrene, koristeći ID stranice ispod i ID-jeve posetioca i zahteva koje vaša stranica prosleđuje. Samo odgovor {\"ok\": true} pokreće igru.",
+        "pageId": "ID stranice",
+        "pageUrl": "Adresa stranice",
+        "pageUrlHint": "Stranica u koju su vaše igre ugrađene. Samo njen veb-sajt sme da ih prikazuje.",
+        "remove": "Ukloni stranicu",
+        "removeTitle": "Ukloniti ovu stranicu?",
+        "removeWarning": "Igre ugrađene za {{page}} više se tamo neće pokretati dok ne dobiju drugu stranicu."
+      },
       "workshops": {
         "activate": "Активирај",
         "active": "Активна",
@@ -1354,6 +1574,7 @@
         "failed": "Тренутно није могуће играти",
         "genre": "Кључ вештачке интелигенције не може да покрене ову врсту игре",
         "key_rejected": "Кључ вештачке интелигенције је одбијен",
+        "no_credit": "Нема више AI кредита",
         "no_key": "Кључ вештачке интелигенције није доступан",
         "no_plays": "Нема више играња",
         "paused": "Радионица је паузирана",
@@ -1699,6 +1920,7 @@
     "orgApiKeys": "API кључеви",
     "orgConstraints": "Ограничење упита за заштиту младих",
     "orgMembers": "Чланови",
+    "orgVerifiedPages": "Veb-sajtovi",
     "orgWorkshops": "Радионице",
     "play": "Играј игру",
     "rooms": "Собе",
@@ -1711,18 +1933,78 @@
       "condense-scenario": "Скрати сценарио",
       "condensed-scenario": "Сценарио",
       "expand": "Приповедај",
+      "gallery-image": "Слика из галерије",
+      "greeting": "Генериши текст",
       "image": "Нацртај слику",
       "image-prompt": "Опиши слику",
       "image-style": "Прилагоди стил",
       "live-session": "Лик",
-      "observer": "Посматрач",
+      "observer": "Режија",
+      "opening-brief": "Како почиње",
       "outline": "Испланирај сцену",
       "portrait": "Нацртај портрет",
       "portrait-prompt": "Опиши портрет",
       "props-store": "Стање игре",
       "rephrase": "Препричај радњу",
       "rephrase-audio": "Разуми говор",
-      "start-game": "Почетак"
+      "start-game": "Почетак",
+      "voice": "Генериши глас",
+      "voice-brief": "Опиши глас"
+    },
+    "director": {
+      "ago": "пре {{s}}",
+      "beatRefused": "одбијено",
+      "beatSet": "подешено",
+      "beats": "ритмова са репликама",
+      "beatsValue": "{{n}} · {{lines}} реплика",
+      "calls": "позива модела",
+      "callsValue": "{{n}} · последњи пре {{s}}",
+      "character": "лик",
+      "characterSpoke": "лик је говорио",
+      "counted": "избројано",
+      "doing": "ради",
+      "dropped": "одбачено",
+      "droppedValue": "{{n}} (превише узастопно)",
+      "empty": "још ништа",
+      "entryAbsent": "igrač je odsutan",
+      "entryBackground": "позадина послата",
+      "entryConversation": "разговор",
+      "entryDirection": "упутство послато",
+      "entryDropped": "одбачено",
+      "entryError": "грешка",
+      "entryInjection": "убачено",
+      "entryLine": "рекао/рекла",
+      "entryRules": "pravila poslata",
+      "entrySilence": "тишина",
+      "entryThought": "мисли",
+      "failed": "{{n}} неуспешно",
+      "fragments": "фрагмената",
+      "gap": "позиви највише на сваких",
+      "inARow": "упутстава узастопно",
+      "injected": "убачено ручно",
+      "late": "закаснели фрагменти",
+      "lateMark": "закаснело",
+      "lateValue": "{{n}} · до {{ms}} ms",
+      "lines": "{{n}} реплика",
+      "listening": "слуша",
+      "log": "дневник режије",
+      "notYet": "још не",
+      "notices": "обавештења о тишини",
+      "now": "режија сада",
+      "ofLimit": "{{n}} од {{limit}}",
+      "player": "играч",
+      "playerSpoke": "играч је говорио",
+      "pool": "у скупу",
+      "poolValue": "{{n}} фрагмената · ритам {{ms}} ms",
+      "quietFor": "тихо већ",
+      "quietReplies": "нема шта да се ради",
+      "reminders": "igrač podsećen na pravila",
+      "sent": "послато",
+      "sentValue": "{{d}} упутстава · {{b}} позадина",
+      "setBeat": "подеси ритам (ms)",
+      "standingDown": "povlači se · igrač ništa nije rekao {{s}}",
+      "thinking": "размишља · {{s}}",
+      "waiting": "чека на то"
     },
     "errors": {
       "connectionLost": "Veza sa igrom je prekinuta. Ponovo učitaj stranicu da pokušaš opet.",
@@ -1739,15 +2021,27 @@
     },
     "insights": {
       "close": "Затвори",
+      "collapse": "Скупи",
       "empty": "Још ништа није покренуто.",
-      "feed": "Шта се догодило",
+      "expand": "Рашири",
+      "feed": "Историја",
       "hide": "Сакриј увиде",
       "label": "Увиди",
-      "show": "Прикажи увиде"
+      "noProblems": "До сада нема проблема.",
+      "pickBlock": "Кликни на блок или везу у току рада да видиш шта је урадио.",
+      "settingEmpty": "Игра ово оставља празним.",
+      "show": "Прикажи увиде",
+      "tabProblems": "Проблеми",
+      "tabSelected": "Изабрано",
+      "tabUsage": "Употреба"
     },
     "launch": {
       "noGame": "Ovoj stranici je potrebna igra: otvori je sa stranice igre.",
       "starting": "Pokretanje igre…"
+    },
+    "over": {
+      "contentPolicy": "Ovu igru je zaustavio AI provajder: razgovor je otišao u smeru koji njegova bezbednosna pravila ne dozvoljavaju. I dalje možete da pročitate sve što je rečeno i da započnete novu igru kad god želite.",
+      "unknown": "Ova igra je završena. I dalje možete da pročitate sve što je rečeno i da započnete novu igru kad god želite."
     },
     "pipeline": {
       "compact": "Сажми нит",
@@ -1755,15 +2049,29 @@
       "compacting": "Сажимање у току…",
       "copied": "Распоред је копиран",
       "copyFailed": "Нема међуспремника: распоред је забележен у конзоли",
-      "copyLayout": "Копирај распоред"
+      "copyLayout": "Копирај распоред",
+      "injectBackground": "Знај",
+      "injectBackgroundHint": "Шта лик мисли у себи, својим речима, а да то сада не изговори, нпр. „Ја сам вукодлак и желим да она то постепено открије.“",
+      "injectDirection": "Уради",
+      "injectDirectionHint": "Шта лик треба да уради, нпр. „Буди мрзовољан/мрзовољна, не верујеш играчу.“",
+      "injectSpeech": "Реци",
+      "injectSpeechHint": "Шта лик треба да каже, својим речима, нпр. „Стој! Ко иде?“",
+      "injection": "Реци лику да …",
+      "injectionFailed": "Није могло да се пошаље",
+      "injectionSend": "Пошаљи",
+      "injectionSending": "Слање…",
+      "injectionSent": "Послато у разговор"
     },
     "problems": {
       "denied": "Nije ti dozvoljeno da igraš ovu igru.",
       "failed": "Nešto je pošlo naopako i igra ne može da se nastavi.",
       "genre": "Dostupni AI ključ ne može da pokrene ovu vrstu igre.",
+      "hostRefused": "Veb-sajt u koji je ova igra ugrađena nije dozvolio njeno pokretanje.",
       "keyRejected": "AI provajder je odbio ključ ove igre, pa igra ne može da se nastavi. Osoba koja je podesila igru treba da proveri ključ.",
+      "noCredit": "Жао нам је, AI кредит је потрошен, па игра тренутно не може да се настави.",
       "noKey": "Nijedan AI ključ nije dostupan za igranje ove igre.",
       "noPlays": "Ova deljena igra više nema preostalih igranja.",
+      "over": "Ova igra je završena i ne može da se nastavi.",
       "paused": "Радионица је паузирана. Игра се наставља када се радионица настави.",
       "stale": "Ova igra više ne može da se nastavi.",
       "unknown": "Ova sesija igre ne postoji.",
@@ -1774,10 +2082,20 @@
       "connected": "Релеј: повезан",
       "connecting": "Релеј: није покренут"
     },
+    "settings": {
+      "cover": "Слика из галерије",
+      "description": "Опис",
+      "gameStart": "Почетак игре",
+      "imageStyle": "Стил слике",
+      "scenario": "Сценарио",
+      "statusFields": "Поља статуса",
+      "voiceStyle": "Стил гласа"
+    },
     "status": {
       "choose": "Izaberi način igranja da bi počeo.",
       "connecting": "Povezivanje…",
       "ended": "Igra je završena.",
+      "over": "Igra je završena.",
       "reconnecting": "Ponovno povezivanje…",
       "settingScene": "Postavljanje scene…",
       "wakingCharacter": "Buđenje lika…"
@@ -1795,10 +2113,14 @@
       "condensed-scenario\u0003econdense-scenario": "захтев",
       "condensed-scenario\u0003eimage-prompt": "сценарио",
       "condensed-scenario\u0003estart-game": "спремно",
+      "gallery-image\u0003estart-game": "спремно",
+      "greeting\u0003elive-session": "прве речи",
+      "greeting\u0003estart-game": "спремно",
       "image-prompt\u0003eimage": "упит",
       "image-style\u0003eadapted-style": "одговор",
       "live-session\u0003eobserver": "транскрипт",
-      "observer\u0003elive-session": "наговештај",
+      "observer\u0003elive-session": "убацивање",
+      "opening-brief\u0003egreeting": "сажетак",
       "outline\u0003eexpand": "план",
       "outline\u0003eimage-prompt": "сцена",
       "outline\u0003eprops-store": "промене",
@@ -1811,7 +2133,12 @@
       "rephrase\u0003eoutline": "радња",
       "rephrase-audio\u0003eoutline": "радња",
       "start-game\u0003elive-session": "увод",
-      "start-game\u0003eoutline": "упит"
+      "start-game\u0003eoutline": "упит",
+      "voice\u0003elive-session:secondary": "стил гласа",
+      "voice\u0003elive-session:voice": "глас",
+      "voice\u0003estart-game": "спремно",
+      "voice-brief\u0003evoice:description": "опис",
+      "voice-brief\u0003evoice:voice": "резервни глас"
     }
   }
 }

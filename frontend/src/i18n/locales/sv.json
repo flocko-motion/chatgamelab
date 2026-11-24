@@ -709,6 +709,176 @@
           "title": "Osparade ändringar"
         }
       },
+      "editor": {
+        "allSet": "Allt klart: skapa spelet.",
+        "backToOverview": "Tillbaka till översikten",
+        "card": {
+          "adventure": {
+            "descriptionPlaceholder": "Hitta den gömda skatten innan skogen slukar dig.",
+            "titlePlaceholder": "Skatten i den mörka skogen"
+          },
+          "description": "Beskrivning",
+          "descriptionHint": "En eller två meningar för galleriet, så att spelare vet vad de kan förvänta sig.",
+          "encounter": {
+            "descriptionPlaceholder": "Besök Greta, den griniga fyrvaktaren, och ta reda på vad hon såg den natten.",
+            "titlePlaceholder": "Greta vid fyren"
+          },
+          "title": "Titel",
+          "titleHint": "{{length}}/{{max}} · Kan bli offentligt synlig – använd inga riktiga namn."
+        },
+        "delete": {
+          "confirm": "Ta bort för gott",
+          "intro": "Ta bort för gott, efter att först ha laddat ner det.",
+          "keep": "Behåll",
+          "keepFile": "Behåll filen, så kan du importera spelet igen senare, här eller på en annan ChatGameLab-server.",
+          "label": "Ta bort spel",
+          "whatGoes": "\"{{name}}\" försvinner för gott: dess kort, berättelse, bilder och delningslänkar. Spelare kan inte längre starta det. Det går inte att ångra."
+        },
+        "done": "klar",
+        "doneButton": "Klar",
+        "download": {
+          "button": "Ladda ner",
+          "description": "Spelet som en fil, att spara eller importera till en annan ChatGameLab-server.",
+          "title": "Ladda ner"
+        },
+        "embed": {
+          "copy": "Kopiera kodsnutt",
+          "incomplete": "Välj vem som betalar och vilken sida, för att få kodsnutten.",
+          "noKeys": "Du har ingen fungerande AI-nyckel att betala med. Lägg till en eller be din organisation om en.",
+          "noPages": "Din organisation har ännu ingen verifierad sida. Organisationens ledning eller personal kan lägga till en i organisationens inställningar.",
+          "offNote": "När den är avstängd visar kodsnutten ingenting. När den slås på igen fungerar samma kodsnutt.",
+          "page": "Verifierad sida",
+          "pageHint": "Spelet körs bara där och bara efter att sidan har godkänt varje start.",
+          "paidBy": "Betalas av",
+          "paidByPlaceholder": "Välj en nyckel",
+          "payingNow": "Betalar nu",
+          "snippet": "Kodsnutt för din webbplats",
+          "snippetCss": "din CSS",
+          "snippetHint": "Placera den där spelet ska visas och ge elementet den höjd du vill ha.",
+          "snippetPlayer": "DITT-BESÖKAR-ID",
+          "snippetRequest": "DITT-FÖFRÅGNINGS-ID",
+          "snippetVerifiedHint": "Din server fyller i sitt ID för besökaren och för den här sidvisningen; din sidas callback får båda.",
+          "styleLink": "Utforma med din egen CSS →",
+          "toggle": "Bädda in på en webbplats",
+          "toggleHint": "Visar det här spelet på din organisations verifierade sida, utan något från ChatGameLab runt omkring. Besökare spelar som gäster; nyckeln du väljer betalar."
+        },
+        "fillIn": "Fyll i avsnitten tills alla är gröna.",
+        "genre": {
+          "pitch": {
+            "adventure": "Spelaren utforskar en värld. Spelet berättar vad som händer, målar upp bilder och håller räkningen.",
+            "encounter": "Spelaren pratar med en figur med rösten. Figuren håller sig i sin roll och svarar direkt."
+          },
+          "question": "Vad vill du skapa?"
+        },
+        "look": {
+          "imageStyle": "Bildstil",
+          "imageStyleHint": "Hur bilderna ser ut, inklusive omslaget: tecknat, akvarell, pixelgrafik…",
+          "imageStylePlaceholder": "mjuk akvarell, dämpade färger"
+        },
+        "makeCopy": "Skapa min kopia",
+        "next": "nästa",
+        "notDone": "inte klar än",
+        "open": "Öppna",
+        "othersGame": "Det här spelet tillhör någon annan. Du kan titta på allt och skapa en egen kopia för att ändra det.",
+        "pages": {
+          "card": {
+            "intro": "Det spelare ser i galleriet: titeln och en kort beskrivning.",
+            "label": "Kort"
+          },
+          "look": {
+            "intro": "Hur spelets bilder och sida ser ut.",
+            "label": "Utseende"
+          },
+          "sharing": {
+            "intro": "Vem som kan hitta och spela spelet.",
+            "label": "Delning"
+          },
+          "sound": {
+            "intro": "Hur spelets röst låter.",
+            "label": "Ljud"
+          },
+          "story": {
+            "intro": "Vad som händer i spelet och hur det börjar.",
+            "label": "Berättelse"
+          }
+        },
+        "review": {
+          "button": "Granska",
+          "failed": "Spelet kunde inte granskas just nu. Du kan spara det ändå.",
+          "goTo": "Gå till {{page}}",
+          "later": "Senare",
+          "looksGood": "Det ser bra ut. Spela det en gång och känn efter hur det känns.",
+          "missing": {
+            "adventure": {
+              "imageStyle": "Välj en bildstil så att bilderna passar ihop.",
+              "name": "Ditt spel har ingen titel än.",
+              "systemMessageGameStart": "Berätta hur spelet börjar.",
+              "systemMessageScenario": "Berätta vad spelet handlar om."
+            },
+            "encounter": {
+              "imageStyle": "Välj en bildstil så att bilderna passar ihop.",
+              "name": "Ditt spel har ingen titel än.",
+              "systemMessageGameStart": "Berätta hur figuren hälsar på spelaren.",
+              "systemMessageScenario": "Berätta vem figuren är."
+            }
+          }
+        },
+        "sound": {
+          "adventure": {
+            "voiceStyle": "Berättarens röst",
+            "voiceStyleHint": "Hur berättelsen låter när den läses högt."
+          },
+          "builtInVoice": "Inbyggd röst",
+          "encounter": {
+            "voiceStyle": "Figurens röst",
+            "voiceStyleHint": "Hur figuren låter."
+          },
+          "errors": {
+            "failed": "Rösten kunde inte spelas upp. Försök igen.",
+            "keyRejected": "AI-leverantören avvisade nyckeln. Rösten kunde inte spelas upp.",
+            "noKey": "Ingen av AI-nycklarna du kan använda talar med en direkt röst, så det finns inget att höra just nu."
+          },
+          "keepVoice": "Behåll den här",
+          "listen": "Lyssna",
+          "newVoice": "Skapa en ny röst",
+          "newVoiceConfirm": "Den nuvarande rösten tas bort och en ny skapas utifrån samma beskrivning. Spel med exakt den här beskrivningen på den här AI-nyckeln får också den nya rösten.",
+          "noteDescription": "Om du ändrar beskrivningen skapas ändå en annan röst.",
+          "noteKeys": "Av tekniska skäl kan vi inte lova att varje session använder exakt den här rösten: en röst skapas och sparas på AI-nyckeln som betalar, så en session som betalas av en annan nyckel får sin egen röst utifrån samma beskrivning.",
+          "play": "Spela upp ett röstprov",
+          "sampleLine": {
+            "greeting": "Hej där! Kom in, sätt dig och berätta vad som för dig hit.",
+            "narration": "Berättelsen börjar en stilla morgon, när en smal stig leder in i det okända."
+          },
+          "status": {
+            "builtIn": "Ingen beskrivning än: spelet talar med en inbyggd röst tills du beskriver rösten.",
+            "ownVoice": "En egen röst för den här beskrivningen, skapad med din AI-nyckel.",
+            "steered": "En inbyggd röst läser berättelsen enligt beskrivningen."
+          },
+          "stop": "Stoppa provet"
+        },
+        "story": {
+          "adventure": {
+            "gameStart": "Hur börjar det?",
+            "gameStartHint": "Den första scenen spelaren ser och hur spelaren förstår vad som ska göras.",
+            "gameStartPlaceholder": "Spelaren vaknar vid kanten av en mörk skog. En smal stig leder in bland träden…",
+            "scenario": "Vad handlar spelet om?",
+            "scenarioHint": "Världen, spelarens roll, målet och hur spelaren vet att hen har vunnit.",
+            "scenarioPlaceholder": "Spelaren är en upptäcktsresande i en mystisk skog och letar efter en gömd skatt…"
+          },
+          "encounter": {
+            "gameStart": "Hur hälsar figuren på spelaren?",
+            "gameStartHint": "Situationen när samtalet börjar; de första orden skrivs utifrån den.",
+            "gameStartPlaceholder": "En främling knackar på fyrens dörr mitt i en storm…",
+            "scenario": "Vem är figuren?",
+            "scenarioHint": "Figurens personlighet, vad hen vet, hur hen pratar och vad hen aldrig ger efter för.",
+            "scenarioPlaceholder": "Du är Greta, en grinig fyrvaktare som känner till alla fartyg längs kusten…"
+          }
+        },
+        "titleEdit": "Redigera spel",
+        "titleNew": "Nytt spel",
+        "titleView": "Spel",
+        "untitled": "Spel utan titel"
+      },
       "empty": {
         "description": "Skapa ditt första spel för att komma igång med interaktiva AI-drivna äventyr.",
         "title": "Inga spel ännu"
@@ -735,7 +905,7 @@
       },
       "genres": {
         "adventure": "Äventyr",
-        "npc-live": "NPC-Live"
+        "npc-live": "Möte"
       },
       "importExport": {
         "coverFailed": "Spelet importerades, men omslagsbilden kunde inte kontrolleras. Du kan skapa en ny i redigeraren.",
@@ -849,6 +1019,7 @@
       },
       "statusFieldsEditor": {
         "addField": "Lägg till nytt värde",
+        "maxHint": "Högst fem värden: några få värden som spelaren kan följa är bättre än många.",
         "namePlaceholder": "Namn (t.ex. Hälsa)",
         "noFields": "Inga värden ännu. Klicka på + för att lägga till ett nytt.",
         "valuePlaceholder": "Startvärde (t.ex. 100)"
@@ -1203,6 +1374,23 @@
         "role-desc": "Roll (Ö-A)"
       },
       "title": "Min organisation",
+      "verifiedPages": {
+        "add": "Registrera sida",
+        "addTitle": "Registrera en sida",
+        "callbackShown": "Callback: {{url}}",
+        "callbackUrl": "Callback-adress",
+        "callbackUrlHint": "Här frågar ChatGameLab före varje start. Den måste svara inom några sekunder.",
+        "copied": "Kopierad",
+        "copy": "Kopiera sid-ID",
+        "empty": "Inga verifierade sidor än.",
+        "intro": "En verifierad sida är en sida på din organisations webbplats som får visa era inbäddade spel. Innan ett spel startar där frågar ChatGameLab sidans callback om det ska starta, med sid-ID:t nedan samt besökarens och förfrågningens ID:n som sidan skickar vidare. Endast svaret {\"ok\": true} startar spelet.",
+        "pageId": "Sid-ID",
+        "pageUrl": "Sidans adress",
+        "pageUrlHint": "Sidan där dina spel är inbäddade. Endast dess webbplats får visa dem.",
+        "remove": "Ta bort sida",
+        "removeTitle": "Ta bort den här sidan?",
+        "removeWarning": "Spel som är inbäddade för {{page}} slutar starta där tills de får en annan sida."
+      },
       "workshops": {
         "activate": "Aktivera",
         "active": "Aktiv",
@@ -1732,6 +1920,7 @@
     "orgApiKeys": "API-nycklar",
     "orgConstraints": "Begränsning av ungdomsskyddsprompten",
     "orgMembers": "Medlemmar",
+    "orgVerifiedPages": "Webbplatser",
     "orgWorkshops": "Workshops",
     "play": "Spela ett spel",
     "rooms": "Rum",
@@ -1777,6 +1966,7 @@
       "dropped": "borttagen",
       "droppedValue": "{{n}} (för många i rad)",
       "empty": "inget ännu",
+      "entryAbsent": "spelaren borta",
       "entryBackground": "bakgrund skickad",
       "entryConversation": "samtal",
       "entryDirection": "instruktion skickad",
@@ -1784,6 +1974,7 @@
       "entryError": "fel",
       "entryInjection": "inskickad",
       "entryLine": "sade",
+      "entryRules": "regler skickade",
       "entrySilence": "tystnad",
       "entryThought": "tänker",
       "failed": "{{n}} misslyckades",
@@ -1807,9 +1998,11 @@
       "poolValue": "{{n}} fragment · takt {{ms}} ms",
       "quietFor": "tyst i",
       "quietReplies": "inget att göra",
+      "reminders": "påmind om reglerna",
       "sent": "skickad",
       "sentValue": "{{d}} instruktioner · {{b}} bakgrund",
       "setBeat": "ställ in takt (ms)",
+      "standingDown": "drar sig tillbaka · spelaren har varit tyst i {{s}}",
       "thinking": "tänker · {{s}}",
       "waiting": "väntar på det"
     },
@@ -1846,6 +2039,10 @@
       "noGame": "Den här sidan behöver ett spel för att kunna spelas: öppna den från ett spels sida.",
       "starting": "Startar spelet…"
     },
+    "over": {
+      "contentPolicy": "Det här spelet stoppades av AI-leverantören: samtalet gick i en riktning som dess säkerhetsregler inte tillåter. Du kan fortfarande läsa allt som sades och starta ett nytt spel när du vill.",
+      "unknown": "Det här spelet är slut. Du kan fortfarande läsa allt som sades och starta ett nytt spel när du vill."
+    },
     "pipeline": {
       "compact": "Komprimera tråd",
       "compactFailed": "Komprimeringen misslyckades",
@@ -1869,10 +2066,12 @@
       "denied": "Du får inte spela det här spelet.",
       "failed": "Något gick fel och spelet kan inte fortsätta.",
       "genre": "Den tillgängliga AI-nyckeln kan inte köra den här typen av spel.",
+      "hostRefused": "Webbplatsen där det här spelet är inbäddat tillät inte att det startade.",
       "keyRejected": "AI-leverantören avvisade nyckeln för det här spelet, så spelet kan inte fortsätta. Den som konfigurerade spelet måste kontrollera nyckeln.",
       "noCredit": "Tyvärr är AI-krediten slut, så spelet kan inte fortsätta just nu.",
       "noKey": "Det finns ingen AI-nyckel tillgänglig för att spela det här spelet.",
       "noPlays": "Det här delade spelet har inga spelomgångar kvar.",
+      "over": "Det här spelet är slut och kan inte fortsätta.",
       "paused": "Workshopen är pausad. Spelet fortsätter när den återupptas.",
       "stale": "Det här spelet kan inte längre fortsätta.",
       "unknown": "Den här spelsessionen finns inte.",
@@ -1896,6 +2095,7 @@
       "choose": "Välj hur du vill spela för att börja.",
       "connecting": "Ansluter…",
       "ended": "Spelet är slut.",
+      "over": "Spelet är slut.",
       "reconnecting": "Ansluter igen…",
       "settingScene": "Förbereder scenen…",
       "wakingCharacter": "Väcker karaktären…"

@@ -709,6 +709,176 @@
           "title": "Nem mentett módosítások"
         }
       },
+      "editor": {
+        "allSet": "Minden kész: hozd létre a játékot.",
+        "backToOverview": "Vissza az áttekintéshez",
+        "card": {
+          "adventure": {
+            "descriptionPlaceholder": "Találd meg az elrejtett kincset, mielőtt az erdő elnyel.",
+            "titlePlaceholder": "A sötét erdő kincse"
+          },
+          "description": "Leírás",
+          "descriptionHint": "Egy-két mondat a galériába, hogy a játékosok tudják, mire számítsanak.",
+          "encounter": {
+            "descriptionPlaceholder": "Látogasd meg Gretát, a mogorva világítótorony-őrt, és derítsd ki, mit látott azon az éjszakán.",
+            "titlePlaceholder": "Greta a világítótoronynál"
+          },
+          "title": "Cím",
+          "titleHint": "{{length}}/{{max}} · Nyilvánosan láthatóvá válhat – kérjük, ne használj valódi neveket."
+        },
+        "delete": {
+          "confirm": "Végleges törlés",
+          "intro": "Végleges eltávolítás, előtte letöltéssel.",
+          "keep": "Megtartom",
+          "keepFile": "Tartsd meg a fájlt, így később újra importálhatod a játékot ide vagy egy másik ChatGameLab-szerverre.",
+          "label": "Játék törlése",
+          "whatGoes": "A(z) „{{name}}” végleg eltűnik: a kártyája, története, képei és megosztási hivatkozásai. A játékosok többé nem indíthatják el. Ez nem vonható vissza."
+        },
+        "done": "kész",
+        "doneButton": "Kész",
+        "download": {
+          "button": "Letöltés",
+          "description": "A játék fájlként, megőrzéshez vagy egy másik ChatGameLab-szerverre való importáláshoz.",
+          "title": "Letöltés"
+        },
+        "embed": {
+          "copy": "Kódrészlet másolása",
+          "incomplete": "Válaszd ki, mi fizet, és az oldalt, hogy megkapd a kódrészletet.",
+          "noKeys": "Nincs használható MI-kulcsod a fizetéshez. Adj hozzá egyet, vagy kérj egyet a szervezetedtől.",
+          "noPages": "A szervezetednek még nincs ellenőrzött oldala. A szervezet vezetője vagy munkatársai a szervezet beállításaiban adhatnak hozzá egyet.",
+          "offNote": "Kikapcsolva a kódrészlet nem jelenít meg semmit. Újra bekapcsolva ugyanaz a kódrészlet működik.",
+          "page": "Ellenőrzött oldal",
+          "pageHint": "A játék csak ott fut, és csak akkor, ha az oldal minden indításhoz hozzájárul.",
+          "paidBy": "Fizető",
+          "paidByPlaceholder": "Válassz kulcsot",
+          "payingNow": "Jelenleg fizet",
+          "snippet": "Kódrészlet a webhelyedhez",
+          "snippetCss": "saját CSS-ed",
+          "snippetHint": "Illeszd be oda, ahol a játéknak meg kell jelennie, és add meg az elem kívánt magasságát.",
+          "snippetPlayer": "SAJÁT-LÁTOGATÓ-AZONOSÍTÓ",
+          "snippetRequest": "SAJÁT-KÉRÉS-AZONOSÍTÓ",
+          "snippetVerifiedHint": "A szervered beilleszti a látogató és az oldalmegtekintés azonosítóját; az oldalad callbackje mindkettőt megkapja.",
+          "styleLink": "Formázd saját CSS-sel →",
+          "toggle": "Beágyazás webhelyre",
+          "toggleHint": "Megjeleníti ezt a játékot a szervezeted ellenőrzött oldalán, a ChatGameLab körítése nélkül. A látogatók vendégként játszanak; a választott kulcs fizet."
+        },
+        "fillIn": "Töltsd ki a szakaszokat, amíg mind zöld nem lesz.",
+        "genre": {
+          "pitch": {
+            "adventure": "A játékos felfedez egy világot. A játék elmeséli, mi történik, képeket fest és nyilvántartja az eredményt.",
+            "encounter": "A játékos hangon keresztül beszélget egy szereplővel. A szereplő megmarad a szerepében, és valós időben válaszol."
+          },
+          "question": "Mit szeretnél készíteni?"
+        },
+        "look": {
+          "imageStyle": "Képstílus",
+          "imageStyleHint": "Milyenek legyenek a képek, a borítóképet is beleértve: rajzfilm, akvarell, pixel art…",
+          "imageStylePlaceholder": "lágy akvarell, tompa színek"
+        },
+        "makeCopy": "Saját másolat készítése",
+        "next": "következő",
+        "notDone": "még nincs kész",
+        "open": "Megnyitás",
+        "othersGame": "Ez a játék valaki másé. Mindent megnézhetsz, és készíthetsz róla saját másolatot, hogy módosítsd.",
+        "pages": {
+          "card": {
+            "intro": "Ezt látják a játékosok a galériában: a címet és a rövid leírást.",
+            "label": "Kártya"
+          },
+          "look": {
+            "intro": "Így néznek ki a játék képei és az oldala.",
+            "label": "Megjelenés"
+          },
+          "sharing": {
+            "intro": "Kik találhatják meg és játszhatják a játékot.",
+            "label": "Megosztás"
+          },
+          "sound": {
+            "intro": "Így szól a játék hangja.",
+            "label": "Hang"
+          },
+          "story": {
+            "intro": "Mi történik a játékban, és hogyan kezdődik.",
+            "label": "Történet"
+          }
+        },
+        "review": {
+          "button": "Ellenőrzés",
+          "failed": "A játékot most nem sikerült ellenőrizni. Ettől még elmentheted.",
+          "goTo": "Ugrás ide: {{page}}",
+          "later": "Később",
+          "looksGood": "Jónak tűnik. Játssz vele egyszer, és nézd meg, milyen érzés.",
+          "missing": {
+            "adventure": {
+              "imageStyle": "Válassz képstílust, hogy a képek összhangban legyenek.",
+              "name": "A játékodnak még nincs címe.",
+              "systemMessageGameStart": "Mondd el, hogyan kezdődik a játék.",
+              "systemMessageScenario": "Mondd el, miről szól a játék."
+            },
+            "encounter": {
+              "imageStyle": "Válassz képstílust, hogy a képek összhangban legyenek.",
+              "name": "A játékodnak még nincs címe.",
+              "systemMessageGameStart": "Mondd el, hogyan üdvözli a szereplő a játékost.",
+              "systemMessageScenario": "Mondd el, ki a szereplő."
+            }
+          }
+        },
+        "sound": {
+          "adventure": {
+            "voiceStyle": "A narrátor hangja",
+            "voiceStyleHint": "Milyen a történet hangzása, amikor felolvassák."
+          },
+          "builtInVoice": "Beépített hang",
+          "encounter": {
+            "voiceStyle": "A szereplő hangja",
+            "voiceStyleHint": "Milyen a szereplő hangja."
+          },
+          "errors": {
+            "failed": "A hangot nem sikerült lejátszani. Kérjük, próbáld újra.",
+            "keyRejected": "Az MI-szolgáltató elutasította a kulcsot. A hangot nem sikerült lejátszani.",
+            "noKey": "Az általad használható MI-kulcsok egyike sem beszél élő hangon, ezért jelenleg nincs mit hallgatni."
+          },
+          "keepVoice": "Ezt tartom meg",
+          "listen": "Meghallgatás",
+          "newVoice": "Új hang készítése",
+          "newVoiceConfirm": "A jelenlegi hang törlődik, és ugyanabból a leírásból új készül. Az ezen az MI-kulcson pontosan ezzel a leírással rendelkező játékok is az új hangot kapják.",
+          "noteDescription": "A leírás megváltoztatása egyébként is másik hangot eredményez.",
+          "noteKeys": "Technikai okokból nem ígérhetjük, hogy minden munkamenet pontosan ezt a hangot használja: a hang azon az MI-kulcson készül el és marad meg, amelyik fizet, így egy másik kulccsal fizetett munkamenet ugyanabból a leírásból saját hangot kap.",
+          "play": "Hangminta lejátszása",
+          "sampleLine": {
+            "greeting": "Üdvözöllek! Gyere be, ülj le, és mondd el, mi szél hozott ide.",
+            "narration": "A történet egy csendes reggelen kezdődik, amikor egy keskeny ösvény az ismeretlenbe vezet."
+          },
+          "status": {
+            "builtIn": "Még nincs leírás: a játék beépített hangon szólal meg, amíg le nem írod a hangot.",
+            "ownVoice": "Ehhez a leíráshoz saját hang készült az MI-kulcsoddal.",
+            "steered": "A történetet egy beépített hang olvassa fel a leírásnak megfelelően."
+          },
+          "stop": "Hangminta leállítása"
+        },
+        "story": {
+          "adventure": {
+            "gameStart": "Hogyan kezdődik?",
+            "gameStartHint": "Az első jelenet, amelyet a játékos lát, és amiből megtudja, mit kell tennie.",
+            "gameStartPlaceholder": "A játékos egy sötét erdő szélén ébred. Egy keskeny ösvény vezet a fák közé…",
+            "scenario": "Miről szól a játék?",
+            "scenarioHint": "A világ, a játékos szerepe, a cél, és hogy miből tudja a játékos, hogy nyert.",
+            "scenarioPlaceholder": "A játékos felfedező egy rejtélyes erdőben, és egy elrejtett kincset keres…"
+          },
+          "encounter": {
+            "gameStart": "Hogyan üdvözli a játékost?",
+            "gameStartHint": "A helyzet, amikor a beszélgetés elkezdődik; ebből születnek az első szavak.",
+            "gameStartPlaceholder": "Egy idegen kopog a világítótorony ajtaján egy vihar kellős közepén…",
+            "scenario": "Ki a szereplő?",
+            "scenarioHint": "A személyisége, amit tud, ahogyan beszél, és amiben soha nem enged.",
+            "scenarioPlaceholder": "Te Greta vagy, egy mogorva világítótorony-őr, aki ismeri a partvidék minden hajóját…"
+          }
+        },
+        "titleEdit": "Játék szerkesztése",
+        "titleNew": "Új játék",
+        "titleView": "Játék",
+        "untitled": "Cím nélküli játék"
+      },
       "empty": {
         "description": "Hozd létre az első játékodat, és induljon az interaktív MI-kaland!",
         "title": "Még nincs játék"
@@ -735,7 +905,7 @@
       },
       "genres": {
         "adventure": "Kaland",
-        "npc-live": "NPC-Live"
+        "npc-live": "Találkozás"
       },
       "importExport": {
         "coverFailed": "A játék importálása sikerült, de a borítóját nem sikerült ellenőrizni. A szerkesztőben újat rajzoltathatsz.",
@@ -849,6 +1019,7 @@
       },
       "statusFieldsEditor": {
         "addField": "Új érték hozzáadása",
+        "maxHint": "Legfeljebb öt érték: néhány követhető érték jobb, mint sok.",
         "namePlaceholder": "Név (pl. Életerő)",
         "noFields": "Még nincs érték. Kattints a + jelre új érték felvételéhez.",
         "valuePlaceholder": "Kezdő érték (pl. 100)"
@@ -1203,6 +1374,23 @@
         "role-desc": "Szerepkör (Z–A)"
       },
       "title": "Szervezetem",
+      "verifiedPages": {
+        "add": "Oldal regisztrálása",
+        "addTitle": "Oldal regisztrálása",
+        "callbackShown": "Callback: {{url}}",
+        "callbackUrl": "Callback-cím",
+        "callbackUrlHint": "Itt kérdez a ChatGameLab minden indítás előtt. Néhány másodpercen belül válaszolnia kell.",
+        "copied": "Másolva",
+        "copy": "Oldalazonosító másolása",
+        "empty": "Még nincs ellenőrzött oldal.",
+        "intro": "Az ellenőrzött oldal a szervezeted webhelyének olyan oldala, amely megjelenítheti a beágyazott játékokat. Mielőtt egy játék ott elindulna, a ChatGameLab megkérdezi az oldal callbackjét, hogy elindulhat-e, az alábbi oldalazonosítóval, valamint a látogató és a kérés azonosítójával, amelyeket az oldalad továbbít. A játékot csak a {\"ok\": true} válasz indítja el.",
+        "pageId": "Oldalazonosító",
+        "pageUrl": "Oldalcím",
+        "pageUrlHint": "Az oldal, amelybe a játékaid be vannak ágyazva. Csak annak webhelye jelenítheti meg őket.",
+        "remove": "Oldal eltávolítása",
+        "removeTitle": "Eltávolítod ezt az oldalt?",
+        "removeWarning": "A(z) {{page}} oldalra beágyazott játékok ott nem indulnak el addig, amíg nem kapnak egy másik oldalt."
+      },
       "workshops": {
         "activate": "Aktiválás",
         "active": "Aktív",
@@ -1726,6 +1914,7 @@
     "orgApiKeys": "API-kulcsok",
     "orgConstraints": "Gyermekvédelmi promptkorlátozás",
     "orgMembers": "Tagok",
+    "orgVerifiedPages": "Webhelyek",
     "orgWorkshops": "Műhelyek",
     "play": "Játssz egy játékot",
     "rooms": "Szobák",
@@ -1771,6 +1960,7 @@
       "dropped": "eldobva",
       "droppedValue": "{{n}} (túl sok egymás után)",
       "empty": "még semmi",
+      "entryAbsent": "a játékos távol van",
       "entryBackground": "háttér elküldve",
       "entryConversation": "beszélgetés",
       "entryDirection": "utasítás elküldve",
@@ -1778,6 +1968,7 @@
       "entryError": "hiba",
       "entryInjection": "kézzel megadva",
       "entryLine": "ezt mondta",
+      "entryRules": "szabályok elküldve",
       "entrySilence": "csend",
       "entryThought": "ezt gondolja",
       "failed": "{{n}} sikertelen",
@@ -1801,9 +1992,11 @@
       "poolValue": "{{n}} töredék · {{ms}} ms/ütem",
       "quietFor": "ennyi ideje csend van",
       "quietReplies": "nincs teendő",
+      "reminders": "emlékeztetve a szabályokra",
       "sent": "elküldve",
       "sentValue": "{{d}} utasítás · {{b}} háttér",
       "setBeat": "ütem beállítása (ms)",
+      "standingDown": "visszavonul · a játékos {{s}} óta nem mondott semmit",
       "thinking": "gondolkodik · {{s}}",
       "waiting": "válaszra vár"
     },
@@ -1840,6 +2033,10 @@
       "noGame": "Ennek az oldalnak szüksége van egy játékra: nyisd meg egy játék oldaláról.",
       "starting": "A játék indítása…"
     },
+    "over": {
+      "contentPolicy": "Ezt a játékot az MI-szolgáltató leállította: a beszélgetés olyan irányba ment, amelyet a biztonsági szabályai nem engedélyeznek. Továbbra is elolvashatsz mindent, ami elhangzott, és bármikor új játékot indíthatsz.",
+      "unknown": "Ez a játék véget ért. Továbbra is elolvashatsz mindent, ami elhangzott, és bármikor új játékot indíthatsz."
+    },
     "pipeline": {
       "compact": "Szál tömörítése",
       "compactFailed": "A tömörítés sikertelen",
@@ -1863,10 +2060,12 @@
       "denied": "Nem játszhatsz ezzel a játékkal.",
       "failed": "Valami hiba történt, a játék nem folytatódhat.",
       "genre": "A rendelkezésre álló API-kulcs nem tudja futtatni ezt a játéktípust.",
+      "hostRefused": "A webhely, amelybe ez a játék be van ágyazva, nem engedte elindulni.",
       "keyRejected": "A mesterségesintelligencia-szolgáltató elutasította ennek a játéknak a kulcsát, ezért a játék nem folytatódhat. A játékot beállító személynek ellenőriznie kell a kulcsot.",
       "noCredit": "Sajnáljuk, az AI-kredit elfogyott, ezért a játék most nem folytatható.",
       "noKey": "Nincs elérhető API-kulcs a játékhoz.",
       "noPlays": "Ehhez a megosztott játékhoz már nem maradt több játéklehetőség.",
+      "over": "Ez a játék véget ért, ezért nem folytatható.",
       "paused": "A műhely szünetel. A játék a folytatásakor megy tovább.",
       "stale": "Ez a játék már nem folytatható.",
       "unknown": "Ez a játékmenet nem létezik.",
@@ -1890,6 +2089,7 @@
       "choose": "A kezdéshez válaszd ki, hogyan szeretnél játszani.",
       "connecting": "Kapcsolódás…",
       "ended": "A játék véget ért.",
+      "over": "A játék véget ért.",
       "reconnecting": "Újracsatlakozás…",
       "settingScene": "A jelenet előkészítése…",
       "wakingCharacter": "A szereplő felébresztése…"

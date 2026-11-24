@@ -469,6 +469,7 @@
       "filters": {
         "all": "Semua Gim",
         "favorites": "Favorit",
+        "genre": "Genre",
         "own": "Gim Saya",
         "public": "Publik",
         "sponsored": "Disponsori"
@@ -477,6 +478,12 @@
       "play": "Mainkan",
       "reportGame": "Laporkan gim",
       "restart": "Mulai Ulang",
+      "resumeChoice": {
+        "continue": "Lanjutkan",
+        "message": "Kamu sudah memulai \"{{game}}\". Lanjutkan dari bagian terakhir, atau mulai dari awal? Memulai dari awal akan menggantikan sesi sebelumnya.",
+        "startNew": "Mulai dari awal",
+        "title": "Lanjutkan atau mulai dari awal?"
+      },
       "title": "Permainan",
       "unfavorite": "Hapus dari favorit",
       "workshop": "Lokakarya / Organisasi"
@@ -491,6 +498,7 @@
       "aiQualityTier": {
         "description": "Pilih tingkat kualitas AI untuk gim Anda saat menggunakan kunci API sendiri. Tingkat yang lebih tinggi biayanya lebih mahal tetapi mungkin memiliki kualitas lebih baik. Biarkan kosong untuk menggunakan bawaan server."
       },
+      "check": "Periksa kunci",
       "createModal": {
         "keyDescription": "Kunci Anda akan dienkripsi dan disimpan secara aman.",
         "keyLabel": "Kunci API",
@@ -521,6 +529,7 @@
         "platformRequired": "Platform wajib diisi"
       },
       "key": "kunci",
+      "keyEndsWith": "Kunci berakhir dengan karakter ini",
       "keys": "kunci",
       "noResults": "Tidak ada kunci yang cocok dengan pencarian atau filter Anda.",
       "platform": "Platform",
@@ -558,8 +567,15 @@
         "status-asc": "Kunci yang berfungsi terlebih dahulu"
       },
       "status": {
+        "checking": "Memeriksa…",
         "failed": "Kunci tidak berfungsi",
-        "unknown": "Kunci belum digunakan",
+        "reasons": {
+          "key_rejected": "Penyedia menolak kunci ini. Periksa apakah kunci telah disalin secara lengkap dan masih aktif.",
+          "no_credit": "Akun di balik kunci ini sudah tidak memiliki kredit. Isi ulang melalui penyedia.",
+          "no_key": "Kunci tidak dapat dibaca.",
+          "unreachable": "Penyedia tidak merespons. Coba lagi sebentar lagi."
+        },
+        "unknown": "Belum diperiksa",
         "working": "Kunci berfungsi"
       },
       "statusColumn": "Status",
@@ -673,12 +689,18 @@
         "statusFieldsHint": "Apa yang harus dilacak gim? Misalnya kesehatan, poin, atau amunisi. Gim mengingat nilai-nilai ini dan memperbaruinya saat bermain.",
         "theme": "Tema",
         "themeDefault": "Tampilan default",
-        "themeHint": "Tampilan yang digunakan saat game dimainkan."
+        "themeHint": "Tampilan yang digunakan saat game dimainkan.",
+        "voiceStyle": "Gaya suara",
+        "voiceStyleHint": "Seperti apa suaranya: suara karakter atau narator saat cerita dibacakan.",
+        "voiceStylePlaceholder": "misalnya, berat, lambat dan agak serak, seorang pria tua"
       },
       "editModal": {
         "adminActionTitle": "Tindakan admin",
         "adminActionWarning": "Anda sedang mengedit gim yang bukan milik Anda. Ini adalah tindakan administratif dan hanya boleh digunakan untuk tujuan moderasi.",
         "gameDesignSection": "Desain Gim",
+        "othersGameNotice": "Game ini dibuat oleh orang lain. Kamu dapat mengubah apa saja: saat disimpan, game ini menjadi milikmu, sementara versi aslinya tetap seperti semula.",
+        "saveAsOwn": "Simpan sebagai game saya",
+        "savedAsOwn": "Disimpan sebagai game kamu",
         "title": "Edit Gim",
         "unsavedChanges": {
           "discard": "Buang Perubahan",
@@ -686,6 +708,176 @@
           "message": "Anda memiliki perubahan yang belum disimpan. Apakah Anda yakin ingin membuangnya?",
           "title": "Perubahan Belum Disimpan"
         }
+      },
+      "editor": {
+        "allSet": "Semuanya siap: buat game.",
+        "backToOverview": "Kembali ke ikhtisar",
+        "card": {
+          "adventure": {
+            "descriptionPlaceholder": "Temukan harta karun tersembunyi sebelum hutan menelanmu.",
+            "titlePlaceholder": "Harta Karun Hutan Gelap"
+          },
+          "description": "Deskripsi",
+          "descriptionHint": "Satu atau dua kalimat untuk galeri, agar pemain tahu apa yang akan mereka hadapi.",
+          "encounter": {
+            "descriptionPlaceholder": "Kunjungi Greta, penjaga mercusuar yang pemarah, dan cari tahu apa yang dilihatnya malam itu.",
+            "titlePlaceholder": "Greta di Mercusuar"
+          },
+          "title": "Judul",
+          "titleHint": "{{length}}/{{max}} · Dapat terlihat oleh publik – jangan gunakan nama asli."
+        },
+        "delete": {
+          "confirm": "Hapus selamanya",
+          "intro": "Hapus selamanya, setelah mengunduhnya terlebih dahulu.",
+          "keep": "Simpan",
+          "keepFile": "Simpan filenya, dan kamu dapat mengimpor game ini lagi nanti, di sini atau di server ChatGameLab lain.",
+          "label": "Hapus game",
+          "whatGoes": "\"{{name}}\" akan hilang selamanya: kartunya, cerita, gambar, dan tautan berbagi. Pemain tidak dapat memulainya lagi. Tindakan ini tidak dapat dibatalkan."
+        },
+        "done": "selesai",
+        "doneButton": "Selesai",
+        "download": {
+          "button": "Unduh",
+          "description": "Game dalam bentuk file, untuk disimpan atau diimpor ke server ChatGameLab lain.",
+          "title": "Unduh"
+        },
+        "embed": {
+          "copy": "Salin snippet",
+          "incomplete": "Pilih siapa yang membayar dan halamannya untuk mendapatkan snippet.",
+          "noKeys": "Kamu tidak memiliki kunci AI yang berfungsi untuk membayar. Tambahkan satu, atau minta organisasi kamu menyediakannya.",
+          "noPages": "Organisasi kamu belum memiliki halaman terverifikasi. Pimpinan atau staf dapat menambahkannya di pengaturan organisasi.",
+          "offNote": "Saat dimatikan, snippet tidak menampilkan apa pun. Saat dinyalakan kembali, snippet yang sama akan berfungsi.",
+          "page": "Halaman terverifikasi",
+          "pageHint": "Game hanya berjalan di sana, dan hanya setelah halaman tersebut menyetujui setiap permulaan.",
+          "paidBy": "Dibayar oleh",
+          "paidByPlaceholder": "Pilih kunci",
+          "payingNow": "Sedang membayar",
+          "snippet": "Snippet untuk situs web kamu",
+          "snippetCss": "CSS kamu",
+          "snippetHint": "Letakkan di tempat game ingin ditampilkan, lalu tentukan tinggi elemen sesuai keinginanmu.",
+          "snippetPlayer": "ID-PENGUNJUNG-KAMU",
+          "snippetRequest": "ID-PERMINTAAN-KAMU",
+          "snippetVerifiedHint": "Server kamu mengisi ID pengunjung dan tampilan halaman ini; callback halamanmu menerima keduanya.",
+          "styleLink": "Atur gayanya dengan CSS milikmu sendiri →",
+          "toggle": "Sematkan di situs web",
+          "toggleHint": "Menampilkan game ini di halaman terverifikasi organisasi kamu, tanpa elemen ChatGameLab di sekitarnya. Pengunjung bermain sebagai tamu; kunci yang kamu pilih akan membayar."
+        },
+        "fillIn": "Isi semua bagian sampai semuanya berwarna hijau.",
+        "genre": {
+          "pitch": {
+            "adventure": "Pemain menjelajahi sebuah dunia. Game menceritakan apa yang terjadi, membuat gambar, dan menjaga skor.",
+            "encounter": "Pemain berbicara dengan satu karakter melalui suara. Karakter tetap dalam perannya dan menjawab secara langsung."
+          },
+          "question": "Apa yang ingin kamu buat?"
+        },
+        "look": {
+          "imageStyle": "Gaya gambar",
+          "imageStyleHint": "Seperti apa tampilan gambarnya, termasuk gambar sampul: kartun, cat air, pixel art…",
+          "imageStylePlaceholder": "cat air lembut, warna-warna redup"
+        },
+        "makeCopy": "Buat salinan saya",
+        "next": "berikutnya",
+        "notDone": "belum selesai",
+        "open": "Buka",
+        "othersGame": "Game ini milik orang lain. Kamu dapat melihat semuanya dan membuat salinan sendiri untuk mengubahnya.",
+        "pages": {
+          "card": {
+            "intro": "Apa yang dilihat pemain di galeri: judul dan deskripsi singkat.",
+            "label": "Kartu"
+          },
+          "look": {
+            "intro": "Tampilan gambar game dan halamannya.",
+            "label": "Tampilan"
+          },
+          "sharing": {
+            "intro": "Siapa yang dapat menemukan dan memainkan game.",
+            "label": "Berbagi"
+          },
+          "sound": {
+            "intro": "Seperti apa suara game.",
+            "label": "Suara"
+          },
+          "story": {
+            "intro": "Apa yang terjadi dalam game dan bagaimana game dimulai.",
+            "label": "Cerita"
+          }
+        },
+        "review": {
+          "button": "Tinjau",
+          "failed": "Game tidak dapat ditinjau sekarang. Kamu tetap dapat menyimpannya.",
+          "goTo": "Buka {{page}}",
+          "later": "Nanti",
+          "looksGood": "Tampilannya bagus. Mainkan sekali dan rasakan seperti apa hasilnya.",
+          "missing": {
+            "adventure": {
+              "imageStyle": "Pilih gaya gambar agar semua gambar terlihat serasi.",
+              "name": "Game kamu belum memiliki judul.",
+              "systemMessageGameStart": "Jelaskan bagaimana game dimulai.",
+              "systemMessageScenario": "Jelaskan tentang apa game ini."
+            },
+            "encounter": {
+              "imageStyle": "Pilih gaya gambar agar semua gambar terlihat serasi.",
+              "name": "Game kamu belum memiliki judul.",
+              "systemMessageGameStart": "Jelaskan bagaimana karakter menyapa pemain.",
+              "systemMessageScenario": "Jelaskan siapa karakter tersebut."
+            }
+          }
+        },
+        "sound": {
+          "adventure": {
+            "voiceStyle": "Suara narator",
+            "voiceStyleHint": "Seperti apa cerita terdengar saat dibacakan."
+          },
+          "builtInVoice": "Suara bawaan",
+          "encounter": {
+            "voiceStyle": "Suara karakter",
+            "voiceStyleHint": "Seperti apa suara karakter tersebut."
+          },
+          "errors": {
+            "failed": "Suara tidak dapat diputar. Silakan coba lagi.",
+            "keyRejected": "Penyedia AI menolak kunci tersebut. Suara tidak dapat diputar.",
+            "noKey": "Tidak satu pun kunci AI yang dapat kamu gunakan mendukung suara langsung, jadi belum ada yang bisa didengarkan."
+          },
+          "keepVoice": "Gunakan yang ini",
+          "listen": "Dengarkan",
+          "newVoice": "Buat suara baru",
+          "newVoiceConfirm": "Suara saat ini akan dihapus, lalu suara baru dibuat dari deskripsi yang sama. Game dengan deskripsi yang persis sama pada kunci AI ini juga akan mendapatkan suara baru tersebut.",
+          "noteDescription": "Mengubah deskripsi akan menghasilkan suara yang berbeda.",
+          "noteKeys": "Karena alasan teknis, kami tidak dapat menjamin setiap sesi menggunakan suara yang persis sama: suara dibuat dan disimpan pada kunci AI yang membayar, sehingga sesi yang dibayar oleh kunci lain akan mendapatkan suaranya sendiri dari deskripsi yang sama.",
+          "play": "Putar sampel suara",
+          "sampleLine": {
+            "greeting": "Halo! Silakan masuk, duduk, dan ceritakan apa yang membawamu kemari.",
+            "narration": "Cerita dimulai pada suatu pagi yang tenang, saat sebuah jalan sempit mengarah menuju sesuatu yang tak dikenal."
+          },
+          "status": {
+            "builtIn": "Belum ada deskripsi: game menggunakan suara bawaan sampai kamu mendeskripsikan suaranya.",
+            "ownVoice": "Suara khusus untuk deskripsi ini, dibuat dengan kunci AI kamu.",
+            "steered": "Suara bawaan membacakan cerita sesuai dengan deskripsi."
+          },
+          "stop": "Hentikan sampel"
+        },
+        "story": {
+          "adventure": {
+            "gameStart": "Bagaimana game dimulai?",
+            "gameStartHint": "Adegan pertama yang dilihat pemain dan bagaimana mereka mengetahui apa yang harus dilakukan.",
+            "gameStartPlaceholder": "Pemain terbangun di tepi hutan gelap. Sebuah jalan sempit mengarah ke antara pepohonan…",
+            "scenario": "Tentang apa game ini?",
+            "scenarioHint": "Dunia, peran pemain, tujuan, dan bagaimana pemain mengetahui bahwa mereka telah menang.",
+            "scenarioPlaceholder": "Pemain adalah seorang penjelajah di hutan misterius, mencari harta karun tersembunyi…"
+          },
+          "encounter": {
+            "gameStart": "Bagaimana karakter menyapa pemain?",
+            "gameStartHint": "Situasi saat percakapan dimulai; kata-kata pertama akan ditulis berdasarkan situasi ini.",
+            "gameStartPlaceholder": "Seorang asing mengetuk pintu mercusuar di tengah badai…",
+            "scenario": "Siapa karakter tersebut?",
+            "scenarioHint": "Kepribadiannya, apa yang ia ketahui, cara bicaranya, dan hal-hal yang tidak akan pernah ia kompromikan.",
+            "scenarioPlaceholder": "Kamu adalah Greta, penjaga mercusuar yang pemarah dan mengenal setiap kapal di pesisir…"
+          }
+        },
+        "titleEdit": "Edit game",
+        "titleNew": "Game baru",
+        "titleView": "Game",
+        "untitled": "Game tanpa judul"
       },
       "empty": {
         "description": "Buat gim pertama Anda untuk memulai petualangan interaktif bertenaga AI.",
@@ -713,9 +905,18 @@
       },
       "genres": {
         "adventure": "Petualangan",
-        "npc-live": "NPC-Live"
+        "npc-live": "Pertemuan"
       },
       "importExport": {
+        "coverFailed": "Game berhasil diimpor, tetapi gambar sampulnya tidak dapat diperiksa. Kamu dapat membuat yang baru di editor.",
+        "coverNoKey": "Game diimpor tanpa gambar sampul: pemeriksaan sampul memerlukan kunci API.",
+        "coverRefused": "Game diimpor tanpa gambar sampul: gambar tersebut tidak mematuhi aturan perlindungan anak.",
+        "coverUnsigned": "Game diimpor tanpa gambar sampul: gambar tersebut tidak diekspor oleh ChatGameLab atau telah diubah setelahnya.",
+        "errors": {
+          "noGame": "File .cgl ini tidak berisi game.",
+          "tooLarge": "File ini lebih besar dari 1 MB, terlalu besar untuk file game.",
+          "unreadable": "File ini tidak dapat dibaca sebagai game."
+        },
         "exportButton": "Ekspor Gim",
         "importButton": "Impor Gim"
       },
@@ -818,6 +1019,7 @@
       },
       "statusFieldsEditor": {
         "addField": "Tambah nilai baru",
+        "maxHint": "Maksimal lima nilai: beberapa nilai yang dapat diikuti lebih baik daripada banyak nilai.",
         "namePlaceholder": "Nama (mis., Kesehatan)",
         "noFields": "Belum ada nilai. Klik + untuk menambah nilai baru.",
         "valuePlaceholder": "Nilai awal (mis., 100)"
@@ -990,6 +1192,7 @@
     "leaveTitle": "Tinggalkan Organisasi",
     "leaveWarning": "Anda akan kehilangan akses ke semua sumber daya dan anggota organisasi.",
     "list": {
+      "clearPicks": "Tampilkan semua",
       "clearSearch": "Hapus pencarian",
       "filter": "Filter",
       "hideDetails": "Sembunyikan detail",
@@ -1171,6 +1374,23 @@
         "role-desc": "Peran (Z-A)"
       },
       "title": "Organisasi Saya",
+      "verifiedPages": {
+        "add": "Daftarkan halaman",
+        "addTitle": "Daftarkan halaman",
+        "callbackShown": "Callback: {{url}}",
+        "callbackUrl": "Alamat callback",
+        "callbackUrlHint": "Tempat ChatGameLab bertanya sebelum setiap permulaan. Halaman tersebut harus menjawab dalam beberapa detik.",
+        "copied": "Disalin",
+        "copy": "Salin ID halaman",
+        "empty": "Belum ada halaman terverifikasi.",
+        "intro": "Halaman terverifikasi adalah halaman di situs web organisasi kamu yang boleh menampilkan game yang disematkan. Sebelum game dimulai di sana, ChatGameLab bertanya kepada callback halaman tersebut apakah game boleh dimulai, menggunakan ID halaman di bawah serta ID pengunjung dan permintaan yang diteruskan oleh halamanmu. Hanya jawaban {\"ok\": true} yang akan memulai game.",
+        "pageId": "ID halaman",
+        "pageUrl": "Alamat halaman",
+        "pageUrlHint": "Halaman tempat game kamu disematkan. Hanya situs web halaman tersebut yang boleh menampilkannya.",
+        "remove": "Hapus halaman",
+        "removeTitle": "Hapus halaman ini?",
+        "removeWarning": "Game yang disematkan untuk {{page}} tidak akan dapat dimulai di sana sampai mendapatkan halaman lain."
+      },
       "workshops": {
         "activate": "Aktifkan",
         "active": "Aktif",
@@ -1349,6 +1569,7 @@
         "failed": "Saat ini permainan tidak dapat dimainkan",
         "genre": "Kunci AI tidak dapat menjalankan jenis permainan ini",
         "key_rejected": "Kunci AI ditolak",
+        "no_credit": "Kredit AI sudah habis",
         "no_key": "Tidak ada kunci AI yang tersedia",
         "no_plays": "Tidak ada kesempatan bermain tersisa",
         "paused": "Lokakarya sedang dijeda",
@@ -1693,6 +1914,7 @@
     "orgApiKeys": "Kunci API",
     "orgConstraints": "Pembatasan prompt perlindungan anak",
     "orgMembers": "Anggota",
+    "orgVerifiedPages": "Situs web",
     "orgWorkshops": "Lokakarya",
     "play": "Mainkan Gim",
     "rooms": "Ruang",
@@ -1705,18 +1927,78 @@
       "condense-scenario": "Persingkat skenario",
       "condensed-scenario": "Skenario",
       "expand": "Narasi",
+      "gallery-image": "Gambar galeri",
+      "greeting": "Buat teks",
       "image": "Buat gambar",
       "image-prompt": "Deskripsikan gambar",
       "image-style": "Sesuaikan gaya",
       "live-session": "Karakter",
-      "observer": "Pengamat",
+      "observer": "Sutradara",
+      "opening-brief": "Cara memulai",
       "outline": "Rencanakan adegan",
       "portrait": "Buat potret",
       "portrait-prompt": "Deskripsikan potret",
       "props-store": "Status permainan",
       "rephrase": "Ceritakan ulang aksi",
       "rephrase-audio": "Pahami ucapan",
-      "start-game": "Mulai"
+      "start-game": "Mulai",
+      "voice": "Buat suara",
+      "voice-brief": "Deskripsikan suara"
+    },
+    "director": {
+      "ago": "{{s}} yang lalu",
+      "beatRefused": "ditolak",
+      "beatSet": "ditetapkan",
+      "beats": "ketukan dengan dialog",
+      "beatsValue": "{{n}} · {{lines}} baris",
+      "calls": "panggilan model",
+      "callsValue": "{{n}} · terakhir {{s}}",
+      "character": "karakter",
+      "characterSpoke": "karakter berbicara",
+      "counted": "dihitung",
+      "doing": "sedang melakukan",
+      "dropped": "dibuang",
+      "droppedValue": "{{n}} (terlalu banyak berturut-turut)",
+      "empty": "belum ada apa-apa",
+      "entryAbsent": "pemain pergi",
+      "entryBackground": "latar dikirim",
+      "entryConversation": "percakapan",
+      "entryDirection": "arahan dikirim",
+      "entryDropped": "dibuang",
+      "entryError": "kesalahan",
+      "entryInjection": "disisipkan",
+      "entryLine": "mengatakan",
+      "entryRules": "aturan dikirim",
+      "entrySilence": "hening",
+      "entryThought": "berpikir",
+      "failed": "{{n}} gagal",
+      "fragments": "fragmen",
+      "gap": "panggilan paling sering setiap",
+      "inARow": "arahan berturut-turut",
+      "injected": "disisipkan secara manual",
+      "late": "fragmen terlambat",
+      "lateMark": "terlambat",
+      "lateValue": "{{n}} · hingga {{ms}} md",
+      "lines": "{{n}} baris",
+      "listening": "mendengarkan",
+      "log": "log sutradara",
+      "notYet": "belum",
+      "notices": "pemberitahuan keheningan",
+      "now": "sutradara saat ini",
+      "ofLimit": "{{n}} dari {{limit}}",
+      "player": "pemain",
+      "playerSpoke": "pemain berbicara",
+      "pool": "di dalam kumpulan",
+      "poolValue": "{{n}} fragmen · ketukan {{ms}} md",
+      "quietFor": "hening selama",
+      "quietReplies": "tidak ada yang perlu dilakukan",
+      "reminders": "diingatkan tentang aturan",
+      "sent": "dikirim",
+      "sentValue": "{{d}} arahan · {{b}} latar",
+      "setBeat": "atur ketukan (md)",
+      "standingDown": "menunggu · pemain tidak mengatakan apa pun selama {{s}}",
+      "thinking": "berpikir · {{s}}",
+      "waiting": "menunggu"
     },
     "errors": {
       "connectionLost": "Koneksi ke permainan terputus. Muat ulang untuk mencoba lagi.",
@@ -1733,15 +2015,27 @@
     },
     "insights": {
       "close": "Tutup",
+      "collapse": "Ciutkan",
       "empty": "Belum ada yang berjalan.",
-      "feed": "Apa yang terjadi",
+      "expand": "Perluas",
+      "feed": "Riwayat",
       "hide": "Sembunyikan Wawasan",
       "label": "Wawasan",
-      "show": "Tampilkan Wawasan"
+      "noProblems": "Belum ada masalah.",
+      "pickBlock": "Klik blok atau kabel dalam alur untuk membaca apa yang dilakukannya.",
+      "settingEmpty": "Game membiarkan ini kosong.",
+      "show": "Tampilkan Wawasan",
+      "tabProblems": "Masalah",
+      "tabSelected": "Dipilih",
+      "tabUsage": "Penggunaan"
     },
     "launch": {
       "noGame": "Halaman ini memerlukan permainan untuk dimainkan: buka halaman ini dari halaman sebuah permainan.",
       "starting": "Memulai permainan…"
+    },
+    "over": {
+      "contentPolicy": "Game ini dihentikan oleh penyedia AI: percakapan mengarah ke sesuatu yang tidak diizinkan oleh aturan keamanannya. Kamu tetap dapat membaca semua yang telah dikatakan dan memulai game baru kapan saja.",
+      "unknown": "Game ini telah berakhir. Kamu tetap dapat membaca semua yang telah dikatakan dan memulai game baru kapan saja."
     },
     "pipeline": {
       "compact": "Padatkan utas",
@@ -1749,15 +2043,29 @@
       "compacting": "Sedang memadatkan…",
       "copied": "Tata letak disalin",
       "copyFailed": "Tidak ada clipboard: tata letak dicatat di konsol",
-      "copyLayout": "Salin tata letak"
+      "copyLayout": "Salin tata letak",
+      "injectBackground": "Ketahui",
+      "injectBackgroundHint": "Apa yang dipikirkan karakter dalam hati, dengan kata-katanya sendiri, tanpa mengatakannya sekarang, misalnya \"Aku manusia serigala, dan aku ingin dia menyadarinya perlahan-lahan.\"",
+      "injectDirection": "Lakukan",
+      "injectDirectionHint": "Apa yang harus dilakukan karakter, misalnya \"Bersikap pemarah, kamu tidak memercayai pemain.\"",
+      "injectSpeech": "Katakan",
+      "injectSpeechHint": "Apa yang harus dikatakan karakter, dengan kata-katanya sendiri, misalnya \"Berhenti! Siapa di sana?\"",
+      "injection": "Beri tahu karakter untuk …",
+      "injectionFailed": "Tidak dapat mengirimnya",
+      "injectionSend": "Kirim",
+      "injectionSending": "Mengirim…",
+      "injectionSent": "Dikirim ke percakapan"
     },
     "problems": {
       "denied": "Kamu tidak dapat memainkan permainan ini.",
       "failed": "Terjadi kesalahan, dan permainan tidak dapat dilanjutkan.",
       "genre": "Kunci AI yang tersedia tidak dapat menjalankan jenis permainan ini.",
+      "hostRefused": "Situs web tempat game ini disematkan tidak mengizinkan game dimulai.",
       "keyRejected": "Penyedia AI menolak kunci permainan ini, sehingga permainan tidak dapat dilanjutkan. Orang yang menyiapkan permainan perlu memeriksa kuncinya.",
+      "noCredit": "Maaf, kredit AI telah habis, jadi game belum dapat dilanjutkan.",
       "noKey": "Tidak ada kunci AI yang tersedia untuk memainkan permainan ini.",
       "noPlays": "Permainan bersama ini sudah tidak memiliki sesi permainan tersisa.",
+      "over": "Game ini telah berakhir, jadi tidak dapat dilanjutkan.",
       "paused": "Lokakarya dijeda. Permainan akan berlanjut saat lokakarya dilanjutkan.",
       "stale": "Permainan ini tidak dapat dilanjutkan lagi.",
       "unknown": "Sesi permainan ini tidak ada.",
@@ -1768,10 +2076,20 @@
       "connected": "Relay: terhubung",
       "connecting": "Relay: tidak berjalan"
     },
+    "settings": {
+      "cover": "Gambar galeri",
+      "description": "Deskripsi",
+      "gameStart": "Awal game",
+      "imageStyle": "Gaya gambar",
+      "scenario": "Skenario",
+      "statusFields": "Kolom status",
+      "voiceStyle": "Gaya suara"
+    },
     "status": {
       "choose": "Pilih cara bermain untuk memulai.",
       "connecting": "Menghubungkan…",
       "ended": "Permainan telah berakhir.",
+      "over": "Game telah berakhir.",
       "reconnecting": "Menghubungkan kembali…",
       "settingScene": "Menyiapkan adegan…",
       "wakingCharacter": "Membangunkan karakter…"
@@ -1789,10 +2107,15 @@
       "condensed-scenario\u001econdense-scenario": "permintaan",
       "condensed-scenario\u001eimage-prompt": "skenario",
       "condensed-scenario\u001estart-game": "siap",
+      "gallery-image\u0003estart-game": "siap",
+      "greeting\u0003elive-session": "kata-kata pertama",
+      "greeting\u0003estart-game": "siap",
       "image-prompt\u001eimage": "prompt",
       "image-style\u001eadapted-style": "jawaban",
       "live-session\u001eobserver": "transkrip",
+      "observer\u0003elive-session": "sisipan",
       "observer\u001elive-session": "petunjuk",
+      "opening-brief\u0003egreeting": "ringkasan",
       "outline\u001eexpand": "rencana",
       "outline\u001eimage-prompt": "adegan",
       "outline\u001eprops-store": "perubahan",
@@ -1805,7 +2128,12 @@
       "rephrase\u001eoutline": "aksi",
       "rephrase-audio\u001eoutline": "aksi",
       "start-game\u001elive-session": "isyarat",
-      "start-game\u001eoutline": "prompt"
+      "start-game\u001eoutline": "prompt",
+      "voice\u0003elive-session:secondary": "gaya suara",
+      "voice\u0003elive-session:voice": "suara",
+      "voice\u0003estart-game": "siap",
+      "voice-brief\u0003evoice:description": "deskripsi",
+      "voice-brief\u0003evoice:voice": "suara cadangan"
     }
   }
 }

@@ -709,6 +709,176 @@
           "title": "Neuložené zmeny"
         }
       },
+      "editor": {
+        "allSet": "Všetko je pripravené: vytvorte hru.",
+        "backToOverview": "Späť na prehľad",
+        "card": {
+          "adventure": {
+            "descriptionPlaceholder": "Nájdite skrytý poklad skôr, než vás les pohltí.",
+            "titlePlaceholder": "Poklad v temnom lese"
+          },
+          "description": "Popis",
+          "descriptionHint": "Jedna či dve vety do galérie, aby hráči vedeli, čo ich čaká.",
+          "encounter": {
+            "descriptionPlaceholder": "Navštívte Gretu, mrzutú strážkyňu majáka, a zistite, čo v tú noc videla.",
+            "titlePlaceholder": "Greta pri majáku"
+          },
+          "title": "Názov",
+          "titleHint": "{{length}}/{{max}} · Môže byť verejne viditeľný – nepoužívajte skutočné mená."
+        },
+        "delete": {
+          "confirm": "Natrvalo odstrániť",
+          "intro": "Odstráňte ju natrvalo, najprv si ju však stiahnite.",
+          "keep": "Ponechať",
+          "keepFile": "Ponechajte si súbor a hru budete môcť neskôr znova importovať sem alebo na iný server ChatGameLab.",
+          "label": "Odstrániť hru",
+          "whatGoes": "„{{name}}“ bude navždy preč: jej karta, príbeh, obrázky a odkazy na zdieľanie. Hráči ju už nebudú môcť spustiť. Túto akciu nemožno vrátiť späť."
+        },
+        "done": "hotovo",
+        "doneButton": "Hotovo",
+        "download": {
+          "button": "Stiahnuť",
+          "description": "Hra ako súbor na uchovanie alebo importovanie na iný server ChatGameLab.",
+          "title": "Stiahnuť"
+        },
+        "embed": {
+          "copy": "Kopírovať úryvok",
+          "incomplete": "Vyberte, čo bude platiť, a stránku, aby ste získali úryvok.",
+          "noKeys": "Nemáte funkčný kľúč AI, ktorým by ste mohli platiť. Pridajte ho alebo oň požiadajte svoju organizáciu.",
+          "noPages": "Vaša organizácia zatiaľ nemá overenú stránku. Jej vedenie alebo zamestnanci ju pridajú v nastaveniach organizácie.",
+          "offNote": "Keď je úryvok vypnutý, nič nezobrazuje. Po opätovnom zapnutí funguje ten istý úryvok.",
+          "page": "Overená stránka",
+          "pageHint": "Hra funguje iba tam a až potom, čo stránka schváli každé spustenie.",
+          "paidBy": "Platí",
+          "paidByPlaceholder": "Vyberte kľúč",
+          "payingNow": "Platí teraz",
+          "snippet": "Úryvok pre vašu webovú stránku",
+          "snippetCss": "vaše CSS",
+          "snippetHint": "Vložte ho tam, kde sa má hra zobraziť, a prvku nastavte požadovanú výšku.",
+          "snippetPlayer": "ID-VÁŠHO-NÁVŠTEVNÍKA",
+          "snippetRequest": "ID-VAŠEJ-POŽIADAVKY",
+          "snippetVerifiedHint": "Váš server doplní ID návštevníka a ID tohto zobrazenia stránky; spätné volanie vašej stránky dostane obe.",
+          "styleLink": "Upravte vzhľad vlastným CSS →",
+          "toggle": "Vložiť na webovú stránku",
+          "toggleHint": "Zobrazí túto hru na overenej stránke vašej organizácie bez prvkov ChatGameLab okolo nej. Návštevníci hrajú ako hostia; vybraný kľúč platí."
+        },
+        "fillIn": "Vyplňte časti, kým nebudú všetky zelené.",
+        "genre": {
+          "pitch": {
+            "adventure": "Hráč objavuje svet. Hra rozpráva, čo sa deje, vytvára obrázky a vedie skóre.",
+            "encounter": "Hráč sa hlasom rozpráva s jednou postavou. Tá zostáva vo svojej úlohe a odpovedá naživo."
+          },
+          "question": "Čo chcete vytvoriť?"
+        },
+        "look": {
+          "imageStyle": "Štýl obrázkov",
+          "imageStyleHint": "Ako vyzerajú obrázky vrátane titulného obrázka: kreslený štýl, akvarel, pixel art…",
+          "imageStylePlaceholder": "jemný akvarel, tlmené farby"
+        },
+        "makeCopy": "Vytvoriť moju kópiu",
+        "next": "ďalej",
+        "notDone": "ešte nie je hotové",
+        "open": "Otvoriť",
+        "othersGame": "Táto hra patrí niekomu inému. Môžete si všetko prezrieť a vytvoriť si vlastnú kópiu, ktorú môžete upravovať.",
+        "pages": {
+          "card": {
+            "intro": "Čo hráči uvidia v galérii: názov a krátky popis.",
+            "label": "Karta"
+          },
+          "look": {
+            "intro": "Ako vyzerajú obrázky hry a jej stránka.",
+            "label": "Vzhľad"
+          },
+          "sharing": {
+            "intro": "Kto môže hru nájsť a hrať.",
+            "label": "Zdieľanie"
+          },
+          "sound": {
+            "intro": "Ako znie hlas hry.",
+            "label": "Zvuk"
+          },
+          "story": {
+            "intro": "Čo sa v hre deje a ako sa začína.",
+            "label": "Príbeh"
+          }
+        },
+        "review": {
+          "button": "Skontrolovať",
+          "failed": "Hru sa teraz nepodarilo skontrolovať. Aj tak ju môžete uložiť.",
+          "goTo": "Prejsť na {{page}}",
+          "later": "Neskôr",
+          "looksGood": "Vyzerá to dobre. Zahrajte si ju raz a zistite, aký máte pocit.",
+          "missing": {
+            "adventure": {
+              "imageStyle": "Vyberte štýl obrázkov, aby sa obrázky k sebe hodili.",
+              "name": "Vaša hra ešte nemá názov.",
+              "systemMessageGameStart": "Povedzte, ako sa hra začína.",
+              "systemMessageScenario": "Povedzte, o čom hra je."
+            },
+            "encounter": {
+              "imageStyle": "Vyberte štýl obrázkov, aby sa obrázky k sebe hodili.",
+              "name": "Vaša hra ešte nemá názov.",
+              "systemMessageGameStart": "Povedzte, ako postava pozdraví hráča.",
+              "systemMessageScenario": "Povedzte, kto je táto postava."
+            }
+          }
+        },
+        "sound": {
+          "adventure": {
+            "voiceStyle": "Hlas rozprávača",
+            "voiceStyleHint": "Ako znie príbeh pri čítaní nahlas."
+          },
+          "builtInVoice": "Vstavaný hlas",
+          "encounter": {
+            "voiceStyle": "Hlas postavy",
+            "voiceStyleHint": "Ako znie postava."
+          },
+          "errors": {
+            "failed": "Hlas sa nepodarilo prehrať. Skúste to znova.",
+            "keyRejected": "Poskytovateľ AI odmietol kľúč. Hlas sa nepodarilo prehrať.",
+            "noKey": "Žiadny z kľúčov AI, ktoré môžete použiť, nehovorí živým hlasom, takže zatiaľ nie je čo počuť."
+          },
+          "keepVoice": "Ponechať tento",
+          "listen": "Vypočuť",
+          "newVoice": "Vytvoriť nový hlas",
+          "newVoiceConfirm": "Súčasný hlas sa odstráni a z rovnakého popisu sa vytvorí nový. Hry s presne týmto popisom na tomto kľúči AI dostanú nový hlas tiež.",
+          "noteDescription": "Zmenou popisu by aj tak vznikol iný hlas.",
+          "noteKeys": "Z technických dôvodov nemôžeme sľúbiť, že každá relácia použije presne tento hlas: hlas sa vytvorí a uchová na kľúči AI, ktorý platí, takže relácia platená iným kľúčom dostane vlastný hlas z rovnakého popisu.",
+          "play": "Prehrať ukážku hlasu",
+          "sampleLine": {
+            "greeting": "Dobrý deň! Poďte ďalej, sadnite si a povedzte mi, čo vás sem privádza.",
+            "narration": "Príbeh sa začína pokojného rána, keď úzky chodník vedie do neznáma."
+          },
+          "status": {
+            "builtIn": "Zatiaľ bez popisu: hra hovorí vstavaným hlasom, kým hlas nepopíšete.",
+            "ownVoice": "Vlastný hlas pre tento popis, vytvorený pomocou vášho kľúča AI.",
+            "steered": "Príbeh číta vstavaný hlas tak, ako určuje popis."
+          },
+          "stop": "Zastaviť ukážku"
+        },
+        "story": {
+          "adventure": {
+            "gameStart": "Ako sa to začína?",
+            "gameStartHint": "Prvá scéna, ktorú hráč uvidí, a ako pochopí, čo má robiť.",
+            "gameStartPlaceholder": "Hráč sa prebudí na okraji temného lesa. Úzky chodník vedie medzi stromy…",
+            "scenario": "O čom hra je?",
+            "scenarioHint": "Svet, úloha hráča, cieľ a ako hráč spozná, že vyhral.",
+            "scenarioPlaceholder": "Hráč je prieskumníkom v tajomnom lese a hľadá skrytý poklad…"
+          },
+          "encounter": {
+            "gameStart": "Ako pozdraví hráča?",
+            "gameStartHint": "Situácia, v ktorej sa rozhovor začína; prvé slová sa vytvoria z nej.",
+            "gameStartPlaceholder": "Uprostred búrky zaklope na dvere majáka cudzinec…",
+            "scenario": "Kto je táto postava?",
+            "scenarioHint": "Jej osobnosť, čo vie, ako rozpráva a v čom nikdy neustúpi.",
+            "scenarioPlaceholder": "Ste Greta, mrzutá strážkyňa majáka, ktorá pozná každú loď na pobreží…"
+          }
+        },
+        "titleEdit": "Upraviť hru",
+        "titleNew": "Nová hra",
+        "titleView": "Hra",
+        "untitled": "Hra bez názvu"
+      },
       "empty": {
         "description": "Vytvorte svoju prvú hru a začnite s interaktívnymi AI dobrodružstvami.",
         "title": "Zatiaľ žiadne hry"
@@ -735,7 +905,7 @@
       },
       "genres": {
         "adventure": "Dobrodružstvo",
-        "npc-live": "NPC naživo"
+        "npc-live": "Stretnutie"
       },
       "importExport": {
         "coverFailed": "Igra je bila uvožena, vendar naslovne slike ni bilo mogoče preveriti. V urejevalniku lahko ustvariš novo.",
@@ -849,6 +1019,7 @@
       },
       "statusFieldsEditor": {
         "addField": "Pridať novú hodnotu",
+        "maxHint": "Najviac päť hodnôt: niekoľko hodnôt, ktoré môže hráč sledovať, je lepších než veľa hodnôt.",
         "namePlaceholder": "Názov (napr. Zdravie)",
         "noFields": "Zatiaľ žiadne hodnoty. Kliknite na + a pridajte novú.",
         "valuePlaceholder": "Počiatočná hodnota (napr. 100)"
@@ -1203,6 +1374,23 @@
         "role-desc": "Rola (Z-A)"
       },
       "title": "Moja organizácia",
+      "verifiedPages": {
+        "add": "Registrovať stránku",
+        "addTitle": "Registrovať stránku",
+        "callbackShown": "Spätné volanie: {{url}}",
+        "callbackUrl": "Adresa spätného volania",
+        "callbackUrlHint": "Sem sa ChatGameLab pýta pred každým spustením. Stránka musí odpovedať do niekoľkých sekúnd.",
+        "copied": "Skopírované",
+        "copy": "Kopírovať ID stránky",
+        "empty": "Zatiaľ žiadne overené stránky.",
+        "intro": "Overená stránka je stránka na webovej lokalite vašej organizácie, ktorá môže zobrazovať vaše vložené hry. Pred spustením hry sa tam ChatGameLab opýta spätného volania stránky, či ju má spustiť, pričom použije ID stránky nižšie a ID návštevníka a požiadavky, ktoré mu vaša stránka odovzdá. Hru spustí iba odpoveď {\"ok\": true}.",
+        "pageId": "ID stránky",
+        "pageUrl": "Adresa stránky",
+        "pageUrlHint": "Stránka, na ktorej sú vložené vaše hry. Zobrazovať ich môže iba jej webová lokalita.",
+        "remove": "Odstrániť stránku",
+        "removeTitle": "Odstrániť túto stránku?",
+        "removeWarning": "Hry vložené pre {{page}} sa tam prestanú spúšťať, kým nedostanú inú stránku."
+      },
       "workshops": {
         "activate": "Aktivovať",
         "active": "Aktívny",
@@ -1726,6 +1914,7 @@
     "orgApiKeys": "API kľúče",
     "orgConstraints": "Omejitev pozivov za zaščito otrok",
     "orgMembers": "Členovia",
+    "orgVerifiedPages": "Webové stránky",
     "orgWorkshops": "Workshopy",
     "play": "Zahrajte si hru",
     "rooms": "Miestnosti",
@@ -1771,6 +1960,7 @@
       "dropped": "opuščeno",
       "droppedValue": "{{n}} (preveč zapored)",
       "empty": "še nič",
+      "entryAbsent": "hráč je preč",
       "entryBackground": "ozadje poslano",
       "entryConversation": "pogovor",
       "entryDirection": "navodilo poslano",
@@ -1778,6 +1968,7 @@
       "entryError": "napaka",
       "entryInjection": "ročno vneseno",
       "entryLine": "rekel",
+      "entryRules": "pravidlá odoslané",
       "entrySilence": "tišina",
       "entryThought": "misli",
       "failed": "{{n}} neuspešnih",
@@ -1801,9 +1992,11 @@
       "poolValue": "{{n}} fragmentov · takt {{ms}} ms",
       "quietFor": "tiho že",
       "quietReplies": "nič za narediti",
+      "reminders": "pripomenuté pravidlá",
       "sent": "poslano",
       "sentValue": "{{d}} navodil · {{b}} ozadij",
       "setBeat": "nastavi takt (ms)",
+      "standingDown": "ustupuje · hráč {{s}} nič nepovedal",
       "thinking": "razmišlja · {{s}}",
       "waiting": "čaka nanj"
     },
@@ -1840,6 +2033,10 @@
       "noGame": "Táto stránka potrebuje hru: otvor ju zo stránky hry.",
       "starting": "Hra sa spúšťa…"
     },
+    "over": {
+      "contentPolicy": "Túto hru ukončil poskytovateľ AI: rozhovor sa vydal smerom, ktorý jeho bezpečnostné pravidlá nepovoľujú. Stále si môžete prečítať všetko, čo bolo povedané, a kedykoľvek začať novú hru.",
+      "unknown": "Táto hra sa skončila. Stále si môžete prečítať všetko, čo bolo povedané, a kedykoľvek začať novú hru."
+    },
     "pipeline": {
       "compact": "Strni nit",
       "compactFailed": "Strnjevanje ni uspelo",
@@ -1863,10 +2060,12 @@
       "denied": "Túto hru nesmieš hrať.",
       "failed": "Niečo sa pokazilo a hra nemôže pokračovať.",
       "genre": "Dostupný kľúč AI nedokáže spustiť tento typ hry.",
+      "hostRefused": "Webová stránka, na ktorej je táto hra vložená, nepovolila jej spustenie.",
       "keyRejected": "Poskytovateľ AI odmietol kľúč tejto hry, takže hra nemôže pokračovať. Ten, kto hru nastavil, musí skontrolovať kľúč.",
       "noCredit": "Oprostite, dobroimetje za umetno inteligenco je porabljeno, zato se igra trenutno ne more nadaljevati.",
       "noKey": "Na hranie tejto hry nie je k dispozícii žiadny kľúč AI.",
       "noPlays": "V tejto zdieľanej hre už nezostali žiadne ďalšie hrania.",
+      "over": "Táto hra sa skončila, takže nemôže pokračovať.",
       "paused": "Delavnica je zaustavljena. Igra se bo nadaljevala, ko jo znova zaženete.",
       "stale": "V tejto hre už nemožno pokračovať.",
       "unknown": "Táto herná relácia neexistuje.",
@@ -1890,6 +2089,7 @@
       "choose": "Na začiatok si vyber spôsob hrania.",
       "connecting": "Pripája sa…",
       "ended": "Hra sa skončila.",
+      "over": "Hra sa skončila.",
       "reconnecting": "Znova sa pripája…",
       "settingScene": "Pripravuje sa scéna…",
       "wakingCharacter": "Postava sa prebúdza…"

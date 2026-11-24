@@ -469,6 +469,7 @@
       "filters": {
         "all": "全部游戏",
         "favorites": "收藏",
+        "genre": "类型",
         "own": "我的游戏",
         "public": "公开",
         "sponsored": "赞助"
@@ -477,6 +478,12 @@
       "play": "游玩",
       "reportGame": "举报游戏",
       "restart": "重新开始",
+      "resumeChoice": {
+        "continue": "继续游戏",
+        "message": "你已经开始了“{{game}}”。要从上次离开的地方继续，还是重新开始？重新开始会替换你之前的游戏会话。",
+        "startNew": "重新开始",
+        "title": "继续游戏还是重新开始？"
+      },
       "title": "游戏",
       "unfavorite": "移出收藏",
       "workshop": "工作坊 / 组织"
@@ -491,6 +498,7 @@
       "aiQualityTier": {
         "description": "使用你自己的 API 密钥时，为游戏选择 AI 质量等级。等级越高成本越高，但质量可能更好。留空则使用服务器默认。"
       },
+      "check": "检查密钥",
       "createModal": {
         "keyDescription": "你的密钥会被加密并安全存储。",
         "keyLabel": "API 密钥",
@@ -521,6 +529,7 @@
         "platformRequired": "平台是必填项"
       },
       "key": "个密钥",
+      "keyEndsWith": "密钥末尾为以下字符",
       "keys": "个密钥",
       "noResults": "没有符合搜索或筛选条件的密钥。",
       "platform": "平台",
@@ -558,8 +567,15 @@
         "status-asc": "可用密钥优先"
       },
       "status": {
+        "checking": "检查中…",
         "failed": "密钥不可用",
-        "unknown": "尚未使用密钥",
+        "reasons": {
+          "key_rejected": "服务商拒绝了此密钥。请确认密钥已完整复制，且仍然有效。",
+          "no_credit": "此密钥对应的账户已没有余额。请向服务商充值。",
+          "no_key": "无法读取密钥。",
+          "unreachable": "服务商未响应。请稍后再试。"
+        },
+        "unknown": "尚未检查",
         "working": "密钥正常"
       },
       "statusColumn": "状态",
@@ -673,12 +689,18 @@
         "statusFieldsHint": "需要追踪哪些数值？例如生命值、积分或弹药。游戏会在游玩时记住并更新这些数值。",
         "theme": "主题",
         "themeDefault": "默认外观",
-        "themeHint": "游戏进行时所采用的外观。"
+        "themeHint": "游戏进行时所采用的外观。",
+        "voiceStyle": "声音风格",
+        "voiceStyleHint": "声音听起来的样子：角色的声音，或故事朗读时旁白的声音。",
+        "voiceStylePlaceholder": "例如：低沉、缓慢而略带沙哑的老人声音"
       },
       "editModal": {
         "adminActionTitle": "管理员操作",
         "adminActionWarning": "你正在编辑一款不属于你的游戏。这是一次管理员操作，仅应在执行审核时使用。",
         "gameDesignSection": "游戏设计",
+        "othersGameNotice": "这是其他人的游戏。你可以修改任何内容：保存后它会成为你的游戏，原游戏保持不变。",
+        "saveAsOwn": "保存为我的游戏",
+        "savedAsOwn": "已保存为你的游戏",
         "title": "编辑游戏",
         "unsavedChanges": {
           "discard": "放弃更改",
@@ -686,6 +708,176 @@
           "message": "你有未保存的更改，确定要放弃吗？",
           "title": "未保存的更改"
         }
+      },
+      "editor": {
+        "allSet": "一切就绪：创建游戏。",
+        "backToOverview": "返回概览",
+        "card": {
+          "adventure": {
+            "descriptionPlaceholder": "在森林将你吞噬之前，找到隐藏的宝藏。",
+            "titlePlaceholder": "黑暗森林的宝藏"
+          },
+          "description": "描述",
+          "descriptionHint": "为图库写一两句话，让玩家知道等待他们的是什么。",
+          "encounter": {
+            "descriptionPlaceholder": "去拜访脾气暴躁的灯塔看守人葛丽塔，了解她那晚看到了什么。",
+            "titlePlaceholder": "灯塔里的葛丽塔"
+          },
+          "title": "标题",
+          "titleHint": "{{length}}/{{max}} · 可能会公开显示——请不要使用真实姓名。"
+        },
+        "delete": {
+          "confirm": "永久删除",
+          "intro": "先下载，再永久删除。",
+          "keep": "保留",
+          "keepFile": "保留文件，以后你可以在这里或其他 ChatGameLab 服务器上再次导入游戏。",
+          "label": "删除游戏",
+          "whatGoes": "“{{name}}”将永久消失：包括它的卡片、故事、图片和分享链接。玩家将无法再启动它。此操作无法撤销。"
+        },
+        "done": "完成",
+        "doneButton": "完成",
+        "download": {
+          "button": "下载",
+          "description": "将游戏保存为文件，或导入到其他 ChatGameLab 服务器。",
+          "title": "下载"
+        },
+        "embed": {
+          "copy": "复制代码片段",
+          "incomplete": "选择付款方和页面后，才能获取代码片段。",
+          "noKeys": "你没有可用于付款的可用 AI 密钥。请添加一个，或向你的组织索取。",
+          "noPages": "你的组织还没有经过验证的页面。组织负责人或工作人员可以在组织设置中添加页面。",
+          "offNote": "关闭后，代码片段不会显示任何内容。再次开启后，同一个代码片段仍可使用。",
+          "page": "已验证页面",
+          "pageHint": "游戏只会在那里运行，并且只有在页面同意每次启动后才会运行。",
+          "paidBy": "付款方",
+          "paidByPlaceholder": "选择密钥",
+          "payingNow": "当前付款方",
+          "snippet": "用于你的网站的代码片段",
+          "snippetCss": "你的 CSS",
+          "snippetHint": "将它放在游戏应出现的位置，并为元素设置所需的高度。",
+          "snippetPlayer": "你的访客 ID",
+          "snippetRequest": "你的请求 ID",
+          "snippetVerifiedHint": "你的服务器会填入访客 ID 和本次页面访问的 ID；你页面的回调会收到这两个 ID。",
+          "styleLink": "使用你自己的 CSS 设置样式 →",
+          "toggle": "嵌入网站",
+          "toggleHint": "在你组织的已验证页面上显示此游戏，周围不显示任何 ChatGameLab 内容。访客将以客人身份游玩；费用由你选择的密钥支付。"
+        },
+        "fillIn": "填写各个部分，直到它们全部变为绿色。",
+        "genre": {
+          "pitch": {
+            "adventure": "玩家探索一个世界。游戏讲述发生的事情、描绘画面并记录得分。",
+            "encounter": "玩家通过语音与一个角色交谈。角色会始终保持身份，并即时回答。"
+          },
+          "question": "你想制作什么？"
+        },
+        "look": {
+          "imageStyle": "图片风格",
+          "imageStyleHint": "包括封面在内的图片外观：卡通、水彩、像素艺术……",
+          "imageStylePlaceholder": "柔和的水彩画，低饱和色彩"
+        },
+        "makeCopy": "创建我的副本",
+        "next": "下一步",
+        "notDone": "尚未完成",
+        "open": "打开",
+        "othersGame": "这是别人的游戏。你可以查看全部内容，并创建自己的副本进行修改。",
+        "pages": {
+          "card": {
+            "intro": "玩家在图库中看到的内容：标题和简短描述。",
+            "label": "卡片"
+          },
+          "look": {
+            "intro": "游戏图片和页面的外观。",
+            "label": "外观"
+          },
+          "sharing": {
+            "intro": "谁可以找到并游玩这个游戏。",
+            "label": "分享"
+          },
+          "sound": {
+            "intro": "游戏中的声音听起来如何。",
+            "label": "声音"
+          },
+          "story": {
+            "intro": "游戏中会发生什么，以及它如何开始。",
+            "label": "故事"
+          }
+        },
+        "review": {
+          "button": "检查",
+          "failed": "现在无法检查游戏。你仍然可以保存它。",
+          "goTo": "前往 {{page}}",
+          "later": "稍后",
+          "looksGood": "看起来不错。游玩一次，感受一下效果。",
+          "missing": {
+            "adventure": {
+              "imageStyle": "选择一种图片风格，让图片保持一致。",
+              "name": "你的游戏还没有标题。",
+              "systemMessageGameStart": "说明游戏如何开始。",
+              "systemMessageScenario": "说明游戏讲述的内容。"
+            },
+            "encounter": {
+              "imageStyle": "选择一种图片风格，让图片保持一致。",
+              "name": "你的游戏还没有标题。",
+              "systemMessageGameStart": "说明角色如何向玩家打招呼。",
+              "systemMessageScenario": "说明角色是谁。"
+            }
+          }
+        },
+        "sound": {
+          "adventure": {
+            "voiceStyle": "旁白的声音",
+            "voiceStyleHint": "故事朗读出来时听起来如何。"
+          },
+          "builtInVoice": "内置声音",
+          "encounter": {
+            "voiceStyle": "角色的声音",
+            "voiceStyleHint": "角色听起来如何。"
+          },
+          "errors": {
+            "failed": "无法播放声音。请重试。",
+            "keyRejected": "AI 服务提供商拒绝了该密钥。无法播放声音。",
+            "noKey": "你可以使用的 AI 密钥都不支持实时语音，因此目前没有声音可听。"
+          },
+          "keepVoice": "保留此声音",
+          "listen": "试听",
+          "newVoice": "创建新声音",
+          "newVoiceConfirm": "当前声音将被删除，并根据相同的描述创建一个新声音。在此 AI 密钥上使用完全相同描述的游戏也会获得这个新声音。",
+          "noteDescription": "更改描述本来就会产生不同的声音。",
+          "noteKeys": "由于技术原因，我们无法保证每个会话都使用完全相同的声音：声音会在付款所使用的 AI 密钥上创建并保存，因此由其他密钥付款的会话会根据相同描述获得自己的声音。",
+          "play": "播放声音示例",
+          "sampleLine": {
+            "greeting": "你好！请进来，坐下，告诉我是什么风把你吹来的。",
+            "narration": "故事开始于一个宁静的早晨，一条狭窄的小路通向未知之处。"
+          },
+          "status": {
+            "builtIn": "还没有描述：在你描述声音之前，游戏会使用内置声音。",
+            "ownVoice": "根据此描述、使用你的 AI 密钥创建的专属声音。",
+            "steered": "内置声音会按照描述朗读故事。"
+          },
+          "stop": "停止播放示例"
+        },
+        "story": {
+          "adventure": {
+            "gameStart": "故事如何开始？",
+            "gameStartHint": "玩家看到的第一个场景，以及他们如何知道该做什么。",
+            "gameStartPlaceholder": "玩家在黑暗森林边缘醒来。一条狭窄的小路通向树丛深处……",
+            "scenario": "游戏讲述什么？",
+            "scenarioHint": "世界、玩家的角色、目标，以及玩家如何知道自己获胜了。",
+            "scenarioPlaceholder": "玩家是一名探索神秘森林、寻找隐藏宝藏的探险家……"
+          },
+          "encounter": {
+            "gameStart": "角色如何向玩家打招呼？",
+            "gameStartHint": "对话开始时的情境；开场白会根据这里的内容写出。",
+            "gameStartPlaceholder": "暴风雨正猛烈地肆虐，一个陌生人在灯塔门口敲门……",
+            "scenario": "角色是谁？",
+            "scenarioHint": "角色的性格、所知信息、说话方式，以及绝不会让步的事情。",
+            "scenarioPlaceholder": "你是葛丽塔，一位脾气暴躁的灯塔看守人，认识海岸边的每一艘船……"
+          }
+        },
+        "titleEdit": "编辑游戏",
+        "titleNew": "新游戏",
+        "titleView": "游戏",
+        "untitled": "无标题游戏"
       },
       "empty": {
         "description": "创建你的第一个游戏，开启由 AI 驱动的互动冒险。",
@@ -713,9 +905,18 @@
       },
       "genres": {
         "adventure": "冒险",
-        "npc-live": "NPC 实时互动"
+        "npc-live": "遭遇"
       },
       "importExport": {
+        "coverFailed": "游戏已导入，但无法检查其封面。你可以在编辑器中绘制一张新的封面。",
+        "coverNoKey": "游戏已在没有封面的情况下导入：检查封面需要 API 密钥。",
+        "coverRefused": "游戏已在没有封面的情况下导入：该图片不符合未成年人保护规定。",
+        "coverUnsigned": "游戏已在没有封面的情况下导入：该图片不是由 ChatGameLab 导出，或之后被修改过。",
+        "errors": {
+          "noGame": "此 .cgl 文件不包含游戏。",
+          "tooLarge": "此文件大于 1 MB，超过了游戏文件的大小限制。",
+          "unreadable": "无法将此文件读取为游戏。"
+        },
         "exportButton": "导出游戏",
         "importButton": "导入游戏"
       },
@@ -818,6 +1019,7 @@
       },
       "statusFieldsEditor": {
         "addField": "添加新数值",
+        "maxHint": "最多五个数值：少量易于追踪的数值胜过大量数值。",
         "namePlaceholder": "名称（例如：生命值）",
         "noFields": "暂无数值，点击 + 添加新数值。",
         "valuePlaceholder": "初始值（例如：100）"
@@ -990,6 +1192,7 @@
     "leaveTitle": "离开组织",
     "leaveWarning": "你将失去对所有组织资源和成员的访问权。",
     "list": {
+      "clearPicks": "显示全部",
       "clearSearch": "清除搜索",
       "filter": "筛选",
       "hideDetails": "隐藏详情",
@@ -1171,6 +1374,23 @@
         "role-desc": "角色（Z-A）"
       },
       "title": "我的组织",
+      "verifiedPages": {
+        "add": "注册页面",
+        "addTitle": "注册页面",
+        "callbackShown": "回调：{{url}}",
+        "callbackUrl": "回调地址",
+        "callbackUrlHint": "ChatGameLab 每次启动前会在这里发起询问。它必须在几秒内回复。",
+        "copied": "已复制",
+        "copy": "复制页面 ID",
+        "empty": "还没有经过验证的页面。",
+        "intro": "已验证页面是你组织网站上的一个页面，它可以显示你嵌入的游戏。游戏准备在那里启动前，ChatGameLab 会向该页面的回调询问是否启动，并发送下面的页面 ID，以及由你的页面传递的访客 ID 和请求 ID。只有返回 {\"ok\": true} 才会启动游戏。",
+        "pageId": "页面 ID",
+        "pageUrl": "页面地址",
+        "pageUrlHint": "嵌入游戏的页面。只有该网站可以显示这些游戏。",
+        "remove": "移除页面",
+        "removeTitle": "移除此页面？",
+        "removeWarning": "为 {{page}} 嵌入的游戏将无法在那里启动，直到它们获得另一个页面。"
+      },
       "workshops": {
         "activate": "启用",
         "active": "启用",
@@ -1349,6 +1569,7 @@
         "failed": "当前无法进行游戏",
         "genre": "AI 密钥无法运行此类游戏",
         "key_rejected": "AI 密钥被拒绝",
+        "no_credit": "AI 额度已用完",
         "no_key": "没有可用的 AI 密钥",
         "no_plays": "没有剩余游戏次数",
         "paused": "工作坊已暂停",
@@ -1693,6 +1914,7 @@
     "orgApiKeys": "API 密钥",
     "orgConstraints": "青少年保护提示限制",
     "orgMembers": "成员",
+    "orgVerifiedPages": "网站",
     "orgWorkshops": "工作坊",
     "play": "游玩游戏",
     "rooms": "房间",
@@ -1705,18 +1927,78 @@
       "condense-scenario": "缩短场景",
       "condensed-scenario": "场景",
       "expand": "叙述",
+      "gallery-image": "图库图片",
+      "greeting": "生成文本",
       "image": "绘制图片",
       "image-prompt": "描述图片",
       "image-style": "调整风格",
       "live-session": "角色",
-      "observer": "观察者",
+      "observer": "导演",
+      "opening-brief": "开场方式",
       "outline": "规划场景",
       "portrait": "绘制肖像",
       "portrait-prompt": "描述肖像",
       "props-store": "游戏状态",
       "rephrase": "重述行动",
       "rephrase-audio": "理解语音",
-      "start-game": "开始"
+      "start-game": "开始",
+      "voice": "生成语音",
+      "voice-brief": "描述声音"
+    },
+    "director": {
+      "ago": "{{s}} 前",
+      "beatRefused": "已拒绝",
+      "beatSet": "已设置",
+      "beats": "带台词的节拍",
+      "beatsValue": "{{n}} · {{lines}} 行台词",
+      "calls": "模型调用",
+      "callsValue": "{{n}} · 最近一次 {{s}}",
+      "character": "角色",
+      "characterSpoke": "角色说话",
+      "counted": "已计数",
+      "doing": "正在执行",
+      "dropped": "已丢弃",
+      "droppedValue": "{{n}}（连续过多）",
+      "empty": "尚无内容",
+      "entryAbsent": "玩家离开了",
+      "entryBackground": "已发送背景信息",
+      "entryConversation": "对话",
+      "entryDirection": "已发送指令",
+      "entryDropped": "已丢弃",
+      "entryError": "错误",
+      "entryInjection": "已注入",
+      "entryLine": "说",
+      "entryRules": "规则已发送",
+      "entrySilence": "沉默",
+      "entryThought": "思考",
+      "failed": "{{n}} 次失败",
+      "fragments": "片段",
+      "gap": "调用间隔至少为",
+      "inARow": "连续指令",
+      "injected": "手动注入",
+      "late": "延迟片段",
+      "lateMark": "延迟",
+      "lateValue": "{{n}} · 最多 {{ms}} 毫秒",
+      "lines": "{{n}} 行台词",
+      "listening": "正在聆听",
+      "log": "导演日志",
+      "notYet": "尚未",
+      "notices": "沉默提示",
+      "now": "导演当前状态",
+      "ofLimit": "{{n}} / {{limit}}",
+      "player": "玩家",
+      "playerSpoke": "玩家说话",
+      "pool": "在池中",
+      "poolValue": "{{n}} 个片段 · 节拍 {{ms}} 毫秒",
+      "quietFor": "已安静",
+      "quietReplies": "无事可做",
+      "reminders": "已提醒规则",
+      "sent": "已发送",
+      "sentValue": "{{d}} 条指令 · {{b}} 条背景信息",
+      "setBeat": "设置节拍（毫秒）",
+      "standingDown": "暂不行动 · 玩家已 {{s}} 未发言",
+      "thinking": "思考中 · {{s}}",
+      "waiting": "等待其响应"
     },
     "errors": {
       "connectionLost": "与游戏的连接已丢失。重新加载页面后再试。",
@@ -1733,15 +2015,27 @@
     },
     "insights": {
       "close": "关闭",
+      "collapse": "收起",
       "empty": "尚未运行任何内容。",
-      "feed": "发生了什么",
+      "expand": "展开",
+      "feed": "历史记录",
       "hide": "隐藏洞察",
       "label": "洞察",
-      "show": "显示洞察"
+      "noProblems": "目前没有问题。",
+      "pickBlock": "点击流程中的模块或连线，查看它执行了什么操作。",
+      "settingEmpty": "游戏未设置此项内容。",
+      "show": "显示洞察",
+      "tabProblems": "问题",
+      "tabSelected": "已选中",
+      "tabUsage": "用量"
     },
     "launch": {
       "noGame": "此页面需要一个游戏才能游玩：请从游戏页面打开它。",
       "starting": "正在开始游戏……"
+    },
+    "over": {
+      "contentPolicy": "此游戏已被 AI 服务提供商停止：对话走向了其安全规则不允许的方向。你仍然可以阅读所有已说过的内容，并随时开始新游戏。",
+      "unknown": "此游戏已结束。你仍然可以阅读所有已说过的内容，并随时开始新游戏。"
     },
     "pipeline": {
       "compact": "压缩主题串",
@@ -1749,15 +2043,29 @@
       "compacting": "正在压缩…",
       "copied": "布局已复制",
       "copyFailed": "没有剪贴板：布局已记录到控制台",
-      "copyLayout": "复制布局"
+      "copyLayout": "复制布局",
+      "injectBackground": "知道",
+      "injectBackgroundHint": "角色在心里默默思考的内容，用角色自己的话表达，但现在不会说出来。例如：“我是狼人，我想让她慢慢发现这一点。”",
+      "injectDirection": "行动",
+      "injectDirectionHint": "角色应该做什么。例如：“表现得暴躁些，你不信任玩家。”",
+      "injectSpeech": "说",
+      "injectSpeechHint": "角色应该说什么，用角色自己的话表达。例如：“站住！谁在那里？”",
+      "injection": "告诉角色……",
+      "injectionFailed": "无法发送",
+      "injectionSend": "发送",
+      "injectionSending": "发送中…",
+      "injectionSent": "已发送到对话中"
     },
     "problems": {
       "denied": "你无权游玩此游戏。",
       "failed": "出了点问题，游戏无法继续。",
       "genre": "可用的 AI 密钥无法运行此类型的游戏。",
+      "hostRefused": "嵌入此游戏的网站不允许它启动。",
       "keyRejected": "AI 服务商拒绝了此游戏的密钥，因此游戏无法继续。设置游戏的人需要检查该密钥。",
+      "noCredit": "抱歉，AI 额度已用完，游戏暂时无法继续。",
       "noKey": "没有可用于游玩此游戏的 AI 密钥。",
       "noPlays": "这个共享游戏没有剩余游玩次数。",
+      "over": "此游戏已经结束，无法继续。",
       "paused": "工作坊已暂停。恢复后游戏将继续。",
       "stale": "此游戏已无法继续。",
       "unknown": "此游戏会话不存在。",
@@ -1768,10 +2076,20 @@
       "connected": "中继：已连接",
       "connecting": "中继：未运行"
     },
+    "settings": {
+      "cover": "图库图片",
+      "description": "描述",
+      "gameStart": "游戏开始",
+      "imageStyle": "图片风格",
+      "scenario": "情景",
+      "statusFields": "状态字段",
+      "voiceStyle": "声音风格"
+    },
     "status": {
       "choose": "选择游玩方式以开始游戏。",
       "connecting": "正在连接……",
       "ended": "游戏已结束。",
+      "over": "游戏已结束。",
       "reconnecting": "正在重新连接……",
       "settingScene": "正在设置场景……",
       "wakingCharacter": "正在唤醒角色……"
@@ -1789,10 +2107,15 @@
       "condensed-scenario\u001econdense-scenario": "请求",
       "condensed-scenario\u001eimage-prompt": "场景",
       "condensed-scenario\u001estart-game": "就绪",
+      "gallery-image\u0003estart-game": "就绪",
+      "greeting\u0003elive-session": "开场白",
+      "greeting\u0003estart-game": "就绪",
       "image-prompt\u001eimage": "提示",
       "image-style\u001eadapted-style": "回答",
       "live-session\u001eobserver": "文字记录",
+      "observer\u0003elive-session": "注入",
       "observer\u001elive-session": "提示",
+      "opening-brief\u0003egreeting": "提示",
       "outline\u001eexpand": "计划",
       "outline\u001eimage-prompt": "场景",
       "outline\u001eprops-store": "变更",
@@ -1805,7 +2128,12 @@
       "rephrase\u001eoutline": "行动",
       "rephrase-audio\u001eoutline": "行动",
       "start-game\u001elive-session": "引导",
-      "start-game\u001eoutline": "提示"
+      "start-game\u001eoutline": "提示",
+      "voice\u0003elive-session:secondary": "声音风格",
+      "voice\u0003elive-session:voice": "声音",
+      "voice\u0003estart-game": "就绪",
+      "voice-brief\u0003evoice:description": "描述",
+      "voice-brief\u0003evoice:voice": "备用声音"
     }
   }
 }

@@ -709,6 +709,176 @@
           "title": "Ungspeicherte Änderungen"
         }
       },
+      "editor": {
+        "allSet": "Ois bereit: Erstell des Spui.",
+        "backToOverview": "Zruck zur Übersicht",
+        "card": {
+          "adventure": {
+            "descriptionPlaceholder": "Find den versteckten Schatz, bevor da Woid di verschluckt.",
+            "titlePlaceholder": "Da Schatz im finstern Woid"
+          },
+          "description": "Beschreibung",
+          "descriptionHint": "Ein, zwoa Sätz für d Galerie, damit d Spielenden wissen, wos auf sie zukommt.",
+          "encounter": {
+            "descriptionPlaceholder": "Besuach d Greta, de grantige Leuchtturmwärterin, und find raus, wos sie in dera Nocht gsehn hod.",
+            "titlePlaceholder": "D Greta im Leuchtturm"
+          },
+          "title": "Titel",
+          "titleHint": "{{length}}/{{max}} · Koann öffentlich sichtbar wern – bitte koane echten Namen."
+        },
+        "delete": {
+          "confirm": "Für immer löschen",
+          "intro": "Für immer wegdoa, vorher oba runterladen.",
+          "keep": "Behalten",
+          "keepFile": "Heb d Datei auf, dann kannst as Spui später wieder importieren, do oder auf an andern ChatGameLab-Server.",
+          "label": "Spui löschen",
+          "whatGoes": "„{{name}}“ is dann für immer weg: sei Kartn, Gschicht, Buidln und Teil-Links. Koana koanns mehr starten. Des kann ma ned rückgängig macha."
+        },
+        "done": "fertig",
+        "doneButton": "Fertig",
+        "download": {
+          "button": "Runterladen",
+          "description": "Des Spui als Datei, zum Aufheben oder zum Importieren auf an andern ChatGameLab-Server.",
+          "title": "Runterladen"
+        },
+        "embed": {
+          "copy": "Snippet kopieren",
+          "incomplete": "Wähl aus, wos zahlt, und d Seitn, dann kriagst s Snippet.",
+          "noKeys": "Du host koan funktionierenden KI-Schlüssel zum Zoin. Füg an hinzu oder frog dei Organisation.",
+          "noPages": "Dei Organisation hod no koa verifizierte Seitn. D Leitung oder Mitarbeitende legn sie in de Organisationseinstellungen an.",
+          "offNote": "Wenns ausgschaltet is, zoagt s Snippet nix. Wieder eing schaltet funktioniert des gleiche Snippet.",
+          "page": "Verifizierte Seitn",
+          "pageHint": "Des Spui lafft nur dort und nur, wenn d Seitn jedem Start zustimmt.",
+          "paidBy": "Zahlt von",
+          "paidByPlaceholder": "Schlüssel auswählen",
+          "payingNow": "Zahlt jetzt",
+          "snippet": "Snippet für dei Website",
+          "snippetCss": "dei CSS",
+          "snippetHint": "Füg s dort ei, wo s Spui erscheinen soi, und gib dem Element d gewünschte Höhe.",
+          "snippetPlayer": "DEI-BESUACHER-ID",
+          "snippetRequest": "DEI-AUFRUF-ID",
+          "snippetVerifiedHint": "Dei Server setzt sei ID vom Besucher und von dem Seitenaufruf ei; da Callback von deiner Seitn kriagt beid.",
+          "styleLink": "Mit eigenem CSS gestalten →",
+          "toggle": "Auf ana Website einbetten",
+          "toggleHint": "Zoagt des Spui auf da verifizierten Seitn deiner Organisation, ohne irgendwos von ChatGameLab rundherum. Besucher spuin als Gäst; da ausgewählte Schlüssel zoit."
+        },
+        "fillIn": "Füll d Abschnitte aus, bis olle grün san.",
+        "genre": {
+          "pitch": {
+            "adventure": "Da Spieler erkundet a Welt. Des Spui erzählt, wos passiert, malt Buidl und zählt mit.",
+            "encounter": "Da Spieler redt mit ana Figur, per Stimme. Sie bleibt in ihrer Rolln und antwortet live."
+          },
+          "question": "Wos mechst macha?"
+        },
+        "look": {
+          "imageStyle": "Buidlstil",
+          "imageStyleHint": "Wie d Buidl ausschaugn, aa s Titelbuidl: Cartoon, Aquarell, Pixel-Art …",
+          "imageStylePlaceholder": "weiches Aquarell, gedaampfte Farben"
+        },
+        "makeCopy": "Meine Kopie macha",
+        "next": "als Nächsts",
+        "notDone": "no ned fertig",
+        "open": "Öffnen",
+        "othersGame": "Des Spui ghört wem andern. Du kannst da ois oschaun und a eigene Kopie macha, damit dus ändern kannst.",
+        "pages": {
+          "card": {
+            "intro": "Wos d Spielenden in da Galerie seng: da Titel und a kurze Beschreibung.",
+            "label": "Kartn"
+          },
+          "look": {
+            "intro": "Wie d Buidl vom Spui und sei Seitn ausschaun.",
+            "label": "Aussehn"
+          },
+          "sharing": {
+            "intro": "Wer des Spui finden und spuin ko.",
+            "label": "Teilen"
+          },
+          "sound": {
+            "intro": "Wie d Stimm vom Spui klingt.",
+            "label": "Klang"
+          },
+          "story": {
+            "intro": "Wos im Spui passiert und wie s anfangt.",
+            "label": "Gschicht"
+          }
+        },
+        "review": {
+          "button": "Prüfen",
+          "failed": "Des Spui hat grad ned geprüft wern kenna. Speichern kannst as trotzdem.",
+          "goTo": "Zu „{{page}}“",
+          "later": "Später",
+          "looksGood": "Schaut guad aus. Spuis amoi und schau, wia s si anfühlt.",
+          "missing": {
+            "adventure": {
+              "imageStyle": "Wähl an Buidlstil, damit d Buidl zammpassn.",
+              "name": "Dei Spui hod no koan Titel.",
+              "systemMessageGameStart": "Sag, wia s Spui anfangt.",
+              "systemMessageScenario": "Sag, worum s im Spui geht."
+            },
+            "encounter": {
+              "imageStyle": "Wähl an Buidlstil, damit d Buidl zammpassn.",
+              "name": "Dei Spui hod no koan Titel.",
+              "systemMessageGameStart": "Sag, wia d Figur d Spielenden begrüaßt.",
+              "systemMessageScenario": "Sag, wer d Figur is."
+            }
+          }
+        },
+        "sound": {
+          "adventure": {
+            "voiceStyle": "D Stimm vom Erzähler",
+            "voiceStyleHint": "Wia d Gschicht klingt, wenn sie vorglesn wird."
+          },
+          "builtInVoice": "Eingebaute Stimm",
+          "encounter": {
+            "voiceStyle": "D Stimm von da Figur",
+            "voiceStyleHint": "Wia d Figur klingt."
+          },
+          "errors": {
+            "failed": "D Stimm hat ned abgspuit wern kenna. Probiers bitte no amoi.",
+            "keyRejected": "Da KI-Anbieter hod den Schlüssel abglehnt. D Stimm hat ned abgspuit wern kenna.",
+            "noKey": "Koana von de KI-Schlüssel, de du verwenden kannst, redt mit ana Live-Stimm. Drum gibts grad nix zum Anhörn."
+          },
+          "keepVoice": "Die do behalten",
+          "listen": "Anhören",
+          "newVoice": "Neue Stimm macha",
+          "newVoiceConfirm": "D jetzige Stimm wird glöscht, und aus da gleichen Beschreibung wird a neue gmacht. Spui mit genau dera Beschreibung auf dem KI-Schlüssel kriagn d neue Stimm aa.",
+          "noteDescription": "Wennst d Beschreibung änderst, entsteht sowieso a andere Stimm.",
+          "noteKeys": "Aus technischen Gründen kenna ma ned versprechen, dass jede Sitzung genau die Stimm verwendet: A Stimm wird auf dem KI-Schlüssel gmacht und aufbewahrt, der zoit. A Sitzung, de a anderer Schlüssel zoit, kriagt aus da gleichen Beschreibung ihre eigene Stimm.",
+          "play": "A Hörprobe von da Stimm abspuin",
+          "sampleLine": {
+            "greeting": "Griaß di! Kimm eina, hock di her und erzähl ma, wos di herführt.",
+            "narration": "D Gschicht fangt an an an stillen Morgn, wia a schmaler Weg ins Unbekannte führt."
+          },
+          "status": {
+            "builtIn": "No koa Beschreibung: Des Spui redt mit ana eingebauten Stimm, bisd d Stimm beschreibst.",
+            "ownVoice": "A eigene Stimm für die Beschreibung, gmacht mit deim KI-Schlüssel.",
+            "steered": "A eingebaute Stimm liest d Gschicht vor, so wia s in da Beschreibung steht."
+          },
+          "stop": "Hörprob anhalten"
+        },
+        "story": {
+          "adventure": {
+            "gameStart": "Wia fangt s an?",
+            "gameStartHint": "D erste Szene, de d Spielenden seng, und woran sie merken, wos zum doa is.",
+            "gameStartPlaceholder": "Da Spieler wacht am Rand von an finstern Woid auf. A schmaler Weg führt zwischen d Bäum …",
+            "scenario": "Worum gehts im Spui?",
+            "scenarioHint": "D Welt, d Rolln von de Spielenden, s Ziel und woran sie merken, dass sie gwunna ham.",
+            "scenarioPlaceholder": "Da Spieler is a Entdecker in an geheimnisvollen Woid und sucht an versteckten Schatz …"
+          },
+          "encounter": {
+            "gameStart": "Wia begrüaßt sie d Spielenden?",
+            "gameStartHint": "D Situation, wenn s Gespräch anfangt; d ersten Wort wern daraus gschriebn.",
+            "gameStartPlaceholder": "Mitten in an Unwetter klopft a Fremder an d Tür vom Leuchtturm …",
+            "scenario": "Wer is d Figur?",
+            "scenarioHint": "Ihre Persönlichkeit, wos sie woaß, wia sie redt und bei wos sie niemals nachgibt.",
+            "scenarioPlaceholder": "Du bist d Greta, a grantige Leuchtturmwärterin, de jedes Schiff an da Küst kennt …"
+          }
+        },
+        "titleEdit": "Spui bearbeiten",
+        "titleNew": "Neis Spui",
+        "titleView": "Spui",
+        "untitled": "Spui ohne Titel"
+      },
       "empty": {
         "description": "Erstell dei erstes Spui und leg mit interaktiven KI-Abenteuern los.",
         "title": "Noch koane Spiele"
@@ -735,7 +905,7 @@
       },
       "genres": {
         "adventure": "Abenteuer",
-        "npc-live": "NPC-Live"
+        "npc-live": "Begegnung"
       },
       "importExport": {
         "coverFailed": "Des Spui is importiert worn, oba s'Titelbild konnt ned geprüft wern. Im Editor konnst a neues zeichnen lassen.",
@@ -849,6 +1019,7 @@
       },
       "statusFieldsEditor": {
         "addField": "Neien Wert hinzufügen",
+        "maxHint": "Höchstens fünf Werte: Wenige, denen ma folgen ko, san besser als vui.",
         "namePlaceholder": "Nam (z. B. Gsundheit)",
         "noFields": "Noch koane Werte. Klick auf + fia a neien Wert.",
         "valuePlaceholder": "Startwert (z. B. 100)"
@@ -1203,6 +1374,23 @@
         "role-desc": "Roll (Z-A)"
       },
       "title": "Meine Organisation",
+      "verifiedPages": {
+        "add": "Seitn registrieren",
+        "addTitle": "A Seitn registrieren",
+        "callbackShown": "Callback: {{url}}",
+        "callbackUrl": "Callback-Adresse",
+        "callbackUrlHint": "Do frog ChatGameLab vor jedem Start. Sie muaß innerhalb von a paar Sekunden antworten.",
+        "copied": "Kopiert",
+        "copy": "Seiten-ID kopieren",
+        "empty": "No koa verifizierte Seitn.",
+        "intro": "A verifizierte Seitn is a Seitn auf da Website deiner Organisation, de eure eingebetteten Spui zoagn derf. Bevor dort a Spui startet, frog ChatGameLab den Callback von da Seitn, ob s starten soi, mit da Seiten-ID unten und de IDs vom Besucher und vom Aufruf, de dei Seitn mitgibt. Nur d Antwort {\"ok\": true} startet s Spui.",
+        "pageId": "Seiten-ID",
+        "pageUrl": "Adresse von da Seitn",
+        "pageUrlHint": "D Seitn, in de eure Spui eingebettet san. Nur ihre Website derf sie zoagn.",
+        "remove": "Seitn entfernen",
+        "removeTitle": "Die Seitn entfernen?",
+        "removeWarning": "Für {{page}} eingebettete Spui starten dort nimmer, bis sie a andere Seitn kriagn."
+      },
       "workshops": {
         "activate": "Aktiviern",
         "active": "Aktiv",
@@ -1732,6 +1920,7 @@
     "orgApiKeys": "API-Schlüssel",
     "orgConstraints": "Jugendschutz-Prompt-Einschränkung",
     "orgMembers": "Mitglida",
+    "orgVerifiedPages": "Websites",
     "orgWorkshops": "Workshops",
     "play": "A Spui spuin",
     "rooms": "Räume",
@@ -1777,6 +1966,7 @@
       "dropped": "verworfa",
       "droppedValue": "{{n}} (z'vui hintereinander)",
       "empty": "no nix",
+      "entryAbsent": "Spieler weg",
       "entryBackground": "Hintergrund gschickt",
       "entryConversation": "Gspräch",
       "entryDirection": "Anweisung gschickt",
@@ -1784,6 +1974,7 @@
       "entryError": "Fehler",
       "entryInjection": "eingegeben",
       "entryLine": "gsagt",
+      "entryRules": "Regeln gschickt",
       "entrySilence": "Stille",
       "entryThought": "denkt",
       "failed": "{{n}} fehlgschlagn",
@@ -1807,9 +1998,11 @@
       "poolValue": "{{n}} Fragmente · Takt {{ms}} ms",
       "quietFor": "still seit",
       "quietReplies": "nix zum doa",
+      "reminders": "an d Regeln erinnert",
       "sent": "gschickt",
       "sentValue": "{{d}} Anweisungen · {{b}} Hintergrund",
       "setBeat": "Takt setzen (ms)",
+      "standingDown": "hält si zruck · da Spieler hod {{s}} lang nix gsagt",
       "thinking": "denkt nach · {{s}}",
       "waiting": "wartet drauf"
     },
@@ -1846,6 +2039,10 @@
       "noGame": "De Seitn braucht a Spui: Mach's über de Seitn von am Spui auf.",
       "starting": "Des Spui startet …"
     },
+    "over": {
+      "contentPolicy": "Des Spui is vom KI-Anbieter beendet worn: Des Gespräch is in a Richtung ganga, de seine Sicherheitsregeln ned erlauben. Du kannst ois, wos gsagt worn is, weiterhin nachlesen und jederzeit a neis Spui anfangen.",
+      "unknown": "Des Spui is aus. Du kannst ois, wos gsagt worn is, weiterhin nachlesen und jederzeit a neis Spui anfangen."
+    },
     "pipeline": {
       "compact": "Thread komprimieren",
       "compactFailed": "Komprimieren fehlgschlogn",
@@ -1869,10 +2066,12 @@
       "denied": "Du derfst des Spui ned spuiln.",
       "failed": "Da is wos schiefganga, des Spui kann ned weitagehn.",
       "genre": "Da verfügbare KI-Schlüssel kann so a Art Spui ned ausfüahn.",
+      "hostRefused": "D Website, in de des Spui eingebettet is, hod den Start ned erlaubt.",
       "keyRejected": "Da KI-Anbieter hod den Schlüssel von dem Spui abglehnt, drum geht's ned weida. Wer des Spui eingerichtet hod, muaß den Schlüssel prüfen.",
       "noCredit": "Leider is des KI-Guthaben aufbraucht, drum geht des Spui grad ned weiter.",
       "noKey": "Für des Spui gibt's koan verfügbaren KI-Schlüssel.",
       "noPlays": "Für des geteilte Spui san koane Spielrunden mehr übrig.",
+      "over": "Des Spui is aus und kann ned weitergehen.",
       "paused": "Da Workshop is pausiert. Des Spiel geht weiter, sobald er fortgesetzt wird.",
       "stale": "Des Spui kann nimmer fortgsetzt wern.",
       "unknown": "De Spuisitzung gibt's ned.",
@@ -1896,6 +2095,7 @@
       "choose": "Wähl aus, wia'd spuiln mechtst, damit's losgehn kann.",
       "connecting": "Verbinden …",
       "ended": "Des Spui is aus.",
+      "over": "Des Spui is aus.",
       "reconnecting": "No amoi verbinden …",
       "settingScene": "De Szene wird hergricht …",
       "wakingCharacter": "De Figur wacht auf …"

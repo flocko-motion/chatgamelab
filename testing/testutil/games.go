@@ -5,6 +5,7 @@
 package testutil
 
 import (
+	"archive/zip"
 	"bytes"
 	"context"
 	"fmt"
@@ -19,6 +20,7 @@ import (
 	"strings"
 
 	"cgl/apiclient"
+	"cgl/picture"
 
 	"github.com/google/uuid"
 )
@@ -361,6 +363,36 @@ func (c caller) GetGameCgl(gameID string) ([]byte, error) {
 		return nil, err
 	}
 	return r.Body, nil
+}
+
+// CglFiles are the files a game's .cgl file holds, by name, in the order
+// it holds them.
+func CglFiles(cgl []byte) (names []string, files map[string][]byte, err error) {
+	zr, err := zip.NewReader(bytes.NewReader(cgl), int64(len(cgl)))
+	if err != nil {
+		return nil, nil, err
+	}
+	files = map[string][]byte{}
+	for _, f := range zr.File {
+		rc, err := f.Open()
+		if err != nil {
+			return nil, nil, err
+		}
+		data, err := io.ReadAll(rc)
+		rc.Close()
+		if err != nil {
+			return nil, nil, err
+		}
+		names = append(names, f.Name)
+		files[f.Name] = data
+	}
+	return names, files, nil
+}
+
+// SignCover is the signature a ChatGameLab server gives a cover it exports,
+// as a .cgl file's cover.sig holds it.
+func SignCover(cover []byte) string {
+	return picture.Sign(cover)
 }
 
 // body sends a raw request body, which a raw endpoint's generated method has
