@@ -1781,7 +1781,9 @@
         "title": "品牌设置"
       },
       "constraints": {
-        "description": "根据玩家的年龄组定义强制性的 AI 规则。这些青少年保护规则会随每次 AI 调用一同发送。它们适用于工作坊模式之外的所有已登录用户。",
+        "changed": "已更改",
+        "description": "根据玩家年龄组设定的强制性 AI 规则。登录用户在创作工坊模式之外进行的每次 AI 调用都会应用这些规则。每项规则初始均为网站默认值；你可以更改它们，也可以随时恢复默认值。",
+        "reset": "恢复默认值",
         "title": "按年龄组设置的青少年保护规则",
         "u13Hint": "会注入到所有登录且未有家长同意记录的 13–17 岁用户的 AI 提示中。",
         "u13Label": "适用于 13–17 岁用户且无家长同意的青少年保护规则（U13）",
@@ -1813,11 +1815,115 @@
         "description": "当使用免费 API 密钥时采用的质量等级。等级越高成本越高，但质量可能更好。留空则使用默认等级。",
         "title": "免费使用 AI 质量等级"
       },
+      "models": {
+        "assign": {
+          "cellLabel": "{{task}}，{{tier}}：{{model}}。分配其他模型",
+          "model": "模型",
+          "modelHint": "仅显示模型表中适合此任务的模型。默认值：{{model}}",
+          "quality": "图片质量",
+          "qualityHint": "影响图片成本和耗时的主要因素。默认值：{{quality}}",
+          "reset": "恢复默认值",
+          "title": "分配模型",
+          "where": "{{tier}}档位上的{{task}}"
+        },
+        "assignments": {
+          "description": "每个质量档位为每项任务使用的模型。点击模型可从模型表中分配其他模型。新会话会使用更改后的设置；正在运行的会话会继续使用原有模型。",
+          "title": "{{platform}}：各档位的模型"
+        },
+        "entry": {
+          "codeRead": "引擎自身的数据：来自{{date}}，来源：{{source}}",
+          "makes": "输出",
+          "model": "模型名称",
+          "modelHint": "严格按照提供商的命名填写，例如 gpt-6.2-sol",
+          "price": {
+            "audioInputPerMTok": "每百万 Token 的音频输入",
+            "audioOutputPerMTok": "每百万 Token 的音频输出",
+            "audioPerMinute": "每分钟音频",
+            "cachedAudioInputPerMTok": "每百万 Token 的缓存音频输入",
+            "cachedInputPerMTok": "每百万 Token 的缓存输入",
+            "inputPerMTok": "每百万 Token 的输入",
+            "outputPerMTok": "每百万 Token 的输出",
+            "perImage": "每张图片"
+          },
+          "prices": "价格",
+          "pricesHint": "以美元填写，按照提供商价格页面所列的价格。如果模型不以某种方式计费，请将相应字段留空。",
+          "remove": "移除模型",
+          "reset": "恢复引擎数据",
+          "takes": "输入",
+          "window": "上下文窗口（Token）",
+          "windowHint": "一次调用可以容纳的内容量。故事和叙事模型需要此设置，否则长篇故事永远不会被缩短。"
+        },
+        "fixed": "此平台的模型由引擎设定，无法在此更改。",
+        "media": {
+          "audio": "音频",
+          "image": "图片",
+          "text": "文本"
+        },
+        "price": {
+          "audioInputPerMTok": "音频输入 {{value}}/M",
+          "audioOutputPerMTok": "音频输出 {{value}}/M",
+          "audioPerMinute": "{{value}}/分钟",
+          "cachedAudioInputPerMTok": "缓存音频 {{value}}/M",
+          "cachedInputPerMTok": "缓存输入 {{value}}/M",
+          "inputPerMTok": "输入 {{value}}/M",
+          "none": "无价格",
+          "outputPerMTok": "输出 {{value}}/M",
+          "perImage": "{{value}}/张图片"
+        },
+        "probe": {
+          "answers": "可响应（费用 ${{cost}}）",
+          "button": "测试",
+          "failed": "无法响应：{{message}}",
+          "none": "暂时无法测试此任务的模型。"
+        },
+        "quality": {
+          "high": "高",
+          "low": "低",
+          "medium": "中"
+        },
+        "refused": "引擎拒绝了此次更改",
+        "resetAll": {
+          "assignments": {
+            "message": "每个档位的每项任务都会重新使用引擎自身的模型，图片也会恢复为引擎自身的质量。新会话会使用默认设置；正在运行的会话会继续使用原有模型。",
+            "title": "{{platform}}：恢复默认模型？"
+          },
+          "button": "全部恢复默认值",
+          "confirm": "重置",
+          "entries": {
+            "message": "引擎中的每个模型都会恢复为引擎自身的数据；你添加但没有任何档位使用的模型将被移除。被某个档位使用的已添加模型会保留其条目。",
+            "title": "{{platform}}：恢复引擎的模型表？"
+          }
+        },
+        "table": {
+          "add": "添加模型",
+          "added": "已添加",
+          "description": "每个模型的输入和输出、美元价格以及上下文窗口。费用根据这些数据计算。没有任何档位使用的模型会显示为灰色。对引擎自身模型的更改将持续到下一个应用版本。",
+          "edit": "编辑条目",
+          "makes": "输出",
+          "read": "{{date}}的价格，来源：{{source}}",
+          "stale": "已通过更新重置",
+          "takes": "输入",
+          "title": "{{platform}}：模型表",
+          "unused": "未使用",
+          "windowValue": "窗口 {{tokens}} Token"
+        },
+        "task": "任务",
+        "types": {
+          "hearing": "语音输入",
+          "image": "图片",
+          "live": "实时语音",
+          "speech": "旁白",
+          "story": "故事",
+          "tooling": "工具"
+        },
+        "unpriced": "此模型在模型表中没有条目：其费用不会被计算，使用它生成的故事也永远不会被缩短。"
+      },
       "notAuthorized": "你无权访问服务器设置，需要管理员权限。",
       "tabs": {
         "ai": "AI 和密钥",
         "branding": "品牌设置",
         "general": "常规",
+        "models": "AI 模型",
         "youthProtection": "青少年保护"
       },
       "title": "服务器设置",

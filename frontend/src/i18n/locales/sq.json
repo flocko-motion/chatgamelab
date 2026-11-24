@@ -1786,7 +1786,9 @@
         "title": "Markimi"
       },
       "constraints": {
-        "description": "Përcaktoni rregulla të detyrueshme për IA-në bazuar në grupmoshën e lojtarit. Këto rregulla për mbrojtjen e të rinjve shoqërojnë çdo thirrje të IA-së. Ato zbatohen për të gjithë përdoruesit e identifikuar jashtë modalitetit të punëtorisë.",
+        "changed": "Ndryshuar",
+        "description": "Rregulla të detyrueshme të IA-së sipas grupmoshës së lojtarit. Ato zbatohen në çdo thirrje të IA-së nga përdoruesit e identifikuar jashtë modalitetit të punëtorisë. Secila fillon si parazgjedhja e sajtit; ndryshojeni dhe kthehuni te parazgjedhja në çdo kohë.",
+        "reset": "Kthehu te parazgjedhja",
         "title": "Rregullat për mbrojtjen e të rinjve sipas grupmoshës",
         "u13Hint": "Futet në çdo kërkesë të IA-s për përdoruesit e kyçur të moshës 13-17 pa pëlqim prindëror të regjistruar.",
         "u13Label": "Rregulli për përdoruesit 13–17 vjeç, pa pëlqimin prindëror (U13)",
@@ -1818,11 +1820,115 @@
         "description": "Niveli i cilësisë kur çelësi API i përdorimit falas është aktiv. Nivelet më të larta kushtojnë më shumë por mund të kenë cilësi më të mirë. Lëreni bosh për të përdorur nivelin parazgjedhje.",
         "title": "Niveli i cilësisë së AI për përdorim falas"
       },
+      "models": {
+        "assign": {
+          "cellLabel": "{{task}}, {{tier}}: {{model}}. Cakto një model tjetër",
+          "model": "Modeli",
+          "modelHint": "Vetëm modelet e tabelës së modeleve që përshtaten me këtë detyrë. Parazgjedhja: {{model}}",
+          "quality": "Cilësia e figurës",
+          "qualityHint": "Faktori kryesor që ndikon në koston dhe kohëzgjatjen e një figure. Parazgjedhja: {{quality}}",
+          "reset": "Kthehu te parazgjedhja",
+          "title": "Cakto një model",
+          "where": "{{task}} në nivelin {{tier}}"
+        },
+        "assignments": {
+          "description": "Cilin model përdor çdo nivel cilësie për secilën detyrë. Klikoni një model për t'i caktuar një tjetër nga tabela e modeleve. Seancat e reja përdorin ndryshimin; seancat në vazhdim ruajnë modelet e tyre.",
+          "title": "{{platform}}: modelet për çdo nivel"
+        },
+        "entry": {
+          "codeRead": "Vlerat e vetë motorit: nga {{date}}, burimi: {{source}}",
+          "makes": "Gjeneron",
+          "model": "Emri i modelit",
+          "modelHint": "Saktësisht siç e emërton ofruesi, p.sh. gpt-6.2-sol",
+          "price": {
+            "audioInputPerMTok": "Hyrje audio për milion tokenë",
+            "audioOutputPerMTok": "Dalje audio për milion tokenë",
+            "audioPerMinute": "Audio për minutë",
+            "cachedAudioInputPerMTok": "Hyrje audio e ruajtur në cache për milion tokenë",
+            "cachedInputPerMTok": "Hyrje e ruajtur në cache për milion tokenë",
+            "inputPerMTok": "Hyrje për milion tokenë",
+            "outputPerMTok": "Dalje për milion tokenë",
+            "perImage": "Për figurë"
+          },
+          "prices": "Çmimet",
+          "pricesHint": "Në dollarë, siç i paraqet faqja e çmimeve të ofruesit. Lëreni një fushë bosh kur modeli nuk faturohet në atë mënyrë.",
+          "remove": "Hiq modelin",
+          "reset": "Kthehu te vlerat e motorit",
+          "takes": "Merr",
+          "window": "Dritarja e kontekstit (tokenë)",
+          "windowHint": "Sa mund të përmbajë një thirrje. Modelet e tregimeve dhe rrëfimit kanë nevojë për të, përndryshe një tregim i gjatë nuk shkurtohet kurrë."
+        },
+        "fixed": "Modelet e kësaj platforme përcaktohen nga motori dhe nuk mund të ndryshohen këtu.",
+        "media": {
+          "audio": "audio",
+          "image": "figura",
+          "text": "tekst"
+        },
+        "price": {
+          "audioInputPerMTok": "audio hyrëse {{value}}/M",
+          "audioOutputPerMTok": "audio dalëse {{value}}/M",
+          "audioPerMinute": "{{value}}/min",
+          "cachedAudioInputPerMTok": "audio e ruajtur në cache {{value}}/M",
+          "cachedInputPerMTok": "hyrje e ruajtur në cache {{value}}/M",
+          "inputPerMTok": "hyrje {{value}}/M",
+          "none": "Pa çmim",
+          "outputPerMTok": "dalje {{value}}/M",
+          "perImage": "{{value}}/figurë"
+        },
+        "probe": {
+          "answers": "Përgjigjet (kostoja ${{cost}})",
+          "button": "Testo",
+          "failed": "Nuk përgjigjet: {{message}}",
+          "none": "Modelet për këtë detyrë ende nuk mund të testohen."
+        },
+        "quality": {
+          "high": "e lartë",
+          "low": "e ulët",
+          "medium": "mesatare"
+        },
+        "refused": "Motori e refuzoi këtë ndryshim",
+        "resetAll": {
+          "assignments": {
+            "message": "Çdo nivel do të përdorë përsëri modelin e vetë motorit për çdo detyrë, ndërsa figurat do të përdorin cilësinë e vetë motorit. Seancat e reja përdorin parazgjedhjet; seancat në vazhdim ruajnë modelet e tyre.",
+            "title": "{{platform}}: Të kthehemi te modelet parazgjedhje?"
+          },
+          "button": "Rivendosi të gjitha te parazgjedhjet",
+          "confirm": "Rivendos",
+          "entries": {
+            "message": "Çdo model i motorit do të marrë përsëri vlerat e vetë motorit dhe modelet e shtuara që nuk përdoren nga asnjë nivel do të hiqen. Modelet e shtuara që përdoren nga një nivel do t'i ruajnë hyrjet e tyre.",
+            "title": "{{platform}}: Të kthehemi te tabela e modeleve të motorit?"
+          }
+        },
+        "table": {
+          "add": "Shto një model",
+          "added": "Shtuar",
+          "description": "Çfarë merr dhe gjeneron çdo model, çmimet e tij në dollarë dhe dritarja e kontekstit. Kostot llogariten nga këto vlera. Modelet që nuk përdoren nga asnjë nivel shfaqen të zbehura. Ndryshimet në modelet e vetë motorit zbatohen deri në versionin e ardhshëm të aplikacionit.",
+          "edit": "Redakto hyrjen",
+          "makes": "gjeneron",
+          "read": "Çmimi nga {{date}}, burimi: {{source}}",
+          "stale": "Rivendosur nga përditësimi",
+          "takes": "Merr",
+          "title": "{{platform}}: tabela e modeleve",
+          "unused": "Nuk përdoret",
+          "windowValue": "dritarja {{tokens}} tokenë"
+        },
+        "task": "Detyra",
+        "types": {
+          "hearing": "Hyrje zanore",
+          "image": "Figura",
+          "live": "Zë drejtpërdrejt",
+          "speech": "Rrëfim",
+          "story": "Tregim",
+          "tooling": "Mjete"
+        },
+        "unpriced": "Ky model nuk ka hyrje në tabelën e modeleve: kostot e tij nuk llogariten dhe një tregim me të nuk shkurtohet kurrë."
+      },
       "notAuthorized": "Nuk keni leje të hyni në cilësimet e serverit. Kërkohet akses administratori.",
       "tabs": {
         "ai": "AI dhe çelësat",
         "branding": "Markimi",
         "general": "Të përgjithshme",
+        "models": "Modelet e IA-së",
         "youthProtection": "Mbrojtja e të rinjve"
       },
       "title": "Cilësimet e serverit",

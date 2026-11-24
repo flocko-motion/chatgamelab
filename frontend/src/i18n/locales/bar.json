@@ -1786,7 +1786,9 @@
         "title": "Erscheinungsbild"
       },
       "constraints": {
-        "description": "Leg verbindliche KI-Regeln anhand von da Altersgruppe vom Spieler fest. De Jugendschutz-Regeln gehn mit jedem KI-Aufruf mit. Sie gelten für alle angemeldeten Benutzer außerhalb vom Workshop-Modus.",
+        "changed": "G'ändert",
+        "description": "Verbindliche KI-Regeln nach dera Altersgruppe vom Spieler. De gelten bei jedem KI-Aufruf vo angemeldeten Nutzern außerhalb vom Workshop-Modus. Jede fangt mit'm Standard von da Seitn o; du kannst s ändern und jederzeit wieder auf'n Standard zruckgeh.",
+        "reset": "Zruck zum Standard",
         "title": "Jugendschutz-Regeln nach Altersgruppe",
         "u13Hint": "Wird in jeda KI-Aufforderung eig'schobn fia eigloggte Nutzr mit 13–17 Joahr, wo koane Elternerlaubnis hintlegt is.",
         "u13Label": "Jugendschutz-Regel für Nutzer von 13–17 Jahren, ohne elterliche Einwilligung (U13)",
@@ -1818,11 +1820,115 @@
         "description": "Qualitätsstufn, wenn da Gratis-API-Schlüssl aktiv is. Höhere Stufn kostn mehr. Leer = Standardstufn.",
         "title": "Gratis-KI-Qualitätsstufn"
       },
+      "models": {
+        "assign": {
+          "cellLabel": "{{task}}, {{tier}}: {{model}}. A anders Modell z'weisen",
+          "model": "Modell",
+          "modelHint": "Bloß Modelle aus da Modelltabelle, de zu dera Aufgabe passn. Standard: {{model}}",
+          "quality": "Bildqualität",
+          "qualityHint": "Der wichtigste Hebel für d'Kosten und d'Dauer von am Bild. Standard: {{quality}}",
+          "reset": "Zruck zum Standard",
+          "title": "A Modell z'weisen",
+          "where": "{{task}} auf da Stufe {{tier}}"
+        },
+        "assignments": {
+          "description": "Welches Modell auf jeder Qualitätsstufe welche Aufgabe macht. Klick auf a Modell, um a anders aus da Modelltabelle z'weisen. Neue Sitzungen nehma d'Änderung her, laufende behalten ihre Modelle.",
+          "title": "{{platform}}: Modelle pro Stufe"
+        },
+        "entry": {
+          "codeRead": "Eigene Werte von da Engine: vom {{date}}, Quelle: {{source}}",
+          "makes": "Erzeugt",
+          "model": "Modellname",
+          "modelHint": "Genau so, wia da Anbieter s nennt, z. B. gpt-6.2-sol",
+          "price": {
+            "audioInputPerMTok": "Audio-Eingabe pro Million Tokens",
+            "audioOutputPerMTok": "Audio-Ausgabe pro Million Tokens",
+            "audioPerMinute": "Audio pro Minutn",
+            "cachedAudioInputPerMTok": "Zwischengespeicherte Audio-Eingabe pro Million Tokens",
+            "cachedInputPerMTok": "Zwischengespeicherte Eingabe pro Million Tokens",
+            "inputPerMTok": "Eingabe pro Million Tokens",
+            "outputPerMTok": "Ausgabe pro Million Tokens",
+            "perImage": "Pro Bild"
+          },
+          "prices": "Preise",
+          "pricesHint": "In Dollar, so wia s auf da Preisseitn vom Anbieter steht. Lass a Feld leer, wenn des Modell so ned abgerechnet wird.",
+          "remove": "Modell entfernen",
+          "reset": "Zruck zu de Werten von da Engine",
+          "takes": "Nimmt",
+          "window": "Kontextfenster (Tokens)",
+          "windowHint": "Wia vui a Aufruf fassen derf. Geschichten- und Erzählmodelle brauchen des, sonst wird a lange Gschicht nia kürzer."
+        },
+        "fixed": "De Modelle von dera Plattform legt d'Engine fest; do kannst s ned ändern.",
+        "media": {
+          "audio": "Audio",
+          "image": "Bilder",
+          "text": "Text"
+        },
+        "price": {
+          "audioInputPerMTok": "Audio nei {{value}}/M",
+          "audioOutputPerMTok": "Audio aussi {{value}}/M",
+          "audioPerMinute": "{{value}}/Min.",
+          "cachedAudioInputPerMTok": "Audio zwischengespeichert {{value}}/M",
+          "cachedInputPerMTok": "zwischengespeichert {{value}}/M",
+          "inputPerMTok": "Eingabe {{value}}/M",
+          "none": "Koan Preis",
+          "outputPerMTok": "Ausgabe {{value}}/M",
+          "perImage": "{{value}}/Bild"
+        },
+        "probe": {
+          "answers": "Antwortet (Kosten ${{cost}})",
+          "button": "Testen",
+          "failed": "Antwortet ned: {{message}}",
+          "none": "Modelle für de Aufgabe lassen si no ned testen."
+        },
+        "quality": {
+          "high": "hoch",
+          "low": "niedrig",
+          "medium": "mittel"
+        },
+        "refused": "D'Engine hat de Änderung abglehnt",
+        "resetAll": {
+          "assignments": {
+            "message": "Jede Stufe nimmt für jede Aufgabe wieder des eigene Modell von da Engine, Bilder in da Qualität von da Engine. Neue Sitzungen nehma de Standards her, laufende behalten ihre Modelle.",
+            "title": "{{platform}}: Zruck zu de Standardmodellen?"
+          },
+          "button": "Ois auf Standard zrucksetzen",
+          "confirm": "Zrucksetzen",
+          "entries": {
+            "message": "Jedes Modell von da Engine kriagt wieder de eigenen Werte von da Engine, und hinzugefügte Modelle, de koa Stufe nutzt, werdn entfernt. Hinzugefügte Modelle, de von ana Stufe genutzt werdn, behalten ihre Einträge.",
+            "title": "{{platform}}: Zruck zur Modelltabelle von da Engine?"
+          }
+        },
+        "table": {
+          "add": "Modell hinzufügen",
+          "added": "Hinzugefügt",
+          "description": "Wos jedes Modell aufnimmt und erzeugt, seine Preise in Dollar und sei Kontextfenster. Daraus werdn de Kosten berechnet. Modelle, de koa Stufe nutzt, san ausgegraut. Änderungen an de eigenen Modelle von da Engine gelten bis zur nächsten App-Version.",
+          "edit": "Eintrag bearbeiten",
+          "makes": "erzeugt",
+          "read": "Preis vom {{date}}, Quelle: {{source}}",
+          "stale": "Durchs Update zruckgesetzt",
+          "takes": "Nimmt",
+          "title": "{{platform}}: Modelltabelle",
+          "unused": "Ned genutzt",
+          "windowValue": "Fenster {{tokens}} Tokens"
+        },
+        "task": "Aufgabe",
+        "types": {
+          "hearing": "Spracheingabe",
+          "image": "Bilder",
+          "live": "Live-Stimm",
+          "speech": "Erzählstimm",
+          "story": "Gschicht",
+          "tooling": "Werkzeig"
+        },
+        "unpriced": "Des Modell hat koan Eintrag in da Modelltabelle: Seine Kosten werdn ned berechnet, und a Gschicht damit wird nia gekürzt."
+      },
       "notAuthorized": "Du host koa Berechtigung fia Server-Einstellungen. Admin-Zugriff nötig.",
       "tabs": {
         "ai": "KI und Schlüssel",
         "branding": "Erscheinungsbild",
         "general": "Allgemein",
+        "models": "KI-Modelle",
         "youthProtection": "Jugendschutz"
       },
       "title": "Server-Einstellungen",

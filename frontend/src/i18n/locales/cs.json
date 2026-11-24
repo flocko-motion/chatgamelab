@@ -1781,7 +1781,9 @@
         "title": "Vzhled"
       },
       "constraints": {
-        "description": "Definujte závazná pravidla AI podle věkové skupiny hráče. Tato pravidla ochrany dětí a mládeže se připojují ke každému volání AI. Platí pro všechny přihlášené uživatele mimo režim workshopu.",
+        "changed": "Změněno",
+        "description": "Povinná pravidla AI podle věkové skupiny hráče. Uplatňují se při každém volání AI přihlášených uživatelů mimo režim workshopu. Každé začíná jako výchozí nastavení webu; můžete je změnit a kdykoli se vrátit k výchozímu nastavení.",
+        "reset": "Zpět na výchozí",
         "title": "Pravidla ochrany dětí a mládeže podle věku",
         "u13Hint": "Vkládá se do každého AI promptu pro přihlášené uživatele ve věku 13–17 let bez záznamu o rodičovském souhlasu.",
         "u13Label": "Pravidlo ochrany dětí a mládeže pro uživatele ve věku 13–17 let bez souhlasu rodičů (U13)",
@@ -1813,11 +1815,115 @@
         "description": "Úroveň kvality používaná, když je aktivní API klíč pro volné používání. Vyšší úrovně jsou dražší, ale mohou mít vyšší kvalitu. Nechte prázdné pro výchozí úroveň.",
         "title": "Úroveň kvality AI pro volné používání"
       },
+      "models": {
+        "assign": {
+          "cellLabel": "{{task}}, {{tier}}: {{model}}. Přiřadit jiný model",
+          "model": "Model",
+          "modelHint": "Pouze modely z tabulky modelů, které se hodí pro tuto úlohu. Výchozí: {{model}}",
+          "quality": "Kvalita obrázku",
+          "qualityHint": "Hlavní faktor ovlivňující cenu a dobu vytváření obrázku. Výchozí: {{quality}}",
+          "reset": "Zpět na výchozí",
+          "title": "Přiřadit model",
+          "where": "{{task}} na úrovni {{tier}}"
+        },
+        "assignments": {
+          "description": "Který model používá každá úroveň kvality pro jednotlivé úlohy. Kliknutím na model přiřadíte jiný z tabulky modelů. Nové relace použijí změnu, probíhající relace si ponechají své modely.",
+          "title": "{{platform}}: modely podle úrovní"
+        },
+        "entry": {
+          "codeRead": "Hodnoty enginu: z {{date}}, zdroj: {{source}}",
+          "makes": "Vytváří",
+          "model": "Název modelu",
+          "modelHint": "Přesně podle názvu poskytovatele, např. gpt-6.2-sol",
+          "price": {
+            "audioInputPerMTok": "Vstupní audio na milion tokenů",
+            "audioOutputPerMTok": "Výstupní audio na milion tokenů",
+            "audioPerMinute": "Audio za minutu",
+            "cachedAudioInputPerMTok": "Ukládaný vstupní audio obsah na milion tokenů",
+            "cachedInputPerMTok": "Ukládaný vstup na milion tokenů",
+            "inputPerMTok": "Vstup na milion tokenů",
+            "outputPerMTok": "Výstup na milion tokenů",
+            "perImage": "Za obrázek"
+          },
+          "prices": "Ceny",
+          "pricesHint": "V dolarech, jak je uvádí ceník poskytovatele. Pokud se model tímto způsobem neúčtuje, ponechte pole prázdné.",
+          "remove": "Odebrat model",
+          "reset": "Zpět na hodnoty enginu",
+          "takes": "Přijímá",
+          "window": "Kontextové okno (tokeny)",
+          "windowHint": "Kolik toho může jedno volání obsahovat. Modely pro příběhy a vyprávění ho potřebují, jinak se dlouhý příběh nikdy nezkrátí."
+        },
+        "fixed": "Modely této platformy určuje engine a zde je nelze změnit.",
+        "media": {
+          "audio": "audio",
+          "image": "obrázky",
+          "text": "text"
+        },
+        "price": {
+          "audioInputPerMTok": "vstupní audio {{value}}/M",
+          "audioOutputPerMTok": "výstupní audio {{value}}/M",
+          "audioPerMinute": "{{value}}/min",
+          "cachedAudioInputPerMTok": "uložené audio {{value}}/M",
+          "cachedInputPerMTok": "uložený vstup {{value}}/M",
+          "inputPerMTok": "vstup {{value}}/M",
+          "none": "Bez ceny",
+          "outputPerMTok": "výstup {{value}}/M",
+          "perImage": "{{value}}/obrázek"
+        },
+        "probe": {
+          "answers": "Odpovídá (cena ${{cost}})",
+          "button": "Testovat",
+          "failed": "Neodpovídá: {{message}}",
+          "none": "Modely pro tuto úlohu zatím nelze testovat."
+        },
+        "quality": {
+          "high": "vysoká",
+          "low": "nízká",
+          "medium": "střední"
+        },
+        "refused": "Engine tuto změnu odmítl",
+        "resetAll": {
+          "assignments": {
+            "message": "Každá úroveň bude pro každou úlohu znovu používat vlastní model enginu a obrázky vlastní kvalitu enginu. Nové relace použijí výchozí nastavení, probíhající relace si ponechají své modely.",
+            "title": "{{platform}}: vrátit se ke standardním modelům?"
+          },
+          "button": "Obnovit vše na výchozí",
+          "confirm": "Obnovit",
+          "entries": {
+            "message": "Každý model enginu znovu získá vlastní hodnoty enginu a přidané modely, které nepoužívá žádná úroveň, budou odebrány. Přidané modely používané některou úrovní si zachovají své záznamy.",
+            "title": "{{platform}}: vrátit se k tabulce modelů enginu?"
+          }
+        },
+        "table": {
+          "add": "Přidat model",
+          "added": "Přidáno",
+          "description": "Co každý model přijímá a vytváří, jeho ceny v dolarech a jeho kontextové okno. Z těchto údajů se vypočítávají náklady. Modely, které nepoužívá žádná úroveň, jsou zašedlé. Změny vlastních modelů enginu platí do vydání další verze aplikace.",
+          "edit": "Upravit záznam",
+          "makes": "vytváří",
+          "read": "Cena z {{date}}, zdroj: {{source}}",
+          "stale": "Obnoveno aktualizací",
+          "takes": "Přijímá",
+          "title": "{{platform}}: tabulka modelů",
+          "unused": "Nepoužívá se",
+          "windowValue": "okno {{tokens}} tokenů"
+        },
+        "task": "Úloha",
+        "types": {
+          "hearing": "Hlasový vstup",
+          "image": "Obrázky",
+          "live": "Živý hlas",
+          "speech": "Vyprávění",
+          "story": "Příběh",
+          "tooling": "Nástroje"
+        },
+        "unpriced": "Tento model nemá záznam v tabulce modelů: jeho náklady se nevypočítávají a příběh vytvořený pomocí tohoto modelu se nikdy nezkrátí."
+      },
       "notAuthorized": "Nemáte oprávnění k přístupu do nastavení serveru. Je vyžadován přístup administrátora.",
       "tabs": {
         "ai": "Umělá inteligence a klíče",
         "branding": "Vzhled",
         "general": "Obecné",
+        "models": "Modely AI",
         "youthProtection": "Ochrana dětí a mládeže"
       },
       "title": "Nastavení serveru",

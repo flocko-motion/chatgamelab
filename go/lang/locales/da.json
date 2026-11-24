@@ -1781,7 +1781,9 @@
         "title": "Branding"
       },
       "constraints": {
-        "description": "Definér obligatoriske AI-regler baseret på spillerens aldersgruppe. Disse ungdomsbeskyttelsesregler følger med hvert AI-kald. De gælder for alle brugere, der er logget ind, uden for workshoptilstand.",
+        "changed": "Ændret",
+        "description": "Obligatoriske AI-regler efter spillerens aldersgruppe. De følger med hvert AI-kald fra brugere, der er logget ind, uden for workshoptilstand. Hver regel starter som sidens standard; ændr den, og vend når som helst tilbage til standarden.",
+        "reset": "Tilbage til standarden",
         "title": "Ungdomsbeskyttelsesregler efter aldersgruppe",
         "u13Hint": "Indsættes i hver AI-prompt for indloggede brugere på 13-17 år uden forældresamtykke registreret.",
         "u13Label": "Ungdomsbeskyttelsesregel for brugere på 13-17 år uden forældresamtykke (U13)",
@@ -1813,11 +1815,115 @@
         "description": "Kvalitetsniveau brugt, når frit-brugs API-nøglen er aktiv. Højere niveauer koster mere, men kan have højere kvalitet. Lad stå tomt for at bruge standardniveauet.",
         "title": "Frit-brugs AI-kvalitetsniveau"
       },
+      "models": {
+        "assign": {
+          "cellLabel": "{{task}}, {{tier}}: {{model}}. Tildel en anden model",
+          "model": "Model",
+          "modelHint": "Kun modeller fra modeltabellen, der passer til denne opgave. Standard: {{model}}",
+          "quality": "Billedkvalitet",
+          "qualityHint": "Den vigtigste faktor for et billedes pris og tidsforbrug. Standard: {{quality}}",
+          "reset": "Tilbage til standarden",
+          "title": "Tildel en model",
+          "where": "{{task}} på niveauet {{tier}}"
+        },
+        "assignments": {
+          "description": "Hvilken model hvert kvalitetsniveau bruger til hver opgave. Klik på en model for at tildele en anden fra modeltabellen. Nye sessioner bruger ændringen; igangværende sessioner beholder deres modeller.",
+          "title": "{{platform}}: modeller pr. niveau"
+        },
+        "entry": {
+          "codeRead": "Motorens egne tal: fra {{date}}, kilde: {{source}}",
+          "makes": "Laver",
+          "model": "Modelnavn",
+          "modelHint": "Præcis som udbyderen navngiver den, f.eks. gpt-6.2-sol",
+          "price": {
+            "audioInputPerMTok": "Lydinput pr. million tokens",
+            "audioOutputPerMTok": "Lydoutput pr. million tokens",
+            "audioPerMinute": "Lyd pr. minut",
+            "cachedAudioInputPerMTok": "Cachet lydinput pr. million tokens",
+            "cachedInputPerMTok": "Cachet input pr. million tokens",
+            "inputPerMTok": "Input pr. million tokens",
+            "outputPerMTok": "Output pr. million tokens",
+            "perImage": "Pr. billede"
+          },
+          "prices": "Priser",
+          "pricesHint": "I dollar, som de står på udbyderens prisside. Lad et felt stå tomt, når modellen ikke faktureres på den måde.",
+          "remove": "Fjern modellen",
+          "reset": "Tilbage til motorens tal",
+          "takes": "Tager",
+          "window": "Kontekstvindue (tokens)",
+          "windowHint": "Hvor meget et kald kan indeholde. Historie- og fortællingsmodeller har brug for det, ellers bliver en lang historie aldrig forkortet."
+        },
+        "fixed": "Denne platforms modeller fastsættes af motoren og kan ikke ændres her.",
+        "media": {
+          "audio": "lyd",
+          "image": "billeder",
+          "text": "tekst"
+        },
+        "price": {
+          "audioInputPerMTok": "lyd ind {{value}}/M",
+          "audioOutputPerMTok": "lyd ud {{value}}/M",
+          "audioPerMinute": "{{value}}/min.",
+          "cachedAudioInputPerMTok": "cachet lyd {{value}}/M",
+          "cachedInputPerMTok": "cachet {{value}}/M",
+          "inputPerMTok": "input {{value}}/M",
+          "none": "Ingen pris",
+          "outputPerMTok": "output {{value}}/M",
+          "perImage": "{{value}}/billede"
+        },
+        "probe": {
+          "answers": "Svar (pris ${{cost}})",
+          "button": "Test",
+          "failed": "Svarer ikke: {{message}}",
+          "none": "Modeller til denne opgave kan endnu ikke testes."
+        },
+        "quality": {
+          "high": "høj",
+          "low": "lav",
+          "medium": "mellem"
+        },
+        "refused": "Motoren afviste denne ændring",
+        "resetAll": {
+          "assignments": {
+            "message": "Hvert niveau bruger igen motorens egen model til hver opgave, og billeder bruger motorens egen kvalitet. Nye sessioner bruger standarderne; igangværende sessioner beholder deres modeller.",
+            "title": "{{platform}}: tilbage til standardmodellerne?"
+          },
+          "button": "Nulstil alt til standarder",
+          "confirm": "Nulstil",
+          "entries": {
+            "message": "Alle motorens modeller får motorens egne tal tilbage, og tilføjede modeller, som ikke bruges af noget niveau, fjernes. Tilføjede modeller, som bruges af et niveau, beholder deres poster.",
+            "title": "{{platform}}: tilbage til motorens modeltabel?"
+          }
+        },
+        "table": {
+          "add": "Tilføj en model",
+          "added": "Tilføjet",
+          "description": "Hvad hver model tager imod og laver, dens priser i dollar og dens kontekstvindue. Omkostninger beregnes ud fra disse tal. Modeller, som intet niveau bruger, er gråtonede. Ændringer af motorens egne modeller gælder indtil næste app-version.",
+          "edit": "Rediger posten",
+          "makes": "laver",
+          "read": "Pris fra {{date}}, kilde: {{source}}",
+          "stale": "Nulstillet ved opdatering",
+          "takes": "Tager",
+          "title": "{{platform}}: modeltabel",
+          "unused": "Ikke i brug",
+          "windowValue": "vindue {{tokens}} tokens"
+        },
+        "task": "Opgave",
+        "types": {
+          "hearing": "Stemmeinput",
+          "image": "Billeder",
+          "live": "Live-stemme",
+          "speech": "Fortælling",
+          "story": "Historie",
+          "tooling": "Værktøjer"
+        },
+        "unpriced": "Denne model har ingen post i modeltabellen: dens omkostninger beregnes ikke, og en historie på den bliver aldrig forkortet."
+      },
       "notAuthorized": "Du har ikke tilladelse til at få adgang til serverindstillinger. Adminadgang påkrævet.",
       "tabs": {
         "ai": "AI og nøgler",
         "branding": "Branding",
         "general": "Generelt",
+        "models": "AI-modeller",
         "youthProtection": "Beskyttelse af unge"
       },
       "title": "Serverindstillinger",

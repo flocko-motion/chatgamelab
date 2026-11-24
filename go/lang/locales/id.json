@@ -1781,7 +1781,9 @@
         "title": "Tampilan"
       },
       "constraints": {
-        "description": "Tentukan aturan AI wajib berdasarkan kelompok usia pemain. Aturan perlindungan anak ini disertakan dalam setiap panggilan AI. Aturan ini berlaku untuk semua pengguna yang telah masuk di luar mode lokakarya.",
+        "changed": "Diubah",
+        "description": "Aturan AI wajib berdasarkan kelompok usia pemain. Aturan ini berlaku untuk setiap panggilan AI dari pengguna yang telah masuk di luar mode workshop. Setiap aturan dimulai dengan default situs; Anda dapat mengubahnya dan kembali ke default kapan saja.",
+        "reset": "Kembali ke default",
         "title": "Aturan perlindungan anak berdasarkan kelompok usia",
         "u13Hint": "Disisipkan ke setiap prompt AI untuk pengguna masuk berusia 13–17 tanpa persetujuan orang tua yang tercatat.",
         "u13Label": "Aturan perlindungan anak untuk pengguna berusia 13–17 tahun, tanpa persetujuan orang tua (U13)",
@@ -1813,11 +1815,115 @@
         "description": "Tingkat kualitas yang digunakan saat kunci API penggunaan gratis aktif. Tingkat lebih tinggi biayanya lebih mahal tetapi mungkin berkualitas lebih baik. Biarkan kosong untuk menggunakan tingkat default.",
         "title": "Tingkat Kualitas AI Penggunaan Gratis"
       },
+      "models": {
+        "assign": {
+          "cellLabel": "{{task}}, {{tier}}: {{model}}. Tetapkan model lain",
+          "model": "Model",
+          "modelHint": "Hanya model dari tabel model yang sesuai untuk tugas ini. Default: {{model}}",
+          "quality": "Kualitas gambar",
+          "qualityHint": "Faktor utama yang memengaruhi biaya dan waktu gambar. Default: {{quality}}",
+          "reset": "Kembali ke default",
+          "title": "Tetapkan model",
+          "where": "{{task}} pada tingkat {{tier}}"
+        },
+        "assignments": {
+          "description": "Model yang digunakan setiap tingkat kualitas untuk setiap tugas. Klik model untuk menetapkan model lain dari tabel model. Sesi baru menggunakan perubahan ini; sesi yang sedang berjalan tetap menggunakan modelnya.",
+          "title": "{{platform}}: model per tingkat"
+        },
+        "entry": {
+          "codeRead": "Angka dari engine: dari {{date}}, sumber: {{source}}",
+          "makes": "Menghasilkan",
+          "model": "Nama model",
+          "modelHint": "Persis seperti yang digunakan penyedia, misalnya gpt-6.2-sol",
+          "price": {
+            "audioInputPerMTok": "Input audio per juta token",
+            "audioOutputPerMTok": "Output audio per juta token",
+            "audioPerMinute": "Audio per menit",
+            "cachedAudioInputPerMTok": "Input audio tersimpan dalam cache per juta token",
+            "cachedInputPerMTok": "Input tersimpan dalam cache per juta token",
+            "inputPerMTok": "Input per juta token",
+            "outputPerMTok": "Output per juta token",
+            "perImage": "Per gambar"
+          },
+          "prices": "Harga",
+          "pricesHint": "Dalam dolar, sesuai yang tercantum di halaman harga penyedia. Biarkan bidang kosong jika model tidak ditagihkan dengan cara tersebut.",
+          "remove": "Hapus model",
+          "reset": "Kembali ke angka dari engine",
+          "takes": "Menerima",
+          "window": "Jendela konteks (token)",
+          "windowHint": "Seberapa banyak isi yang dapat ditampung dalam satu panggilan. Model cerita dan narasi membutuhkannya agar cerita panjang dapat dipersingkat."
+        },
+        "fixed": "Model platform ini ditetapkan oleh engine dan tidak dapat diubah di sini.",
+        "media": {
+          "audio": "audio",
+          "image": "gambar",
+          "text": "teks"
+        },
+        "price": {
+          "audioInputPerMTok": "audio masuk {{value}}/M",
+          "audioOutputPerMTok": "audio keluar {{value}}/M",
+          "audioPerMinute": "{{value}}/menit",
+          "cachedAudioInputPerMTok": "audio dalam cache {{value}}/M",
+          "cachedInputPerMTok": "input dalam cache {{value}}/M",
+          "inputPerMTok": "input {{value}}/M",
+          "none": "Tidak ada harga",
+          "outputPerMTok": "output {{value}}/M",
+          "perImage": "{{value}}/gambar"
+        },
+        "probe": {
+          "answers": "Menjawab (biaya ${{cost}})",
+          "button": "Uji",
+          "failed": "Tidak menjawab: {{message}}",
+          "none": "Model untuk tugas ini belum dapat diuji."
+        },
+        "quality": {
+          "high": "tinggi",
+          "low": "rendah",
+          "medium": "sedang"
+        },
+        "refused": "Engine menolak perubahan ini",
+        "resetAll": {
+          "assignments": {
+            "message": "Setiap tingkat kembali menggunakan model engine untuk setiap tugas, dan gambar menggunakan kualitas engine. Sesi baru menggunakan default; sesi yang sedang berjalan tetap menggunakan modelnya.",
+            "title": "{{platform}}: kembali ke model default?"
+          },
+          "button": "Kembalikan semua ke default",
+          "confirm": "Atur ulang",
+          "entries": {
+            "message": "Setiap model engine mendapatkan kembali angka dari engine, dan model yang Anda tambahkan tetapi tidak digunakan oleh tingkat mana pun akan dihapus. Model tambahan yang digunakan oleh suatu tingkat tetap mempertahankan entrinya.",
+            "title": "{{platform}}: kembali ke tabel model engine?"
+          }
+        },
+        "table": {
+          "add": "Tambahkan model",
+          "added": "Ditambahkan",
+          "description": "Hal yang diterima dan dihasilkan setiap model, harganya dalam dolar, serta jendela konteksnya. Biaya dihitung berdasarkan angka-angka ini. Model yang tidak digunakan oleh tingkat mana pun ditampilkan dalam warna abu-abu. Perubahan pada model engine berlaku hingga versi aplikasi berikutnya.",
+          "edit": "Edit entri",
+          "makes": "menghasilkan",
+          "read": "Harga dari {{date}}, sumber: {{source}}",
+          "stale": "Diatur ulang oleh pembaruan",
+          "takes": "Menerima",
+          "title": "{{platform}}: tabel model",
+          "unused": "Tidak digunakan",
+          "windowValue": "jendela {{tokens}} token"
+        },
+        "task": "Tugas",
+        "types": {
+          "hearing": "Input suara",
+          "image": "Gambar",
+          "live": "Suara langsung",
+          "speech": "Narasi",
+          "story": "Cerita",
+          "tooling": "Peralatan"
+        },
+        "unpriced": "Model ini tidak memiliki entri dalam tabel model: biayanya tidak dihitung, dan cerita yang menggunakannya tidak akan pernah dipersingkat."
+      },
       "notAuthorized": "Anda tidak memiliki izin untuk mengakses pengaturan server. Diperlukan akses admin.",
       "tabs": {
         "ai": "AI dan kunci",
         "branding": "Tampilan",
         "general": "Umum",
+        "models": "Model AI",
         "youthProtection": "Perlindungan anak dan remaja"
       },
       "title": "Pengaturan Server",

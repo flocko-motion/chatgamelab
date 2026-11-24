@@ -1781,7 +1781,9 @@
         "title": "Megjelenés"
       },
       "constraints": {
-        "description": "Határozz meg kötelező MI-szabályokat a játékos életkori csoportja alapján. Ezek a gyermekvédelmi szabályok minden MI-hívással együtt továbbításra kerülnek. A műhelymódon kívül minden bejelentkezett felhasználóra érvényesek.",
+        "changed": "Módosítva",
+        "description": "A játékos korcsoportja szerinti kötelező MI-szabályok. A workshopmódon kívül minden bejelentkezett felhasználó MI-hívására érvényesek. Mindegyik az oldal alapértelmezett értékével indul; bármikor módosíthatod, és visszatérhetsz az alapértelmezéshez.",
+        "reset": "Vissza az alapértelmezéshez",
         "title": "Életkori csoportok szerinti gyermekvédelmi szabályok",
         "u13Hint": "Beillesztve minden AI promptba a bejelentkezett, 13–17 éves, szülői beleegyezéssel nem rendelkező felhasználók számára.",
         "u13Label": "Gyermekvédelmi szabály a 13–17 éves, szülői hozzájárulással nem rendelkező felhasználókhoz (U13)",
@@ -1813,11 +1815,115 @@
         "description": "Az a minőségi szint, amely a szabadon használható API-kulcsnál érvényes. A magasabb szintek többe kerülnek, de jobb minőséget adhatnak. Hagyd üresen az alapértelmezett szint használatához.",
         "title": "Szabadon használható MI minőségi szint"
       },
+      "models": {
+        "assign": {
+          "cellLabel": "{{task}}, {{tier}}: {{model}}. Másik modell hozzárendelése",
+          "model": "Modell",
+          "modelHint": "Csak a modelltáblázat feladathoz illő modelljei. Alapértelmezett: {{model}}",
+          "quality": "Képminőség",
+          "qualityHint": "A kép költségét és elkészítési idejét leginkább befolyásoló tényező. Alapértelmezett: {{quality}}",
+          "reset": "Vissza az alapértelmezéshez",
+          "title": "Modell hozzárendelése",
+          "where": "{{task}} a(z) {{tier}} szinten"
+        },
+        "assignments": {
+          "description": "Melyik minőségi szint melyik modellt használja az egyes feladatokhoz. Kattints egy modellre, hogy a modelltáblázatból másikat rendelj hozzá. Az új munkamenetek a módosítást használják, a futó munkamenetek megtartják modelljeiket.",
+          "title": "{{platform}}: modellek szintenként"
+        },
+        "entry": {
+          "codeRead": "A motor saját értékei: {{date}} dátummal, forrás: {{source}}",
+          "makes": "Generál",
+          "model": "Modell neve",
+          "modelHint": "Pontosan úgy, ahogy a szolgáltató nevezi, pl. gpt-6.2-sol",
+          "price": {
+            "audioInputPerMTok": "Audio-bemenet millió tokenenként",
+            "audioOutputPerMTok": "Audio-kimenet millió tokenenként",
+            "audioPerMinute": "Audio percenként",
+            "cachedAudioInputPerMTok": "Gyorsítótárazott audio-bemenet millió tokenenként",
+            "cachedInputPerMTok": "Gyorsítótárazott bemenet millió tokenenként",
+            "inputPerMTok": "Bemenet millió tokenenként",
+            "outputPerMTok": "Kimenet millió tokenenként",
+            "perImage": "Képenként"
+          },
+          "prices": "Árak",
+          "pricesHint": "Dollárban, a szolgáltató árlistáján szereplő módon. Hagyd üresen a mezőt, ha a modellt nem így számlázzák.",
+          "remove": "Modell eltávolítása",
+          "reset": "Vissza a motor értékeihez",
+          "takes": "Fogad",
+          "window": "Kontextusablak (token)",
+          "windowHint": "Mekkora tartalmat képes egy hívás kezelni. A történet- és narrációs modelleknek szükségük van rá, különben egy hosszú történet soha nem lesz lerövidítve."
+        },
+        "fixed": "Ennek a platformnak a modelljeit a motor állítja be, ezért itt nem módosíthatók.",
+        "media": {
+          "audio": "audio",
+          "image": "képek",
+          "text": "szöveg"
+        },
+        "price": {
+          "audioInputPerMTok": "audio be {{value}}/M",
+          "audioOutputPerMTok": "audio ki {{value}}/M",
+          "audioPerMinute": "{{value}}/perc",
+          "cachedAudioInputPerMTok": "gyorsítótárazott audio {{value}}/M",
+          "cachedInputPerMTok": "gyorsítótárazott {{value}}/M",
+          "inputPerMTok": "bemenet {{value}}/M",
+          "none": "Nincs ár",
+          "outputPerMTok": "kimenet {{value}}/M",
+          "perImage": "{{value}}/kép"
+        },
+        "probe": {
+          "answers": "Válaszol (költség: ${{cost}})",
+          "button": "Tesztelés",
+          "failed": "Nem válaszol: {{message}}",
+          "none": "Az ehhez a feladathoz tartozó modellek még nem tesztelhetők."
+        },
+        "quality": {
+          "high": "magas",
+          "low": "alacsony",
+          "medium": "közepes"
+        },
+        "refused": "A motor elutasította ezt a módosítást",
+        "resetAll": {
+          "assignments": {
+            "message": "Minden szint ismét a motor saját modelljét használja minden feladathoz, a képek pedig a motor saját minőségét. Az új munkamenetek az alapértelmezéseket használják, a futó munkamenetek megtartják modelljeiket.",
+            "title": "{{platform}}: visszaállítás az alapértelmezett modellekre?"
+          },
+          "button": "Minden visszaállítása alapértelmezettre",
+          "confirm": "Visszaállítás",
+          "entries": {
+            "message": "A motor minden modellje visszakapja a motor saját értékeit, és az eltávolításra kerülnek a hozzáadott modellek, amelyeket egyetlen szint sem használ. A valamelyik szint által használt hozzáadott modellek bejegyzései megmaradnak.",
+            "title": "{{platform}}: visszaállítás a motor modelltáblázatára?"
+          }
+        },
+        "table": {
+          "add": "Modell hozzáadása",
+          "added": "Hozzáadva",
+          "description": "Az egyes modellek által fogadott és generált tartalom, áraik dollárban, valamint a kontextusablakuk. A költségek ezekből az értékekből kerülnek kiszámításra. A szürkén megjelenő modelleket egyetlen szint sem használja. A motor saját modelljeinek módosításai a következő alkalmazásverzióig érvényesek.",
+          "edit": "Bejegyzés szerkesztése",
+          "makes": "generál",
+          "read": "Ár {{date}} dátummal, forrás: {{source}}",
+          "stale": "Frissítés visszaállította",
+          "takes": "Fogad",
+          "title": "{{platform}}: modelltáblázat",
+          "unused": "Nincs használatban",
+          "windowValue": "ablak: {{tokens}} token"
+        },
+        "task": "Feladat",
+        "types": {
+          "hearing": "Hangbevitel",
+          "image": "Képek",
+          "live": "Élő hang",
+          "speech": "Narráció",
+          "story": "Történet",
+          "tooling": "Eszközhasználat"
+        },
+        "unpriced": "Ennek a modellnek nincs bejegyzése a modelltáblázatban: a költségei nem kerülnek kiszámításra, és a rajta futó történet soha nem lesz lerövidítve."
+      },
       "notAuthorized": "Nincs jogosultságod a szerverbeállításokhoz. Admin jogosultság szükséges.",
       "tabs": {
         "ai": "MI és kulcsok",
         "branding": "Megjelenés",
         "general": "Általános",
+        "models": "MI-modellek",
         "youthProtection": "Ifjúságvédelem"
       },
       "title": "Szerver beállítások",
