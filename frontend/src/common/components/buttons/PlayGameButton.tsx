@@ -35,18 +35,7 @@ export const PlayGameButton = forwardRef<
       size={size}
       radius="md"
       leftSection={<IconPlayerPlay size={14} />}
-      style={{
-        transition: "transform 0.15s ease, box-shadow 0.15s ease",
-        ...style,
-      }}
-      styles={{
-        root: {
-          "&:hover:not(:disabled)": {
-            transform: "scale(1.02)",
-            boxShadow: "0 4px 12px rgba(0, 200, 200, 0.3)",
-          },
-        },
-      }}
+      style={style}
       {...props}
     >
       {children}

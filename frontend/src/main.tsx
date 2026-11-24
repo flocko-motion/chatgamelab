@@ -8,6 +8,8 @@ import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/notifications/styles.css';
 import './mobile-inputs.css';
+import './assets/fonts/fonts.css';
+import './global.css';
 import { initSentry } from './config/sentry';
 import { AppProviders } from './providers/AppProviders';
 

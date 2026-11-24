@@ -65,3 +65,29 @@
 .cardExpanded {
   margin-top: var(--mantine-spacing-xs);
 }
+
+/* The grid's toolbar: search, order and actions, then the filter bar. */
+.gridToolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+}
+
+.gridTop {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-sm);
+}
+
+.gridSearch {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  max-width: 480px;
+}
+
+.gridActions {
+  display: flex;
+  gap: var(--mantine-spacing-sm);
+  margin-left: auto;
+}

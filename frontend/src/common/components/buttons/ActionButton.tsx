@@ -43,7 +43,7 @@ export function ActionButton({
   type = 'button',
   fullWidth = false,
   size = 'sm',
-  color = 'accent',
+  color = 'ink',
 }: ActionButtonProps) {
   return (
     <MantineButton

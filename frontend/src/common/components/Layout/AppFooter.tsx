@@ -27,8 +27,8 @@ export function AppFooter({ links = defaultLinks, showVersion = true, darkMode =
   const { t } = useTranslation('common');
 
   const dimmedStyles = {
-    backgroundColor: '#dddde3',
-    borderTop: '1px solid rgba(0, 0, 0, 0.08)',
+    backgroundColor: 'var(--mantine-color-gray-1)',
+    borderTop: '1px solid var(--mantine-color-gray-2)',
   };
 
   const lightStyles = {
@@ -37,7 +37,7 @@ export function AppFooter({ links = defaultLinks, showVersion = true, darkMode =
   };
 
   const textColor = darkMode ? 'gray.6' : 'gray.5';
-  const linkColor = darkMode ? 'gray.7' : 'accent.8';
+  const linkColor = darkMode ? 'gray.7' : 'ink';
 
   return (
     <AppShell.Footer

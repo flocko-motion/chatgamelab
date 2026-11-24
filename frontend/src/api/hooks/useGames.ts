@@ -3,6 +3,7 @@ import { rawRequest } from "../client/raw";
 import {
   keepPreviousData,
   useMutation,
+  useMutationState,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
@@ -191,10 +192,14 @@ export function gameCoverUrl(game: Pick<GameView, "id" | "coverAt">): string | n
  * picture does. Its errors are the caller's to show: the editor tells them
  * in place, and drawing on save stays silent.
  */
+/** The key of cover drawings, so any view can tell one is under way. */
+const MAKE_COVER_KEY = ["makeGameCover"] as const;
+
 export function useMakeGameCover() {
   const queryClient = useQueryClient();
 
   return useMutation<GameView, ApiError, { id: string; hint?: string }>({
+    mutationKey: MAKE_COVER_KEY,
     mutationFn: ({ id, hint }) =>
       api.postApiGamesIdCover(id, { hint: hint ?? "" }).then((response) => response.data),
     onSuccess: (game, { id }) => {
@@ -202,6 +207,18 @@ export function useMakeGameCover() {
       queryClient.invalidateQueries({ queryKey: queryKeys.games });
     },
   });
+}
+
+/**
+ * Whether a cover for this game is being drawn right now, from this browser
+ * (the editor draws one after saving). Any card of the game can show it.
+ */
+export function useCoverDrawing(gameId: string | undefined): boolean {
+  const pending = useMutationState({
+    filters: { mutationKey: MAKE_COVER_KEY, status: "pending" },
+    select: (mutation) => (mutation.state.variables as { id: string } | undefined)?.id,
+  });
+  return !!gameId && pending.includes(gameId);
 }
 
 export function useDeleteGame() {

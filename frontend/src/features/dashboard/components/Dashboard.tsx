@@ -1,374 +1,54 @@
-import { useMemo } from "react";
-import { Stack, SimpleGrid } from "@mantine/core";
+import { Anchor } from "@mantine/core";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "@tanstack/react-router";
-import { ROUTES } from "@/common/routes/routes";
-import { AppLayout, type NavItem } from "@/common/components/Layout";
-import { navigationLogger } from "@/config/logger";
 import { EXTERNAL_LINKS } from "@/config/externalLinks";
 import { HELP_LINKS } from "@/config/helpLinks";
-import { formatRelativeTime } from "@/common/lib/formatters";
-import {
-  useGamePage,
-  useUserSessions,
-  useGameSessionMap,
-  useCurrentUser,
-  useOrganisation,
-  useWorkshopList,
-} from "@/api/hooks";
-import { RECENT_WORKSHOPS_PRESET } from "../lib/recentWorkshops";
-import { useWorkshopMode } from "@/providers/WorkshopModeProvider";
-import {
-  IconPlayerPlay,
-  IconEdit,
-  IconBuilding,
-  IconUsers,
-  IconSchool,
-  IconTools,
-  IconDeviceGamepad2,
-  IconDownload,
-} from "@tabler/icons-react";
 import { useAdmin } from "@/common/hooks/useAdmin";
-import { InformationalCard, type ListItem } from "./InformationalCard";
-import { QuickActionCard } from "./QuickActionCard";
-import { LinksCard, type LinkItem } from "./LinkCard";
-
-// My Games Card - shows last edited/created games
-function MyGamesCard() {
-  const { t } = useTranslation("dashboard");
-  const navigate = useNavigate();
-  const { data: page, isLoading } = useGamePage({
-    sortBy: "modifiedAt",
-    sortDir: "desc",
-    filters: ["own"],
-    limit: 5,
-  });
-  const recentGames = page?.items ?? [];
-
-  const items: ListItem[] = recentGames.map((game) => ({
-    id: game.id ?? "",
-    label: game.name ?? t("untitled"),
-    sublabel: formatRelativeTime(game.meta?.modifiedAt ?? game.meta?.createdAt),
-    onClick: () => navigate({ to: "/games/$gameId", params: { gameId: game.id } }),
-  }));
-
-  return (
-    <InformationalCard
-      title={t("cards.myGames.title")}
-      items={items}
-      emptyMessage={t("cards.myGames.empty")}
-      viewAllLabel={t("cards.myGames.viewAll")}
-      onViewAll={() => navigate({ to: ROUTES.ALL_GAMES as "/", search: { only: "own" } })}
-      isLoading={isLoading}
-    />
-  );
-}
-
-// My Workshops Card - shows active workshops
-function MyWorkshopsCard() {
-  const { t } = useTranslation("dashboard");
-  const navigate = useNavigate();
-  const { data: currentUser } = useCurrentUser();
-  const { enterWorkshopMode } = useWorkshopMode();
-
-  const institutionId = currentUser?.role?.institution?.id;
-
-  const { items: recentWorkshops, isInitialLoading: isLoading } = useWorkshopList(
-    institutionId,
-    RECENT_WORKSHOPS_PRESET,
-  );
-
-  const handleWorkshopClick = async (
-    workshopId: string,
-    workshopName: string,
-  ) => {
-    await enterWorkshopMode(workshopId, workshopName);
-    navigate({ to: ROUTES.MY_WORKSHOP as "/" });
-  };
-
-  const items: ListItem[] = recentWorkshops.map((workshop) => ({
-    id: workshop.id ?? "",
-    label: workshop.name ?? t("untitled"),
-    sublabel: formatRelativeTime(workshop.meta?.modifiedAt ?? workshop.meta?.createdAt),
-    onClick: () => handleWorkshopClick(workshop.id ?? "", workshop.name ?? ""),
-  }));
-
-  // Don't show card if user has no institution (individual users, etc.)
-  if (!institutionId) {
-    return null;
-  }
-
-  return (
-    <InformationalCard
-      title={t("cards.myWorkshops.title")}
-      items={items}
-      emptyMessage={t("cards.myWorkshops.empty")}
-      viewAllLabel={t("cards.myWorkshops.viewAll")}
-      onViewAll={() =>
-        navigate({ to: ROUTES.MY_ORGANIZATION as "/my-organization", search: { tab: "workshops" } })
-      }
-      isLoading={isLoading}
-    />
-  );
-}
-
-// Last Played Card - shows recent play sessions
-function LastPlayedCard() {
-  const { t } = useTranslation("dashboard");
-  const navigate = useNavigate();
-  const { data: sessions, isLoading } = useUserSessions();
-
-  const recentSessions = useMemo(() => {
-    if (!sessions) return [];
-    return sessions.slice(0, 5);
-  }, [sessions]);
-
-  const items: ListItem[] = recentSessions.map((session) => ({
-    id: session.id ?? "",
-    label: session.gameName ?? t("untitledGame"),
-    sublabel: formatRelativeTime(
-      session.modifiedAt ?? session.createdAt,
-    ),
-    onClick: () => navigate({ to: `/sessions/${session.id}` as "/" }),
-  }));
-
-  return (
-    <InformationalCard
-      title={t("cards.lastPlayed.title")}
-      items={items}
-      emptyMessage={t("cards.lastPlayed.empty")}
-      viewAllLabel={t("cards.lastPlayed.viewAll")}
-      onViewAll={() => navigate({ to: ROUTES.ALL_GAMES as "/" })}
-      isLoading={isLoading}
-    />
-  );
-}
-
-// Popular Games Card - shows top 10 most played games
-function PopularGamesCard() {
-  const { t } = useTranslation("dashboard");
-  const navigate = useNavigate();
-  const { data: page, isLoading: gamesLoading } = useGamePage({
-    sortBy: "playCount",
-    sortDir: "desc",
-    filters: ["public"],
-    limit: 10,
-  });
-  const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
-  const popularGames = page?.items ?? [];
-
-  const handleGameClick = (gameId: string) => {
-    const existingSession = sessionMap.get(gameId);
-    if (existingSession?.id) {
-      navigate({ to: `/sessions/${existingSession.id}` as "/" });
-    } else {
-      navigate({ to: `/games/${gameId}/play` as "/" });
-    }
-  };
-
-  const items: ListItem[] = popularGames.map((game) => ({
-    id: game.id ?? "",
-    label: game.name ?? t("untitled"),
-    sublabel: t("cards.popularGames.plays", { count: game.playCount ?? 0 }),
-    onClick: () => handleGameClick(game.id ?? ""),
-  }));
-
-  return (
-    <InformationalCard
-      title={t("cards.popularGames.title")}
-      items={items}
-      emptyMessage={t("cards.popularGames.empty")}
-      viewAllLabel={t("cards.popularGames.viewAll")}
-      onViewAll={() => navigate({ to: ROUTES.ALL_GAMES as "/" })}
-      isLoading={gamesLoading || sessionsLoading}
-      maxItems={10}
-    />
-  );
-}
-
-// New Games Card - shows the 10 newest public games of other people
-function NewGamesCard() {
-  const { t } = useTranslation("dashboard");
-  const navigate = useNavigate();
-  const { data: page, isLoading: gamesLoading } = useGamePage({
-    sortBy: "createdAt",
-    sortDir: "desc",
-    filters: ["public", "others"],
-    limit: 10,
-  });
-  const newGames = page?.items ?? [];
-  const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
-
-  const handleGameClick = (gameId: string) => {
-    const existingSession = sessionMap.get(gameId);
-    if (existingSession?.id) {
-      navigate({ to: `/sessions/${existingSession.id}` as "/" });
-    } else {
-      navigate({ to: `/games/${gameId}/play` as "/" });
-    }
-  };
-
-  const items: ListItem[] = newGames.map((game) => ({
-    id: game.id ?? "",
-    label: game.name ?? t("untitled"),
-    sublabel: formatRelativeTime(game.meta?.createdAt),
-    onClick: () => handleGameClick(game.id ?? ""),
-  }));
-
-  return (
-    <InformationalCard
-      title={t("cards.newGames.title")}
-      items={items}
-      emptyMessage={t("cards.newGames.empty")}
-      viewAllLabel={t("cards.newGames.viewAll")}
-      onViewAll={() => navigate({ to: ROUTES.ALL_GAMES as "/" })}
-      isLoading={gamesLoading || sessionsLoading}
-      maxItems={10}
-    />
-  );
-}
-
-// External Links Card
-function ExternalLinksCard() {
-  const { t } = useTranslation("dashboard");
-
-  const links: LinkItem[] = [
-    {
-      id: "edu-info",
-      title: t("cards.externalLinks.edu.title"),
-      description: t("cards.externalLinks.edu.description"),
-      href: HELP_LINKS.EDUCATOR_INFO,
-      icon: <IconSchool size={16} />,
-    },
-    {
-      id: EXTERNAL_LINKS.CHATGAMELAB.id,
-      title: t("cards.externalLinks.mainSite.title"),
-      description: t("cards.externalLinks.mainSite.description"),
-      href: EXTERNAL_LINKS.CHATGAMELAB.href,
-      icon: <IconSchool size={16} />,
-    },
-    {
-      id: EXTERNAL_LINKS.JFF.id,
-      title: t("cards.externalLinks.jff.title"),
-      description: t("cards.externalLinks.jff.description"),
-      href: EXTERNAL_LINKS.JFF.href,
-      icon: <IconUsers size={16} />,
-    },
-  ];
-
-  return (
-    <LinksCard
-      title={t("cards.externalLinks.title")}
-      links={links}
-    />
-  );
-}
-
-// Quick Actions Card
-function QuickActionsCard() {
-  const { t } = useTranslation("dashboard");
-  const navigate = useNavigate();
-  const { data: currentUser } = useCurrentUser();
-
-  // Whether the caller may create workshops in their organisation: the server's flag.
-  const { data: organisation } = useOrganisation(currentUser?.role?.institution?.id);
-  const canManageWorkshops = !!organisation?.mayCreateWorkshop;
-
-  const actions = [
-    {
-      id: "start-new-game",
-      label: t("quickActions.startNewGame"),
-      icon: <IconDeviceGamepad2 size={16} />,
-      onClick: () => navigate({ to: ROUTES.ALL_GAMES as "/" }),
-    },
-    {
-      id: "create-game",
-      label: t("quickActions.createNewGame"),
-      icon: <IconTools size={16} />,
-      onClick: () => navigate({ to: ROUTES.GAME_CREATE as "/" }),
-    },
-    {
-      id: "import-game",
-      label: t("quickActions.importGame"),
-      icon: <IconDownload size={16} />,
-      onClick: () =>
-        navigate({ to: ROUTES.ALL_GAMES as "/", search: { action: "import" } }),
-    },
-    ...(canManageWorkshops
-      ? [
-          {
-            id: "create-workshop",
-            label: t("quickActions.createWorkshop"),
-            icon: <IconSchool size={16} />,
-            onClick: () =>
-              navigate({
-                to: ROUTES.MY_ORGANIZATION as "/",
-                search: { action: "create-workshop" },
-              }),
-          },
-        ]
-      : []),
-    {
-      id: "invite-members",
-      label: t("quickActions.inviteMembers"),
-      icon: <IconUsers size={16} />,
-      onClick: () => {},
-      disabled: true,
-    },
-  ];
-
-  return <QuickActionCard title={t("quickActions.title")} actions={actions} />;
-}
+import { useDashboard } from "../hooks/useDashboard";
+import { Hero } from "./Hero";
+import { ContinueGames, FreshGames, OwnGames, PopularGames } from "./GameSections";
+import { LabPanel } from "./LabPanel";
+import classes from "./Dashboard.module.css";
 
 /**
- * Dashboard content component - can be used standalone or within AppLayout
+ * The dashboard: what shall we build today (prompt), games in progress, the
+ * user's games and numbers, new and popular games of others.
  */
 export function DashboardContent() {
-  const { isAdmin: isAdminUser } = useAdmin();
-  return (
-    <Stack gap="xl">
-      <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="lg">
-        {!isAdminUser && <MyGamesCard />}
-        <MyWorkshopsCard />
-        <LastPlayedCard />
-      </SimpleGrid>
-
-      <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
-        <QuickActionsCard />
-        <ExternalLinksCard />
-      </SimpleGrid>
-
-      <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
-        <PopularGamesCard />
-        <NewGamesCard />
-      </SimpleGrid>
-    </Stack>
-  );
-}
-
-/**
- * Full Dashboard page with layout - for standalone use
- */
-export function Dashboard() {
-  const { t } = useTranslation("navigation");
-
-  const navItems: NavItem[] = [
-    { label: t("play"), icon: <IconPlayerPlay size={18} />, onClick: () => {} },
-    { label: t("create"), icon: <IconEdit size={18} />, onClick: () => {} },
-    { label: t("rooms"), icon: <IconBuilding size={18} />, onClick: () => {} },
-    { label: t("groups"), icon: <IconUsers size={18} />, onClick: () => {} },
-  ];
+  const { t } = useTranslation("dashboard");
+  const { isAdmin } = useAdmin();
+  const data = useDashboard();
+  const { go } = data;
 
   return (
-    <AppLayout
-      variant="authenticated"
-      navItems={navItems}
-      headerProps={{
-        onSettingsClick: () => navigationLogger.debug("Settings clicked"),
-        onProfileClick: () => navigationLogger.debug("Profile clicked"),
-      }}
-    >
-      <DashboardContent />
-    </AppLayout>
+    <div className={classes.page}>
+      <Hero name={data.firstName} onCreate={go.createAbout} />
+
+      <ContinueGames sessions={data.sessions} onOpen={go.session} />
+
+      <div className={classes.split}>
+        {isAdmin ? (
+          <FreshGames games={data.freshGames} onPlay={go.play} onSeeAll={go.gallery} />
+        ) : (
+          <OwnGames games={data.ownGames} loading={data.ownGamesLoading} onOpen={go.open} onSeeAll={go.ownGames} />
+        )}
+        <LabPanel data={data} />
+      </div>
+
+      {!isAdmin && <FreshGames games={data.freshGames} onPlay={go.play} onSeeAll={go.gallery} />}
+
+      <PopularGames games={data.popularGames} onPlay={go.play} />
+
+      <footer className={classes.links}>
+        <Anchor href={HELP_LINKS.EDUCATOR_INFO} target="_blank" rel="noopener noreferrer">
+          {t("links.educators")}
+        </Anchor>
+        <Anchor href={EXTERNAL_LINKS.CHATGAMELAB.href} target="_blank" rel="noopener noreferrer">
+          {t("links.about")}
+        </Anchor>
+        <Anchor href={EXTERNAL_LINKS.JFF.href} target="_blank" rel="noopener noreferrer">
+          {t("links.jff")}
+        </Anchor>
+      </footer>
+    </div>
   );
 }

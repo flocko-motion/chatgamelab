@@ -1,11 +1,7 @@
-import { useRef, type ReactNode } from "react";
-import { Tooltip } from "@mantine/core";
-import { IconArrowBigUpLineFilled, IconTools } from "@tabler/icons-react";
+import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type { GameView } from "@/api/types";
 import { ListTable } from "@components/ListTable";
-import { ActionButton, GenericIconButton } from "@components/buttons";
-import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
 import { GAME_LIST_PRESETS } from "../lib/gameListPresets";
 import { emptyListDescription, getGameDateLabel } from "../lib";
 import { useGamesTable, type UseGamesTableOptions } from "../hooks/useGamesTable";
@@ -14,6 +10,8 @@ import { GameCard } from "./GameCard";
 import { GameEditor } from "./editor/GameEditor";
 import { SponsorGameModal } from "./SponsorGameModal";
 import { WorkshopBadges } from "./WorkshopBadges";
+import { NewGameMenu } from "./NewGameMenu";
+import { useGameFilterLook } from "../hooks/useGameFilterLook";
 
 export type GamesTableProps = UseGamesTableOptions;
 
@@ -25,11 +23,11 @@ export type GamesTableProps = UseGamesTableOptions;
 export function GamesTable(props: GamesTableProps) {
   const { t, i18n } = useTranslation("common");
   const { t: tEmpty } = useTranslation(GAME_LIST_PRESETS[props.preset].empty.ns ?? "common");
-  const { isMobile } = useResponsiveDesign();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const state = useGamesTable(props, { fileInputRef });
   const columns = useGameColumns(state);
   const { config, list } = state;
+  const filterLook = useGameFilterLook();
 
   // An empty list says what narrowed it, when anything did; otherwise there
   // simply are no games.
@@ -71,40 +69,9 @@ export function GamesTable(props: GamesTableProps) {
     );
   };
 
-  let createActions: ReactNode = null;
-  if (config.canCreate) {
-    createActions = isMobile ? (
-      <>
-        <Tooltip label={t("games.createButton")} withArrow>
-          <GenericIconButton
-            icon={<IconTools size={16} />}
-            onClick={state.openCreate}
-            variant="filled"
-            color="accent"
-            aria-label={t("games.createButton")}
-          />
-        </Tooltip>
-        <Tooltip label={t("games.importExport.importButton")} withArrow>
-          <GenericIconButton
-            icon={<IconArrowBigUpLineFilled size={16} />}
-            onClick={state.openImport}
-            variant="filled"
-            color="accent"
-            aria-label={t("games.importExport.importButton")}
-          />
-        </Tooltip>
-      </>
-    ) : (
-      <>
-        <ActionButton onClick={state.openCreate} leftSection={<IconTools size={16} />}>
-          {t("games.createButton")}
-        </ActionButton>
-        <ActionButton onClick={state.openImport} leftSection={<IconArrowBigUpLineFilled size={16} />}>
-          {t("games.importExport.importButton")}
-        </ActionButton>
-      </>
-    );
-  }
+  const createActions = config.canCreate ? (
+    <NewGameMenu onCreate={state.openCreate} onImport={state.openImport} />
+  ) : null;
 
   return (
     <>
@@ -126,6 +93,7 @@ export function GamesTable(props: GamesTableProps) {
         layout="grid"
         onRowClick={state.view}
         actions={createActions}
+        optionLook={filterLook}
         empty={empty}
         errorMessage={t("games.errors.loadFailed")}
       />

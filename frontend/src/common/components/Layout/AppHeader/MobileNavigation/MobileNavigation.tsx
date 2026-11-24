@@ -113,7 +113,7 @@ export function MobileNavigation({
                 pl={isChild ? "lg" : "md"}
                 style={{
                   borderRadius: "var(--mantine-radius-md)",
-                  color: "white",
+                  color: theme.other.layout.text,
                   display: "flex",
                   alignItems: "center",
                   gap: "10px",
@@ -123,7 +123,7 @@ export function MobileNavigation({
                     ? theme.other.layout.bgActive
                     : theme.other.layout.bgSubtle,
                   boxShadow: item.active
-                    ? "0 0 0 1px rgba(255, 255, 255, 0.3)"
+                    ? "inset 0 0 0 2px var(--mantine-color-ink-5)"
                     : "none",
                   marginLeft: isChild ? "12px" : 0,
                 }}
@@ -151,7 +151,7 @@ export function MobileNavigation({
             px="md"
             style={{
               borderRadius: "var(--mantine-radius-md)",
-              color: "white",
+              color: theme.other.layout.text,
               display: "flex",
               alignItems: "center",
               gap: "8px",
@@ -172,7 +172,7 @@ export function MobileNavigation({
             px="md"
             style={{
               borderRadius: "var(--mantine-radius-md)",
-              color: "white",
+              color: theme.other.layout.text,
               display: "flex",
               alignItems: "center",
               gap: "8px",
@@ -193,7 +193,7 @@ export function MobileNavigation({
             px="md"
             style={{
               borderRadius: "var(--mantine-radius-md)",
-              color: "white",
+              color: theme.other.layout.text,
               display: "flex",
               alignItems: "center",
               gap: "8px",
@@ -214,7 +214,7 @@ export function MobileNavigation({
             px="md"
             style={{
               borderRadius: "var(--mantine-radius-md)",
-              color: "white",
+              color: theme.other.layout.text,
               display: "flex",
               alignItems: "center",
               gap: "8px",

@@ -20,7 +20,6 @@ import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../providers/AuthProvider";
 import { UserAvatar } from "../UserAvatar";
-import { getUserAvatarColor } from "@/common/lib/userUtils";
 import { ROUTES } from "@/common/routes/routes";
 
 interface GuestUserMenuProps {
@@ -74,34 +73,8 @@ export function GuestUserMenu({
       width={280}
     >
       <Popover.Target>
-        <UnstyledButton
-          onClick={toggle}
-          aria-label={t("header.openUserMenu")}
-          style={{
-            borderRadius: 999,
-            padding: 2,
-            border: `2px solid ${theme.colors[getUserAvatarColor(userName)]?.[6] || theme.colors.accent[6]}`,
-            backgroundColor: theme.other.layout.bgSubtle,
-            transition: "background-color 150ms ease, border-color 150ms ease",
-          }}
-          styles={{
-            root: {
-              "&:hover": {
-                backgroundColor: theme.other.layout.bgHover,
-              },
-              "&:active": {
-                backgroundColor: theme.other.layout.bgActive,
-              },
-            },
-          }}
-        >
-          <UserAvatar
-            name={userName}
-            size="md"
-            style={{
-              backgroundColor: "transparent",
-            }}
-          />
+        <UnstyledButton onClick={toggle} aria-label={t("header.openUserMenu")} style={{ borderRadius: 999 }}>
+          <UserAvatar name={userName} size="md" ring />
         </UnstyledButton>
       </Popover.Target>
 

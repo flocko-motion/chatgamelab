@@ -44,6 +44,8 @@ export interface UseGamesTableOptions {
   initialGameId?: string;
   /** Open the create modal on mount. */
   initialCreate?: boolean;
+  /** What the new game is about, filled in when the create modal opens on mount. */
+  initialAbout?: string;
   /** Open the import file dialog on mount. */
   autoImport?: boolean;
   /** Called when a modal opened on mount is closed. */
@@ -77,7 +79,7 @@ export interface GamePermissions {
  * and deleting live in the editor.
  */
 export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: UseGamesTableDeps) {
-  const { preset, initialGameId, initialCreate, autoImport, onModalClose } = options;
+  const { preset, initialGameId, initialCreate, initialAbout, autoImport, onModalClose } = options;
   const config = GAME_LIST_PRESETS[preset];
   const navigate = useNavigate();
   const { t } = useTranslation("common");
@@ -155,7 +157,11 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
     initialData: Partial<CreateGameFormData> | null;
     copy?: boolean;
     cover?: ImportedCover;
-  } | null>(initialCreate ? { initialData: null } : null);
+  } | null>(
+    initialCreate
+      ? { initialData: initialAbout ? { systemMessageScenario: initialAbout } : null }
+      : null,
+  );
   const importCover = useImportGameCover();
 
   /**

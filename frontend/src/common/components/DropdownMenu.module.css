@@ -1,32 +1,34 @@
 /**
- * DropdownMenu styles for dark header context
- * Uses CSS modules to properly handle hover states (inline styles with &:hover don't work in Mantine v8)
- * Uses Mantine CSS variables for theming consistency
+ * DropdownMenu styles: the header's menus (nav groups, user menu) in the
+ * "Lab Notebook" look: white, an ink outline and a hard offset shadow.
+ * CSS module, since Mantine v8 inline styles have no hover states.
  */
 
 .dropdown {
-  background-color: #0f3460;
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+  background-color: var(--mantine-color-white);
+  border: 2px solid var(--mantine-color-ink-5);
+  border-radius: var(--mantine-radius-md);
+  box-shadow: 4px 4px 0 var(--mantine-color-ink-5);
 }
 
 .arrow {
-  background-color: #0f3460;
-  border-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--mantine-color-white);
+  border-color: var(--mantine-color-ink-5);
 }
 
 .item {
-  color: white;
+  color: var(--mantine-color-ink-5);
+  font-weight: 500;
 }
 
 .item:hover,
 .item[data-hovered] {
-  background-color: color-mix(in srgb, var(--mantine-color-accent-5) 15%, transparent);
-  color: var(--mantine-color-accent-4);
+  background-color: var(--mantine-color-accent-0);
+  color: var(--mantine-color-ink-5);
 }
 
 .item:active {
-  background-color: color-mix(in srgb, var(--mantine-color-accent-5) 25%, transparent);
+  background-color: var(--mantine-color-accent-1);
 }
 
 .itemLabel {
@@ -34,11 +36,11 @@
 }
 
 .itemDanger {
-  color: var(--mantine-color-red-6);
+  color: var(--mantine-color-red-7);
 }
 
 .itemDanger:hover,
 .itemDanger[data-hovered] {
-  background-color: color-mix(in srgb, var(--mantine-color-red-5) 15%, transparent);
-  color: var(--mantine-color-red-4);
+  background-color: var(--mantine-color-red-0);
+  color: var(--mantine-color-red-8);
 }

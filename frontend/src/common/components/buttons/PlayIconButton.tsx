@@ -22,25 +22,14 @@ export const PlayIconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
     return (
       <ActionIcon
         ref={ref}
-        variant="gradient"
-        gradient={{ from: 'accent', to: 'highlight', deg: 135 }}
+        variant="filled"
+        color="accent"
         size={size}
         radius="md"
         onClick={onClick}
         disabled={disabled}
         loading={loading}
         aria-label={ariaLabel}
-        style={{
-          transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-        }}
-        styles={{
-          root: {
-            '&:hover:not(:disabled)': {
-              transform: 'scale(1.05)',
-              boxShadow: '0 4px 12px rgba(41, 208, 222, 0.3)',
-            },
-          },
-        }}
       >
         <IconPlayerPlay style={{ width: '70%', height: '70%' }} stroke={2} />
       </ActionIcon>

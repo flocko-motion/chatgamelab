@@ -59,7 +59,7 @@ export function WorkshopModeMobileNavigation({
               px="md"
               style={{
                 borderRadius: "var(--mantine-radius-md)",
-                color: "white",
+                color: theme.other.layout.text,
                 display: "flex",
                 alignItems: "center",
                 gap: "10px",
@@ -67,7 +67,7 @@ export function WorkshopModeMobileNavigation({
                   ? theme.other.layout.bgActive
                   : theme.other.layout.bgSubtle,
                 boxShadow: item.active
-                  ? "0 0 0 1px rgba(255, 255, 255, 0.3)"
+                  ? "inset 0 0 0 2px var(--mantine-color-ink-5)"
                   : "none",
               }}
             >
@@ -90,7 +90,7 @@ export function WorkshopModeMobileNavigation({
               <Text size="xs" c="dimmed">
                 {t("header.workshop")}:
               </Text>
-              <Text size="sm" fw={500} c="white">
+              <Text size="sm" fw={500} c={theme.other.layout.text}>
                 {workshopName}
               </Text>
             </Group>
@@ -100,7 +100,7 @@ export function WorkshopModeMobileNavigation({
               <Text size="xs" c="dimmed">
                 {t("header.organization")}:
               </Text>
-              <Text size="sm" fw={500} c="white">
+              <Text size="sm" fw={500} c={theme.other.layout.text}>
                 {organizationName}
               </Text>
             </Group>
@@ -120,7 +120,7 @@ export function WorkshopModeMobileNavigation({
             px="md"
             style={{
               borderRadius: "var(--mantine-radius-md)",
-              color: "white",
+              color: theme.other.layout.text,
               display: "flex",
               alignItems: "center",
               gap: "8px",

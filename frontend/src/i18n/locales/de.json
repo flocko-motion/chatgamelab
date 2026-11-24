@@ -398,8 +398,8 @@
       "favorite": "Zu Favoriten hinzufügen",
       "filters": {
         "all": "Alle Spiele",
-        "favorites": "Favoriten",
-        "own": "Meine Spiele",
+        "favorites": "Favs",
+        "own": "Meine",
         "public": "Öffentlich",
         "sponsored": "Gesponsert",
         "genre": "Genre"
@@ -825,7 +825,8 @@
           "noKey": "Keiner der KI-Schlüssel, die du nutzen kannst, zeichnet Bilder. Das Spiel hat deshalb vorerst kein Titelbild.",
           "keyRejected": "Der KI-Anbieter hat den Schlüssel abgelehnt. Das Titelbild konnte nicht gezeichnet werden.",
           "failed": "Das Titelbild konnte nicht gezeichnet werden. Bitte versuche es noch einmal."
-        }
+        },
+        "drawing": "Titelbild wird gezeichnet …"
       },
       "editor": {
         "titleNew": "Neues Spiel",
@@ -996,7 +997,8 @@
           "styleLink": "Mit eigenem CSS gestalten →",
           "pageHint": "Das Spiel läuft nur dort, und nur wenn die Seite jedem Start zustimmt."
         }
-      }
+      },
+      "newGame": "Neues Spiel"
     },
     "header": {
       "apiKeys": "API-Schlüssel",
@@ -1100,7 +1102,8 @@
         "first": "Erste Seite",
         "last": "Letzte Seite"
       },
-      "clearPicks": "Alle zeigen"
+      "clearPicks": "Alle zeigen",
+      "clearFilters": "Zurücksetzen"
     },
     "loading": "Laden...",
     "logout": "Abmelden",
@@ -1588,57 +1591,6 @@
     }
   },
   "dashboard": {
-    "cards": {
-      "externalLinks": {
-        "edu": {
-          "description": "Medienpädagogisches Arbeiten mit dem ChatGameLab",
-          "title": "Über ChatGameLab"
-        },
-        "jff": {
-          "description": "Projektkoordinator und federführende Organisation.",
-          "title": "JFF – Institut für Medienpädagogik"
-        },
-        "mainSite": {
-          "description": "Erfahre mehr über das Bildungsprojekt hinter dieser Plattform.",
-          "title": "ChatGameLab Projekt"
-        },
-        "title": "Über ChatGameLab"
-      },
-      "myGames": {
-        "empty": "Noch keine Spiele. Erstelle dein erstes Spiel!",
-        "title": "Meine Spiele",
-        "viewAll": "Meine Spiele"
-      },
-      "myWorkshops": {
-        "empty": "Keine aktiven Workshops. Erstelle einen Workshop in deiner Organisation!",
-        "title": "Meine Workshops",
-        "viewAll": "Alle Workshops"
-      },
-      "newGames": {
-        "empty": "Noch keine Spiele verfügbar.",
-        "title": "Neue Spiele",
-        "viewAll": "Alle Spiele"
-      },
-      "popularGames": {
-        "empty": "Noch keine Spiele verfügbar.",
-        "plays": "{{count}} Mal gespielt",
-        "title": "Beliebte Spiele",
-        "viewAll": "Alle Spiele"
-      },
-      "lastPlayed": {
-        "empty": "Noch kein laufendes Spiel. Spiel dein erstes Spiel!",
-        "title": "Zuletzt gespielt",
-        "viewAll": "Alle Spiele"
-      }
-    },
-    "quickActions": {
-      "createNewGame": "Ein neues Spiel erstellen",
-      "createWorkshop": "Workshop erstellen",
-      "importGame": "Spiel importieren",
-      "inviteMembers": "Mitglieder einladen",
-      "startNewGame": "Ein neues Spiel starten",
-      "title": "Schnellaktionen"
-    },
     "untitled": "Unbenannt",
     "version": {
       "mismatch": {
@@ -1646,7 +1598,55 @@
         "title": "Versionenkonflikt erkannt"
       }
     },
-    "untitledGame": "Unbenanntes Spiel"
+    "untitledGame": "Unbenanntes Spiel",
+    "hero": {
+      "journal": "Laborbuch · {{date}}",
+      "greeting": "Hallo {{name}}. Was \u003cmark\u003ebauen\u003c/mark\u003e wir heute?",
+      "greetingNoName": "Hallo. Was \u003cmark\u003ebauen\u003c/mark\u003e wir heute?",
+      "promptLabel": "Beschreibe eine Spielidee",
+      "promptPlaceholder": "Beschreibe eine Spielidee … die KI hilft dir, sie auszuarbeiten",
+      "create": "Erstellen"
+    },
+    "continue": {
+      "title": "Weiterspielen",
+      "hint": "mach da weiter, wo du aufgehört hast",
+      "messages_one": "{{count}} Nachricht",
+      "messages_other": "{{count}} Nachrichten",
+      "go": "Weiter"
+    },
+    "ownGames": {
+      "title": "Deine Spiele",
+      "viewAll": "Alle deine Spiele",
+      "empty": "Noch keine Spiele. Beschreibe oben eine Idee und erstelle dein erstes!"
+    },
+    "lab": {
+      "title": "Dein Labor bisher",
+      "gamesOnPlatform": "Spiele im Labor",
+      "gamesCreated": "Spiele von dir",
+      "playsOfOwnGames": "Mal gespielt, deine Spiele"
+    },
+    "workshops": {
+      "title": "Deine Workshops",
+      "viewAll": "Alle Workshops"
+    },
+    "fresh": {
+      "title": "Neue Spiele",
+      "viewAll": "Zur Galerie",
+      "by": "von {{name}}",
+      "empty": "Noch keine neuen Spiele."
+    },
+    "popular": {
+      "title": "Am beliebtesten",
+      "hint": "was gerade alle spielen",
+      "plays_one": "{{count}}-mal gespielt",
+      "plays_other": "{{count}}-mal gespielt"
+    },
+    "links": {
+      "educators": "Für Pädagog*innen",
+      "about": "Über ChatGameLab",
+      "jff": "JFF – Institut für Medienpädagogik"
+    },
+    "someone": "jemandem"
   },
   "errors": {
     "aiError": "Der KI-Dienst hat einen Fehler festgestellt. Bitte versuche es erneut.",
@@ -1763,7 +1763,9 @@
     "play": "Spiele spielen",
     "rooms": "Räume",
     "serverSettings": "Servereinstellungen",
-    "workshopSettings": "Workshop-Einstellungen"
+    "workshopSettings": "Workshop-Einstellungen",
+    "me": "Ich",
+    "mainMenu": "Hauptmenü"
   },
   "playbackEngine": {
     "over": {

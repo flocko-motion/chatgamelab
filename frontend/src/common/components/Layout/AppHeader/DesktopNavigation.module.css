@@ -1,0 +1,40 @@
+/* The header's nav buttons: ink text on the light header. The current page
+   is marked by a magenta highlighter strip behind its label; hover only
+   colours the text. */
+.navButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+  border-radius: var(--mantine-radius-md);
+  color: var(--mantine-color-ink-5);
+  font-weight: 600;
+  transition: color 150ms ease;
+}
+
+.navButton:hover:not([data-active]) {
+  color: var(--mantine-color-highlight-7);
+}
+
+.navButton[data-active] .label {
+  background: linear-gradient(
+    transparent 52%,
+    color-mix(in srgb, var(--mantine-color-highlight-5) 40%, transparent) 52%,
+    color-mix(in srgb, var(--mantine-color-highlight-5) 40%, transparent) 90%,
+    transparent 90%
+  );
+}
+
+.navButton:focus-visible {
+  outline: 3px solid var(--mantine-color-ink-5);
+  outline-offset: 2px;
+}
+
+.label {
+  font-size: var(--mantine-font-size-sm);
+  padding: 0 2px;
+}
+
+.chevron {
+  opacity: 0.7;
+}

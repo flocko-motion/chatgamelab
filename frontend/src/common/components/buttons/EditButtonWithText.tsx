@@ -21,8 +21,8 @@ export function EditButtonWithText({
 }: EditButtonWithTextProps) {
   return (
     <Button
-      variant="subtle"
-      color="accent.9"
+      variant="outline"
+      color="ink"
       size={size}
       radius="md"
       leftSection={<IconPencil size={14} />}

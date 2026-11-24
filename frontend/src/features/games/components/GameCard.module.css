@@ -1,21 +1,22 @@
-/* A game's tile: cover on top, then name, facts and description, and the
-   play button at the foot, which lines up across a row of tiles. */
+/* A game's tile in the "Lab Notebook" look (#567): cover with its genre on
+   top, then facts, name, maker and description, and the foot (play, edit),
+   which lines up across a row of tiles. The Card itself brings the ink
+   outline and offset shadow (theme). */
 .card {
   display: flex;
   flex-direction: column;
   height: 100%;
-  transition:
-    transform 150ms ease,
-    box-shadow 150ms ease;
-}
-
-.card {
+  overflow: hidden;
   cursor: pointer;
+  transition:
+    transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 250ms ease;
 }
 
+/* The springy wobble: lift, tilt a hair, the shadow turns cyan. */
 .card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--mantine-shadow-md);
+  transform: translate(-2px, -6px) rotate(-0.9deg) scale(1.01);
+  box-shadow: 6px 8px 0 var(--mantine-color-accent-5);
 }
 
 /* A game the caller cannot start: nothing to press, no play hint. */
@@ -28,25 +29,25 @@
 }
 
 .card[data-sponsored] {
-  border-color: var(--mantine-color-pink-3);
+  border-color: var(--mantine-color-highlight-5);
 }
 
-/* The cover, with badges and the star laid over it. */
+/* The cover, with tags, the star and the genre laid over it. */
 .cover {
   position: relative;
+  border-bottom: 2px solid var(--mantine-color-ink-5);
 }
 
 .cover img {
-  transition: transform 300ms ease;
+  transition: transform 500ms ease;
 }
 
 .card:hover .cover img {
-  transform: scale(1.04);
+  transform: scale(1.05);
 }
 
 /* Over the cover, on hover (and for the keyboard on focus): a big round
-   button with a gamepad, as a video shows its play button; neutral grey, so
-   it sits on any cover. */
+   button with a gamepad, as a video shows its play button. */
 .playHint {
   all: unset;
   position: absolute;
@@ -54,7 +55,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: color-mix(in srgb, var(--mantine-color-black) 20%, transparent);
+  background: color-mix(in srgb, var(--mantine-color-ink-5) 25%, transparent);
   opacity: 0;
   transition: opacity 150ms ease;
 }
@@ -77,12 +78,10 @@
   width: clamp(56px, 26%, 88px);
   aspect-ratio: 1;
   border-radius: 50%;
-  /* Frosted grey glass over any cover; the accent only in a thin ring. */
-  background: color-mix(in srgb, var(--mantine-color-dark-9) 45%, transparent);
-  backdrop-filter: blur(6px);
-  border: 2px solid color-mix(in srgb, var(--mantine-color-accent-3) 70%, transparent);
-  color: var(--mantine-color-white);
-  box-shadow: 0 6px 24px color-mix(in srgb, var(--mantine-color-black) 35%, transparent);
+  background: var(--mantine-color-accent-5);
+  border: 2px solid var(--mantine-color-ink-5);
+  color: var(--mantine-color-ink-5);
+  box-shadow: 3px 3px 0 var(--mantine-color-ink-5);
   transform: scale(0.85);
   transition: transform 200ms ease;
 }
@@ -100,8 +99,8 @@
 .overlayTop,
 .overlayBottom {
   position: absolute;
-  left: var(--mantine-spacing-xs);
-  right: var(--mantine-spacing-xs);
+  left: 10px;
+  right: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -110,11 +109,12 @@
 }
 
 .overlayTop {
-  top: var(--mantine-spacing-xs);
+  top: 10px;
 }
 
 .overlayBottom {
-  bottom: var(--mantine-spacing-xs);
+  bottom: 10px;
+  justify-content: flex-start;
 }
 
 .overlayTop > *,
@@ -122,29 +122,137 @@
   pointer-events: auto;
 }
 
-.overlayBadge {
-  box-shadow: var(--mantine-shadow-xs);
+/* Private: a dark tag with a lock. */
+.privateTag,
+.sponsorTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-family: var(--mantine-font-family-monospace);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
-/* Pushed right, also when there is no badge on its left. */
+.privateTag {
+  background: var(--mantine-color-ink-5);
+  color: var(--mantine-color-white);
+}
+
+.sponsorTag {
+  background: var(--mantine-color-highlight-5);
+  color: var(--mantine-color-ink-5);
+  border: 2px solid var(--mantine-color-ink-5);
+}
+
+/* Pushed right, also when there is no tag on its left. */
 .star {
   margin-left: auto;
-  border-radius: var(--mantine-radius-xl);
-  background: color-mix(in srgb, var(--mantine-color-white) 85%, transparent);
-  box-shadow: var(--mantine-shadow-xs);
+  border-radius: 50%;
+  background: var(--mantine-color-white);
+  border: 2px solid var(--mantine-color-ink-5);
 }
 
 /* Takes the free height, so the foot sits at the bottom. */
 .body {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
   min-width: 0;
+  padding: 12px 14px 2px;
+}
+
+.body h3 {
+  font-family: var(--mantine-font-family-headings);
+  font-weight: 800;
+  font-size: 19px;
+  letter-spacing: -0.01em;
 }
 
 .facts {
-  color: var(--mantine-color-gray-6);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--mantine-font-family-monospace);
   font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-gray-6);
+}
+
+.creator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: var(--mantine-font-size-sm);
+  color: var(--mantine-color-gray-6);
+}
+
+.creatorName {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mine {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--mantine-color-ink-5);
+  color: var(--mantine-color-white);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.description {
+  margin: 2px 0 0;
+  font-size: var(--mantine-font-size-sm);
+  line-height: 1.4;
+  color: var(--mantine-color-gray-6);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
 }
 
 .foot {
-  margin-top: var(--mantine-spacing-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mantine-spacing-xs);
+  margin-top: var(--mantine-spacing-sm);
+  padding: 10px 14px 12px;
+  border-top: 1px dashed var(--mantine-color-gray-3);
+}
+
+.playText {
+  font-family: var(--mantine-font-family-monospace);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.card:hover .playText {
+  color: var(--mantine-color-highlight-7);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card:hover,
+  .cover img {
+    transition: none;
+    transform: none;
+  }
 }

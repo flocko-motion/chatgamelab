@@ -1,0 +1,11 @@
+.critter {
+  display: block;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.critter[data-ring] {
+  box-shadow:
+    0 0 0 2px var(--mantine-color-white),
+    0 0 0 3.5px var(--critter-ring);
+}

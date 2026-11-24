@@ -1,0 +1,61 @@
+/* The phone's tab bar: fixed to the bottom, paper with an ink rule on top. */
+.bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 200;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--mantine-color-gray-0) 94%, transparent);
+  backdrop-filter: blur(12px);
+  border-top: 2px solid var(--mantine-color-ink-5);
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 48px;
+  padding: 6px 2px;
+  border-radius: var(--mantine-radius-md);
+  color: var(--mantine-color-gray-6);
+}
+
+.tab[data-active] {
+  color: var(--mantine-color-ink-5);
+}
+
+.tab:focus-visible {
+  outline: 3px solid var(--mantine-color-ink-5);
+  outline-offset: 1px;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 30px;
+  border-radius: 999px;
+  transition: background-color 150ms ease;
+}
+
+.tab[data-active] .icon {
+  background: var(--mantine-color-ink-5);
+  color: var(--mantine-color-white);
+}
+
+.label {
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+}
+
+/* While the bar shows, the page keeps room for it at the bottom. */
+:global(body):has(.bar) :global(.mantine-AppShell-main) {
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+}

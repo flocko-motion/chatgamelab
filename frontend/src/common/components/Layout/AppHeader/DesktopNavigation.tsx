@@ -1,87 +1,32 @@
-import { Group, UnstyledButton, Text, useMantineTheme } from "@mantine/core";
+import { Group, UnstyledButton } from "@mantine/core";
 import { IconChevronDown } from "@tabler/icons-react";
 import { DropdownMenu } from "../../DropdownMenu";
 import type { NavItem } from "./types";
+import classes from "./DesktopNavigation.module.css";
 
 function NavButton({ item }: { item: NavItem }) {
-  const theme = useMantineTheme();
-
   return (
     <UnstyledButton
       onClick={item.onClick}
-      py="xs"
-      px="md"
-      style={{
-        borderRadius: "var(--mantine-radius-md)",
-        color: "white",
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        transition: "background-color 150ms ease, box-shadow 150ms ease",
-      }}
-      styles={{
-        root: {
-          backgroundColor: item.active
-            ? theme.other.layout.bgActive
-            : "transparent",
-          boxShadow: item.active
-            ? "0 0 0 1px rgba(255, 255, 255, 0.3)"
-            : "none",
-          "&:hover": {
-            backgroundColor: item.active
-              ? theme.other.layout.bgActive
-              : "rgba(255, 255, 255, 0.2)",
-            boxShadow: item.active
-              ? "0 0 0 1px rgba(255, 255, 255, 0.3)"
-              : "none",
-          },
-        },
-      }}
+      className={classes.navButton}
+      data-active={item.active || undefined}
+      aria-current={item.active ? "page" : undefined}
     >
       {item.icon}
-      <Text size="sm" fw={500}>
-        {item.label}
-      </Text>
+      <span className={classes.label}>{item.label}</span>
     </UnstyledButton>
   );
 }
 
 function NavDropdownButton({ item }: { item: NavItem }) {
-  const theme = useMantineTheme();
   const hasActiveChild = item.children?.some((child) => child.active);
   const isActive = item.active || hasActiveChild;
 
   const trigger = (
-    <UnstyledButton
-      py="xs"
-      px="md"
-      style={{
-        borderRadius: "var(--mantine-radius-md)",
-        color: "white",
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        transition: "background-color 150ms ease, box-shadow 150ms ease",
-      }}
-      styles={{
-        root: {
-          backgroundColor: isActive
-            ? theme.other.layout.bgActive
-            : "transparent",
-          boxShadow: isActive ? "0 0 0 1px rgba(255, 255, 255, 0.3)" : "none",
-          "&:hover": {
-            backgroundColor: isActive
-              ? theme.other.layout.bgActive
-              : "rgba(255, 255, 255, 0.2)",
-          },
-        },
-      }}
-    >
+    <UnstyledButton className={classes.navButton} data-active={isActive || undefined}>
       {item.icon}
-      <Text size="sm" fw={500}>
-        {item.label}
-      </Text>
-      <IconChevronDown size={14} style={{ opacity: 0.7 }} />
+      <span className={classes.label}>{item.label}</span>
+      <IconChevronDown size={14} className={classes.chevron} />
     </UnstyledButton>
   );
 

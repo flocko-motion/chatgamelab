@@ -58,7 +58,7 @@ export function LanguageSwitcher({ size = 'sm', variant = 'default' }: LanguageS
             return (
               <Box style={{ 
                 textAlign: 'center', 
-                color: 'rgba(255, 255, 255, 0.3)',
+                color: 'var(--mantine-color-gray-4)',
                 cursor: 'default',
                 userSelect: 'none',
               }}>

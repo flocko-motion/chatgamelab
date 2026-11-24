@@ -1,17 +1,20 @@
 import { useState } from "react";
-import { Loader } from "@mantine/core";
+import { IconSparkles } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import { gameCoverUrl } from "@/api/hooks";
+import { gameCoverUrl, useCoverDrawing } from "@/api/hooks";
 import { coverTile } from "@/common/lib/coverTile";
 import type { GameView } from "@/api/types";
 import classes from "./GameCover.module.css";
 
 export interface GameCoverProps {
   game: Pick<GameView, "id" | "name" | "coverAt">;
-  /** A cover is being drawn: a spinner over what shows now. */
+  /** A cover is being drawn: a spinner and a note over what shows now. It
+   * also shows by itself while this browser draws the game's cover. */
   busy?: boolean;
   /** Edge to edge, square corners: inside a card section that rounds them. */
   flush?: boolean;
+  /** The frame's shape: 3:2 (default), square, or filling its container. */
+  ratio?: "3/2" | "1/1" | "fill";
 }
 
 /**
@@ -28,15 +31,16 @@ export interface GameCoverProps {
  * @example
  * <GameCover game={game} />
  */
-export function GameCover({ game, busy = false, flush = false }: GameCoverProps) {
+export function GameCover({ game, busy = false, flush = false, ratio = "3/2" }: GameCoverProps) {
   const { t } = useTranslation("common");
   const url = gameCoverUrl(game);
+  const drawing = useCoverDrawing(game.id) || busy;
   // A picture that would not load shows the tile, never a broken image.
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
   const initial = Array.from(game.name.trim())[0]?.toLocaleUpperCase() ?? "";
 
   return (
-    <div className={flush ? `${classes.frame} ${classes.flush}` : classes.frame}>
+    <div className={flush ? `${classes.frame} ${classes.flush}` : classes.frame} data-ratio={ratio}>
       {url && url !== failedUrl ? (
         <img
           className={classes.image}
@@ -60,9 +64,12 @@ export function GameCover({ game, busy = false, flush = false }: GameCoverProps)
           </svg>
         </div>
       )}
-      {busy && (
-        <div className={classes.busy}>
-          <Loader color="white" />
+      {drawing && (
+        <div className={classes.busy} role="status">
+          <span className={classes.ring}>
+            <IconSparkles className={classes.sparkle} stroke={2} aria-hidden />
+          </span>
+          <span className={classes.busyText}>{t("games.cover.drawing")}</span>
         </div>
       )}
     </div>
