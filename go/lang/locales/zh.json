@@ -5,14 +5,14 @@
       "description": "这有助于我们为你的账户应用正确的保护和内容指南。",
       "label": "年龄与保护分组",
       "u13": "13–17 岁，未获得家长同意",
-      "u13Description": "你可以使用 ChatGameLab。你的账户将启用更严格的保护设置。",
+      "u13Description": "你可以使用 {{siteName}}。你的账户将适用更严格的保护设置。",
       "u13p": "13–17 岁，已获得家长同意",
-      "u13pDescription": "只要你的父母同意，你就可以使用 ChatGameLab。",
+      "u13pDescription": "如果你的父母同意，你就可以使用 {{siteName}}。",
       "u18": "18 岁及以上",
-      "u18Description": "你可以使用 ChatGameLab。",
+      "u18Description": "你可以使用 {{siteName}}。",
       "under13": "13 岁以下",
-      "under13Blocker": "你还不能创建自己的账户。如果你未满 13 岁，只能通过青少年组织使用 ChatGameLab。",
-      "under13Description": "你还不能创建自己的账户。如果你未满 13 岁，只能通过青少年组织使用 ChatGameLab。"
+      "under13Blocker": "你还不能创建自己的账户。如果你未满 13 岁，只能通过青少年机构使用 {{siteName}}。",
+      "under13Description": "你还不能创建自己的账户。如果你未满 13 岁，只能通过青少年机构使用 {{siteName}}。"
     },
     "guest": {
       "leaveConfirm": {
@@ -51,7 +51,7 @@
       }
     },
     "organizationRegistration": {
-      "accountNameDescription": "你在 ChatGameLab 中显示的名称（最多 24 个字符）。",
+      "accountNameDescription": "你在 {{siteName}} 中的显示方式（最多 24 个字符）。",
       "accountNameLabel": "显示名称",
       "cityLabel": "城市",
       "confirmAdult": "我已年满 18 岁。",
@@ -60,9 +60,9 @@
         "emailDescription": "我们会将包含声明文本的确认邮件发送到此地址。",
         "introExisting": "你的组织“{{name}}”现在有一份已在线确认的声明。它取代了你之前签署的用户协议。请阅读声明，并代表你的机构同意。",
         "introNewVersion": "声明已更新（版本 {{version}}）。请阅读新版本，并代表你的组织“{{name}}”同意。",
-        "introWithdrawn": "你的组织“{{name}}”对该声明的同意已被撤回，因此组织目前已暂停。请阅读声明，并代表你的机构同意，以便再次使用 ChatGameLab。",
+        "introWithdrawn": "你们的组织“{{name}}”对该同意声明的同意已被撤回，因此组织目前已被暂停。请阅读该声明，并代表你们的机构同意，以便再次使用 {{siteName}}。",
         "logout": "退出登录",
-        "oneHeadIsEnough": "只需一名组织负责人同意即可。在此之前，你的组织将处于暂停状态：其成员无法使用 ChatGameLab。",
+        "oneHeadIsEnough": "只要一位组织负责人同意即可。在此之前，你们的组织将处于暂停状态：其成员无法使用 {{siteName}}。",
         "submit": "同意",
         "title": "确认声明"
       },
@@ -207,10 +207,10 @@
       "agreeSuffix2": "",
       "alreadyHaveAccount": "已经有账号？",
       "backButton": "返回",
-      "chooseType": "你希望如何使用 ChatGameLab？",
+      "chooseType": "你想如何使用 {{siteName}}？",
       "continueButton": "继续注册",
       "description": "我们使用 Auth0 作为认证提供商来管理用户账号。你将被重定向至 Auth0 创建账号，然后返回此处完成个人资料。",
-      "educatorDescription": "在工作坊、课堂或你的机构中使用 ChatGameLab",
+      "educatorDescription": "在工作坊、课堂或你的组织中使用 {{siteName}}",
       "educatorModal": {
         "closeButton": "关闭",
         "copied": "已复制！",
@@ -234,7 +234,7 @@
       "individualTitle": "个人账号",
       "loginLink": "登录",
       "organizationExistingAccount": "组织需要使用新的登录信息进行注册。已经有账户了吗？",
-      "organizationIntro": "适用于希望在工作坊中使用 ChatGameLab 的青少年中心、学校和其他机构。",
+      "organizationIntro": "面向希望在工作坊中使用 {{siteName}} 的青少年中心、学校和其他机构。",
       "organizationStep1": "通过 Auth0 创建登录信息（电子邮箱和密码）。",
       "organizationStep2": "填写您和贵机构的信息，制定青少年保护规则，并同意该声明。",
       "organizationStep3": "提交表单后，组织将立即激活，你可以创建工作坊。",
@@ -776,6 +776,9 @@
         "embed": {
           "copy": "复制代码片段",
           "incomplete": "选择付费方式以获取代码片段。",
+          "mode": "游戏进行方式",
+          "modeChoose": "由玩家选择",
+          "modeHint": "这个游戏可以实时进行，也可以轮流进行。预先选择一种方式即可跳过提问；如果密钥只支持其中一种方式，就会使用该方式。",
           "noKeys": "你没有可用于付款的可用 AI 密钥。请添加一个，或向你的组织索取。",
           "noOrganisation": "组织的游戏才能嵌入：包括在其工作坊中创作的游戏，或由组织负责人和员工创作的游戏。此游戏不属于任何组织。",
           "noPages": "请先注册贵组织的网站：游戏将在该页面上运行。管理员批准后，游戏才能在那里启动。",
@@ -794,7 +797,7 @@
           "snippetVerifiedHint": "你的服务器会填入访客 ID 和本次页面访问的 ID；你页面的回调会收到这两个 ID。",
           "styleLink": "使用你自己的 CSS 设置样式 →",
           "toggle": "嵌入网站",
-          "toggleHint": "在你组织的已验证页面上显示此游戏，周围不显示任何 ChatGameLab 内容。访客将以客人身份游玩；费用由你选择的密钥支付。",
+          "toggleHint": "在你们组织的已验证页面上显示此游戏，不显示 {{siteName}} 的其他内容。访客将以游客身份进行游戏；费用由你选择的密钥支付。",
           "waitingForApproval": "该组织的页面正在等待管理员批准。在此之前，游戏不会在那里启动。"
         },
         "fillIn": "填写各个部分，直到它们全部变为绿色。",
@@ -871,6 +874,14 @@
             "voiceStyleHint": "故事朗读出来时听起来如何。"
           },
           "builtInVoice": "内置声音",
+          "choices": {
+            "any": "任意",
+            "custom": "自定义",
+            "female": "女性",
+            "male": "男性"
+          },
+          "choicesHint": "男性、女性或任意：选择一个适合故事的内置声音。",
+          "customHint": "自定义：根据描述生成专属声音。",
           "duo": {
             "voiceStyle": "人物的声音",
             "voiceStyleHint": "每个人物都使用独特的声音。"
@@ -895,8 +906,15 @@
             "greeting": "你好！请进来，坐下，告诉我是什么风把你吹来的。",
             "narration": "故事开始于一个宁静的早晨，一条狭窄的小路通向未知之处。"
           },
+          "slots": {
+            "a": "第一个角色",
+            "b": "第二个角色",
+            "character": "角色",
+            "narrator": "旁白"
+          },
           "status": {
             "builtIn": "还没有描述：在你描述声音之前，游戏会使用内置声音。",
+            "cast": "游戏开始时，会从你选择的类型中挑选最适合故事的内置声音。描述会决定它说话的方式。",
             "ownVoice": "根据此描述、使用你的 AI 密钥创建的专属声音。",
             "steered": "内置声音会按照描述朗读故事。"
           },
@@ -965,6 +983,8 @@
       },
       "genres": {
         "adventure": "冒险",
+        "discussion": "讨论",
+        "npc": "角色",
         "npc-duo": "讨论",
         "npc-live": "人物"
       },
@@ -1159,6 +1179,7 @@
       "apiKeys": "API 密钥",
       "closeNavigation": "关闭导航菜单",
       "contact": "联系",
+      "contactHint": "联系 {{siteName}} 团队",
       "goToDashboard": "前往仪表盘",
       "leaveWorkshopMode": "退出工作坊模式",
       "leaveWorkshopModeTooltip": "退出工作坊模式并返回普通视图",
@@ -1349,7 +1370,7 @@
         "consented": "你的组织于 {{date}} 同意了版本 {{version}}。",
         "title": "同意声明",
         "withdraw": "撤回同意",
-        "withdrawConfirm": "撤回同意后，你的组织将处于暂停状态：在负责人再次同意之前，任何成员都无法使用 ChatGameLab。组织数据会保留。",
+        "withdrawConfirm": "没有同意，你们的组织将处于暂停状态：在一位负责人再次同意之前，任何成员都无法使用 {{siteName}}。组织数据会被保留。",
         "withdrawFailed": "操作未成功。请重试。",
         "withdrawTitle": "撤回同意？"
       },
@@ -1449,14 +1470,14 @@
         "approved": "已批准",
         "callbackShown": "回调：{{url}}",
         "callbackUrl": "回调地址",
-        "callbackUrlHint": "ChatGameLab 每次启动前会在这里发起询问。它必须在几秒内回复。",
+        "callbackUrlHint": "{{siteName}} 每次启动前会在此处发出请求。它必须在几秒内作出回应。",
         "copied": "已复制",
         "copy": "复制页面 ID",
         "edit": "更改页面",
         "editReapproval": "此地址位于另一个网站上，需要再次等待管理员批准；在此之前，游戏不会在那里启动。同一网站上的其他端口或路径仍会保持批准状态。",
         "editTitle": "更改页面",
         "empty": "还没有经过验证的页面。",
-        "intro": "已验证页面是你组织网站上的一个页面，它可以显示你嵌入的游戏。游戏准备在那里启动前，ChatGameLab 会向该页面的回调询问是否启动，并发送下面的页面 ID，以及由你的页面传递的访客 ID 和请求 ID。只有返回 {\"ok\": true} 才会启动游戏。",
+        "intro": "已验证页面是你们组织网站上的一个页面，该页面可以显示你们嵌入的游戏。在游戏从该页面启动前，{{siteName}} 会向该页面的回调地址询问是否启动，并附带下方的页面 ID，以及由你们页面传递的访客 ID 和请求 ID。只有返回 {\"ok\": true} 才会启动游戏。",
         "pageId": "页面 ID",
         "pageUrl": "页面地址",
         "pageUrlHint": "嵌入游戏的页面。只有该网站可以显示这些游戏。",
@@ -1610,8 +1631,8 @@
       "workshopInviteDescription": "你已被邀请加入此工作坊。"
     },
     "organisationSuspended": {
-      "byAdmin": "运营方已暂停你的组织访问 ChatGameLab 的权限。你的数据会保留。",
-      "consentWanted": "你的组织访问 ChatGameLab 的权限已暂停，直到其中一名负责人同意当前的同意声明。你的数据会保留。",
+      "byAdmin": "运营方已暂停你们组织访问 {{siteName}} 的权限。你的数据会被保留。",
+      "consentWanted": "你们组织访问 {{siteName}} 的权限已被暂停，直到组织的一位负责人同意当前的同意声明。你的数据会被保留。",
       "contact": "如有疑问，请联系",
       "logout": "退出登录",
       "title": "组织已暂停"
@@ -1643,12 +1664,16 @@
         "backToGames": "返回游戏列表",
         "cannotOpen": "此游戏无法继续",
         "cannotStart": "此游戏无法开始",
+        "chooseMode": "你想如何进行游戏？",
+        "chooseModeHint": "与角色实时交谈，或通过输入文字或说话轮流进行。",
         "continue": "继续游戏",
         "inProgress": "你有一个正在进行的游戏",
         "inProgressHint": "从你离开的地方继续，或从头开始。",
+        "live": "实时交谈",
         "noPlaysLeft": "此链接没有剩余次数，因此无法重新开始游戏。",
         "offline": "无法连接到游戏服务器。",
         "opening": "正在打开游戏…",
+        "rounds": "轮流进行",
         "startAnew": "重新开始",
         "startAnewUsesPlay": "重新开始会消耗此链接的一次游戏次数。",
         "starting": "正在开始游戏…",
@@ -1683,16 +1708,16 @@
       "about": {
         "details": "游戏创作者用自己的话描述世界、角色和规则。游玩时，AI 会根据这些内容继续实时讲述故事：它会回应你输入的任何内容，并创作相匹配的图片——因此没有两轮游戏会完全相同。亲自制作一个游戏，很快就能看出你自己的指令会多么强烈地影响结果，以及 AI 的能力边界在哪里。这正是重点：不是听别人解释 AI，而是亲自尝试。",
         "less": "收起",
-        "link": "进一步了解 ChatGameLab",
+        "link": "详细了解 {{siteName}}",
         "more": "了解更多",
-        "oneLiner": "这些文字冒险游戏由 ChatGameLab 制作：无需编程，亲手打造，由 AI 实时讲述。"
+        "oneLiner": "这些文字冒险游戏由 {{siteName}} 制作：手动构建、无需编程，并由 AI 进行实时讲述。"
       },
       "copy": "复制",
       "copyLogin": "登录后复制",
       "cta": {
         "button": "免费开始",
         "text": "制作自己的文字冒险游戏完全免费，只需几分钟。",
-        "title": "制作你自己的 ChatGameLab 游戏"
+        "title": "使用 {{siteName}} 创建你自己的游戏"
       },
       "download": "下载",
       "gamesTitle": "此工作坊中的游戏",
@@ -1719,6 +1744,42 @@
     "search": "搜索",
     "searchPlaceholder": "搜索成员...",
     "serverSettings": {
+      "branding": {
+        "changed": "已更改",
+        "description": "此网站展示自己的方式：浏览器标签页和文本中的名称、运营方，以及显示的链接。将链接留空即可隐藏该链接。",
+        "errors": {
+          "nameRequired": "网站需要一个名称。",
+          "notEmail": "这不是电子邮件地址。",
+          "notUrl": "这不是网址。网址应以 https:// 或 http:// 开头。"
+        },
+        "fields": {
+          "aiInsightsUrl": "关于 AI 洞察",
+          "apiKeyFaqUrl": "关于 AI 密钥的问题",
+          "contactUrl": "联系方式",
+          "creditName": "编程者",
+          "creditUrl": "其网站",
+          "educatorInfoUrl": "教育工作者信息",
+          "gameTipsUrl": "游戏制作技巧",
+          "helpUrl": "帮助",
+          "operatorName": "运营方",
+          "operatorUrl": "运营方网站",
+          "privacyUrl": "隐私政策",
+          "reportGameUrl": "举报游戏",
+          "siteName": "网站名称",
+          "supportEmail": "支持邮箱",
+          "termsUrl": "使用条款",
+          "websiteUrl": "网站"
+        },
+        "groups": {
+          "credit": "页脚署名",
+          "identity": "名称和运营方",
+          "links": "链接"
+        },
+        "hidden": "已隐藏",
+        "reset": "恢复默认值",
+        "resetTo": "恢复默认值：{{value}}",
+        "title": "品牌设置"
+      },
       "constraints": {
         "description": "根据玩家的年龄组定义强制性的 AI 规则。这些青少年保护规则会随每次 AI 调用一同发送。它们适用于工作坊模式之外的所有已登录用户。",
         "title": "按年龄组设置的青少年保护规则",
@@ -1753,6 +1814,12 @@
         "title": "免费使用 AI 质量等级"
       },
       "notAuthorized": "你无权访问服务器设置，需要管理员权限。",
+      "tabs": {
+        "ai": "AI 和密钥",
+        "branding": "品牌设置",
+        "general": "常规",
+        "youthProtection": "青少年保护"
+      },
       "title": "服务器设置",
       "updates": {
         "checkNow": "检查更新",
@@ -1886,7 +1953,7 @@
       "title": "你的实验室历程"
     },
     "links": {
-      "about": "关于 ChatGameLab",
+      "about": "关于 {{siteName}}",
       "educators": "面向教育工作者",
       "jff": "JFF – 媒体教育研究所"
     },
@@ -1994,11 +2061,11 @@
       "greeting": "你好，{{name}}：",
       "operator": "运营方",
       "organisation": "组织",
-      "registered": "组织“{{organisation}}”现已在 ChatGameLab 中激活。你是组织负责人，现在可以创建工作坊。",
-      "renewed": "谢谢！组织“{{organisation}}”现在已同意当前的同意声明。",
-      "signature": "你的 ChatGameLab 团队\nJFF – Jugend Film Fernsehen e.V.",
-      "subjectRegistered": "ChatGameLab：组织“{{organisation}}”已激活 – 同意声明",
-      "subjectRenewed": "ChatGameLab：已确认“{{organisation}}”的同意声明（版本 {{version}}）",
+      "registered": "组织“{{organisation}}”现已在 {{siteName}} 上启用。你是该组织的负责人，现在可以创建工作坊了。",
+      "renewed": "谢谢！{{siteName}} 现已获得组织“{{organisation}}”对当前同意声明的同意。",
+      "signature": "{{siteName}} 团队\n{{operatorName}}",
+      "subjectRegistered": "{{siteName}}：组织“{{organisation}}”已启用——同意声明",
+      "subjectRenewed": "{{siteName}}：已确认“{{organisation}}”的同意声明（版本 {{version}}）",
       "version": "版本",
       "versionValue": "{{version}}（截至 {{date}}）"
     }
@@ -2072,12 +2139,14 @@
       "adapted-style": "风格",
       "cast": "分配声音",
       "cast-brief": "人物",
+      "character": "角色",
       "condense-scenario": "缩短场景",
       "condensed-scenario": "场景",
       "director": "导演",
       "expand": "叙述",
       "gallery-image": "图库图片",
       "greeting": "生成文本",
+      "hearing": "理解语音",
       "image": "绘制图片",
       "image-prompt": "描述图片",
       "image-style": "调整风格",
@@ -2207,7 +2276,10 @@
       "tabUsage": "用量"
     },
     "launch": {
+      "chooseMode": "你想如何进行游戏？",
+      "live": "实时交谈",
       "noGame": "此页面需要一个游戏才能游玩：请从游戏页面打开它。",
+      "rounds": "轮流进行，可输入文字或说话",
       "starting": "正在开始游戏……"
     },
     "over": {
@@ -2234,6 +2306,7 @@
       "injectionSent": "已发送到对话中"
     },
     "problems": {
+      "chooseMode": "这个游戏可以实时进行，也可以轮流进行：请选择一种方式。",
       "denied": "你无权游玩此游戏。",
       "failed": "出了点问题，游戏无法继续。",
       "genre": "可用的 AI 密钥无法运行此类型的游戏。",
@@ -2249,12 +2322,15 @@
       "unreachable": "AI 服务商目前没有响应，因此游戏无法继续。请几分钟后再试。"
     },
     "promptNames": {
+      "character": "角色（系统消息）",
       "condense-scenario": "缩短场景",
       "conversation-policy": "人物说话方式",
       "director": "导演",
       "expand": "讲述一个回合",
       "game-master": "游戏主持人（系统消息）",
       "greeting": "第一句话",
+      "hear-player": "理解语音",
+      "hold-the-line": "坚持到底",
       "image-style": "调整风格",
       "opening": "开场",
       "opening-expand": "讲述开场",

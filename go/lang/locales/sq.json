@@ -5,14 +5,14 @@
       "description": "Kjo na ndihmon të zbatojmë udhëzimet e duhura të mbrojtjes dhe përmbajtjes për llogarinë tuaj.",
       "label": "Grupi i moshës dhe mbrojtjes",
       "u13": "13–17 vjeç, pa pëlqimin prindëror",
-      "u13Description": "Mund të përdorni ChatGameLab. Cilësimet më të forta të mbrojtjes do të zbatohen për llogarinë tuaj.",
+      "u13Description": "Mund të përdorësh {{siteName}}. Për llogarinë tënde do të zbatohen cilësime më të forta mbrojtjeje.",
       "u13p": "13–17 vjeç, me pëlqimin prindëror",
-      "u13pDescription": "Mund të përdorni ChatGameLab nëse prindërit tuaj pajtohen.",
+      "u13pDescription": "Mund të përdorësh {{siteName}} nëse prindërit e tu janë dakord.",
       "u18": "18 vjeç ose më të mëdhenj",
-      "u18Description": "Mund të përdorni ChatGameLab.",
+      "u18Description": "Mund të përdorësh {{siteName}}.",
       "under13": "Nën 13 vjeç",
-      "under13Blocker": "Nuk mund të krijoni ende llogarinë tuaj. Nëse jeni nën 13 vjeç, mund të përdorni ChatGameLab vetëm përmes një organizate rinore.",
-      "under13Description": "Nuk mund të krijoni ende llogarinë tuaj. Nëse jeni nën 13 vjeç, mund të përdorni ChatGameLab vetëm përmes një organizate rinore."
+      "under13Blocker": "Ende nuk mund të krijosh llogarinë tënde. Nëse je nën 13 vjeç, mund ta përdorësh {{siteName}} vetëm përmes një organizate rinore.",
+      "under13Description": "Ende nuk mund të krijosh llogarinë tënde. Nëse je nën 13 vjeç, mund ta përdorësh {{siteName}} vetëm përmes një organizate rinore."
     },
     "guest": {
       "leaveConfirm": {
@@ -51,7 +51,7 @@
       }
     },
     "organizationRegistration": {
-      "accountNameDescription": "Kështu shfaqesh në ChatGameLab (maksimumi 24 karaktere).",
+      "accountNameDescription": "Si shfaqesh në {{siteName}} (maksimumi 24 karaktere).",
       "accountNameLabel": "Emri i shfaqur",
       "cityLabel": "Qyteti",
       "confirmAdult": "Jam të paktën 18 vjeç.",
@@ -60,9 +60,9 @@
         "emailDescription": "Në këtë adresë do të dërgojmë konfirmimin me tekstin e deklaratës.",
         "introExisting": "Organizata juaj “{{name}}” tani ka një deklaratë pëlqimi që konfirmohet online. Ajo zëvendëson marrëveshjen e përdorimit që keni nënshkruar më parë. Ju lutemi lexojeni dhe jepni pëlqimin në emër të institucionit tuaj.",
         "introNewVersion": "Deklarata është përditësuar (versioni {{version}}). Ju lutemi lexoni versionin e ri dhe jepni pëlqimin në emër të organizatës suaj “{{name}}”.",
-        "introWithdrawn": "Pëlqimi i organizatës suaj “{{name}}” për deklaratën është tërhequr, ndaj ajo është pezulluar. Ju lutemi lexojeni deklaratën dhe jepni pëlqimin në emër të institucionit tuaj për të përdorur përsëri ChatGameLab.",
+        "introWithdrawn": "Pëlqimi i organizatës suaj “{{name}}” për deklaratën u tërhoq, ndaj ajo është pezulluar. Ju lutemi lexoni deklaratën dhe bini dakord në emër të institucionit tuaj për ta përdorur përsëri {{siteName}}.",
         "logout": "Dil",
-        "oneHeadIsEnough": "Mjafton që një drejtues i organizatës të japë pëlqimin. Deri atëherë organizata juaj është pezulluar: anëtarët e saj nuk mund të përdorin ChatGameLab.",
+        "oneHeadIsEnough": "Mjafton që një drejtues i organizatës të japë pëlqimin. Deri atëherë, organizata juaj është e pezulluar: anëtarët e saj nuk mund të përdorin {{siteName}}.",
         "submit": "Prano",
         "title": "Konfirmo deklaratën"
       },
@@ -207,10 +207,10 @@
       "agreeSuffix2": "",
       "alreadyHaveAccount": "Keni tashmë një llogari?",
       "backButton": "Kthehu",
-      "chooseType": "Si dëshironi ta përdorni ChatGameLab?",
+      "chooseType": "Si dëshironi ta përdorni {{siteName}}?",
       "continueButton": "Vazhdo te Regjistrimi",
       "description": "Ne përdorim Auth0 si ofruesin tonë të autentifikimit për të menaxhuar llogaritë e përdoruesve. Do të ridrejtoheni te Auth0 për të krijuar llogarinë tuaj, pastaj do të ktheheni këtu për të përfunduar profilin.",
-      "educatorDescription": "Përdorni ChatGameLab në punëtori, klasa ose organizatën tuaj",
+      "educatorDescription": "Përdoreni {{siteName}} në punëtori, në klasa ose në organizatën tuaj",
       "educatorModal": {
         "closeButton": "Mbyll",
         "copied": "U kopjua!",
@@ -234,7 +234,7 @@
       "individualTitle": "Llogari Personale",
       "loginLink": "Hyni",
       "organizationExistingAccount": "Organizatat regjistrohen me një identifikim të ri. Keni tashmë një llogari?",
-      "organizationIntro": "Për qendra rinore, shkolla dhe institucione të tjera që duan të përdorin ChatGameLab në workshope.",
+      "organizationIntro": "Për qendrat rinore, shkollat dhe institucionet e tjera që duan ta përdorin {{siteName}} në punëtori.",
       "organizationStep1": "Krijoni identifikimin tuaj me Auth0 (email dhe fjalëkalim).",
       "organizationStep2": "Jepni të dhënat për veten dhe institucionin tuaj, përcaktoni rregullin për mbrojtjen e të rinjve dhe pranoni deklaratën.",
       "organizationStep3": "Pas dërgimit të formularit, organizata aktivizohet menjëherë dhe mund të krijoni workshope.",
@@ -776,6 +776,9 @@
         "embed": {
           "copy": "Kopjo fragmentin",
           "incomplete": "Zgjidhni çfarë paguan për të marrë fragmentin e kodit.",
+          "mode": "Si luhet loja",
+          "modeChoose": "Lojtari zgjedh",
+          "modeHint": "Kjo lojë mund të luhet drejtpërdrejt ose me radhë. Zgjidhni paraprakisht njërën për ta anashkaluar pyetjen; nëse çelësi lejon vetëm njërën, ajo do të përdoret.",
           "noKeys": "Nuk ke asnjë çelës funksional të IA-së për të paguar. Shto një ose kërkoje nga organizata jote.",
           "noOrganisation": "Përfshirja është për lojërat e një organizate: lojërat e shkruara në punëtoritë e saj ose nga drejtuesit dhe stafi i saj. Kjo lojë nuk i përket asnjë organizate.",
           "noPages": "Regjistroni fillimisht faqen e internetit të organizatës suaj: faqen ku do të ekzekutohen lojërat tuaja. Një administrator e miraton atë dhe më pas loja mund të nisë aty.",
@@ -794,7 +797,7 @@
           "snippetVerifiedHint": "Serveri yt vendos ID-në e vizitorit dhe të kësaj shfaqjeje të faqes; callback-u i faqes tënde i merr të dyja.",
           "styleLink": "Stilizoje me CSS-në tënde →",
           "toggle": "Vendose në një faqe interneti",
-          "toggleHint": "E shfaq këtë lojë në faqen e verifikuar të organizatës sate, pa asgjë nga ChatGameLab përreth. Vizitorët luajnë si të ftuar; çelësi që zgjedh paguan.",
+          "toggleHint": "E shfaq këtë lojë në faqen e verifikuar të organizatës suaj, pa asgjë tjetër nga {{siteName}} përreth. Vizitorët luajnë si mysafirë; pagesën e mbulon çelësi që zgjidhni.",
           "waitingForApproval": "Faqja e organizatës pret miratimin e një administratori. Deri atëherë, loja nuk nis aty."
         },
         "fillIn": "Plotëso seksionet derisa të gjitha të bëhen të gjelbra.",
@@ -871,6 +874,14 @@
             "voiceStyleHint": "Si tingëllon historia kur lexohet me zë."
           },
           "builtInVoice": "Zë i integruar",
+          "choices": {
+            "any": "Çfarëdo",
+            "custom": "E personalizuar",
+            "female": "Femërore",
+            "male": "Mashkullore"
+          },
+          "choicesHint": "Mashkullore, femërore ose çfarëdo: një zë i integruar që i përshtatet historisë.",
+          "customHint": "E personalizuar: një zë më vete, i krijuar nga përshkrimi.",
           "duo": {
             "voiceStyle": "Zërat e personazheve",
             "voiceStyleHint": "Secili personazh ka zërin e vet."
@@ -895,8 +906,15 @@
             "greeting": "Përshëndetje! Hyr, ulu dhe më trego çfarë të solli këtu.",
             "narration": "Historia fillon në një mëngjes të qetë, ndërsa një shteg i ngushtë të çon drejt së panjohurës."
           },
+          "slots": {
+            "a": "Personazhi i parë",
+            "b": "Personazhi i dytë",
+            "character": "Personazh",
+            "narrator": "Rrëfimtar"
+          },
           "status": {
             "builtIn": "Ende pa përshkrim: loja flet me një zë të integruar derisa të përshkruash zërin.",
+            "cast": "Kur fillon loja, ajo zgjedh zërin e integruar të llojit që zgjodhët dhe që i përshtatet më mirë historisë. Përshkrimi përcakton mënyrën si flet.",
             "ownVoice": "Një zë i veçantë për këtë përshkrim, i krijuar me çelësin tënd të IA-së.",
             "steered": "Një zë i integruar lexon historinë sipas përshkrimit."
           },
@@ -965,6 +983,8 @@
       },
       "genres": {
         "adventure": "Aventurë",
+        "discussion": "Diskutim",
+        "npc": "Personazh",
         "npc-duo": "Diskutim",
         "npc-live": "Personazh"
       },
@@ -1159,6 +1179,7 @@
       "apiKeys": "Çelësat API",
       "closeNavigation": "Mbyll menynë e navigimit",
       "contact": "Kontakt",
+      "contactHint": "Kontaktoni ekipin e {{siteName}}",
       "goToDashboard": "Shko te paneli",
       "leaveWorkshopMode": "Largo modalitetin e punëtorisë",
       "leaveWorkshopModeTooltip": "Largohuni nga modaliteti i punëtorisë dhe kthehuni te pamja normale",
@@ -1349,7 +1370,7 @@
         "consented": "Organizata juaj pranoi versionin {{version}} më {{date}}.",
         "title": "Deklarata e pëlqimit",
         "withdraw": "Tërhiq pëlqimin",
-        "withdrawConfirm": "Pa pëlqimin, organizata juaj pezullohet: asnjë anëtar nuk mund të përdorë ChatGameLab derisa një drejtues të japë përsëri pëlqimin. Të dhënat e saj ruhen.",
+        "withdrawConfirm": "Pa pëlqimin, organizata juaj pezullohet: asnjë anëtar nuk mund të përdorë {{siteName}} derisa një drejtues të japë përsëri pëlqimin. Të dhënat e saj ruhen.",
         "withdrawFailed": "Kjo nuk funksionoi. Ju lutemi provoni përsëri.",
         "withdrawTitle": "Të tërhiqet pëlqimi?"
       },
@@ -1449,14 +1470,14 @@
         "approved": "Miratuar",
         "callbackShown": "Callback: {{url}}",
         "callbackUrl": "Adresa e callback-ut",
-        "callbackUrlHint": "Këtu ChatGameLab pyet para çdo nisjeje. Duhet të përgjigjet brenda pak sekondash.",
+        "callbackUrlHint": "Këtu pyet {{siteName}} para çdo nisjeje. Duhet të përgjigjet brenda pak sekondash.",
         "copied": "U kopjua",
         "copy": "Kopjo ID-në e faqes",
         "edit": "Ndrysho faqen",
         "editReapproval": "Kjo adresë ndodhet në një faqe tjetër interneti, e cila pret sërish miratimin e një administratori; deri atëherë, lojërat nuk nisin aty. Një portë ose shteg tjetër në të njëjtën faqe mbetet i miratuar.",
         "editTitle": "Ndrysho faqen",
         "empty": "Nuk ka ende faqe të verifikuara.",
-        "intro": "Një faqe e verifikuar është një faqe në faqen e internetit të organizatës sate që mund të shfaqë lojërat e tua të vendosura aty. Para se një lojë të nisë atje, ChatGameLab pyet callback-un e faqes nëse duhet ta nisë, duke dërguar ID-në e faqes më poshtë dhe ID-të e vizitorit dhe kërkesës që përcjell faqja jote. Vetëm përgjigjja {\"ok\": true} e nis lojën.",
+        "intro": "Një faqe e verifikuar është një faqe në faqen e internetit të organizatës suaj që mund të shfaqë lojërat tuaja të integruara. Para se të nisë një lojë atje, {{siteName}} pyet callback-un e faqes nëse duhet ta nisë, duke dërguar ID-në e faqes më poshtë, si dhe ID-të e vizitorit dhe të kërkesës që faqja juaj përcjell. Vetëm përgjigjja {\"ok\": true} e nis lojën.",
         "pageId": "ID-ja e faqes",
         "pageUrl": "Adresa e faqes",
         "pageUrlHint": "Faqja ku janë vendosur lojërat e tua. Vetëm faqja e saj e internetit mund t'i shfaqë.",
@@ -1615,8 +1636,8 @@
       "workshopInviteDescription": "Jeni ftuar t’i bashkoheni kësaj punëtorie."
     },
     "organisationSuspended": {
-      "byAdmin": "Operatori ka pezulluar aksesin e organizatës suaj në ChatGameLab. Të dhënat tuaja ruhen.",
-      "consentWanted": "Aksesi i organizatës suaj në ChatGameLab është pezulluar derisa një nga drejtuesit e saj të pranojë deklaratën aktuale të pëlqimit. Të dhënat tuaja ruhen.",
+      "byAdmin": "Operatori ka pezulluar qasjen e organizatës suaj në {{siteName}}. Të dhënat tuaja ruhen.",
+      "consentWanted": "Qasja e organizatës suaj në {{siteName}} është pezulluar derisa një nga drejtuesit e saj të japë pëlqimin për deklaratën aktuale të pëlqimit. Të dhënat tuaja ruhen.",
       "contact": "Nëse keni pyetje, kontaktoni",
       "logout": "Dil",
       "title": "Organizata është pezulluar"
@@ -1648,12 +1669,16 @@
         "backToGames": "Kthehu te lojërat",
         "cannotOpen": "Kjo lojë nuk mund të vazhdojë",
         "cannotStart": "Kjo lojë nuk mund të nisë",
+        "chooseMode": "Si dëshironi të luani?",
+        "chooseModeHint": "Flisni drejtpërdrejt me personazhin ose luani me radhë, duke shkruar ose duke folur.",
         "continue": "Vazhdo",
         "inProgress": "Ke një lojë në vazhdim",
         "inProgressHint": "Vazhdo aty ku e le, ose nis nga fillimi.",
+        "live": "Flisni drejtpërdrejt",
         "noPlaysLeft": "Ky link nuk ka më lojëra të disponueshme, ndaj loja nuk mund të nisë nga e para.",
         "offline": "Nuk mund të lidhet me serverin e lojës.",
         "opening": "Po hapet loja…",
+        "rounds": "Me radhë",
         "startAnew": "Nis nga e para",
         "startAnewUsesPlay": "Nisja nga e para përdor një nga lojërat e këtij linku.",
         "starting": "Po nis loja…",
@@ -1688,16 +1713,16 @@
       "about": {
         "details": "Krijuesit e përshkruajnë botën, personazhet dhe rregullat me fjalët e tyre. Gjatë lojës, një AI e vazhdon drejtpërdrejt tregimin: ajo reagon ndaj çdo gjëje që shkruan dhe krijon imazhe që përputhen me të — prandaj asnjëra nga dy rundet nuk zhvillohet njësoj. Kur ndërton një të tillë vetë, e kupton shpejt se sa shumë udhëzimet e tua ndikojnë në rezultat dhe ku AI-ja arrin kufijtë e saj. Pikërisht për këtë bëhet fjalë: jo të të shpjegohet AI-ja, por ta provosh vetë.",
         "less": "Më pak",
-        "link": "Më shumë për ChatGameLab",
+        "link": "Më shumë për {{siteName}}",
         "more": "Mëso më shumë",
-        "oneLiner": "Këto aventura me tekst u krijuan me ChatGameLab: të ndërtuara vetë, pa programim, dhe të treguara drejtpërdrejt nga një AI."
+        "oneLiner": "Këto aventura me tekst u krijuan me {{siteName}}: të ndërtuara me dorë, pa programim, dhe të rrëfyera drejtpërdrejt nga një AI."
       },
       "copy": "Kopjo",
       "copyLogin": "Hyr për ta kopjuar",
       "cta": {
         "button": "Fillo falas",
         "text": "Krijimi i aventurës tënde me tekst është falas dhe zgjat vetëm disa minuta.",
-        "title": "Krijo lojën tënde në ChatGameLab"
+        "title": "Krijoni lojën tuaj me {{siteName}}"
       },
       "download": "Shkarko",
       "gamesTitle": "Lojërat e kësaj punëtorie",
@@ -1724,6 +1749,42 @@
     "search": "Kërko",
     "searchPlaceholder": "Kërko anëtarët...",
     "serverSettings": {
+      "branding": {
+        "changed": "Ndryshuar",
+        "description": "Si paraqitet kjo faqe: emri i saj në skedën e shfletuesit dhe në tekste, kush e administron dhe cilat lidhje shfaq. Lëreni një lidhje bosh për ta fshehur.",
+        "errors": {
+          "nameRequired": "Faqja ka nevojë për një emër.",
+          "notEmail": "Kjo nuk është një adresë emaili.",
+          "notUrl": "Kjo nuk është një adresë uebi. Ajo fillon me https:// ose http://."
+        },
+        "fields": {
+          "aiInsightsUrl": "Rreth analizave të AI-së",
+          "apiKeyFaqUrl": "Pyetje rreth çelësave të AI-së",
+          "contactUrl": "Kontakt",
+          "creditName": "Programuar nga",
+          "creditUrl": "Faqja e tyre e internetit",
+          "educatorInfoUrl": "Informacion për edukatorët",
+          "gameTipsUrl": "Këshilla për krijimin e lojërave",
+          "helpUrl": "Ndihmë",
+          "operatorName": "Operatori",
+          "operatorUrl": "Faqja e internetit e operatorit",
+          "privacyUrl": "Politika e privatësisë",
+          "reportGameUrl": "Raporto një lojë",
+          "siteName": "Emri i faqes",
+          "supportEmail": "Emaili i mbështetjes",
+          "termsUrl": "Kushtet e përdorimit",
+          "websiteUrl": "Faqja e internetit"
+        },
+        "groups": {
+          "credit": "Krediti në fund të faqes",
+          "identity": "Emri dhe operatori",
+          "links": "Lidhjet"
+        },
+        "hidden": "I fshehur",
+        "reset": "Kthehu te parazgjedhja",
+        "resetTo": "Kthehu te parazgjedhja: {{value}}",
+        "title": "Markimi"
+      },
       "constraints": {
         "description": "Përcaktoni rregulla të detyrueshme për IA-në bazuar në grupmoshën e lojtarit. Këto rregulla për mbrojtjen e të rinjve shoqërojnë çdo thirrje të IA-së. Ato zbatohen për të gjithë përdoruesit e identifikuar jashtë modalitetit të punëtorisë.",
         "title": "Rregullat për mbrojtjen e të rinjve sipas grupmoshës",
@@ -1758,6 +1819,12 @@
         "title": "Niveli i cilësisë së AI për përdorim falas"
       },
       "notAuthorized": "Nuk keni leje të hyni në cilësimet e serverit. Kërkohet akses administratori.",
+      "tabs": {
+        "ai": "AI dhe çelësat",
+        "branding": "Markimi",
+        "general": "Të përgjithshme",
+        "youthProtection": "Mbrojtja e të rinjve"
+      },
       "title": "Cilësimet e serverit",
       "updates": {
         "checkNow": "Kontrollo për përditësime",
@@ -1891,7 +1958,7 @@
       "title": "Laboratori juaj deri tani"
     },
     "links": {
-      "about": "Rreth ChatGameLab",
+      "about": "Rreth {{siteName}}",
       "educators": "Për edukatorët",
       "jff": "JFF – Instituti për edukimin mediatik"
     },
@@ -2000,11 +2067,11 @@
       "greeting": "Përshëndetje {{name}},",
       "operator": "Drejtuesi",
       "organisation": "Organizata",
-      "registered": "organizata “{{organisation}}” tani është aktive në ChatGameLab. Ju jeni drejtuesi i saj dhe mund të krijoni workshope.",
-      "renewed": "faleminderit! ChatGameLab tani ka pëlqimin e organizatës “{{organisation}}” për deklaratën aktuale të pëlqimit.",
-      "signature": "Ekipi juaj i ChatGameLab\nJFF – Jugend Film Fernsehen e.V.",
-      "subjectRegistered": "ChatGameLab: organizata “{{organisation}}” është aktive – deklarata e pëlqimit",
-      "subjectRenewed": "ChatGameLab: deklarata e pëlqimit për “{{organisation}}” u konfirmua (versioni {{version}})",
+      "registered": "organizata “{{organisation}}” tani është aktive në {{siteName}}. Ju jeni drejtuesi i saj dhe tani mund të krijoni punëtori.",
+      "renewed": "faleminderit! {{siteName}} tani ka pëlqimin e organizatës “{{organisation}}” për deklaratën aktuale të pëlqimit.",
+      "signature": "Ekipi juaj i {{siteName}}\n{{operatorName}}",
+      "subjectRegistered": "{{siteName}}: organizata “{{organisation}}” është aktive – deklarata e pëlqimit",
+      "subjectRenewed": "{{siteName}}: deklarata e pëlqimit për “{{organisation}}” u konfirmua (versioni {{version}})",
       "version": "Versioni",
       "versionValue": "{{version}} (më {{date}})"
     }
@@ -2078,12 +2145,14 @@
       "adapted-style": "Stili",
       "cast": "Cakto zërat",
       "cast-brief": "Personazhet",
+      "character": "Personazh",
       "condense-scenario": "Shkurto skenarin",
       "condensed-scenario": "Skenari",
       "director": "Regjisori",
       "expand": "Trego",
       "gallery-image": "Imazhi i galerisë",
       "greeting": "Gjenero tekst",
+      "hearing": "Kuptimi i të folurit",
       "image": "Vizato figurë",
       "image-prompt": "Përshkruaj figurën",
       "image-style": "Përshtat stilin",
@@ -2213,7 +2282,10 @@
       "tabUsage": "Përdorimi"
     },
     "launch": {
+      "chooseMode": "Si dëshironi të luani?",
+      "live": "Flisni drejtpërdrejt",
       "noGame": "Kjo faqe ka nevojë për një lojë për t'u luajtur: hape nga faqja e një loje.",
+      "rounds": "Me radhë, duke shkruar ose duke folur",
       "starting": "Po nis loja…"
     },
     "over": {
@@ -2240,6 +2312,7 @@
       "injectionSent": "U dërgua në bisedë"
     },
     "problems": {
+      "chooseMode": "Kjo lojë mund të luhet drejtpërdrejt ose me radhë: zgjidhni njërën.",
       "denied": "Nuk ke leje ta luash këtë lojë.",
       "failed": "Diçka shkoi keq dhe loja nuk mund të vazhdojë.",
       "genre": "Çelësi i disponueshëm i IA-së nuk mund të ekzekutojë këtë lloj loje.",
@@ -2255,12 +2328,15 @@
       "unreachable": "Ofruesi i IA-së nuk po përgjigjet për momentin, ndaj loja nuk mund të vazhdojë. Provo sërish pas disa minutash."
     },
     "promptNames": {
+      "character": "Personazhi (Mesazhi i sistemit)",
       "condense-scenario": "Shkurto skenarin",
       "conversation-policy": "Si flet personazhi",
       "director": "Regjisori",
       "expand": "Trego një raund",
       "game-master": "Drejtuesi i lojës (Mesazh sistemi)",
       "greeting": "Fjalët e para",
+      "hear-player": "Kuptimi i të folurit",
+      "hold-the-line": "Qëndro i palëkundur",
       "image-style": "Përshtat stilin",
       "opening": "Hapja",
       "opening-expand": "Trego hapjen",

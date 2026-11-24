@@ -5,14 +5,14 @@
       "description": "Aceasta ne ajută să aplicăm setările corecte de protecție și ghidurile de conținut pentru contul tău.",
       "label": "Grup de vârstă și protecție",
       "u13": "13–17 ani, fără consimțământul părinților",
-      "u13Description": "Poți folosi ChatGameLab. Pentru contul tău se vor aplica setări de protecție mai stricte.",
+      "u13Description": "Poți folosi {{siteName}}. Pentru contul tău se vor aplica setări de protecție mai stricte.",
       "u13p": "13–17 ani, cu consimțământul părinților",
-      "u13pDescription": "Poți folosi ChatGameLab dacă părinții tăi sunt de acord.",
+      "u13pDescription": "Poți folosi {{siteName}} dacă părinții tăi sunt de acord.",
       "u18": "18 ani sau mai mult",
-      "u18Description": "Poți folosi ChatGameLab.",
+      "u18Description": "Poți folosi {{siteName}}.",
       "under13": "Sub 13 ani",
-      "under13Blocker": "Încă nu îți poți crea propriul cont. Dacă ai sub 13 ani, poți folosi ChatGameLab doar printr-o organizație de tineret.",
-      "under13Description": "Încă nu îți poți crea propriul cont. Dacă ai sub 13 ani, poți folosi ChatGameLab doar printr-o organizație de tineret."
+      "under13Blocker": "Încă nu îți poți crea propriul cont. Dacă ai sub 13 ani, poți folosi {{siteName}} doar prin intermediul unei organizații pentru tineret.",
+      "under13Description": "Încă nu îți poți crea propriul cont. Dacă ai sub 13 ani, poți folosi {{siteName}} doar prin intermediul unei organizații pentru tineret."
     },
     "guest": {
       "leaveConfirm": {
@@ -51,7 +51,7 @@
       }
     },
     "organizationRegistration": {
-      "accountNameDescription": "Așa apari în ChatGameLab (maximum 24 de caractere).",
+      "accountNameDescription": "Așa vei apărea în {{siteName}} (cel mult 24 de caractere).",
       "accountNameLabel": "Nume afișat",
       "cityLabel": "Localitate",
       "confirmAdult": "Am cel puțin 18 ani.",
@@ -60,9 +60,9 @@
         "emailDescription": "Trimitem confirmarea, împreună cu textul declarației, la această adresă.",
         "introExisting": "Organizația ta „{{name}}” are acum o declarație confirmată online. Aceasta înlocuiește acordul de utilizare semnat anterior. Citește-o și aprob-o în numele instituției tale.",
         "introNewVersion": "Declarația a fost actualizată (versiunea {{version}}). Citește noua versiune și aprob-o în numele organizației tale „{{name}}”.",
-        "introWithdrawn": "Aprobarea de către organizația ta „{{name}}” a declarației a fost retrasă, astfel că aceasta este suspendată. Citește declarația și aprob-o în numele instituției tale pentru a utiliza din nou ChatGameLab.",
+        "introWithdrawn": "Consimțământul organizației tale „{{name}}” pentru declarație a fost retras, de aceea accesul este suspendat. Citește declarația și aprob-o în numele instituției tale pentru a folosi din nou {{siteName}}.",
         "logout": "Deconectare",
-        "oneHeadIsEnough": "Este suficient ca o singură persoană din conducerea organizației să aprobe. Până atunci, organizația ta este suspendată: membrii săi nu pot utiliza ChatGameLab.",
+        "oneHeadIsEnough": "Este suficient ca o singură persoană din conducerea organizației să fie de acord. Până atunci, organizația ta este suspendată: membrii săi nu pot folosi {{siteName}}.",
         "submit": "Aprob",
         "title": "Confirmă declarația"
       },
@@ -207,10 +207,10 @@
       "agreeSuffix2": "",
       "alreadyHaveAccount": "Ai deja un cont?",
       "backButton": "Înapoi",
-      "chooseType": "Cum vrei să folosești ChatGameLab?",
+      "chooseType": "Cum ai dori să folosești {{siteName}}?",
       "continueButton": "Continuă la înregistrare",
       "description": "Folosim Auth0 ca furnizor de autentificare pentru a gestiona conturile utilizatorilor. Vei fi redirecționat către Auth0 pentru a-ți crea contul, apoi vei fi adus înapoi aici pentru a-ți completa profilul.",
-      "educatorDescription": "Folosește ChatGameLab în ateliere, săli de clasă sau organizația ta",
+      "educatorDescription": "Folosește {{siteName}} în ateliere, la ore sau în organizația ta",
       "educatorModal": {
         "closeButton": "Închide",
         "copied": "Copiat!",
@@ -234,7 +234,7 @@
       "individualTitle": "Cont personal",
       "loginLink": "Autentifică-te",
       "organizationExistingAccount": "Organizațiile se înregistrează cu o autentificare nouă. Ai deja un cont?",
-      "organizationIntro": "Pentru centre de tineret, școli și alte instituții care doresc să utilizeze ChatGameLab în ateliere.",
+      "organizationIntro": "Pentru centre de tineret, școli și alte instituții care doresc să folosească {{siteName}} în ateliere.",
       "organizationStep1": "Îți creezi autentificarea prin Auth0 (e-mail și parolă).",
       "organizationStep2": "Introduceți datele despre dumneavoastră și instituția dumneavoastră, stabiliți regula de protecție a minorilor și acceptați declarația.",
       "organizationStep3": "După trimiterea formularului, organizația este activată imediat și poți crea ateliere.",
@@ -776,6 +776,9 @@
         "embed": {
           "copy": "Copiază fragmentul",
           "incomplete": "Alege ce plătește pentru a primi fragmentul de cod.",
+          "mode": "Cum se joacă jocul",
+          "modeChoose": "Alege jucătorul",
+          "modeHint": "Acest joc poate fi jucat live sau pe rând. Selectează una dintre opțiuni în prealabil pentru a omite întrebarea; dacă cheia permite doar una dintre ele, aceea va fi folosită.",
           "noKeys": "Nu ai nicio cheie AI funcțională cu care să plătești. Adaugă una sau cere una organizației tale.",
           "noOrganisation": "Încorporarea este destinată jocurilor unei organizații: jocuri scrise în atelierele sale sau de conducerea și angajații săi. Acest joc nu aparține niciunei organizații.",
           "noPages": "Înregistrează mai întâi site-ul organizației tale: pagina pe care vor rula jocurile. Un administrator îl aprobă, apoi jocul poate porni acolo.",
@@ -794,7 +797,7 @@
           "snippetVerifiedHint": "Serverul tău completează ID-ul vizitatorului și al acestei vizualizări de pagină; callback-ul paginii tale le primește pe ambele.",
           "styleLink": "Personalizează-l cu propriul CSS →",
           "toggle": "Încorporează pe un site",
-          "toggleHint": "Afișează acest joc pe pagina verificată a organizației tale, fără nimic de la ChatGameLab în jurul lui. Vizitatorii joacă în calitate de invitați; cheia aleasă de tine plătește.",
+          "toggleHint": "Afișează acest joc pe pagina verificată a organizației tale, fără nimic din {{siteName}} în jurul său. Vizitatorii joacă în calitate de oaspeți; plătește cheia pe care o alegi.",
           "waitingForApproval": "Pagina organizației așteaptă aprobarea unui administrator. Până atunci, jocul nu pornește acolo."
         },
         "fillIn": "Completează secțiunile până când toate devin verzi.",
@@ -871,6 +874,14 @@
             "voiceStyleHint": "Cum sună povestea când este citită cu voce tare."
           },
           "builtInVoice": "Voce încorporată",
+          "choices": {
+            "any": "Oricare",
+            "custom": "Personalizată",
+            "female": "Femeie",
+            "male": "Bărbat"
+          },
+          "choicesHint": "Bărbat, femeie sau oricare: o voce încorporată care se potrivește poveștii.",
+          "customHint": "Personalizată: o voce proprie, creată pe baza descrierii.",
           "duo": {
             "voiceStyle": "Vocile personajelor",
             "voiceStyleHint": "Fiecare personaj primește propria voce."
@@ -895,8 +906,15 @@
             "greeting": "Bună! Intră, ia loc și spune-mi ce te aduce aici.",
             "narration": "Povestea începe într-o dimineață liniștită, când o cărare îngustă duce spre necunoscut."
           },
+          "slots": {
+            "a": "Primul personaj",
+            "b": "Al doilea personaj",
+            "character": "Personaj",
+            "narrator": "Narator"
+          },
           "status": {
             "builtIn": "Încă nu există nicio descriere: jocul vorbește cu o voce încorporată până când descrii vocea.",
+            "cast": "La începutul jocului, acesta alege vocea încorporată de tipul selectat care se potrivește cel mai bine poveștii. Descrierea determină modul în care vorbește.",
             "ownVoice": "O voce proprie pentru această descriere, creată cu cheia ta AI.",
             "steered": "O voce încorporată citește povestea conform descrierii."
           },
@@ -965,6 +983,8 @@
       },
       "genres": {
         "adventure": "Aventură",
+        "discussion": "Discuție",
+        "npc": "Personaj",
         "npc-duo": "Discuție",
         "npc-live": "Personaj"
       },
@@ -1162,6 +1182,7 @@
       "apiKeys": "Chei API",
       "closeNavigation": "Închide meniul de navigare",
       "contact": "Contact",
+      "contactHint": "Contactează echipa {{siteName}}",
       "goToDashboard": "Mergi la panou",
       "leaveWorkshopMode": "Ieși din modul atelier",
       "leaveWorkshopModeTooltip": "Părăsește modul atelier și revino la vizualizarea normală",
@@ -1352,7 +1373,7 @@
         "consented": "Organizația ta a aprobat versiunea {{version}} la data de {{date}}.",
         "title": "Declarație de consimțământ",
         "withdraw": "Retrage consimțământul",
-        "withdrawConfirm": "Fără consimțământ, organizația ta este suspendată: niciun membru nu poate utiliza ChatGameLab până când o persoană din conducere nu aprobă din nou. Datele sunt păstrate.",
+        "withdrawConfirm": "Fără consimțământ, organizația ta este suspendată: niciun membru nu poate folosi {{siteName}} până când o persoană din conducere nu își dă din nou acordul. Datele organizației sunt păstrate.",
         "withdrawFailed": "Acțiunea nu a reușit. Încearcă din nou.",
         "withdrawTitle": "Retragi consimțământul?"
       },
@@ -1452,14 +1473,14 @@
         "approved": "Aprobată",
         "callbackShown": "Callback: {{url}}",
         "callbackUrl": "Adresa callback-ului",
-        "callbackUrlHint": "Aici întreabă ChatGameLab înainte de fiecare pornire. Trebuie să răspundă în câteva secunde.",
+        "callbackUrlHint": "Aici întreabă {{siteName}} înainte de fiecare pornire. Pagina trebuie să răspundă în câteva secunde.",
         "copied": "Copiat",
         "copy": "Copiază ID-ul paginii",
         "edit": "Schimbă pagina",
         "editReapproval": "Această adresă se află pe un alt site, care așteaptă din nou aprobarea unui administrator; până atunci, jocurile nu pornesc acolo. Un alt port sau o altă cale pe același site rămâne aprobată.",
         "editTitle": "Schimbă pagina",
         "empty": "Nu există încă pagini verificate.",
-        "intro": "O pagină verificată este o pagină de pe site-ul organizației tale care poate afișa jocurile încorporate. Înainte ca un joc să înceapă acolo, ChatGameLab întreabă callback-ul paginii dacă poate porni, folosind ID-ul paginii de mai jos și ID-urile vizitatorului și cererii transmise de pagina ta. Doar răspunsul {\"ok\": true} pornește jocul.",
+        "intro": "O pagină verificată este o pagină de pe site-ul organizației tale care poate afișa jocurile încorporate. Înainte de a porni un joc acolo, {{siteName}} întreabă callback-ul paginii dacă jocul poate fi pornit, trimițând ID-ul paginii de mai jos și ID-urile vizitatorului și ale solicitării, pe care pagina ta le transmite mai departe. Doar răspunsul {\"ok\": true} pornește jocul.",
         "pageId": "ID-ul paginii",
         "pageUrl": "Adresa paginii",
         "pageUrlHint": "Pagina în care sunt încorporate jocurile tale. Doar site-ul acesteia le poate afișa.",
@@ -1613,8 +1634,8 @@
       "workshopInviteDescription": "Ai fost invitat să te alături acestui atelier."
     },
     "organisationSuspended": {
-      "byAdmin": "Operatorul a suspendat accesul organizației tale la ChatGameLab. Datele tale sunt păstrate.",
-      "consentWanted": "Accesul organizației tale la ChatGameLab este suspendat până când una dintre persoanele din conducere aprobă declarația de consimțământ actuală. Datele tale sunt păstrate.",
+      "byAdmin": "Operatorul a suspendat accesul organizației tale la {{siteName}}. Datele tale sunt păstrate.",
+      "consentWanted": "Accesul organizației tale la {{siteName}} este suspendat până când una dintre persoanele din conducere aprobă declarația actuală de consimțământ. Datele tale sunt păstrate.",
       "contact": "Dacă ai întrebări, contactează",
       "logout": "Deconectare",
       "title": "Organizație suspendată"
@@ -1646,12 +1667,16 @@
         "backToGames": "Înapoi la jocuri",
         "cannotOpen": "Acest joc nu poate continua",
         "cannotStart": "Acest joc nu poate începe",
+        "chooseMode": "Cum vrei să joci?",
+        "chooseModeHint": "Vorbește live cu personajul sau jucați pe rând, tastând sau vorbind.",
         "continue": "Continuă",
         "inProgress": "Ai un joc în desfășurare",
         "inProgressHint": "Continuă de unde ai rămas sau începe din nou de la început.",
+        "live": "Vorbește live",
         "noPlaysLeft": "Acest link nu mai are jocuri disponibile, așa că jocul nu poate începe din nou.",
         "offline": "Serverul jocului nu poate fi accesat.",
         "opening": "Se deschide jocul…",
+        "rounds": "Pe rând",
         "startAnew": "Începe din nou",
         "startAnewUsesPlay": "Începerea din nou consumă unul dintre jocurile disponibile prin acest link.",
         "starting": "Se începe jocul…",
@@ -1686,16 +1711,16 @@
       "about": {
         "details": "Creatorii descriu lumea, personajele și regulile în propriile cuvinte. În timp ce joci, o inteligență artificială continuă să spună povestea în timp real: reacționează la tot ce scrii și inventează imagini potrivite — astfel, nicio rundă nu se desfășoară la fel. Dacă îți construiești propriul joc, vei vedea rapid cât de mult influențează propriile instrucțiuni rezultatul și unde își atinge limitele inteligența artificială. Acesta este scopul: nu să ți se explice inteligența artificială, ci să o încerci.",
         "less": "Mai puțin",
-        "link": "Mai multe despre ChatGameLab",
+        "link": "Mai multe despre {{siteName}}",
         "more": "Află mai multe",
-        "oneLiner": "Aceste aventuri text au fost create cu ChatGameLab: construite manual, fără programare, povestite în timp real de o inteligență artificială."
+        "oneLiner": "Aceste aventuri text au fost create cu {{siteName}}: construite manual, fără programare, povestite live de un AI."
       },
       "copy": "Copiază",
       "copyLogin": "Autentifică-te pentru a copia",
       "cta": {
         "button": "Începe gratuit",
         "text": "Să îți construiești propria aventură text este gratuit și durează doar câteva minute.",
-        "title": "Creează-ți propriul joc ChatGameLab"
+        "title": "Creează-ți propriul joc cu {{siteName}}"
       },
       "download": "Descarcă",
       "gamesTitle": "Jocurile acestui atelier",
@@ -1722,6 +1747,42 @@
     "search": "Caută",
     "searchPlaceholder": "Caută membri...",
     "serverSettings": {
+      "branding": {
+        "changed": "Modificat",
+        "description": "Cum se prezintă acest site: numele său în fila browserului și în texte, cine îl administrează și ce linkuri afișează. Lasă un link gol pentru a-l ascunde.",
+        "errors": {
+          "nameRequired": "Site-ul are nevoie de un nume.",
+          "notEmail": "Aceasta nu este o adresă de e-mail.",
+          "notUrl": "Aceasta nu este o adresă web. Începe cu https:// sau http://."
+        },
+        "fields": {
+          "aiInsightsUrl": "Despre informațiile oferite de AI",
+          "apiKeyFaqUrl": "Întrebări despre cheile AI",
+          "contactUrl": "Contact",
+          "creditName": "Programat de",
+          "creditUrl": "Site-ul lor",
+          "educatorInfoUrl": "Informații pentru educatori",
+          "gameTipsUrl": "Sfaturi pentru crearea jocurilor",
+          "helpUrl": "Ajutor",
+          "operatorName": "Operator",
+          "operatorUrl": "Site-ul operatorului",
+          "privacyUrl": "Politica de confidențialitate",
+          "reportGameUrl": "Raportează un joc",
+          "siteName": "Numele site-ului",
+          "supportEmail": "E-mail pentru asistență",
+          "termsUrl": "Condiții de utilizare",
+          "websiteUrl": "Site web"
+        },
+        "groups": {
+          "credit": "Mențiune în subsol",
+          "identity": "Nume și operator",
+          "links": "Linkuri"
+        },
+        "hidden": "Ascuns",
+        "reset": "Revino la setarea implicită",
+        "resetTo": "Revino la setarea implicită: {{value}}",
+        "title": "Aspect"
+      },
       "constraints": {
         "description": "Definește reguli AI obligatorii pe baza grupei de vârstă a jucătorului. Aceste reguli de protecție a minorilor sunt incluse în fiecare apel AI. Se aplică tuturor utilizatorilor autentificați din afara modului atelier.",
         "title": "Reguli de protecție a minorilor în funcție de vârstă",
@@ -1756,6 +1817,12 @@
         "title": "Nivel IA pentru utilizare liberă"
       },
       "notAuthorized": "Nu ai permisiunea de a accesa setările serverului. Este necesar acces de administrator.",
+      "tabs": {
+        "ai": "AI și chei",
+        "branding": "Aspect",
+        "general": "General",
+        "youthProtection": "Protecția tinerilor"
+      },
       "title": "Setările serverului",
       "updates": {
         "checkNow": "Caută actualizări",
@@ -1889,7 +1956,7 @@
       "title": "Laboratorul tău până acum"
     },
     "links": {
-      "about": "Despre ChatGameLab",
+      "about": "Despre {{siteName}}",
       "educators": "Pentru cadre didactice",
       "jff": "JFF – Institutul pentru pedagogia media"
     },
@@ -1997,11 +2064,11 @@
       "greeting": "Bună, {{name}},",
       "operator": "Administrator",
       "organisation": "Organizație",
-      "registered": "organizația „{{organisation}}” este acum activă în ChatGameLab. Ești persoana care o conduce și poți crea acum ateliere.",
-      "renewed": "mulțumim! ChatGameLab are acum consimțământul organizației „{{organisation}}” pentru declarația de consimțământ actuală.",
-      "signature": "Echipa ChatGameLab\nJFF – Jugend Film Fernsehen e.V.",
-      "subjectRegistered": "ChatGameLab: organizația „{{organisation}}” este activă – declarație de consimțământ",
-      "subjectRenewed": "ChatGameLab: declarația de consimțământ pentru „{{organisation}}” a fost confirmată (versiunea {{version}})",
+      "registered": "organizația „{{organisation}}” este acum activă pe {{siteName}}. Ești una dintre persoanele din conducerea sa și poți crea ateliere acum.",
+      "renewed": "mulțumim! {{siteName}} are acum consimțământul organizației „{{organisation}}” pentru declarația actuală de consimțământ.",
+      "signature": "Echipa ta {{siteName}}\n{{operatorName}}",
+      "subjectRegistered": "{{siteName}}: organizația „{{organisation}}” este activă – declarație de consimțământ",
+      "subjectRenewed": "{{siteName}}: declarația de consimțământ pentru „{{organisation}}” a fost confirmată (versiunea {{version}})",
       "version": "Versiune",
       "versionValue": "{{version}} (din {{date}})"
     }
@@ -2075,12 +2142,14 @@
       "adapted-style": "Stil",
       "cast": "Distribuie vocile",
       "cast-brief": "Personaje",
+      "character": "Personaj",
       "condense-scenario": "Scurtează scenariul",
       "condensed-scenario": "Scenariu",
       "director": "Regie",
       "expand": "Povestește",
       "gallery-image": "Imagine din galerie",
       "greeting": "Generează text",
+      "hearing": "Înțelegerea vorbirii",
       "image": "Desenează imaginea",
       "image-prompt": "Descrie imaginea",
       "image-style": "Adaptează stilul",
@@ -2210,7 +2279,10 @@
       "tabUsage": "Utilizare"
     },
     "launch": {
+      "chooseMode": "Cum vrei să joci?",
+      "live": "Vorbește live",
       "noGame": "Această pagină are nevoie de un joc: deschide-o din pagina unui joc.",
+      "rounds": "Pe rând, prin tastare sau vorbind",
       "starting": "Jocul pornește…"
     },
     "over": {
@@ -2237,6 +2309,7 @@
       "injectionSent": "Trimis în conversație"
     },
     "problems": {
+      "chooseMode": "Acest joc poate fi jucat live sau pe rând: alege una dintre opțiuni.",
       "denied": "Nu ai voie să joci acest joc.",
       "failed": "Ceva nu a mers bine, iar jocul nu poate continua.",
       "genre": "Cheia AI disponibilă nu poate rula acest tip de joc.",
@@ -2252,12 +2325,15 @@
       "unreachable": "Furnizorul AI nu răspunde momentan, așa că jocul nu poate continua. Încearcă din nou peste câteva minute."
     },
     "promptNames": {
+      "character": "Personajul (mesaj de sistem)",
       "condense-scenario": "Scurtează scenariul",
       "conversation-policy": "Cum vorbește personajul",
       "director": "Regie",
       "expand": "Povestește o rundă",
       "game-master": "Maestru de joc (mesaj de sistem)",
       "greeting": "Primele cuvinte",
+      "hear-player": "Înțelegerea vorbirii",
+      "hold-the-line": "Rămâi pe poziții",
       "image-style": "Adaptează stilul",
       "opening": "Deschidere",
       "opening-expand": "Povestește deschiderea",

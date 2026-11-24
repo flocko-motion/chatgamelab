@@ -5,14 +5,14 @@
       "description": "Dit helpt ons de juiste beschermings- en inhoudsrichtlijnen op je account toe te passen.",
       "label": "Leeftijds- en beschermingsgroep",
       "u13": "13–17 jaar, zonder ouderlijke toestemming",
-      "u13Description": "Je kunt ChatGameLab gebruiken. Op je account zijn strengere beschermingsinstellingen van toepassing.",
+      "u13Description": "Je kunt {{siteName}} gebruiken. Voor je account gelden strengere beschermingsinstellingen.",
       "u13p": "13–17 jaar, met ouderlijke toestemming",
-      "u13pDescription": "Je kunt ChatGameLab gebruiken als je ouders akkoord gaan.",
+      "u13pDescription": "Je kunt {{siteName}} gebruiken als je ouders daarmee instemmen.",
       "u18": "18 jaar of ouder",
-      "u18Description": "Je kunt ChatGameLab gebruiken.",
+      "u18Description": "Je kunt {{siteName}} gebruiken.",
       "under13": "Jonger dan 13 jaar",
-      "under13Blocker": "Je kunt nog geen eigen account maken. Als je jonger dan 13 bent, kun je ChatGameLab alleen gebruiken via een jeugdorganisatie.",
-      "under13Description": "Je kunt nog geen eigen account maken. Als je jonger dan 13 bent, kun je ChatGameLab alleen gebruiken via een jeugdorganisatie."
+      "under13Blocker": "Je kunt nog geen eigen account aanmaken. Als je jonger bent dan 13 jaar, kun je {{siteName}} alleen gebruiken via een jeugdorganisatie.",
+      "under13Description": "Je kunt nog geen eigen account aanmaken. Als je jonger bent dan 13 jaar, kun je {{siteName}} alleen gebruiken via een jeugdorganisatie."
     },
     "guest": {
       "leaveConfirm": {
@@ -51,7 +51,7 @@
       }
     },
     "organizationRegistration": {
-      "accountNameDescription": "Zo verschijn je in ChatGameLab (maximaal 24 tekens).",
+      "accountNameDescription": "Zo verschijn je in {{siteName}} (maximaal 24 tekens).",
       "accountNameLabel": "Weergavenaam",
       "cityLabel": "Plaats",
       "confirmAdult": "Ik ben minstens 18 jaar oud.",
@@ -60,9 +60,9 @@
         "emailDescription": "We sturen de bevestiging met de tekst van de verklaring naar dit adres.",
         "introExisting": "Je organisatie ‘{{name}}’ heeft nu een verklaring die online wordt bevestigd. Deze vervangt de gebruikersovereenkomst die je eerder hebt ondertekend. Lees de verklaring en ga er namens je instelling mee akkoord.",
         "introNewVersion": "De verklaring is bijgewerkt (versie {{version}}). Lees de nieuwe versie en ga er namens je organisatie ‘{{name}}’ mee akkoord.",
-        "introWithdrawn": "De instemming van je organisatie ‘{{name}}’ met de verklaring is ingetrokken, waardoor de organisatie is opgeschort. Lees de verklaring en ga er namens je instelling mee akkoord om ChatGameLab weer te gebruiken.",
+        "introWithdrawn": "De toestemming van jullie organisatie “{{name}}” voor de verklaring is ingetrokken. Daarom is de organisatie opgeschort. Lees de verklaring en stem namens jullie instelling in om {{siteName}} weer te gebruiken.",
         "logout": "Uitloggen",
-        "oneHeadIsEnough": "Het is voldoende als één leidinggevende van de organisatie akkoord gaat. Tot die tijd is je organisatie opgeschort: de leden kunnen ChatGameLab niet gebruiken.",
+        "oneHeadIsEnough": "Het is voldoende als één leidinggevende van de organisatie instemt. Tot die tijd is jullie organisatie opgeschort: leden kunnen {{siteName}} niet gebruiken.",
         "submit": "Akkoord",
         "title": "De verklaring bevestigen"
       },
@@ -207,10 +207,10 @@
       "agreeSuffix2": "",
       "alreadyHaveAccount": "Heb je al een account?",
       "backButton": "Terug",
-      "chooseType": "Hoe wil je ChatGameLab gebruiken?",
+      "chooseType": "Hoe wil je {{siteName}} gebruiken?",
       "continueButton": "Doorgaan naar registratie",
       "description": "We gebruiken Auth0 als onze authenticatieprovider om gebruikersaccounts te beheren. Je wordt doorgestuurd naar Auth0 om je account aan te maken en vervolgens hierheen teruggestuurd om je profiel te voltooien.",
-      "educatorDescription": "Gebruik ChatGameLab in workshops, klaslokalen of binnen je organisatie",
+      "educatorDescription": "Gebruik {{siteName}} in workshops, in de klas of binnen je organisatie",
       "educatorModal": {
         "closeButton": "Sluiten",
         "copied": "Gekopieerd!",
@@ -234,7 +234,7 @@
       "individualTitle": "Persoonlijk account",
       "loginLink": "Inloggen",
       "organizationExistingAccount": "Organisaties registreren zich met een nieuwe aanmelding. Heb je al een account?",
-      "organizationIntro": "Voor jongerencentra, scholen en andere instellingen die ChatGameLab in workshops willen gebruiken.",
+      "organizationIntro": "Voor jeugdcentra, scholen en andere instellingen die {{siteName}} in workshops willen gebruiken.",
       "organizationStep1": "Je maakt je aanmelding aan via Auth0 (e-mail en wachtwoord).",
       "organizationStep2": "Je vult gegevens over jezelf en je instelling in, stelt de jeugd­beschermingsregel vast en gaat akkoord met de verklaring.",
       "organizationStep3": "Na het verzenden van het formulier wordt de organisatie direct geactiveerd en kun je workshops aanmaken.",
@@ -776,6 +776,9 @@
         "embed": {
           "copy": "Snippet kopiëren",
           "incomplete": "Kies wat betaalt om de snippet te krijgen.",
+          "mode": "Hoe het spel wordt gespeeld",
+          "modeChoose": "Speler kiest",
+          "modeHint": "Dit spel kan live of om de beurt worden gespeeld. Kies vooraf een optie om de vraag over te slaan; als de sleutel maar één optie ondersteunt, wordt die gebruikt.",
           "noKeys": "Je hebt geen werkende AI-sleutel om mee te betalen. Voeg er een toe of vraag je organisatie erom.",
           "noOrganisation": "Insluiten is bedoeld voor spellen van een organisatie: spellen die in haar workshops zijn geschreven of door haar leiding en medewerkers zijn gemaakt. Dit spel hoort bij geen enkele organisatie.",
           "noPages": "Registreer eerst de website van je organisatie: de pagina waarop jullie spellen zullen draaien. Een beheerder keurt deze goed, daarna kan het spel daar starten.",
@@ -794,7 +797,7 @@
           "snippetVerifiedHint": "Je server vult de ID van de bezoeker en van deze paginaweergave in; de callback van je pagina ontvangt beide.",
           "styleLink": "Stijl het met je eigen CSS →",
           "toggle": "Inbedden op een website",
-          "toggleHint": "Toont dit spel op de geverifieerde pagina van je organisatie, zonder iets van ChatGameLab eromheen. Bezoekers spelen als gasten; de gekozen sleutel betaalt.",
+          "toggleHint": "Toont dit spel op de geverifieerde pagina van je organisatie, zonder iets van {{siteName}} eromheen. Bezoekers spelen als gasten; de gekozen sleutel betaalt.",
           "waitingForApproval": "De pagina van de organisatie wacht op goedkeuring door een beheerder. Tot die tijd start het spel daar niet."
         },
         "fillIn": "Vul de onderdelen in totdat ze allemaal groen zijn.",
@@ -871,6 +874,14 @@
             "voiceStyleHint": "Hoe het verhaal klinkt wanneer het wordt voorgelezen."
           },
           "builtInVoice": "Ingebouwde stem",
+          "choices": {
+            "any": "Willekeurig",
+            "custom": "Aangepast",
+            "female": "Vrouwelijk",
+            "male": "Mannelijk"
+          },
+          "choicesHint": "Mannelijk, vrouwelijk of willekeurig: een ingebouwde stem die bij het verhaal past.",
+          "customHint": "Aangepast: een eigen stem, gemaakt op basis van de beschrijving.",
           "duo": {
             "voiceStyle": "De stemmen van de personages",
             "voiceStyleHint": "Elk personage krijgt een eigen stem."
@@ -895,8 +906,15 @@
             "greeting": "Hallo daar! Kom binnen, ga zitten en vertel me wat je hier brengt.",
             "narration": "Het verhaal begint op een stille ochtend, wanneer een smal pad naar het onbekende leidt."
           },
+          "slots": {
+            "a": "Eerste personage",
+            "b": "Tweede personage",
+            "character": "Personage",
+            "narrator": "Verteller"
+          },
           "status": {
             "builtIn": "Nog geen beschrijving: het spel spreekt met een ingebouwde stem totdat je de stem beschrijft.",
+            "cast": "Bij de start kiest het spel de ingebouwde stem van het gekozen type die het beste bij het verhaal past. De beschrijving bepaalt hoe de stem spreekt.",
             "ownVoice": "Een eigen stem voor deze beschrijving, gemaakt met jouw AI-sleutel.",
             "steered": "Een ingebouwde stem leest het verhaal voor, zoals de beschrijving aangeeft."
           },
@@ -965,6 +983,8 @@
       },
       "genres": {
         "adventure": "Avontuur",
+        "discussion": "Discussie",
+        "npc": "Personage",
         "npc-duo": "Discussie",
         "npc-live": "Personage"
       },
@@ -1159,6 +1179,7 @@
       "apiKeys": "API-sleutels",
       "closeNavigation": "Navigatiemenu sluiten",
       "contact": "Contact",
+      "contactHint": "Neem contact op met het team van {{siteName}}",
       "goToDashboard": "Ga naar dashboard",
       "leaveWorkshopMode": "Workshopmodus verlaten",
       "leaveWorkshopModeTooltip": "Verlaat de workshopmodus en keer terug naar de normale weergave",
@@ -1349,7 +1370,7 @@
         "consented": "Je organisatie heeft op {{date}} ingestemd met versie {{version}}.",
         "title": "Verklaring van instemming",
         "withdraw": "Instemming intrekken",
-        "withdrawConfirm": "Zonder instemming wordt je organisatie opgeschort: geen enkel lid kan ChatGameLab gebruiken totdat een leidinggevende opnieuw instemt. De gegevens blijven bewaard.",
+        "withdrawConfirm": "Zonder toestemming is jullie organisatie opgeschort: geen enkel lid kan {{siteName}} gebruiken totdat een leidinggevende opnieuw instemt. De gegevens blijven bewaard.",
         "withdrawFailed": "Dat is niet gelukt. Probeer het opnieuw.",
         "withdrawTitle": "Instemming intrekken?"
       },
@@ -1449,14 +1470,14 @@
         "approved": "Goedgekeurd",
         "callbackShown": "Callback: {{url}}",
         "callbackUrl": "Callbackadres",
-        "callbackUrlHint": "Hier vraagt ChatGameLab vóór elke start toestemming. De pagina moet binnen enkele seconden antwoorden.",
+        "callbackUrlHint": "Hier vraagt {{siteName}} vóór elke start toestemming. De pagina moet binnen enkele seconden antwoorden.",
         "copied": "Gekopieerd",
         "copy": "Pagina-ID kopiëren",
         "edit": "Pagina wijzigen",
         "editReapproval": "Dit adres bevindt zich op een andere website en wacht opnieuw op goedkeuring door een beheerder; tot die tijd starten er geen spellen. Een andere poort of een ander pad op dezelfde website blijft goedgekeurd.",
         "editTitle": "De pagina wijzigen",
         "empty": "Nog geen geverifieerde pagina's.",
-        "intro": "Een geverifieerde pagina is een pagina op de website van je organisatie waarop je ingebedde spellen mogen worden weergegeven. Voordat daar een spel start, vraagt ChatGameLab via de callback van de pagina of het mag starten, met de pagina-ID hieronder en de ID's van de bezoeker en de aanvraag die je pagina doorgeeft. Alleen een antwoord van {\"ok\": true} start het spel.",
+        "intro": "Een geverifieerde pagina is een pagina op de website van jullie organisatie waarop jullie ingesloten spellen mogen worden getoond. Voordat daar een spel start, vraagt {{siteName}} via de callback van de pagina of het mag starten, met de pagina-ID hieronder en de ID's van de bezoeker en het verzoek die jullie pagina doorgeeft. Alleen het antwoord {\"ok\": true} start het spel.",
         "pageId": "Pagina-ID",
         "pageUrl": "Pagina-adres",
         "pageUrlHint": "De pagina waarin je spellen worden ingebed. Alleen haar website mag ze tonen.",
@@ -1610,8 +1631,8 @@
       "workshopInviteDescription": "Je bent uitgenodigd om deel te nemen aan deze workshop."
     },
     "organisationSuspended": {
-      "byAdmin": "De beheerder heeft de toegang van je organisatie tot ChatGameLab opgeschort. Je gegevens blijven bewaard.",
-      "consentWanted": "De toegang van je organisatie tot ChatGameLab is opgeschort totdat een van de leidinggevenden instemt met de actuele verklaring van instemming. Je gegevens blijven bewaard.",
+      "byAdmin": "De beheerder heeft de toegang van je organisatie tot {{siteName}} opgeschort. Je gegevens blijven bewaard.",
+      "consentWanted": "De toegang van je organisatie tot {{siteName}} is opgeschort totdat een van de leidinggevenden instemt met de huidige toestemmingsverklaring. Je gegevens blijven bewaard.",
       "contact": "Neem bij vragen contact op met",
       "logout": "Uitloggen",
       "title": "Organisatie opgeschort"
@@ -1643,12 +1664,16 @@
         "backToGames": "Terug naar de spellen",
         "cannotOpen": "Dit spel kan niet doorgaan",
         "cannotStart": "Dit spel kan niet starten",
+        "chooseMode": "Hoe wil je spelen?",
+        "chooseModeHint": "Praat live met het personage, of speel om de beurt door te typen of te spreken.",
         "continue": "Doorgaan",
         "inProgress": "Je hebt een spel dat nog bezig is",
         "inProgressHint": "Ga verder waar je was gebleven, of begin opnieuw vanaf het begin.",
+        "live": "Live praten",
         "noPlaysLeft": "Deze link heeft geen speelbeurten meer over, dus het spel kan niet opnieuw beginnen.",
         "offline": "Kan de spelserver niet bereiken.",
         "opening": "Het spel wordt geopend…",
+        "rounds": "Om de beurt",
         "startAnew": "Opnieuw beginnen",
         "startAnewUsesPlay": "Opnieuw beginnen gebruikt een van de speelbeurten van deze link.",
         "starting": "Het spel wordt gestart…",
@@ -1683,16 +1708,16 @@
       "about": {
         "details": "De makers beschrijven de wereld, de personages en de regels in hun eigen woorden. Terwijl je speelt, vertelt een AI het verhaal vanaf daar verder: de AI reageert op wat je typt en verzint passende afbeeldingen — daardoor verloopt geen enkele ronde hetzelfde. Als je zelf een spel bouwt, merk je al snel hoe sterk je eigen instructies het resultaat bepalen en waar een AI tegen haar grenzen aanloopt. Daar gaat het om: niet uitgelegd krijgen wat AI is, maar het zelf uitproberen.",
         "less": "Minder",
-        "link": "Meer over ChatGameLab",
+        "link": "Meer over {{siteName}}",
         "more": "Meer informatie",
-        "oneLiner": "Deze tekstavonturen zijn gemaakt met ChatGameLab: met de hand gebouwd, zonder programmeren, live verteld door een AI."
+        "oneLiner": "Deze tekstavonturen zijn gemaakt met {{siteName}}: met de hand gebouwd, zonder programmeren, live verteld door een AI."
       },
       "copy": "Kopiëren",
       "copyLogin": "Log in om te kopiëren",
       "cta": {
         "button": "Gratis beginnen",
         "text": "Je eigen tekstavontuur bouwen is gratis en duurt maar een paar minuten.",
-        "title": "Maak je eigen ChatGameLab-spel"
+        "title": "Maak je eigen spel met {{siteName}}"
       },
       "download": "Downloaden",
       "gamesTitle": "Spellen van deze workshop",
@@ -1719,6 +1744,42 @@
     "search": "Zoeken",
     "searchPlaceholder": "Zoek leden...",
     "serverSettings": {
+      "branding": {
+        "changed": "Gewijzigd",
+        "description": "Hoe deze site zich presenteert: de naam in het browsertabblad en in teksten, wie de site beheert en welke links worden weergegeven. Laat een link leeg om deze te verbergen.",
+        "errors": {
+          "nameRequired": "De site heeft een naam nodig.",
+          "notEmail": "Dit is geen e-mailadres.",
+          "notUrl": "Dit is geen webadres. Het begint met https:// of http://."
+        },
+        "fields": {
+          "aiInsightsUrl": "Over AI-inzichten",
+          "apiKeyFaqUrl": "Vragen over AI-sleutels",
+          "contactUrl": "Contact",
+          "creditName": "Geprogrammeerd door",
+          "creditUrl": "Hun website",
+          "educatorInfoUrl": "Informatie voor docenten",
+          "gameTipsUrl": "Tips voor het maken van spellen",
+          "helpUrl": "Help",
+          "operatorName": "Beheerder",
+          "operatorUrl": "Website van de beheerder",
+          "privacyUrl": "Privacybeleid",
+          "reportGameUrl": "Een spel melden",
+          "siteName": "Sitenaam",
+          "supportEmail": "E-mailadres voor ondersteuning",
+          "termsUrl": "Gebruiksvoorwaarden",
+          "websiteUrl": "Website"
+        },
+        "groups": {
+          "credit": "Vermelding in de voettekst",
+          "identity": "Naam en beheerder",
+          "links": "Links"
+        },
+        "hidden": "Verborgen",
+        "reset": "Terug naar de standaard",
+        "resetTo": "Terug naar de standaard: {{value}}",
+        "title": "Vormgeving"
+      },
       "constraints": {
         "description": "Definieer verplichte AI-regels op basis van de leeftijdsgroep van de speler. Deze jeugd­beschermingsregels worden bij elke AI-aanroep meegestuurd. Ze gelden voor alle ingelogde gebruikers buiten de workshopmodus.",
         "title": "Jeugd­beschermingsregels per leeftijdsgroep",
@@ -1753,6 +1814,12 @@
         "title": "Gratis AI-kwaliteitsniveau"
       },
       "notAuthorized": "Je hebt geen toegang tot serverinstellingen. Admin-toegang vereist.",
+      "tabs": {
+        "ai": "AI en sleutels",
+        "branding": "Vormgeving",
+        "general": "Algemeen",
+        "youthProtection": "Jeugdbescherming"
+      },
       "title": "Serverinstellingen",
       "updates": {
         "checkNow": "Op updates controleren",
@@ -1886,7 +1953,7 @@
       "title": "Jouw lab tot nu toe"
     },
     "links": {
-      "about": "Over ChatGameLab",
+      "about": "Over {{siteName}}",
       "educators": "Voor onderwijzers",
       "jff": "JFF – Institut für Medienpädagogik"
     },
@@ -1994,11 +2061,11 @@
       "greeting": "Hallo {{name}},",
       "operator": "Beheerder",
       "organisation": "Organisatie",
-      "registered": "de organisatie ‘{{organisation}}’ is nu actief op ChatGameLab. Je bent de leidinggevende en kunt nu workshops aanmaken.",
-      "renewed": "bedankt! ChatGameLab heeft nu de instemming van organisatie ‘{{organisation}}’ met de actuele verklaring van instemming.",
-      "signature": "Je ChatGameLab-team\nJFF – Jugend Film Fernsehen e.V.",
-      "subjectRegistered": "ChatGameLab: organisatie ‘{{organisation}}’ is actief – verklaring van instemming",
-      "subjectRenewed": "ChatGameLab: verklaring van instemming voor ‘{{organisation}}’ bevestigd (versie {{version}})",
+      "registered": "de organisatie “{{organisation}}” is nu actief op {{siteName}}. Je bent de leidinggevende en kunt nu workshops aanmaken.",
+      "renewed": "bedankt! {{siteName}} heeft nu de toestemming van de organisatie “{{organisation}}” voor de huidige toestemmingsverklaring.",
+      "signature": "Je team van {{siteName}}\n{{operatorName}}",
+      "subjectRegistered": "{{siteName}}: organisatie “{{organisation}}” is actief – toestemmingsverklaring",
+      "subjectRenewed": "{{siteName}}: toestemmingsverklaring voor “{{organisation}}” bevestigd (versie {{version}})",
       "version": "Versie",
       "versionValue": "{{version}} (per {{date}})"
     }
@@ -2072,12 +2139,14 @@
       "adapted-style": "Stijl",
       "cast": "Stemmen casten",
       "cast-brief": "Personages",
+      "character": "Personage",
       "condense-scenario": "Scenario inkorten",
       "condensed-scenario": "Scenario",
       "director": "Regie",
       "expand": "Vertellen",
       "gallery-image": "Galerijafbeelding",
       "greeting": "Tekst genereren",
+      "hearing": "Spraak begrijpen",
       "image": "Afbeelding tekenen",
       "image-prompt": "Afbeelding beschrijven",
       "image-style": "Stijl aanpassen",
@@ -2207,7 +2276,10 @@
       "tabUsage": "Gebruik"
     },
     "launch": {
+      "chooseMode": "Hoe wil je spelen?",
+      "live": "Live praten",
       "noGame": "Deze pagina heeft een spel nodig om te kunnen spelen: open de pagina via de pagina van een spel.",
+      "rounds": "Om de beurt, getypt of gesproken",
       "starting": "Het spel wordt gestart…"
     },
     "over": {
@@ -2234,6 +2306,7 @@
       "injectionSent": "Naar het gesprek verzonden"
     },
     "problems": {
+      "chooseMode": "Dit spel kan live of om de beurt worden gespeeld: kies één optie.",
       "denied": "Je mag dit spel niet spelen.",
       "failed": "Er is iets misgegaan en het spel kan niet verdergaan.",
       "genre": "De beschikbare AI-sleutel kan dit soort spel niet uitvoeren.",
@@ -2249,12 +2322,15 @@
       "unreachable": "De AI-aanbieder antwoordt momenteel niet, dus het spel kan niet verdergaan. Probeer het over een paar minuten opnieuw."
     },
     "promptNames": {
+      "character": "Het personage (systeembericht)",
       "condense-scenario": "Scenario inkorten",
       "conversation-policy": "Hoe het personage praat",
       "director": "Regie",
       "expand": "Een beurt vertellen",
       "game-master": "Spelleider (systeembericht)",
       "greeting": "Eerste woorden",
+      "hear-player": "Spraak begrijpen",
+      "hold-the-line": "Volhouden",
       "image-style": "Stijl aanpassen",
       "opening": "Opening",
       "opening-expand": "De opening vertellen",

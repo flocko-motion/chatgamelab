@@ -5,14 +5,14 @@
       "description": "To nám pomáhá uplatňovat správnou ochranu a obsahové pokyny pro váš účet.",
       "label": "Věková a ochranná skupina",
       "u13": "13–17 let, bez souhlasu rodičů",
-      "u13Description": "Můžete používat ChatGameLab. Na váš účet se budou vztahovat přísnější ochranná nastavení.",
+      "u13Description": "Můžeš používat {{siteName}}. Pro tvůj účet budou platit přísnější nastavení ochrany.",
       "u13p": "13–17 let, se souhlasem rodičů",
-      "u13pDescription": "Můžete používat ChatGameLab, pokud s tím rodiče souhlasí.",
+      "u13pDescription": "Můžeš používat {{siteName}}, pokud s tím souhlasí tvoji rodiče.",
       "u18": "18 let a více",
-      "u18Description": "Můžete používat ChatGameLab.",
+      "u18Description": "Můžeš používat {{siteName}}.",
       "under13": "Mladší 13 let",
-      "under13Blocker": "Ještě si nemůžete vytvořit vlastní účet. Pokud vám je méně než 13 let, můžete ChatGameLab používat pouze prostřednictvím mládežnické organizace.",
-      "under13Description": "Ještě si nemůžete vytvořit vlastní účet. Pokud vám je méně než 13 let, můžete ChatGameLab používat pouze prostřednictvím mládežnické organizace."
+      "under13Blocker": "Zatím si nemůžeš vytvořit vlastní účet. Pokud ti ještě nebylo 13 let, můžeš {{siteName}} používat pouze prostřednictvím organizace pro děti a mládež.",
+      "under13Description": "Zatím si nemůžeš vytvořit vlastní účet. Pokud ti ještě nebylo 13 let, můžeš {{siteName}} používat pouze prostřednictvím organizace pro děti a mládež."
     },
     "guest": {
       "leaveConfirm": {
@@ -51,7 +51,7 @@
       }
     },
     "organizationRegistration": {
-      "accountNameDescription": "Takto se zobrazujete v ChatGameLab (nejvýše 24 znaků).",
+      "accountNameDescription": "Takto se zobrazíš v {{siteName}} (maximálně 24 znaků).",
       "accountNameLabel": "Zobrazované jméno",
       "cityLabel": "Město",
       "confirmAdult": "Je mi alespoň 18 let.",
@@ -60,9 +60,9 @@
         "emailDescription": "Na tuto adresu zašleme potvrzení s textem prohlášení.",
         "introExisting": "Vaše organizace „{{name}}“ nyní má prohlášení, které je potvrzeno online. Nahrazuje uživatelskou smlouvu, kterou jste dříve podepsali. Přečtěte si ho a souhlaste s ním jménem své instituce.",
         "introNewVersion": "Prohlášení bylo aktualizováno (verze {{version}}). Přečtěte si novou verzi a souhlaste s ní jménem své organizace „{{name}}“.",
-        "introWithdrawn": "Souhlas vaší organizace „{{name}}“ s prohlášením byl odvolán, proto je pozastavena. Přečtěte si prohlášení a souhlaste s ním jménem své instituce, abyste mohli ChatGameLab znovu používat.",
+        "introWithdrawn": "Souhlas vaší organizace „{{name}}“ s prohlášením byl odvolán, proto je její přístup pozastaven. Přečtěte si prosím prohlášení a jménem vaší instituce s ním znovu souhlaste, abyste mohli {{siteName}} opět používat.",
         "logout": "Odhlásit se",
-        "oneHeadIsEnough": "Stačí, když souhlasí jeden vedoucí organizace. Do té doby je vaše organizace pozastavena: její členové nemohou ChatGameLab používat.",
+        "oneHeadIsEnough": "Stačí, když souhlas udělí jedna osoba z vedení organizace. Do té doby je přístup vaší organizace pozastaven: její členové nemohou používat {{siteName}}.",
         "submit": "Souhlasit",
         "title": "Potvrdit prohlášení"
       },
@@ -207,10 +207,10 @@
       "agreeSuffix2": "",
       "alreadyHaveAccount": "Už máte účet?",
       "backButton": "Zpět",
-      "chooseType": "Jak chcete ChatGameLab používat?",
+      "chooseType": "Jak chceš {{siteName}} používat?",
       "continueButton": "Pokračovat k registraci",
       "description": "Jako poskytovatele ověřování používáme Auth0 ke správě uživatelských účtů. Budete přesměrováni na Auth0, kde si účet vytvoříte, a poté se vrátíte sem k dokončení profilu.",
-      "educatorDescription": "Používejte ChatGameLab na workshopech, ve třídách nebo ve vaší organizaci",
+      "educatorDescription": "Používej {{siteName}} na workshopech, ve třídě nebo ve své organizaci",
       "educatorModal": {
         "closeButton": "Zavřít",
         "copied": "Zkopírováno!",
@@ -234,7 +234,7 @@
       "individualTitle": "Osobní účet",
       "loginLink": "Přihlásit se",
       "organizationExistingAccount": "Organizace se registrují s novým přihlášením. Máte již účet?",
-      "organizationIntro": "Pro střediska pro mládež, školy a další instituce, které chtějí ChatGameLab používat při workshopech.",
+      "organizationIntro": "Pro centra pro děti a mládež, školy a další instituce, které chtějí {{siteName}} používat na workshopech.",
       "organizationStep1": "Vytvoříte si přihlášení pomocí Auth0 (e-mail a heslo).",
       "organizationStep2": "Zadáte údaje o sobě a své instituci, stanovíte pravidlo ochrany dětí a mládeže a souhlasíte s prohlášením.",
       "organizationStep3": "Po odeslání formuláře bude organizace ihned aktivována a vy můžete vytvářet workshopy.",
@@ -776,6 +776,9 @@
         "embed": {
           "copy": "Kopírovat úryvek kódu",
           "incomplete": "Vyberte, co se má zaplatit, abyste získali úryvek kódu.",
+          "mode": "Jak se hra hraje",
+          "modeChoose": "Hráč vybírá",
+          "modeHint": "Tuto hru lze hrát živě nebo střídavě na tahy. Předem vyber jednu možnost a přeskoč otázku; pokud klíč podporuje jen jednu možnost, použije se ta.",
           "noKeys": "Nemáte žádný funkční klíč AI, kterým by bylo možné platit. Přidejte nějaký nebo o něj požádejte svou organizaci.",
           "noOrganisation": "Vkládání je určeno pro hry organizace: hry vytvořené na jejích workshopech nebo jejím vedením a zaměstnanci. Tato hra nepatří žádné organizaci.",
           "noPages": "Nejprve zaregistrujte web své organizace: stránku, na které budou vaše hry spuštěny. Administrátor ji schválí a poté tam bude možné hru spustit.",
@@ -794,7 +797,7 @@
           "snippetVerifiedHint": "Váš server doplní ID návštěvníka a tohoto zobrazení stránky; callback vaší stránky obdrží obě.",
           "styleLink": "Upravte vzhled vlastním CSS →",
           "toggle": "Vložit na web",
-          "toggleHint": "Zobrazí tuto hru na ověřené stránce vaší organizace bez čehokoli od ChatGameLab kolem ní. Návštěvníci hrají jako hosté; vybraný klíč platí.",
+          "toggleHint": "Zobrazí tuto hru na ověřené stránce vaší organizace bez okolí {{siteName}}. Návštěvníci hrají jako hosté; platí klíč, který vyberete.",
           "waitingForApproval": "Stránka organizace čeká na schválení administrátorem. Do té doby se na ní hra nespustí."
         },
         "fillIn": "Vyplňte jednotlivé části, dokud nebudou všechny zelené.",
@@ -871,6 +874,14 @@
             "voiceStyleHint": "Jak zní příběh při předčítání."
           },
           "builtInVoice": "Vestavěný hlas",
+          "choices": {
+            "any": "Libovolný",
+            "custom": "Vlastní",
+            "female": "Ženský",
+            "male": "Mužský"
+          },
+          "choicesHint": "Mužský, ženský nebo libovolný: vestavěný hlas, který se hodí k příběhu.",
+          "customHint": "Vlastní: samostatný hlas vytvořený podle popisu.",
           "duo": {
             "voiceStyle": "Hlasy postav",
             "voiceStyleHint": "Každá postava dostane vlastní hlas."
@@ -895,8 +906,15 @@
             "greeting": "Dobrý den! Pojďte dál, posaďte se a řekněte mi, co vás sem přivádí.",
             "narration": "Příběh začíná tichého rána, kdy úzká stezka vede do neznáma."
           },
+          "slots": {
+            "a": "První postava",
+            "b": "Druhá postava",
+            "character": "Postava",
+            "narrator": "Vypravěč"
+          },
           "status": {
             "builtIn": "Zatím bez popisu: hra mluví vestavěným hlasem, dokud hlas nepopíšete.",
+            "cast": "Při spuštění hra vybere vestavěný hlas zvoleného typu, který se k příběhu hodí nejlépe. Popis určuje, jak hlas mluví.",
             "ownVoice": "Vlastní hlas pro tento popis, vytvořený na vašem klíči AI.",
             "steered": "Příběh předčítá vestavěný hlas podle zadaného popisu."
           },
@@ -965,6 +983,8 @@
       },
       "genres": {
         "adventure": "Dobrodružství",
+        "discussion": "Diskuse",
+        "npc": "Postava",
         "npc-duo": "Diskuse",
         "npc-live": "Postava"
       },
@@ -1159,6 +1179,7 @@
       "apiKeys": "API klíče",
       "closeNavigation": "Zavřít navigační menu",
       "contact": "Kontakt",
+      "contactHint": "Kontaktujte tým {{siteName}}",
       "goToDashboard": "Přejít na přehled",
       "leaveWorkshopMode": "Opustit režim workshopu",
       "leaveWorkshopModeTooltip": "Opustit režim workshopu a vrátit se do běžného zobrazení",
@@ -1349,7 +1370,7 @@
         "consented": "Vaše organizace souhlasila s verzí {{version}} dne {{date}}.",
         "title": "Prohlášení o souhlasu",
         "withdraw": "Odvolat souhlas",
-        "withdrawConfirm": "Bez souhlasu je vaše organizace pozastavena: žádný člen nemůže používat ChatGameLab, dokud vedoucí znovu neudělí souhlas. Její data zůstanou zachována.",
+        "withdrawConfirm": "Bez souhlasu je přístup vaší organizace pozastaven: žádný člen nemůže používat {{siteName}}, dokud vedení znovu neudělí souhlas. Její data zůstanou zachována.",
         "withdrawFailed": "To se nepodařilo. Zkuste to prosím znovu.",
         "withdrawTitle": "Odvolat souhlas?"
       },
@@ -1449,14 +1470,14 @@
         "approved": "Schváleno",
         "callbackShown": "Callback: {{url}}",
         "callbackUrl": "Adresa callbacku",
-        "callbackUrlHint": "Zde se ChatGameLab ptá před každým spuštěním. Stránka musí odpovědět během několika sekund.",
+        "callbackUrlHint": "Na této adrese se {{siteName}} ptá před každým spuštěním. Musí odpovědět během několika sekund.",
         "copied": "Zkopírováno",
         "copy": "Kopírovat ID stránky",
         "edit": "Změnit stránku",
         "editReapproval": "Tato adresa je na jiném webu, který musí znovu schválit administrátor; do té doby se tam hry nespustí. Jiný port nebo cesta na stejném webu zůstává schválená.",
         "editTitle": "Změnit stránku",
         "empty": "Zatím žádné ověřené stránky.",
-        "intro": "Ověřená stránka je stránka na webu vaší organizace, která může zobrazovat vaše vložené hry. Než se na ní hra spustí, ChatGameLab se callbacku stránky zeptá, zda ji má spustit, a předá mu níže uvedené ID stránky a ID návštěvníka a požadavku, která vaše stránka předává dál. Hru spustí pouze odpověď {\"ok\": true}.",
+        "intro": "Ověřená stránka je stránka na webu vaší organizace, která může zobrazovat vaše vložené hry. Než se na ní hra spustí, {{siteName}} se callbacku stránky zeptá, zda ji má spustit, a předá mu níže uvedené ID stránky a ID návštěvníka a požadavku, která vaše stránka předá dál. Hru spustí pouze odpověď {\"ok\": true}.",
         "pageId": "ID stránky",
         "pageUrl": "Adresa stránky",
         "pageUrlHint": "Stránka, do které jsou vloženy vaše hry. Zobrazovat je smí pouze její web.",
@@ -1610,8 +1631,8 @@
       "workshopInviteDescription": "Byli jste pozváni, abyste se připojili k tomuto workshopu."
     },
     "organisationSuspended": {
-      "byAdmin": "Provozovatel pozastavil přístup vaší organizace ke službě ChatGameLab. Vaše data zůstanou zachována.",
-      "consentWanted": "Přístup vaší organizace ke službě ChatGameLab je pozastaven, dokud jeden z jejích vedoucích neodsouhlasí aktuální prohlášení o souhlasu. Vaše data zůstanou zachována.",
+      "byAdmin": "Provozovatel pozastavil přístup vaší organizace k {{siteName}}. Vaše data zůstanou zachována.",
+      "consentWanted": "Přístup vaší organizace k {{siteName}} je pozastaven, dokud někdo z jejího vedení neudělí souhlas s aktuálním prohlášením o souhlasu. Vaše data zůstanou zachována.",
       "contact": "V případě dotazů kontaktujte",
       "logout": "Odhlásit se",
       "title": "Organizace pozastavena"
@@ -1643,12 +1664,16 @@
         "backToGames": "Zpět ke hrám",
         "cannotOpen": "Tuto hru nelze spustit",
         "cannotStart": "Tuto hru nelze začít",
+        "chooseMode": "Jak chceš hrát?",
+        "chooseModeHint": "Mluv s postavou živě, nebo se střídejte na tahy při psaní či mluvení.",
         "continue": "Pokračovat",
         "inProgress": "Máte rozehranou hru",
         "inProgressHint": "Pokračujte tam, kde jste skončili, nebo začněte znovu od začátku.",
+        "live": "Mluvit živě",
         "noPlaysLeft": "Tento odkaz už nemá žádná zbývající hraní, takže hru nelze začít znovu.",
         "offline": "Nelze se připojit k hernímu serveru.",
         "opening": "Hra se otevírá…",
+        "rounds": "Střídat se",
         "startAnew": "Začít znovu",
         "startAnewUsesPlay": "Začátek od začátku využije jedno z hraní tohoto odkazu.",
         "starting": "Hra se spouští…",
@@ -1683,16 +1708,16 @@
       "about": {
         "details": "Jejich tvůrci popisují svět, postavy a pravidla vlastními slovy. Při hraní AI živě pokračuje ve vyprávění příběhu: reaguje na vše, co napíšete, a vymýšlí k tomu odpovídající obrázky — žádné dvě hraní proto neproběhnou stejně. Když si jeden vytvoříte sami, rychle zjistíte, jak silně vaše vlastní pokyny ovlivňují výsledek a kde AI naráží na své limity. Právě o to jde: nenechat si AI vysvětlit, ale vyzkoušet si ji.",
         "less": "Méně",
-        "link": "Více o ChatGameLabu",
+        "link": "Více o {{siteName}}",
         "more": "Zjistit více",
-        "oneLiner": "Tato textová dobrodružství vznikla v ChatGameLabu: vytvořená ručně, bez programování, a živě vyprávěná AI."
+        "oneLiner": "Tato textová dobrodružství vznikla v {{siteName}}: ručně vytvořená bez programování a živě vyprávěná umělou inteligencí."
       },
       "copy": "Kopírovat",
       "copyLogin": "Pro kopírování se přihlaste",
       "cta": {
         "button": "Začněte zdarma",
         "text": "Vytvoření vlastního textového dobrodružství je zdarma a zabere jen několik minut.",
-        "title": "Vytvořte si vlastní hru v ChatGameLabu"
+        "title": "Vytvoř si vlastní hru s {{siteName}}"
       },
       "download": "Stáhnout",
       "gamesTitle": "Hry z tohoto workshopu",
@@ -1719,6 +1744,42 @@
     "search": "Hledat",
     "searchPlaceholder": "Hledat členy...",
     "serverSettings": {
+      "branding": {
+        "changed": "Změněno",
+        "description": "Jak se tento web prezentuje: jeho název v kartě prohlížeče a v textech, kdo ho provozuje a které odkazy zobrazuje. Pokud odkaz ponecháte prázdný, skryje se.",
+        "errors": {
+          "nameRequired": "Web potřebuje název.",
+          "notEmail": "Toto není e-mailová adresa.",
+          "notUrl": "Toto není webová adresa. Začíná na https:// nebo http://."
+        },
+        "fields": {
+          "aiInsightsUrl": "O poznatcích umělé inteligence",
+          "apiKeyFaqUrl": "Otázky k AI klíčům",
+          "contactUrl": "Kontakt",
+          "creditName": "Programoval(a)",
+          "creditUrl": "Jejich web",
+          "educatorInfoUrl": "Informace pro vzdělavatele",
+          "gameTipsUrl": "Tipy pro tvorbu her",
+          "helpUrl": "Nápověda",
+          "operatorName": "Provozovatel",
+          "operatorUrl": "Web provozovatele",
+          "privacyUrl": "Zásady ochrany osobních údajů",
+          "reportGameUrl": "Nahlásit hru",
+          "siteName": "Název webu",
+          "supportEmail": "E-mail podpory",
+          "termsUrl": "Podmínky použití",
+          "websiteUrl": "Web"
+        },
+        "groups": {
+          "credit": "Označení v zápatí",
+          "identity": "Název a provozovatel",
+          "links": "Odkazy"
+        },
+        "hidden": "Skryto",
+        "reset": "Zpět na výchozí",
+        "resetTo": "Zpět na výchozí: {{value}}",
+        "title": "Vzhled"
+      },
       "constraints": {
         "description": "Definujte závazná pravidla AI podle věkové skupiny hráče. Tato pravidla ochrany dětí a mládeže se připojují ke každému volání AI. Platí pro všechny přihlášené uživatele mimo režim workshopu.",
         "title": "Pravidla ochrany dětí a mládeže podle věku",
@@ -1753,6 +1814,12 @@
         "title": "Úroveň kvality AI pro volné používání"
       },
       "notAuthorized": "Nemáte oprávnění k přístupu do nastavení serveru. Je vyžadován přístup administrátora.",
+      "tabs": {
+        "ai": "Umělá inteligence a klíče",
+        "branding": "Vzhled",
+        "general": "Obecné",
+        "youthProtection": "Ochrana dětí a mládeže"
+      },
       "title": "Nastavení serveru",
       "updates": {
         "checkNow": "Zkontrolovat aktualizace",
@@ -1886,7 +1953,7 @@
       "title": "Vaše dosavadní laboratoř"
     },
     "links": {
-      "about": "O ChatGameLab",
+      "about": "O {{siteName}}",
       "educators": "Pro pedagogy",
       "jff": "JFF – Institut pro mediální pedagogiku"
     },
@@ -1994,11 +2061,11 @@
       "greeting": "Dobrý den, {{name}},",
       "operator": "Zřizovatel",
       "organisation": "Organizace",
-      "registered": "organizace „{{organisation}}“ je nyní aktivní v ChatGameLab. Jste jejím vedoucím a nyní můžete vytvářet workshopy.",
-      "renewed": "děkujeme! ChatGameLab nyní eviduje souhlas organizace „{{organisation}}“ s aktuálním prohlášením o souhlasu.",
-      "signature": "Váš tým ChatGameLab\nJFF – Jugend Film Fernsehen e.V.",
-      "subjectRegistered": "ChatGameLab: organizace „{{organisation}}“ je aktivní – prohlášení o souhlasu",
-      "subjectRenewed": "ChatGameLab: prohlášení o souhlasu pro „{{organisation}}“ potvrzeno (verze {{version}})",
+      "registered": "organizace „{{organisation}}“ je nyní aktivní v {{siteName}}. Jste jejím vedoucím a nyní můžete vytvářet workshopy.",
+      "renewed": "děkujeme! {{siteName}} nyní má souhlas organizace „{{organisation}}“ s aktuálním prohlášením o souhlasu.",
+      "signature": "Váš tým {{siteName}}\n{{operatorName}}",
+      "subjectRegistered": "{{siteName}}: organizace „{{organisation}}“ je aktivní – prohlášení o souhlasu",
+      "subjectRenewed": "{{siteName}}: prohlášení o souhlasu pro „{{organisation}}“ potvrzeno (verze {{version}})",
       "version": "Verze",
       "versionValue": "{{version}} (stav k {{date}})"
     }
@@ -2072,12 +2139,14 @@
       "adapted-style": "Styl",
       "cast": "Obsadit hlasy",
       "cast-brief": "Postavy",
+      "character": "Postava",
       "condense-scenario": "Zkrátit scénář",
       "condensed-scenario": "Scénář",
       "director": "Režie",
       "expand": "Vyprávět",
       "gallery-image": "Galerijní obrázek",
       "greeting": "Generovat text",
+      "hearing": "Porozumění řeči",
       "image": "Nakreslit obrázek",
       "image-prompt": "Popsat obrázek",
       "image-style": "Upravit styl",
@@ -2207,7 +2276,10 @@
       "tabUsage": "Využití"
     },
     "launch": {
+      "chooseMode": "Jak chceš hrát?",
+      "live": "Mluvit živě",
       "noGame": "Tato stránka potřebuje hru: otevři ji ze stránky hry.",
+      "rounds": "Střídat se, psát nebo mluvit",
       "starting": "Hra se spouští…"
     },
     "over": {
@@ -2234,6 +2306,7 @@
       "injectionSent": "Odesláno do konverzace"
     },
     "problems": {
+      "chooseMode": "Tuto hru lze hrát živě nebo střídavě na tahy: vyber jednu možnost.",
       "denied": "Tuto hru nesmíš hrát.",
       "failed": "Něco se pokazilo a hra nemůže pokračovat.",
       "genre": "Dostupný klíč AI nemůže spustit tento typ hry.",
@@ -2249,12 +2322,15 @@
       "unreachable": "Poskytovatel AI právě neodpovídá, takže hra nemůže pokračovat. Zkus to znovu za několik minut."
     },
     "promptNames": {
+      "character": "Postava (systémová zpráva)",
       "condense-scenario": "Zkrátit scénář",
       "conversation-policy": "Jak postava mluví",
       "director": "Režie",
       "expand": "Vyprávět tah",
       "game-master": "Herní vypravěč (systémová zpráva)",
       "greeting": "První slova",
+      "hear-player": "Porozumění řeči",
+      "hold-the-line": "Zůstat pevný",
       "image-style": "Upravit styl",
       "opening": "Úvod",
       "opening-expand": "Vyprávět úvod",

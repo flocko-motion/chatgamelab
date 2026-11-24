@@ -5,14 +5,14 @@
       "description": "Des hilft uns, de richtigen Schutz- und Inhoitrichtlinien auf dei Konto o'zuwenden.",
       "label": "Oit- und Schutzgruppn",
       "u13": "13–17 Joahr, ohn Elternerlaubnis",
-      "u13Description": "Du derfst ChatGameLab nutzn. Bei dei Konto galten strengere Schutzeinstellungen.",
+      "u13Description": "Du kannst {{siteName}} hernehmen. Für dei Konto gelten strengere Schutzeinstellungen.",
       "u13p": "13–17 Joahr, mit Elternerlaubnis",
-      "u13pDescription": "Du derfst ChatGameLab nutzn, wenn dei Eltern z'stimm.",
+      "u13pDescription": "Du kannst {{siteName}} hernehmen, wenn dei Eltern einverstanden san.",
       "u18": "18 Joahr oder oider",
-      "u18Description": "Du derfst ChatGameLab nutzn.",
+      "u18Description": "Du kannst {{siteName}} hernehmen.",
       "under13": "Unter 13 Joahr",
-      "under13Blocker": "Du kannst no koa eigne Konto aufmacha. Wennst unter 13 bist, derfst ChatGameLab bloß über a Jugendorganisation nutzn.",
-      "under13Description": "Du kannst no koa eigne Konto aufmacha. Wennst unter 13 bist, derfst ChatGameLab bloß über a Jugendorganisation nutzn."
+      "under13Blocker": "Du kannst no koa eigenes Konto erstellen. Wennst unter 13 bist, kannst {{siteName}} nur über a Jugendeinrichtung hernehmen.",
+      "under13Description": "Du kannst no koa eigenes Konto erstellen. Wennst unter 13 bist, kannst {{siteName}} nur über a Jugendeinrichtung hernehmen."
     },
     "guest": {
       "leaveConfirm": {
@@ -51,7 +51,7 @@
       }
     },
     "organizationRegistration": {
-      "accountNameDescription": "So erscheinst du in ChatGameLab (höchstens 24 Zeichen).",
+      "accountNameDescription": "So wirst in {{siteName}} angezeigt (höchstens 24 Zeichen).",
       "accountNameLabel": "Anzeigename",
       "cityLabel": "Ort",
       "confirmAdult": "I bin mindestens 18 Johr alt.",
@@ -60,9 +60,9 @@
         "emailDescription": "An de Adresse schicken ma de Bestätigung mit’m Text vo da Erklärung.",
         "introExisting": "Für eure Organisation „{{name}}“ gibt’s jetzt a Einverständniserklärung, de online bestätigt wird. Sie ersetzt de bisher unterschriebene Nutzungsvereinbarung. Bitte lies’s und stimm im Namen eurer Einrichtung zua.",
         "introNewVersion": "De Einverständniserklärung is aktualisiert worn (Version {{version}}). Bitte lies de neue Fassung und stimm im Namen eurer Organisation „{{name}}“ zua.",
-        "introWithdrawn": "De Zustimmung eurer Organisation „{{name}}“ zur Einverständniserklärung is widerrufen worn, drum is sie ausgsetzt. Bitte lies de Erklärung und stimm im Namen eurer Einrichtung zua, damit’s ChatGameLab wieder nutzen könnt’s.",
+        "introWithdrawn": "Die Zustimmung von eurer Organisation „{{name}}“ zur Einverständniserklärung is widerrufen worden, drum is sie ausgsetzt. Bitte lies die Erklärung und stimm im Namen eurer Einrichtung zua, damit ihr {{siteName}} wieder hernehmen könnt.",
         "logout": "Abmelden",
-        "oneHeadIsEnough": "Es reicht, wenn oane aus da Organisationsleitung zustimmt. Bis dahin is eure Organisation ausgsetzt: De Mitglieder kenna ChatGameLab ned nutzen.",
+        "oneHeadIsEnough": "Es reicht, wenn eine Leitung von der Organisation zustimmt. Bis dahin is eure Organisation ausgsetzt: Ihre Mitglieder können {{siteName}} ned hernehmen.",
         "submit": "Zustimmen",
         "title": "Einverständniserklärung bestätigen"
       },
@@ -207,10 +207,10 @@
       "agreeSuffix2": "",
       "alreadyHaveAccount": "Hast scho a Konto?",
       "backButton": "Zruck",
-      "chooseType": "Wia mogst ChatGameLab nutzn?",
+      "chooseType": "Wie möchtest {{siteName}} hernehmen?",
       "continueButton": "Weiter zur Anmeldung",
       "description": "Mir nutzn Auth0 ois Anmeldedienst, damits de Nutzerkontn verwaltn kenna. Du wirst zu Auth0 weitergleitet, damitst dei Konto o'zlegst, und kummst dann wieda her, zum dei Profil fertig macha.",
-      "educatorDescription": "Nutz ChatGameLab in Workshops, Klassenzimma oder in da Organisation.",
+      "educatorDescription": "Nimm {{siteName}} in Workshops, im Unterricht oder in deiner Organisation her",
       "educatorModal": {
         "closeButton": "Zua macha",
         "copied": "Kopiert!",
@@ -234,7 +234,7 @@
       "individualTitle": "Privats Konto",
       "loginLink": "Einloggn",
       "organizationExistingAccount": "Organisationen registriern si mit am neuen Login. Hast scho a Konto?",
-      "organizationIntro": "Für Jugendeinrichtungen, Schulen und andere Einrichtungen, de ChatGameLab in Workshops nutzen woin.",
+      "organizationIntro": "Für Jugendeinrichtungen, Schulen und andere Einrichtungen, die {{siteName}} in Workshops hernehmen möchten.",
       "organizationStep1": "Du legst über Auth0 deinen Zugang o (E-Mail und Passwort).",
       "organizationStep2": "Du gibst de Angaben über di und dei Einrichtung ei, legst de Jugendschutz-Regel fest und stimmst da Einverständniserklärung zua.",
       "organizationStep3": "Nach’m Abschicken is de Organisation sofort freigschaltet und du kannst Workshops anlegen.",
@@ -776,6 +776,9 @@
         "embed": {
           "copy": "Snippet kopieren",
           "incomplete": "Wähl aus, wos zahlt, damitst des Snippet kriagst.",
+          "mode": "Wie des Spiel gspielt wird",
+          "modeChoose": "Spieler wählt",
+          "modeHint": "Des Spiel kann live oder abwechselnd gspielt werden. Wähl eins vorher aus, dann wird die Frage übersprungen; wenn der Schlüssel bloß eins kann, wird des gspielt.",
           "noKeys": "Du host koan funktionierenden KI-Schlüssel zum Zoin. Füg an hinzu oder frog dei Organisation.",
           "noOrganisation": "Einbetten gibt's für de Spiele von ana Organisation: de, de in ihre Workshops gschriebn worn san, oder von ihrer Leitung und ihre Mitarbeitenden. Des Spui ghört zu koana Organisation.",
           "noPages": "Registrier zuerst de Website von deiner Organisation: de Seitn, auf der eure Spiele laufen. A Admin gibt sie frei, dann kann des Spui dort starten.",
@@ -794,7 +797,7 @@
           "snippetVerifiedHint": "Dei Server setzt sei ID vom Besucher und von dem Seitenaufruf ei; da Callback von deiner Seitn kriagt beid.",
           "styleLink": "Mit eigenem CSS gestalten →",
           "toggle": "Auf ana Website einbetten",
-          "toggleHint": "Zoagt des Spui auf da verifizierten Seitn deiner Organisation, ohne irgendwos von ChatGameLab rundherum. Besucher spuin als Gäst; da ausgewählte Schlüssel zoit.",
+          "toggleHint": "Zeigt des Spiel auf der verifizierten Seite von deiner Organisation, ohne irgendwas von {{siteName}} außenrum. Besucher spielen als Gäste; der ausgewählte Schlüssel zahlt.",
           "waitingForApproval": "De Seitn von da Organisation wartet auf de Freigabe durch an Admin. Bis dahin startet des Spui dort ned."
         },
         "fillIn": "Füll d Abschnitte aus, bis olle grün san.",
@@ -871,6 +874,14 @@
             "voiceStyleHint": "Wia d Gschicht klingt, wenn sie vorglesn wird."
           },
           "builtInVoice": "Eingebaute Stimm",
+          "choices": {
+            "any": "Wurscht",
+            "custom": "Eigene",
+            "female": "Weiblich",
+            "male": "Männlich"
+          },
+          "choicesHint": "Männlich, weiblich oder wurscht: a eingebaute Stimme, die zur Gschicht passt.",
+          "customHint": "Eigene: a eigene Stimme, aus der Beschreibung erstellt.",
           "duo": {
             "voiceStyle": "De Stimmen von de Figuren",
             "voiceStyleHint": "Jede Figur kriagt a eigene Stimme."
@@ -895,8 +906,15 @@
             "greeting": "Griaß di! Kimm eina, hock di her und erzähl ma, wos di herführt.",
             "narration": "D Gschicht fangt an an an stillen Morgn, wia a schmaler Weg ins Unbekannte führt."
           },
+          "slots": {
+            "a": "Erste Figur",
+            "b": "Zweite Figur",
+            "character": "Figur",
+            "narrator": "Erzähler"
+          },
           "status": {
             "builtIn": "No koa Beschreibung: Des Spui redt mit ana eingebauten Stimm, bisd d Stimm beschreibst.",
+            "cast": "Beim Start sucht sich des Spiel die eingebaute Stimme von der ausgewählten Art aus, die am besten zur Gschicht passt. Die Beschreibung gibt vor, wie sie redt.",
             "ownVoice": "A eigene Stimm für die Beschreibung, gmacht mit deim KI-Schlüssel.",
             "steered": "A eingebaute Stimm liest d Gschicht vor, so wia s in da Beschreibung steht."
           },
@@ -965,6 +983,8 @@
       },
       "genres": {
         "adventure": "Abenteuer",
+        "discussion": "Diskussion",
+        "npc": "Figur",
         "npc-duo": "Diskussion",
         "npc-live": "Charakter"
       },
@@ -1159,6 +1179,7 @@
       "apiKeys": "API-Schlüssel",
       "closeNavigation": "Navigationsmenü zuamacha",
       "contact": "Kontakt",
+      "contactHint": "Schreib dem Team von {{siteName}}",
       "goToDashboard": "Zum Dashboard",
       "leaveWorkshopMode": "Workshop-Modus verlaffa",
       "leaveWorkshopModeTooltip": "Workshop-Modus verlaffa und zur Normalansicht zruck",
@@ -1349,7 +1370,7 @@
         "consented": "Eure Organisation hod am {{date}} da Version {{version}} zugestimmt.",
         "title": "Einverständniserklärung",
         "withdraw": "Zustimmung widerrufen",
-        "withdrawConfirm": "Ohne Zustimmung is eure Organisation ausgsetzt: Koa Mitglied kann ChatGameLab nutzen, bis oane aus da Leitung wieder zustimmt. De Daten bleiben erhalten.",
+        "withdrawConfirm": "Ohne Zustimmung is eure Organisation ausgsetzt: Kein Mitglied kann {{siteName}} hernehmen, bis eine Leitung wieder zustimmt. Die Daten bleiben erhalten.",
         "withdrawFailed": "Des hod ned klappt. Bitte probier’s no amoi.",
         "withdrawTitle": "Zustimmung widerrufen?"
       },
@@ -1449,14 +1470,14 @@
         "approved": "Freigegebn",
         "callbackShown": "Callback: {{url}}",
         "callbackUrl": "Callback-Adresse",
-        "callbackUrlHint": "Do frog ChatGameLab vor jedem Start. Sie muaß innerhalb von a paar Sekunden antworten.",
+        "callbackUrlHint": "Da fragt {{siteName}} vor jedem Start nach. Die Seite muss innerhalb von ein paar Sekunden antworten.",
         "copied": "Kopiert",
         "copy": "Seiten-ID kopieren",
         "edit": "Seitn ändern",
         "editReapproval": "De Adresse liegt auf ana andern Website und wartet wieder auf de Freigabe von an Admin; bis dahin starten dort koa Spiele. A anderer Port oder Pfad auf derselben Website bleibt freigegebn.",
         "editTitle": "De Seitn ändern",
         "empty": "No koa verifizierte Seitn.",
-        "intro": "A verifizierte Seitn is a Seitn auf da Website deiner Organisation, de eure eingebetteten Spui zoagn derf. Bevor dort a Spui startet, frog ChatGameLab den Callback von da Seitn, ob s starten soi, mit da Seiten-ID unten und de IDs vom Besucher und vom Aufruf, de dei Seitn mitgibt. Nur d Antwort {\"ok\": true} startet s Spui.",
+        "intro": "Eine verifizierte Seite is a Seite auf der Website von deiner Organisation, die eure eingebetteten Spiele zeigen derf. Bevor dort a Spiel startet, fragt {{siteName}} beim Callback von der Seite nach, ob es starten soll – mit der Seiten-ID unten und den IDs vom Besucher und von der Anfrage, die eure Seite weitergibt. Bloß die Antwort {\"ok\": true} startet des Spiel.",
         "pageId": "Seiten-ID",
         "pageUrl": "Adresse von da Seitn",
         "pageUrlHint": "D Seitn, in de eure Spui eingebettet san. Nur ihre Website derf sie zoagn.",
@@ -1615,8 +1636,8 @@
       "workshopInviteDescription": "Du bist eigloadn worn, bei dem Workshop mitzumacha."
     },
     "organisationSuspended": {
-      "byAdmin": "Da Betreiber hod den Zugang eurer Organisation zu ChatGameLab ausgsetzt. Dei Daten bleiben erhalten.",
-      "consentWanted": "Da Zugang eurer Organisation zu ChatGameLab is ausgsetzt, bis oane aus da Leitung da aktuellen Einverständniserklärung zustimmt. Dei Daten bleiben erhalten.",
+      "byAdmin": "Der Betreiber hat den Zugang von deiner Organisation zu {{siteName}} ausgsetzt. Dei Daten bleiben erhalten.",
+      "consentWanted": "Der Zugang von deiner Organisation zu {{siteName}} is ausgsetzt, bis eine von ihren Leitungen der aktuellen Einverständniserklärung zustimmt. Dei Daten bleiben erhalten.",
       "contact": "Bei Fragen wend di an",
       "logout": "Abmelden",
       "title": "Organisation ausgesetzt"
@@ -1648,12 +1669,16 @@
         "backToGames": "Zruck zu de Spui",
         "cannotOpen": "Des Spui ko ned weitergeh",
         "cannotStart": "Des Spui ko ned o'fangen",
+        "chooseMode": "Wie möchtest spielen?",
+        "chooseModeHint": "Red live mit der Figur, oder abwechselnd, zum Tippen oder zum Reden.",
         "continue": "Weiterspui",
         "inProgress": "Du host a angefangenes Spui",
         "inProgressHint": "Spui dort weiter, wo'd aufghört host, oder fang von vorn o.",
+        "live": "Live reden",
         "noPlaysLeft": "Bei dem Link san koa Spui mehr übrig, drum ko des Spui ned neu o'fangen.",
         "offline": "Der Spuiserver is ned erreichbar.",
         "opening": "Des Spui wird aufgmacht…",
+        "rounds": "Abwechselnd",
         "startAnew": "Neu o'fangen",
         "startAnewUsesPlay": "Neu o'z'fangen braucht oans vo de Spui bei dem Link.",
         "starting": "Des Spui fangt o…",
@@ -1688,16 +1713,16 @@
       "about": {
         "details": "De Macher beschreiben d Welt, de Figuren und d Regeln mit ihre eigenen Worten. Beim Spuin erzählt a KI d Gschicht von do aus live weiter: Sie reagiert auf alles, wos du eintippst, und erfindt passende Bilder dazu — drum lafn zwoa Runden nia genau gleich ab. Wennst selber oans baust, merkst schnell, wia stark deine eigenen Anweisungen des Ergebnis prägen und wo a KI an ihre Grenzen stoßt. Genau darum gehts: Sich KI ned erklären lassen, sondern sie ausprobieren.",
         "less": "Weniger",
-        "link": "Mehr übers ChatGameLab",
+        "link": "Mehr über {{siteName}}",
         "more": "Mehr erfahren",
-        "oneLiner": "De Textabenteuer san mitm ChatGameLab entstanden: selber baut, ohne Programmieren, live erzählt von ana KI."
+        "oneLiner": "Diese Textabenteuer san mit {{siteName}} entstanden: selber baut, ohne Programmieren, live von einer KI erzählt."
       },
       "copy": "Kopieren",
       "copyLogin": "Zum Kopieren anmelden",
       "cta": {
         "button": "Kostenlos loslegen",
         "text": "A eigenes Textabenteuer zu bauen is kostenlos und dauert bloß a paar Minuten.",
-        "title": "Bau dei eigenes ChatGameLab-Spiel"
+        "title": "Bau selber a Spiel mit {{siteName}}"
       },
       "download": "Herunterladen",
       "gamesTitle": "Spiele aus dem Workshop",
@@ -1724,6 +1749,42 @@
     "search": "Suacha",
     "searchPlaceholder": "Mitglida durchsua...",
     "serverSettings": {
+      "branding": {
+        "changed": "Geändert",
+        "description": "Wie sich diese Seite herzeigt: ihr Name im Browser-Tab und in Texten, wer sie betreibt und welche Links sie anzeigt. Lass an Link leer, damit er ausgeblendet wird.",
+        "errors": {
+          "nameRequired": "Die Seite braucht an Namen.",
+          "notEmail": "Des is koa E-Mail-Adresse.",
+          "notUrl": "Des is koa Web-Adresse. Sie fangt mit https:// oder http:// an."
+        },
+        "fields": {
+          "aiInsightsUrl": "Über die KI-Einblicke",
+          "apiKeyFaqUrl": "Fragen zu KI-Schlüsseln",
+          "contactUrl": "Kontakt",
+          "creditName": "Programmiert von",
+          "creditUrl": "Deren Website",
+          "educatorInfoUrl": "Infos für Fachkräfte",
+          "gameTipsUrl": "Tipps zum Spielebauen",
+          "helpUrl": "Hilfe",
+          "operatorName": "Betreiber",
+          "operatorUrl": "Website vom Betreiber",
+          "privacyUrl": "Datenschutzerklärung",
+          "reportGameUrl": "A Spiel melden",
+          "siteName": "Name von der Seite",
+          "supportEmail": "Support-E-Mail",
+          "termsUrl": "Nutzungsbedingungen",
+          "websiteUrl": "Website"
+        },
+        "groups": {
+          "credit": "Hinweis in der Fußzeile",
+          "identity": "Name und Betreiber",
+          "links": "Links"
+        },
+        "hidden": "Ausblendet",
+        "reset": "Zruck zum Standard",
+        "resetTo": "Zruck zum Standard: {{value}}",
+        "title": "Erscheinungsbild"
+      },
       "constraints": {
         "description": "Leg verbindliche KI-Regeln anhand von da Altersgruppe vom Spieler fest. De Jugendschutz-Regeln gehn mit jedem KI-Aufruf mit. Sie gelten für alle angemeldeten Benutzer außerhalb vom Workshop-Modus.",
         "title": "Jugendschutz-Regeln nach Altersgruppe",
@@ -1758,6 +1819,12 @@
         "title": "Gratis-KI-Qualitätsstufn"
       },
       "notAuthorized": "Du host koa Berechtigung fia Server-Einstellungen. Admin-Zugriff nötig.",
+      "tabs": {
+        "ai": "KI und Schlüssel",
+        "branding": "Erscheinungsbild",
+        "general": "Allgemein",
+        "youthProtection": "Jugendschutz"
+      },
       "title": "Server-Einstellungen",
       "updates": {
         "checkNow": "Nach Updates suacha",
@@ -1891,7 +1958,7 @@
       "title": "Dei Labor bisher"
     },
     "links": {
-      "about": "Über ChatGameLab",
+      "about": "Über {{siteName}}",
       "educators": "Für Pädagoginnen und Pädagogen",
       "jff": "JFF – Institut für Medienpädagogik"
     },
@@ -2000,11 +2067,11 @@
       "greeting": "Hallo {{name}},",
       "operator": "Träger",
       "organisation": "Einrichtung",
-      "registered": "De Organisation „{{organisation}}“ is bei ChatGameLab freigschaltet. Du bist Organisationsleitung und kannst jetzt Workshops anlegen.",
-      "renewed": "Danke! Für de Organisation „{{organisation}}“ liegt bei ChatGameLab jetzt de Zustimmung zur aktuellen Einverständniserklärung vor.",
-      "signature": "Dein ChatGameLab-Team\nJFF – Jugend Film Fernsehen e.V.",
-      "subjectRegistered": "ChatGameLab: Organisation „{{organisation}}“ freigschaltet – Einverständniserklärung",
-      "subjectRenewed": "ChatGameLab: Einverständniserklärung für „{{organisation}}“ bestätigt (Version {{version}})",
+      "registered": "Die Organisation „{{organisation}}“ is bei {{siteName}} freigschaltet. Du bist die Organisationsleitung und kannst jetzt Workshops anlegen.",
+      "renewed": "Danke! Für die Organisation „{{organisation}}“ bei {{siteName}} liegt jetzt die Zustimmung zur aktuellen Einverständniserklärung vor.",
+      "signature": "Dei Team von {{siteName}}\n{{operatorName}}",
+      "subjectRegistered": "{{siteName}}: Organisation „{{organisation}}“ freigschaltet – Einverständniserklärung",
+      "subjectRenewed": "{{siteName}}: Einverständniserklärung für „{{organisation}}“ bestätigt (Version {{version}})",
       "version": "Version",
       "versionValue": "{{version}} (Stand {{date}})"
     }
@@ -2078,12 +2145,14 @@
       "adapted-style": "Stil",
       "cast": "Stimmen besetzen",
       "cast-brief": "Figuren",
+      "character": "Figur",
       "condense-scenario": "Szenario kürzen",
       "condensed-scenario": "Szenario",
       "director": "Regie",
       "expand": "Erzählen",
       "gallery-image": "Galeriebild",
       "greeting": "Text erzeugen",
+      "hearing": "Sprache verstehn",
       "image": "Bild malen",
       "image-prompt": "Bild beschreiben",
       "image-style": "Stil anpassen",
@@ -2213,7 +2282,10 @@
       "tabUsage": "Verbrauch"
     },
     "launch": {
+      "chooseMode": "Wie möchtest spielen?",
+      "live": "Live reden",
       "noGame": "De Seitn braucht a Spui: Mach's über de Seitn von am Spui auf.",
+      "rounds": "Abwechselnd, zum Tippen oder zum Reden",
       "starting": "Des Spui startet …"
     },
     "over": {
@@ -2240,6 +2312,7 @@
       "injectionSent": "Ans Gspräch gschickt"
     },
     "problems": {
+      "chooseMode": "Des Spiel kann live oder abwechselnd gspielt werden: Wähl eins aus.",
       "denied": "Du derfst des Spui ned spuiln.",
       "failed": "Da is wos schiefganga, des Spui kann ned weitagehn.",
       "genre": "Da verfügbare KI-Schlüssel kann so a Art Spui ned ausfüahn.",
@@ -2255,12 +2328,15 @@
       "unreachable": "Da KI-Anbieter antwortet grad ned, drum geht's ned weida. Probier's in a paar Minuten no amoi."
     },
     "promptNames": {
+      "character": "Die Figur (System Message)",
       "condense-scenario": "Szenario kürzen",
       "conversation-policy": "Wia de Figur redt",
       "director": "Regie",
       "expand": "A Runde erzählen",
       "game-master": "Spielleitung (System Message)",
       "greeting": "Erste Wort",
+      "hear-player": "Sprache verstehn",
+      "hold-the-line": "Standhaft bleiben",
       "image-style": "Stil anpassen",
       "opening": "Eröffnung",
       "opening-expand": "Eröffnung erzählen",

@@ -5,14 +5,14 @@
       "description": "Tämä auttaa meitä soveltamaan oikeat suojaus- ja sisältöohjeet tiliisi.",
       "label": "Ikä- ja suojaryhmä",
       "u13": "13–17-vuotiaat, ilman huoltajan suostumusta",
-      "u13Description": "Voit käyttää ChatGameLabia. Tiliisi sovelletaan tiukempia suojausasetuksia.",
+      "u13Description": "Voit käyttää palvelua {{siteName}}. Tililläsi on käytössä vahvemmat suojausasetukset.",
       "u13p": "13–17-vuotiaat, huoltajan suostumuksella",
-      "u13pDescription": "Voit käyttää ChatGameLabia, jos vanhempasi hyväksyvät sen.",
+      "u13pDescription": "Voit käyttää palvelua {{siteName}}, jos vanhempasi antavat siihen luvan.",
       "u18": "18-vuotiaat tai vanhemmat",
-      "u18Description": "Voit käyttää ChatGameLabia.",
+      "u18Description": "Voit käyttää palvelua {{siteName}}.",
       "under13": "Alle 13-vuotiaat",
-      "under13Blocker": "Et voi vielä luoda omaa tiliä. Jos olet alle 13-vuotias, voit käyttää ChatGameLabia vain nuorisojärjestön kautta.",
-      "under13Description": "Et voi vielä luoda omaa tiliä. Jos olet alle 13-vuotias, voit käyttää ChatGameLabia vain nuorisojärjestön kautta."
+      "under13Blocker": "Et voi vielä luoda omaa tiliä. Jos olet alle 13-vuotias, voit käyttää palvelua {{siteName}} vain nuorisojärjestön kautta.",
+      "under13Description": "Et voi vielä luoda omaa tiliä. Jos olet alle 13-vuotias, voit käyttää palvelua {{siteName}} vain nuorisojärjestön kautta."
     },
     "guest": {
       "leaveConfirm": {
@@ -51,7 +51,7 @@
       }
     },
     "organizationRegistration": {
-      "accountNameDescription": "Tällä nimellä näyt ChatGameLabissa (enintään 24 merkkiä).",
+      "accountNameDescription": "Tällä nimellä näyt palvelussa {{siteName}} (enintään 24 merkkiä).",
       "accountNameLabel": "Näyttönimi",
       "cityLabel": "Kaupunki",
       "confirmAdult": "Olen vähintään 18-vuotias.",
@@ -60,9 +60,9 @@
         "emailDescription": "Lähetämme vahvistuksen ja ilmoituksen tekstin tähän osoitteeseen.",
         "introExisting": "Organisaatiollanne ”{{name}}” on nyt verkossa vahvistettava ilmoitus. Se korvaa aiemmin allekirjoittamanne käyttösopimuksen. Lukekaa se ja hyväksykää se organisaationne puolesta.",
         "introNewVersion": "Ilmoitus on päivitetty (versio {{version}}). Lukekaa uusi versio ja hyväksykää se organisaationne ”{{name}}” puolesta.",
-        "introWithdrawn": "Organisaationne ”{{name}}” suostumus ilmoitukseen peruutettiin, joten se on jäädytetty. Lukekaa ilmoitus ja hyväksykää se organisaationne puolesta, jotta voitte käyttää ChatGameLabia jälleen.",
+        "introWithdrawn": "Organisaatiosi ”{{name}}” suostumus ilmoitukseen peruttiin, joten sen käyttö on keskeytetty. Lue ilmoitus ja hyväksy se laitoksesi puolesta, jotta voit käyttää palvelua {{siteName}} uudelleen.",
         "logout": "Kirjaudu ulos",
-        "oneHeadIsEnough": "Riittää, että yksi organisaation johtohenkilö hyväksyy ilmoituksen. Siihen asti organisaationne on jäädytetty: sen jäsenet eivät voi käyttää ChatGameLabia.",
+        "oneHeadIsEnough": "Riittää, että yksi organisaation johtajista antaa suostumuksensa. Siihen asti organisaatiosi käyttö on keskeytetty: sen jäsenet eivät voi käyttää palvelua {{siteName}}.",
         "submit": "Hyväksy",
         "title": "Vahvista ilmoitus"
       },
@@ -207,10 +207,10 @@
       "agreeSuffix2": "",
       "alreadyHaveAccount": "Onko sinulla jo tili?",
       "backButton": "Takaisin",
-      "chooseType": "Miten haluaisit käyttää ChatGameLabia?",
+      "chooseType": "Miten haluat käyttää palvelua {{siteName}}?",
       "continueButton": "Jatka rekisteröintiin",
       "description": "Käytämme Auth0:aa todennuksen tarjoajana käyttäjätilien hallintaan. Sinut ohjataan Auth0:aan luomaan tilisi, minkä jälkeen palaat tänne viimeistelemään profiilisi.",
-      "educatorDescription": "Käytä ChatGameLabia työpajoissa, luokkahuoneissa tai organisaatiossasi",
+      "educatorDescription": "Käytä palvelua {{siteName}} työpajoissa, oppitunneilla tai organisaatiossasi",
       "educatorModal": {
         "closeButton": "Sulje",
         "copied": "Kopioitu!",
@@ -234,7 +234,7 @@
       "individualTitle": "Henkilökohtainen tili",
       "loginLink": "Kirjaudu sisään",
       "organizationExistingAccount": "Organisaatiot rekisteröityvät uudella kirjautumisella. Onko sinulla jo tili?",
-      "organizationIntro": "Nuorisokeskuksille, kouluille ja muille organisaatioille, jotka haluavat käyttää ChatGameLabia työpajoissa.",
+      "organizationIntro": "Nuorisokeskuksille, kouluille ja muille laitoksille, jotka haluavat käyttää palvelua {{siteName}} työpajoissa.",
       "organizationStep1": "Luot kirjautumisesi Auth0-palvelussa (sähköposti ja salasana).",
       "organizationStep2": "Anna tietosi ja laitoksesi tiedot, määritä nuorisosuojasääntö ja hyväksy ilmoitus.",
       "organizationStep3": "Kun lähetät lomakkeen, organisaatio aktivoidaan heti ja voit luoda työpajoja.",
@@ -776,6 +776,9 @@
         "embed": {
           "copy": "Kopioi koodinpätkä",
           "incomplete": "Valitse, mikä maksaa, jotta saat upotuskoodin.",
+          "mode": "Miten peliä pelataan",
+          "modeChoose": "Pelaaja valitsee",
+          "modeHint": "Tätä peliä voi pelata reaaliaikaisesti tai vuorotellen. Valitse toinen etukäteen ohittaaksesi tämän kysymyksen; jos avain tukee vain toista vaihtoehtoa, sitä käytetään.",
           "noKeys": "Sinulla ei ole toimivaa tekoälyavainta maksamista varten. Lisää sellainen tai pyydä organisaatioltasi avainta.",
           "noOrganisation": "Upottaminen on tarkoitettu organisaation peleille: sen työpajoissa kirjoitetuille tai sen johdon ja henkilöstön tekemiin peleihin. Tämä peli ei kuulu millekään organisaatiolle.",
           "noPages": "Rekisteröi ensin organisaatiosi verkkosivusto: sivu, jolla pelisi toimivat. Ylläpitäjä hyväksyy sen, minkä jälkeen peli voi käynnistyä siellä.",
@@ -794,7 +797,7 @@
           "snippetVerifiedHint": "Palvelimesi lisää kävijän ja tämän sivun katselun tunnukset; sivusi callback saa molemmat.",
           "styleLink": "Muotoile omalla CSS:lläsi →",
           "toggle": "Upota verkkosivustolle",
-          "toggleHint": "Näyttää tämän pelin organisaatiosi vahvistetulla sivulla ilman ChatGameLabin muita elementtejä. Kävijät pelaavat vieraina; valitsemasi avain maksaa.",
+          "toggleHint": "Näyttää tämän pelin organisaatiosi vahvistetulla sivulla ilman palvelun {{siteName}} muita osia ympärillä. Vierailijat pelaavat vieraina, ja valitsemasi avain maksaa käytöstä.",
           "waitingForApproval": "Organisaation sivu odottaa ylläpitäjän hyväksyntää. Siihen asti peli ei käynnisty siellä."
         },
         "fillIn": "Täytä osiot, kunnes kaikki ovat vihreitä.",
@@ -871,6 +874,14 @@
             "voiceStyleHint": "Miltä tarina kuulostaa ääneen luettuna."
           },
           "builtInVoice": "Sisäänrakennettu ääni",
+          "choices": {
+            "any": "Mikä tahansa",
+            "custom": "Mukautettu",
+            "female": "Naisääni",
+            "male": "Miesääni"
+          },
+          "choicesHint": "Miesääni, naisääni tai mikä tahansa: tarinaan sopiva sisäänrakennettu ääni.",
+          "customHint": "Mukautettu: kuvauksen perusteella luotu oma ääni.",
           "duo": {
             "voiceStyle": "Hahmojen äänet",
             "voiceStyleHint": "Jokaiselle hahmolle valitaan oma ääni."
@@ -895,8 +906,15 @@
             "greeting": "Hei siellä! Tule sisään, istu alas ja kerro, mikä toi sinut tänne.",
             "narration": "Tarina alkaa hiljaisena aamuna, kun kapea polku johtaa tuntemattomaan."
           },
+          "slots": {
+            "a": "Ensimmäinen hahmo",
+            "b": "Toinen hahmo",
+            "character": "Hahmo",
+            "narrator": "Kertoja"
+          },
           "status": {
             "builtIn": "Kuvausta ei vielä ole: peli puhuu sisäänrakennetulla äänellä, kunnes kuvaat äänen.",
+            "cast": "Pelin alkaessa se valitsee valitsemastasi tyypistä tarinaan parhaiten sopivan sisäänrakennetun äänen. Kuvaus ohjaa sitä, miten ääni puhuu.",
             "ownVoice": "Tälle kuvaukselle on oma ääni, joka on luotu tekoälyavaimellasi.",
             "steered": "Sisäänrakennettu ääni lukee tarinan kuvauksen mukaisesti."
           },
@@ -965,6 +983,8 @@
       },
       "genres": {
         "adventure": "Seikkailu",
+        "discussion": "Keskustelu",
+        "npc": "Hahmo",
         "npc-duo": "Keskustelu",
         "npc-live": "Hahmo"
       },
@@ -1159,6 +1179,7 @@
       "apiKeys": "API-avaimet",
       "closeNavigation": "Sulje navigointivalikko",
       "contact": "Yhteystiedot",
+      "contactHint": "Ota yhteyttä palvelun {{siteName}} tiimiin",
       "goToDashboard": "Siirry kojelaudalle",
       "leaveWorkshopMode": "Poistu työpajatilasta",
       "leaveWorkshopModeTooltip": "Poistu työpajatilasta ja palaa normaaliin näkymään",
@@ -1349,7 +1370,7 @@
         "consented": "Organisaationne hyväksyi version {{version}} {{date}}.",
         "title": "Suostumusilmoitus",
         "withdraw": "Peruuta suostumus",
-        "withdrawConfirm": "Ilman suostumusta organisaationne jäädytetään: yksikään jäsen ei voi käyttää ChatGameLabia, ennen kuin johtohenkilö hyväksyy ilmoituksen uudelleen. Tiedot säilytetään.",
+        "withdrawConfirm": "Ilman suostumusta organisaatiosi käyttö on keskeytetty: kukaan sen jäsenistä ei voi käyttää palvelua {{siteName}}, ennen kuin johtaja antaa suostumuksensa uudelleen. Sen tiedot säilytetään.",
         "withdrawFailed": "Toiminto epäonnistui. Yritä uudelleen.",
         "withdrawTitle": "Peruutetaanko suostumus?"
       },
@@ -1449,14 +1470,14 @@
         "approved": "Hyväksytty",
         "callbackShown": "Callback: {{url}}",
         "callbackUrl": "Callback-osoite",
-        "callbackUrlHint": "Täällä ChatGameLab kysyy ennen jokaista aloitusta. Sen on vastattava muutamassa sekunnissa.",
+        "callbackUrlHint": "Täällä {{siteName}} kysyy ennen jokaista käynnistystä. Sen on vastattava muutaman sekunnin kuluessa.",
         "copied": "Kopioitu",
         "copy": "Kopioi sivun tunnus",
         "edit": "Muokkaa sivua",
         "editReapproval": "Tämä osoite on toisella sivustolla, joka odottaa jälleen ylläpitäjän hyväksyntää; siihen asti pelit eivät käynnisty siellä. Toinen portti tai polku samalla sivustolla pysyy hyväksyttynä.",
         "editTitle": "Muokkaa sivua",
         "empty": "Vahvistettuja sivuja ei vielä ole.",
-        "intro": "Vahvistettu sivu on organisaatiosi verkkosivuston sivu, jolla voidaan näyttää upotettuja pelejäsi. Ennen pelin aloitusta siellä ChatGameLab kysyy sivun callbackilta, saako peli alkaa. Kyselyssä käytetään alla olevaa sivun tunnusta sekä sivusi välittämiä kävijän ja pyynnön tunnuksia. Vain vastaus {\"ok\": true} aloittaa pelin.",
+        "intro": "Vahvistettu sivu on organisaatiosi verkkosivustolla oleva sivu, jolla voidaan näyttää upotettuja pelejäsi. Ennen kuin peli käynnistyy siellä, {{siteName}} kysyy sivun callback-osoitteesta, käynnistetäänkö peli. Kyselyssä lähetetään alla oleva sivun tunnus sekä kävijän ja pyynnön tunnukset, jotka sivusi välittää. Vain vastaus {\"ok\": true} käynnistää pelin.",
         "pageId": "Sivun tunnus",
         "pageUrl": "Sivun osoite",
         "pageUrlHint": "Sivu, jolle pelisi on upotettu. Vain sen verkkosivusto saa näyttää ne.",
@@ -1615,8 +1636,8 @@
       "workshopInviteDescription": "Sinut on kutsuttu liittymään tähän työpajaan."
     },
     "organisationSuspended": {
-      "byAdmin": "Ylläpitäjä on jäädyttänyt organisaationne käyttöoikeuden ChatGameLabiin. Tietonne säilytetään.",
-      "consentWanted": "Organisaationne käyttöoikeus ChatGameLabiin on jäädytetty, kunnes joku sen johtohenkilöistä hyväksyy ajantasaisen suostumusilmoituksen. Tietonne säilytetään.",
+      "byAdmin": "Palvelun ylläpitäjä on keskeyttänyt organisaatiosi pääsyn palveluun {{siteName}}. Tietosi säilytetään.",
+      "consentWanted": "Organisaatiosi pääsy palveluun {{siteName}} on keskeytetty, kunnes joku sen johtajista hyväksyy nykyisen suostumusilmoituksen. Tietosi säilytetään.",
       "contact": "Jos sinulla on kysyttävää, ota yhteyttä",
       "logout": "Kirjaudu ulos",
       "title": "Organisaatio jäädytetty"
@@ -1648,12 +1669,16 @@
         "backToGames": "Takaisin peleihin",
         "cannotOpen": "Tämä peli ei voi jatkua",
         "cannotStart": "Tätä peliä ei voi aloittaa",
+        "chooseMode": "Miten haluat pelata?",
+        "chooseModeHint": "Keskustele hahmon kanssa reaaliaikaisesti tai vuorotellen kirjoittamalla tai puhumalla.",
         "continue": "Jatka",
         "inProgress": "Sinulla on peli kesken",
         "inProgressHint": "Jatka siitä, mihin jäit, tai aloita alusta.",
+        "live": "Keskustele reaaliaikaisesti",
         "noPlaysLeft": "Tällä linkillä ei ole pelikertoja jäljellä, joten peliä ei voi aloittaa uudelleen.",
         "offline": "Pelipalvelimeen ei saada yhteyttä.",
         "opening": "Peliä avataan…",
+        "rounds": "Vuorotellen",
         "startAnew": "Aloita alusta",
         "startAnewUsesPlay": "Alusta aloittaminen käyttää yhden tämän linkin pelikerroista.",
         "starting": "Peliä käynnistetään…",
@@ -1688,16 +1713,16 @@
       "about": {
         "details": "Niiden tekijät kuvailevat maailman, hahmot ja säännöt omin sanoin. Pelatessasi tekoäly jatkaa tarinaa siitä eteenpäin reaaliajassa: se reagoi kaikkeen kirjoittamaasi ja keksii siihen sopivia kuvia — siksi kaksi pelikertaa ei koskaan etene samalla tavalla. Kun rakennat pelin itse, huomaat nopeasti, kuinka voimakkaasti omat ohjeesi muokkaavat lopputulosta ja missä tekoälyn rajat tulevat vastaan. Juuri siitä on kyse: ei siitä, että tekoälystä kerrotaan, vaan siitä, että kokeilet sitä itse.",
         "less": "Vähemmän",
-        "link": "Lisää ChatGameLabista",
+        "link": "Lisätietoja palvelusta {{siteName}}",
         "more": "Lue lisää",
-        "oneLiner": "Nämä tekstiseikkailut on tehty ChatGameLabilla: käsin rakennettuja, ilman ohjelmointia, ja tekoälyn reaaliajassa kertomia."
+        "oneLiner": "Nämä tekstiseikkailut on tehty palvelulla {{siteName}}: rakennettu käsin ilman ohjelmointia ja tekoälyn kertomina reaaliaikaisesti."
       },
       "copy": "Kopioi",
       "copyLogin": "Kirjaudu sisään kopioidaksesi",
       "cta": {
         "button": "Aloita ilmaiseksi",
         "text": "Oman tekstiseikkailun rakentaminen on ilmaista ja vie vain muutaman minuutin.",
-        "title": "Tee oma ChatGameLab-pelisi"
+        "title": "Tee oma pelisi palvelulla {{siteName}}"
       },
       "download": "Lataa",
       "gamesTitle": "Tämän työpajan pelit",
@@ -1724,6 +1749,42 @@
     "search": "Haku",
     "searchPlaceholder": "Hae jäseniä...",
     "serverSettings": {
+      "branding": {
+        "changed": "Muutettu",
+        "description": "Miten tämä sivusto esittelee itsensä: sen nimi selaimen välilehdellä ja teksteissä, kuka sitä ylläpitää ja mitä linkkejä se näyttää. Jätä linkki tyhjäksi piilottaaksesi sen.",
+        "errors": {
+          "nameRequired": "Sivustolla on oltava nimi.",
+          "notEmail": "Tämä ei ole sähköpostiosoite.",
+          "notUrl": "Tämä ei ole verkko-osoite. Sen alussa on https:// tai http://."
+        },
+        "fields": {
+          "aiInsightsUrl": "Tietoa tekoälyn oivalluksista",
+          "apiKeyFaqUrl": "Kysymyksiä tekoälyavaimista",
+          "contactUrl": "Yhteystiedot",
+          "creditName": "Ohjelmoinut",
+          "creditUrl": "Hänen verkkosivustonsa",
+          "educatorInfoUrl": "Tietoa kouluttajille",
+          "gameTipsUrl": "Vinkkejä pelien tekemiseen",
+          "helpUrl": "Ohje",
+          "operatorName": "Ylläpitäjä",
+          "operatorUrl": "Ylläpitäjän verkkosivusto",
+          "privacyUrl": "Tietosuojakäytäntö",
+          "reportGameUrl": "Ilmoita pelistä",
+          "siteName": "Sivuston nimi",
+          "supportEmail": "Tuen sähköposti",
+          "termsUrl": "Käyttöehdot",
+          "websiteUrl": "Verkkosivusto"
+        },
+        "groups": {
+          "credit": "Tekijätieto alatunnisteessa",
+          "identity": "Nimi ja ylläpitäjä",
+          "links": "Linkit"
+        },
+        "hidden": "Piilotettu",
+        "reset": "Palauta oletus",
+        "resetTo": "Palauta oletus: {{value}}",
+        "title": "Brändäys"
+      },
       "constraints": {
         "description": "Määritä pelaajan ikäryhmään perustuvat pakolliset tekoälysäännöt. Nämä nuorisosuojasäännöt liitetään jokaiseen tekoälykutsuun. Ne koskevat kaikkia kirjautuneita käyttäjiä työpajatilassa toimimisen ulkopuolella.",
         "title": "Ikäryhmäkohtaiset nuorisosuojasäännöt",
@@ -1758,6 +1819,12 @@
         "title": "Vapaaseen käyttöön tarkoitettu AI-laatutaso"
       },
       "notAuthorized": "Sinulla ei ole oikeutta käyttää palvelinasetuksia. Ylläpitäjätaso vaaditaan.",
+      "tabs": {
+        "ai": "Tekoäly ja avaimet",
+        "branding": "Brändäys",
+        "general": "Yleiset",
+        "youthProtection": "Nuorten suojaus"
+      },
       "title": "Palvelinasetukset",
       "updates": {
         "checkNow": "Tarkista päivitykset",
@@ -1891,7 +1958,7 @@
       "title": "Laboratoriosi tähän mennessä"
     },
     "links": {
-      "about": "Tietoa ChatGameLabista",
+      "about": "Tietoa palvelusta {{siteName}}",
       "educators": "Kasvattajille",
       "jff": "JFF – mediapedagogiikan instituutti"
     },
@@ -2000,11 +2067,11 @@
       "greeting": "Hei {{name}},",
       "operator": "Ylläpitäjä",
       "organisation": "Organisaatio",
-      "registered": "organisaatio ”{{organisation}}” on nyt aktiivinen ChatGameLabissa. Olet sen johtohenkilö ja voit nyt luoda työpajoja.",
-      "renewed": "kiitos! ChatGameLabissa organisaatiolla ”{{organisation}}” on nyt suostumus ajantasaiseen suostumusilmoitukseen.",
-      "signature": "ChatGameLab-tiimisi\nJFF – Jugend Film Fernsehen e.V.",
-      "subjectRegistered": "ChatGameLab: organisaatio ”{{organisation}}” on aktiivinen – suostumusilmoitus",
-      "subjectRenewed": "ChatGameLab: organisaation ”{{organisation}}” suostumusilmoitus vahvistettu (versio {{version}})",
+      "registered": "organisaatio ”{{organisation}}” on nyt aktiivinen palvelussa {{siteName}}. Olet sen johtaja ja voit nyt luoda työpajoja.",
+      "renewed": "kiitos! Palvelulla {{siteName}} on nyt organisaation ”{{organisation}}” suostumus nykyiseen suostumusilmoitukseen.",
+      "signature": "Palvelun {{siteName}} tiimi\n{{operatorName}}",
+      "subjectRegistered": "{{siteName}}: organisaatio ”{{organisation}}” on aktiivinen – suostumusilmoitus",
+      "subjectRenewed": "{{siteName}}: organisaation ”{{organisation}}” suostumusilmoitus vahvistettu (versio {{version}})",
       "version": "Versio",
       "versionValue": "{{version}} ({{date}})"
     }
@@ -2078,12 +2145,14 @@
       "adapted-style": "Tyyli",
       "cast": "Äänien roolitus",
       "cast-brief": "Hahmot",
+      "character": "Hahmo",
       "condense-scenario": "Lyhennä skenaariota",
       "condensed-scenario": "Skenaario",
       "director": "Ohjaaja",
       "expand": "Kerro",
       "gallery-image": "Gallerian kuva",
       "greeting": "Luo tekstiä",
+      "hearing": "Puheen ymmärtäminen",
       "image": "Piirrä kuva",
       "image-prompt": "Kuvaile kuvaa",
       "image-style": "Muokkaa tyyliä",
@@ -2213,7 +2282,10 @@
       "tabUsage": "Käyttö"
     },
     "launch": {
+      "chooseMode": "Miten haluat pelata?",
+      "live": "Keskustele reaaliaikaisesti",
       "noGame": "Tämä sivu tarvitsee pelin: avaa se pelin sivulta.",
+      "rounds": "Vuorotellen, kirjoittaen tai puhuen",
       "starting": "Peliä käynnistetään…"
     },
     "over": {
@@ -2240,6 +2312,7 @@
       "injectionSent": "Lähetetty keskusteluun"
     },
     "problems": {
+      "chooseMode": "Tätä peliä voi pelata reaaliaikaisesti tai vuorotellen: valitse toinen.",
       "denied": "Et voi pelata tätä peliä.",
       "failed": "Jokin meni pieleen, eikä peli voi jatkua.",
       "genre": "Käytettävissä oleva tekoälyavain ei voi suorittaa tämän tyyppistä peliä.",
@@ -2255,12 +2328,15 @@
       "unreachable": "Tekoälypalveluntarjoaja ei vastaa juuri nyt, joten peli ei voi jatkua. Yritä uudelleen muutaman minuutin kuluttua."
     },
     "promptNames": {
+      "character": "Hahmo (järjestelmäviesti)",
       "condense-scenario": "Tiivistä skenaario",
       "conversation-policy": "Miten hahmo puhuu",
       "director": "Ohjaaja",
       "expand": "Kerro vuoro",
       "game-master": "Pelinohjaaja (järjestelmäviesti)",
       "greeting": "Ensimmäiset sanat",
+      "hear-player": "Puheen ymmärtäminen",
+      "hold-the-line": "Pidä linja",
       "image-style": "Muokkaa tyyliä",
       "opening": "Avaus",
       "opening-expand": "Kerro avaus",

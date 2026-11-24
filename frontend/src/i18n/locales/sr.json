@@ -5,14 +5,14 @@
       "description": "Ово нам помаже да применимо одговарајућу заштиту и смернице за садржај на вашем налогу.",
       "label": "Група година и заштите",
       "u13": "13–17 година, без сагласности родитеља",
-      "u13Description": "Можете користити ChatGameLab. На ваш налог биће примењена строжа подешавања заштите.",
+      "u13Description": "Можеш да користиш {{siteName}}. За твој налог ће важити строжа подешавања заштите.",
       "u13p": "13–17 година, са сагласношћу родитеља",
-      "u13pDescription": "Можете користити ChatGameLab ако се ваши родитељи сагласе.",
+      "u13pDescription": "Можеш да користиш {{siteName}} ако се твоји родитељи слажу.",
       "u18": "18 година или више",
-      "u18Description": "Можете користити ChatGameLab.",
+      "u18Description": "Можеш да користиш {{siteName}}.",
       "under13": "Млађи од 13 година",
-      "under13Blocker": "Још не можете да направите сопствени налог. Ако сте млађи од 13 година, ChatGameLab можете користити само преко омладинске организације.",
-      "under13Description": "Још не можете да направите сопствени налог. Ако сте млађи од 13 година, ChatGameLab можете користити само преко омладинске организације."
+      "under13Blocker": "Још не можеш да направиш сопствени налог. Ако имаш мање од 13 година, {{siteName}} можеш да користиш само преко омладинске организације.",
+      "under13Description": "Још не можеш да направиш сопствени налог. Ако имаш мање од 13 година, {{siteName}} можеш да користиш само преко омладинске организације."
     },
     "guest": {
       "leaveConfirm": {
@@ -51,7 +51,7 @@
       }
     },
     "organizationRegistration": {
-      "accountNameDescription": "Овако се приказујете у ChatGameLab-у (највише 24 знака).",
+      "accountNameDescription": "Овако се приказујеш на {{siteName}} (највише 24 знака).",
       "accountNameLabel": "Име за приказ",
       "cityLabel": "Место",
       "confirmAdult": "Имам најмање 18 година.",
@@ -60,9 +60,9 @@
         "emailDescription": "Потврду са текстом изјаве шаљемо на ову адресу.",
         "introExisting": "Ваша организација „{{name}}“ сада има изјаву која је потврђена на мрежи. Она замењује кориснички уговор који сте раније потписали. Прочитајте је и прихватите у име своје установе.",
         "introNewVersion": "Изјава је ажурирана (верзија {{version}}). Прочитајте нову верзију и прихватите је у име своје организације „{{name}}“.",
-        "introWithdrawn": "Сагласност ваше организације „{{name}}“ са изјавом је повучена, па је њено важење суспендовано. Прочитајте изјаву и прихватите је у име своје установе да бисте поново користили ChatGameLab.",
+        "introWithdrawn": "Сагласност ваше организације „{{name}}“ са изјавом је повучена, па је организација суспендована. Прочитајте изјаву и сагласите се у име ваше установе како бисте поново користили {{siteName}}.",
         "logout": "Одјави се",
-        "oneHeadIsEnough": "Довољно је да једно лице одговорно за организацију да сагласност. До тада је ваша организација суспендована: њени чланови не могу да користе ChatGameLab.",
+        "oneHeadIsEnough": "Довољно је да се сагласи једна особа на челу организације. До тада је ваша организација суспендована: њени чланови не могу да користе {{siteName}}.",
         "submit": "Прихвати",
         "title": "Потврди изјаву"
       },
@@ -207,10 +207,10 @@
       "agreeSuffix2": "",
       "alreadyHaveAccount": "Već imate nalog?",
       "backButton": "Nazad",
-      "chooseType": "Kako želite da koristite ChatGameLab?",
+      "chooseType": "Како желиш да користиш {{siteName}}?",
       "continueButton": "Nastavi na registraciju",
       "description": "Koristimo Auth0 kao provajdera autentifikacije za upravljanje korisničkim nalozima. Bićete preusmereni na Auth0 da kreirate nalog, a zatim vraćeni ovde da dovršite svoj profil.",
-      "educatorDescription": "Koristite ChatGameLab na radionicama, u učionicama ili u svojoj organizaciji",
+      "educatorDescription": "Користи {{siteName}} на радионицама, часовима или у својој организацији",
       "educatorModal": {
         "closeButton": "Zatvori",
         "copied": "Kopirano!",
@@ -234,7 +234,7 @@
       "individualTitle": "Lični nalog",
       "loginLink": "Prijavi se",
       "organizationExistingAccount": "Организације се региструју новом пријавом. Већ имате налог?",
-      "organizationIntro": "За омладинске центре, школе и друге установе које желе да користе ChatGameLab у радионицама.",
+      "organizationIntro": "За омладинске центре, школе и друге установе које желе да користе {{siteName}} на радионицама.",
       "organizationStep1": "Креирате пријаву преко Auth0-а (имејл и лозинка).",
       "organizationStep2": "Уносите податке о себи и својој установи, утврђујете правило заштите деце и младих и прихватате изјаву о сагласности.",
       "organizationStep3": "Након слања обрасца, организација се одмах активира и можете да креирате радионице.",
@@ -776,6 +776,9 @@
         "embed": {
           "copy": "Kopiraj isečak koda",
           "incomplete": "Изаберите шта се плаћа да бисте добили исечак кода.",
+          "mode": "Како се игра игра",
+          "modeChoose": "Играч бира",
+          "modeHint": "Ова игра може да се игра уживо или наизменично. Унапред изабери једну опцију да прескочиш питање; ако кључ подржава само једну опцију, она ће бити изабрана.",
           "noKeys": "Nemate nijedan ispravan AI ključ kojim možete da platite. Dodajte ga ili zatražite od svoje organizacije.",
           "noOrganisation": "Уграђивање је намењено играма неке организације: играма написаним на њеним радионицама или од стране њеног руководства и запослених. Ова игра не припада ниједној организацији.",
           "noPages": "Прво региструјте веб-сајт своје организације: страницу на којој ће се ваше игре покретати. Администратор ће је одобрити, након чега игра може да се покреће на њој.",
@@ -794,7 +797,7 @@
           "snippetVerifiedHint": "Vaš server unosi ID posetioca i ID ovog prikaza stranice; povratni poziv vaše stranice dobija oba.",
           "styleLink": "Uredite izgled sopstvenim CSS-om →",
           "toggle": "Ugradi na veb-sajt",
-          "toggleHint": "Prikazuje ovu igru na verifikovanoj stranici vaše organizacije, bez ičega iz ChatGameLab-a oko nje. Posetioci igraju kao gosti; izabrani ključ plaća.",
+          "toggleHint": "Приказује ову игру на верификованој страници твоје организације, без икаквих елемената сајта {{siteName}} око ње. Посетиоци играју као гости; трошак сноси изабрани кључ.",
           "waitingForApproval": "Страница организације чека одобрење администратора. До тада игра не може да се покреће на њој."
         },
         "fillIn": "Popunjavajte odeljke dok svi ne postanu zeleni.",
@@ -871,6 +874,14 @@
             "voiceStyleHint": "Kako priča zvuči kada se čita naglas."
           },
           "builtInVoice": "Ugrađeni glas",
+          "choices": {
+            "any": "Било који",
+            "custom": "Прилагођени",
+            "female": "Женски",
+            "male": "Мушки"
+          },
+          "choicesHint": "Мушки, женски или било који: уграђени глас који одговара причи.",
+          "customHint": "Прилагођени: засебан глас направљен на основу описа.",
           "duo": {
             "voiceStyle": "Гласови ликова",
             "voiceStyleHint": "Сваки лик добија сопствени глас."
@@ -895,8 +906,15 @@
             "greeting": "Zdravo! Uđite, sedite i recite mi šta vas dovodi ovamo.",
             "narration": "Priča počinje jednog tihog jutra, dok uzana staza vodi u nepoznato."
           },
+          "slots": {
+            "a": "Први лик",
+            "b": "Други лик",
+            "character": "Лик",
+            "narrator": "Наратор"
+          },
           "status": {
             "builtIn": "Još nema opisa: igra govori ugrađenim glasom dok ne opišete glas.",
+            "cast": "Када игра почне, бира уграђени глас изабране врсте који најбоље одговара причи. Опис усмерава начин на који глас говори.",
             "ownVoice": "Sopstveni glas za ovaj opis, napravljen pomoću vašeg AI ključa.",
             "steered": "Ugrađeni glas čita priču onako kako opis nalaže."
           },
@@ -965,6 +983,8 @@
       },
       "genres": {
         "adventure": "Авантура",
+        "discussion": "Дискусија",
+        "npc": "Лик",
         "npc-duo": "Разговор",
         "npc-live": "Лик"
       },
@@ -1159,6 +1179,7 @@
       "apiKeys": "API кључеви",
       "closeNavigation": "Затвори мени навигације",
       "contact": "Контакт",
+      "contactHint": "Контактирај тим сајта {{siteName}}",
       "goToDashboard": "Иди на контролну таблу",
       "leaveWorkshopMode": "Напусти режим радионице",
       "leaveWorkshopModeTooltip": "Напустите режим радионице и вратите се у нормалан приказ",
@@ -1349,7 +1370,7 @@
         "consented": "Ваша организација је прихватила верзију {{version}} дана {{date}}.",
         "title": "Изјава о сагласности",
         "withdraw": "Повучи сагласност",
-        "withdrawConfirm": "Без сагласности ваша организација је суспендована: ниједан члан не може да користи ChatGameLab док руководилац поново не да сагласност. Подаци остају сачувани.",
+        "withdrawConfirm": "Без сагласности ваша организација је суспендована: ниједан члан не може да користи {{siteName}} док се неко од руководилаца поново не сагласи. Подаци организације ће бити сачувани.",
         "withdrawFailed": "То није успело. Покушајте поново.",
         "withdrawTitle": "Повучи сагласност?"
       },
@@ -1449,14 +1470,14 @@
         "approved": "Одобрено",
         "callbackShown": "Povratni poziv: {{url}}",
         "callbackUrl": "Adresa povratnog poziva",
-        "callbackUrlHint": "Ovde ChatGameLab pita pre svakog pokretanja. Stranica mora da odgovori u roku od nekoliko sekundi.",
+        "callbackUrlHint": "Овде {{siteName}} поставља питање пре сваког покретања. Страница мора да одговори у року од неколико секунди.",
         "copied": "Kopirano",
         "copy": "Kopiraj ID stranice",
         "edit": "Измени страницу",
         "editReapproval": "Ова адреса је на другој веб-локацији, па поново чека одобрење администратора; до тада игре не могу да се покрећу на њој. Други порт или путања на истој веб-локацији остају одобрени.",
         "editTitle": "Измени страницу",
         "empty": "Još nema verifikovanih stranica.",
-        "intro": "Verifikovana stranica je stranica na veb-sajtu vaše organizacije koja sme da prikazuje vaše ugrađene igre. Pre nego što se igra tamo pokrene, ChatGameLab pita povratni poziv stranice da li da je pokrene, koristeći ID stranice ispod i ID-jeve posetioca i zahteva koje vaša stranica prosleđuje. Samo odgovor {\"ok\": true} pokreće igru.",
+        "intro": "Верификована страница је страница на веб-сајту ваше организације на којој могу да се приказују ваше уграђене игре. Пре него што се игра тамо покрене, {{siteName}} пита повратни позив странице да ли да је покрене, шаљући ИД странице наведен испод, као и ИД-ове посетиоца и захтева које ваша страница прослеђује. Игру покреће само одговор {\"ok\": true}.",
         "pageId": "ID stranice",
         "pageUrl": "Adresa stranice",
         "pageUrlHint": "Stranica u koju su vaše igre ugrađene. Samo njen veb-sajt sme da ih prikazuje.",
@@ -1615,8 +1636,8 @@
       "workshopInviteDescription": "Pozvani ste da se pridružite ovoj radionici."
     },
     "organisationSuspended": {
-      "byAdmin": "Оператор је суспендовао приступ ваше организације ChatGameLab-у. Подаци остају сачувани.",
-      "consentWanted": "Приступ ваше организације ChatGameLab-у је суспендован док један од њених руководилаца не прихвати актуелну изјаву о сагласности. Подаци остају сачувани.",
+      "byAdmin": "Оператер је суспендовао приступ ваше организације сајту {{siteName}}. Ваши подаци ће бити сачувани.",
+      "consentWanted": "Приступ ваше организације сајту {{siteName}} је суспендован док се један од њених руководилаца не сагласи са актуелном изјавом о сагласности. Ваши подаци ће бити сачувани.",
       "contact": "Ако имате питања, обратите се",
       "logout": "Одјави се",
       "title": "Организација је суспендована"
@@ -1648,12 +1669,16 @@
         "backToGames": "Назад на игре",
         "cannotOpen": "Ова игра не може да се настави",
         "cannotStart": "Ова игра не може да започне",
+        "chooseMode": "Како желиш да играш?",
+        "chooseModeHint": "Разговарај уживо са ликом или играј наизменично, куцањем или говором.",
         "continue": "Настави",
         "inProgress": "Имате игру у току",
         "inProgressHint": "Наставите тамо где сте стали или почните испочетка.",
+        "live": "Разговарај уживо",
         "noPlaysLeft": "Овај линк нема више играња, па игра не може да започне испочетка.",
         "offline": "Није могуће повезати се са сервером игре.",
         "opening": "Игра се отвара…",
+        "rounds": "Играј наизменично",
         "startAnew": "Почни испочетка",
         "startAnewUsesPlay": "Почетак испочетка троши једно од играња овог линка.",
         "starting": "Игра започиње…",
@@ -1688,16 +1713,16 @@
       "about": {
         "details": "Njihovi autori opisuju svet, likove i pravila svojim rečima. Dok igrate, AI odatle uživo nastavlja da pripoveda priču: reaguje na sve što unesete i izmišlja odgovarajuće slike — zato se nijedna dva igranja ne odvijaju na isti način. Kada sami napravite jednu, brzo ćete videti koliko vaše instrukcije oblikuju rezultat i gde AI nailazi na svoja ograničenja. U tome i jeste poenta: ne slušati objašnjenje o AI-ju, već ga isprobati.",
         "less": "Manje",
-        "link": "Više o ChatGameLabu",
+        "link": "Више о {{siteName}}",
         "more": "Saznajte više",
-        "oneLiner": "Ove tekstualne avanture napravljene su uz ChatGameLab: ručno, bez programiranja, a AI ih pripoveda uživo."
+        "oneLiner": "Ове текстуалне авантуре направљене су уз {{siteName}}: ручно, без програмирања, а уживо их приповеда вештачка интелигенција."
       },
       "copy": "Копирај",
       "copyLogin": "Пријавите се да бисте копирали",
       "cta": {
         "button": "Počnite besplatno",
         "text": "Pravljenje sopstvene tekstualne avanture je besplatno i traje samo nekoliko minuta.",
-        "title": "Napravite svoju ChatGameLab igru"
+        "title": "Направи сопствену игру уз {{siteName}}"
       },
       "download": "Преузми",
       "gamesTitle": "Игре из ове радионице",
@@ -1724,6 +1749,42 @@
     "search": "Претрага",
     "searchPlaceholder": "Претражите чланове...",
     "serverSettings": {
+      "branding": {
+        "changed": "Измењено",
+        "description": "Како се овај сајт представља: његов назив у картици прегледача и у текстовима, ко њиме управља и које везе приказује. Остави поље за везу празно да би се она сакрила.",
+        "errors": {
+          "nameRequired": "Сајт мора да има назив.",
+          "notEmail": "Ово није имејл адреса.",
+          "notUrl": "Ово није веб адреса. Почиње са https:// или http://."
+        },
+        "fields": {
+          "aiInsightsUrl": "О увидима вештачке интелигенције",
+          "apiKeyFaqUrl": "Питања о кључевима за вештачку интелигенцију",
+          "contactUrl": "Контакт",
+          "creditName": "Програмирао/ла",
+          "creditUrl": "Њихов веб-сајт",
+          "educatorInfoUrl": "Информације за едукаторе",
+          "gameTipsUrl": "Савети за прављење игара",
+          "helpUrl": "Помоћ",
+          "operatorName": "Оператер",
+          "operatorUrl": "Веб-сајт оператера",
+          "privacyUrl": "Политика приватности",
+          "reportGameUrl": "Пријави игру",
+          "siteName": "Назив сајта",
+          "supportEmail": "Имејл за подршку",
+          "termsUrl": "Услови коришћења",
+          "websiteUrl": "Веб-сајт"
+        },
+        "groups": {
+          "credit": "Заслуге у подножју",
+          "identity": "Назив и оператер",
+          "links": "Везе"
+        },
+        "hidden": "Скривено",
+        "reset": "Врати на подразумевано",
+        "resetTo": "Врати на подразумевано: {{value}}",
+        "title": "Изглед"
+      },
       "constraints": {
         "description": "Дефинишите обавезна правила за вештачку интелигенцију на основу узрасне групе играча. Ова правила заштите деце и младих додају се сваком позиву вештачкој интелигенцији. Примењују се на све пријављене кориснике ван режима радионице.",
         "title": "Правила заштите деце и младих по узрасним групама",
@@ -1758,6 +1819,12 @@
         "title": "Ниво квалитета АИ за бесплатне сесије"
       },
       "notAuthorized": "Немате дозволу за приступ серверским подешавањима. Потребан је администраторски приступ.",
+      "tabs": {
+        "ai": "Вештачка интелигенција и кључеви",
+        "branding": "Изглед",
+        "general": "Опште",
+        "youthProtection": "Заштита младих"
+      },
       "title": "Серверска подешавања",
       "updates": {
         "checkNow": "Провери да ли има ажурирања",
@@ -1891,7 +1958,7 @@
       "title": "Ваш досадашњи рад у лабораторији"
     },
     "links": {
-      "about": "О ChatGameLab-у",
+      "about": "О сајту {{siteName}}",
       "educators": "За просветне раднике",
       "jff": "JFF – Институт за медијску педагогију"
     },
@@ -2000,11 +2067,11 @@
       "greeting": "Здраво, {{name}},",
       "operator": "Оснивач",
       "organisation": "Организација",
-      "registered": "организација „{{organisation}}“ је сада активна на ChatGameLab-у. Ви сте њен руководилац и сада можете да креирате радионице.",
-      "renewed": "хвала! ChatGameLab сада има сагласност организације „{{organisation}}“ са актуелном изјавом о сагласности.",
-      "signature": "Ваш ChatGameLab тим\nJFF – Jugend Film Fernsehen e.V.",
-      "subjectRegistered": "ChatGameLab: организација „{{organisation}}“ је активна – изјава о сагласности",
-      "subjectRenewed": "ChatGameLab: изјава о сагласности за „{{organisation}}“ потврђена (верзија {{version}})",
+      "registered": "организација „{{organisation}}“ је сада активна на сајту {{siteName}}. Ти си њен руководилац и сада можеш да креираш радионице.",
+      "renewed": "хвала! Сајт {{siteName}} сада има сагласност организације „{{organisation}}“ са актуелном изјавом о сагласности.",
+      "signature": "Тим сајта {{siteName}}\n{{operatorName}}",
+      "subjectRegistered": "{{siteName}}: организација „{{organisation}}“ је активна – изјава о сагласности",
+      "subjectRenewed": "{{siteName}}: потврђена изјава о сагласности за „{{organisation}}“ (верзија {{version}})",
       "version": "Верзија",
       "versionValue": "{{version}} (од {{date}})"
     }
@@ -2078,12 +2145,14 @@
       "adapted-style": "Стил",
       "cast": "Додели гласове",
       "cast-brief": "Ликови",
+      "character": "Лик",
       "condense-scenario": "Скрати сценарио",
       "condensed-scenario": "Сценарио",
       "director": "Режија",
       "expand": "Приповедај",
       "gallery-image": "Слика из галерије",
       "greeting": "Генериши текст",
+      "hearing": "Разумевање говора",
       "image": "Нацртај слику",
       "image-prompt": "Опиши слику",
       "image-style": "Прилагоди стил",
@@ -2213,7 +2282,10 @@
       "tabUsage": "Употреба"
     },
     "launch": {
+      "chooseMode": "Како желиш да играш?",
+      "live": "Разговарај уживо",
       "noGame": "Ovoj stranici je potrebna igra: otvori je sa stranice igre.",
+      "rounds": "Играј наизменично, куцањем или говором",
       "starting": "Pokretanje igre…"
     },
     "over": {
@@ -2240,6 +2312,7 @@
       "injectionSent": "Послато у разговор"
     },
     "problems": {
+      "chooseMode": "Ова игра може да се игра уживо или наизменично: изабери једну опцију.",
       "denied": "Nije ti dozvoljeno da igraš ovu igru.",
       "failed": "Nešto je pošlo naopako i igra ne može da se nastavi.",
       "genre": "Dostupni AI ključ ne može da pokrene ovu vrstu igre.",
@@ -2255,12 +2328,15 @@
       "unreachable": "AI provajder trenutno ne odgovara, pa igra ne može da se nastavi. Pokušaj ponovo za nekoliko minuta."
     },
     "promptNames": {
+      "character": "Лик (системска порука)",
       "condense-scenario": "Скрати сценарио",
       "conversation-policy": "Како лик говори",
       "director": "Режија",
       "expand": "Испричај потез",
       "game-master": "Водитељ игре (системска порука)",
       "greeting": "Прве речи",
+      "hear-player": "Разумевање говора",
+      "hold-the-line": "Остани при свом",
       "image-style": "Прилагоди стил",
       "opening": "Увод",
       "opening-expand": "Испричај увод",
