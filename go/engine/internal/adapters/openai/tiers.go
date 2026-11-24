@@ -30,7 +30,7 @@ import "engine/internal/adapters"
 // thread runs on a gpt-realtime model, which writes the prose and says it.
 // The mini model serves low and medium, the full one high.
 var (
-	live       = adapters.Model{Name: "gpt-live-1"}
+	live       = adapters.Model{Name: "gpt-live-1.1"}
 	tooling    = adapters.Model{Name: "gpt-6-luna"}
 	speechMini = speaking("gpt-realtime-2.1-mini")
 	speechFull = speaking("gpt-realtime-2.1")
