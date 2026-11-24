@@ -26,6 +26,6 @@ func ReadDeclarationForm(ctx context.Context) (DeclarationForm, error) {
 	}
 	return DeclarationForm{
 		Declaration: legal.CurrentDeclaration(),
-		SiteRule:    nullString(settings.PromptConstraintU13),
+		SiteRule:    siteRulesOf(settings).U13,
 	}, nil
 }

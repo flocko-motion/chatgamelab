@@ -380,6 +380,14 @@ func (s *PermissionMatrixTestSuite) TestInvitesAndSite() {
 				_, err := c.SetSiteBranding(map[string]string{"siteName": "ChatGameLab"})
 				return err
 			}},
+		// so are the engine's models and model table
+		{"see the engine's models", []string{"admin"},
+			func(c *testutil.UserClient) error { _, err := c.EngineModels(); return err }},
+		{"assign an engine model", []string{"admin"},
+			func(c *testutil.UserClient) error {
+				_, err := c.AssignEngineModel("openai", "low", "tooling", "")
+				return err
+			}},
 	})
 }
 

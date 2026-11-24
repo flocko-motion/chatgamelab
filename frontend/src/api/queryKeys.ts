@@ -101,6 +101,7 @@ export const queryKeys = {
   version: ["version"] as const,
   systemSettings: ["systemSettings"] as const,
   site: ["site"] as const,
+  engineModels: ["engineModels"] as const,
   updates: ["updates"] as const,
   systemConstraints: ["systemConstraints"] as const,
 

@@ -209,6 +209,29 @@
         ],
         "type": "object"
       },
+      "AssignEngineModelReq": {
+        "properties": {
+          "model": {
+            "type": "string"
+          },
+          "platform": {
+            "$ref": "#/components/schemas/Platform"
+          },
+          "tier": {
+            "$ref": "#/components/schemas/Tier"
+          },
+          "type": {
+            "$ref": "#/components/schemas/ModelType"
+          }
+        },
+        "required": [
+          "platform",
+          "tier",
+          "type",
+          "model"
+        ],
+        "type": "object"
+      },
       "AvailableKey": {
         "properties": {
           "isDefault": {
@@ -915,6 +938,53 @@
           "to",
           "kind",
           "recent"
+        ],
+        "type": "object"
+      },
+      "EngineModelsPlatform": {
+        "properties": {
+          "assignments": {
+            "items": {
+              "$ref": "#/components/schemas/ModelSlotView"
+            },
+            "type": "array"
+          },
+          "configurable": {
+            "type": "boolean"
+          },
+          "id": {
+            "$ref": "#/components/schemas/Platform"
+          },
+          "models": {
+            "items": {
+              "$ref": "#/components/schemas/ModelTableRowView"
+            },
+            "type": "array"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "configurable",
+          "assignments",
+          "models"
+        ],
+        "type": "object"
+      },
+      "EngineModelsResp": {
+        "properties": {
+          "platforms": {
+            "items": {
+              "$ref": "#/components/schemas/EngineModelsPlatform"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "platforms"
         ],
         "type": "object"
       },
@@ -2364,6 +2434,112 @@
         ],
         "type": "object"
       },
+      "ModelFactsOverride": {
+        "properties": {
+          "in": {
+            "items": {
+              "$ref": "#/components/schemas/Medium"
+            },
+            "type": "array"
+          },
+          "out": {
+            "items": {
+              "$ref": "#/components/schemas/Medium"
+            },
+            "type": "array"
+          },
+          "price": {
+            "$ref": "#/components/schemas/Price"
+          },
+          "since": {
+            "type": "string"
+          },
+          "window": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "price",
+          "since"
+        ],
+        "type": "object"
+      },
+      "ModelSlotView": {
+        "properties": {
+          "assigned": {
+            "type": "boolean"
+          },
+          "default": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "modifiedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "tier": {
+            "$ref": "#/components/schemas/Tier"
+          },
+          "type": {
+            "$ref": "#/components/schemas/ModelType"
+          }
+        },
+        "required": [
+          "tier",
+          "type",
+          "model",
+          "default",
+          "assigned"
+        ],
+        "type": "object"
+      },
+      "ModelTableRowView": {
+        "properties": {
+          "default": {
+            "$ref": "#/components/schemas/ModelFacts"
+          },
+          "facts": {
+            "$ref": "#/components/schemas/ModelFacts"
+          },
+          "inUse": {
+            "type": "boolean"
+          },
+          "model": {
+            "type": "string"
+          },
+          "modifiedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "overridden": {
+            "type": "boolean"
+          },
+          "stale": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "model",
+          "facts",
+          "overridden",
+          "stale",
+          "inUse"
+        ],
+        "type": "object"
+      },
+      "ModelType": {
+        "enum": [
+          "tooling",
+          "story",
+          "image",
+          "live",
+          "speech",
+          "hearing"
+        ],
+        "type": "string"
+      },
       "NamedRef": {
         "properties": {
           "id": {
@@ -3160,6 +3336,9 @@
       },
       "PlatformInfo": {
         "properties": {
+          "configurable": {
+            "type": "boolean"
+          },
           "genres": {
             "items": {
               "$ref": "#/components/schemas/Genre"
@@ -3195,6 +3374,7 @@
           "id",
           "name",
           "userKeys",
+          "configurable",
           "toggles",
           "genres",
           "tiers",
@@ -3264,6 +3444,50 @@
         },
         "required": [
           "shares"
+        ],
+        "type": "object"
+      },
+      "ProbeEngineModelReq": {
+        "properties": {
+          "model": {
+            "type": "string"
+          },
+          "platform": {
+            "$ref": "#/components/schemas/Platform"
+          },
+          "type": {
+            "$ref": "#/components/schemas/ModelType"
+          }
+        },
+        "required": [
+          "platform",
+          "type",
+          "model"
+        ],
+        "type": "object"
+      },
+      "ProbeEngineModelResp": {
+        "properties": {
+          "answers": {
+            "type": "boolean"
+          },
+          "cost": {
+            "type": "number"
+          },
+          "message": {
+            "type": "string"
+          },
+          "priced": {
+            "type": "boolean"
+          },
+          "problem": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "answers",
+          "cost",
+          "priced"
         ],
         "type": "object"
       },
@@ -3821,6 +4045,24 @@
         },
         "type": "object"
       },
+      "SetEngineModelEntryReq": {
+        "properties": {
+          "facts": {
+            "$ref": "#/components/schemas/ModelFactsOverride"
+          },
+          "model": {
+            "type": "string"
+          },
+          "platform": {
+            "$ref": "#/components/schemas/Platform"
+          }
+        },
+        "required": [
+          "platform",
+          "model"
+        ],
+        "type": "object"
+      },
       "SetGameEmbedReq": {
         "properties": {
           "enabled": {
@@ -4029,6 +4271,25 @@
         ],
         "type": "object"
       },
+      "SiteRuleTexts": {
+        "properties": {
+          "u13": {
+            "type": "string"
+          },
+          "u13p": {
+            "type": "string"
+          },
+          "u18": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "u13",
+          "u13p",
+          "u18"
+        ],
+        "type": "object"
+      },
       "Snapshot": {
         "properties": {
           "choosing": {
@@ -4178,6 +4439,9 @@
             "format": "date-time",
             "type": "string"
           },
+          "promptConstraintDefaults": {
+            "$ref": "#/components/schemas/SiteRuleTexts"
+          },
           "promptConstraintU13": {
             "type": "string"
           },
@@ -4190,7 +4454,8 @@
         },
         "required": [
           "id",
-          "defaultAiQualityTier"
+          "defaultAiQualityTier",
+          "promptConstraintDefaults"
         ],
         "type": "object"
       },
@@ -11735,6 +12000,184 @@
         "summary": "Returns the three site-wide age-based prompt"
       }
     },
+    "/api/system/engine-models": {
+      "get": {
+        "description": "the model each tier runs each task on, and the model table, each as it\nruns and as the code sets it, with the admin's changes marked.",
+        "operationId": "getApiSystemEngine-models",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineModelsResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Shows the admin the engine's models: per platform"
+      }
+    },
+    "/api/system/engine-models/assignment": {
+      "put": {
+        "description": "The model must be in the platform's model table and fit the task: a\nhearing model takes audio, an image model makes pictures, a story or\nspeech model has a context window (400 otherwise). An empty model gives\nthe task back its default. Answers the engine's models as they now are.",
+        "operationId": "putApiSystemEngine-modelsAssignment",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignEngineModelReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineModelsResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Assigns a model to a tier's task; admins only."
+      }
+    },
+    "/api/system/engine-models/entry": {
+      "put": {
+        "description": "the model if the table lacks it; admins only.\n\nNull facts give a code model back the code's figures and remove a model\nthe admin added. A model a tier runs a task on cannot leave the table or\nlose what the task needs (400). A change to a code model applies until the\nnext app version. Answers the engine's models as they now are.",
+        "operationId": "putApiSystemEngine-modelsEntry",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetEngineModelEntryReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineModelsResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Sets a model's entry in the model table, adding"
+      }
+    },
+    "/api/system/engine-models/probe": {
+      "post": {
+        "description": "request its type takes; admins only.\n\nPaid by the admin's own payers on the platform (400 no_api_key without\none). Text and image models only for now; any other type answers\nproblem \"no_probe\". A model that does not answer is a result, with the\nprovider's message.",
+        "operationId": "postApiSystemEngine-modelsProbe",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProbeEngineModelReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProbeEngineModelResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Asks whether a model answers, with the smallest"
+      }
+    },
     "/api/system/settings": {
       "get": {
         "operationId": "getApiSystemSettings",
@@ -11771,7 +12214,7 @@
         "summary": "Returns the site-wide settings to an admin."
       },
       "patch": {
-        "description": "Only the fields sent change. The default AI quality tier cannot be empty;\nan empty free-use tier or constraint clears it. Answers with the settings\nas stored.",
+        "description": "Only the fields sent change. The default AI quality tier cannot be empty;\nan empty free-use tier clears it; a constraint emptied, or set to its\ndefault, is the default again. Answers with the settings as they apply.",
         "operationId": "patchApiSystemSettings",
         "requestBody": {
           "content": {

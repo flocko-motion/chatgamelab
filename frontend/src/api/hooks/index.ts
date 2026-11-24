@@ -112,6 +112,14 @@ export type { CheckMark, CheckRefused } from "./useSystem";
 // The site's branding
 export { useSite, useUpdateSiteBranding } from "./useSite";
 
+// The engine's models and model table (admin)
+export {
+  useEngineModels,
+  useAssignEngineModel,
+  useSetEngineModelEntry,
+  useProbeEngineModel,
+} from "./useEngineModels";
+
 // Notifications
 export {
   useNotifications,

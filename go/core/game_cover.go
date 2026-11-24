@@ -89,7 +89,7 @@ func ReadCoverFacts(ctx context.Context, id uuid.UUID) (*CoverFacts, error) {
 	return &CoverFacts{
 		GameID: game.ID(), Title: game.Name(), Description: game.Description(),
 		Scenario: content.Scenario(), ImageStyle: content.ImageStyle(),
-		Rule: nullString(settings.PromptConstraintU13),
+		Rule: siteRulesOf(settings).U13,
 	}, nil
 }
 

@@ -101,10 +101,20 @@ type SystemSettings struct {
 	PromptConstraintU13   *string    `json:"promptConstraintU13,omitempty"`  // constraint for users aged 13-17 without parental consent (u13)
 	PromptConstraintU13p  *string    `json:"promptConstraintU13p,omitempty"` // constraint for users aged 13-17 with parental consent (u13p)
 	PromptConstraintU18   *string    `json:"promptConstraintU18,omitempty"`  // constraint for users aged 18+ (u18)
+	// PromptConstraintDefaults are the site's default rules, what a level the
+	// admin never set, or cleared, plays under.
+	PromptConstraintDefaults SiteRuleTexts `json:"promptConstraintDefaults"`
 	FreeUseApiKeyID       *uuid.UUID `json:"freeUseApiKeyId,omitempty"`
 	FreeUseApiKeyName     string     `json:"freeUseApiKeyName,omitempty"`
 	FreeUseApiKeyPlatform string     `json:"freeUseApiKeyPlatform,omitempty"`
 	FreeUseApiKeyWorking  *bool      `json:"freeUseApiKeyWorking,omitempty"`
+}
+
+// SiteRuleTexts are the site's rules per age group.
+type SiteRuleTexts struct {
+	U13  string `json:"u13"`
+	U13p string `json:"u13p"`
+	U18  string `json:"u18"`
 }
 
 // Role identifies a user's permission level within the system.

@@ -5,6 +5,7 @@
 package api
 
 import (
+	"cgl/core"
 	"context"
 	"time"
 
@@ -20,6 +21,8 @@ import (
 // request.
 func Prepare(ctx context.Context) error {
 	telemetry.Init(RunningVersion())
+	// The admin's models and model table, before the first session starts.
+	core.ApplyEngineOverrides(ctx, RunningVersion())
 
 	if schemafapi.DevMode() {
 		log.SetDebug(true)

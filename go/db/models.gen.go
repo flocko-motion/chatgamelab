@@ -72,6 +72,24 @@ type BackupLog struct {
 	Error      sql.NullString `json:"error"`
 }
 
+type EngineModelAssignment struct {
+	Platform   string        `json:"platform"`
+	Tier       string        `json:"tier"`
+	ModelType  string        `json:"model_type"`
+	Model      string        `json:"model"`
+	ModifiedAt time.Time     `json:"modified_at"`
+	ModifiedBy uuid.NullUUID `json:"modified_by"`
+}
+
+type EngineModelFact struct {
+	Platform   string          `json:"platform"`
+	Model      string          `json:"model"`
+	Facts      json.RawMessage `json:"facts"`
+	AppVersion string          `json:"app_version"`
+	ModifiedAt time.Time       `json:"modified_at"`
+	ModifiedBy uuid.NullUUID   `json:"modified_by"`
+}
+
 type Game struct {
 	ID                           uuid.UUID       `json:"id"`
 	CreatedBy                    uuid.NullUUID   `json:"created_by"`

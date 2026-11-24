@@ -290,6 +290,36 @@ func (e Mode) Valid() bool {
 	}
 }
 
+// Defines values for ModelType.
+const (
+	ModelTypeHearing ModelType = "hearing"
+	ModelTypeImage   ModelType = "image"
+	ModelTypeLive    ModelType = "live"
+	ModelTypeSpeech  ModelType = "speech"
+	ModelTypeStory   ModelType = "story"
+	ModelTypeTooling ModelType = "tooling"
+)
+
+// Valid indicates whether the value is a known member of the ModelType enum.
+func (e ModelType) Valid() bool {
+	switch e {
+	case ModelTypeHearing:
+		return true
+	case ModelTypeImage:
+		return true
+	case ModelTypeLive:
+		return true
+	case ModelTypeSpeech:
+		return true
+	case ModelTypeStory:
+		return true
+	case ModelTypeTooling:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for NotificationType.
 const (
 	NotificationTypeNewOrganisations NotificationType = "newOrganisations"
@@ -896,6 +926,14 @@ type ApproveVerifiedPageReq struct {
 	Approved bool `json:"approved"`
 }
 
+// AssignEngineModelReq defines model for AssignEngineModelReq.
+type AssignEngineModelReq struct {
+	Model    string    `json:"model"`
+	Platform Platform  `json:"platform"`
+	Tier     Tier      `json:"tier"`
+	Type     ModelType `json:"type"`
+}
+
 // AvailableKey defines model for AvailableKey.
 type AvailableKey struct {
 	IsDefault bool               `json:"isDefault"`
@@ -1149,6 +1187,20 @@ type EdgeDetail struct {
 	Kind   string   `json:"kind"`
 	Recent []Sample `json:"recent"`
 	To     string   `json:"to"`
+}
+
+// EngineModelsPlatform defines model for EngineModelsPlatform.
+type EngineModelsPlatform struct {
+	Assignments  []ModelSlotView     `json:"assignments"`
+	Configurable bool                `json:"configurable"`
+	Id           Platform            `json:"id"`
+	Models       []ModelTableRowView `json:"models"`
+	Name         string              `json:"name"`
+}
+
+// EngineModelsResp defines model for EngineModelsResp.
+type EngineModelsResp struct {
+	Platforms []EngineModelsPlatform `json:"platforms"`
 }
 
 // Error defines model for Error.
@@ -1620,6 +1672,39 @@ type ModelFacts struct {
 	WindowSource *string  `json:"windowSource,omitempty"`
 }
 
+// ModelFactsOverride defines model for ModelFactsOverride.
+type ModelFactsOverride struct {
+	In     *[]Medium `json:"in,omitempty"`
+	Out    *[]Medium `json:"out,omitempty"`
+	Price  Price     `json:"price"`
+	Since  string    `json:"since"`
+	Window *int      `json:"window,omitempty"`
+}
+
+// ModelSlotView defines model for ModelSlotView.
+type ModelSlotView struct {
+	Assigned   bool       `json:"assigned"`
+	Default    string     `json:"default"`
+	Model      string     `json:"model"`
+	ModifiedAt *time.Time `json:"modifiedAt,omitempty"`
+	Tier       Tier       `json:"tier"`
+	Type       ModelType  `json:"type"`
+}
+
+// ModelTableRowView defines model for ModelTableRowView.
+type ModelTableRowView struct {
+	Default    *ModelFacts `json:"default,omitempty"`
+	Facts      ModelFacts  `json:"facts"`
+	InUse      bool        `json:"inUse"`
+	Model      string      `json:"model"`
+	ModifiedAt *time.Time  `json:"modifiedAt,omitempty"`
+	Overridden bool        `json:"overridden"`
+	Stale      bool        `json:"stale"`
+}
+
+// ModelType defines model for ModelType.
+type ModelType string
+
 // NamedRef defines model for NamedRef.
 type NamedRef struct {
 	Id   openapi_types.UUID `json:"id"`
@@ -1872,13 +1957,14 @@ type Platform string
 
 // PlatformInfo defines model for PlatformInfo.
 type PlatformInfo struct {
-	Genres   []Genre               `json:"genres"`
-	Id       Platform              `json:"id"`
-	Models   map[string]ModelFacts `json:"models"`
-	Name     string                `json:"name"`
-	Tiers    []TierModels          `json:"tiers"`
-	Toggles  Toggles               `json:"toggles"`
-	UserKeys bool                  `json:"userKeys"`
+	Configurable bool                  `json:"configurable"`
+	Genres       []Genre               `json:"genres"`
+	Id           Platform              `json:"id"`
+	Models       map[string]ModelFacts `json:"models"`
+	Name         string                `json:"name"`
+	Tiers        []TierModels          `json:"tiers"`
+	Toggles      Toggles               `json:"toggles"`
+	UserKeys     bool                  `json:"userKeys"`
 }
 
 // Preference defines model for Preference.
@@ -1904,6 +1990,22 @@ type Price struct {
 // PrivateShareStatusResp defines model for PrivateShareStatusResp.
 type PrivateShareStatusResp struct {
 	Shares []ShareLinkView `json:"shares"`
+}
+
+// ProbeEngineModelReq defines model for ProbeEngineModelReq.
+type ProbeEngineModelReq struct {
+	Model    string    `json:"model"`
+	Platform Platform  `json:"platform"`
+	Type     ModelType `json:"type"`
+}
+
+// ProbeEngineModelResp defines model for ProbeEngineModelResp.
+type ProbeEngineModelResp struct {
+	Answers bool    `json:"answers"`
+	Cost    float32 `json:"cost"`
+	Message *string `json:"message,omitempty"`
+	Priced  bool    `json:"priced"`
+	Problem *string `json:"problem,omitempty"`
 }
 
 // PromptEditRequest defines model for PromptEditRequest.
@@ -2103,6 +2205,13 @@ type SetActiveWorkshopReq struct {
 	WorkshopId *openapi_types.UUID `json:"workshopId,omitempty"`
 }
 
+// SetEngineModelEntryReq defines model for SetEngineModelEntryReq.
+type SetEngineModelEntryReq struct {
+	Facts    *ModelFactsOverride `json:"facts,omitempty"`
+	Model    string              `json:"model"`
+	Platform Platform            `json:"platform"`
+}
+
 // SetGameEmbedReq defines model for SetGameEmbedReq.
 type SetGameEmbedReq struct {
 	Enabled           bool                `json:"enabled"`
@@ -2177,6 +2286,13 @@ type SiteResp struct {
 	Defaults Branding `json:"defaults"`
 }
 
+// SiteRuleTexts defines model for SiteRuleTexts.
+type SiteRuleTexts struct {
+	U13  string `json:"u13"`
+	U13p string `json:"u13p"`
+	U18  string `json:"u18"`
+}
+
 // Snapshot defines model for Snapshot.
 type Snapshot struct {
 	Choosing     bool              `json:"choosing"`
@@ -2218,18 +2334,19 @@ type SystemConstraintsResp struct {
 
 // SystemSettings defines model for SystemSettings.
 type SystemSettings struct {
-	CreatedAt             *time.Time          `json:"createdAt,omitempty"`
-	DefaultAiQualityTier  string              `json:"defaultAiQualityTier"`
-	FreeUseAiQualityTier  *string             `json:"freeUseAiQualityTier,omitempty"`
-	FreeUseApiKeyId       *openapi_types.UUID `json:"freeUseApiKeyId,omitempty"`
-	FreeUseApiKeyName     *string             `json:"freeUseApiKeyName,omitempty"`
-	FreeUseApiKeyPlatform *string             `json:"freeUseApiKeyPlatform,omitempty"`
-	FreeUseApiKeyWorking  *bool               `json:"freeUseApiKeyWorking,omitempty"`
-	Id                    openapi_types.UUID  `json:"id"`
-	ModifiedAt            *time.Time          `json:"modifiedAt,omitempty"`
-	PromptConstraintU13   *string             `json:"promptConstraintU13,omitempty"`
-	PromptConstraintU13p  *string             `json:"promptConstraintU13p,omitempty"`
-	PromptConstraintU18   *string             `json:"promptConstraintU18,omitempty"`
+	CreatedAt                *time.Time          `json:"createdAt,omitempty"`
+	DefaultAiQualityTier     string              `json:"defaultAiQualityTier"`
+	FreeUseAiQualityTier     *string             `json:"freeUseAiQualityTier,omitempty"`
+	FreeUseApiKeyId          *openapi_types.UUID `json:"freeUseApiKeyId,omitempty"`
+	FreeUseApiKeyName        *string             `json:"freeUseApiKeyName,omitempty"`
+	FreeUseApiKeyPlatform    *string             `json:"freeUseApiKeyPlatform,omitempty"`
+	FreeUseApiKeyWorking     *bool               `json:"freeUseApiKeyWorking,omitempty"`
+	Id                       openapi_types.UUID  `json:"id"`
+	ModifiedAt               *time.Time          `json:"modifiedAt,omitempty"`
+	PromptConstraintDefaults SiteRuleTexts       `json:"promptConstraintDefaults"`
+	PromptConstraintU13      *string             `json:"promptConstraintU13,omitempty"`
+	PromptConstraintU13p     *string             `json:"promptConstraintU13p,omitempty"`
+	PromptConstraintU18      *string             `json:"promptConstraintU18,omitempty"`
 }
 
 // ThemeInfo defines model for ThemeInfo.
@@ -2967,6 +3084,15 @@ type PostApiInvitesWorkshopEmailJSONRequestBody = CreateWorkshopEmailInviteReq
 
 // PostApiNotificationsAcknowledgeJSONRequestBody defines body for PostApiNotificationsAcknowledge for application/json ContentType.
 type PostApiNotificationsAcknowledgeJSONRequestBody = AcknowledgeNotificationReq
+
+// PutApiSystemEngineModelsAssignmentJSONRequestBody defines body for PutApiSystemEngineModelsAssignment for application/json ContentType.
+type PutApiSystemEngineModelsAssignmentJSONRequestBody = AssignEngineModelReq
+
+// PutApiSystemEngineModelsEntryJSONRequestBody defines body for PutApiSystemEngineModelsEntry for application/json ContentType.
+type PutApiSystemEngineModelsEntryJSONRequestBody = SetEngineModelEntryReq
+
+// PostApiSystemEngineModelsProbeJSONRequestBody defines body for PostApiSystemEngineModelsProbe for application/json ContentType.
+type PostApiSystemEngineModelsProbeJSONRequestBody = ProbeEngineModelReq
 
 // PatchApiSystemSettingsJSONRequestBody defines body for PatchApiSystemSettings for application/json ContentType.
 type PatchApiSystemSettingsJSONRequestBody = UpdateSystemSettingsReq
@@ -4616,6 +4742,94 @@ type ClientInterface interface {
 	// Corresponds with GET /api/system/constraints (the `GetApiSystemConstraints` operationId).
 	GetApiSystemConstraints(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetApiSystemEngineModels Shows the admin the engine's models: per platform
+	//
+	// the model each tier runs each task on, and the model table, each as it
+	// runs and as the code sets it, with the admin's changes marked.
+	//
+	// Corresponds with GET /api/system/engine-models (the `GetApiSystemEngineModels` operationId).
+	GetApiSystemEngineModels(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutApiSystemEngineModelsAssignmentWithBody Assigns a model to a tier's task; admins only.
+	//
+	// The model must be in the platform's model table and fit the task: a
+	// hearing model takes audio, an image model makes pictures, a story or
+	// speech model has a context window (400 otherwise). An empty model gives
+	// the task back its default. Answers the engine's models as they now are.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PUT /api/system/engine-models/assignment (the `PutApiSystemEngineModelsAssignment` operationId).
+	PutApiSystemEngineModelsAssignmentWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutApiSystemEngineModelsAssignment Assigns a model to a tier's task; admins only.
+	//
+	// The model must be in the platform's model table and fit the task: a
+	// hearing model takes audio, an image model makes pictures, a story or
+	// speech model has a context window (400 otherwise). An empty model gives
+	// the task back its default. Answers the engine's models as they now are.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PUT /api/system/engine-models/assignment (the `PutApiSystemEngineModelsAssignment` operationId).
+	PutApiSystemEngineModelsAssignment(ctx context.Context, body PutApiSystemEngineModelsAssignmentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutApiSystemEngineModelsEntryWithBody Sets a model's entry in the model table, adding
+	//
+	// the model if the table lacks it; admins only.
+	//
+	// Null facts give a code model back the code's figures and remove a model
+	// the admin added. A model a tier runs a task on cannot leave the table or
+	// lose what the task needs (400). A change to a code model applies until the
+	// next app version. Answers the engine's models as they now are.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PUT /api/system/engine-models/entry (the `PutApiSystemEngineModelsEntry` operationId).
+	PutApiSystemEngineModelsEntryWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutApiSystemEngineModelsEntry Sets a model's entry in the model table, adding
+	//
+	// the model if the table lacks it; admins only.
+	//
+	// Null facts give a code model back the code's figures and remove a model
+	// the admin added. A model a tier runs a task on cannot leave the table or
+	// lose what the task needs (400). A change to a code model applies until the
+	// next app version. Answers the engine's models as they now are.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PUT /api/system/engine-models/entry (the `PutApiSystemEngineModelsEntry` operationId).
+	PutApiSystemEngineModelsEntry(ctx context.Context, body PutApiSystemEngineModelsEntryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiSystemEngineModelsProbeWithBody Asks whether a model answers, with the smallest
+	//
+	// request its type takes; admins only.
+	//
+	// Paid by the admin's own payers on the platform (400 no_api_key without
+	// one). Text and image models only for now; any other type answers
+	// problem "no_probe". A model that does not answer is a result, with the
+	// provider's message.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /api/system/engine-models/probe (the `PostApiSystemEngineModelsProbe` operationId).
+	PostApiSystemEngineModelsProbeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiSystemEngineModelsProbe Asks whether a model answers, with the smallest
+	//
+	// request its type takes; admins only.
+	//
+	// Paid by the admin's own payers on the platform (400 no_api_key without
+	// one). Text and image models only for now; any other type answers
+	// problem "no_probe". A model that does not answer is a result, with the
+	// provider's message.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /api/system/engine-models/probe (the `PostApiSystemEngineModelsProbe` operationId).
+	PostApiSystemEngineModelsProbe(ctx context.Context, body PostApiSystemEngineModelsProbeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetApiSystemSettings Returns the site-wide settings to an admin.
 	//
 	// Corresponds with GET /api/system/settings (the `GetApiSystemSettings` operationId).
@@ -4624,8 +4838,8 @@ type ClientInterface interface {
 	// PatchApiSystemSettingsWithBody Updates the site-wide settings; admins only.
 	//
 	// Only the fields sent change. The default AI quality tier cannot be empty;
-	// an empty free-use tier or constraint clears it. Answers with the settings
-	// as stored.
+	// an empty free-use tier clears it; a constraint emptied, or set to its
+	// default, is the default again. Answers with the settings as they apply.
 	//
 	// Takes any type of body and a specified content type.
 	//
@@ -4635,8 +4849,8 @@ type ClientInterface interface {
 	// PatchApiSystemSettings Updates the site-wide settings; admins only.
 	//
 	// Only the fields sent change. The default AI quality tier cannot be empty;
-	// an empty free-use tier or constraint clears it. Answers with the settings
-	// as stored.
+	// an empty free-use tier clears it; a constraint emptied, or set to its
+	// default, is the default again. Answers with the settings as they apply.
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -8310,6 +8524,164 @@ func (c *Client) GetApiSystemConstraints(ctx context.Context, reqEditors ...Requ
 	return c.Client.Do(req)
 }
 
+// GetApiSystemEngineModels Shows the admin the engine's models: per platform
+//
+// the model each tier runs each task on, and the model table, each as it
+// runs and as the code sets it, with the admin's changes marked.
+//
+// Corresponds with GET /api/system/engine-models (the `GetApiSystemEngineModels` operationId).
+func (c *Client) GetApiSystemEngineModels(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiSystemEngineModelsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PutApiSystemEngineModelsAssignmentWithBody Assigns a model to a tier's task; admins only.
+//
+// The model must be in the platform's model table and fit the task: a
+// hearing model takes audio, an image model makes pictures, a story or
+// speech model has a context window (400 otherwise). An empty model gives
+// the task back its default. Answers the engine's models as they now are.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PUT /api/system/engine-models/assignment (the `PutApiSystemEngineModelsAssignment` operationId).
+func (c *Client) PutApiSystemEngineModelsAssignmentWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiSystemEngineModelsAssignmentRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PutApiSystemEngineModelsAssignment Assigns a model to a tier's task; admins only.
+//
+// The model must be in the platform's model table and fit the task: a
+// hearing model takes audio, an image model makes pictures, a story or
+// speech model has a context window (400 otherwise). An empty model gives
+// the task back its default. Answers the engine's models as they now are.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PUT /api/system/engine-models/assignment (the `PutApiSystemEngineModelsAssignment` operationId).
+func (c *Client) PutApiSystemEngineModelsAssignment(ctx context.Context, body PutApiSystemEngineModelsAssignmentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiSystemEngineModelsAssignmentRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PutApiSystemEngineModelsEntryWithBody Sets a model's entry in the model table, adding
+//
+// the model if the table lacks it; admins only.
+//
+// Null facts give a code model back the code's figures and remove a model
+// the admin added. A model a tier runs a task on cannot leave the table or
+// lose what the task needs (400). A change to a code model applies until the
+// next app version. Answers the engine's models as they now are.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PUT /api/system/engine-models/entry (the `PutApiSystemEngineModelsEntry` operationId).
+func (c *Client) PutApiSystemEngineModelsEntryWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiSystemEngineModelsEntryRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PutApiSystemEngineModelsEntry Sets a model's entry in the model table, adding
+//
+// the model if the table lacks it; admins only.
+//
+// Null facts give a code model back the code's figures and remove a model
+// the admin added. A model a tier runs a task on cannot leave the table or
+// lose what the task needs (400). A change to a code model applies until the
+// next app version. Answers the engine's models as they now are.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PUT /api/system/engine-models/entry (the `PutApiSystemEngineModelsEntry` operationId).
+func (c *Client) PutApiSystemEngineModelsEntry(ctx context.Context, body PutApiSystemEngineModelsEntryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiSystemEngineModelsEntryRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiSystemEngineModelsProbeWithBody Asks whether a model answers, with the smallest
+//
+// request its type takes; admins only.
+//
+// Paid by the admin's own payers on the platform (400 no_api_key without
+// one). Text and image models only for now; any other type answers
+// problem "no_probe". A model that does not answer is a result, with the
+// provider's message.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /api/system/engine-models/probe (the `PostApiSystemEngineModelsProbe` operationId).
+func (c *Client) PostApiSystemEngineModelsProbeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiSystemEngineModelsProbeRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiSystemEngineModelsProbe Asks whether a model answers, with the smallest
+//
+// request its type takes; admins only.
+//
+// Paid by the admin's own payers on the platform (400 no_api_key without
+// one). Text and image models only for now; any other type answers
+// problem "no_probe". A model that does not answer is a result, with the
+// provider's message.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /api/system/engine-models/probe (the `PostApiSystemEngineModelsProbe` operationId).
+func (c *Client) PostApiSystemEngineModelsProbe(ctx context.Context, body PostApiSystemEngineModelsProbeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiSystemEngineModelsProbeRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 // GetApiSystemSettings Returns the site-wide settings to an admin.
 //
 // Corresponds with GET /api/system/settings (the `GetApiSystemSettings` operationId).
@@ -8328,8 +8700,8 @@ func (c *Client) GetApiSystemSettings(ctx context.Context, reqEditors ...Request
 // PatchApiSystemSettingsWithBody Updates the site-wide settings; admins only.
 //
 // Only the fields sent change. The default AI quality tier cannot be empty;
-// an empty free-use tier or constraint clears it. Answers with the settings
-// as stored.
+// an empty free-use tier clears it; a constraint emptied, or set to its
+// default, is the default again. Answers with the settings as they apply.
 //
 // Takes any type of body and a specified content type.
 //
@@ -8349,8 +8721,8 @@ func (c *Client) PatchApiSystemSettingsWithBody(ctx context.Context, contentType
 // PatchApiSystemSettings Updates the site-wide settings; admins only.
 //
 // Only the fields sent change. The default AI quality tier cannot be empty;
-// an empty free-use tier or constraint clears it. Answers with the settings
-// as stored.
+// an empty free-use tier clears it; a constraint emptied, or set to its
+// default, is the default again. Answers with the settings as they apply.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -14646,6 +15018,153 @@ func NewGetApiSystemConstraintsRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewGetApiSystemEngineModelsRequest constructs an http.Request for the GetApiSystemEngineModels method
+func NewGetApiSystemEngineModelsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/system/engine-models")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPutApiSystemEngineModelsAssignmentRequest calls the generic PutApiSystemEngineModelsAssignment builder with application/json body
+func NewPutApiSystemEngineModelsAssignmentRequest(server string, body PutApiSystemEngineModelsAssignmentJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutApiSystemEngineModelsAssignmentRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPutApiSystemEngineModelsAssignmentRequestWithBody constructs an http.Request for the PutApiSystemEngineModelsAssignment method, with any body, and a specified content type
+func NewPutApiSystemEngineModelsAssignmentRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/system/engine-models/assignment")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPutApiSystemEngineModelsEntryRequest calls the generic PutApiSystemEngineModelsEntry builder with application/json body
+func NewPutApiSystemEngineModelsEntryRequest(server string, body PutApiSystemEngineModelsEntryJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutApiSystemEngineModelsEntryRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPutApiSystemEngineModelsEntryRequestWithBody constructs an http.Request for the PutApiSystemEngineModelsEntry method, with any body, and a specified content type
+func NewPutApiSystemEngineModelsEntryRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/system/engine-models/entry")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostApiSystemEngineModelsProbeRequest calls the generic PostApiSystemEngineModelsProbe builder with application/json body
+func NewPostApiSystemEngineModelsProbeRequest(server string, body PostApiSystemEngineModelsProbeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiSystemEngineModelsProbeRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiSystemEngineModelsProbeRequestWithBody constructs an http.Request for the PostApiSystemEngineModelsProbe method, with any body, and a specified content type
+func NewPostApiSystemEngineModelsProbeRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/system/engine-models/probe")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewGetApiSystemSettingsRequest constructs an http.Request for the GetApiSystemSettings method
 func NewGetApiSystemSettingsRequest(server string) (*http.Request, error) {
 	var err error
@@ -18199,6 +18718,96 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/system/constraints (the `GetApiSystemConstraints` operationId).
 	GetApiSystemConstraintsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiSystemConstraintsResponse, error)
 
+	// GetApiSystemEngineModelsWithResponse Shows the admin the engine's models: per platform
+	//
+	// the model each tier runs each task on, and the model table, each as it
+	// runs and as the code sets it, with the admin's changes marked.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/system/engine-models (the `GetApiSystemEngineModels` operationId).
+	GetApiSystemEngineModelsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiSystemEngineModelsResponse, error)
+
+	// PutApiSystemEngineModelsAssignmentWithBodyWithResponse Assigns a model to a tier's task; admins only.
+	//
+	// The model must be in the platform's model table and fit the task: a
+	// hearing model takes audio, an image model makes pictures, a story or
+	// speech model has a context window (400 otherwise). An empty model gives
+	// the task back its default. Answers the engine's models as they now are.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PUT /api/system/engine-models/assignment (the `PutApiSystemEngineModelsAssignment` operationId).
+	PutApiSystemEngineModelsAssignmentWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiSystemEngineModelsAssignmentResponse, error)
+
+	// PutApiSystemEngineModelsAssignmentWithResponse Assigns a model to a tier's task; admins only.
+	//
+	// The model must be in the platform's model table and fit the task: a
+	// hearing model takes audio, an image model makes pictures, a story or
+	// speech model has a context window (400 otherwise). An empty model gives
+	// the task back its default. Answers the engine's models as they now are.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PUT /api/system/engine-models/assignment (the `PutApiSystemEngineModelsAssignment` operationId).
+	PutApiSystemEngineModelsAssignmentWithResponse(ctx context.Context, body PutApiSystemEngineModelsAssignmentJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiSystemEngineModelsAssignmentResponse, error)
+
+	// PutApiSystemEngineModelsEntryWithBodyWithResponse Sets a model's entry in the model table, adding
+	//
+	// the model if the table lacks it; admins only.
+	//
+	// Null facts give a code model back the code's figures and remove a model
+	// the admin added. A model a tier runs a task on cannot leave the table or
+	// lose what the task needs (400). A change to a code model applies until the
+	// next app version. Answers the engine's models as they now are.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PUT /api/system/engine-models/entry (the `PutApiSystemEngineModelsEntry` operationId).
+	PutApiSystemEngineModelsEntryWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiSystemEngineModelsEntryResponse, error)
+
+	// PutApiSystemEngineModelsEntryWithResponse Sets a model's entry in the model table, adding
+	//
+	// the model if the table lacks it; admins only.
+	//
+	// Null facts give a code model back the code's figures and remove a model
+	// the admin added. A model a tier runs a task on cannot leave the table or
+	// lose what the task needs (400). A change to a code model applies until the
+	// next app version. Answers the engine's models as they now are.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PUT /api/system/engine-models/entry (the `PutApiSystemEngineModelsEntry` operationId).
+	PutApiSystemEngineModelsEntryWithResponse(ctx context.Context, body PutApiSystemEngineModelsEntryJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiSystemEngineModelsEntryResponse, error)
+
+	// PostApiSystemEngineModelsProbeWithBodyWithResponse Asks whether a model answers, with the smallest
+	//
+	// request its type takes; admins only.
+	//
+	// Paid by the admin's own payers on the platform (400 no_api_key without
+	// one). Text and image models only for now; any other type answers
+	// problem "no_probe". A model that does not answer is a result, with the
+	// provider's message.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/system/engine-models/probe (the `PostApiSystemEngineModelsProbe` operationId).
+	PostApiSystemEngineModelsProbeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiSystemEngineModelsProbeResponse, error)
+
+	// PostApiSystemEngineModelsProbeWithResponse Asks whether a model answers, with the smallest
+	//
+	// request its type takes; admins only.
+	//
+	// Paid by the admin's own payers on the platform (400 no_api_key without
+	// one). Text and image models only for now; any other type answers
+	// problem "no_probe". A model that does not answer is a result, with the
+	// provider's message.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/system/engine-models/probe (the `PostApiSystemEngineModelsProbe` operationId).
+	PostApiSystemEngineModelsProbeWithResponse(ctx context.Context, body PostApiSystemEngineModelsProbeJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiSystemEngineModelsProbeResponse, error)
+
 	// GetApiSystemSettingsWithResponse Returns the site-wide settings to an admin.
 	//
 	// Returns a wrapper object for the known response body format(s).
@@ -18209,8 +18818,8 @@ type ClientWithResponsesInterface interface {
 	// PatchApiSystemSettingsWithBodyWithResponse Updates the site-wide settings; admins only.
 	//
 	// Only the fields sent change. The default AI quality tier cannot be empty;
-	// an empty free-use tier or constraint clears it. Answers with the settings
-	// as stored.
+	// an empty free-use tier clears it; a constraint emptied, or set to its
+	// default, is the default again. Answers with the settings as they apply.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -18220,8 +18829,8 @@ type ClientWithResponsesInterface interface {
 	// PatchApiSystemSettingsWithResponse Updates the site-wide settings; admins only.
 	//
 	// Only the fields sent change. The default AI quality tier cannot be empty;
-	// an empty free-use tier or constraint clears it. Answers with the settings
-	// as stored.
+	// an empty free-use tier clears it; a constraint emptied, or set to its
+	// default, is the default again. Answers with the settings as they apply.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -24554,6 +25163,198 @@ func (r GetApiSystemConstraintsResponse) ContentType() string {
 	return ""
 }
 
+type GetApiSystemEngineModelsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *EngineModelsResp
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiSystemEngineModelsResponse) GetJSON200() *EngineModelsResp {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiSystemEngineModelsResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiSystemEngineModelsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiSystemEngineModelsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiSystemEngineModelsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiSystemEngineModelsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PutApiSystemEngineModelsAssignmentResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *EngineModelsResp
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r PutApiSystemEngineModelsAssignmentResponse) GetJSON200() *EngineModelsResp {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PutApiSystemEngineModelsAssignmentResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PutApiSystemEngineModelsAssignmentResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PutApiSystemEngineModelsAssignmentResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutApiSystemEngineModelsAssignmentResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PutApiSystemEngineModelsAssignmentResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PutApiSystemEngineModelsEntryResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *EngineModelsResp
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r PutApiSystemEngineModelsEntryResponse) GetJSON200() *EngineModelsResp {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PutApiSystemEngineModelsEntryResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PutApiSystemEngineModelsEntryResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PutApiSystemEngineModelsEntryResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutApiSystemEngineModelsEntryResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PutApiSystemEngineModelsEntryResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiSystemEngineModelsProbeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *ProbeEngineModelResp
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r PostApiSystemEngineModelsProbeResponse) GetJSON200() *ProbeEngineModelResp {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiSystemEngineModelsProbeResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiSystemEngineModelsProbeResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiSystemEngineModelsProbeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiSystemEngineModelsProbeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiSystemEngineModelsProbeResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetApiSystemSettingsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -29155,6 +29956,138 @@ func (c *ClientWithResponses) GetApiSystemConstraintsWithResponse(ctx context.Co
 	return ParseGetApiSystemConstraintsResponse(rsp)
 }
 
+// GetApiSystemEngineModelsWithResponse Shows the admin the engine's models: per platform
+//
+// the model each tier runs each task on, and the model table, each as it
+// runs and as the code sets it, with the admin's changes marked.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/system/engine-models (the `GetApiSystemEngineModels` operationId).
+func (c *ClientWithResponses) GetApiSystemEngineModelsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiSystemEngineModelsResponse, error) {
+	rsp, err := c.GetApiSystemEngineModels(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiSystemEngineModelsResponse(rsp)
+}
+
+// PutApiSystemEngineModelsAssignmentWithBodyWithResponse Assigns a model to a tier's task; admins only.
+//
+// The model must be in the platform's model table and fit the task: a
+// hearing model takes audio, an image model makes pictures, a story or
+// speech model has a context window (400 otherwise). An empty model gives
+// the task back its default. Answers the engine's models as they now are.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PUT /api/system/engine-models/assignment (the `PutApiSystemEngineModelsAssignment` operationId).
+func (c *ClientWithResponses) PutApiSystemEngineModelsAssignmentWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiSystemEngineModelsAssignmentResponse, error) {
+	rsp, err := c.PutApiSystemEngineModelsAssignmentWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiSystemEngineModelsAssignmentResponse(rsp)
+}
+
+// PutApiSystemEngineModelsAssignmentWithResponse Assigns a model to a tier's task; admins only.
+//
+// The model must be in the platform's model table and fit the task: a
+// hearing model takes audio, an image model makes pictures, a story or
+// speech model has a context window (400 otherwise). An empty model gives
+// the task back its default. Answers the engine's models as they now are.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PUT /api/system/engine-models/assignment (the `PutApiSystemEngineModelsAssignment` operationId).
+func (c *ClientWithResponses) PutApiSystemEngineModelsAssignmentWithResponse(ctx context.Context, body PutApiSystemEngineModelsAssignmentJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiSystemEngineModelsAssignmentResponse, error) {
+	rsp, err := c.PutApiSystemEngineModelsAssignment(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiSystemEngineModelsAssignmentResponse(rsp)
+}
+
+// PutApiSystemEngineModelsEntryWithBodyWithResponse Sets a model's entry in the model table, adding
+//
+// the model if the table lacks it; admins only.
+//
+// Null facts give a code model back the code's figures and remove a model
+// the admin added. A model a tier runs a task on cannot leave the table or
+// lose what the task needs (400). A change to a code model applies until the
+// next app version. Answers the engine's models as they now are.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PUT /api/system/engine-models/entry (the `PutApiSystemEngineModelsEntry` operationId).
+func (c *ClientWithResponses) PutApiSystemEngineModelsEntryWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiSystemEngineModelsEntryResponse, error) {
+	rsp, err := c.PutApiSystemEngineModelsEntryWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiSystemEngineModelsEntryResponse(rsp)
+}
+
+// PutApiSystemEngineModelsEntryWithResponse Sets a model's entry in the model table, adding
+//
+// the model if the table lacks it; admins only.
+//
+// Null facts give a code model back the code's figures and remove a model
+// the admin added. A model a tier runs a task on cannot leave the table or
+// lose what the task needs (400). A change to a code model applies until the
+// next app version. Answers the engine's models as they now are.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PUT /api/system/engine-models/entry (the `PutApiSystemEngineModelsEntry` operationId).
+func (c *ClientWithResponses) PutApiSystemEngineModelsEntryWithResponse(ctx context.Context, body PutApiSystemEngineModelsEntryJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiSystemEngineModelsEntryResponse, error) {
+	rsp, err := c.PutApiSystemEngineModelsEntry(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiSystemEngineModelsEntryResponse(rsp)
+}
+
+// PostApiSystemEngineModelsProbeWithBodyWithResponse Asks whether a model answers, with the smallest
+//
+// request its type takes; admins only.
+//
+// Paid by the admin's own payers on the platform (400 no_api_key without
+// one). Text and image models only for now; any other type answers
+// problem "no_probe". A model that does not answer is a result, with the
+// provider's message.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/system/engine-models/probe (the `PostApiSystemEngineModelsProbe` operationId).
+func (c *ClientWithResponses) PostApiSystemEngineModelsProbeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiSystemEngineModelsProbeResponse, error) {
+	rsp, err := c.PostApiSystemEngineModelsProbeWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiSystemEngineModelsProbeResponse(rsp)
+}
+
+// PostApiSystemEngineModelsProbeWithResponse Asks whether a model answers, with the smallest
+//
+// request its type takes; admins only.
+//
+// Paid by the admin's own payers on the platform (400 no_api_key without
+// one). Text and image models only for now; any other type answers
+// problem "no_probe". A model that does not answer is a result, with the
+// provider's message.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/system/engine-models/probe (the `PostApiSystemEngineModelsProbe` operationId).
+func (c *ClientWithResponses) PostApiSystemEngineModelsProbeWithResponse(ctx context.Context, body PostApiSystemEngineModelsProbeJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiSystemEngineModelsProbeResponse, error) {
+	rsp, err := c.PostApiSystemEngineModelsProbe(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiSystemEngineModelsProbeResponse(rsp)
+}
+
 // GetApiSystemSettingsWithResponse Returns the site-wide settings to an admin.
 //
 // Returns a wrapper object for the known response body format(s).
@@ -29171,8 +30104,8 @@ func (c *ClientWithResponses) GetApiSystemSettingsWithResponse(ctx context.Conte
 // PatchApiSystemSettingsWithBodyWithResponse Updates the site-wide settings; admins only.
 //
 // Only the fields sent change. The default AI quality tier cannot be empty;
-// an empty free-use tier or constraint clears it. Answers with the settings
-// as stored.
+// an empty free-use tier clears it; a constraint emptied, or set to its
+// default, is the default again. Answers with the settings as they apply.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -29188,8 +30121,8 @@ func (c *ClientWithResponses) PatchApiSystemSettingsWithBodyWithResponse(ctx con
 // PatchApiSystemSettingsWithResponse Updates the site-wide settings; admins only.
 //
 // Only the fields sent change. The default AI quality tier cannot be empty;
-// an empty free-use tier or constraint clears it. Answers with the settings
-// as stored.
+// an empty free-use tier clears it; a constraint emptied, or set to its
+// default, is the default again. Answers with the settings as they apply.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -34061,6 +34994,138 @@ func ParseGetApiSystemConstraintsResponse(rsp *http.Response) (*GetApiSystemCons
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest SystemConstraintsResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiSystemEngineModelsResponse parses an HTTP response from a GetApiSystemEngineModelsWithResponse call
+func ParseGetApiSystemEngineModelsResponse(rsp *http.Response) (*GetApiSystemEngineModelsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiSystemEngineModelsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EngineModelsResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutApiSystemEngineModelsAssignmentResponse parses an HTTP response from a PutApiSystemEngineModelsAssignmentWithResponse call
+func ParsePutApiSystemEngineModelsAssignmentResponse(rsp *http.Response) (*PutApiSystemEngineModelsAssignmentResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutApiSystemEngineModelsAssignmentResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EngineModelsResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutApiSystemEngineModelsEntryResponse parses an HTTP response from a PutApiSystemEngineModelsEntryWithResponse call
+func ParsePutApiSystemEngineModelsEntryResponse(rsp *http.Response) (*PutApiSystemEngineModelsEntryResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutApiSystemEngineModelsEntryResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EngineModelsResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiSystemEngineModelsProbeResponse parses an HTTP response from a PostApiSystemEngineModelsProbeWithResponse call
+func ParsePostApiSystemEngineModelsProbeResponse(rsp *http.Response) (*PostApiSystemEngineModelsProbeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiSystemEngineModelsProbeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ProbeEngineModelResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

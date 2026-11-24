@@ -435,13 +435,29 @@ written into the engine.
 | `audio-live` | **live** | the live-session block |
 
 Tiers have capabilities and model choices: a model and its parameters are set
-in the tier table and nowhere else. Beside the tiers, each platform has a
-**model table**, keyed by model id, saying what each model is: the kinds it
-takes and makes (text, audio, image) and its price, dated, with its source;
-for a story or speech model also its context window, dated, with its source.
-A test requires an entry for every model a tier names, that each model takes
-and makes what its type needs, such as the hearing model audio, and that
-every story and speech model has a window.
+in the tier table. Beside the tiers, each platform has a **model table**,
+keyed by model id, saying what each model is: the kinds it takes and makes
+(text, audio, image) and its price, dated, with its source; for a story or
+speech model also its context window, dated, with its source.
+`catalogueProblems` checks that the tables hold together: every model a tier
+names is in the model table, takes and makes what its type needs, such as the
+hearing model audio, and every story and speech model has a window. A test
+runs it on the code's tables.
+
+- **A configurable platform takes the admin's overrides** (`Configurable`,
+  OpenAI's): `engine.SetOverrides` gives a tier's task another model, keeping
+  the slot's parameters, and replaces a model's entry in the model table or
+  adds one. Every catalogue read applies them, so a session launched after a
+  change runs on it and one already running keeps what it settled on.
+  `engine.CheckOverrides` refuses overrides the tables would not hold
+  together with, so a model enters a tier only from the model table and
+  cannot leave it while a tier runs it. `engine.DefaultPlatforms` is the
+  catalogue as the code sets it; the platform stores the overrides and hands
+  them over at start and after each change.
+- **`engine.ProbeModel`** asks a model whether it answers, with the smallest
+  request its type takes, on an offer's key: a word for a tooling or story
+  model, the cheapest picture for an image model; other types are not probed
+  yet.
 
 - **An offer** is one way a session may run: a platform, a key and the
   **caveats** on using it, named by a unique ID such as the shared key's.

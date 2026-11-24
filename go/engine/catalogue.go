@@ -28,6 +28,12 @@ type (
 )
 
 const (
+	MediumText  = adapters.MediumText
+	MediumImage = adapters.MediumImage
+	MediumAudio = adapters.MediumAudio
+)
+
+const (
 	ToggleImages    = adapters.ToggleImages
 	ToggleAudioOut  = adapters.ToggleAudioOut
 	ToggleAudioIn   = adapters.ToggleAudioIn
@@ -49,35 +55,59 @@ type PlatformInfo struct {
 	ID       Platform     `json:"id"`
 	Name     string       `json:"name"`
 	UserKeys bool         `json:"userKeys"`
+	// Configurable says an admin may replace its models and set their prices.
+	Configurable bool `json:"configurable"`
 	Toggles  Toggles      `json:"toggles"`
 	Genres   []Genre      `json:"genres"`
 	Tiers    []TierModels `json:"tiers"`
 	Models   ModelTable   `json:"models"`
 }
 
-// catalogueEntries is every platform the engine runs, the mock last.
-func catalogueEntries() []adapters.Platform {
+// defaultEntries is every platform the engine runs as its code sets it, the
+// mock last.
+func defaultEntries() []adapters.Platform {
 	return []adapters.Platform{openai.Platform(), mistral.Platform(), mock.Platform()}
 }
 
-// Platforms is the engine's catalogue, a copy the caller may change. The mock
-// comes last; whoever lists it decides when a person sees it.
-func Platforms() []PlatformInfo {
+// catalogueEntries is every platform the engine runs, with the admin's
+// overrides on the configurable ones: what sessions run on.
+func catalogueEntries() []adapters.Platform {
+	entries := defaultEntries()
+	for i, p := range entries {
+		entries[i] = currentOverrides().apply(p)
+	}
+	return entries
+}
+
+// Platforms is the engine's catalogue as sessions run on it, the admin's
+// overrides included, a copy the caller may change. The mock comes last;
+// whoever lists it decides when a person sees it.
+func Platforms() []PlatformInfo { return infos(catalogueEntries()) }
+
+// DefaultPlatforms is the catalogue as the engine's code sets it, without
+// the admin's overrides: what resetting an override brings back.
+func DefaultPlatforms() []PlatformInfo { return infos(defaultEntries()) }
+
+func infos(entries []adapters.Platform) []PlatformInfo {
 	var out []PlatformInfo
-	for _, p := range catalogueEntries() {
+	for _, p := range entries {
 		p = p.Clone()
 		out = append(out, PlatformInfo{
-			ID:       Platform(p.ID),
-			Name:     p.Name,
-			UserKeys: p.UserKeys,
-			Toggles:  p.Toggles,
-			Genres:   PlayableGenres(p.Toggles),
-			Tiers:    p.Tiers,
-			Models:   p.Facts,
+			ID:           Platform(p.ID),
+			Name:         p.Name,
+			UserKeys:     p.UserKeys,
+			Configurable: p.Configurable,
+			Toggles:      p.Toggles,
+			Genres:       PlayableGenres(p.Toggles),
+			Tiers:        p.Tiers,
+			Models:       p.Facts,
 		})
 	}
 	return out
 }
+
+// ModelTypes is every model type, in display order.
+func ModelTypes() []ModelType { return adapters.ModelTypes() }
 
 // AcceptsKeys reports whether the engine runs a platform on user API keys.
 func AcceptsKeys(id Platform) bool {

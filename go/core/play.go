@@ -218,10 +218,11 @@ func ReadPlayRuleFacts(ctx context.Context, link *LinkPlay) (PlayRuleFacts, erro
 	if err != nil {
 		return facts, err
 	}
+	site := siteRulesOf(settings)
 	facts.Site = map[string]*string{
-		obj.AgeGroupU13:  nullString(settings.PromptConstraintU13),
-		obj.AgeGroupU13p: nullString(settings.PromptConstraintU13p),
-		obj.AgeGroupU18:  nullString(settings.PromptConstraintU18),
+		obj.AgeGroupU13:  site.U13,
+		obj.AgeGroupU13p: site.U13p,
+		obj.AgeGroupU18:  site.U18,
 	}
 	return facts, nil
 }

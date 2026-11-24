@@ -71,7 +71,6 @@ func preseed(ctx context.Context) {
 	preseedDevPlatformKeys(ctx, DevAdmin1UserID)
 	preseedDevGames(ctx)
 	preseedDevCovers(ctx)
-	preseedDevSiteRules(ctx)
 	log.Debug("database preseed completed")
 }
 
@@ -271,27 +270,6 @@ func preseedDevGame(ctx context.Context, owner uuid.UUID, path string, public bo
 	})
 }
 
-// preseedDevSiteRules fills the site's rules still empty; set ones stay.
-func preseedDevSiteRules(ctx context.Context) {
-	q := store.Queries()
-	s, err := q.V2GetSystemSettings(ctx)
-	if err != nil {
-		log.Warn("failed to read the site's settings for the preseed", "error", err)
-		return
-	}
-	fill := func(level string, current sql.NullString, value string, update func(context.Context, sql.NullString) error) {
-		if current.Valid && current.String != "" {
-			return
-		}
-		if err := update(ctx, sql.NullString{String: value, Valid: true}); err != nil {
-			log.Warn("failed to preseed a site rule", "level", level, "error", err)
-		}
-	}
-	fill("u13", s.PromptConstraintU13, DevSiteConstraintU13, q.V2UpdatePromptConstraintU13)
-	fill("u13p", s.PromptConstraintU13p, devSiteConstraintAdult, q.V2UpdatePromptConstraintU13p)
-	fill("u18", s.PromptConstraintU18, devSiteConstraintAdult, q.V2UpdatePromptConstraintU18)
-}
-
 // devGamesDir holds the demo game files, relative to the checkout root.
 var devGamesDir = filepath.Join("testing", "testdata", "games")
 
@@ -373,14 +351,6 @@ func checkoutPath(rel string) (string, error) {
 		dir = parent
 	}
 }
-
-// The site restrictions development starts with, the examples of
-// JUGENDSCHUTZ.md; on a live server an admin sets them. The demo games'
-// covers are drawn under DevSiteConstraintU13 (cmd/seedcovers).
-const (
-	DevSiteConstraintU13   = "Erlaube spürbare Konflikte und stärkere Spannung; greife bei realistischer, detaillierter oder eskalierender Gewalt ein und verhindere Verherrlichung und Überforderung."
-	devSiteConstraintAdult = "Erlaube realistische, auch deutlich intensivere Inhalte; unterbinde exzessive oder verherrlichte Gewalt sowie extreme, entwürdigende oder diskriminierende Darstellungen konsequent."
-)
 
 // The platforms a developer may keep a key for, in the order they are
 // seeded: the first one seeded becomes the dev admin's default key.

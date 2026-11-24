@@ -121,3 +121,17 @@ export function extractRawErrorCode(error: unknown): string | null {
 
   return null;
 }
+
+/**
+ * The message of an API refusal ({ error: { error, code } }), as the server
+ * wrote it: for detail beside a translated text, never as the text itself.
+ */
+export function extractRawErrorMessage(error: unknown): string | null {
+  if (!error || typeof error !== "object" || !("error" in error)) return null;
+  const nested = (error as { error?: unknown }).error;
+  if (nested && typeof nested === "object" && "error" in nested) {
+    const message = (nested as { error?: unknown }).error;
+    return typeof message === "string" ? message : null;
+  }
+  return null;
+}

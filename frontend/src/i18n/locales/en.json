@@ -1540,17 +1540,16 @@
     "searchPlaceholder": "Search members...",
     "serverSettings": {
       "constraints": {
-        "description": "Define mandatory AI rules based on the player's age group. These youth-protection rules go with every AI call. They apply to all logged-in users outside of workshop mode.",
+        "description": "Mandatory AI rules by the player's age group. They go with every AI call of logged-in users outside of workshop mode. Each starts as the site's default; change it, and go back to the default at any time.",
         "title": "Youth-protection rules by age group",
         "u13Hint": "Injected into every AI prompt for logged-in users aged 13-17 without parental consent on file.",
         "u13Label": "Youth-protection rule for users aged 13-17, no parental consent (U13)",
-        "u13Placeholder": "e.g. Keep all content strictly age-appropriate for teenagers. No violence, no romantic content, no horror themes.",
         "u13pHint": "Injected into every AI prompt for logged-in users aged 13-17 with parental consent on file.",
         "u13pLabel": "Youth-protection rule for users aged 13-17, with parental consent (U13p)",
-        "u13pPlaceholder": "e.g. Age-appropriate content for teenagers whose parents have consented. Some mature themes allowed, no explicit content.",
         "u18Hint": "Injected into every AI prompt for logged-in users aged 18 and above.",
         "u18Label": "Youth-protection rule for users aged 18+ (U18)",
-        "u18Placeholder": "e.g. Keep content appropriate. Avoid explicit violence or sexual content."
+        "changed": "Changed",
+        "reset": "Back to the default"
       },
       "defaultTier": {
         "description": "The server-wide fallback tier used when no specific tier is configured at the workshop, institution, or user level. Higher tiers cost more but may have higher quality.",
@@ -1644,7 +1643,92 @@
         "general": "General",
         "branding": "Branding",
         "ai": "AI and keys",
-        "youthProtection": "Youth protection"
+        "youthProtection": "Youth protection",
+        "models": "AI models"
+      },
+      "models": {
+        "fixed": "This platform's models are set by the engine and cannot be changed here.",
+        "assignments": {
+          "title": "{{platform}}: models per tier",
+          "description": "Which model each quality tier runs each task on. Click a model to assign another one from the model table. New sessions use the change; running sessions keep their models."
+        },
+        "table": {
+          "title": "{{platform}}: model table",
+          "description": "What each model takes and makes, its prices in dollars and its context window. Costs are calculated from these figures. Models no tier uses are greyed out. Changes to the engine's own models apply until the next app version.",
+          "add": "Add a model",
+          "edit": "Edit the entry",
+          "unused": "Not in use",
+          "added": "Added",
+          "stale": "Reset by update",
+          "media": "Takes {{takes}} · makes {{makes}}",
+          "windowValue": "window {{tokens}} tokens",
+          "read": "Price from {{date}}, source: {{source}}"
+        },
+        "task": "Task",
+        "changed": "Changed",
+        "unpriced": "This model has no entry in the model table: its costs are not calculated, and a story on it is never shortened.",
+        "refused": "The engine refused this change",
+        "types": {
+          "tooling": "Tooling",
+          "story": "Story",
+          "image": "Pictures",
+          "live": "Live voice",
+          "speech": "Narration",
+          "hearing": "Voice input"
+        },
+        "media": {
+          "text": "text",
+          "image": "pictures",
+          "audio": "audio"
+        },
+        "price": {
+          "none": "No price",
+          "inputPerMTok": "input {{value}}/M",
+          "cachedInputPerMTok": "cached {{value}}/M",
+          "outputPerMTok": "output {{value}}/M",
+          "audioInputPerMTok": "audio in {{value}}/M",
+          "cachedAudioInputPerMTok": "audio cached {{value}}/M",
+          "audioOutputPerMTok": "audio out {{value}}/M",
+          "audioPerMinute": "{{value}}/min",
+          "perImage": "{{value}}/picture"
+        },
+        "assign": {
+          "title": "Assign a model",
+          "where": "{{task}} on the {{tier}} tier",
+          "model": "Model",
+          "modelHint": "Only models of the model table that fit this task. Default: {{model}}",
+          "reset": "Back to the default",
+          "cellLabel": "{{task}}, {{tier}}: {{model}}. Assign another model"
+        },
+        "probe": {
+          "button": "Test",
+          "none": "Models for this task cannot be tested yet.",
+          "answers": "Answers (cost ${{cost}})",
+          "failed": "Does not answer: {{message}}"
+        },
+        "entry": {
+          "model": "Model name",
+          "modelHint": "Exactly as the provider names it, e.g. gpt-6.2-sol",
+          "takes": "Takes",
+          "makes": "Makes",
+          "prices": "Prices",
+          "pricesHint": "In dollars, as the provider's price page lists them. Leave a field empty when the model is not billed that way.",
+          "price": {
+            "inputPerMTok": "Input per million tokens",
+            "cachedInputPerMTok": "Cached input per million tokens",
+            "outputPerMTok": "Output per million tokens",
+            "audioInputPerMTok": "Audio input per million tokens",
+            "cachedAudioInputPerMTok": "Cached audio input per million tokens",
+            "audioOutputPerMTok": "Audio output per million tokens",
+            "audioPerMinute": "Audio per minute",
+            "perImage": "Per picture"
+          },
+          "window": "Context window (tokens)",
+          "windowHint": "How much a call may hold. Story and narration models need it, or a long story is never shortened.",
+          "codeRead": "The engine's own figures: from {{date}}, source: {{source}}",
+          "reset": "Back to the engine's figures",
+          "remove": "Remove the model"
+        }
       }
     },
     "settings": "Settings",

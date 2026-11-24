@@ -62,6 +62,14 @@ export type NotificationType =
   | "pageApproved"
   | "pageTurnedDown";
 
+export type ModelType =
+  | "tooling"
+  | "story"
+  | "image"
+  | "live"
+  | "speech"
+  | "hearing";
+
 export type Mode = "live" | "rounds";
 
 export type MemberSort = "name" | "email" | "role";
@@ -181,6 +189,13 @@ export interface ApiKeyView {
 
 export interface ApproveVerifiedPageReq {
   approved: boolean;
+}
+
+export interface AssignEngineModelReq {
+  model: string;
+  platform: Platform;
+  tier: Tier;
+  type: ModelType;
 }
 
 export interface AvailableKey {
@@ -413,6 +428,18 @@ export interface EdgeDetail {
   kind: string;
   recent: Sample[];
   to: string;
+}
+
+export interface EngineModelsPlatform {
+  assignments: ModelSlotView[];
+  configurable: boolean;
+  id: Platform;
+  models: ModelTableRowView[];
+  name: string;
+}
+
+export interface EngineModelsResp {
+  platforms: EngineModelsPlatform[];
 }
 
 export interface Error {
@@ -868,6 +895,35 @@ export interface ModelFacts {
   windowSource?: string;
 }
 
+export interface ModelFactsOverride {
+  in?: Medium[];
+  out?: Medium[];
+  price: Price;
+  since: string;
+  window?: number;
+}
+
+export interface ModelSlotView {
+  assigned: boolean;
+  default: string;
+  model: string;
+  /** @format date-time */
+  modifiedAt?: string;
+  tier: Tier;
+  type: ModelType;
+}
+
+export interface ModelTableRowView {
+  default?: ModelFacts;
+  facts: ModelFacts;
+  inUse: boolean;
+  model: string;
+  /** @format date-time */
+  modifiedAt?: string;
+  overridden: boolean;
+  stale: boolean;
+}
+
 export interface NamedRef {
   /** @format uuid */
   id: string;
@@ -1090,6 +1146,7 @@ export interface Place {
 }
 
 export interface PlatformInfo {
+  configurable: boolean;
   genres: Genre[];
   id: Platform;
   models: Record<string, ModelFacts>;
@@ -1119,6 +1176,20 @@ export interface Price {
 
 export interface PrivateShareStatusResp {
   shares: ShareLinkView[];
+}
+
+export interface ProbeEngineModelReq {
+  model: string;
+  platform: Platform;
+  type: ModelType;
+}
+
+export interface ProbeEngineModelResp {
+  answers: boolean;
+  cost: number;
+  message?: string;
+  priced: boolean;
+  problem?: string;
 }
 
 export interface PromptEditRequest {
@@ -1293,6 +1364,12 @@ export interface SetActiveWorkshopReq {
   workshopId?: string;
 }
 
+export interface SetEngineModelEntryReq {
+  facts?: ModelFactsOverride;
+  model: string;
+  platform: Platform;
+}
+
 export interface SetGameEmbedReq {
   enabled: boolean;
   mode: string;
@@ -1374,6 +1451,12 @@ export interface SiteResp {
   defaults: Branding;
 }
 
+export interface SiteRuleTexts {
+  u13: string;
+  u13p: string;
+  u18: string;
+}
+
 export interface Snapshot {
   choosing: boolean;
   conversation?: string;
@@ -1417,6 +1500,7 @@ export interface SystemSettings {
   id: string;
   /** @format date-time */
   modifiedAt?: string;
+  promptConstraintDefaults: SiteRuleTexts;
   promptConstraintU13?: string;
   promptConstraintU13p?: string;
   promptConstraintU18?: string;
@@ -4515,6 +4599,89 @@ export class Api<
       }),
 
     /**
+     * @description the model each tier runs each task on, and the model table, each as it runs and as the code sets it, with the admin's changes marked.
+     *
+     * @name GetApiSystemEngineModels
+     * @summary Shows the admin the engine's models: per platform
+     * @request GET:/api/system/engine-models
+     * @secure
+     */
+    getApiSystemEngineModels: (params: RequestParams = {}) =>
+      this.request<EngineModelsResp, Error>({
+        path: `/api/system/engine-models`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description The model must be in the platform's model table and fit the task: a hearing model takes audio, an image model makes pictures, a story or speech model has a context window (400 otherwise). An empty model gives the task back its default. Answers the engine's models as they now are.
+     *
+     * @name PutApiSystemEngineModelsAssignment
+     * @summary Assigns a model to a tier's task; admins only.
+     * @request PUT:/api/system/engine-models/assignment
+     * @secure
+     */
+    putApiSystemEngineModelsAssignment: (
+      data: AssignEngineModelReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<EngineModelsResp, Error>({
+        path: `/api/system/engine-models/assignment`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: "application/json",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description the model if the table lacks it; admins only. Null facts give a code model back the code's figures and remove a model the admin added. A model a tier runs a task on cannot leave the table or lose what the task needs (400). A change to a code model applies until the next app version. Answers the engine's models as they now are.
+     *
+     * @name PutApiSystemEngineModelsEntry
+     * @summary Sets a model's entry in the model table, adding
+     * @request PUT:/api/system/engine-models/entry
+     * @secure
+     */
+    putApiSystemEngineModelsEntry: (
+      data: SetEngineModelEntryReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<EngineModelsResp, Error>({
+        path: `/api/system/engine-models/entry`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: "application/json",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description request its type takes; admins only. Paid by the admin's own payers on the platform (400 no_api_key without one). Text and image models only for now; any other type answers problem "no_probe". A model that does not answer is a result, with the provider's message.
+     *
+     * @name PostApiSystemEngineModelsProbe
+     * @summary Asks whether a model answers, with the smallest
+     * @request POST:/api/system/engine-models/probe
+     * @secure
+     */
+    postApiSystemEngineModelsProbe: (
+      data: ProbeEngineModelReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<ProbeEngineModelResp, Error>({
+        path: `/api/system/engine-models/probe`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: "application/json",
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * No description
      *
      * @name GetApiSystemSettings
@@ -4532,7 +4699,7 @@ export class Api<
       }),
 
     /**
-     * @description Only the fields sent change. The default AI quality tier cannot be empty; an empty free-use tier or constraint clears it. Answers with the settings as stored.
+     * @description Only the fields sent change. The default AI quality tier cannot be empty; an empty free-use tier clears it; a constraint emptied, or set to its default, is the default again. Answers with the settings as they apply.
      *
      * @name PatchApiSystemSettings
      * @summary Updates the site-wide settings; admins only.

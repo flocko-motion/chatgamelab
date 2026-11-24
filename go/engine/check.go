@@ -36,17 +36,24 @@ func CheckOffer(ctx context.Context, offer Offer) error {
 	default:
 		return fmt.Errorf("unknown platform %q", offer.Platform)
 	}
+	return providerRefusal(offer.Platform, err, ProblemNoKey)
+}
+
+// providerRefusal is a provider's error as the engine refuses with it: a
+// rejected key, an account without credit, a provider that does not answer,
+// or anything else as other; nil for nil.
+func providerRefusal(platform Platform, err error, other Problem) error {
 	switch {
 	case err == nil:
 		return nil
 	case errors.Is(err, adapters.ErrKeyRejected):
-		return &Refusal{Problem: ProblemKeyRejected, Message: fmt.Sprintf("%s rejected the key: %v", offer.Platform, err)}
+		return &Refusal{Problem: ProblemKeyRejected, Message: fmt.Sprintf("%s rejected the key: %v", platform, err)}
 	case errors.Is(err, adapters.ErrNoCredit):
-		return &Refusal{Problem: ProblemNoCredit, Message: fmt.Sprintf("%s: the account has no credit left: %v", offer.Platform, err)}
+		return &Refusal{Problem: ProblemNoCredit, Message: fmt.Sprintf("%s: the account has no credit left: %v", platform, err)}
 	case errors.Is(err, adapters.ErrUnreachable), errors.Is(err, adapters.ErrTransient):
-		return &Refusal{Problem: ProblemUnreachable, Message: fmt.Sprintf("%s did not answer: %v", offer.Platform, err)}
+		return &Refusal{Problem: ProblemUnreachable, Message: fmt.Sprintf("%s did not answer: %v", platform, err)}
 	default:
-		return &Refusal{Problem: ProblemNoKey, Message: err.Error()}
+		return &Refusal{Problem: other, Message: err.Error()}
 	}
 }
 

@@ -217,6 +217,9 @@ type Platform struct {
 	ID       string       `json:"id"`
 	Name     string       `json:"name"`
 	UserKeys bool         `json:"userKeys"`
+	// Configurable says an admin may replace the platform's models and set
+	// their prices (engine.SetOverrides).
+	Configurable bool `json:"configurable"`
 	Toggles  Toggles      `json:"toggles"`
 	Tiers    []TierModels `json:"tiers"`
 	Facts    ModelTable   `json:"models"`
