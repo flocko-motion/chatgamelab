@@ -44,6 +44,8 @@ type Snapshot struct {
 	Choosing bool `json:"choosing"`
 	// Settled is what the session runs on, once it has settled.
 	Settled *Settled `json:"settled,omitempty"`
+	// Over is the game's end, so a reloading page shows it instead of the controls.
+	Over *Over `json:"over,omitempty"`
 }
 
 // recorder keeps what a reloading client will ask for. The engine holds it
@@ -62,16 +64,22 @@ type recorder struct {
 
 	// open is the utterance still streaming, kept whole once closed.
 	open strings.Builder
+
+	// over is why the game ended, kept apart and replayed last: a line still
+	// on its way when the game ended belongs before it.
+	over *SessionEvent
 }
 
 // historyStreams is what a reload needs to redraw the conversation.
 var historyStreams = map[string]bool{
 	"text": true,
 	// The player's lines, each whole, so a reload replays both speakers.
-	"said":  true,
-	"image": true,
-	"props": true,
-	"error": true,
+	"said": true,
+	// Why the game is over: its last line.
+	StreamOver: true,
+	"image":    true,
+	"props":    true,
+	"error":    true,
 	// Phase changes are in here for one reason: the transition back to ready is
 	// what says an utterance ended, and without it a replayed conversation runs
 	// together into a single paragraph.
@@ -92,6 +100,10 @@ func (r *recorder) record(e SessionEvent) []SessionEvent {
 
 	if !historyStreams[e.Stream] {
 		return nil
+	}
+	if e.Stream == StreamOver {
+		r.over = &e
+		return []SessionEvent{e}
 	}
 	kept := []SessionEvent{e}
 	if e.Stream == "text" {
@@ -127,6 +139,10 @@ func (r *recorder) restore(history []SessionEvent) {
 	defer r.mu.Unlock()
 	for _, e := range history {
 		if !historyStreams[e.Stream] {
+			continue
+		}
+		if e.Stream == StreamOver {
+			r.over = &e
 			continue
 		}
 		r.history = append(r.history, e)
@@ -187,7 +203,11 @@ func (r *recorder) replay() []SessionEvent {
 	// Empty rather than nil: a session nobody has spoken in yet still has a
 	// history, and it is an empty one. A nil slice encodes as JSON null, which
 	// a client iterating what it was handed cannot read.
-	return append(make([]SessionEvent, 0, len(r.history)), r.history...)
+	out := append(make([]SessionEvent, 0, len(r.history)+1), r.history...)
+	if r.over != nil {
+		out = append(out, *r.over)
+	}
+	return out
 }
 
 // conversed says a stored history holds something said by either side: the

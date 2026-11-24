@@ -394,6 +394,8 @@ const ENTRY_TEXTS: Record<string, TextKey> = {
   dropped: "director.entryDropped",
   error: "director.entryError",
   conversation: "director.entryConversation",
+  rules: "director.entryRules",
+  absent: "director.entryAbsent",
 };
 
 /** Who an entry names: a speaker, or the kind of a hand-made injection. */
@@ -428,7 +430,11 @@ function drawObserver(pane: HTMLElement, state: ObserverState): void {
     table([
       [
         said("director.doing"),
-        state.thinking ? filled("director.thinking", { s: seconds(state.thinkingForMs) }) : said("director.listening"),
+        state.thinking
+          ? filled("director.thinking", { s: seconds(state.thinkingForMs) })
+          : state.standingDown
+            ? filled("director.standingDown", { s: seconds(state.absentMs) })
+            : said("director.listening"),
       ],
       [said("director.characterSpoke"), ago(state.characterAgoMs)],
       [said("director.playerSpoke"), ago(state.playerAgoMs)],
@@ -452,6 +458,7 @@ function drawObserver(pane: HTMLElement, state: ObserverState): void {
       [said("director.quietReplies"), String(f.quiet)],
       [said("director.calls"), f.errors ? `${calls} · ${filled("director.failed", { n: f.errors })}` : calls],
       [said("director.sent"), filled("director.sentValue", { d: f.directions, b: f.backgrounds })],
+      [said("director.reminders"), String(f.reminders)],
       [said("director.dropped"), filled("director.droppedValue", { n: f.dropped })],
       [said("director.injected"), String(f.injected)],
     ]),

@@ -148,7 +148,7 @@ const StreamHeartbeat = "heartbeat"
 
 // StreamNames is every stream a genre can wire, and the source of the generated TypeScript union.
 func StreamNames() []string {
-	return []string{"text", "said", "audio", "image", "props", "state", "usage", "connect", "pause", "settled", "error", "problem", "journal", StreamHeartbeat}
+	return []string{"text", "said", "audio", "image", "props", "state", "usage", "connect", "pause", "settled", "error", "problem", "journal", StreamOver, StreamHeartbeat}
 }
 
 type Session struct {
@@ -157,6 +157,8 @@ type Session struct {
 	mu sync.Mutex
 	// settled is nil while the player is choosing.
 	settled *settlement
+	// over is the game's end, nil while it goes on; guarded by mu.
+	over *Over
 	// offers are the live offers, never stored: passed at launch, replaced by Adapt.
 	offers []Offer
 	// changes say why the settlement differs from the preference.
@@ -217,6 +219,8 @@ type slots struct {
 type SessionState struct {
 	Blocks map[string]string `json:"blocks,omitempty"`
 	Usage  []UsageRecord     `json:"usage,omitempty"`
+	// Over is the game's end; a game that is over is read back, never played on.
+	Over *Over `json:"over,omitempty"`
 }
 
 // Resume continues a stored session on the offers at hand, fitting its stored
@@ -399,10 +403,19 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 	states := w.Graph.ObserveStates(s.ctx)
 	usage := w.Graph.ObserveUsage(s.ctx)
 
-	var invitations, pauses <-chan ports.State
+	// A game that is over is read back: its history and its state, and nothing runs.
+	if from != nil && from.state.Over != nil {
+		s.mu.Lock()
+		s.over = from.state.Over
+		s.mu.Unlock()
+		return s, nil
+	}
+
+	var invitations, pauses, stops <-chan ports.State
 	if w.Live != nil {
 		invitations = w.Live.Invitations()
 		pauses = w.Live.Pauses()
+		stops = w.Live.Stops()
 	}
 
 	s.merge(s.ctx)
@@ -410,6 +423,7 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 	s.forwardUsage(s.ctx, usage)
 	s.forwardInvitations(s.ctx, invitations)
 	s.forwardSignal(s.ctx, pauses, "pause")
+	s.forwardStops(stops)
 
 	if settled, changes, choosing := spec.opening(offers); !choosing {
 		s.mu.Lock()
@@ -584,10 +598,16 @@ func (s *Session) Snapshot() Snapshot {
 		started = true
 	default:
 	}
+	over := s.overNow()
+	if over != nil {
+		// It was played, whether or not this run of it started anything.
+		started = true
+	}
 	snapshot := s.recorder.snapshot(started, s.usage.report(), s.conversation())
+	snapshot.Over = over
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	snapshot.Choosing = s.settled == nil
+	snapshot.Choosing = s.settled == nil && over == nil
 	snapshot.Settled = s.settledView()
 	return snapshot
 }

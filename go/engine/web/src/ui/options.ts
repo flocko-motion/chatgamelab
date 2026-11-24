@@ -27,7 +27,7 @@ const TOGGLES = Object.keys(TOGGLE_LABELS) as ToggleName[];
 export class OptionsDialog {
   #shown: Options | null = null;
   #offer = "";
-  #tier = "";
+  #tier: Choice["tier"] = "low";
   #toggles: Toggles = { images: false, "audio-out": false, "audio-in": false, "audio-live": false };
   /** The toggles worth offering: those that switch a block of this wiring. */
   #switchable: readonly string[] = [];

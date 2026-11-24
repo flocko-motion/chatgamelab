@@ -67,6 +67,8 @@ type Observer struct {
 	// called is when its model was last called, for the gap between calls.
 	called time.Time
 	inARow int
+	// reminded is when the rules last went to the character.
+	reminded time.Time
 	// open says the conversation is open; with none, it neither calls nor notices.
 	open bool
 	// held is a direction waiting for a pause in the conversation.
@@ -76,7 +78,11 @@ type Observer struct {
 	lastDirection string
 	awaiting      bool
 	directedAt    time.Time
-	figures       ObserverFigures
+	// openedAt is when the conversation last opened; standingDown says the
+	// player has been silent for Absent since their last words or since then.
+	openedAt     time.Time
+	standingDown bool
+	figures      ObserverFigures
 }
 
 // ObserverConfig is what a genre gives an observer.
@@ -101,17 +107,32 @@ type ObserverConfig struct {
 	// Gap is the least time between two calls of its model; zero takes
 	// DefaultGap. What arrives meanwhile waits and goes in with the next.
 	Gap time.Duration
+	// Absent is how long the player may say nothing before the observer takes
+	// them for gone and stops nudging, so the conversation stalls and the live
+	// session's idle close pauses the game; zero takes DefaultAbsent. It
+	// carries on once the player speaks again.
+	Absent time.Duration
+	// Rules are what the conversation keeps to, whatever else is said. When
+	// the model marks them at risk, they go to the character whole, as its
+	// own knowledge, after RulesPreface; empty leaves the mark unanswered.
+	Rules        string
+	RulesPreface string
+	// RulesGap is the least time between two reminders of the rules; zero
+	// takes DefaultRulesGap.
+	RulesGap time.Duration
 }
 
 // The observer's defaults.
 const (
 	// DefaultBeat collects a few seconds per round, so the model reads
 	// exchanges rather than scraps, and is called a few times a minute.
-	DefaultBeat   = 3 * time.Second
-	DefaultQuiet  = 2 * time.Second
-	DefaultInARow = 2
-	DefaultPause  = 1500 * time.Millisecond
-	DefaultGap    = 3 * time.Second
+	DefaultBeat     = 3 * time.Second
+	DefaultQuiet    = 2 * time.Second
+	DefaultInARow   = 2
+	DefaultPause    = 1500 * time.Millisecond
+	DefaultGap      = 3 * time.Second
+	DefaultAbsent   = time.Minute
+	DefaultRulesGap = 2 * time.Minute
 	// logLimit is how many characters of its log a call carries, newest kept.
 	logLimit = 12000
 	// logKept is how many entries it keeps for a reader.
@@ -123,9 +144,12 @@ const (
 const Quiet = "."
 
 // The markers that turn a line of the model's reply into an injection.
+// MarkRules says the rules are at risk; the observer then reminds the
+// character of them in their own words, never the model's.
 const (
 	MarkDirection  = "[DIRECTION]"
 	MarkBackground = "[BACKGROUND]"
+	MarkRules      = "[RULES]"
 )
 
 // The kinds of entry on an observer's log.
@@ -142,6 +166,11 @@ const (
 	EntryHeld = "held"
 	// EntryConversation is the conversation opening or closing.
 	EntryConversation = "conversation"
+	// EntryAbsent is the observer standing down for a silent player, or
+	// listening again when they speak.
+	EntryAbsent = "absent"
+	// EntryRules is the rules sent to the character as its own knowledge.
+	EntryRules = "rules"
 )
 
 // ObserverEntry is one thing on an observer's log.
@@ -169,6 +198,8 @@ type ObserverFigures struct {
 	Backgrounds    int   `json:"backgrounds"`
 	Dropped        int   `json:"dropped"`
 	Injected       int   `json:"injected"`
+	// Reminders counts the times the rules went to the character.
+	Reminders int `json:"reminders"`
 	// Quiet counts the replies that found nothing to do.
 	Quiet int `json:"quiet"`
 }
@@ -194,11 +225,15 @@ type ObserverState struct {
 	InARow int `json:"inARow"`
 	// Held is a direction waiting for a pause; Awaiting says the character
 	// has not finished an answer since the last direction.
-	Held        string          `json:"held,omitempty"`
-	Awaiting    bool            `json:"awaiting"`
-	InARowLimit int             `json:"inARowLimit"`
-	Figures     ObserverFigures `json:"figures"`
-	Log         []ObserverEntry `json:"log"`
+	Held        string `json:"held,omitempty"`
+	Awaiting    bool   `json:"awaiting"`
+	InARowLimit int    `json:"inARowLimit"`
+	// StandingDown says the player has been silent for AbsentMs and the
+	// observer has stopped nudging until they speak.
+	StandingDown bool            `json:"standingDown"`
+	AbsentMs     int64           `json:"absentMs"`
+	Figures      ObserverFigures `json:"figures"`
+	Log          []ObserverEntry `json:"log"`
 }
 
 // maxInjection keeps an injection inside what a live provider takes in one
@@ -226,6 +261,12 @@ func NewObserver(name string, cfg ObserverConfig) *Observer {
 	}
 	if cfg.Gap <= 0 {
 		cfg.Gap = DefaultGap
+	}
+	if cfg.RulesGap <= 0 {
+		cfg.RulesGap = DefaultRulesGap
+	}
+	if cfg.Absent <= 0 {
+		cfg.Absent = DefaultAbsent
 	}
 	return &Observer{
 		name:         name,
@@ -313,6 +354,8 @@ func (b *Observer) State() ObserverState {
 		Held:           b.held,
 		Awaiting:       b.awaiting,
 		InARowLimit:    b.cfg.InARow,
+		StandingDown:   b.standingDown,
+		AbsentMs:       b.cfg.Absent.Milliseconds(),
 		Figures:        b.figures,
 		Log:            append([]ObserverEntry(nil), b.log...),
 	}
@@ -393,6 +436,11 @@ func (b *Observer) follow(open bool) {
 		return
 	}
 	b.open = open
+	b.standingDown = false
+	if open {
+		// A player's silence counts from this conversation, not from before a pause.
+		b.openedAt = time.Now()
+	}
 	dropped := 0
 	if !open {
 		// Closed, what waits belongs to no conversation; opening keeps what
@@ -414,19 +462,41 @@ func (b *Observer) follow(open bool) {
 	b.note(ObserverEntry{At: time.Now(), Kind: EntryConversation, Text: text}, false)
 }
 
-// collect puts a fragment in the pool; speech ends a silence.
+// collect puts a fragment in the pool; speech ends a silence, and the
+// player's words end standing down.
 func (b *Observer) collect(f ports.Fragment) {
 	if f.At.IsZero() {
 		f.At = time.Now()
 	}
 	b.mu.Lock()
-	defer b.mu.Unlock()
 	b.figures.Fragments++
 	b.pool = append(b.pool, f)
 	b.lastSaid[f.Speaker] = f.At
 	b.lastAny = f.At
 	b.quietNotice = b.cfg.Quiet
 	b.noticedAt = time.Time{}
+	back := b.standingDown && f.Speaker == SpeakerPlayer
+	if back {
+		b.standingDown = false
+	}
+	b.mu.Unlock()
+	if back {
+		b.note(ObserverEntry{At: f.At, Kind: EntryAbsent, Text: "the player speaks again; listening again"}, false)
+		b.journal.Note(b.name, "player-back", "")
+	}
+}
+
+// absentLocked says the player has said nothing for Absent, since their last
+// words or, if none in this conversation, since it opened. The caller holds mu.
+func (b *Observer) absentLocked(now time.Time) bool {
+	if !b.open || b.openedAt.IsZero() {
+		return false
+	}
+	since := b.openedAt
+	if last := b.lastSaid[SpeakerPlayer]; last.After(since) {
+		since = last
+	}
+	return now.Sub(since) >= b.cfg.Absent
 }
 
 // flush releases what has waited a beat, as lines, and notices a silence.
@@ -473,10 +543,20 @@ func (b *Observer) flush(now time.Time) {
 		b.figures.Flushes++
 		b.figures.Lines += len(lines)
 	}
+	// A player silent for Absent may be gone: no more nudges, so the
+	// conversation stalls and the live session's idle close pauses the game.
+	// What waits for the model, and a held direction, are let go.
+	var gone *ObserverEntry
+	if !b.standingDown && b.absentLocked(now) {
+		b.standingDown = true
+		b.pending, b.held = nil, ""
+		gone = &ObserverEntry{At: now, Kind: EntryAbsent, Text: fmt.Sprintf(
+			"the player has said nothing for %.0f s and may be gone; no more nudges until they speak", b.cfg.Absent.Seconds())}
+	}
 	// A silence, once the conversation has begun, is noticed at Quiet, then
 	// at twice the wait each time while it lasts.
 	var notice *ObserverEntry
-	if b.open && len(b.pool) == 0 && !b.lastAny.IsZero() {
+	if b.open && !b.standingDown && len(b.pool) == 0 && !b.lastAny.IsZero() {
 		since := b.lastAny
 		if !b.noticedAt.IsZero() {
 			since = b.noticedAt
@@ -497,6 +577,10 @@ func (b *Observer) flush(now time.Time) {
 	}
 	if notice != nil {
 		b.note(*notice, true)
+	}
+	if gone != nil {
+		b.note(*gone, false)
+		b.journal.Note(b.name, "player-absent", gone.Text)
 	}
 }
 
@@ -521,7 +605,8 @@ func (b *Observer) note(e ObserverEntry, forModel bool) {
 	if len(b.log) > logKept {
 		b.log = b.log[len(b.log)-logKept:]
 	}
-	if forModel && b.cfg.Tool != nil {
+	// Standing down, nothing waits for the model; the log keeps it as history.
+	if forModel && b.cfg.Tool != nil && !b.standingDown {
 		b.pending = append(b.pending, e)
 	}
 }
@@ -529,7 +614,7 @@ func (b *Observer) note(e ObserverEntry, forModel bool) {
 // think calls the model with what waits, unless a call is in flight already.
 func (b *Observer) think(ctx context.Context, replies chan<- reply) {
 	b.mu.Lock()
-	if b.cfg.Tool == nil || !b.open || !b.busySince.IsZero() || len(b.pending) == 0 ||
+	if b.cfg.Tool == nil || !b.open || b.standingDown || !b.busySince.IsZero() || len(b.pending) == 0 ||
 		(!b.called.IsZero() && time.Since(b.called) < b.cfg.Gap) {
 		b.mu.Unlock()
 		return
@@ -594,8 +679,12 @@ func render(e ObserverEntry) string {
 		return fmt.Sprintf("%s [sent, %s] %s\n", clock, e.Kind, e.Text)
 	case EntryDropped:
 		return fmt.Sprintf("%s [not sent] %s\n", clock, e.Text)
+	case EntryRules:
+		return fmt.Sprintf("%s [sent: the character was reminded of the rules]\n", clock)
 	case EntryHeld:
 		return fmt.Sprintf("%s [held until the conversation pauses] %s\n", clock, e.Text)
+	case EntryAbsent:
+		return fmt.Sprintf("%s [stood down] %s\n", clock, e.Text)
 	}
 	return ""
 }
@@ -626,16 +715,22 @@ func (b *Observer) answered(r reply) {
 	}
 	b.note(ObserverEntry{At: now, Kind: EntryThought, Text: strings.TrimSpace(r.text)}, false)
 	b.mu.Lock()
-	open := b.open
+	open := b.open && !b.standingDown
 	b.mu.Unlock()
 	if !open {
-		// The conversation closed while it thought: nothing to send into.
+		// The conversation closed, or the player went quiet, while it thought:
+		// nothing to send into, or no one to nudge for.
 		for _, line := range []string{marked(r.text, MarkDirection), marked(r.text, MarkBackground)} {
 			if line != "" {
 				b.note(ObserverEntry{At: now, Kind: EntryDropped, Text: line}, false)
 			}
 		}
 		return
+	}
+
+	// The rules at risk come first, and in their own words.
+	if hasMark(r.text, MarkRules) {
+		b.remind(now)
 	}
 
 	direction, background := marked(r.text, MarkDirection), marked(r.text, MarkBackground)
@@ -770,4 +865,43 @@ func marked(reply, mark string) string {
 		}
 	}
 	return ""
+}
+
+// remind sends the rules to the character as its own knowledge, which does not
+// interrupt it; at most once a RulesGap, so it cannot be flooded.
+func (b *Observer) remind(now time.Time) {
+	b.mu.Lock()
+	rules := strings.TrimSpace(b.cfg.Rules)
+	soon := !b.reminded.IsZero() && now.Sub(b.reminded) < b.cfg.RulesGap
+	if rules != "" && !soon {
+		b.reminded = now
+		b.figures.Reminders++
+	} else if rules != "" {
+		b.figures.Dropped++
+	}
+	b.mu.Unlock()
+	switch {
+	case rules == "":
+		return
+	case soon:
+		b.note(ObserverEntry{At: now, Kind: EntryDropped, Text: "the rules were reminded of shortly before"}, false)
+		return
+	}
+	text := strings.TrimSpace(b.cfg.RulesPreface + "\n" + rules)
+	if utf8.RuneCountInString(text) > maxInjection {
+		text = string([]rune(text)[:maxInjection])
+	}
+	b.out.Send(ports.Injection{Kind: ports.InjectBackground, Text: text})
+	b.note(ObserverEntry{At: now, Kind: EntryRules, Text: text}, false)
+	b.journal.Warn(b.name, "rules-reminded", "the rules were at risk; the character was reminded of them")
+}
+
+// hasMark says a line of the reply starts with mark.
+func hasMark(reply, mark string) bool {
+	for _, line := range strings.Split(reply, "\n") {
+		if strings.HasPrefix(strings.TrimSpace(line), mark) {
+			return true
+		}
+	}
+	return false
 }

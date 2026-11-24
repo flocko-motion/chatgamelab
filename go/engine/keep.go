@@ -85,6 +85,7 @@ func (s *Session) stored() Stored {
 		State: SessionState{
 			Blocks: s.wiring.Graph.ExportState(),
 			Usage:  s.usage.report().ByNode,
+			Over:   s.overNow(),
 		},
 	}
 }

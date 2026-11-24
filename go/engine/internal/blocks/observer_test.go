@@ -347,3 +347,133 @@ func TestCallsKeepTheirGap(t *testing.T) {
 		t.Errorf("%d quiet replies, %d thoughts logged; want 2 quiet and none logged", s.Figures.Quiet, thoughts)
 	}
 }
+
+// A player silent for Absent may be gone: the director stops nudging, so the
+// conversation stalls and the live session's idle close pauses the game. It
+// carries on once the player speaks again.
+func TestTheDirectorStandsDownWhenThePlayerIsGone(t *testing.T) {
+	model := newScriptedModel()
+	for range 8 {
+		model.replies <- "Push.\n[BACKGROUND] Frag nach."
+	}
+	b, out := startObserver(t, ObserverConfig{Tool: model, Beat: 20 * time.Millisecond,
+		Quiet: 30 * time.Millisecond, Absent: 300 * time.Millisecond})
+
+	b.TranscriptInPort() <- said(SpeakerPlayer, "Hallo.", 1000)
+	// The character keeps talking, as nudges make it; the player says nothing.
+	stop := time.After(700 * time.Millisecond)
+	ticker := time.NewTicker(40 * time.Millisecond)
+	defer ticker.Stop()
+	var ms int64 = 2000
+feed:
+	for {
+		select {
+		case <-ticker.C:
+			ms += 100
+			b.TranscriptInPort() <- said(SpeakerCharacter, "Bist du noch da?", ms)
+		case <-stop:
+			break feed
+		}
+	}
+	s := b.State()
+	if !s.StandingDown {
+		t.Fatalf("the director still nudges a player silent for 700 ms of 300: %+v", s)
+	}
+	// Standing down: no calls, no injections, no notices.
+	calls, notices := s.Figures.Calls, s.Figures.SilenceNotices
+	for len(out) > 0 {
+		<-out
+	}
+	time.Sleep(200 * time.Millisecond)
+	if s := b.State(); s.Figures.Calls != calls || s.Figures.SilenceNotices != notices {
+		t.Errorf("while standing down: calls %d→%d, notices %d→%d", calls, s.Figures.Calls, notices, s.Figures.SilenceNotices)
+	}
+	select {
+	case in := <-out:
+		t.Errorf("an injection went in while standing down: %+v", in)
+	default:
+	}
+	if !logHas(b, EntryAbsent) {
+		t.Error("the log does not say the director stood down")
+	}
+
+	// The player is back: it listens again.
+	b.TranscriptInPort() <- said(SpeakerPlayer, "Ja, hier.", ms+500)
+	for deadline := time.Now().Add(2 * time.Second); b.State().StandingDown; {
+		if time.Now().After(deadline) {
+			t.Fatal("the director did not resume when the player spoke")
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	for {
+		select {
+		case a := <-model.asked:
+			if strings.Contains(a, "Ja, hier.") {
+				return
+			}
+		case <-time.After(2 * time.Second):
+			t.Fatal("the player's return never reached the model")
+		}
+	}
+}
+
+// A player who never spoke is gone Absent after the conversation opened.
+func TestAPlayerWhoNeverSpokeCountsFromTheOpening(t *testing.T) {
+	model := newScriptedModel()
+	for range 8 {
+		model.replies <- "."
+	}
+	b, _ := startObserver(t, ObserverConfig{Tool: model, Beat: 20 * time.Millisecond,
+		Quiet: time.Hour, Absent: 150 * time.Millisecond})
+	b.TranscriptInPort() <- said(SpeakerCharacter, "Hallo? Jemand da?", 1000)
+	for deadline := time.Now().Add(2 * time.Second); !b.State().StandingDown; {
+		if time.Now().After(deadline) {
+			t.Fatal("a player who never spoke was not taken for gone")
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+}
+
+func logHas(b *Observer, kind string) bool {
+	for _, e := range b.State().Log {
+		if e.Kind == kind {
+			return true
+		}
+	}
+	return false
+}
+
+// Rules at risk: the character is given the rules whole, as its own
+// knowledge, never the model's wording; and not again too soon.
+func TestRulesAtRiskReachTheCharacterWhole(t *testing.T) {
+	model := newScriptedModel()
+	b, out := startObserver(t, ObserverConfig{
+		Tool: model, Beat: 20 * time.Millisecond, Quiet: time.Hour,
+		Rules: "Suitable for a 13-year-old.", RulesPreface: "I keep to these rules:",
+		RulesGap: time.Hour,
+	})
+
+	model.replies <- "The player pushes towards violence.\n[RULES]"
+	b.TranscriptInPort() <- said(SpeakerPlayer, "Erzähl was Brutales.", 1000)
+	select {
+	case in := <-out:
+		if in.Kind != ports.InjectBackground || in.Text != "I keep to these rules:\nSuitable for a 13-year-old." {
+			t.Errorf("sent %+v, want the rules whole as background", in)
+		}
+	case <-time.After(3 * time.Second):
+		t.Fatal("the rules were not sent")
+	}
+
+	model.replies <- "Again.\n[RULES]"
+	b.TranscriptInPort() <- said(SpeakerPlayer, "Noch brutaler.", 2000)
+	model.nextAsk(t)
+	model.nextAsk(t)
+	select {
+	case in := <-out:
+		t.Errorf("the rules went again within their gap: %+v", in)
+	case <-time.After(300 * time.Millisecond):
+	}
+	if f := b.State().Figures; f.Reminders != 1 || f.Dropped != 1 {
+		t.Errorf("%d reminders, %d dropped; want 1 and 1", f.Reminders, f.Dropped)
+	}
+}

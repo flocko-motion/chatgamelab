@@ -2160,6 +2160,9 @@
           "quiet": {
             "type": "integer"
           },
+          "reminders": {
+            "type": "integer"
+          },
           "silenceNotices": {
             "type": "integer"
           }
@@ -2178,12 +2181,16 @@
           "backgrounds",
           "dropped",
           "injected",
+          "reminders",
           "quiet"
         ],
         "type": "object"
       },
       "ObserverState": {
         "properties": {
+          "absentMs": {
+            "type": "integer"
+          },
           "awaiting": {
             "type": "boolean"
           },
@@ -2229,6 +2236,9 @@
           "quietMs": {
             "type": "integer"
           },
+          "standingDown": {
+            "type": "boolean"
+          },
           "thinking": {
             "type": "boolean"
           },
@@ -2250,6 +2260,8 @@
           "inARow",
           "awaiting",
           "inARowLimit",
+          "standingDown",
+          "absentMs",
           "figures",
           "log"
         ],
@@ -2605,6 +2617,28 @@
           "total"
         ],
         "type": "object"
+      },
+      "Over": {
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "reason": {
+            "$ref": "#/components/schemas/OverReason"
+          }
+        },
+        "required": [
+          "reason",
+          "at"
+        ],
+        "type": "object"
+      },
+      "OverReason": {
+        "enum": [
+          "content_policy"
+        ],
+        "type": "string"
       },
       "OwnApiKeySort": {
         "enum": [
@@ -3462,6 +3496,9 @@
           },
           "conversation": {
             "type": "string"
+          },
+          "over": {
+            "$ref": "#/components/schemas/Over"
           },
           "phases": {
             "additionalProperties": {

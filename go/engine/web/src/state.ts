@@ -1,6 +1,6 @@
 /** Everything the UI could draw, so a test can play a full game and assert on it without a DOM. */
 import type { JournalEntry, Options, Settled, Toggles, Topology, UsageReport } from "./client.js";
-import type { Phase, Problem, Refusal } from "./protocol.js";
+import { OVER_REASONS, type OverReason, type Phase, type Problem, type Refusal } from "./protocol.js";
 import type { Notice, TextKey } from "./texts.js";
 import type { VoiceState } from "./voice.js";
 
@@ -92,6 +92,11 @@ export interface PlaybackEngineState {
   options: Options | null;
   /** What the session runs on, once it has settled. */
   settled: Settled | null;
+  /**
+   * Why the game is over, null while it goes on. A game that is over is read
+   * back as it was played, and has no controls.
+   */
+  over: OverReason | "unknown" | null;
 }
 
 export function emptyState(): PlaybackEngineState {
@@ -122,7 +127,24 @@ export function emptyState(): PlaybackEngineState {
     choosing: false,
     options: null,
     settled: null,
+    over: null,
   };
+}
+
+/** The text that tells the player, kindly, why their game is over. */
+const OVER_TEXT: Record<OverReason | "unknown", TextKey> = {
+  content_policy: "over.contentPolicy",
+  unknown: "over.unknown",
+};
+
+/** Reads an `over` value; one this page does not know is told as an end without a reason. */
+export function overReason(value: string | undefined): OverReason | "unknown" {
+  return (OVER_REASONS as readonly string[]).includes(value ?? "") ? (value as OverReason) : "unknown";
+}
+
+/** What the last line of a finished game says. */
+export function overText(over: OverReason | "unknown"): TextKey {
+  return OVER_TEXT[over];
 }
 
 /** The text that says what each problem means to a player. */
@@ -138,6 +160,7 @@ const PROBLEM_TEXT: Record<Problem, TextKey> = {
   denied: "problems.denied",
   paused: "problems.paused",
   failed: "problems.failed",
+  over: "problems.over",
 };
 
 /** A refusal as a notice: its problem says what to tell the player, its message is the detail. */
@@ -178,7 +201,7 @@ export function switches(state: PlaybackEngineState, toggle: ToggleName): boolea
 
 /** Whether this genre has anywhere to type, as its wiring declares. */
 export function acceptsTypedInput(state: PlaybackEngineState): boolean {
-  return accepts(state, "text");
+  return !state.over && accepts(state, "text");
 }
 
 /** How this genre takes speech, which picks a pause control or hold-to-talk. */
@@ -195,7 +218,7 @@ export function voiceMode(state: PlaybackEngineState): VoiceMode {
  * push-to-talk and the session settled with voice input on.
  */
 export function holdsToTalk(state: PlaybackEngineState): boolean {
-  return voiceMode(state) === "push-to-talk" && (state.settled?.choice.toggles["audio-in"] ?? false);
+  return !state.over && voiceMode(state) === "push-to-talk" && (state.settled?.choice.toggles["audio-in"] ?? false);
 }
 
 /**
@@ -205,7 +228,7 @@ export function holdsToTalk(state: PlaybackEngineState): boolean {
 export type AudioState = "live" | "pausing" | "paused" | "resuming";
 
 export function audioState(state: PlaybackEngineState): AudioState | null {
-  if (voiceMode(state) !== "full-duplex") return null;
+  if (state.over || voiceMode(state) !== "full-duplex") return null;
   if (state.pausing) return "pausing";
   if (state.resuming) return "resuming";
   if (state.paused) return "paused";

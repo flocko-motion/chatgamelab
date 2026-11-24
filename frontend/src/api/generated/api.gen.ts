@@ -36,6 +36,8 @@ export type ParticipantSort = "name" | "role" | "gamesCount" | "createdAt";
 
 export type OwnApiKeySort = "createdAt" | "name" | "platform" | "status";
 
+export type OverReason = "content_policy";
+
 export type OrganisationSort = "name" | "createdAt" | "registeredAt";
 
 export type OrganisationKeySort = "name" | "owner" | "platform";
@@ -789,10 +791,12 @@ export interface ObserverFigures {
   late: number;
   lines: number;
   quiet: number;
+  reminders: number;
   silenceNotices: number;
 }
 
 export interface ObserverState {
+  absentMs: number;
   awaiting: boolean;
   beatMs: number;
   characterAgoMs: number;
@@ -807,6 +811,7 @@ export interface ObserverState {
   pool: number;
   quietForMs: number;
   quietMs: number;
+  standingDown: boolean;
   thinking: boolean;
   thinkingForMs: number;
 }
@@ -911,6 +916,12 @@ export interface OrganisationView {
 export interface OrganisationViewPage {
   items: OrganisationView[];
   total: number;
+}
+
+export interface Over {
+  /** @format date-time */
+  at: string;
+  reason: OverReason;
 }
 
 export interface OwnApiKeyView {
@@ -1185,6 +1196,7 @@ export interface ShareLinkView {
 export interface Snapshot {
   choosing: boolean;
   conversation?: string;
+  over?: Over;
   phases: Record<string, string>;
   props: Record<string, string>;
   settled?: Settled;

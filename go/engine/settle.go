@@ -346,10 +346,13 @@ func (s *Session) emit(ev SessionEvent) {
 	s.hub.publish(ev)
 }
 
-// playing refuses play before the player has chosen.
+// playing refuses play before the player has chosen, and once the game is over.
 func (s *Session) playing() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if s.over != nil {
+		return &Refusal{Problem: ProblemOver, Message: "the game is over: " + string(s.over.Reason)}
+	}
 	if s.settled == nil {
 		return ErrChoosing
 	}

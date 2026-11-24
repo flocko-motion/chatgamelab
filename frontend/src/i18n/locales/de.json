@@ -801,7 +801,7 @@
       },
       "genres": {
         "adventure": "Abenteuer",
-        "npc-live": "NPC-Live"
+        "npc-live": "Begegnung"
       },
       "features": {
         "images": "Bildern",
@@ -1577,6 +1577,10 @@
     "workshopSettings": "Workshop-Einstellungen"
   },
   "playbackEngine": {
+    "over": {
+      "contentPolicy": "Dieses Spiel wurde vom KI-Anbieter beendet: Das Gespräch ging in eine Richtung, die seine Sicherheitsregeln nicht erlauben. Du kannst alles Gesagte weiter nachlesen und jederzeit ein neues Spiel beginnen.",
+      "unknown": "Dieses Spiel ist zu Ende. Du kannst alles Gesagte weiter nachlesen und jederzeit ein neues Spiel beginnen."
+    },
     "problems": {
       "noKey": "Für dieses Spiel ist kein API-Schlüssel verfügbar.",
       "genre": "Der verfügbare API-Schlüssel kann diese Art von Spiel nicht ausführen.",
@@ -1588,7 +1592,8 @@
       "unknown": "Diese Spielsitzung gibt es nicht.",
       "denied": "Du darfst dieses Spiel nicht spielen.",
       "paused": "Der Workshop ist pausiert. Das Spiel geht weiter, sobald er fortgesetzt wird.",
-      "failed": "Etwas ist schiefgelaufen, das Spiel kann nicht weitergehen."
+      "failed": "Etwas ist schiefgelaufen, das Spiel kann nicht weitergehen.",
+      "over": "Dieses Spiel ist zu Ende und kann nicht weitergehen."
     },
     "errors": {
       "serverUnreachable": "Der Spielserver ist nicht erreichbar.",
@@ -1611,6 +1616,7 @@
       "connecting": "Verbinden…",
       "reconnecting": "Erneut verbinden…",
       "ended": "Das Spiel ist zu Ende.",
+      "over": "Das Spiel ist zu Ende.",
       "choose": "Wähle, wie du spielen möchtest, um zu beginnen.",
       "settingScene": "Die Szene entsteht…",
       "wakingCharacter": "Die Figur erwacht…"
@@ -1661,6 +1667,7 @@
       "log": "Regie-Protokoll",
       "doing": "tut gerade",
       "listening": "hört zu",
+      "standingDown": "hält sich zurück · Spieler:in hat {{s}} lang nichts gesagt",
       "thinking": "denkt nach · {{s}}",
       "characterSpoke": "Figur sprach",
       "playerSpoke": "Spieler:in sprach",
@@ -1703,8 +1710,11 @@
       "entryDropped": "verworfen",
       "entryError": "Fehler",
       "entryConversation": "Gespräch",
+      "entryAbsent": "Spieler:in weg",
       "quietReplies": "nichts zu tun",
-      "gap": "Aufrufe höchstens alle"
+      "gap": "Aufrufe höchstens alle",
+      "reminders": "an die Regeln erinnert",
+      "entryRules": "Regeln gesendet"
     },
     "relay": {
       "connecting": "Relay: läuft nicht",
