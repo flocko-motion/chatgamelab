@@ -56,14 +56,17 @@ WHERE u.id = @id;
 -- name: V2ShareLinkPlay :many
 -- A share link as a play through it needs it: its game, workshop and
 -- organisation, plays left, tier, author and paying share, and whether its
--- organisation (its own, or its workshop's) is suspended.
+-- organisation (its own, or its workshop's) is suspended; for an embed
+-- link, whether it is on, its mode, and its verified page's ID and callback.
 SELECT gs.id, gs.game_id, gs.workshop_id, gs.institution_id, gs.remaining, gs.ai_quality_tier,
   gs.created_by, gs.api_key_share_id, w.ai_quality_tier AS workshop_tier,
+  gs.embed, gs.enabled, gs.embed_mode, gs.verified_page_id, vp.page_id AS verified_page_key, vp.callback_url,
   (o.id IS NOT NULL AND (o.suspended_at IS NOT NULL
      OR institution_consent_missing(o.id, @declaration_version::text, @declaration_hash::text)))::bool AS organisation_suspended
 FROM game_share gs
 LEFT JOIN workshop w    ON w.id = gs.workshop_id
 LEFT JOIN institution o ON o.id = COALESCE(gs.institution_id, w.institution_id)
+LEFT JOIN verified_page vp ON vp.id = gs.verified_page_id
 WHERE (sqlc.narg(token)::text IS NULL OR gs.token = sqlc.narg(token)::text)
   AND (sqlc.narg(id)::uuid IS NULL OR gs.id = sqlc.narg(id)::uuid);
 
@@ -116,6 +119,16 @@ INSERT INTO game_session (
   $1, $2, $3, $4, $5, $6,
   $7, $8, $9, $10, $11
 );
+
+-- name: V2OutsideGuest :one
+-- The guest a host's visitor already is on share link @private_share_id,
+-- known by their hashed player ID, made now if they are new. Two first
+-- visits at once end in the one guest.
+INSERT INTO app_user (id, name, email, auth0_id, guest_token, private_share_id, outside_id)
+VALUES (@id, @name, NULL, NULL, NULL, @private_share_id, @outside_id::text)
+ON CONFLICT (private_share_id, outside_id) WHERE outside_id IS NOT NULL
+DO UPDATE SET outside_id = EXCLUDED.outside_id
+RETURNING id;
 
 -- name: V2CreateGuestUser :one
 INSERT INTO app_user (id, name, email, auth0_id, guest_token, private_share_id)

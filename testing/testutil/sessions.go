@@ -13,6 +13,7 @@ import (
 // NewSession is what a session is created from: a game, or a share link.
 type NewSession struct {
 	game, share, language, once string
+	hostPlayer, hostRequest     string
 }
 
 // ForGame creates a session of a game.
@@ -20,6 +21,13 @@ func ForGame(gameID string) NewSession { return NewSession{game: gameID} }
 
 // ForShare creates a session from a share link's token.
 func ForShare(token string) NewSession { return NewSession{share: token} }
+
+// FromHost names the host page's visitor and request, as the playback-engine
+// embedded on a verified page sends them.
+func (n NewSession) FromHost(player, request string) NewSession {
+	n.hostPlayer, n.hostRequest = player, request
+	return n
+}
 
 // InLanguage plays the session in a language.
 func (n NewSession) InLanguage(language string) NewSession { n.language = language; return n }
@@ -40,6 +48,12 @@ func (n NewSession) request() apiclient.CreateRequest {
 	}
 	if n.language != "" {
 		req.Language = &n.language
+	}
+	if n.hostPlayer != "" {
+		req.Player = &n.hostPlayer
+	}
+	if n.hostRequest != "" {
+		req.Request = &n.hostRequest
 	}
 	return req
 }

@@ -768,13 +768,25 @@ wants to own when things render.
   iframe.
 - **The playback-engine starts and resumes sessions itself.** Opened with a
   session ID it resumes that one; opened with `new` and a game or a share token
-  it creates one. It then replaces its own URL with the session's, without a
-  reload, and tells a same-origin parent page by
-  `postMessage({ type: "session", id })`. It remembers the session in its own
+  it creates one, passing on a host page's `player` and `request` IDs with a
+  share token. It then replaces its own URL with the session's, keeping its
+  format, stylesheet and language, without a reload, and tells a same-origin
+  parent page by `postMessage({ type: "session", id })`. It remembers the session in its own
   browser storage per game or share, so a host page reloaded with `new` offers
   to continue or start anew. Every launch error is shown on its launch panel,
   with a way to try again or start anew. The headless playback-engine follows the same
   flow.
+- **Framed by another website it is just the game.** A parent on another
+  origin marks the page `body[data-embedded]`: no header, no Insights, and a
+  layout by the frame's size alone, in CSS (controls only, the conversation,
+  the game with pictures and values). A host's CSS arrives as a `cgl-css`
+  message from the parent frame or as an `https` stylesheet in `css=`, and
+  lands after the page's own styles; it styles against the `data-part` names
+  and `--cgl-*` variables of `docs/embed-styling.md`, which are a contract.
+  The loader (`src/loader.ts`, served as `embed.js`) builds the frame and
+  hands the host's `<style data-cgl>` blocks over; the serving side's
+  Content-Security-Policy says who may frame the page and where CSS may load
+  from.
 
 ## A game's end
 

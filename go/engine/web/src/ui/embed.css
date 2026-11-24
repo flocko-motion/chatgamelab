@@ -1,0 +1,83 @@
+/* The playback-engine embedded on another website (#340), set as
+   body[data-embedded]: the plain game, nothing of the platform around it,
+   no Insights. It lays itself out by the room its frame gives it:
+
+   - small (low or narrow): the controls alone, such as one button to talk;
+   - medium: the conversation and its controls;
+   - large: the game with its pictures and status values.
+
+   The host's CSS styles it through the contract in docs/embed-styling.md:
+   the data-part names and the --cgl-* variables. */
+
+/* The --cgl-* variables a host sets on :root, with the page's own looks as
+   their defaults. */
+body {
+  font-family: var(--cgl-font, var(--platform-font));
+}
+[data-part="message"] .narrative,
+[data-part="player-message"] {
+  font-family: var(--cgl-font, var(--game-message-font));
+}
+[data-part="message"] .game-scene,
+[data-part="player-message"],
+[data-part="input"] {
+  border-radius: var(--cgl-radius, var(--radius-md));
+}
+[data-part="scene"] {
+  background-color: var(--cgl-bg, transparent);
+}
+[data-part="message"] .game-scene {
+  color: var(--cgl-fg, var(--game-ai-font-color));
+}
+[data-part="send"] {
+  border-color: var(--cgl-accent, var(--game-player-border-color, var(--game-player-color)));
+}
+[data-part="send"]:hover:not([disabled]) {
+  background: var(--cgl-accent, var(--game-player-color, #475569));
+}
+[data-part="talk"],
+[data-part="hold"] {
+  border-color: var(--cgl-accent, transparent);
+}
+[data-part="player-message"] {
+  border-color: var(--cgl-accent, var(--game-player-border-color));
+}
+
+/* Embedded: no platform around the game, no Insights. */
+body[data-embedded] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  background: transparent;
+}
+body[data-embedded] #split,
+body[data-embedded] aside,
+body[data-embedded] [data-part="header"] {
+  display: none !important;
+}
+
+/* Medium and small: the conversation, without pictures and status values. */
+@media (max-width: 39.99rem), (max-height: 29.99rem) {
+  body[data-embedded] [data-part="status"],
+  body[data-embedded] #background,
+  body[data-embedded] #standing,
+  body[data-embedded] [data-part="picture"],
+  body[data-embedded] .corner,
+  body[data-embedded] [data-part="divider"] {
+    display: none !important;
+  }
+}
+
+/* Small: the controls alone. */
+@media (max-width: 15rem), (max-height: 10rem) {
+  body[data-embedded] #scroll,
+  body[data-embedded] #thinking {
+    display: none !important;
+  }
+  body[data-embedded] main,
+  body[data-embedded] [data-part="scene"] {
+    background: transparent;
+  }
+  body[data-embedded] #dock {
+    position: static;
+  }
+}

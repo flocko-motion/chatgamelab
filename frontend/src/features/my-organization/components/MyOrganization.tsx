@@ -7,7 +7,7 @@ import {
   Alert,
   Divider,
 } from '@mantine/core';
-import { IconAlertCircle, IconUsers, IconSchool, IconKey, IconShieldLock } from '@tabler/icons-react';
+import { IconAlertCircle, IconUsers, IconSchool, IconKey, IconShieldLock, IconWorld } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { BodyText, HelperText, Label, PageTitle } from '@components/typography';
 import { useOrganisation, useSystemConstraints, useUpdateOrganisation } from '@/api/hooks';
@@ -17,6 +17,8 @@ import { useOrganisationTabs, type OrganisationTab } from '../hooks/useOrganisat
 import { MembersTab } from './MembersTab';
 import { WorkshopsTab } from './WorkshopsTab';
 import { ApiKeysTab } from './ApiKeysTab';
+import { VerifiedPagesTab } from './VerifiedPagesTab';
+import { useVerifiedPagesTab } from '../hooks/useVerifiedPagesTab';
 import { OrganisationDeclarationCard } from './OrganisationDeclarationCard';
 
 interface MyOrganizationProps {
@@ -36,11 +38,15 @@ export function MyOrganization({ autoCreateWorkshop, tab: urlTab }: MyOrganizati
   const canEditSettings = !!institution?.mayEditSettings;
   const mayWorkshops = !!institution?.mayCreateWorkshop;
   const mayApiKeys = !!institution?.mayListApiKeys;
+  // The verified pages show once the server answers their list.
+  const verifiedPages = useVerifiedPagesTab(institutionId);
+  const mayVerifiedPages = verifiedPages.available;
   const { tab, setTab } = useOrganisationTabs({
     tab: urlTab,
     autoCreateWorkshop,
     mayWorkshops,
     mayApiKeys,
+    mayVerifiedPages,
     canEditSettings,
   });
 
@@ -89,6 +95,11 @@ export function MyOrganization({ autoCreateWorkshop, tab: urlTab }: MyOrganizati
                 {t('navigation:orgApiKeys')}
               </Tabs.Tab>
             )}
+            {mayVerifiedPages && (
+              <Tabs.Tab value="pages" leftSection={<IconWorld size={16} />}>
+                {t('navigation:orgVerifiedPages')}
+              </Tabs.Tab>
+            )}
             {canEditSettings && (
               <Tabs.Tab value="constraints" leftSection={<IconShieldLock size={16} />}>
                 {t('navigation:orgConstraints')}
@@ -117,6 +128,12 @@ export function MyOrganization({ autoCreateWorkshop, tab: urlTab }: MyOrganizati
                 institutionName={institution?.name}
                 freeUseApiKeyShareId={institution?.freeUseApiKeyShareId}
               />
+            </Tabs.Panel>
+          )}
+
+          {mayVerifiedPages && (
+            <Tabs.Panel value="pages" pt="md">
+              <VerifiedPagesTab state={verifiedPages} />
             </Tabs.Panel>
           )}
 

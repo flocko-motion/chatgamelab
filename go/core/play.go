@@ -11,7 +11,6 @@ import (
 	"cgl/functional"
 	"cgl/legal"
 	"cgl/obj"
-	"cgl/tokenlock"
 
 	"engine"
 
@@ -55,23 +54,30 @@ type LinkPlay struct {
 	AuthorID       *uuid.UUID
 	Remaining      *int32 // plays left; nil: unlimited
 	Payer          Payer  // its share's key, at the link's tier
+	// OutsideID is the guest a verified page's visitor is, the host's player
+	// ID hashed with the link (EmbedPlay); empty otherwise.
+	OutsideID string
 }
 
 // ShareLinkPlay opens the play behind a share link's token: {Play,
 // GameCard, ViaShareLink}. A token that opens none is not found and counts
-// as a guess (tokenlock); a link of a suspended organisation is refused
-// (organisation_suspended), and so is a game not ready to play.
+// as a guess (tokenlock), and so does an embed link switched off; a link of
+// a suspended organisation is refused (organisation_suspended), and so is a
+// game not ready to play. An embed link of the verified mode starts only
+// with its host's yes (EmbedPlay), never by its token alone.
 func ShareLinkPlay(ctx context.Context, token string) (*LinkPlay, error) {
-	if token == "" {
-		return nil, refuse("a share link token is required")
-	}
-	play, err := linkPlay(ctx, sql.NullString{String: token, Valid: true}, uuid.NullUUID{})
-	if errors.Is(err, ErrNotFound) {
-		tokenlock.Fail()
-	}
+	play, err := openToken(ctx, token)
 	if err != nil {
 		return nil, err
 	}
+	if play.mode == EmbedVerified {
+		return nil, engine.Refuse(engine.ProblemHostRefused, "this game starts only on its host page")
+	}
+	return openLinkPlay(ctx, play, token)
+}
+
+// openLinkPlay reads the game a link plays and checks it is ready.
+func openLinkPlay(ctx context.Context, play *linkPlayRow, token string) (*LinkPlay, error) {
 	game, err := ReadGameCardByLink(ctx, play.gameID, token)
 	if err != nil || !game.MayPlay() {
 		return nil, ErrNotFound
@@ -87,7 +93,11 @@ func ShareLinkPlay(ctx context.Context, token string) (*LinkPlay, error) {
 // linkPlayRow is a LinkPlay with the game it opens, before the game is read.
 type linkPlayRow struct {
 	LinkPlay
-	gameID uuid.UUID
+	gameID      uuid.UUID
+	enabled     bool      // an embed link switched off plays no more
+	mode        EmbedMode // an embed link's mode; empty for any other link
+	pageKey     string    // the verified page's page ID
+	callbackURL string    // where the verified page's host is asked
 }
 
 // linkPlay loads a share link by its token or its id, with its payer.
@@ -135,7 +145,8 @@ func linkPlay(ctx context.Context, token sql.NullString, id uuid.NullUUID) (*lin
 				Tier: tier.String, Source: obj.ApiKeyTypeSponsor, chosen: true,
 			}.lastChecked(k.LastUsageSuccess, k.LastErrorCode),
 		},
-		gameID: r.GameID,
+		gameID: r.GameID, enabled: r.Enabled, mode: EmbedMode(r.EmbedMode.String),
+		pageKey: r.VerifiedPageKey.String, callbackURL: r.CallbackUrl.String,
 	}
 	if r.Remaining.Valid {
 		play.Remaining = &r.Remaining.Int32
@@ -283,7 +294,7 @@ func LaunchStore(ctx context.Context, p NewPlay) (engine.Persist, uuid.UUID, err
 		meta.UserID = *me
 	case p.Link != nil:
 		meta.UserID = uuid.New()
-		meta.Guest = &sessionstore.NewGuest{Name: guestName(), ShareID: p.Link.LinkID}
+		meta.Guest = &sessionstore.NewGuest{Name: guestName(), ShareID: p.Link.LinkID, OutsideID: p.Link.OutsideID}
 	default:
 		return nil, uuid.Nil, engine.Refuse(engine.ProblemDenied, "sign in to play this game")
 	}
@@ -326,7 +337,8 @@ func ResumeSession(ctx context.Context, id uuid.UUID) (*Resuming, error) {
 		return nil, err
 	}
 	if row.GameShareID.Valid {
-		if link, err := linkPlay(ctx, sql.NullString{}, row.GameShareID); err == nil && link.Payer.Platform == row.Platform {
+		// an embed link switched off pays no more, for a session begun before either
+		if link, err := linkPlay(ctx, sql.NullString{}, row.GameShareID); err == nil && link.enabled && link.Payer.Platform == row.Platform {
 			r.LinkPays = &link.Payer
 		}
 	}

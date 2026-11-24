@@ -183,6 +183,13 @@ export {
   type MemberListSort,
 } from "./useOrganisations";
 
+// An organisation's verified pages, which may frame its embedded games
+export {
+  useVerifiedPages,
+  useCreateVerifiedPage,
+  useDeleteVerifiedPage,
+} from "./useVerifiedPages";
+
 // Playing: creating and opening engine sessions, what a share link offers
 export {
   useCreateSession,

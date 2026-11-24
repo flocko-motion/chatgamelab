@@ -129,7 +129,7 @@ SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g
   OR ($4::bool      AND g.workshop_id    = $5::uuid)
   OR ($6::bool  AND w.institution_id = $7::uuid)
   OR ($8::bool     AND g.id = (
-        SELECT gs.game_id FROM game_share gs WHERE gs.token = $9::text))
+        SELECT gs.game_id FROM game_share gs WHERE gs.token = $9::text AND gs.enabled))
   OR  $10::bool, false)::bool                          AS may_read_content,
   COALESCE(
      ($11::bool       AND g.public)
@@ -170,7 +170,7 @@ SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g
   OR ($37::bool     AND g.workshop_id    = $5::uuid)
   OR ($38::bool AND w.institution_id = $7::uuid)
   OR ($39::bool    AND g.id = (
-        SELECT gs.game_id FROM game_share gs WHERE gs.token = $9::text))
+        SELECT gs.game_id FROM game_share gs WHERE gs.token = $9::text AND gs.enabled))
   OR  $40::bool, false)::bool                             AS may_play,
   -- the caller's own mark, no right: false for a guest
   EXISTS (SELECT 1 FROM user_favourite_game f
@@ -194,7 +194,7 @@ WHERE g.deleted_at IS NULL
       OR ($46::bool         AND g.workshop_id    = $5::uuid)
       OR ($47::bool     AND w.institution_id = $7::uuid)
       OR ($48::bool        AND g.id = (
-            SELECT gs.game_id FROM game_share gs WHERE gs.token = $9::text))
+            SELECT gs.game_id FROM game_share gs WHERE gs.token = $9::text AND gs.enabled))
       OR  $49::bool )
   -- wishes
   AND (NOT $50::bool       OR g.created_by = $3::uuid)

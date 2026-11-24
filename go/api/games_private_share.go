@@ -128,7 +128,9 @@ func (GetPrivateShareStatusEndpoint) Handle(ctx context.Context, req GameIDReq) 
 	if _, err := core.ReadGameCard(ctx, game); err != nil {
 		return PrivateShareStatusResp{}, err
 	}
-	links, err := wire.ShareLinkViewsOf(core.ListShareLinks(ctx, core.ShareLinkFilter{Game: &game}))
+	// the game's embed link has a panel of its own (games_embed.go)
+	notEmbed := false
+	links, err := wire.ShareLinkViewsOf(core.ListShareLinks(ctx, core.ShareLinkFilter{Game: &game, Embed: &notEmbed}))
 	if err != nil {
 		return PrivateShareStatusResp{}, err
 	}

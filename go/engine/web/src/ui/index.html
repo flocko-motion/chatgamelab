@@ -8,9 +8,9 @@
   </head>
   <body>
     <main>
-      <header class="game-header">
+      <header class="game-header" data-part="header">
         <div class="game-title">
-          <strong id="title">…</strong>
+          <strong id="title" data-part="title">…</strong>
         </div>
         <div class="game-tools">
           <button id="pictures" class="tool-toggle" type="button" aria-pressed="true" hidden>
@@ -24,26 +24,26 @@
           </button>
         </div>
       </header>
-      <div id="props" class="statusbar" hidden></div>
+      <div id="props" class="statusbar" data-part="status" hidden></div>
 
-      <section id="launch" class="launch-panel" hidden>
+      <section id="launch" class="launch-panel" data-part="launch" hidden>
         <p id="launch-text" class="launch-text"></p>
         <div id="launch-actions" class="launch-actions"></div>
       </section>
 
-      <form id="options" class="options-dialog" hidden>
+      <form id="options" class="options-dialog" data-part="options" hidden>
         <h2 class="options-title">How do you want to play?</h2>
         <div id="options-offers" class="options-offers"></div>
         <p id="options-problem" class="options-problem" hidden></p>
         <button id="options-start" class="options-start" type="submit">Start the game</button>
       </form>
 
-      <div class="scene-area">
+      <div class="scene-area" data-part="scene">
         <div id="background" class="scene-bg" aria-hidden="true"></div>
         <div id="standing" class="standing-image" hidden></div>
         <div id="scroll" class="scene-scroll">
           <div class="scenes">
-            <div id="feed" class="feed"></div>
+            <div id="feed" class="feed" data-part="feed"></div>
           </div>
         </div>
 
@@ -52,25 +52,25 @@
             <span class="dots"><i></i><i></i><i></i></span>
             <span id="thinking-text">The story unfolds…</span>
           </div>
-          <form id="compose" class="inline-input">
-            <p id="notice" class="notice waiting">
+          <form id="compose" class="inline-input" data-part="compose">
+            <p id="notice" class="notice waiting" data-part="notice">
               <span class="spinner" aria-hidden="true"></span>
               <span id="notice-text">Connecting…</span>
             </p>
             <div id="audio" class="audio-control" style="display: none">
-              <button id="talk" class="audio-button" type="button" aria-label="Pause the conversation" title="Pause the conversation">
+              <button id="talk" class="audio-button" data-part="talk" type="button" aria-label="Pause the conversation" title="Pause the conversation">
                 <svg class="icon-mic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5a3 3 0 0 1 6 0v5a3 3 0 0 1-6 0z" /><path d="M5 10a7 7 0 0 0 14 0M8 21h8M12 17v4" /></svg>
                 <svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="7.5" y="5" width="3.5" height="14" rx="1.2" /><rect x="13" y="5" width="3.5" height="14" rx="1.2" /></svg>
               </button>
               <span id="audio-label" class="audio-label" aria-live="polite"></span>
             </div>
-            <button id="hold" class="hold-button" type="button" style="display: none">
+            <button id="hold" class="hold-button" data-part="hold" type="button" style="display: none">
               <svg class="hold-ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="16" pathLength="1" /></svg>
               <svg class="icon-mic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5a3 3 0 0 1 6 0v5a3 3 0 0 1-6 0z" /><path d="M5 10a7 7 0 0 0 14 0M8 21h8M12 17v4" /></svg>
             </button>
             <div class="input-wrap">
-              <input id="typed" type="text" placeholder="What do you do?" autocomplete="off" disabled />
-              <button id="send" class="send" type="submit" aria-label="Send" disabled>
+              <input id="typed" data-part="input" type="text" placeholder="What do you do?" autocomplete="off" disabled />
+              <button id="send" class="send" data-part="send" type="submit" aria-label="Send" disabled>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z" /></svg>
               </button>
             </div>
@@ -81,7 +81,7 @@
 
     <div id="split" role="separator" aria-orientation="vertical" aria-label="Resize the panels"></div>
 
-    <aside id="insights">
+    <aside id="insights" data-part="insights">
       <section class="insights-graph">
         <div class="pane-head">
           <button id="graph-fold" class="pane-fold" type="button" aria-controls="graph">−</button>

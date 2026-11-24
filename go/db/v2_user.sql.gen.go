@@ -411,7 +411,7 @@ func (q *Queries) V2GamesCreatedBy(ctx context.Context, userID uuid.NullUUID) ([
 }
 
 const v2GetUserByEmail = `-- name: V2GetUserByEmail :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, guest_token, default_api_key_share_id, ai_quality_tier, language, private_share_id, age_group, registered_at FROM app_user WHERE email = $1 AND deleted_at IS NULL
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, guest_token, default_api_key_share_id, ai_quality_tier, language, private_share_id, age_group, registered_at, outside_id FROM app_user WHERE email = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) V2GetUserByEmail(ctx context.Context, email sql.NullString) (AppUser, error) {
@@ -434,12 +434,13 @@ func (q *Queries) V2GetUserByEmail(ctx context.Context, email sql.NullString) (A
 		&i.PrivateShareID,
 		&i.AgeGroup,
 		&i.RegisteredAt,
+		&i.OutsideID,
 	)
 	return i, err
 }
 
 const v2GetUserByID = `-- name: V2GetUserByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, guest_token, default_api_key_share_id, ai_quality_tier, language, private_share_id, age_group, registered_at FROM app_user WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, guest_token, default_api_key_share_id, ai_quality_tier, language, private_share_id, age_group, registered_at, outside_id FROM app_user WHERE id = $1
 `
 
 func (q *Queries) V2GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error) {
@@ -462,6 +463,7 @@ func (q *Queries) V2GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, err
 		&i.PrivateShareID,
 		&i.AgeGroup,
 		&i.RegisteredAt,
+		&i.OutsideID,
 	)
 	return i, err
 }

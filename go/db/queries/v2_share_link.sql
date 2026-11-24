@@ -8,9 +8,10 @@
 -- The share links the caller may see, for a list or for one link (id set):
 -- those they made, of their games, paid by their keys, paid by their
 -- organisation's keys, and their current workshop's. Wishes narrow it: one
--- game, one key. The paying organisation is the source share's, or, for a
--- link v1 made without one, the link's own.
+-- game, one key, embed links or not. The paying organisation is the source
+-- share's, or, for a link v1 made without one, the link's own.
 SELECT gs.id, gs.created_at, gs.created_by, gs.token, gs.remaining, gs.ai_quality_tier, gs.public_page,
+  gs.embed, gs.enabled,
   gs.game_id, g.name AS game_name,
   gs.workshop_id, w.name AS workshop_name,
   gs.api_key_share_id, c.source_share_id,
@@ -32,6 +33,7 @@ WHERE (sqlc.narg(id)::uuid IS NULL OR gs.id = sqlc.narg(id)::uuid)
   -- wishes
   AND (sqlc.narg(game)::uuid IS NULL OR gs.game_id = sqlc.narg(game)::uuid)
   AND (sqlc.narg(key_id)::uuid IS NULL OR k.id = sqlc.narg(key_id)::uuid)
+  AND (sqlc.narg(embed)::bool IS NULL OR gs.embed = sqlc.narg(embed)::bool)
   -- gate
   AND (  (@card_own::bool          AND gs.created_by = sqlc.narg(caller)::uuid)
       OR (@card_game::bool         AND g.created_by = sqlc.narg(caller)::uuid)
@@ -50,6 +52,45 @@ RETURNING id;
 -- name: V2UpdateShareLink :exec
 UPDATE game_share SET remaining = sqlc.narg(remaining)::int, ai_quality_tier = sqlc.narg(ai_quality_tier)::text
 WHERE id = @id::uuid;
+
+-- name: V2GameEmbed :many
+-- A game's embed link, if it has one: its token, whether it is on, its mode
+-- and verified page, and the share that pays with its source and key.
+SELECT gs.id, gs.token, gs.enabled, gs.embed_mode, gs.verified_page_id, gs.institution_id,
+  vp.page_url AS verified_page_url,
+  gs.api_key_share_id, c.source_share_id,
+  k.id AS key_id, k.name AS key_name, k.platform
+FROM game_share gs
+JOIN api_key_share c        ON c.id = gs.api_key_share_id
+JOIN api_key k              ON k.id = c.api_key_id
+LEFT JOIN verified_page vp  ON vp.id = gs.verified_page_id
+WHERE gs.game_id = @game_id::uuid AND gs.embed;
+
+-- name: V2CreateEmbedLink :one
+-- A game's embed link; game_share_embed_uniq keeps it one per game.
+INSERT INTO game_share (game_id, token, api_key_share_id, institution_id, created_by,
+                        embed, enabled, embed_mode, verified_page_id)
+VALUES (@game_id, @token, @api_key_share_id, sqlc.narg(institution_id)::uuid, @created_by::uuid,
+        true, @enabled, @embed_mode::text, sqlc.narg(verified_page_id)::uuid)
+RETURNING id;
+
+-- name: V2UpdateEmbedLink :exec
+-- Changes an embed link's switch, mode, verified page and what pays; its
+-- token stays.
+UPDATE game_share
+SET enabled = @enabled, embed_mode = @embed_mode::text, verified_page_id = sqlc.narg(verified_page_id)::uuid,
+    api_key_share_id = @api_key_share_id, institution_id = sqlc.narg(institution_id)::uuid
+WHERE id = @id::uuid AND embed;
+
+-- name: V2EmbedFraming :many
+-- Who may frame the playback-engine for a share token, or for the session
+-- it plays (session set): an embed link's switch, mode and verified origin.
+SELECT gs.embed, gs.enabled, gs.embed_mode, vp.origin AS verified_origin
+FROM game_share gs
+LEFT JOIN verified_page vp ON vp.id = gs.verified_page_id
+WHERE (sqlc.narg(token)::text IS NOT NULL AND gs.token = sqlc.narg(token)::text)
+   OR (sqlc.narg(session)::uuid IS NOT NULL
+       AND gs.id = (SELECT s.game_share_id FROM game_session s WHERE s.id = sqlc.narg(session)::uuid));
 
 -- name: V2WorkshopShareLinkOf :many
 -- The link a workshop already has for a game, if any: one per game and

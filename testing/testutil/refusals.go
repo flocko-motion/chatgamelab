@@ -57,6 +57,8 @@ const (
 	CodeStale       = "stale"
 	CodeKeyRejected = "key_rejected"
 	CodeGenre       = "genre"
+	// CodeHostRefused: the page a game is embedded in did not let it start.
+	CodeHostRefused = "host_refused"
 )
 
 // Playable is a game's playability when the caller can start it; otherwise

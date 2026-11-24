@@ -126,7 +126,7 @@ UPDATE game_share SET remaining = CASE
   WHEN remaining IS NULL THEN NULL
   ELSE remaining - 1
 END
-WHERE id = $1 AND (remaining IS NULL OR remaining > 0) RETURNING id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at, public_page
+WHERE id = $1 AND (remaining IS NULL OR remaining > 0) RETURNING id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at, public_page, embed, enabled, embed_mode, verified_page_id
 `
 
 // User Statistics queries
@@ -147,6 +147,10 @@ func (q *Queries) V2DecrementGameShareRemaining(ctx context.Context, id uuid.UUI
 		&i.CreatedBy,
 		&i.CreatedAt,
 		&i.PublicPage,
+		&i.Embed,
+		&i.Enabled,
+		&i.EmbedMode,
+		&i.VerifiedPageID,
 	)
 	return i, err
 }
@@ -362,6 +366,36 @@ UPDATE game SET play_count = play_count + 1 WHERE id = $1
 func (q *Queries) V2IncrementGamePlayCount(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, v2IncrementGamePlayCount, id)
 	return err
+}
+
+const v2OutsideGuest = `-- name: V2OutsideGuest :one
+INSERT INTO app_user (id, name, email, auth0_id, guest_token, private_share_id, outside_id)
+VALUES ($1, $2, NULL, NULL, NULL, $3, $4::text)
+ON CONFLICT (private_share_id, outside_id) WHERE outside_id IS NOT NULL
+DO UPDATE SET outside_id = EXCLUDED.outside_id
+RETURNING id
+`
+
+type V2OutsideGuestParams struct {
+	ID             uuid.UUID      `json:"id"`
+	Name           sql.NullString `json:"name"`
+	PrivateShareID uuid.NullUUID  `json:"private_share_id"`
+	OutsideID      string         `json:"outside_id"`
+}
+
+// The guest a host's visitor already is on share link @private_share_id,
+// known by their hashed player ID, made now if they are new. Two first
+// visits at once end in the one guest.
+func (q *Queries) V2OutsideGuest(ctx context.Context, arg V2OutsideGuestParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, v2OutsideGuest,
+		arg.ID,
+		arg.Name,
+		arg.PrivateShareID,
+		arg.OutsideID,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
 }
 
 const v2OwnGameSessions = `-- name: V2OwnGameSessions :many
@@ -616,11 +650,13 @@ func (q *Queries) V2SessionOwner(ctx context.Context, id uuid.UUID) (uuid.UUID, 
 const v2ShareLinkPlay = `-- name: V2ShareLinkPlay :many
 SELECT gs.id, gs.game_id, gs.workshop_id, gs.institution_id, gs.remaining, gs.ai_quality_tier,
   gs.created_by, gs.api_key_share_id, w.ai_quality_tier AS workshop_tier,
+  gs.embed, gs.enabled, gs.embed_mode, gs.verified_page_id, vp.page_id AS verified_page_key, vp.callback_url,
   (o.id IS NOT NULL AND (o.suspended_at IS NOT NULL
      OR institution_consent_missing(o.id, $1::text, $2::text)))::bool AS organisation_suspended
 FROM game_share gs
 LEFT JOIN workshop w    ON w.id = gs.workshop_id
 LEFT JOIN institution o ON o.id = COALESCE(gs.institution_id, w.institution_id)
+LEFT JOIN verified_page vp ON vp.id = gs.verified_page_id
 WHERE ($3::text IS NULL OR gs.token = $3::text)
   AND ($4::uuid IS NULL OR gs.id = $4::uuid)
 `
@@ -642,12 +678,19 @@ type V2ShareLinkPlayRow struct {
 	CreatedBy             uuid.NullUUID  `json:"created_by"`
 	ApiKeyShareID         uuid.UUID      `json:"api_key_share_id"`
 	WorkshopTier          sql.NullString `json:"workshop_tier"`
+	Embed                 bool           `json:"embed"`
+	Enabled               bool           `json:"enabled"`
+	EmbedMode             sql.NullString `json:"embed_mode"`
+	VerifiedPageID        uuid.NullUUID  `json:"verified_page_id"`
+	VerifiedPageKey       sql.NullString `json:"verified_page_key"`
+	CallbackUrl           sql.NullString `json:"callback_url"`
 	OrganisationSuspended bool           `json:"organisation_suspended"`
 }
 
 // A share link as a play through it needs it: its game, workshop and
 // organisation, plays left, tier, author and paying share, and whether its
-// organisation (its own, or its workshop's) is suspended.
+// organisation (its own, or its workshop's) is suspended; for an embed
+// link, whether it is on, its mode, and its verified page's ID and callback.
 func (q *Queries) V2ShareLinkPlay(ctx context.Context, arg V2ShareLinkPlayParams) ([]V2ShareLinkPlayRow, error) {
 	rows, err := q.db.QueryContext(ctx, v2ShareLinkPlay,
 		arg.DeclarationVersion,
@@ -672,6 +715,12 @@ func (q *Queries) V2ShareLinkPlay(ctx context.Context, arg V2ShareLinkPlayParams
 			&i.CreatedBy,
 			&i.ApiKeyShareID,
 			&i.WorkshopTier,
+			&i.Embed,
+			&i.Enabled,
+			&i.EmbedMode,
+			&i.VerifiedPageID,
+			&i.VerifiedPageKey,
+			&i.CallbackUrl,
 			&i.OrganisationSuspended,
 		); err != nil {
 			return nil, err

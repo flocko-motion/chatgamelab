@@ -220,7 +220,7 @@ func (a *API) create(ctx context.Context, req CreateRequest) (CreateResponse, er
 		return CreateResponse{}, badRequest("a creation names a game or a share, and carries a one-time key")
 	}
 
-	key := req.Once + "\x00" + req.Game + "\x00" + req.Share
+	key := req.Once + "\x00" + req.Game + "\x00" + req.Share + "\x00" + req.Player + "\x00" + req.Request
 	caller := ""
 	if a.opts.Caller != nil {
 		caller = a.opts.Caller(ctx)
@@ -283,7 +283,7 @@ func problemError(problem engine.Problem, message string) error {
 	switch problem {
 	case engine.ProblemUnknown:
 		return schemafapi.Error(schemafapi.ErrNotFound, code, message)
-	case engine.ProblemDenied:
+	case engine.ProblemDenied, engine.ProblemHostRefused:
 		return schemafapi.Error(schemafapi.ErrForbidden, code, message)
 	case engine.ProblemStale:
 		return schemafapi.Error(schemafapi.ErrGone, code, message)

@@ -886,6 +886,8 @@ type CreateRequest struct {
 	Game     *string `json:"game,omitempty"`
 	Language *string `json:"language,omitempty"`
 	Once     string  `json:"once"`
+	Player   *string `json:"player,omitempty"`
+	Request  *string `json:"request,omitempty"`
 	Share    *string `json:"share,omitempty"`
 }
 
@@ -898,6 +900,12 @@ type CreateResponse struct {
 type CreateUserReq struct {
 	Email *string `json:"email,omitempty"`
 	Name  string  `json:"name"`
+}
+
+// CreateVerifiedPageReq defines model for CreateVerifiedPageReq.
+type CreateVerifiedPageReq struct {
+	CallbackUrl string `json:"callbackUrl"`
+	PageUrl     string `json:"pageUrl"`
 }
 
 // CreateWorkshopEmailInviteReq defines model for CreateWorkshopEmailInviteReq.
@@ -1017,6 +1025,24 @@ type Game struct {
 // GameApiKeyStatusResp defines model for GameApiKeyStatusResp.
 type GameApiKeyStatusResp struct {
 	Available bool `json:"available"`
+}
+
+// GameEmbedResp defines model for GameEmbedResp.
+type GameEmbedResp struct {
+	Embed *GameEmbedView `json:"embed,omitempty"`
+}
+
+// GameEmbedView defines model for GameEmbedView.
+type GameEmbedView struct {
+	Enabled           bool                `json:"enabled"`
+	Id                openapi_types.UUID  `json:"id"`
+	KeyName           string              `json:"keyName"`
+	Mode              string              `json:"mode"`
+	Platform          string              `json:"platform"`
+	SponsorKeyShareId *openapi_types.UUID `json:"sponsorKeyShareId,omitempty"`
+	Token             string              `json:"token"`
+	VerifiedPageId    *openapi_types.UUID `json:"verifiedPageId,omitempty"`
+	VerifiedPageUrl   *string             `json:"verifiedPageUrl,omitempty"`
 }
 
 // GameField defines model for GameField.
@@ -1810,6 +1836,14 @@ type SetActiveWorkshopReq struct {
 	WorkshopId *openapi_types.UUID `json:"workshopId,omitempty"`
 }
 
+// SetGameEmbedReq defines model for SetGameEmbedReq.
+type SetGameEmbedReq struct {
+	Enabled           bool                `json:"enabled"`
+	Mode              string              `json:"mode"`
+	SponsorKeyShareId *openapi_types.UUID `json:"sponsorKeyShareId,omitempty"`
+	VerifiedPageId    *openapi_types.UUID `json:"verifiedPageId,omitempty"`
+}
+
 // SetInstitutionFreeUseKeyReq defines model for SetInstitutionFreeUseKeyReq.
 type SetInstitutionFreeUseKeyReq struct {
 	ShareId *openapi_types.UUID `json:"shareId,omitempty"`
@@ -1854,6 +1888,8 @@ type ShareLinkView struct {
 	ApiKeyShareId openapi_types.UUID  `json:"apiKeyShareId"`
 	CreatedAt     time.Time           `json:"createdAt"`
 	CreatedBy     *openapi_types.UUID `json:"createdBy,omitempty"`
+	Embed         bool                `json:"embed"`
+	Enabled       bool                `json:"enabled"`
 	GameId        openapi_types.UUID  `json:"gameId"`
 	GameName      *string             `json:"gameName,omitempty"`
 	Id            openapi_types.UUID  `json:"id"`
@@ -2068,6 +2104,12 @@ type UpdateUserReq struct {
 	Name                 *string             `json:"name,omitempty"`
 }
 
+// UpdateVerifiedPageReq defines model for UpdateVerifiedPageReq.
+type UpdateVerifiedPageReq struct {
+	CallbackUrl string `json:"callbackUrl"`
+	PageUrl     string `json:"pageUrl"`
+}
+
 // UpdateWorkshopReq defines model for UpdateWorkshopReq.
 type UpdateWorkshopReq struct {
 	Active                     *bool                 `json:"active,omitempty"`
@@ -2211,6 +2253,25 @@ type UserView struct {
 type UserViewPage struct {
 	Items []UserView `json:"items"`
 	Total int        `json:"total"`
+}
+
+// VerifiedPageView defines model for VerifiedPageView.
+type VerifiedPageView struct {
+	CallbackUrl    string             `json:"callbackUrl"`
+	CreatedAt      time.Time          `json:"createdAt"`
+	Id             openapi_types.UUID `json:"id"`
+	MayDelete      bool               `json:"mayDelete"`
+	MayEdit        bool               `json:"mayEdit"`
+	ModifiedAt     time.Time          `json:"modifiedAt"`
+	OrganisationId openapi_types.UUID `json:"organisationId"`
+	Origin         string             `json:"origin"`
+	PageId         string             `json:"pageId"`
+	PageUrl        string             `json:"pageUrl"`
+}
+
+// VerifiedPagesResp defines model for VerifiedPagesResp.
+type VerifiedPagesResp struct {
+	Pages []VerifiedPageView `json:"pages"`
 }
 
 // Workshop defines model for Workshop.
@@ -2510,6 +2571,9 @@ type PostApiGamesIdJSONRequestBody = UpdateGameReq
 // PostApiGamesIdCoverJSONRequestBody defines body for PostApiGamesIdCover for application/json ContentType.
 type PostApiGamesIdCoverJSONRequestBody = MakeGameCoverReq
 
+// PutApiGamesIdEmbedJSONRequestBody defines body for PutApiGamesIdEmbed for application/json ContentType.
+type PutApiGamesIdEmbedJSONRequestBody = SetGameEmbedReq
+
 // PostApiGamesIdSharesJSONRequestBody defines body for PostApiGamesIdShares for application/json ContentType.
 type PostApiGamesIdSharesJSONRequestBody = CreateGameShareReq
 
@@ -2536,6 +2600,9 @@ type PatchApiInstitutionsIdFreeUseKeyJSONRequestBody = SetInstitutionFreeUseKeyR
 
 // PostApiInstitutionsIdSuspensionJSONRequestBody defines body for PostApiInstitutionsIdSuspension for application/json ContentType.
 type PostApiInstitutionsIdSuspensionJSONRequestBody = SuspendOrganisationReq
+
+// PostApiInstitutionsIdVerifiedPagesJSONRequestBody defines body for PostApiInstitutionsIdVerifiedPages for application/json ContentType.
+type PostApiInstitutionsIdVerifiedPagesJSONRequestBody = CreateVerifiedPageReq
 
 // PostApiInvitesInstitutionJSONRequestBody defines body for PostApiInvitesInstitution for application/json ContentType.
 type PostApiInvitesInstitutionJSONRequestBody = CreateInstitutionInviteReq
@@ -2569,6 +2636,9 @@ type PostApiUsersIdJSONRequestBody = UpdateUserReq
 
 // PostApiUsersIdRoleJSONRequestBody defines body for PostApiUsersIdRole for application/json ContentType.
 type PostApiUsersIdRoleJSONRequestBody = SetUserRoleReq
+
+// PatchApiVerifiedPagesIdJSONRequestBody defines body for PatchApiVerifiedPagesId for application/json ContentType.
+type PatchApiVerifiedPagesIdJSONRequestBody = UpdateVerifiedPageReq
 
 // PostApiWorkshopsJSONRequestBody defines body for PostApiWorkshops for application/json ContentType.
 type PostApiWorkshopsJSONRequestBody = CreateWorkshopReq
@@ -3406,6 +3476,33 @@ type ClientInterface interface {
 	// Corresponds with PUT /api/games/{id}/cover (the `PutApiGamesIdCover` operationId).
 	PutApiGamesIdCover(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetApiGamesIdEmbed Reads a game's embed link, for whoever may share
+	//
+	// the game.
+	//
+	// Corresponds with GET /api/games/{id}/embed (the `GetApiGamesIdEmbed` operationId).
+	GetApiGamesIdEmbed(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutApiGamesIdEmbedWithBody Sets a game's embed link, making it the first time,
+	//
+	// for whoever may share the game. Its token never changes: off keeps it,
+	// on brings back the same snippet.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PUT /api/games/{id}/embed (the `PutApiGamesIdEmbed` operationId).
+	PutApiGamesIdEmbedWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutApiGamesIdEmbed Sets a game's embed link, making it the first time,
+	//
+	// for whoever may share the game. Its token never changes: off keeps it,
+	// on brings back the same snippet.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PUT /api/games/{id}/embed (the `PutApiGamesIdEmbed` operationId).
+	PutApiGamesIdEmbed(ctx context.Context, id string, body PutApiGamesIdEmbedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// DeleteApiGamesIdFavourite Removes a game from the caller's favorites. It
 	//
 	// answers the same whatever the game: it gives nothing away.
@@ -3772,6 +3869,31 @@ type ClientInterface interface {
 	//
 	// Corresponds with POST /api/institutions/{id}/suspension (the `PostApiInstitutionsIdSuspension` operationId).
 	PostApiInstitutionsIdSuspension(ctx context.Context, id string, body PostApiInstitutionsIdSuspensionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiInstitutionsIdVerifiedPages Lists an organisation's verified pages, for its
+	//
+	// head and staff.
+	//
+	// Corresponds with GET /api/institutions/{id}/verified-pages (the `GetApiInstitutionsIdVerifiedPages` operationId).
+	GetApiInstitutionsIdVerifiedPages(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiInstitutionsIdVerifiedPagesWithBody Registers a verified page for an organisation,
+	//
+	// with a new page ID, for its head and staff.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /api/institutions/{id}/verified-pages (the `PostApiInstitutionsIdVerifiedPages` operationId).
+	PostApiInstitutionsIdVerifiedPagesWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiInstitutionsIdVerifiedPages Registers a verified page for an organisation,
+	//
+	// with a new page ID, for its head and staff.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /api/institutions/{id}/verified-pages (the `PostApiInstitutionsIdVerifiedPages` operationId).
+	PostApiInstitutionsIdVerifiedPages(ctx context.Context, id string, body PostApiInstitutionsIdVerifiedPagesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiInvites Lists the pending invites addressed to the caller, by
 	//
@@ -4280,6 +4402,31 @@ type ClientInterface interface {
 	//
 	// Corresponds with GET /api/users/{id}/stats (the `GetApiUsersIdStats` operationId).
 	GetApiUsersIdStats(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteApiVerifiedPagesId Removes a verified page; the games embedded
+	//
+	// for it start nothing until they get another.
+	//
+	// Corresponds with DELETE /api/verified-pages/{id} (the `DeleteApiVerifiedPagesId` operationId).
+	DeleteApiVerifiedPagesId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchApiVerifiedPagesIdWithBody Changes a verified page's address and
+	//
+	// callback; its page ID stays.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PATCH /api/verified-pages/{id} (the `PatchApiVerifiedPagesId` operationId).
+	PatchApiVerifiedPagesIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchApiVerifiedPagesId Changes a verified page's address and
+	//
+	// callback; its page ID stays.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PATCH /api/verified-pages/{id} (the `PatchApiVerifiedPagesId` operationId).
+	PatchApiVerifiedPagesId(ctx context.Context, id string, body PatchApiVerifiedPagesIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiVersion Reports the release the server runs.
 	//
@@ -5956,6 +6103,63 @@ func (c *Client) PutApiGamesIdCover(ctx context.Context, id string, reqEditors .
 	return c.Client.Do(req)
 }
 
+// GetApiGamesIdEmbed Reads a game's embed link, for whoever may share
+//
+// the game.
+//
+// Corresponds with GET /api/games/{id}/embed (the `GetApiGamesIdEmbed` operationId).
+func (c *Client) GetApiGamesIdEmbed(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiGamesIdEmbedRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PutApiGamesIdEmbedWithBody Sets a game's embed link, making it the first time,
+//
+// for whoever may share the game. Its token never changes: off keeps it,
+// on brings back the same snippet.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PUT /api/games/{id}/embed (the `PutApiGamesIdEmbed` operationId).
+func (c *Client) PutApiGamesIdEmbedWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiGamesIdEmbedRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PutApiGamesIdEmbed Sets a game's embed link, making it the first time,
+//
+// for whoever may share the game. Its token never changes: off keeps it,
+// on brings back the same snippet.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PUT /api/games/{id}/embed (the `PutApiGamesIdEmbed` operationId).
+func (c *Client) PutApiGamesIdEmbed(ctx context.Context, id string, body PutApiGamesIdEmbedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiGamesIdEmbedRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 // DeleteApiGamesIdFavourite Removes a game from the caller's favorites. It
 //
 // answers the same whatever the game: it gives nothing away.
@@ -6673,6 +6877,61 @@ func (c *Client) PostApiInstitutionsIdSuspensionWithBody(ctx context.Context, id
 // Corresponds with POST /api/institutions/{id}/suspension (the `PostApiInstitutionsIdSuspension` operationId).
 func (c *Client) PostApiInstitutionsIdSuspension(ctx context.Context, id string, body PostApiInstitutionsIdSuspensionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostApiInstitutionsIdSuspensionRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetApiInstitutionsIdVerifiedPages Lists an organisation's verified pages, for its
+//
+// head and staff.
+//
+// Corresponds with GET /api/institutions/{id}/verified-pages (the `GetApiInstitutionsIdVerifiedPages` operationId).
+func (c *Client) GetApiInstitutionsIdVerifiedPages(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiInstitutionsIdVerifiedPagesRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiInstitutionsIdVerifiedPagesWithBody Registers a verified page for an organisation,
+//
+// with a new page ID, for its head and staff.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /api/institutions/{id}/verified-pages (the `PostApiInstitutionsIdVerifiedPages` operationId).
+func (c *Client) PostApiInstitutionsIdVerifiedPagesWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiInstitutionsIdVerifiedPagesRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiInstitutionsIdVerifiedPages Registers a verified page for an organisation,
+//
+// with a new page ID, for its head and staff.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /api/institutions/{id}/verified-pages (the `PostApiInstitutionsIdVerifiedPages` operationId).
+func (c *Client) PostApiInstitutionsIdVerifiedPages(ctx context.Context, id string, body PostApiInstitutionsIdVerifiedPagesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiInstitutionsIdVerifiedPagesRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7751,6 +8010,61 @@ func (c *Client) GetApiUsersIdSecrets(ctx context.Context, id string, reqEditors
 // Corresponds with GET /api/users/{id}/stats (the `GetApiUsersIdStats` operationId).
 func (c *Client) GetApiUsersIdStats(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetApiUsersIdStatsRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// DeleteApiVerifiedPagesId Removes a verified page; the games embedded
+//
+// for it start nothing until they get another.
+//
+// Corresponds with DELETE /api/verified-pages/{id} (the `DeleteApiVerifiedPagesId` operationId).
+func (c *Client) DeleteApiVerifiedPagesId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteApiVerifiedPagesIdRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PatchApiVerifiedPagesIdWithBody Changes a verified page's address and
+//
+// callback; its page ID stays.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PATCH /api/verified-pages/{id} (the `PatchApiVerifiedPagesId` operationId).
+func (c *Client) PatchApiVerifiedPagesIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchApiVerifiedPagesIdRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PatchApiVerifiedPagesId Changes a verified page's address and
+//
+// callback; its page ID stays.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PATCH /api/verified-pages/{id} (the `PatchApiVerifiedPagesId` operationId).
+func (c *Client) PatchApiVerifiedPagesId(ctx context.Context, id string, body PatchApiVerifiedPagesIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchApiVerifiedPagesIdRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10503,6 +10817,87 @@ func NewPutApiGamesIdCoverRequest(server string, id string) (*http.Request, erro
 	return req, nil
 }
 
+// NewGetApiGamesIdEmbedRequest constructs an http.Request for the GetApiGamesIdEmbed method
+func NewGetApiGamesIdEmbedRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/games/%s/embed", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPutApiGamesIdEmbedRequest calls the generic PutApiGamesIdEmbed builder with application/json body
+func NewPutApiGamesIdEmbedRequest(server string, id string, body PutApiGamesIdEmbedJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutApiGamesIdEmbedRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPutApiGamesIdEmbedRequestWithBody constructs an http.Request for the PutApiGamesIdEmbed method, with any body, and a specified content type
+func NewPutApiGamesIdEmbedRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/games/%s/embed", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewDeleteApiGamesIdFavouriteRequest constructs an http.Request for the DeleteApiGamesIdFavourite method
 func NewDeleteApiGamesIdFavouriteRequest(server string, id string) (*http.Request, error) {
 	var err error
@@ -11773,6 +12168,87 @@ func NewPostApiInstitutionsIdSuspensionRequestWithBody(server string, id string,
 	}
 
 	operationPath := fmt.Sprintf("/api/institutions/%s/suspension", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetApiInstitutionsIdVerifiedPagesRequest constructs an http.Request for the GetApiInstitutionsIdVerifiedPages method
+func NewGetApiInstitutionsIdVerifiedPagesRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/institutions/%s/verified-pages", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiInstitutionsIdVerifiedPagesRequest calls the generic PostApiInstitutionsIdVerifiedPages builder with application/json body
+func NewPostApiInstitutionsIdVerifiedPagesRequest(server string, id string, body PostApiInstitutionsIdVerifiedPagesJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiInstitutionsIdVerifiedPagesRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPostApiInstitutionsIdVerifiedPagesRequestWithBody constructs an http.Request for the PostApiInstitutionsIdVerifiedPages method, with any body, and a specified content type
+func NewPostApiInstitutionsIdVerifiedPagesRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/institutions/%s/verified-pages", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -13617,6 +14093,87 @@ func NewGetApiUsersIdStatsRequest(server string, id string) (*http.Request, erro
 	return req, nil
 }
 
+// NewDeleteApiVerifiedPagesIdRequest constructs an http.Request for the DeleteApiVerifiedPagesId method
+func NewDeleteApiVerifiedPagesIdRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/verified-pages/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPatchApiVerifiedPagesIdRequest calls the generic PatchApiVerifiedPagesId builder with application/json body
+func NewPatchApiVerifiedPagesIdRequest(server string, id string, body PatchApiVerifiedPagesIdJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchApiVerifiedPagesIdRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPatchApiVerifiedPagesIdRequestWithBody constructs an http.Request for the PatchApiVerifiedPagesId method, with any body, and a specified content type
+func NewPatchApiVerifiedPagesIdRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/verified-pages/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewGetApiVersionRequest constructs an http.Request for the GetApiVersion method
 func NewGetApiVersionRequest(server string) (*http.Request, error) {
 	var err error
@@ -15111,6 +15668,35 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with PUT /api/games/{id}/cover (the `PutApiGamesIdCover` operationId).
 	PutApiGamesIdCoverWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PutApiGamesIdCoverResponse, error)
 
+	// GetApiGamesIdEmbedWithResponse Reads a game's embed link, for whoever may share
+	//
+	// the game.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/games/{id}/embed (the `GetApiGamesIdEmbed` operationId).
+	GetApiGamesIdEmbedWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiGamesIdEmbedResponse, error)
+
+	// PutApiGamesIdEmbedWithBodyWithResponse Sets a game's embed link, making it the first time,
+	//
+	// for whoever may share the game. Its token never changes: off keeps it,
+	// on brings back the same snippet.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PUT /api/games/{id}/embed (the `PutApiGamesIdEmbed` operationId).
+	PutApiGamesIdEmbedWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiGamesIdEmbedResponse, error)
+
+	// PutApiGamesIdEmbedWithResponse Sets a game's embed link, making it the first time,
+	//
+	// for whoever may share the game. Its token never changes: off keeps it,
+	// on brings back the same snippet.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PUT /api/games/{id}/embed (the `PutApiGamesIdEmbed` operationId).
+	PutApiGamesIdEmbedWithResponse(ctx context.Context, id string, body PutApiGamesIdEmbedJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiGamesIdEmbedResponse, error)
+
 	// DeleteApiGamesIdFavouriteWithResponse Removes a game from the caller's favorites. It
 	//
 	// answers the same whatever the game: it gives nothing away.
@@ -15513,6 +16099,33 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with POST /api/institutions/{id}/suspension (the `PostApiInstitutionsIdSuspension` operationId).
 	PostApiInstitutionsIdSuspensionWithResponse(ctx context.Context, id string, body PostApiInstitutionsIdSuspensionJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiInstitutionsIdSuspensionResponse, error)
+
+	// GetApiInstitutionsIdVerifiedPagesWithResponse Lists an organisation's verified pages, for its
+	//
+	// head and staff.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/institutions/{id}/verified-pages (the `GetApiInstitutionsIdVerifiedPages` operationId).
+	GetApiInstitutionsIdVerifiedPagesWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiInstitutionsIdVerifiedPagesResponse, error)
+
+	// PostApiInstitutionsIdVerifiedPagesWithBodyWithResponse Registers a verified page for an organisation,
+	//
+	// with a new page ID, for its head and staff.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/institutions/{id}/verified-pages (the `PostApiInstitutionsIdVerifiedPages` operationId).
+	PostApiInstitutionsIdVerifiedPagesWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiInstitutionsIdVerifiedPagesResponse, error)
+
+	// PostApiInstitutionsIdVerifiedPagesWithResponse Registers a verified page for an organisation,
+	//
+	// with a new page ID, for its head and staff.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/institutions/{id}/verified-pages (the `PostApiInstitutionsIdVerifiedPages` operationId).
+	PostApiInstitutionsIdVerifiedPagesWithResponse(ctx context.Context, id string, body PostApiInstitutionsIdVerifiedPagesJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiInstitutionsIdVerifiedPagesResponse, error)
 
 	// GetApiInvitesWithResponse Lists the pending invites addressed to the caller, by
 	//
@@ -16091,6 +16704,33 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with GET /api/users/{id}/stats (the `GetApiUsersIdStats` operationId).
 	GetApiUsersIdStatsWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiUsersIdStatsResponse, error)
+
+	// DeleteApiVerifiedPagesIdWithResponse Removes a verified page; the games embedded
+	//
+	// for it start nothing until they get another.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with DELETE /api/verified-pages/{id} (the `DeleteApiVerifiedPagesId` operationId).
+	DeleteApiVerifiedPagesIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiVerifiedPagesIdResponse, error)
+
+	// PatchApiVerifiedPagesIdWithBodyWithResponse Changes a verified page's address and
+	//
+	// callback; its page ID stays.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /api/verified-pages/{id} (the `PatchApiVerifiedPagesId` operationId).
+	PatchApiVerifiedPagesIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchApiVerifiedPagesIdResponse, error)
+
+	// PatchApiVerifiedPagesIdWithResponse Changes a verified page's address and
+	//
+	// callback; its page ID stays.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /api/verified-pages/{id} (the `PatchApiVerifiedPagesId` operationId).
+	PatchApiVerifiedPagesIdWithResponse(ctx context.Context, id string, body PatchApiVerifiedPagesIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchApiVerifiedPagesIdResponse, error)
 
 	// GetApiVersionWithResponse Reports the release the server runs.
 	//
@@ -18955,6 +19595,102 @@ func (r PutApiGamesIdCoverResponse) ContentType() string {
 	return ""
 }
 
+type GetApiGamesIdEmbedResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *GameEmbedResp
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiGamesIdEmbedResponse) GetJSON200() *GameEmbedResp {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiGamesIdEmbedResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiGamesIdEmbedResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiGamesIdEmbedResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiGamesIdEmbedResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiGamesIdEmbedResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PutApiGamesIdEmbedResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *GameEmbedResp
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r PutApiGamesIdEmbedResponse) GetJSON200() *GameEmbedResp {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PutApiGamesIdEmbedResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PutApiGamesIdEmbedResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PutApiGamesIdEmbedResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutApiGamesIdEmbedResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PutApiGamesIdEmbedResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type DeleteApiGamesIdFavouriteResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -20259,6 +20995,102 @@ func (r PostApiInstitutionsIdSuspensionResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r PostApiInstitutionsIdSuspensionResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiInstitutionsIdVerifiedPagesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *VerifiedPagesResp
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiInstitutionsIdVerifiedPagesResponse) GetJSON200() *VerifiedPagesResp {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiInstitutionsIdVerifiedPagesResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiInstitutionsIdVerifiedPagesResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiInstitutionsIdVerifiedPagesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiInstitutionsIdVerifiedPagesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiInstitutionsIdVerifiedPagesResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiInstitutionsIdVerifiedPagesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *VerifiedPageView
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r PostApiInstitutionsIdVerifiedPagesResponse) GetJSON200() *VerifiedPageView {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiInstitutionsIdVerifiedPagesResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiInstitutionsIdVerifiedPagesResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiInstitutionsIdVerifiedPagesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiInstitutionsIdVerifiedPagesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiInstitutionsIdVerifiedPagesResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -22459,6 +23291,102 @@ func (r GetApiUsersIdStatsResponse) ContentType() string {
 	return ""
 }
 
+type DeleteApiVerifiedPagesIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *MessageResp
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r DeleteApiVerifiedPagesIdResponse) GetJSON200() *MessageResp {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r DeleteApiVerifiedPagesIdResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r DeleteApiVerifiedPagesIdResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteApiVerifiedPagesIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteApiVerifiedPagesIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteApiVerifiedPagesIdResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PatchApiVerifiedPagesIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *VerifiedPageView
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r PatchApiVerifiedPagesIdResponse) GetJSON200() *VerifiedPageView {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PatchApiVerifiedPagesIdResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PatchApiVerifiedPagesIdResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PatchApiVerifiedPagesIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchApiVerifiedPagesIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PatchApiVerifiedPagesIdResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetApiVersionResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -24333,6 +25261,53 @@ func (c *ClientWithResponses) PutApiGamesIdCoverWithResponse(ctx context.Context
 	return ParsePutApiGamesIdCoverResponse(rsp)
 }
 
+// GetApiGamesIdEmbedWithResponse Reads a game's embed link, for whoever may share
+//
+// the game.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/games/{id}/embed (the `GetApiGamesIdEmbed` operationId).
+func (c *ClientWithResponses) GetApiGamesIdEmbedWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiGamesIdEmbedResponse, error) {
+	rsp, err := c.GetApiGamesIdEmbed(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiGamesIdEmbedResponse(rsp)
+}
+
+// PutApiGamesIdEmbedWithBodyWithResponse Sets a game's embed link, making it the first time,
+//
+// for whoever may share the game. Its token never changes: off keeps it,
+// on brings back the same snippet.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PUT /api/games/{id}/embed (the `PutApiGamesIdEmbed` operationId).
+func (c *ClientWithResponses) PutApiGamesIdEmbedWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiGamesIdEmbedResponse, error) {
+	rsp, err := c.PutApiGamesIdEmbedWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiGamesIdEmbedResponse(rsp)
+}
+
+// PutApiGamesIdEmbedWithResponse Sets a game's embed link, making it the first time,
+//
+// for whoever may share the game. Its token never changes: off keeps it,
+// on brings back the same snippet.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PUT /api/games/{id}/embed (the `PutApiGamesIdEmbed` operationId).
+func (c *ClientWithResponses) PutApiGamesIdEmbedWithResponse(ctx context.Context, id string, body PutApiGamesIdEmbedJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiGamesIdEmbedResponse, error) {
+	rsp, err := c.PutApiGamesIdEmbed(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiGamesIdEmbedResponse(rsp)
+}
+
 // DeleteApiGamesIdFavouriteWithResponse Removes a game from the caller's favorites. It
 //
 // answers the same whatever the game: it gives nothing away.
@@ -24950,6 +25925,51 @@ func (c *ClientWithResponses) PostApiInstitutionsIdSuspensionWithResponse(ctx co
 		return nil, err
 	}
 	return ParsePostApiInstitutionsIdSuspensionResponse(rsp)
+}
+
+// GetApiInstitutionsIdVerifiedPagesWithResponse Lists an organisation's verified pages, for its
+//
+// head and staff.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/institutions/{id}/verified-pages (the `GetApiInstitutionsIdVerifiedPages` operationId).
+func (c *ClientWithResponses) GetApiInstitutionsIdVerifiedPagesWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiInstitutionsIdVerifiedPagesResponse, error) {
+	rsp, err := c.GetApiInstitutionsIdVerifiedPages(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiInstitutionsIdVerifiedPagesResponse(rsp)
+}
+
+// PostApiInstitutionsIdVerifiedPagesWithBodyWithResponse Registers a verified page for an organisation,
+//
+// with a new page ID, for its head and staff.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/institutions/{id}/verified-pages (the `PostApiInstitutionsIdVerifiedPages` operationId).
+func (c *ClientWithResponses) PostApiInstitutionsIdVerifiedPagesWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiInstitutionsIdVerifiedPagesResponse, error) {
+	rsp, err := c.PostApiInstitutionsIdVerifiedPagesWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiInstitutionsIdVerifiedPagesResponse(rsp)
+}
+
+// PostApiInstitutionsIdVerifiedPagesWithResponse Registers a verified page for an organisation,
+//
+// with a new page ID, for its head and staff.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/institutions/{id}/verified-pages (the `PostApiInstitutionsIdVerifiedPages` operationId).
+func (c *ClientWithResponses) PostApiInstitutionsIdVerifiedPagesWithResponse(ctx context.Context, id string, body PostApiInstitutionsIdVerifiedPagesJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiInstitutionsIdVerifiedPagesResponse, error) {
+	rsp, err := c.PostApiInstitutionsIdVerifiedPages(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiInstitutionsIdVerifiedPagesResponse(rsp)
 }
 
 // GetApiInvitesWithResponse Lists the pending invites addressed to the caller, by
@@ -25870,6 +26890,51 @@ func (c *ClientWithResponses) GetApiUsersIdStatsWithResponse(ctx context.Context
 		return nil, err
 	}
 	return ParseGetApiUsersIdStatsResponse(rsp)
+}
+
+// DeleteApiVerifiedPagesIdWithResponse Removes a verified page; the games embedded
+//
+// for it start nothing until they get another.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with DELETE /api/verified-pages/{id} (the `DeleteApiVerifiedPagesId` operationId).
+func (c *ClientWithResponses) DeleteApiVerifiedPagesIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiVerifiedPagesIdResponse, error) {
+	rsp, err := c.DeleteApiVerifiedPagesId(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteApiVerifiedPagesIdResponse(rsp)
+}
+
+// PatchApiVerifiedPagesIdWithBodyWithResponse Changes a verified page's address and
+//
+// callback; its page ID stays.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /api/verified-pages/{id} (the `PatchApiVerifiedPagesId` operationId).
+func (c *ClientWithResponses) PatchApiVerifiedPagesIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchApiVerifiedPagesIdResponse, error) {
+	rsp, err := c.PatchApiVerifiedPagesIdWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchApiVerifiedPagesIdResponse(rsp)
+}
+
+// PatchApiVerifiedPagesIdWithResponse Changes a verified page's address and
+//
+// callback; its page ID stays.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /api/verified-pages/{id} (the `PatchApiVerifiedPagesId` operationId).
+func (c *ClientWithResponses) PatchApiVerifiedPagesIdWithResponse(ctx context.Context, id string, body PatchApiVerifiedPagesIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchApiVerifiedPagesIdResponse, error) {
+	rsp, err := c.PatchApiVerifiedPagesId(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchApiVerifiedPagesIdResponse(rsp)
 }
 
 // GetApiVersionWithResponse Reports the release the server runs.
@@ -27987,6 +29052,72 @@ func ParsePutApiGamesIdCoverResponse(rsp *http.Response) (*PutApiGamesIdCoverRes
 	return response, nil
 }
 
+// ParseGetApiGamesIdEmbedResponse parses an HTTP response from a GetApiGamesIdEmbedWithResponse call
+func ParseGetApiGamesIdEmbedResponse(rsp *http.Response) (*GetApiGamesIdEmbedResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiGamesIdEmbedResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest GameEmbedResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutApiGamesIdEmbedResponse parses an HTTP response from a PutApiGamesIdEmbedWithResponse call
+func ParsePutApiGamesIdEmbedResponse(rsp *http.Response) (*PutApiGamesIdEmbedResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutApiGamesIdEmbedResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest GameEmbedResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseDeleteApiGamesIdFavouriteResponse parses an HTTP response from a DeleteApiGamesIdFavouriteWithResponse call
 func ParseDeleteApiGamesIdFavouriteResponse(rsp *http.Response) (*DeleteApiGamesIdFavouriteResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -28875,6 +30006,72 @@ func ParsePostApiInstitutionsIdSuspensionResponse(rsp *http.Response) (*PostApiI
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest OrganisationSuspensionView
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiInstitutionsIdVerifiedPagesResponse parses an HTTP response from a GetApiInstitutionsIdVerifiedPagesWithResponse call
+func ParseGetApiInstitutionsIdVerifiedPagesResponse(rsp *http.Response) (*GetApiInstitutionsIdVerifiedPagesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiInstitutionsIdVerifiedPagesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VerifiedPagesResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiInstitutionsIdVerifiedPagesResponse parses an HTTP response from a PostApiInstitutionsIdVerifiedPagesWithResponse call
+func ParsePostApiInstitutionsIdVerifiedPagesResponse(rsp *http.Response) (*PostApiInstitutionsIdVerifiedPagesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiInstitutionsIdVerifiedPagesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VerifiedPageView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -30388,6 +31585,72 @@ func ParseGetApiUsersIdStatsResponse(rsp *http.Response) (*GetApiUsersIdStatsRes
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest UserStatsView
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteApiVerifiedPagesIdResponse parses an HTTP response from a DeleteApiVerifiedPagesIdWithResponse call
+func ParseDeleteApiVerifiedPagesIdResponse(rsp *http.Response) (*DeleteApiVerifiedPagesIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteApiVerifiedPagesIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest MessageResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePatchApiVerifiedPagesIdResponse parses an HTTP response from a PatchApiVerifiedPagesIdWithResponse call
+func ParsePatchApiVerifiedPagesIdResponse(rsp *http.Response) (*PatchApiVerifiedPagesIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchApiVerifiedPagesIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VerifiedPageView
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

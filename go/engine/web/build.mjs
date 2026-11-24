@@ -35,6 +35,18 @@ await build({
   logLevel: "info",
 });
 
+// The loader a host page includes to embed a game: a classic script, not a
+// module, so a plain <script src> runs it.
+await build({
+  entryPoints: { embed: "src/loader.ts" },
+  outdir: "dist",
+  bundle: true,
+  format: "iife",
+  target: "es2020",
+  minify: process.env.DEV !== "1",
+  logLevel: "info",
+});
+
 // The stylesheet is bundled so each part of the page can keep its own file and
 // @import it; the page still loads one.
 await build({

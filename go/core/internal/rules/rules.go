@@ -90,6 +90,12 @@ var Rules = map[Role]Grants{
 			{Delete, HeadInvite, OfOwnOrganisation},
 			{Delete, ApiKeyShare, SharedWithOwnOrganisation}, // removing a key from the organisation; its owner keeps it
 
+			// the organisation's pages that may frame its embedded games
+			{Create, VerifiedPage, OfOwnOrganisation},
+			{List, VerifiedPage, OfOwnOrganisation},
+			{Edit, VerifiedPage, OfOwnOrganisation},
+			{Delete, VerifiedPage, OfOwnOrganisation},
+
 			// an organisation is cooperative: its head and staff run all its
 			// workshops
 			{Create, WorkshopCard, OfOwnOrganisation},
@@ -170,6 +176,12 @@ var Rules = map[Role]Grants{
 			{Read, OrganisationDetails, OfOwnOrganisation},
 			{Delete, Membership, GuestOfOwnOrganisation},
 			{Delete, Membership, Own}, // leaving
+
+			// the organisation's pages that may frame its embedded games
+			{Create, VerifiedPage, OfOwnOrganisation},
+			{List, VerifiedPage, OfOwnOrganisation},
+			{Edit, VerifiedPage, OfOwnOrganisation},
+			{Delete, VerifiedPage, OfOwnOrganisation},
 
 			// an organisation is cooperative: its head and staff run all its
 			// workshops

@@ -1,0 +1,6 @@
+/* An address may be long and unbroken: it wraps anywhere rather than
+   widening the card. */
+.address {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}

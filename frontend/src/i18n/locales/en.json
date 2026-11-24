@@ -956,6 +956,23 @@
       }
     },
     "myOrganization": {
+      "verifiedPages": {
+        "intro": "A verified page is a page on your organisation's website that may show your embedded games. Before a game starts there, ChatGameLab asks the page's callback whether to start it, with the page ID below and the visitor's and request's IDs your page passes on. Only an answer of {\"ok\": true} starts the game.",
+        "empty": "No verified pages yet.",
+        "addTitle": "Register a page",
+        "pageUrl": "Page address",
+        "pageUrlHint": "The page your games are embedded in. Only its website may show them.",
+        "callbackUrl": "Callback address",
+        "callbackUrlHint": "Where ChatGameLab asks before each start. It must answer within a few seconds.",
+        "add": "Register page",
+        "pageId": "Page ID",
+        "copy": "Copy page ID",
+        "copied": "Copied",
+        "callbackShown": "Callback: {{url}}",
+        "remove": "Remove page",
+        "removeTitle": "Remove this page?",
+        "removeWarning": "Games embedded for {{page}} stop starting there until they get another page."
+      },
       "actions": "Actions",
       "apiKeys": {
         "aboutDescription": "API keys shared here are available to all members of your organization for playing games.",
@@ -1568,6 +1585,7 @@
     "myOrganization": "My Organization",
     "myWorkshop": "My Workshop",
     "orgApiKeys": "API Keys",
+    "orgVerifiedPages": "Websites",
     "orgConstraints": "Youth-protection prompt restriction",
     "orgMembers": "Members",
     "orgWorkshops": "Workshops",
@@ -1593,7 +1611,8 @@
       "denied": "You may not play this game.",
       "paused": "The workshop is paused. The game goes on when it resumes.",
       "failed": "Something went wrong, and the game cannot go on.",
-      "over": "This game is over, so it cannot go on."
+      "over": "This game is over, so it cannot go on.",
+      "hostRefused": "The website this game is embedded in did not let it start."
     },
     "errors": {
       "serverUnreachable": "Cannot reach the game server.",

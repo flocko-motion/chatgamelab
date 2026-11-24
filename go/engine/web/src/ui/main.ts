@@ -9,6 +9,8 @@ import { explain, holdsToTalk } from "../state.js";
 import { notice, text, useLanguage, type Notice } from "../texts.js";
 import { TappedTransport, WebSocketTransport } from "../transport.js";
 import { LaunchPanel } from "./launch.js";
+import { mountEmbed } from "./embed.js";
+import { sessionAddress } from "../embed.js";
 import { AudioIO } from "./audio.js";
 import { WebRTCVoice } from "./voice.js";
 import { HoldToTalk } from "./talk.js";
@@ -35,6 +37,8 @@ function required<T extends Element>(selector: string): T {
 // The engine is served from the page's origin, in the platform and in the dev server alike.
 const client = engineClient(location.origin);
 const params = new URLSearchParams(location.search);
+// Framed by another website: the plain game, and the host's CSS.
+mountEmbed(params);
 // Only the one-time key of a creation under way, for this tab: sessions are
 // remembered by whoever opens the page, the platform or the address.
 const pending = browserMemory(() => sessionStorage);
@@ -53,7 +57,7 @@ const sessionID = await resolve(opened);
 launch.hide();
 if (params.get("session") !== sessionID) {
   // The address is now the session's, so a reload resumes it.
-  history.replaceState(null, "", `?session=${encodeURIComponent(sessionID)}`);
+  history.replaceState(null, "", sessionAddress(sessionID, params));
 }
 const session: SessionRef = { client, id: sessionID };
 

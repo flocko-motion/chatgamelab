@@ -8,6 +8,7 @@
 @import "./theme/backgrounds/backgrounds.css";
 @import "./theme/text-effects/text-effects.css";
 @import "./theme/skins/skins.css";
+@import "./embed.css";
 
 /* The platform's palette (web/src/config/colors.ts). The platform is light
    only, so the chrome is too; a game's theme may still darken its own half. */
