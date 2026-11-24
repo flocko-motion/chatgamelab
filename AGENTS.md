@@ -38,8 +38,23 @@ what every user may see and do. `.github/CODEOWNERS` lists the sealed paths.
 - **Commit only what the owner has staged.** Staging is how a change is
   approved. Never stage your own edits, never commit them; leave them unstaged
   and report that they are ready for review.
+  (Exception: Uli's mode, below.)
 - Commit messages are conventional commits (`feat:`, `fix:`, `refactor:`, …,
   a scope is fine): semantic-release cuts the versions from them.
+
+## Uli's mode
+
+When Uli (GitHub: TausendMedien) asks for it, these rules replace "Commit only
+what the owner has staged" and "One worktree per issue" for his changes:
+
+- **Stage, commit, open the pull request.** The agent stages and commits Uli's
+  changes itself and opens a pull request to `v2/development`. Flo reviews and
+  merges; the agent never merges and never pushes to `v2/development` itself.
+- **No worktree.** The agent works in the current checkout, on a new branch per
+  change from the latest `origin/v2/development`, named as in the table under
+  "One worktree per issue" (e.g. `docs/506-key-budgets`).
+- **Everything else holds:** conventional commits, the sealed core (no edits
+  under the sealed paths), milestones for new issues.
 
 ## New issues
 
