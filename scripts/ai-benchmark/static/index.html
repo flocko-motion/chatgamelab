@@ -55,6 +55,7 @@
   .err { color: var(--err); } .ok { color: var(--ok); }
   .slow { color: var(--warn); font-weight: 600; } .tooslow { color: var(--err); font-weight: 600; }
   .tag { font-size: 11px; color: var(--warn); }
+  .tag.dep { color: var(--err); font-weight: 600; }
   .badge { font-size: 11px; padding: 1px 7px; border-radius: 99px; background: var(--soft); color: var(--muted); }
   .badge.running { color: var(--warn); } .badge.stopped, .badge.error { color: var(--err); }
   .progress { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin-bottom: 16px;
@@ -156,6 +157,8 @@ const ct = (usd) => usd == null ? "–" : nf(usd * 100 < 1 ? 2 : usd * 100 < 10 
 const per1000 = (usd) => usd == null ? "–" : nf(2).format(usd * 1000) + " $";
 const sec = (s) => s == null ? "–" : nf(1).format(s) + " s";
 const secC = (s) => { if (s == null) return "–"; const c = s > 45 ? "tooslow" : s > 30 ? "slow" : ""; return c ? `<span class="${c}">${sec(s)}</span>` : sec(s); };
+const deprecated = (m) => (S.server?.image.deprecated || []).includes(m);
+const depTag = (m) => deprecated(m) ? ' <span class="tag dep" title="Von OpenAI als „Deprecated“ markiert – wird abgeschaltet">veraltet</span>' : "";
 const provisional = (m) => (S.server?.image.provisional_prices || []).includes(m);
 const int = (n) => n == null ? "–" : nf(0).format(n);
 const median = (a) => { if (!a.length) return null; const b = [...a].sort((x, y) => x - y), m = b.length >> 1; return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; };
@@ -265,7 +268,7 @@ function renderNew() {
         <div class="row" style="margin-top:6px">${allModels.map(m => {
           const priced = !!im.prices_per_million[m];
           const tag = !priced ? "Preis unbekannt" : provisional(m) ? "Preis vorläufig" : "";
-          return `<label class="chk"><input type="checkbox" data-model="${esc(m)}" ${f.models.includes(m) ? "checked" : ""}> ${esc(m)}${tag ? ` <span class="tag">${tag}</span>` : ""}</label>`;
+          return `<label class="chk"><input type="checkbox" data-model="${esc(m)}" ${f.models.includes(m) ? "checked" : ""}> ${esc(m)}${depTag(m)}${tag ? ` <span class="tag">${tag}</span>` : ""}</label>`;
         }).join("")}
         <button class="secondary" id="findmodels" ${s.has_key ? "" : "disabled"}>Weitere Modelle bei OpenAI suchen</button></div>
       </div>
@@ -327,7 +330,7 @@ function renderRun(id) {
   LB = [];
   const pending = run.status === "running";
   const groups = groupByModel(runRecords(run));
-  const sections = groups.map(g => `<section class="model"><h3>${esc(g.model)}</h3>${
+  const sections = groups.map(g => `<section class="model"><h3>${esc(g.model)}${depTag(g.model)}</h3>${
     QORDER.filter(q => g.q[q]).map(q => {
       const { rec } = g.q[q][0];
       const u = rec.usage;
@@ -360,7 +363,7 @@ function renderRun(id) {
     </div>
     <details class="prompt"><summary>Prompt anzeigen</summary><pre>${esc(run.prompt)}</pre></details>
     ${sections || `<div class="muted">${pending ? "Das erste Bild wird gerade erzeugt …" : "Keine Ergebnisse."}</div>`}
-    <p class="muted small">Kosten = berechnet aus den von OpenAI gemeldeten Tokens × Preisliste (mit der echten Abrechnung abgeglichen). Zeit = vom Absenden bis das fertige Bild auf diesem Rechner ist.</p>`;
+    <p class="muted small">Kosten = berechnet aus den von OpenAI gemeldeten Tokens × offizieller Preisliste (Stand 24.11.2026, mit der echten Abrechnung abgeglichen). Zeit = vom Absenden bis das fertige Bild auf diesem Rechner ist.</p>`;
 }
 
 /* ---------- Ansicht: alle Läufe zusammen ---------- */
@@ -380,14 +383,14 @@ function renderSummary() {
       const cost = avg(ok.map(x => x.rec.cost_usd).filter(v => v != null));
       const tok = avg(ok.map(x => imageTokens(x.rec.usage)).filter(v => v != null));
       const rated = ok.map(x => x.rec.rating).filter(v => v != null);
-      return `<tr>${k === 0 ? `<td class="model" rowspan="${qs.length}">${esc(g.model)}</td>` : ""}
+      return `<tr>${k === 0 ? `<td class="model" rowspan="${qs.length}">${esc(g.model)}${depTag(g.model)}</td>` : ""}
         <td>${q}</td><td class="num">${ok.length}${bad ? ` <span class="err">(+${bad} Fehler)</span>` : ""}${skp ? ` <span class="muted">(${skp} übersprungen)</span>` : ""}</td>
         <td class="num"><b>${fmtRating(avg(rated))}</b>${rated.length ? `<br><span class="muted small">${rated.length} von ${ok.length} bewertet</span>` : ""}</td>
         <td class="num"><b>${secC(median(times))}</b>${times.length > 1 ? `<br><span class="muted small">${sec(Math.min(...times))} – ${sec(Math.max(...times))}</span>` : ""}</td>
         <td class="num">${int(tok)}</td><td class="num"><b>${ct(cost)}</b>${provisional(g.model) ? '<br><span class="tag">vorläufig</span>' : ""}</td><td class="num">${per1000(cost)}</td></tr>`;
     }).join("");
   }).join("");
-  const sections = groups.map(g => `<section class="model"><h3>${esc(g.model)}</h3>${
+  const sections = groups.map(g => `<section class="model"><h3>${esc(g.model)}${depTag(g.model)}</h3>${
     QORDER.filter(q => g.q[q]).map(q => `<div class="qrow"><div class="qmeta"><b class="q">${q}</b>
       <span class="muted small">${g.q[q].length} Bild(er)</span></div>
       <div class="imgs thumbs">${g.q[q].map(x => {

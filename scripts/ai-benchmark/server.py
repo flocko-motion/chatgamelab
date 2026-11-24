@@ -113,6 +113,8 @@ def load_runs():
             for v in run.get("results", []):
                 for rec in v.get("runs", []):
                     rec["rating"] = ratings.get(rating_key(v["model"], v["quality"], rec.get("run", 1)))
+                    if rec.get("usage"):  # immer mit der aktuellen Preisliste rechnen
+                        rec["cost_usd"] = img.cost_from_usage(v["model"], rec["usage"])
             runs.append(run)
     return runs
 
@@ -268,6 +270,7 @@ class Handler(BaseHTTPRequestHandler):
                     "image": {
                         "default_models": img.DEFAULT_MODELS,
                         "model_order": img.MODEL_ORDER,
+                        "deprecated": sorted(img.DEPRECATED),
                         "qualities": img.QUALITIES,
                         "sizes": img.SIZES,
                         "default_prompt": img.DEFAULT_PROMPT,

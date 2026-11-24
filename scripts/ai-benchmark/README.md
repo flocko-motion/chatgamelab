@@ -41,10 +41,17 @@ Modelle stehen vom ältesten zum neuesten (`MODEL_ORDER` in `bench_image.py`).
 ## Kosten
 
 Die Kosten sind **berechnet** (von OpenAI gemeldete Tokens × Preisliste in
-`bench_image.py`), keine echte Abrechnung. Die Preise für gpt-image-2, 1.5 und
-1-mini sind mit der Abrechnung abgeglichen (24.11.2026); die Flare-Preise sind
-vorläufig. Echte Beträge: OpenAI-Dashboard → Ausgaben → Gruppieren nach
-„Einzelposten“ (nur pro Tag; neue Modelle lassen sich so eindeutig zuordnen).
+`bench_image.py`), keine echte Abrechnung. Die Preise stammen aus der
+offiziellen Liste (https://developers.openai.com/api/docs/pricing, Stand
+24.11.2026); für gpt-image-2, 1.5 und 1-mini wurden sie zusätzlich mit der
+echten Abrechnung abgeglichen. Ändert sich die Preisliste, gelten neue Preise
+beim nächsten Start automatisch auch für alle alten Läufe.
+
+Echte Beträge: OpenAI-Dashboard → Ausgaben → Gruppieren nach „Einzelposten“
+(nur pro Tag; neue Modelle lassen sich so eindeutig zuordnen).
+
+Modelle, die OpenAI als „Deprecated“ markiert, zeigt die Seite als
+„veraltet“ (`DEPRECATED` in `bench_image.py`).
 
 ## Dateien
 

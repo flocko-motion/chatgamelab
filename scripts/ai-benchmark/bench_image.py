@@ -15,32 +15,41 @@ SIZES = ["1024x1024", "1536x1024", "1024x1536"]
 
 # Modelle, die standardmäßig angehakt sind. Weitere findet die Seite über
 # „Weitere Modelle bei OpenAI suchen“.
-DEFAULT_MODELS = ["gpt-image-1-mini", "gpt-image-1.5", "gpt-image-2"]
+DEFAULT_MODELS = ["gpt-image-2.5-flare", "gpt-image-2.6-flare"]
 
 # Anzeige-Reihenfolge: vom ältesten (vermutlich schwächsten) zum neuesten Modell.
 # Unbekannte Modelle kommen danach, alphabetisch.
 MODEL_ORDER = [
-    "gpt-image-1-mini",     # Okt. 2025
-    "gpt-image-1.5",        # Dez. 2025
-    "gpt-image-2",          # Apr. 2026
-    "gpt-image-2.5-flare",  # Sep. 2026
-    "gpt-image-2.6-flare",  # nach Sep. 2026
+    "gpt-image-1-mini",        # Okt. 2025
+    "gpt-image-1.5",           # Dez. 2025
+    "gpt-image-2",             # Apr. 2026
+    "gpt-image-2.5-flare",     # Sep. 2026
+    "gpt-image-2.5-sunburst",  # Sep. 2026
+    "gpt-image-2.6-flare",     # nach Sep. 2026
+    "gpt-image-2.6-sunburst",  # nach Sep. 2026
 ]
 
-# Preise in US-Dollar pro 1 Million Tokens. Stand 24.11.2026, mit der echten
-# OpenAI-Abrechnung abgeglichen (Abweichung unter 1 Cent pro Modell).
-# Quelle zum Nachprüfen: https://platform.openai.com/docs/pricing
+# Von OpenAI als „Deprecated“ (wird abgeschaltet) markiert – Stand 24.11.2026.
+DEPRECATED = {"gpt-image-1-mini", "gpt-image-1.5", "gpt-image-2", "chatgpt-image-latest"}
+
+# Offizielle Preise in US-Dollar pro 1 Million Tokens (Standard, nicht Batch).
+# Quelle: https://developers.openai.com/api/docs/pricing → Multimodal models → Images
+# Stand 24.11.2026; für gpt-image-2 / 1.5 / 1-mini zusätzlich mit der echten
+# Abrechnung abgeglichen (Abweichung unter 1 Cent pro Modell).
 # text_out: gpt-image-1.5 erzeugt neben dem Bild auch Text-Tokens (internes
-# „Nachdenken“), die zum Textpreis abgerechnet werden.
+# „Nachdenken“), die zum Textpreis abgerechnet werden. Bei den anderen fällt keiner an.
+# image_in: nur bei Bild-Eingaben (Bearbeiten eines vorhandenen Bildes), hier normal 0.
 PRICES_PER_MILLION = {
-    "gpt-image-2":      {"text_in": 5.00, "text_out": 10.00, "image_out": 30.00},
-    "gpt-image-1.5":    {"text_in": 5.00, "text_out": 10.00, "image_out": 32.00},
-    "gpt-image-1-mini": {"text_in": 2.00, "text_out": 10.00, "image_out": 8.00},
-    # VORLÄUFIG (nur aus Drittquellen, noch nicht mit der Abrechnung abgeglichen):
-    "gpt-image-2.5-flare": {"text_in": 5.00, "text_out": 10.00, "image_out": 30.00},
-    "gpt-image-2.6-flare": {"text_in": 5.00, "text_out": 10.00, "image_out": 30.00},
+    "gpt-image-1-mini":       {"text_in": 2.00, "image_in": 2.50, "text_out": 0.00,  "image_out": 8.00},
+    "gpt-image-1.5":          {"text_in": 5.00, "image_in": 8.00, "text_out": 10.00, "image_out": 32.00},
+    "gpt-image-2":            {"text_in": 5.00, "image_in": 8.00, "text_out": 0.00,  "image_out": 30.00},
+    "gpt-image-2.5-flare":    {"text_in": 5.00, "image_in": 8.00, "text_out": 0.00,  "image_out": 30.00},
+    "gpt-image-2.5-sunburst": {"text_in": 5.00, "image_in": 8.00, "text_out": 0.00,  "image_out": 30.00},
+    "gpt-image-2.6-flare":    {"text_in": 5.00, "image_in": 8.00, "text_out": 0.00,  "image_out": 30.00},
+    "gpt-image-2.6-sunburst": {"text_in": 5.00, "image_in": 8.00, "text_out": 0.00,  "image_out": 30.00},
+    "chatgpt-image-latest":   {"text_in": 5.00, "image_in": 8.00, "text_out": 10.00, "image_out": 32.00},
 }
-PROVISIONAL_PRICES = {"gpt-image-2.5-flare", "gpt-image-2.6-flare"}
+PROVISIONAL_PRICES = set()  # Modelle, deren Preis nur geschätzt ist
 
 # Standard-Zeitlimit pro Bild. Was länger braucht, wird abgebrochen; höhere
 # Qualitätsstufen werden übersprungen, wenn sie das Limit absehbar reißen.
@@ -54,9 +63,8 @@ EXPECTED_TOKENS = {
     "gpt-image-2":      {"low": (196, 0), "medium": (1756, 0), "high": (7024, 0)},
     "gpt-image-1.5":    {"low": (272, 240), "medium": (1056, 450), "high": (4160, 410)},
     "gpt-image-1-mini": {"low": (272, 0), "medium": (1056, 0), "high": (4160, 0)},
-    # geraten (wie gpt-image-2), bis es Messwerte gibt:
-    "gpt-image-2.5-flare": {"low": (196, 0), "medium": (1756, 0), "high": (7024, 0)},
-    "gpt-image-2.6-flare": {"low": (196, 0), "medium": (1756, 0), "high": (7024, 0)},
+    "gpt-image-2.5-flare": {"low": (196, 0), "medium": (439, 0), "high": (1756, 0)},
+    "gpt-image-2.6-flare": {"low": (824, 0), "medium": (1449, 0), "high": (1758, 0)},
 }
 
 DEFAULT_PROMPT = """Photorealistic photograph, shot on a full-frame camera with a 35 mm lens at f/2.8, natural late-afternoon sunlight filtering through old chestnut trees.
@@ -81,7 +89,7 @@ def cost_from_usage(model, usage):
     image_in = ind.get("image_tokens", 0) or 0
     image_out = outd.get("image_tokens", usage.get("output_tokens", 0)) or 0
     text_out = outd.get("text_tokens", 0) or 0
-    return (text_in * p["text_in"] + image_in * p["text_in"]
+    return (text_in * p["text_in"] + image_in * p.get("image_in", p["text_in"])
             + text_out * p["text_out"] + image_out * p["image_out"]) / 1_000_000
 
 
@@ -151,7 +159,12 @@ def generate(api_key, base_url, model, quality, size, prompt, timeout=300):
                     continue
                 etype = event.get("type", "")
                 if etype == "error" or etype.endswith(".failed"):
-                    result["error"] = json.dumps(event.get("error", event), ensure_ascii=False)[:400]
+                    err = event.get("error", event)
+                    if isinstance(err, dict) and err.get("code") == "moderation_blocked":
+                        result["error"] = ("Vom OpenAI-Sicherheitsfilter abgelehnt (moderation_blocked) – "
+                                           "oft wegen Künstlernamen, Marken oder echten Personen im Prompt.")
+                    else:
+                        result["error"] = json.dumps(err, ensure_ascii=False)[:400]
                     break
                 if etype == "image_generation.completed" and event.get("b64_json"):
                     result["final_s"] = round(time.perf_counter() - start, 2)
