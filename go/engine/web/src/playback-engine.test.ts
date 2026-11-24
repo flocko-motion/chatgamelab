@@ -290,3 +290,26 @@ test("a toggle is worth offering only where it switches a block of the wiring", 
   assert.equal(switches(playback.state, "images"), true);
   assert.equal(switches(playback.state, "audio-out"), false);
 });
+
+test("two characters' lines interleave, each its own utterance, and the cast names them", () => {
+  const transport = new FakeTransport();
+  const playback = new PlaybackEngine(transport, undefined, new RecordingSpeaker());
+  playback.connect();
+  const send = (Stream: string, Value: string): void => transport.receive(JSON.stringify({ Stream, Value }));
+
+  send("cast", JSON.stringify({ nameA: "Mara", voiceA: "marin", nameB: "Otto", voiceB: "cedar" }));
+  send("text", "Who goes ");
+  send("text-b", "Just me.");
+  send("text", "there?");
+  send("text", "");
+  send("text-b", "");
+
+  assert.deepEqual(playback.state.cast, { a: "Mara", b: "Otto" });
+  assert.deepEqual(
+    playback.state.utterances.map((u) => [u.seat ?? "a", u.text, u.complete]),
+    [
+      ["a", "Who goes there?", true],
+      ["b", "Just me.", true],
+    ],
+  );
+});

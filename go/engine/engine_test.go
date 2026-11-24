@@ -177,7 +177,7 @@ func TestConnectionIsInvitedOnlyOnceTheGameBegins(t *testing.T) {
 			default:
 				t.Error("a player was invited to connect before the gate opened")
 			}
-			answer, err := s.Connect(ctx, "v=0 mock offer")
+			answer, err := s.Connect(ctx, "v=0 mock offer", "")
 			if err != nil {
 				t.Fatalf("connect: %v", err)
 			}
@@ -203,7 +203,7 @@ func TestConnectIsRefusedByATurnBasedGenre(t *testing.T) {
 	}
 	defer s.Close()
 
-	if _, err := s.Connect(ctx, "v=0 mock offer"); err == nil {
+	if _, err := s.Connect(ctx, "v=0 mock offer", ""); err == nil {
 		t.Error("adventure brokered a connection to a conversation it does not hold")
 	}
 }
@@ -489,7 +489,7 @@ func awaitConnection(ctx context.Context, s *engine.Session) error {
 			if e.Stream != "connect" {
 				continue
 			}
-			_, err := s.Connect(ctx, "v=0 mock offer")
+			_, err := s.Connect(ctx, "v=0 mock offer", "")
 			return err
 		case <-deadline:
 			return errors.New("nobody was ever invited to connect")
@@ -562,7 +562,7 @@ func TestJournalRecordsTheLiveConversation(t *testing.T) {
 			case "journal":
 				streamed++
 			case "connect":
-				if _, err := s.Connect(ctx, "v=0 mock offer"); err != nil {
+				if _, err := s.Connect(ctx, "v=0 mock offer", ""); err != nil {
 					t.Fatal(err)
 				}
 				connected = true

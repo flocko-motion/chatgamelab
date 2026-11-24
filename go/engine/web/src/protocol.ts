@@ -8,6 +8,8 @@
  */
 export type StreamName =
   | "text"
+  | "text-b"
+  | "cast"
   | "said"
   | "audio"
   | "image"

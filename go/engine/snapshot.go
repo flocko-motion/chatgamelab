@@ -62,8 +62,10 @@ type recorder struct {
 	// reloaded page would be neither useful nor cheap.
 	history []SessionEvent
 
-	// open is the utterance still streaming, kept whole once closed.
-	open strings.Builder
+	// open is the utterance still streaming, kept whole once closed;
+	// openPartner the second character's, where a genre has two.
+	open        strings.Builder
+	openPartner strings.Builder
 
 	// over is why the game ended, kept apart and replayed last: a line still
 	// on its way when the game ended belongs before it.
@@ -73,6 +75,9 @@ type recorder struct {
 // historyStreams is what a reload needs to redraw the conversation.
 var historyStreams = map[string]bool{
 	"text": true,
+	// The second character's lines, where a genre has two, and their names.
+	"text-b": true,
+	"cast":   true,
 	// The player's lines, each whole, so a reload replays both speakers.
 	"said": true,
 	// Why the game is over: its last line.
@@ -106,24 +111,28 @@ func (r *recorder) record(e SessionEvent) []SessionEvent {
 		return []SessionEvent{e}
 	}
 	kept := []SessionEvent{e}
-	if e.Stream == "text" {
+	if e.Stream == "text" || e.Stream == "text-b" {
+		open := &r.open
+		if e.Stream == "text-b" {
+			open = &r.openPartner
+		}
 		if replacement, ok := strings.CutPrefix(e.Value, TextReplace); ok {
-			r.open.Reset()
-			r.open.WriteString(replacement)
+			open.Reset()
+			open.WriteString(replacement)
 			return nil
 		}
 		switch e.Value {
 		case TextDiscard:
-			r.open.Reset()
+			open.Reset()
 			return nil
 		case "":
-			if r.open.Len() == 0 {
+			if open.Len() == 0 {
 				return nil
 			}
-			kept = []SessionEvent{{Stream: "text", Value: r.open.String()}, e}
-			r.open.Reset()
+			kept = []SessionEvent{{Stream: e.Stream, Value: open.String()}, e}
+			open.Reset()
 		default:
-			r.open.WriteString(e.Value)
+			open.WriteString(e.Value)
 			return nil
 		}
 	}
@@ -214,7 +223,7 @@ func (r *recorder) replay() []SessionEvent {
 // game had begun, since nobody speaks before the gate opens.
 func conversed(history []SessionEvent) bool {
 	for _, e := range history {
-		if (e.Stream == "text" || e.Stream == "said") && e.Value != "" {
+		if (e.Stream == "text" || e.Stream == "text-b" || e.Stream == "said") && e.Value != "" {
 			return true
 		}
 	}

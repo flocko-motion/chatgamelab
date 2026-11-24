@@ -41,7 +41,7 @@ func TestTheSafetyFilterEndsTheGame(t *testing.T) {
 		t.Errorf("the last line of the history is %+v, want the reason the game is over", last)
 	}
 	var refusal *engine.Refusal
-	if _, err := s.Connect(ctx, "v=0 offer"); !errors.As(err, &refusal) || refusal.Problem != engine.ProblemOver {
+	if _, err := s.Connect(ctx, "v=0 offer", ""); !errors.As(err, &refusal) || refusal.Problem != engine.ProblemOver {
 		t.Errorf("connecting to a game that is over: %v, want refused as over", err)
 	}
 	s.Close()

@@ -20,6 +20,11 @@ export interface Utterance {
    * engine on the `said` stream, typed or as it heard them.
    */
   readonly speaker: "npc" | "player";
+  /**
+   * Which character, where a genre has two (the topology's seats): "b" is
+   * the second, said on the `text-b` stream; anything else the first.
+   */
+  readonly seat?: "b";
   text: string;
   /** Set once the utterance is known to be finished. */
   complete: boolean;
@@ -42,6 +47,8 @@ export interface PlaybackEngineState {
   utterances: Utterance[];
   /** Status values, for genres that track them. */
   props: Record<string, string>;
+  /** The two characters' names, where a genre has two, once they are cast. */
+  cast: { a: string; b: string } | null;
   /** The session's portrait, once it exists. */
   image: string | null;
   /** Audio chunks received; a headless run asserts on the count, not the sound. */
@@ -104,6 +111,7 @@ export function emptyState(): PlaybackEngineState {
     connection: "idle",
     utterances: [],
     props: {},
+    cast: null,
     image: null,
     audioChunks: 0,
     audioDiscards: 0,

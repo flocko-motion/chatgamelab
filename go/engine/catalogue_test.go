@@ -16,9 +16,9 @@ func TestGenresFollowFromToggles(t *testing.T) {
 		{"nothing on", Toggles{}, []Genre{GenreAdventure}},
 		{"images only", Toggles{Images: true}, []Genre{GenreAdventure}},
 		// The live genre's picture comes from the gallery, so it needs no image model.
-		{"live only", Toggles{AudioLive: true}, []Genre{GenreAdventure, GenreNPCLive}},
-		{"live and images", Toggles{AudioLive: true, Images: true}, []Genre{GenreAdventure, GenreNPCLive}},
-		{"everything", Toggles{Images: true, AudioOut: true, AudioIn: true, AudioLive: true}, []Genre{GenreAdventure, GenreNPCLive}},
+		{"live only", Toggles{AudioLive: true}, []Genre{GenreAdventure, GenreNPCLive, GenreNPCDuo}},
+		{"live and images", Toggles{AudioLive: true, Images: true}, []Genre{GenreAdventure, GenreNPCLive, GenreNPCDuo}},
+		{"everything", Toggles{Images: true, AudioOut: true, AudioIn: true, AudioLive: true}, []Genre{GenreAdventure, GenreNPCLive, GenreNPCDuo}},
 	}
 	for _, c := range cases {
 		if got := PlayableGenres(c.toggles); !slices.Equal(got, c.want) {

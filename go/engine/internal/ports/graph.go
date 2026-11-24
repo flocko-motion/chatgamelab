@@ -196,6 +196,21 @@ func fieldOf(reply, field string) (string, bool) {
 	return string(raw), true
 }
 
+// ConnectFieldToVoice wires one field of a structured reply into the voice a
+// conversation speaks in, by name.
+func (g *Graph) ConnectFieldToVoice(src StructuredOut, field string, dst VoiceIn) {
+	g.connectField(src, field, dst, dst.VoiceInPort())
+}
+
+// ConnectStructured wires a structured reply whole, as JSON, into a block
+// that takes text, such as a sink a client reads it from.
+func (g *Graph) ConnectStructured(src StructuredOut, dst TextIn) {
+	stream := src.StructuredOutPort()
+	g.connect(src, dst, KindText, func(ctx context.Context) {
+		go pumpChan(ctx, stream, dst.TextInPort(), g.watch(src, dst, KindText))
+	})
+}
+
 // ConnectVoiceOut wires a voice, by id, into the conversation that speaks in it.
 func (g *Graph) ConnectVoiceOut(src TextOut, dst VoiceIn) {
 	stream := src.TextOutPort()
@@ -571,6 +586,10 @@ type Topology struct {
 	Language string `json:"language,omitempty"`
 	// Dev lets a developer rearrange the drawing and copy the layout back into code.
 	Dev bool `json:"dev,omitempty"`
+	// Seats are the live conversations a browser opens, one connection each,
+	// by the seat it names when it connects; empty is one conversation, the
+	// default seat.
+	Seats []string `json:"seats,omitempty"`
 }
 
 type TopologyNode struct {

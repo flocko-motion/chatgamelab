@@ -113,7 +113,7 @@ export function useVoicePreview(genre: string, voiceStyle: string, scenario: str
     /** A new voice is being made. */
     renewing: renewal.isPending,
     /** Which sample line the voice says: a greeting where a character talks, else narration. */
-    sampleLine: genreWording(genre) === "encounter" ? ("greeting" as const) : ("narration" as const),
+    sampleLine: genreWording(genre) === "adventure" ? ("narration" as const) : ("greeting" as const),
     /** Why it could not be heard, as a translation key. */
     errorKey: failed,
     play,

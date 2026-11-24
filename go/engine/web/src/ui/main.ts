@@ -12,7 +12,7 @@ import { LaunchPanel } from "./launch.js";
 import { mountEmbed } from "./embed.js";
 import { sessionAddress } from "../embed.js";
 import { AudioIO } from "./audio.js";
-import { WebRTCVoice } from "./voice.js";
+import { SeatedVoice } from "./voice.js";
 import { HoldToTalk } from "./talk.js";
 import { Collapsibles } from "./collapse.js";
 import { mountInsightsSplit, mountSplit } from "./split.js";
@@ -76,9 +76,10 @@ const audio = new AudioIO(new URL("./mic-worklet.js", import.meta.url).href);
 // server nobody listens.
 const transport = new TappedTransport(new WebSocketTransport(liveURL(session, location.origin), () => recover()));
 const openedAt = new Date().toISOString();
-const playback = new PlaybackEngine(
+const playback: PlaybackEngine = new PlaybackEngine(
   transport,
-  new WebRTCVoice(session),
+  // One connection per seat: a scene of two characters has two.
+  new SeatedVoice(session, (): readonly string[] | undefined => playback.state.topology?.seats),
   audio,
 );
 const typed = required<HTMLInputElement>("#typed");

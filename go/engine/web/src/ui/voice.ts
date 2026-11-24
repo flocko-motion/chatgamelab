@@ -123,6 +123,148 @@ export class WebRTCVoice implements Voice {
 }
 
 /**
+ * Two characters' connections, one per seat. Each hears the player and the
+ * other, mixed here with Web Audio; the player hears both.
+ */
+export class DuoVoice implements Voice {
+  #peers: RTCPeerConnection[] = [];
+  #microphone: MediaStream | null = null;
+  #context: AudioContext | null = null;
+  #speakers: HTMLAudioElement[] = [];
+
+  /** @param seats the topology's seats, the first character's first. */
+  constructor(
+    private readonly session: SessionRef,
+    private readonly seats: readonly string[],
+  ) {}
+
+  async connect(): Promise<void> {
+    await reachable(this.session);
+    // Allowed to run by the player's press that started or resumed the game.
+    const context = new AudioContext();
+    this.#context = context;
+    void context.resume();
+
+    try {
+      this.#microphone = await navigator.mediaDevices.getUserMedia({
+        audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true },
+      });
+    } catch {
+      throw new NoticeError(notice("errors.noMicrophone"));
+    }
+    const microphone = context.createMediaStreamSource(this.#microphone);
+    // What each character hears: the player, and the others once they speak.
+    const ears = this.seats.map(() => context.createMediaStreamDestination());
+    for (const ear of ears) microphone.connect(ear);
+
+    // The listener first, so it hears the first character's opening.
+    const order = this.seats.map((_, i) => i).reverse();
+    for (const i of order) {
+      const ear = ears[i];
+      const seat = this.seats[i] ?? "";
+      if (!ear) continue;
+      const peer = new RTCPeerConnection();
+      this.#peers[i] = peer;
+      peer.createDataChannel("oai-events");
+      peer.ontrack = (event) => {
+        const [stream] = event.streams;
+        if (!stream) return;
+        // Web Audio hears a remote stream only while an element plays it.
+        this.#play(i, stream);
+        const voice = context.createMediaStreamSource(stream);
+        ears.forEach((other, j) => {
+          if (j !== i) voice.connect(other);
+        });
+      };
+      for (const track of ear.stream.getAudioTracks()) peer.addTrack(track, ear.stream);
+
+      await peer.setLocalDescription(await peer.createOffer());
+      await gathered(peer);
+      const offer = peer.localDescription?.sdp;
+      if (!offer) throw new Error("the browser produced no offer to send");
+
+      let sdp: string;
+      try {
+        ({ data: { sdp } } = await this.session.client.postApiEngineSessionsIdConnect(this.session.id, { sdp: offer, seat }));
+      } catch (thrown) {
+        throw new Error(`the engine refused the connection: ${await detailOf(thrown)}`);
+      }
+      if (this.#peers[i] !== peer || peer.signalingState === "closed") {
+        throw new Error("the conversation was let go while it was connecting");
+      }
+      await peer.setRemoteDescription({ type: "answer", sdp });
+    }
+  }
+
+  setSending(on: boolean): void {
+    for (const track of this.#microphone?.getAudioTracks() ?? []) {
+      track.enabled = on;
+    }
+  }
+
+  close(): void {
+    for (const track of this.#microphone?.getAudioTracks() ?? []) track.stop();
+    this.#microphone = null;
+    for (const peer of this.#peers) peer?.close();
+    this.#peers = [];
+    for (const speaker of this.#speakers) {
+      speaker.srcObject = null;
+      speaker.remove();
+    }
+    this.#speakers = [];
+    void this.#context?.close();
+    this.#context = null;
+  }
+
+  #play(i: number, stream: MediaStream): void {
+    let speaker = this.#speakers[i];
+    if (!speaker) {
+      speaker = document.createElement("audio");
+      speaker.autoplay = true;
+      document.body.append(speaker);
+      this.#speakers[i] = speaker;
+    }
+    speaker.srcObject = stream;
+  }
+}
+
+/** Two seats take a DuoVoice, one a WebRTCVoice; the topology says which. */
+export class SeatedVoice implements Voice {
+  #voice: Voice | null = null;
+
+  constructor(
+    private readonly session: SessionRef,
+    private readonly seats: () => readonly string[] | undefined,
+  ) {}
+
+  async connect(): Promise<void> {
+    this.#voice?.close();
+    const seats = this.seats() ?? [];
+    this.#voice = seats.length > 1 ? new DuoVoice(this.session, seats) : new WebRTCVoice(this.session);
+    await this.#voice.connect();
+  }
+
+  setSending(on: boolean): void {
+    this.#voice?.setSending(on);
+  }
+
+  close(): void {
+    this.#voice?.close();
+    this.#voice = null;
+  }
+}
+
+/** Confirms the engine is answering before anything else is attempted. */
+async function reachable(session: SessionRef): Promise<void> {
+  try {
+    await session.client.getApiEngineSessionsIdState(session.id);
+  } catch (thrown) {
+    if (!(thrown instanceof Response)) throw new NoticeError(notice("errors.serverUnreachable"));
+    throw new NoticeError(notice("errors.voiceFailed", `the game server answered ${thrown.status}; this session may have ended`));
+  }
+}
+
+/**
  * Waits for ICE gathering to finish, because the offer must carry its
  * candidates: the engine brokers one exchange rather than trickling.
  */

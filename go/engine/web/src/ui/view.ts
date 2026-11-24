@@ -375,6 +375,14 @@ export class View {
       }
       if (this.elements.feed.childElementCount > 0) this.#append(divider());
       const card = sceneCard();
+      // Two characters: each card says whose line it is.
+      if ((state.topology?.seats?.length ?? 0) > 1) {
+        const seat = utterance.seat ?? "a";
+        card.classList.add(`seat-${seat}`);
+        const name = element("div", "speaker-name");
+        name.dataset.seat = seat;
+        card.prepend(name);
+      }
       this.#cards.set(utterance.id, card);
       const narrative = card.querySelector<HTMLElement>(".narrative");
       if (narrative) this.#narratives.set(utterance.id, this.#paint(narrative, "gameMessages", ""));
@@ -389,10 +397,18 @@ export class View {
     // What was sent has come back, as the player's line or a reply, or failed.
     if (state.utterances.length > before || state.fault) this.#sent = false;
 
-    // Only the newest two can still change. A turn-based genre never closes its last line,
-    // so streaming also needs a working block.
+    // The characters' names, which may be cast after their first lines arrive.
+    for (const name of this.elements.feed.querySelectorAll<HTMLElement>(".speaker-name")) {
+      const seat = name.dataset.seat === "b" ? "b" : "a";
+      const said = state.cast?.[seat] ?? seat.toUpperCase();
+      if (name.textContent !== said) name.textContent = said;
+    }
+
+    // Only the newest few can still change: two with one character, four
+    // with two, whose lines interleave. A turn-based genre never closes its
+    // last line, so streaming also needs a working block.
     const working = Object.values(state.phases).includes("working");
-    for (const utterance of state.utterances.slice(-2)) {
+    for (const utterance of state.utterances.slice(-4)) {
       const card = this.#cards.get(utterance.id);
       const narrative = this.#narratives.get(utterance.id);
       if (!card || !narrative) continue;

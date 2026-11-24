@@ -1,11 +1,12 @@
 import { useMantineTheme } from "@mantine/core";
-import { IconCompass, IconDeviceGamepad2, IconMessages, IconRobot } from "@tabler/icons-react";
+import { IconCompass, IconDeviceGamepad2, IconMessages, IconRobot, IconUsersGroup } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import classes from "./GenreChip.module.css";
 
 const ICONS: Record<string, typeof IconCompass> = {
   adventure: IconCompass,
   "npc-live": IconMessages,
+  "npc-duo": IconUsersGroup,
   chatbot: IconRobot,
 };
 

@@ -168,6 +168,9 @@ type ConnectRequest struct {
 	ID string `path:"id"`
 	// SDP is the browser's offer; answering it creates the billed conversation.
 	SDP string `json:"sdp"`
+	// Seat names the conversation, where a genre holds two (the topology's
+	// seats); empty is the first.
+	Seat string `json:"seat,omitempty"`
 }
 
 // ConnectResponse is the provider's answer to the browser's offer.
@@ -192,7 +195,7 @@ func (e ConnectEndpoint) Handle(ctx context.Context, req ConnectRequest) (Connec
 	if req.SDP == "" {
 		return ConnectResponse{}, badRequest("the request carries no SDP offer")
 	}
-	answer, err := s.Connect(ctx, req.SDP)
+	answer, err := s.Connect(ctx, req.SDP, req.Seat)
 	if err != nil {
 		return ConnectResponse{}, rejected(err)
 	}

@@ -821,7 +821,8 @@
       },
       "genres": {
         "adventure": "Abenteuer",
-        "npc-live": "Begegnung"
+        "npc-live": "Charakter",
+        "npc-duo": "Diskussion"
       },
       "features": {
         "images": "Bildern",
@@ -866,7 +867,8 @@
           "question": "Was möchtest du machen?",
           "pitch": {
             "adventure": "Die Spielerin oder der Spieler erkundet eine Welt. Das Spiel erzählt, was passiert, malt Bilder und zählt mit.",
-            "encounter": "Die Spielerin oder der Spieler spricht mit einer Figur, per Stimme. Sie bleibt in ihrer Rolle und antwortet live."
+            "encounter": "Die Spielerin oder der Spieler spricht mit einer Figur, per Stimme. Sie bleibt in ihrer Rolle und antwortet live.",
+            "duo": "Zwei Figuren unterhalten sich per Stimme. Die Spielenden hören zu oder mischen sich ins Gespräch ein."
           }
         },
         "pages": {
@@ -903,7 +905,11 @@
             "titlePlaceholder": "Greta im Leuchtturm",
             "descriptionPlaceholder": "Besuche Greta, die grummelige Leuchtturmwärterin, und finde heraus, was sie in jener Nacht gesehen hat."
           },
-          "titleHint": "{{length}}/{{max}} · Kann öffentlich sichtbar werden – bitte keine Klarnamen."
+          "titleHint": "{{length}}/{{max}} · Kann öffentlich sichtbar werden – bitte keine Klarnamen.",
+          "duo": {
+            "titlePlaceholder": "Sturmnacht am Leuchtturm",
+            "descriptionPlaceholder": "Greta, die grummelige Leuchtturmwärterin, und ein viel zu fröhlicher Steuerprüfer streiten sich durch eine stürmische Nacht. Hör zu oder ergreif Partei."
+          }
         },
         "story": {
           "adventure": {
@@ -921,6 +927,20 @@
             "gameStart": "Wie begrüßt sie die Spielenden?",
             "gameStartHint": "Die Lage, wenn das Gespräch beginnt; die ersten Worte werden daraus geschrieben.",
             "gameStartPlaceholder": "Mitten in einem Sturm klopft jemand Fremdes an die Tür des Leuchtturms…"
+          },
+          "duo": {
+            "scenario": "Wer sind die beiden Figuren?",
+            "scenarioHint": "Wer die beiden sind und warum sie einander etwas zu sagen oder zu streiten haben.",
+            "scenarioPlaceholder": "Greta, eine grummelige Leuchtturmwärterin …",
+            "firstCharacter": "Die erste Figur",
+            "firstCharacterHint": "Wer sie ist: Persönlichkeit, was sie will, wie sie spricht. Sie spricht zuerst.",
+            "firstCharacterPlaceholder": "Greta, eine grummelige Leuchtturmwärterin, die mit ihrer Lampe in Ruhe gelassen werden will …",
+            "secondCharacter": "Die zweite Figur",
+            "secondCharacterHint": "Wer sie ist und warum die beiden einander etwas zu sagen oder zu streiten haben.",
+            "secondCharacterPlaceholder": "Otto, ein viel zu fröhlicher Steuerprüfer, der jede Kerze zählen will …",
+            "gameStart": "Wo sind sie, und wie fängt es an?",
+            "gameStartHint": "Die Szene, in der beide zu Beginn sind; daraus werden die ersten Worte der ersten Figur geschrieben.",
+            "gameStartPlaceholder": "Eine stürmische Nacht. Otto klopft klitschnass an die Tür des Leuchtturms …"
           }
         },
         "look": {
@@ -959,6 +979,10 @@
             "noKey": "Keiner der KI-Schlüssel, die du verwenden kannst, spricht mit einer Live-Stimme, darum gibt es gerade nichts zu hören.",
             "keyRejected": "Der KI-Anbieter hat den Schlüssel abgelehnt. Die Stimme konnte nicht abgespielt werden.",
             "failed": "Die Stimme konnte nicht abgespielt werden. Bitte versuche es noch einmal."
+          },
+          "duo": {
+            "voiceStyle": "Die Stimmen der Figuren",
+            "voiceStyleHint": "Jede Figur bekommt eine eigene Stimme."
           }
         },
         "download": {
@@ -991,6 +1015,12 @@
               "name": "Dein Spiel hat noch keinen Titel.",
               "systemMessageScenario": "Sag, wer die Figur ist.",
               "systemMessageGameStart": "Sag, wie die Figur die Spielenden begrüßt.",
+              "imageStyle": "Wähle einen Bildstil, damit die Bilder zusammenpassen."
+            },
+            "duo": {
+              "name": "Dein Spiel hat noch keinen Titel.",
+              "systemMessageScenario": "Sag, wer die beiden Figuren sind.",
+              "systemMessageGameStart": "Sag, wo die Szene spielt und wie sie beginnt.",
               "imageStyle": "Wähle einen Bildstil, damit die Bilder zusammenpassen."
             }
           }
@@ -1954,7 +1984,12 @@
       "live-session": "Figur",
       "observer": "Regie",
       "voice": "Stimme generieren",
-      "voice-brief": "Stimme beschreiben"
+      "voice-brief": "Stimme beschreiben",
+      "live-a": "Erste Figur",
+      "live-b": "Zweite Figur",
+      "director": "Regie",
+      "cast": "Stimmen besetzen",
+      "cast-brief": "Figuren"
     },
     "settings": {
       "scenario": "Szenario",
@@ -1996,7 +2031,20 @@
       "voice\u003elive-session:voice": "Stimme",
       "voice\u003elive-session:secondary": "Stimmbeschreibung",
       "voice-brief\u003evoice:description": "Beschreibung",
-      "voice-brief\u003evoice:voice": "Ersatzstimme"
+      "voice-brief\u003evoice:voice": "Ersatzstimme",
+      "cast-brief\u003ecast": "Figuren",
+      "cast\u003elive-a:voiceA": "Stimme",
+      "cast\u003elive-b:voiceB": "Stimme",
+      "cast\u003estart-game": "bereit",
+      "greeting\u003elive-a": "erste Worte",
+      "start-game\u003elive-a": "Startsignal",
+      "start-game\u003elive-b": "Startsignal",
+      "player-input-audio\u003elive-a": "Sprache",
+      "player-input-audio\u003elive-b": "Sprache",
+      "live-a\u003edirector": "Transkript",
+      "live-b\u003edirector": "Transkript",
+      "director\u003elive-a": "Einwurf",
+      "director\u003elive-b": "Einwurf"
     }
   },
   "mail": {

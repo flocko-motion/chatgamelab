@@ -81,10 +81,35 @@ export const STATUS_FIELDS_MAX = 5;
 
 /**
  * The key segment of a genre's own wording: an Encounter talks of a
- * character, an Adventure (and a genre without words of its own) of a world.
+ * character, a Duo of two, an Adventure (and a genre without words of its
+ * own) of a world.
  */
-export function genreWording(genre: string): "adventure" | "encounter" {
-  return genre === "npc-live" ? "encounter" : "adventure";
+export function genreWording(genre: string): "adventure" | "encounter" | "duo" {
+  if (genre === "npc-live") return "encounter";
+  if (genre === "npc-duo") return "duo";
+  return "adventure";
+}
+
+/**
+ * The line that joins a Duo's two characters in the game's one scenario
+ * field, as the engine splits it (genre.DuoSeparator).
+ */
+export const DUO_SEPARATOR = "\n\n=== second character ===\n\n";
+
+/** A Duo's scenario as its two characters; one without the line is the first alone. */
+export function splitDuo(scenario: string): [string, string] {
+  // As joined, exactly, so what is being typed keeps its spaces and lines.
+  const exact = scenario.indexOf(DUO_SEPARATOR);
+  if (exact >= 0) return [scenario.slice(0, exact), scenario.slice(exact + DUO_SEPARATOR.length)];
+  const marker = DUO_SEPARATOR.trim();
+  const at = scenario.indexOf(marker);
+  if (at < 0) return [scenario, ""];
+  return [scenario.slice(0, at).trimEnd(), scenario.slice(at + marker.length).trimStart()];
+}
+
+/** The two characters as one scenario; without a second, the first alone. */
+export function joinDuo(first: string, second: string): string {
+  return second === "" ? first : first + DUO_SEPARATOR + second;
 }
 
 /**
@@ -99,8 +124,14 @@ export function pageSummary(page: EditorPage, values: GameFormFields): { text: s
       return written([values.name.trim(), values.description.trim()].filter(Boolean).join(" — ")) ?? {
         key: "games.editor.pages.card.intro",
       };
-    case "story":
-      return written(values.systemMessageScenario) ?? { key: "games.editor.pages.story.intro" };
+    case "story": {
+      // A Duo's two characters, side by side.
+      const scenario =
+        values.genre === "npc-duo"
+          ? splitDuo(values.systemMessageScenario).filter((c) => c.trim()).join(" — ")
+          : values.systemMessageScenario;
+      return written(scenario) ?? { key: "games.editor.pages.story.intro" };
+    }
     case "look":
       return written(values.imageStyle) ?? { key: "games.editor.pages.look.intro" };
     case "sound":

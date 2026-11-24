@@ -71,8 +71,10 @@ type Observer struct {
 	reminded time.Time
 	// open says the conversation is open; with none, it neither calls nor notices.
 	open bool
-	// held is a direction waiting for a pause in the conversation.
-	held string
+	// held is a direction waiting for a pause in the conversation; heldTo
+	// the seat it is for, empty for all.
+	held   string
+	heldTo string
 	// lastDirection is the last direction sent; awaiting says the character
 	// has not yet finished an answer since, and directedAt is when it went in.
 	lastDirection string
@@ -120,6 +122,16 @@ type ObserverConfig struct {
 	// RulesGap is the least time between two reminders of the rules; zero
 	// takes DefaultRulesGap.
 	RulesGap time.Duration
+	// Cast are the seats of the characters it watches where there are
+	// several, each a speaker in the transcript and an addressee of what it
+	// sends; empty is one character, SpeakerCharacter. With a cast, a marker
+	// names its seat, or BOTH, e.g. "[BACKGROUND A]", and "[SPEECH A]" has
+	// that character say something in its own words.
+	Cast []string
+	// KeepNudging never stands down for a silent player: the characters
+	// carry the conversation themselves, so a player who only listens is
+	// still there.
+	KeepNudging bool
 }
 
 // The observer's defaults.
@@ -150,6 +162,10 @@ const (
 	MarkDirection  = "[DIRECTION]"
 	MarkBackground = "[BACKGROUND]"
 	MarkRules      = "[RULES]"
+	// MarkSpeech has a character of a cast say something in its own words.
+	MarkSpeech = "[SPEECH]"
+	// SeatAll addresses every character of a cast.
+	SeatAll = "BOTH"
 )
 
 // The kinds of entry on an observer's log.
@@ -171,6 +187,8 @@ const (
 	EntryAbsent = "absent"
 	// EntryRules is the rules sent to the character as its own knowledge.
 	EntryRules = "rules"
+	// EntrySpeech is a line a character of a cast was given to say.
+	EntrySpeech = "speech"
 )
 
 // ObserverEntry is one thing on an observer's log.
@@ -347,7 +365,7 @@ func (b *Observer) State() ObserverState {
 		QuietMs:        b.cfg.Quiet.Milliseconds(),
 		Pool:           len(b.pool),
 		Pending:        len(b.pending),
-		CharacterAgoMs: ago(b.lastSaid[SpeakerCharacter]),
+		CharacterAgoMs: ago(b.characterSaidLocked()),
 		PlayerAgoMs:    ago(b.lastSaid[SpeakerPlayer]),
 		QuietForMs:     ago(b.lastAny),
 		InARow:         b.inARow,
@@ -489,7 +507,7 @@ func (b *Observer) collect(f ports.Fragment) {
 // absentLocked says the player has said nothing for Absent, since their last
 // words or, if none in this conversation, since it opened. The caller holds mu.
 func (b *Observer) absentLocked(now time.Time) bool {
-	if !b.open || b.openedAt.IsZero() {
+	if b.cfg.KeepNudging || !b.open || b.openedAt.IsZero() {
 		return false
 	}
 	since := b.openedAt
@@ -593,6 +611,14 @@ func (b *Observer) silenceLocked(now time.Time) string {
 		}
 		return fmt.Sprintf("%.0f s ago", now.Sub(t).Seconds())
 	}
+	if len(b.cfg.Cast) > 0 {
+		var each []string
+		for _, seat := range b.cfg.Cast {
+			each = append(each, seat+" last spoke "+ago(seat))
+		}
+		each = append(each, "the player "+ago(SpeakerPlayer))
+		return fmt.Sprintf("Nobody has spoken for %.0f s. %s.", now.Sub(b.lastAny).Seconds(), strings.Join(each, ", "))
+	}
 	return fmt.Sprintf("Nobody has spoken for %.0f s. The character last spoke %s, the player %s.",
 		now.Sub(b.lastAny).Seconds(), ago(SpeakerCharacter), ago(SpeakerPlayer))
 }
@@ -675,7 +701,10 @@ func render(e ObserverEntry) string {
 		return fmt.Sprintf("%s [injected by the player, %s] %s\n", clock, e.Speaker, e.Text)
 	case EntryThought:
 		return fmt.Sprintf("%s [you] %s\n", clock, e.Text)
-	case EntryDirection, EntryBackground:
+	case EntryDirection, EntryBackground, EntrySpeech:
+		if e.Speaker != "" {
+			return fmt.Sprintf("%s [sent, %s to %s] %s\n", clock, e.Kind, e.Speaker, e.Text)
+		}
 		return fmt.Sprintf("%s [sent, %s] %s\n", clock, e.Kind, e.Text)
 	case EntryDropped:
 		return fmt.Sprintf("%s [not sent] %s\n", clock, e.Text)
@@ -725,12 +754,19 @@ func (b *Observer) answered(r reply) {
 				b.note(ObserverEntry{At: now, Kind: EntryDropped, Text: line}, false)
 			}
 		}
+		for _, o := range addressed(r.text, b.cfg.Cast) {
+			b.note(ObserverEntry{At: now, Kind: EntryDropped, Text: o.text}, false)
+		}
 		return
 	}
 
 	// The rules at risk come first, and in their own words.
 	if hasMark(r.text, MarkRules) {
 		b.remind(now)
+	}
+	if len(b.cfg.Cast) > 0 {
+		b.answeredCast(r.text, now)
+		return
 	}
 
 	direction, background := marked(r.text, MarkDirection), marked(r.text, MarkBackground)
@@ -767,7 +803,7 @@ func (b *Observer) answered(r reply) {
 	}
 	// Background does not request speech, so it goes in at once.
 	if background != "" {
-		b.send(EntryBackground, ports.InjectBackground, background, now)
+		b.send(EntryBackground, ports.InjectBackground, background, "", now)
 	}
 }
 
@@ -775,7 +811,7 @@ func (b *Observer) answered(r reply) {
 // the character has finished an answer since the last one.
 func (b *Observer) release(now time.Time) {
 	b.mu.Lock()
-	character, player := b.lastSaid[SpeakerCharacter], b.lastSaid[SpeakerPlayer]
+	character, player := b.characterSaidLocked(), b.lastSaid[SpeakerPlayer]
 	quiet := func(t time.Time) bool { return t.IsZero() || now.Sub(t) >= b.cfg.Pause }
 	if b.awaiting && character.After(b.directedAt) && quiet(character) {
 		b.awaiting = false
@@ -785,12 +821,130 @@ func (b *Observer) release(now time.Time) {
 		b.mu.Unlock()
 		return
 	}
-	b.held = ""
+	to := b.heldTo
+	b.held, b.heldTo = "", ""
 	b.lastDirection = direction
-	b.awaiting = true
+	// A cast has no one answer to wait for: the characters answer each other.
+	b.awaiting = len(b.cfg.Cast) == 0
 	b.directedAt = now
 	b.mu.Unlock()
-	b.send(EntryDirection, ports.InjectDirection, direction, now)
+	b.send(EntryDirection, ports.InjectDirection, direction, to, now)
+}
+
+// characterSaidLocked is when a character last spoke: the one, or the
+// latest of a cast. The caller holds mu.
+func (b *Observer) characterSaidLocked() time.Time {
+	if len(b.cfg.Cast) == 0 {
+		return b.lastSaid[SpeakerCharacter]
+	}
+	var latest time.Time
+	for _, seat := range b.cfg.Cast {
+		if t := b.lastSaid[seat]; t.After(latest) {
+			latest = t
+		}
+	}
+	return latest
+}
+
+// order is one marked line of a reply to a cast: what kind, for which seat
+// (empty: all), and the text.
+type order struct {
+	kind ports.InjectionKind
+	to   string
+	text string
+}
+
+// addressed reads the marked lines of a reply to a cast, "[KIND SEAT] text",
+// in order; a line naming no seat, or BOTH, is for all, and one naming a
+// seat not in the cast is skipped.
+func addressed(reply string, cast []string) []order {
+	if len(cast) == 0 {
+		return nil
+	}
+	kinds := map[string]ports.InjectionKind{
+		"DIRECTION": ports.InjectDirection, "BACKGROUND": ports.InjectBackground, "SPEECH": ports.InjectSpeech,
+	}
+	var out []order
+	for _, line := range strings.Split(reply, "\n") {
+		line = strings.TrimSpace(line)
+		if !strings.HasPrefix(line, "[") {
+			continue
+		}
+		end := strings.Index(line, "]")
+		if end < 0 {
+			continue
+		}
+		fields := strings.Fields(strings.ToUpper(line[1:end]))
+		if len(fields) == 0 {
+			continue
+		}
+		kind, ok := kinds[fields[0]]
+		if !ok {
+			continue
+		}
+		to := ""
+		if len(fields) > 1 && fields[1] != SeatAll {
+			to = fields[1]
+			if !slices.Contains(cast, to) {
+				continue
+			}
+		}
+		if text := strings.TrimSpace(line[end+1:]); text != "" {
+			out = append(out, order{kind: kind, to: to, text: text})
+		}
+	}
+	return out
+}
+
+// answeredCast puts a reply to a cast into the conversations: background at
+// once to whom it names, at most one line to say, and a direction held for a
+// pause, as rare as with one character.
+func (b *Observer) answeredCast(reply string, now time.Time) {
+	directed, spoke := false, false
+	for _, o := range addressed(reply, b.cfg.Cast) {
+		switch o.kind {
+		case ports.InjectBackground:
+			b.send(EntryBackground, ports.InjectBackground, o.text, o.to, now)
+		case ports.InjectSpeech:
+			// Two characters told to speak at once talk over each other.
+			if spoke || o.to == "" {
+				b.note(ObserverEntry{At: now, Kind: EntryDropped, Text: "only one character speaks at a time: " + o.text}, false)
+				continue
+			}
+			spoke = true
+			b.send(EntrySpeech, ports.InjectSpeech, o.text, o.to, now)
+		case ports.InjectDirection:
+			why := ""
+			b.mu.Lock()
+			switch {
+			case directed:
+				why = "one direction per reply"
+			case sameIntent(o.text, b.lastDirection) || sameIntent(o.text, b.held):
+				why = "the same as the last direction"
+			case b.inARow >= b.cfg.InARow:
+				why = "too many directions in a row"
+			default:
+				directed = true
+				b.inARow++
+				b.held, b.heldTo = o.text, o.to
+			}
+			if why != "" {
+				b.figures.Dropped++
+			}
+			b.mu.Unlock()
+			if why != "" {
+				b.note(ObserverEntry{At: now, Kind: EntryDropped, Text: why + ": " + o.text}, false)
+				continue
+			}
+			b.note(ObserverEntry{At: now, Kind: EntryHeld, Speaker: o.to, Text: o.text}, false)
+		}
+	}
+	if !directed {
+		b.mu.Lock()
+		b.inARow = 0
+		b.mu.Unlock()
+	}
+	b.release(now)
 }
 
 // playerUnfinishedLocked says the player is still mid-sentence among what
@@ -840,12 +994,12 @@ func sameIntent(a, b string) bool {
 }
 
 // send puts one of the model's injections into the conversation.
-func (b *Observer) send(entry string, kind ports.InjectionKind, text string, at time.Time) {
+func (b *Observer) send(entry string, kind ports.InjectionKind, text, to string, at time.Time) {
 	if utf8.RuneCountInString(text) > maxInjection {
 		text = string([]rune(text)[:maxInjection])
 	}
-	b.out.Send(ports.Injection{Kind: kind, Text: text})
-	b.note(ObserverEntry{At: at, Kind: entry, Text: text}, false)
+	b.out.Send(ports.Injection{Kind: kind, Text: text, To: to})
+	b.note(ObserverEntry{At: at, Kind: entry, Speaker: to, Text: text}, false)
 	b.mu.Lock()
 	if kind == ports.InjectDirection {
 		b.figures.Directions++

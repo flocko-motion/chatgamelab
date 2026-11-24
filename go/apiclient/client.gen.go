@@ -137,6 +137,7 @@ func (e GameSort) Valid() bool {
 // Defines values for Genre.
 const (
 	GenreAdventure Genre = "adventure"
+	GenreNpcDuo    Genre = "npc-duo"
 	GenreNpcLive   Genre = "npc-live"
 )
 
@@ -144,6 +145,8 @@ const (
 func (e Genre) Valid() bool {
 	switch e {
 	case GenreAdventure:
+		return true
+	case GenreNpcDuo:
 		return true
 	case GenreNpcLive:
 		return true
@@ -837,7 +840,8 @@ type CompleteRegistrationReq struct {
 
 // ConnectRequest defines model for ConnectRequest.
 type ConnectRequest struct {
-	Sdp string `json:"sdp"`
+	Sdp  string  `json:"sdp"`
+	Seat *string `json:"seat,omitempty"`
 }
 
 // ConnectResponse defines model for ConnectResponse.
@@ -2067,6 +2071,7 @@ type Topology struct {
 	Language *string        `json:"language,omitempty"`
 	Name     string         `json:"name"`
 	Nodes    []TopologyNode `json:"nodes"`
+	Seats    *[]string      `json:"seats,omitempty"`
 	Switches []string       `json:"switches"`
 	Theme    *string        `json:"theme,omitempty"`
 	Title    *string        `json:"title,omitempty"`

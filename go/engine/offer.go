@@ -476,6 +476,8 @@ func genrePrompts(g Genre) []string {
 		return slices.Sorted(maps.Keys(genre.AdventurePrompts))
 	case GenreNPCLive:
 		return slices.Sorted(maps.Keys(genre.NPCLivePrompts))
+	case GenreNPCDuo:
+		return slices.Sorted(maps.Keys(genre.NPCDuoPrompts))
 	}
 	return nil
 }

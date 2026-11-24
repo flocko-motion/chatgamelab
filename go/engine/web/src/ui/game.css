@@ -349,6 +349,25 @@ main {
 
 .scene-card:hover { transform: translateY(-2px); }
 
+/* Two characters: each card names its speaker, the two set apart like a dialogue. */
+.speaker-name {
+  margin: 0 0 0.35rem 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  color: var(--game-ai-font-color, #1a1a2e);
+}
+.scene-card.seat-a { margin-right: 2.5rem; }
+.scene-card.seat-b { margin-left: 2.5rem; }
+.scene-card.seat-b .speaker-name { text-align: right; margin: 0 0.25rem 0.35rem 0; }
+.scene-card.seat-b .game-scene { filter: hue-rotate(35deg) saturate(1.1); }
+@media (max-width: 600px) {
+  .scene-card.seat-a { margin-right: 1rem; }
+  .scene-card.seat-b { margin-left: 1rem; }
+}
+
 .game-scene {
   position: relative;
   display: flex;

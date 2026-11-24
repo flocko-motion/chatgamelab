@@ -63,7 +63,7 @@ export type InviteStatus =
 
 export type InviteSort = "role" | "organisation" | "status" | "modifiedAt";
 
-export type Genre = "adventure" | "npc-live";
+export type Genre = "adventure" | "npc-live" | "npc-duo";
 
 export type GameSort =
   | "createdAt"
@@ -197,6 +197,7 @@ export interface CompleteRegistrationReq {
 
 export interface ConnectRequest {
   sdp: string;
+  seat?: string;
 }
 
 export interface ConnectResponse {
@@ -1339,6 +1340,7 @@ export interface Topology {
   language?: string;
   name: string;
   nodes: TopologyNode[];
+  seats?: string[];
   switches: string[];
   theme?: string;
   title?: string;
