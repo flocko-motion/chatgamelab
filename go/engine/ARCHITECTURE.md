@@ -39,12 +39,14 @@ and configured by prompt into whatever role a genre needs:
 
 | Block | Mechanism | Roles |
 | --- | --- | --- |
-| **Tool call** | one single-shot text-in/text-out call | rephrase, condense, translate, observer |
+| **Tool call** | one single-shot text-in/text-out call | rephrase, condense, translate |
 | **Tool call that takes audio** | one clip of speech in, a structured result out | rephrase of a spoken action |
 | **Threaded call** | a call on a continuing conversation, spoken while narration is on | Expand, sharing Outline's thread, and narration |
 | **Threaded call with a structured result** | a threaded call whose reply is JSON of a schema | Outline: its outline, image prompt and status |
-| **Image generation** | prompt in, image out | scene illustration, portrait |
+| **Image generation** | prompt in, image out | scene illustration |
+| **Gallery image** | a picture it is given, out once; the image generation's output and gate cycle, with no call | NPC-Live's picture |
 | **Live session** | a long-lived, full-duplex speech-to-speech connection | NPC-Live's conversation |
+| **Observer** | reads a live conversation's transcript and directs it, on a continuing conversation of its own | NPC-Live's observer |
 
 A new short transformation is a prompt on an existing block, which keeps the
 library small. Player inputs are source nodes and outputs are sink blocks
@@ -85,7 +87,7 @@ set, written by hand.
 A genre's graph is **P-shaped**: an init stem that runs once, a **gate**, and
 the loop. The gate waits for the blocks wired into it to report
 working-then-ready and sends the cue that opens the game. What gates is a
-wiring decision: NPC-Live gates on its portrait and releases the player's
+wiring decision: NPC-Live gates on the game's picture and releases the player's
 voice with the gate; Adventure gates on its preparation and releases the
 player's input once the opening's prose is done.
 
@@ -110,6 +112,18 @@ connection opens, the last frames both ways and every change of phase,
 connection and notice, and keeps trying to reach the debug relay
 (`cmd/debug-relay`) on this machine, through which Claude reads a stuck
 session as it stands and runs code in the page.
+
+Every session keeps a **journal** (`ports.Journal`), the engine's own record
+of what happened: block phases and failed calls, the live conversation's
+life (invited, opened, closed with the provider's reason, how it ended),
+pages attaching and leaving, problems at level warning or error. Blocks that
+note into it get it from the graph at Start (`ports.Journaling`). Each entry
+is stored with the session, as a `journal` event beside its history, and a
+resumed session takes the journal back, so a session reported broken can be
+read back whole. The latest 2000 entries are served at `/journal` and each new
+one arrives as a `journal` event on a channel of its own, which drops rather
+than waits: a reloaded page and the debug relay both see what came before,
+and Insights shows the problems.
 
 ## Genres
 
@@ -211,14 +225,49 @@ speaks it.
 
 ### NPC-Live
 
-A portrait is generated and gates the conversation; the loop is currently a
+The game's picture from the gallery is shown and gates the conversation:
+nothing is painted, so the conversation starts at once. Beside it, a tool call
+writes the character's first words from the scenario and how the game begins;
+the gate waits for them too, and the live session says them through its speech
+input as soon as the conversation starts, after the opening instruction. An
+instruction alone waits for the model's turn, and the character is to speak
+first. Without its first words the game starts on the instruction alone. The loop is currently a
 single live session, keeping the player's voice and the reply directly
 connected.
 
-Control comes from the side: an **observer** reads the character's transcript,
-judges it against the guardrail, for sycophancy and for character, and injects a
-correction back into the live session. It needs its own thread, because a
-character softens across several exchanges.
+Control comes from the side: an **observer** reads the conversation and
+directs the character back into the live session. It fits any live pipeline.
+
+- **It reads both sides.** The live session hands it the transcript of the
+  player and the character, each fragment with the provider's timestamps.
+- **It reads in flushes.** Fragments collect in a pool. On a fixed beat, one
+  second by default, everything that arrived more than one beat ago leaves the
+  pool, sorted by the provider's timestamps, with neighbouring fragments of one
+  speaker joined into a line. While the observer is busy, lines collect; when
+  it is free, it reads all of them at once. A flush may end mid-sentence: the
+  next one carries on, and the observer can act before a sentence ends. A
+  fragment that arrives after later ones have left is sent with the next
+  flush, marked as belonging earlier, and counted.
+- **It thinks aloud and directs by prefix.** It runs on a fast model without
+  reasoning, on a thread of its own, because a character softens across
+  several exchanges. What it writes is its monologue, kept on its thread and
+  shown in insights. A line starting `[DIRECTION]` is a direction, passed to
+  the live session as an instruction; a reply holds at most one, and a limit
+  bounds directions in a row, since each one makes more speech to read.
+- **It injects three kinds**, on an edge of their own: a *direction*, an
+  instruction the character follows, which may interrupt it; *background*,
+  knowledge the character may use without saying it now; and *speech*, a line
+  the character says in its own words. On GPT-Live they are the session's
+  instructions, thinking and commentary, each up to 500 tokens.
+- **Its system message** is the genre's observer prompt, the platform's
+  guardrail and the designer's scenario, each labelled by its author.
+- **A player can inject by hand.** In insights, the observer takes text typed
+  by the player, of any of the three kinds, sent straight to the live session
+  and into the observer's pool, marked as the player's, so the observer sees
+  it. The guardrail keeps its own channel, so an injection adds to it and
+  never replaces it.
+- **Its figures** show in insights: late fragments and how late, flushes, lines
+  per flush. The beat can be changed during play on a dev server.
 
 The scenario and the guardrail reach the model through separate channels of the
 live session, so designer text and the platform's constraint stay apart.
@@ -289,13 +338,52 @@ every story and speech model has a window.
 
 The catalogue is exposed as `engine.Platforms()`, as the transport's
 `GET platforms`, and printed by `cmd/models`. Beside it, `GET genres` lists each
-genre with the toggles it needs, and `GET themes` the playback-engine's looks,
-for the game editor.
+genre with the toggles it needs and the game fields it reads, and `GET themes`
+the playback-engine's looks, for the game editor. The editor shows a genre's
+fields and no others: an Adventure reads the scenario, the game start, the
+image style, the status fields and the voice style; NPC-Live the scenario, the
+game start, the image style its cover is drawn in, and the voice style.
 
-- **`engine.CheckOffer`** asks an offer's provider whether it accepts the key,
-  with a request that costs nothing, and tells a rejected key from a provider
-  that does not answer. The platform calls it before creating a session; the
-  mock always passes.
+- **The voice style** is how a game's voice sounds, in the designer's words,
+  labelled as theirs. NPC-Live gives it to the character with the scenario;
+  an Adventure puts it in the System Message for its spoken turns, where the
+  narrator follows it.
+- **NPC-Live speaks in a voice made from it.** Its `voice` block, before the
+  gate, gives the conversation a custom GPT-Live voice made from the voice
+  style (prompt-to-voice), once per key and voice style: a voice belongs to
+  the provider account behind the key, and any game with the same voice
+  style on that key reuses it, a copy included. The platform keeps the
+  voices (an `engine.VoiceStore` on each offer); the engine asks it first,
+  claims making a missing one so a second session waits rather than makes
+  another, and records it. Before it makes one it clears room: voices named
+  as ours (`cgl:`) that the store no longer knows go first, as nothing can
+  use them; then, while ours on the key are at the cap (90, under the
+  provider's 100 to an organisation), the one unused longest. A voice the
+  account's owner made elsewhere is never deleted; an account full of them
+  speaks in the built-in voice. Without a
+  voice style, a store or a voice it can make, the built-in voice speaks,
+  the voice style still in the instructions; the journal says which.
+- **Only the player's inputs are sources.** A node with no input that the
+  player does not feed, such as the gallery image or the voice, is a block
+  like any other, and is drawn as one.
+- **The game's settings are inputs, not blocks.** Every field of the game a
+  block reads, as its author set it in the editor, is declared on the graph
+  (`Graph.Setting`), whether the block gets it through a wire or with its
+  configuration; a constant text made from them (`OnceText`) counts as one.
+  Each is drawn as a gear above the block that reads it, named by its field,
+  and shows its value when picked: the player's inputs are a keyboard or a
+  microphone, the author's a gear.
+
+- **`engine.CheckOffer`** asks an offer's provider whether the key works and
+  the account behind it can pay, with the smallest call it bills: `1+1=` on
+  the lowest tier's tooling model, a fraction of a cent. It tells a rejected
+  key, an account with no credit left (`no_credit`) and a provider that does
+  not answer or is busy apart. The platform calls it before creating a
+  session, when a key is added and when its owner checks it; the mock always
+  passes.
+- **No credit is no failure that passes.** A provider's refusal for want of
+  credit (402, or a 429 naming the credit as used up) is its own error,
+  never retried, unlike a rate limit.
 
 Conversation continuity — the thread, the live conversation — is per-block
 state, keyed by the block's name. A thread several blocks share is exported
@@ -466,6 +554,15 @@ key stays on the server.
   load the state, load the history. The state is saved at launch, before it
   returns, and at checkpoints while the session runs; each history event as it
   happens. The engine ships a memory store and one that keeps nothing.
+- **A block remembers what it must** through `ports.Resumable`: the graph
+  collects each block's state as a string by its name at every checkpoint
+  and hands it back on a resume; what the string holds is the block's. Work a
+  block does once per session (a line sent, a picture shown) embeds the
+  shared `once`. A tool call that writes something once, such as the first
+  words, keeps its reply (`Keep`) and answers a resumed session from memory.
+- **The gate remembers who reported done** while it waits, so a session
+  resumed during preparation waits only for the rest; a block done before
+  says so (`Done`), which counts and shows no work.
 - **`Resume` restores a session by its ID** from the loaded state and history,
   on fresh offers. A schema version mismatch, or a block the wiring no longer
   has, refuses the resume as stale. Sessions are disposable; Games and Users
@@ -584,7 +681,30 @@ key and the provider's session id stay on the server.
 resumed on request: from a fork of the provider's stored session, or from a
 fresh session seeded with the transcript the engine kept.
 
+**A dropped conversation carries on by itself.** When the provider ends it
+unasked, such as a lost connection, the engine invites the page again at once
+and the page connects; the new conversation is seeded the same way. An
+invitation says whether it waits for the player's press (after a pause, a
+conversation that could not be opened, or several drops in a row with nothing
+said) or is answered at once. Only a close the engine asked for, or the
+model's safety filter, ends the conversation. A session resumed after the game
+had begun opens its gate at once: what it waited for may not run again.
+
 A reloading page rebuilds from the session's topology, state and history.
+
+**Every page gets its own copy of the session's events.** A session hands
+each event to every subscriber on a channel of its own, so an old tab and a
+reloaded one never take events from each other, and it never waits: an event
+nobody subscribes to is only kept in the history, and a subscriber a whole
+buffer behind is cut off, its socket closed, rather than skipped over. A page
+cut off reconnects and rebuilds. Whoever owns a thing times it out:
+
+- a page's socket on the server is pinged, and closed when a ping goes
+  unanswered, which unsubscribes it;
+- the page waits for the heartbeat the socket sends, and closes and reopens a
+  socket gone silent, or one that looks stale as the tab comes back;
+- the engine's list of sessions unloads a session no page has been open on
+  for a while, after its last checkpoint; the next request restores it.
 
 ## Frontend
 
@@ -616,7 +736,7 @@ wants to own when things render.
 
 A mock platform implements every adapter with canned, paced output, so genre and
 pipeline tests run in-process with no key or network, and it can script a
-drifting character for the observer to catch. An integration test plays a
+drifting character for an observer to direct. An integration test plays a
 session end to end with the headless playback-engine.
 
 ## Build state
@@ -625,8 +745,10 @@ session end to end with the headless playback-engine.
 
 - The block graph: typed ports, the gate, state reporting, per-genre validity
   tests.
-- NPC-Live end to end on real adapters: portrait, live session with sideband,
-  observer, idle close and resume, cost reporting.
+- NPC-Live end to end on real adapters: gallery image, live session with sideband,
+  idle close and resume, cost reporting.
+- The observer, taking the transcript and injections typed by the player,
+  of the three kinds, which it passes to the live session.
 - The HTTP transport, the standalone launcher, and the headless playback-engine with its
   insights view.
 - The mock platform.
@@ -657,11 +779,12 @@ session end to end with the headless playback-engine.
 
 ### Missing
 
-- **The observer's thread** — it judges each line on its own.
+- **The observer's own reading** — the live session's transcript of both
+  sides, the pool, the observer's thread, its directions and its figures. The
+  observer reads the character's transcript and lets it go.
 - **Re-attaching to a live conversation** after a platform restart.
 - **Locking down the browser's data channel** to the commands the playback-engine needs.
 - **A veto block**, once the spec settles whether a turn can be rejected.
 - **Delegation** — a backend model beside the live conversation, where
   outline-and-expand could run behind a voice. Fixed at session creation, and
   billed on top of the voice minutes.
-- **Observer cadence** — streamed deltas or completed replies.

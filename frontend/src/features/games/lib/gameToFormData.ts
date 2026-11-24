@@ -16,6 +16,7 @@ export function gameToFormData(
     | "systemMessageScenario"
     | "systemMessageGameStart"
     | "imageStyle"
+    | "voiceStyle"
     | "statusFields"
     | "genre"
     | "theme"
@@ -29,6 +30,7 @@ export function gameToFormData(
     systemMessageScenario: game.systemMessageScenario || undefined,
     systemMessageGameStart: game.systemMessageGameStart || undefined,
     imageStyle: game.imageStyle || undefined,
+    voiceStyle: game.voiceStyle || undefined,
     statusFields: game.statusFields || undefined,
     genre: game.genre || undefined,
     theme: game.theme || undefined,

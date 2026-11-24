@@ -266,3 +266,14 @@ func (s *ApiKeyTestSuite) TestApiKeyShareWithOrgAndCleanup() {
 	s.Len(keys.ApiKeys, 0, "should have no keys remaining")
 	s.T().Logf("All keys removed")
 }
+
+// Only the key's owner has it checked: a check is billed on the key, so
+// nobody else may run one.
+func (s *ApiKeyTestSuite) TestOnlyTheOwnerChecksAKey() {
+	alice := s.CreateUser("check-owner")
+	bob := s.CreateUser("check-other")
+	key := Must(alice.AddApiKey("mock-check-owner", "Alice's key", "openai"))
+
+	_, err := bob.CheckApiKey(key.Id.String())
+	s.NotFound(err, "a key bob cannot see is not there for him")
+}

@@ -34,6 +34,16 @@ export interface ListFilterOption<F extends string> extends ListOption<F> {
   apply?: readonly string[];
 }
 
+/**
+ * Options picked together, each a server filter, e.g. one per genre: the list
+ * keeps what matches any of them, and none picked narrows nothing.
+ */
+export interface ListMultiFilter<O extends string> {
+  /** What is picked from, e.g. "Genre": an i18n key (`ns:key` for another namespace). */
+  label: string;
+  options: readonly ListOption<O>[];
+}
+
 /** An order the list knows; with a label it is also offered in the sort menu. */
 export interface ListSortOption<S extends string> {
   by: S;
@@ -44,14 +54,16 @@ export interface ListSortOption<S extends string> {
 
 /**
  * What a list offers, in one place: its filters (one at a time, the first is
- * the default), its toggles (each on or off, combined), its orders and where
- * its query lives. A preset is declared once (module level, or memoized when
+ * the default), its toggles (each on or off, combined), its multi-filter
+ * (options picked together, met by any), its orders and where its query lives. A preset is declared once (module level, or memoized when
  * built from data), so it stays the same between renders.
  */
 export interface ListPreset<F extends string, S extends string, O extends string = never> {
   /** None: one plain list. More than one: the toolbar offers them. */
   filters?: readonly ListFilterOption<F>[];
   toggles?: readonly ListOption<O>[];
+  /** Options picked together (e.g. genres), beside the filters and toggles. */
+  multiFilter?: ListMultiFilter<O>;
   sorts: readonly ListSortOption<S>[];
   defaultSort: { by: S; dir: SortDir };
   /** Server filters always asked for, whatever the user picks. */

@@ -12,6 +12,7 @@ export { queryKeys } from "../queryKeys";
 export {
   useApiKeys,
   useCreateApiKey,
+  useCheckApiKey,
   useDeleteApiKey,
   useSetDefaultApiKey,
   useInstitutionApiKeys,
@@ -52,6 +53,7 @@ export {
   fetchGame,
   gameCoverUrl,
   type GameListFilter,
+  genreFilter,
   type GameListSort,
   type GameListParams,
 } from "./useGames";

@@ -33,6 +33,7 @@ type GameChanges struct {
 	Scenario     *string
 	GameStart    *string
 	ImageStyle   *string
+	VoiceStyle   *string
 	CSS          *string
 	StatusFields *string
 	FirstMessage *string // "": none
@@ -85,6 +86,7 @@ func UpdateGame(ctx context.Context, id uuid.UUID, ch GameChanges) (*GameCard, e
 		Scenario:     next.scenario,
 		GameStart:    next.gameStart,
 		ImageStyle:   next.imageStyle,
+		VoiceStyle:   next.voiceStyle,
 		Css:          next.css,
 		StatusFields: next.statusFields,
 		FirstMessage: sqlString(next.firstMessage),
@@ -131,6 +133,7 @@ func (ch GameChanges) applyContent(row *gameRow) bool {
 	set(&row.scenario, ch.Scenario, &changed)
 	set(&row.gameStart, ch.GameStart, &changed)
 	set(&row.imageStyle, ch.ImageStyle, &changed)
+	set(&row.voiceStyle, ch.VoiceStyle, &changed)
 	set(&row.css, ch.CSS, &changed)
 	set(&row.statusFields, ch.StatusFields, &changed)
 	setOptional(&row.firstMessage, ch.FirstMessage, &changed)

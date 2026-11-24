@@ -227,6 +227,35 @@ func ownKey(ctx context.Context, id uuid.UUID) (*KeyShareCard, error) {
 	return share, nil
 }
 
+// CheckKey asks the provider of the key behind share id whether it works and
+// the account behind it can pay, with the engine's smallest billed call, and
+// records the outcome on the key, for its owner: {Manage, ApiKey, Own}. It
+// answers the share as the check left it: its last usage says whether the key
+// works, and why not. A provider that does not answer says nothing about the
+// key: nothing is recorded, and the refusal is the answer (503, ai_error).
+func CheckKey(ctx context.Context, id uuid.UUID) (*KeyShareCard, error) {
+	share, err := ownKey(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	offer, ok := OfferFor(Payer{
+		ShareID:  &share.ID,
+		KeyID:    share.Key.ID,
+		KeyName:  share.Key.Name,
+		Platform: share.Key.Platform,
+		Tier:     string(engine.TierLow),
+		Source:   obj.ApiKeyTypePersonal,
+		chosen:   true,
+	})
+	if !ok {
+		return nil, badRequest(obj.ErrCodeInvalidPlatform, "the engine does not run platform %s", share.Key.Platform)
+	}
+	if err := CheckLive(ctx, offer); errors.Is(err, engine.ErrUnreachable) {
+		return nil, schemafapi.Error(schemafapi.ErrUnavailable, obj.ErrCodeAiError, err.Error())
+	}
+	return ReadKeyShare(ctx, id)
+}
+
 // RenameKey renames the key behind share id, for its owner.
 func RenameKey(ctx context.Context, id uuid.UUID, name string) (*KeyShareCard, error) {
 	share, err := ownKey(ctx, id)

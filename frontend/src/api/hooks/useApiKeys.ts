@@ -52,6 +52,23 @@ export function useCreateApiKey() {
 }
 
 
+/**
+ * Has a key checked with its provider: the smallest billed call, which finds
+ * a rejected key and an account with no credit alike. The key's status is
+ * the check's outcome; a provider that does not answer records nothing.
+ */
+export function useCheckApiKey() {
+  const queryClient = useQueryClient();
+
+  return useMutation<KeyShareView, ApiError, { id: string }>({
+    mutationFn: ({ id }) =>
+      api.postApiApikeysIdCheck(id).then((response) => response.data),
+    // Returned, so the check is done once the lists show its outcome.
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys }),
+    onError: handleApiError,
+  });
+}
+
 export function useDeleteApiKey() {
   const queryClient = useQueryClient();
 

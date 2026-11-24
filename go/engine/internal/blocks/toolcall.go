@@ -3,6 +3,7 @@ package blocks
 import (
 	"context"
 	"errors"
+	"sync"
 	"time"
 
 	"engine/internal/adapters"
@@ -24,6 +25,16 @@ type ToolCall struct {
 	// Backoff is the wait before each retry of a failure that may pass, so a
 	// call is made len(Backoff)+1 times at most. Set before Start.
 	Backoff []time.Duration
+
+	// Keep makes it answer once and remember: its reply survives a restart,
+	// and a resumed session gets it again from memory, without a call, as a
+	// game's first words are written once. Off, a resumed call answers only
+	// what it is sent anew. Set before Start.
+	Keep bool
+
+	// Guarded because ExportState is called while the loop runs.
+	mu   sync.Mutex
+	kept string
 
 	in    ports.TextInput
 	out   ports.TextBroadcast
@@ -64,6 +75,14 @@ func (b *ToolCall) Start(ctx context.Context) {
 
 		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 
+		// A reply kept from before a restart is given again, with the cycle a
+		// gate counts, as nothing will ask anew.
+		// Nothing runs, so it says it was done before rather than work.
+		if kept := b.keptReply(); kept != "" {
+			b.out.Send(kept)
+			b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady, Done: true})
+		}
+
 		for {
 			select {
 			case <-ctx.Done():
@@ -73,6 +92,12 @@ func (b *ToolCall) Start(ctx context.Context) {
 					return
 				}
 
+				// Asked again once it has answered, a kept call answers the
+				// same, from memory, without showing work.
+				if kept := b.keptReply(); kept != "" {
+					b.out.Send(kept)
+					continue
+				}
 				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
 				reply, err := b.query(ctx, text)
 				if ctx.Err() != nil {
@@ -82,11 +107,46 @@ func (b *ToolCall) Start(ctx context.Context) {
 					b.fail(&b.state, b.name, text, err)
 					continue
 				}
+				b.keep(reply)
 				b.out.Send(reply)
 				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 			}
 		}
 	}()
+}
+
+// keptReply is the reply kept, "" when it keeps none.
+func (b *ToolCall) keptReply() string {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.kept
+}
+
+func (b *ToolCall) keep(reply string) {
+	if !b.Keep {
+		return
+	}
+	b.mu.Lock()
+	b.kept = reply
+	b.mu.Unlock()
+}
+
+// ExportState is the reply kept, for a restart; "" when it keeps none.
+func (b *ToolCall) ExportState() string {
+	if !b.Keep {
+		return ""
+	}
+	return b.keptReply()
+}
+
+// RestoreState takes the reply kept before a restart back.
+func (b *ToolCall) RestoreState(s string) {
+	if !b.Keep {
+		return
+	}
+	b.mu.Lock()
+	b.kept = s
+	b.mu.Unlock()
 }
 
 // query asks the tool, retrying a failure that may pass after each backoff.

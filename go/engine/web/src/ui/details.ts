@@ -1,13 +1,33 @@
 /**
- * The details panel under the graph.
- *
- * It shows the whole session's figures by default and one block's when a block
- * is selected, in the same place — so reading a stage costs a click rather than
- * a dialog, and the graph stays visible while you read.
+ * Two of the tabs under the graph: the selected block or wire, and the whole
+ * session's usage. Reading a stage costs a click rather than a dialog, and the
+ * graph stays visible while you read; the usage stays current whatever is
+ * selected.
  */
-import type { EdgeDetail, NodeDetail, Sample, SessionRef, ThreadFill, UsageRecord } from "../client.js";
+import type {
+  EdgeDetail,
+  NodeDetail,
+  Sample,
+  SessionRef,
+  ThreadFill,
+  TranscriptLine,
+  UsageRecord,
+} from "../client.js";
 import type { PlaybackEngineState } from "../state.js";
-import { text as said } from "../texts.js";
+import { blockLabel, settingLabel, text as said, type TextKey } from "../texts.js";
+
+/** How a live model takes an injection; the engine lists the kinds a block takes. */
+type InjectionKind = "direction" | "background" | "speech";
+
+const INJECTION_TEXTS: Record<InjectionKind, { label: TextKey; placeholder: TextKey }> = {
+  direction: { label: "pipeline.injectDirection", placeholder: "pipeline.injectDirectionHint" },
+  background: { label: "pipeline.injectBackground", placeholder: "pipeline.injectBackgroundHint" },
+  speech: { label: "pipeline.injectSpeech", placeholder: "pipeline.injectSpeechHint" },
+};
+
+function isInjectionKind(kind: string): kind is InjectionKind {
+  return kind in INJECTION_TEXTS;
+}
 
 export class Details {
   #selected: string | null = null;
@@ -17,18 +37,28 @@ export class Details {
    * ready, so the new fill shows.
    */
   #compacting: { name: string; worked: boolean } | null = null;
+  /** The kind of injection last chosen, offered again in the next box. */
+  #injectionKind: InjectionKind = "direction";
 
   constructor(
     private readonly title: HTMLElement,
     private readonly body: HTMLElement,
+    private readonly usage: HTMLElement,
     private readonly session: SessionRef,
-  ) {}
+  ) {
+    this.#renderNothingSelected();
+  }
 
-  /** Returns to the whole session's figures. */
+  /** Lets go of the selected block or wire. */
   clear(state: PlaybackEngineState): void {
     this.#selected = null;
-    this.title.textContent = "usage";
+    this.#renderNothingSelected();
     this.#renderSession(state);
+  }
+
+  #renderNothingSelected(): void {
+    this.title.textContent = "";
+    this.body.replaceChildren(text("p", "meta", said("insights.pickBlock")));
   }
 
   /** Shows what one wire has carried. */
@@ -81,9 +111,9 @@ export class Details {
   }
 
   /**
-   * Repaints on a state change. A selected block is left alone: refetching it on
-   * every event would flicker, and its figures are a moment's snapshot rather
-   * than a live reading.
+   * Repaints the usage on a state change. A selected block is left alone:
+   * refetching it on every event would flicker, and its figures are a
+   * moment's snapshot rather than a live reading.
    */
   refresh(state: PlaybackEngineState): void {
     const compacting = this.#compacting;
@@ -95,16 +125,13 @@ export class Details {
         void this.show(compacting.name);
       }
     }
-    if (this.#selected) return;
     this.#renderSession(state);
   }
 
   #renderSession(state: PlaybackEngineState): void {
     const usage = state.usage;
     if (!usage) {
-      this.body.replaceChildren(
-        text("p", "meta", "nothing spent yet"),
-        );
+      this.usage.replaceChildren(text("p", "meta", "nothing spent yet"));
       return;
     }
 
@@ -122,10 +149,7 @@ export class Details {
     list.className = "kv";
     list.append(...rows, label, total);
 
-    this.body.replaceChildren(
-      list,
-      text("p", "meta", "Click a block to read what it did."),
-    );
+    this.usage.replaceChildren(list);
   }
 
   async #renderNode(name: string): Promise<void> {
@@ -137,7 +161,25 @@ export class Details {
       this.body.replaceChildren(text("p", "meta", `no detail for ${name}`));
       return;
     }
+    // A game setting is named by its field and the block that reads it, and
+    // shows only its value: it is no block, so it has no type or state.
+    if (detail.role === "setting") {
+      const [field = "", reader = ""] = name.split(">");
+      this.title.textContent = reader
+        ? `${settingLabel(field, name)} → ${blockLabel(reader)}`
+        : blockLabel(name);
+      const value = detail.outputs?.[0]?.value ?? "";
+      this.body.replaceChildren(text("p", "sample-value", value || said("insights.settingEmpty")));
+      return;
+    }
     const parts: HTMLElement[] = [facts(detail)];
+    // A block that takes injections, such as an observer, takes them here,
+    // so a player can try how the conversation it watches reacts.
+    if (detail.injectable) parts.push(this.#injectionBox(name, detail.injections ?? []));
+
+    // A block holding a conversation shows it whole: its outputs are a window
+    // of the last few pieces, which audio alone fills.
+    if (detail.transcript?.length) parts.push(transcript(detail.transcript));
 
     // A sink has no outputs and a source has no inputs, so neither is assumed.
     if (detail.outputs?.length) parts.push(samples("last outputs", detail.outputs));
@@ -147,6 +189,83 @@ export class Details {
     if (detail.thread) parts.push(this.#compactButton(name));
 
     this.body.replaceChildren(...parts);
+  }
+
+  #injectionBox(name: string, kinds: string[]): HTMLElement {
+    const form = document.createElement("form");
+    form.className = "injection";
+
+    const title = text("span", "injection-title", said("pipeline.injection"));
+
+    // The kind decides how the model takes the text, so it is chosen first and
+    // kept for the next one: trying the same kind again is the common case.
+    const known = kinds.filter(isInjectionKind);
+    if (!known.includes(this.#injectionKind)) this.#injectionKind = known[0] ?? "direction";
+    const switcher = document.createElement("div");
+    switcher.className = "injection-kinds";
+    switcher.setAttribute("role", "radiogroup");
+    switcher.setAttribute("aria-label", said("pipeline.injection"));
+
+    const box = document.createElement("textarea");
+    box.rows = 3;
+    box.setAttribute("aria-label", said("pipeline.injection"));
+
+    const choose = (kind: InjectionKind): void => {
+      this.#injectionKind = kind;
+      for (const option of switcher.querySelectorAll<HTMLButtonElement>("button")) {
+        option.setAttribute("aria-checked", String(option.value === kind));
+      }
+      box.placeholder = said(INJECTION_TEXTS[kind].placeholder);
+    };
+    for (const kind of known) {
+      const option = document.createElement("button");
+      option.type = "button";
+      option.value = kind;
+      option.setAttribute("role", "radio");
+      option.textContent = said(INJECTION_TEXTS[kind].label);
+      option.addEventListener("click", () => choose(kind));
+      switcher.append(option);
+    }
+    choose(this.#injectionKind);
+
+    const send = document.createElement("button");
+    send.type = "submit";
+    send.className = "injection-send";
+    send.textContent = said("pipeline.injectionSend");
+    const status = text("p", "meta", "");
+
+    form.append(title, switcher, box, send, status);
+
+    // Enter sends, Shift+Enter starts a new line.
+    box.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+        event.preventDefault();
+        form.requestSubmit();
+      }
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const injection = box.value.trim();
+      if (!injection) return;
+      send.disabled = true;
+      status.textContent = said("pipeline.injectionSending");
+      try {
+        await this.session.client.postApiEngineSessionsIdNodesNodeInject(
+          this.session.id,
+          encodeURIComponent(name),
+          { kind: this.#injectionKind, text: injection },
+        );
+        box.value = "";
+        status.textContent = said("pipeline.injectionSent");
+      } catch {
+        status.textContent = said("pipeline.injectionFailed");
+      } finally {
+        send.disabled = false;
+        box.focus();
+      }
+    });
+    return form;
   }
 
   #compactButton(name: string): HTMLElement {
@@ -185,6 +304,26 @@ function facts(detail: NodeDetail): HTMLElement {
     list.append(text("span", "k", key), text("span", "v", value));
   }
   return list;
+}
+
+/** The conversation so far, oldest first, read like a chat: newest at the bottom. */
+function transcript(lines: TranscriptLine[]): HTMLElement {
+  const section = document.createElement("section");
+  section.append(text("h4", "", "transcript"));
+  const list = document.createElement("div");
+  list.className = "transcript";
+  for (const line of lines) {
+    const row = document.createElement("div");
+    row.className = `transcript-line ${line.speaker}`;
+    row.append(text("span", "sample-kind", line.speaker), text("span", "sample-value", line.text));
+    list.append(row);
+  }
+  section.append(list);
+  // Opened at its end, where a conversation that stopped is read from.
+  requestAnimationFrame(() => {
+    list.scrollTop = list.scrollHeight;
+  });
+  return section;
 }
 
 function samples(title: string, entries: Sample[]): HTMLElement {

@@ -57,28 +57,49 @@ func (e LiveEndpoint) HandleRaw(w http.ResponseWriter, r *http.Request) error {
 	defer conn.CloseNow()
 	conn.SetReadLimit(-1)
 
+	// Every page attaching and leaving is noted: a reload shows as a pair.
+	client := r.RemoteAddr
+	s.Note(engine.JournalClient, "attached", "a page's socket from "+client)
+	defer func() { s.Note(engine.JournalClient, "detached", "the socket from "+client) }()
+
 	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
 
-	// Outbound: the session's event stream, framed for the browser.
+	// This page's own copy of the session's events, ended with the socket.
+	events, unsubscribe := s.Subscribe()
+	defer unsubscribe()
+
+	// A page that vanished without closing answers no ping, and its socket
+	// is closed; it unsubscribes on the way out.
+	go keepAlive(ctx, conn, cancel)
+
+	// Outbound: the session's event stream, framed for the browser, and a
+	// heartbeat the page listens for, as it cannot see the pings.
 	go func() {
+		// Ended either way, so the page reconnects and rebuilds when its
+		// subscription was cut off for falling behind.
+		defer cancel()
+		beat := time.NewTicker(HeartbeatEvery)
+		defer beat.Stop()
 		for {
 			select {
 			case <-ctx.Done():
 				return
-			case e, open := <-s.Events():
+			case <-beat.C:
+				if err := wsJSON(ctx, conn, engine.SessionEvent{Stream: engine.StreamHeartbeat}); err != nil {
+					return
+				}
+			case e, open := <-events:
 				if !open {
 					return
 				}
 				switch e.Stream {
 				case "audio":
 					if err := conn.Write(ctx, websocket.MessageBinary, []byte(e.Value)); err != nil {
-						cancel()
 						return
 					}
 				default:
 					if err := wsJSON(ctx, conn, e); err != nil {
-						cancel()
 						return
 					}
 				}
@@ -147,4 +168,33 @@ func wsJSON(ctx context.Context, conn *websocket.Conn, e engine.SessionEvent) er
 // LiveInput is a text frame on the live WebSocket: typed input.
 type LiveInput struct {
 	Text string `json:"text"`
+}
+
+// How a page's socket is kept honest: a ping every PingEvery, answered within
+// PingTimeout or the socket is closed; and a heartbeat event every
+// HeartbeatEvery, which the page waits for, as a browser cannot see pings.
+const (
+	PingEvery      = 20 * time.Second
+	PingTimeout    = 10 * time.Second
+	HeartbeatEvery = 20 * time.Second
+)
+
+// keepAlive pings the page until the socket ends; an unanswered ping ends it.
+func keepAlive(ctx context.Context, conn *websocket.Conn, end context.CancelFunc) {
+	tick := time.NewTicker(PingEvery)
+	defer tick.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-tick.C:
+			pingCtx, cancel := context.WithTimeout(ctx, PingTimeout)
+			err := conn.Ping(pingCtx)
+			cancel()
+			if err != nil {
+				end()
+				return
+			}
+		}
+	}
 }

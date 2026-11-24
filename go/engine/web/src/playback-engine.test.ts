@@ -168,3 +168,73 @@ test("a block reported ready without having run adds nothing", () => {
 
   assert.deepEqual(playback.state.runs, []);
 });
+
+test("journal events gather in the journal, not among the notes", () => {
+  const transport = new FakeTransport();
+  const playback = new PlaybackEngine(transport, undefined, new RecordingSpeaker());
+  playback.connect();
+
+  const entry = {
+    time: "2026-11-23T21:44:49.402Z",
+    source: "live-session",
+    level: "warning",
+    kind: "closed",
+    detail: "the provider closed the conversation: remote_hangup",
+  };
+  transport.receive(JSON.stringify({ Stream: "journal", Value: JSON.stringify(entry) }));
+
+  assert.deepEqual(playback.state.journal, [entry]);
+  assert.deepEqual(playback.state.notes, []);
+});
+
+/** A voice that records what it was asked to do. */
+class RecordingVoice {
+  calls: string[] = [];
+  async connect(): Promise<void> {
+    this.calls.push("connect");
+  }
+  close(): void {
+    this.calls.push("close");
+  }
+  setSending(): void {}
+}
+
+const invitation = (reason = "") => JSON.stringify({ Stream: "connect", Value: reason });
+
+test("an invitation after the provider dropped the conversation connects again by itself", async () => {
+  const transport = new FakeTransport();
+  const voice = new RecordingVoice();
+  const playback = new PlaybackEngine(transport, voice, new RecordingSpeaker());
+  playback.connect();
+
+  transport.receive(invitation());
+  await playback.until((s) => s.voice === "live", 1000);
+  // The provider hung up; the engine invites again, without waiting for a press.
+  transport.receive(invitation());
+  await playback.until(() => voice.calls.length === 3, 1000);
+
+  assert.deepEqual(voice.calls, ["connect", "close", "connect"], "the dead connection is replaced");
+  assert.equal(playback.state.paused, false);
+});
+
+test("an invitation that waits for the press does not connect", () => {
+  const transport = new FakeTransport();
+  const voice = new RecordingVoice();
+  const playback = new PlaybackEngine(transport, voice, new RecordingSpeaker());
+  playback.connect();
+
+  transport.receive(invitation("press"));
+
+  assert.deepEqual(voice.calls, []);
+  assert.equal(playback.state.paused, true, "the player is offered the press");
+  assert.equal(playback.state.invited, true);
+});
+
+test("a toggle is worth offering only where it switches a block of the wiring", async () => {
+  const { switches } = await import("./state.js");
+  const playback = new PlaybackEngine(new FakeTransport(), undefined, new RecordingSpeaker());
+  assert.equal(switches(playback.state, "images"), false, "no wiring yet, nothing to switch");
+  playback.state.topology = { switches: ["images"] } as unknown as typeof playback.state.topology;
+  assert.equal(switches(playback.state, "images"), true);
+  assert.equal(switches(playback.state, "audio-out"), false);
+});

@@ -433,8 +433,8 @@ func keyShareGates(ctx context.Context) db.V2KeySharesParams {
 	}
 }
 
-// mayManageKey says whether the caller may rename their key, make it their
-// default or delete it: {Manage, ApiKey, Own}, for a key they own.
+// mayManageKey says whether the caller may rename their key, check it, make
+// it their default or delete it: {Manage, ApiKey, Own}, for a key they own.
 func mayManageKey(ctx context.Context, owner uuid.UUID) bool {
 	return granted(ctx, rules.Manage, rules.ApiKey, rules.Own) && account(ctx).Valid && account(ctx).UUID == owner
 }

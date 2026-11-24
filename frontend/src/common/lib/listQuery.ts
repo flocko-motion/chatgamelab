@@ -14,6 +14,8 @@ export interface ListQuery<
   filter: F;
   /** Toggles that each narrow the list on top of the filter, e.g. favorites. */
   only: O[];
+  /** The multi-filter's options picked, e.g. genres: a match meets any of them. */
+  picked: O[];
   search: string;
   sortBy: S;
   sortDir: SortDir;
@@ -51,6 +53,8 @@ export interface ListSearch {
   filter?: string;
   /** The toggles that are on, comma-separated. */
   only?: string;
+  /** The multi-filter's options picked, comma-separated. */
+  pick?: string;
   q?: string;
   sort?: string;
   dir?: SortDir;
@@ -73,6 +77,7 @@ export function validateListSearch(search: Record<string, unknown>): ListSearch 
   return {
     filter: text(search.filter),
     only: text(search.only),
+    pick: text(search.pick),
     q: text(search.q),
     sort: text(search.sort),
     dir: search.dir === "asc" || search.dir === "desc" ? search.dir : undefined,

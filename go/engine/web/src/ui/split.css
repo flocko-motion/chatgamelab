@@ -19,6 +19,26 @@
   background-color: var(--gray-4);
 }
 
+/* The handle between the pipeline and the details. It sits in the gap between
+   the two cards, so the gap itself is what a pointer aims at. */
+#insights-split {
+  flex: none;
+  cursor: row-resize;
+  background: var(--gray-2);
+  height: 1px;
+  /* The column's gap is 1rem on either side; the negative margins take both
+     back, so the cards keep their distance and the whole gap is the hit area. */
+  margin-block: -1rem;
+  border-block: 0.5rem solid transparent;
+  background-clip: content-box;
+  touch-action: none;
+}
+
+#insights-split:hover,
+#insights-split[data-dragging] {
+  background-color: var(--gray-4);
+}
+
 /* While dragging, the pointer owns the page: a text selection started mid-drag
    would leave the feed highlighted, and an iframe or canvas would swallow the
    moves that are meant to be resizing the column. */
@@ -26,6 +46,7 @@ body[data-dragging] {
   user-select: none;
   cursor: col-resize;
 }
+body[data-dragging="y"] { cursor: row-resize; }
 
 /* Stacked on a phone, where there are no columns to divide. */
 @media (max-width: 47.99rem) {

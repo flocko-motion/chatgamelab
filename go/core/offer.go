@@ -50,6 +50,8 @@ func OfferFor(p Payer) (PayerOffer, bool) {
 			Platform: platform,
 			ID:       id,
 			Keys:     p.Secret,
+			// The voices made on this key, reused by every game with the same voice style.
+			Voices: VoicesFor(p),
 			Caveats: engine.Caveats{
 				Allow:   map[engine.Tier]engine.Toggles{tier: toggles},
 				Default: engine.Choice{Tier: tier, Toggles: toggles},

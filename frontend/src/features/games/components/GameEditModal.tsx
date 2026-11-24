@@ -31,6 +31,7 @@ import { useGame, useGameSessionMap, useGameTemplate, useGenres, useThemes, useU
 import type { CreateGameReq, GameTemplate, GameView } from "@/api/types";
 import { Label } from "@components/typography";
 import { StatusFieldsEditor } from "./StatusFieldsEditor";
+import { useGenreFields } from "../hooks/useGenreFields";
 import { SharingSection } from "./GameSharingSection";
 import { GameCoverSection } from "./GameCoverSection";
 import { useDrawCoverOnSave } from "../hooks";
@@ -46,6 +47,7 @@ interface FormValues {
   systemMessageScenario: string;
   systemMessageGameStart: string;
   imageStyle: string;
+  voiceStyle: string;
   statusFields: string;
   genre: string;
   theme: string;
@@ -60,6 +62,7 @@ function formFields(v: FormValues): GameFormFields {
     systemMessageScenario: v.systemMessageScenario,
     systemMessageGameStart: v.systemMessageGameStart,
     imageStyle: v.imageStyle,
+    voiceStyle: v.voiceStyle,
     statusFields: v.statusFields,
     genre: v.genre,
     theme: v.theme,
@@ -75,6 +78,7 @@ function templateFormValues(t: GameTemplate): FormValues {
     systemMessageScenario: t.systemMessageScenario ?? "",
     systemMessageGameStart: t.systemMessageGameStart ?? "",
     imageStyle: t.imageStyle ?? "",
+    voiceStyle: t.voiceStyle ?? "",
     statusFields: t.statusFields ?? "",
     genre: t.genre || DEFAULT_GENRE,
     theme: t.theme ?? "",
@@ -115,6 +119,11 @@ interface GameEditModalProps {
   workshopId?: string;
   /** Whether the current user owns this game (used to show admin action warning) */
   isOwner?: boolean;
+  /**
+   * The form holds someone else's game, opened to edit: saving makes it the
+   * caller's own game, and the original stays as it is.
+   */
+  saveAsOwn?: boolean;
 }
 
 export function GameEditModal({
@@ -130,6 +139,7 @@ export function GameEditModal({
   showShareSection = false,
   workshopId,
   isOwner = true,
+  saveAsOwn = false,
 }: GameEditModalProps) {
   const { t } = useTranslation("common");
   const isMobile = useMediaQuery("(max-width: 48em)");
@@ -175,8 +185,11 @@ export function GameEditModal({
   const [systemMessageScenario, setSystemMessageScenario] = useState("");
   const [systemMessageGameStart, setSystemMessageGameStart] = useState("");
   const [imageStyle, setImageStyle] = useState("");
+  const [voiceStyle, setVoiceStyle] = useState("");
   const [statusFields, setStatusFields] = useState("");
   const [genre, setGenre] = useState(DEFAULT_GENRE);
+  // The engine says which game fields the genre reads; the form shows those.
+  const shows = useGenreFields(genre);
   const [theme, setTheme] = useState("");
 
   // Validation
@@ -197,6 +210,7 @@ export function GameEditModal({
       systemMessageScenario !== initialValues.current.systemMessageScenario ||
       systemMessageGameStart !== initialValues.current.systemMessageGameStart ||
       imageStyle !== initialValues.current.imageStyle ||
+      voiceStyle !== initialValues.current.voiceStyle ||
       statusFields !== initialValues.current.statusFields ||
       genre !== initialValues.current.genre ||
       theme !== initialValues.current.theme
@@ -208,6 +222,7 @@ export function GameEditModal({
     systemMessageScenario,
     systemMessageGameStart,
     imageStyle,
+    voiceStyle,
     statusFields,
     genre,
     theme,
@@ -228,6 +243,7 @@ export function GameEditModal({
         systemMessageScenario: game.systemMessageScenario ?? "",
         systemMessageGameStart: game.systemMessageGameStart ?? "",
         imageStyle: game.imageStyle ?? "",
+        voiceStyle: game.voiceStyle ?? "",
         statusFields: game.statusFields ?? "",
         genre: game.genre || DEFAULT_GENRE,
         theme: game.theme ?? "",
@@ -239,6 +255,7 @@ export function GameEditModal({
       setSystemMessageScenario(values.systemMessageScenario);
       setSystemMessageGameStart(values.systemMessageGameStart);
       setImageStyle(values.imageStyle);
+      setVoiceStyle(values.voiceStyle);
       setStatusFields(values.statusFields);
       setGenre(values.genre);
       setTheme(values.theme);
@@ -255,6 +272,7 @@ export function GameEditModal({
         systemMessageScenario: initialData?.systemMessageScenario ?? base.systemMessageScenario,
         systemMessageGameStart: initialData?.systemMessageGameStart ?? base.systemMessageGameStart,
         imageStyle: initialData?.imageStyle ?? base.imageStyle,
+        voiceStyle: initialData?.voiceStyle ?? base.voiceStyle,
         statusFields: initialData?.statusFields ?? base.statusFields,
         genre: initialData?.genre || base.genre,
         theme: initialData?.theme ?? base.theme,
@@ -266,6 +284,7 @@ export function GameEditModal({
       setSystemMessageScenario(values.systemMessageScenario);
       setSystemMessageGameStart(values.systemMessageGameStart);
       setImageStyle(values.imageStyle);
+      setVoiceStyle(values.voiceStyle);
       setStatusFields(values.statusFields);
       setGenre(values.genre);
       setTheme(values.theme);
@@ -283,6 +302,7 @@ export function GameEditModal({
         setSystemMessageScenario("");
         setSystemMessageGameStart("");
         setImageStyle("");
+        setVoiceStyle("");
         setStatusFields("");
         setGenre(DEFAULT_GENRE);
         setTheme("");
@@ -308,6 +328,7 @@ export function GameEditModal({
       systemMessageScenario: systemMessageScenario.trim(),
       systemMessageGameStart: systemMessageGameStart.trim(),
       imageStyle: imageStyle.trim(),
+      voiceStyle: voiceStyle.trim(),
       statusFields: statusFields.trim(),
       genre,
       theme,
@@ -390,6 +411,13 @@ export function GameEditModal({
             </Alert>
           )}
 
+          {/* Someone else's game, saved as the caller's own */}
+          {saveAsOwn && (
+            <Alert icon={<IconAlertCircle size={16} />} color="blue" variant="light">
+              {t("games.editModal.othersGameNotice")}
+            </Alert>
+          )}
+
           {/* Read-only notice */}
           {readOnly && (
             <Alert
@@ -462,16 +490,33 @@ export function GameEditModal({
             readOnly={!rights.content}
           />
 
-          {/* Image Style */}
-          <TextInput
-            label={t("games.editFields.imageStyle")}
-            description={t("games.editFields.imageStyleHint")}
-            value={imageStyle}
-            onChange={(e) => setImageStyle(e.target.value)}
-            placeholder="e.g., pixel art, watercolor, realistic..."
-            required
-            readOnly={!rights.content}
-          />
+          {/* Image Style: for a genre that paints pictures */}
+          {shows("imageStyle") && (
+            <TextInput
+              label={t("games.editFields.imageStyle")}
+              description={t("games.editFields.imageStyleHint")}
+              value={imageStyle}
+              onChange={(e) => setImageStyle(e.target.value)}
+              placeholder="e.g., pixel art, watercolor, realistic..."
+              required
+              readOnly={!rights.content}
+            />
+          )}
+
+          {/* Voice Style: for a genre that speaks */}
+          {shows("voiceStyle") && (
+            <Textarea
+              label={t("games.editFields.voiceStyle")}
+              description={t("games.editFields.voiceStyleHint")}
+              placeholder={t("games.editFields.voiceStylePlaceholder")}
+              value={voiceStyle}
+              onChange={(e) => setVoiceStyle(e.target.value)}
+              minRows={2}
+              autosize
+              maxRows={5}
+              readOnly={!rights.content}
+            />
+          )}
 
           {/* Cover */}
           <Stack gap="xs">
@@ -482,12 +527,14 @@ export function GameEditModal({
             />
           </Stack>
 
-          {/* Status Fields */}
-          <StatusFieldsEditor
-            value={statusFields}
-            onChange={setStatusFields}
-            readOnly={!rights.content}
-          />
+          {/* Status Fields: for a genre that tracks status */}
+          {shows("statusFields") && (
+            <StatusFieldsEditor
+              value={statusFields}
+              onChange={setStatusFields}
+              readOnly={!rights.content}
+            />
+          )}
 
           <ThemeSelect value={theme} onChange={setTheme} readOnly={!rights.card} />
 
@@ -528,9 +575,9 @@ export function GameEditModal({
       title={
         <Group gap="sm">
           <Text fw={600}>
-            {isCreateMode
+            {isCreateMode && !saveAsOwn
               ? t("games.createModal.title")
-              : readOnly
+              : !isCreateMode && readOnly
                 ? t("games.viewModal.title")
                 : t("games.editModal.title")}
           </Text>
@@ -603,7 +650,11 @@ export function GameEditModal({
                   {t("cancel")}
                 </CancelButton>
                 <ActionButton onClick={handleSave} loading={isSaving} size="sm">
-                  {isCreateMode ? t("games.createModal.submit") : t("save")}
+                  {saveAsOwn
+                  ? t("games.editModal.saveAsOwn")
+                  : isCreateMode
+                    ? t("games.createModal.submit")
+                    : t("save")}
                 </ActionButton>
               </>
             )}

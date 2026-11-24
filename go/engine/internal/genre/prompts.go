@@ -59,3 +59,17 @@ func sortedNames(p Prompts) []string {
 	sort.Strings(names)
 	return names
 }
+
+// voiceClause says how a voice sounds, in the designer's words, labelled as
+// theirs; empty when they said nothing. lead names what it is for.
+func voiceClause(style, lead string) string {
+	style = strings.TrimSpace(style)
+	if style == "" {
+		return ""
+	}
+	return authorLead(lead) + style
+}
+
+// authorLead introduces what the game's author wrote, labelled as theirs, so
+// the model keeps it apart from the platform's rules.
+func authorLead(lead string) string { return lead + " (set by the game author): " }

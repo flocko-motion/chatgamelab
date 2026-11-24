@@ -30,10 +30,19 @@ type GameCover struct {
 // ReadGameCover is a game's cover, if the caller may read its card: {Read, GameCard}. A game they may not read, or
 // one without a cover, is ErrNotFound.
 func ReadGameCover(ctx context.Context, id uuid.UUID) (*GameCover, error) {
-	if _, err := ReadGameCard(ctx, id); err != nil {
+	card, err := ReadGameCard(ctx, id)
+	if err != nil {
 		return nil, err
 	}
-	row, err := store.Queries().V2GameCover(ctx, id)
+	return card.Cover(ctx)
+}
+
+// Cover is the cover of a card the caller holds. Holding the card is reading
+// it, by whichever grant opened it, a share link's included, and the cover is
+// part of the card; so whoever may play a game sees its cover. A game without
+// a cover is ErrNotFound.
+func (g *GameCard) Cover(ctx context.Context) (*GameCover, error) {
+	row, err := store.Queries().V2GameCover(ctx, g.ID())
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}

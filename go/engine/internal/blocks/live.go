@@ -3,6 +3,8 @@ package blocks
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -20,6 +22,23 @@ type LiveSession struct {
 
 	mic   ports.AudioInput
 	steer ports.TextInput
+	// injected is what an observer puts into the conversation from the side.
+	injected ports.InjectionInput
+	// opening takes words for the character to say once the first
+	// conversation starts.
+	opening ports.TextInput
+	// voiceIn is the voice made for the game, by id; voice the latest, which
+	// the next conversation speaks in instead of the configured one.
+	voiceIn ports.TextInput
+	voice   string
+	// styleIn is how the voice is meant to sound, in the author's words;
+	// style the latest, which joins the next conversation's instructions
+	// after VoiceLead.
+	styleIn ports.TextInput
+	style   string
+	// VoiceLead introduces the voice style in the instructions; the genre's
+	// words. Set before Start.
+	VoiceLead string
 
 	audio ports.AudioBroadcast
 	text  ports.TextBroadcast
@@ -42,8 +61,11 @@ type LiveSession struct {
 	// restored is a conversation taken back from a stored session: it waits
 	// paused for the player, and the character does not greet again.
 	restored bool
-	// cue is the gate's opening instruction, held until the conversation starts.
-	cue      string
+	// cue is the gate's opening instruction, held until the conversation
+	// starts; guarded by mu.
+	cue string
+	// line is the opening's words to say, held the same way; guarded by mu.
+	line     string
 	active   chan struct{}
 	pauseNow chan struct{}
 
@@ -56,6 +78,16 @@ type LiveSession struct {
 	// pending is the utterance so far; boundaries are judged on whole sentences.
 	pending string
 	closer  *time.Timer
+
+	// journal is where the conversation's life is noted, for whoever debugs it.
+	journal *ports.Journal
+
+	// drops counts conversations dropped in a row with nothing said; guarded by mu.
+	drops int
+	// spoken notes whose first words of a conversation are journalled; guarded by mu.
+	spoken map[adapters.Speaker]bool
+	// notedPlayer is how far through said the player's lines are journalled; guarded by mu.
+	notedPlayer int
 }
 
 // Standings tell a reloaded page what to do, as a live connection cannot be replayed.
@@ -80,7 +112,32 @@ const (
 	endingIdle
 	// endingReplaced: a second offer arrived, from a player whose browser lost the first.
 	endingReplaced
+	// endingDropped: the provider ended the conversation without being asked,
+	// such as a lost connection; a new one carries on from the transcript.
+	endingDropped
 )
+
+// maxDrops is how many conversations in a row may drop before anything is
+// said in them; after that the conversation waits for the player's press,
+// so a provider that keeps hanging up does not bill a new start each time.
+const maxDrops = 3
+
+// InvitePress is the reason on an invitation that waits for the player's
+// press: a conversation let go, or one that could not go on by itself. An
+// invitation without it is answered by connecting at once.
+const InvitePress = "press"
+
+func (e ending) String() string {
+	switch e {
+	case endingIdle:
+		return "let go"
+	case endingReplaced:
+		return "replaced by a new offer"
+	case endingDropped:
+		return "dropped by the provider"
+	}
+	return "over, the block is finished"
+}
 
 // offer is one browser asking to connect, with channels for its answer.
 type offer struct {
@@ -110,6 +167,10 @@ func NewLiveSession(name string, live adapters.Live, cfg adapters.LiveConfig, id
 		idleAfter: idleAfter,
 		mic:       make(ports.AudioInput, 32),
 		steer:     make(ports.TextInput, 16),
+		injected:  make(ports.InjectionInput, 16),
+		opening:   make(ports.TextInput, 1),
+		voiceIn:   make(ports.TextInput, 1),
+		styleIn:   make(ports.TextInput, 1),
 		offers:    make(chan offer, 4),
 		active:    make(chan struct{}, 1),
 		pauseNow:  make(chan struct{}, 1),
@@ -117,10 +178,26 @@ func NewLiveSession(name string, live adapters.Live, cfg adapters.LiveConfig, id
 }
 
 func (b *LiveSession) NodeName() string                     { return b.name }
+func (b *LiveSession) UseJournal(j *ports.Journal)          { b.journal = j }
 func (b *LiveSession) AudioInPort() chan<- ports.AudioChunk { return b.mic }
 
-// TextInPort fans in the gate's cue and the observer's corrections.
+// TextInPort takes the gate's cue, and later instructions.
 func (b *LiveSession) TextInPort() chan<- string { return b.steer }
+
+// OpeningInPort takes words for the character to say when the first
+// conversation starts, in its own words, after the opening instruction. A
+// later line replaces one not yet said; a conversation continued after a
+// pause or a restart says none.
+func (b *LiveSession) OpeningInPort() chan<- string { return b.opening }
+
+// VoiceInPort takes the voice made for the game, by id.
+func (b *LiveSession) VoiceInPort() chan<- string { return b.voiceIn }
+
+// SecondaryTextInPort takes how the voice is meant to sound.
+func (b *LiveSession) SecondaryTextInPort() chan<- string { return b.styleIn }
+
+// InjectionInPort takes what an observer puts into the conversation.
+func (b *LiveSession) InjectionInPort() chan<- ports.Injection { return b.injected }
 
 func (b *LiveSession) AudioOutPort() <-chan ports.AudioChunk { return b.audio.Subscribe() }
 func (b *LiveSession) TextOutPort() <-chan string            { return b.text.Subscribe() }
@@ -142,6 +219,7 @@ func (b *LiveSession) StateOutPort() <-chan ports.State { return b.state.Subscri
 
 // Pause lets the conversation go now, without waiting out the idle timeout.
 func (b *LiveSession) Pause() {
+	b.journal.Note(b.name, "pause-requested", "")
 	select {
 	case b.pauseNow <- struct{}{}:
 	default:
@@ -163,8 +241,12 @@ func (b *LiveSession) Standing() string {
 
 func (b *LiveSession) stands(standing string) {
 	b.mu.Lock()
-	defer b.mu.Unlock()
+	from := b.stand
 	b.stand = standing
+	b.mu.Unlock()
+	if from != standing {
+		b.journal.Note(b.name, "standing", from+" → "+standing)
+	}
 }
 
 // awaiting preserves a paused standing, which a page treats differently from idle.
@@ -176,7 +258,7 @@ func (b *LiveSession) awaiting() {
 	}
 }
 
-// Invitations tells a client when to connect, after the portrait is on screen.
+// Invitations tells a client when to connect, once the gate has opened.
 func (b *LiveSession) Invitations() <-chan ports.State { return b.invite.Subscribe() }
 
 // Connect brokers one browser's SDP offer and blocks until it is answered.
@@ -202,7 +284,63 @@ func (b *LiveSession) Connect(ctx context.Context, sdp string) (string, error) {
 
 func (b *LiveSession) Start(ctx context.Context) {
 	b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
+	go b.holdOpening(ctx)
+	go b.holdVoice(ctx)
+	go b.holdStyle(ctx)
 	go b.run(ctx)
+}
+
+// holdVoice keeps the voice made for the game, for every conversation to come.
+func (b *LiveSession) holdVoice(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case voice, open := <-b.voiceIn:
+			if !open {
+				return
+			}
+			b.mu.Lock()
+			b.voice = voice
+			b.mu.Unlock()
+		}
+	}
+}
+
+// holdStyle keeps how the voice is meant to sound, for every conversation to come.
+func (b *LiveSession) holdStyle(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case style, open := <-b.styleIn:
+			if !open {
+				return
+			}
+			b.mu.Lock()
+			b.style = style
+			b.mu.Unlock()
+		}
+	}
+}
+
+// holdOpening keeps the latest opening line until a conversation says it.
+func (b *LiveSession) holdOpening(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case line, open := <-b.opening:
+			if !open {
+				return
+			}
+			b.mu.Lock()
+			if !b.restored {
+				b.line = line
+			}
+			b.mu.Unlock()
+		}
+	}
 }
 
 // run waits for the gate's cue before inviting a player, and creates a session
@@ -214,17 +352,23 @@ func (b *LiveSession) run(ctx context.Context) {
 	}
 	b.mu.Lock()
 	restored := b.restored
-	b.mu.Unlock()
 	if !restored {
 		b.cue = cue
 	}
+	b.mu.Unlock()
+	b.journal.Note(b.name, "cued", fmt.Sprintf("the gate opened (restored: %t)", restored))
 
 	// One conversation per iteration; waiting holds a reconnecting player's offer.
 	var waiting *offer
 	for {
 		if waiting == nil {
 			b.awaiting()
-			b.invite.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
+			invitation := ports.State{Node: b.name, Phase: ports.PhaseReady}
+			if b.Standing() == StandingPaused {
+				invitation.Reason = InvitePress
+			}
+			b.invite.Send(invitation)
+			b.journal.Note(b.name, "invited", "waiting for a browser's offer "+invitation.Reason)
 
 			select {
 			case <-ctx.Done():
@@ -233,17 +377,30 @@ func (b *LiveSession) run(ctx context.Context) {
 				waiting = &o
 			}
 		}
+		b.journal.Note(b.name, "offer", fmt.Sprintf("an offer of %d bytes", len(waiting.sdp)))
 
 		conn, err := b.open(ctx, *waiting)
 		waiting = nil
 		if err != nil {
-			return
+			// Not the end of the game: the player tries again with a press,
+			// once whatever stopped it has passed.
+			b.stands(StandingPaused)
+			b.paused.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
+			continue
 		}
 		b.stands(StandingOpen)
+		b.mu.Lock()
+		b.spoken = map[adapters.Speaker]bool{}
+		b.mu.Unlock()
 		b.converse(true)
 
-		go b.instruct(ctx, conn)
+		// The forwarding ends with its conversation, or a later one would
+		// lose instructions and injections to a conversation already closed.
+		conversation, endConversation := context.WithCancel(ctx)
+		go b.instruct(conversation, conn)
 		end, next := b.consume(ctx, conn)
+		endConversation()
+		b.journal.Note(b.name, "ended", fmt.Sprintf("conversation %s: %s", conn.ID(), end))
 		if end == endingOver {
 			b.stands(StandingIdle)
 			return
@@ -258,6 +415,20 @@ func (b *LiveSession) run(ctx context.Context) {
 			continue
 		}
 
+		if end == endingDropped {
+			b.mu.Lock()
+			b.drops++
+			drops := b.drops
+			b.mu.Unlock()
+			if drops <= maxDrops {
+				// The page connects again by itself, and the new
+				// conversation carries on from the transcript.
+				b.stands(StandingAwaiting)
+				continue
+			}
+			b.journal.Warn(b.name, "dropping", fmt.Sprintf("%d conversations dropped in a row with nothing said; waiting for the player", drops))
+		}
+
 		b.stands(StandingPaused)
 		b.paused.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 	}
@@ -269,17 +440,27 @@ func (b *LiveSession) open(ctx context.Context, waiting offer) (adapters.LiveCon
 	cfg.Offer = waiting.sdp
 	b.mu.Lock()
 	cfg.ResumeFrom = b.resumeFrom
+	if b.voice != "" {
+		cfg.Voice = b.voice
+	}
+	if strings.TrimSpace(b.style) != "" {
+		cfg.Scenario += "\n\n" + b.VoiceLead + b.style
+	}
 	b.mu.Unlock()
 	cfg.History = b.transcript()
 
+	b.journal.Note(b.name, "opening", fmt.Sprintf("resuming from %q, transcript of %d utterances", cfg.ResumeFrom, len(cfg.History)))
 	conn, err := b.live.Open(ctx, cfg)
 	if err != nil {
+		b.journal.Fail(b.name, "open-failed", err.Error())
 		waiting.fail <- err
-		b.notice("[engine] the conversation could not be opened: " + err.Error())
-		b.closeAll()
+		if !told(err) {
+			b.notice("[engine] the conversation could not be opened: " + err.Error())
+		}
 		return nil, err
 	}
 	waiting.answer <- conn.Answer()
+	b.journal.Note(b.name, "opened", "conversation "+conn.ID())
 	return conn, nil
 }
 
@@ -317,8 +498,18 @@ func (b *LiveSession) RestoreState(s string) {
 	defer b.mu.Unlock()
 	b.resumeFrom = state.From
 	b.said = state.Said
+	// What was said before is in the stored journal already.
+	b.notedPlayer = len(state.Said)
 	b.restored = true
 	b.stand = StandingPaused
+}
+
+// Conversed says a conversation had been opened or something said, as
+// restored from a stored session.
+func (b *LiveSession) Conversed() bool {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.resumeFrom != "" || len(b.said) > 0
 }
 
 func (b *LiveSession) transcript() []adapters.Utterance {
@@ -333,26 +524,87 @@ func (b *LiveSession) remember(who adapters.Speaker, text string) {
 		return
 	}
 	b.mu.Lock()
-	defer b.mu.Unlock()
 	// Fragments join up so a restored conversation reads as speech.
 	if n := len(b.said); n > 0 && b.said[n-1].Speaker == who {
 		b.said[n-1].Text += text
+		b.mu.Unlock()
 		return
 	}
 	b.said = append(b.said, adapters.Utterance{Speaker: who, Text: text})
+	b.mu.Unlock()
+	b.notePlayer(false)
+}
+
+// notePlayer writes the player's finished lines to the journal, as their words
+// go nowhere else: each once the other side speaks, and, at the end of a
+// conversation, the last one too, which a character who fell silent never
+// answered.
+func (b *LiveSession) notePlayer(ending bool) {
+	b.mu.Lock()
+	upTo := len(b.said) - 1
+	if ending {
+		upTo = len(b.said)
+	}
+	var lines []string
+	for ; b.notedPlayer < upTo; b.notedPlayer++ {
+		if u := b.said[b.notedPlayer]; u.Speaker == adapters.SpeakerPlayer {
+			lines = append(lines, u.Text)
+		}
+	}
+	b.mu.Unlock()
+	for _, line := range lines {
+		b.journal.Note(b.name, "player-said", line)
+	}
+}
+
+// TranscriptLine is one turn of the conversation, as a reader sees it.
+type TranscriptLine struct {
+	Speaker string `json:"speaker"`
+	Text    string `json:"text"`
+}
+
+// The speakers a TranscriptLine names.
+const (
+	SpeakerCharacter = "character"
+	SpeakerPlayer    = "player"
+)
+
+// Transcript is the conversation so far, both speakers, oldest first: what a
+// resume continues from, for a reader to follow.
+func (b *LiveSession) Transcript() []TranscriptLine {
+	said := b.transcript()
+	lines := make([]TranscriptLine, len(said))
+	for i, u := range said {
+		lines[i] = TranscriptLine{Speaker: SpeakerCharacter, Text: u.Text}
+		if u.Speaker == adapters.SpeakerPlayer {
+			lines[i].Speaker = SpeakerPlayer
+		}
+	}
+	return lines
 }
 
 // greet sends the opening cue on session.started; the session ignores anything
 // sent earlier. Only the first conversation gets it: later ones continue it, and
 // a character should not greet again after a reconnect.
 func (b *LiveSession) greet(ctx context.Context, conn adapters.LiveConn) {
-	if b.cue == "" {
-		return
+	b.mu.Lock()
+	line, cue := b.line, b.cue
+	b.line, b.cue = "", ""
+	b.mu.Unlock()
+	if cue != "" {
+		b.journal.Note(b.name, "cue", cue)
+		if err := conn.Instruct(ctx, cue); err != nil {
+			b.journal.Warn(b.name, "cue-rejected", err.Error())
+			b.notice("[engine] the opening cue was rejected: " + err.Error())
+		}
 	}
-	cue := b.cue
-	b.cue = ""
-	if err := conn.Instruct(ctx, cue); err != nil {
-		b.notice("[engine] the opening cue was rejected: " + err.Error())
+	// Said rather than instructed: an instruction waits for the model's turn,
+	// and the character is to speak first.
+	if line != "" {
+		b.journal.Note(b.name, "opening-line", line)
+		if err := conn.SayAloud(ctx, line); err != nil {
+			b.journal.Warn(b.name, "opening-line-rejected", err.Error())
+		}
 	}
 }
 
@@ -366,7 +618,7 @@ func (b *LiveSession) awaitCue(ctx context.Context) (string, bool) {
 	}
 }
 
-// instruct forwards the observer's corrections to the conversation.
+// instruct forwards instructions and injections to the conversation.
 func (b *LiveSession) instruct(ctx context.Context, conn adapters.LiveConn) {
 	for {
 		select {
@@ -376,11 +628,32 @@ func (b *LiveSession) instruct(ctx context.Context, conn adapters.LiveConn) {
 			if !open {
 				return
 			}
-			if err := conn.Instruct(ctx, strings.TrimPrefix(text, steerPrefix)); err != nil {
+			if err := conn.Instruct(ctx, text); err != nil {
+				b.journal.Warn(b.name, "instruction-rejected", err.Error())
 				b.notice("[engine] instruction rejected: " + err.Error())
+			}
+		case in, open := <-b.injected:
+			if !open {
+				return
+			}
+			b.journal.Note(b.name, "injected", string(in.Kind)+": "+in.Text)
+			if err := inject(ctx, conn, in); err != nil {
+				b.journal.Warn(b.name, "injection-rejected", string(in.Kind)+": "+err.Error())
+				b.notice("[engine] " + string(in.Kind) + " rejected: " + err.Error())
 			}
 		}
 	}
+}
+
+// inject puts an injection into the conversation the way its kind asks.
+func inject(ctx context.Context, conn adapters.LiveConn, in ports.Injection) error {
+	switch in.Kind {
+	case ports.InjectBackground:
+		return conn.Inform(ctx, in.Text)
+	case ports.InjectSpeech:
+		return conn.SayAloud(ctx, in.Text)
+	}
+	return conn.Instruct(ctx, in.Text)
 }
 
 // consume runs one conversation and returns why it ended, which decides what follows.
@@ -438,14 +711,17 @@ func (b *LiveSession) consume(ctx context.Context, conn adapters.LiveConn) (end 
 			}
 		case e, open := <-conn.Events():
 			if !open {
-				return endingOver, offer{}
+				return endingDropped, offer{}
 			}
 			if e.Kind == adapters.EventStarted {
-				b.greet(ctx, conn)
+				b.journal.Note(b.name, "started", "the provider started conversation "+conn.ID())
+				// Beside the loop, which must go on reading: a conversation may
+				// answer the opening with events before the call returns.
+				go b.greet(ctx, conn)
 			}
 			b.handle(e)
 			if e.Kind == adapters.EventClosed {
-				return endingOver, offer{}
+				return closing(e.CloseReason), offer{}
 			}
 		}
 	}
@@ -484,11 +760,15 @@ func (b *LiveSession) handle(e adapters.LiveEvent) {
 	case adapters.EventText:
 		// Both speakers keep it alive and are remembered, so a resume has both sides.
 		b.stir()
+		b.firstWords(e.Speaker)
 		b.remember(e.Speaker, e.Text)
 		if e.Speaker == adapters.SpeakerPlayer {
 			// The player's own words are remembered but shown to nobody.
 			return
 		}
+		b.mu.Lock()
+		b.drops = 0
+		b.mu.Unlock()
 		b.speak(true)
 		b.text.Send(e.Text)
 		b.reschedule(e.Text)
@@ -510,17 +790,26 @@ func (b *LiveSession) handle(e adapters.LiveEvent) {
 	case adapters.EventClosed:
 		b.stopCloser()
 		b.flush()
+		switch e.CloseReason {
+		case "", "close_requested":
+			b.journal.Note(b.name, "closed", "the provider closed it as asked ("+e.CloseReason+")")
+		default:
+			b.journal.Warn(b.name, "closed", "the provider closed the conversation: "+e.CloseReason)
+		}
 		if e.CloseReason == "content" {
 			// Youth protection fired inside the model; say so plainly.
 			b.notice("[engine] the conversation was ended by the model's safety filter")
 			return
 		}
-		if e.CloseReason != "" && e.CloseReason != "close_requested" {
-			b.notice("[engine] the conversation ended: " + e.CloseReason)
-		}
+		// Any other close is carried on from with a new conversation, which the
+		// journal records; the transcript stays the conversation.
 
 	case adapters.EventError:
-		b.notice("[engine] live error: " + e.Err.Error())
+		// The journal keeps it, and Insights shows it among the problems; the
+		// transcript stays the conversation. What the player must know, a
+		// key refused or no credit left, the session tells in its own words,
+		// and a lost connection is carried on from by itself.
+		b.journal.Warn(b.name, "live-error", e.Err.Error())
 	}
 }
 
@@ -571,6 +860,7 @@ func (b *LiveSession) notice(text string) {
 
 // flush closes an utterance left open when the conversation stops.
 func (b *LiveSession) flush() {
+	b.notePlayer(true)
 	b.endUtterance()
 	b.speak(false)
 }
@@ -643,4 +933,40 @@ func (b *LiveSession) closeAll() {
 	b.usage.Close()
 	b.invite.Close()
 	b.paused.Close()
+}
+
+// told says an error is one the session tells the player in its own words, a
+// key refused or no credit left, so the transcript does not repeat the
+// provider's.
+func told(err error) bool {
+	return errors.Is(err, adapters.ErrNoCredit) || errors.Is(err, adapters.ErrKeyRejected)
+}
+
+// closing says what follows a conversation the provider closed: nothing
+// after one closed as asked, or by the model's safety filter; a new one after
+// any other reason, such as a lost connection.
+func closing(reason string) ending {
+	switch reason {
+	case "", "close_requested", "content":
+		return endingOver
+	}
+	return endingDropped
+}
+
+// firstWords notes when each speaker first speaks in a conversation, so the
+// journal shows how long a greeting took to come.
+func (b *LiveSession) firstWords(who adapters.Speaker) {
+	b.mu.Lock()
+	first := b.spoken != nil && !b.spoken[who]
+	if first {
+		b.spoken[who] = true
+	}
+	b.mu.Unlock()
+	if first {
+		speaker := "the character"
+		if who == adapters.SpeakerPlayer {
+			speaker = "the player"
+		}
+		b.journal.Note(b.name, "first-words", speaker)
+	}
 }

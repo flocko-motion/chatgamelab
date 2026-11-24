@@ -401,7 +401,8 @@
         "favorites": "Favorites",
         "own": "My Games",
         "public": "Public",
-        "sponsored": "Sponsored"
+        "sponsored": "Sponsored",
+        "genre": "Genre"
       },
       "play": "Play",
       "reportGame": "Report game",
@@ -410,7 +411,13 @@
       "onlyFavorites": "Show only favorites",
       "workshop": "Workshop / Org",
       "continue": "Play",
-      "restart": "Restart"
+      "restart": "Restart",
+      "resumeChoice": {
+        "title": "Continue or start anew?",
+        "message": "You have already started \"{{game}}\". Continue where you left off, or start anew? Starting anew replaces your earlier session.",
+        "continue": "Continue",
+        "startNew": "Start anew"
+      }
     },
     "apiKeys": {
       "aboutSection": {
@@ -478,8 +485,15 @@
       },
       "status": {
         "failed": "Key is not working",
-        "unknown": "Key not yet used",
-        "working": "Key is working"
+        "unknown": "Not checked yet",
+        "working": "Key is working",
+        "checking": "Checking…",
+        "reasons": {
+          "key_rejected": "The provider refuses this key. Check that it was copied whole and is still active.",
+          "no_credit": "The account behind this key has no credit left. Top it up with the provider.",
+          "unreachable": "The provider did not answer. Check again in a moment.",
+          "no_key": "The key could not be read."
+        }
       },
       "subtitle": "Manage your API keys for AI platforms.",
       "title": "API Key Management",
@@ -498,7 +512,9 @@
       "unsupportedPlatform": {
         "badge": "not supported yet",
         "hint": "This platform is not supported yet. Its keys stay stored but are not used. You can remove them."
-      }
+      },
+      "check": "Check key",
+      "keyEndsWith": "The key ends with these characters"
     },
     "back": "Back",
     "cancel": "Cancel",
@@ -571,12 +587,18 @@
         "genreNeeds": "Needs an AI key with {{features}}.",
         "theme": "Theme",
         "themeHint": "The look the game is played in.",
-        "themeDefault": "Default look"
+        "themeDefault": "Default look",
+        "voiceStyle": "Voice style",
+        "voiceStyleHint": "How the voice sounds: the character's, or the narrator's when the story is read aloud.",
+        "voiceStylePlaceholder": "e.g., deep, slow and a little hoarse, an old man"
       },
       "editModal": {
         "adminActionTitle": "Admin action",
         "adminActionWarning": "You are editing a game you do not own. This is an administrative action and should only be used for moderation purposes.",
         "gameDesignSection": "Game Design",
+        "othersGameNotice": "This game is by someone else. You can change anything: saving makes it your own game, and the original stays as it is.",
+        "saveAsOwn": "Save as my game",
+        "savedAsOwn": "Saved as your game",
         "title": "Edit Game",
         "unsavedChanges": {
           "discard": "Discard Changes",
@@ -897,7 +919,8 @@
         "next": "Next page",
         "first": "First page",
         "last": "Last page"
-      }
+      },
+      "clearPicks": "Show all"
     },
     "loading": "Loading...",
     "logout": "Logout",
@@ -1211,6 +1234,7 @@
         "genre": "The AI key cannot run this kind of game",
         "no_plays": "No plays left",
         "key_rejected": "The AI key was refused",
+        "no_credit": "No AI credit left",
         "unreachable": "The AI provider is not answering",
         "stale": "Can no longer be played",
         "unknown": "Not available",
@@ -1549,6 +1573,7 @@
       "genre": "The available AI key cannot run this kind of game.",
       "noPlays": "This shared game has no plays left.",
       "keyRejected": "The AI provider refused this game's key, so the game cannot go on. Whoever set up the game needs to check the key.",
+      "noCredit": "Sorry, the AI credit is used up, so the game can't go on for now.",
       "unreachable": "The AI provider is not answering right now, so the game cannot go on. Try again in a few minutes.",
       "stale": "This game can no longer be continued.",
       "unknown": "This game session does not exist.",
@@ -1592,15 +1617,34 @@
       "copyFailed": "No clipboard: layout logged to the console",
       "compact": "Compact thread",
       "compacting": "Compacting…",
-      "compactFailed": "Could not compact"
+      "compactFailed": "Could not compact",
+      "injection": "Tell the character to …",
+      "injectDirection": "Do",
+      "injectDirectionHint": "What the character should do, e.g. \"Be grumpy, you don't trust the player.\"",
+      "injectBackground": "Know",
+      "injectBackgroundHint": "What the character thinks to itself, in its own words, without saying it now, e.g. \"I'm a werewolf, and I want her to find out slowly.\"",
+      "injectSpeech": "Say",
+      "injectSpeechHint": "What the character should say, in its own words, e.g. \"Halt! Who goes there?\"",
+      "injectionSend": "Send",
+      "injectionSending": "Sending…",
+      "injectionSent": "Sent to the conversation",
+      "injectionFailed": "Could not send it"
     },
     "insights": {
       "label": "Insights",
       "show": "Show Insights",
       "hide": "Hide Insights",
-      "feed": "What happened",
+      "feed": "History",
       "empty": "Nothing has run yet.",
-      "close": "Close"
+      "close": "Close",
+      "collapse": "Collapse",
+      "expand": "Expand",
+      "tabSelected": "Selected",
+      "tabUsage": "Usage",
+      "tabProblems": "Problems",
+      "pickBlock": "Click a block or a wire in the pipeline to read what it did.",
+      "noProblems": "No problems so far.",
+      "settingEmpty": "The game leaves this empty."
     },
     "relay": {
       "connecting": "Relay: not running",
@@ -1620,10 +1664,21 @@
       "image-prompt": "Describe picture",
       "image": "Draw picture",
       "props-store": "Game status",
-      "portrait-prompt": "Describe portrait",
-      "portrait": "Draw portrait",
+      "gallery-image": "Gallery image",
+      "opening-brief": "How it begins",
+      "greeting": "Generate text",
       "live-session": "Character",
-      "observer": "Observer"
+      "observer": "Observer",
+      "voice": "Generate voice"
+    },
+    "settings": {
+      "scenario": "Scenario",
+      "gameStart": "Game start",
+      "voiceStyle": "Voice style",
+      "imageStyle": "Image style",
+      "statusFields": "Status fields",
+      "description": "Description",
+      "cover": "Gallery image"
     },
     "wires": {
       "adapted-style\u003eimage-style": "request",
@@ -1644,12 +1699,17 @@
       "outline\u003eprops-store": "changes",
       "props-store\u003eoutline": "status",
       "image-prompt\u003eimage": "prompt",
-      "portrait-prompt\u003eportrait": "prompt",
-      "portrait\u003estart-game": "ready",
+      "gallery-image\u003estart-game": "ready",
+      "opening-brief\u003egreeting": "brief",
+      "greeting\u003estart-game": "ready",
+      "greeting\u003elive-session": "first words",
       "start-game\u003elive-session": "cue",
       "player-input-audio\u003elive-session": "speech",
       "live-session\u003eobserver": "transcript",
-      "observer\u003elive-session": "hint"
+      "observer\u003elive-session": "injection",
+      "voice\u003estart-game": "ready",
+      "voice\u003elive-session:voice": "voice",
+      "voice\u003elive-session:secondary": "voice style"
     }
   },
   "mail": {

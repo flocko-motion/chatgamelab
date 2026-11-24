@@ -26,8 +26,15 @@ import { useEntityList, type List, type ListParams, type ListPreset } from "../l
 
 // Games hooks
 
-/** A filter of the game list (the server's enum); several combine (AND). */
-export type GameListFilter = GameFilter;
+/**
+ * A filter of the game list: the server's enum, or one genre's
+ * (`genreFilter`). Filters combine (AND); several genres are one filter, met
+ * by a game of any of them.
+ */
+export type GameListFilter = GameFilter | `genre:${string}`;
+
+/** The filter that keeps one genre's games; several are met by any of them. */
+export const genreFilter = (genre: string): `genre:${string}` => `genre:${genre}`;
 
 /** An order of the game list (the server's enum). */
 export type GameListSort = GameSort;

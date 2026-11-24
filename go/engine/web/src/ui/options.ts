@@ -5,7 +5,7 @@
  */
 import type { Choice, OfferOption, Options, Toggles } from "../client.js";
 import { text } from "../texts.js";
-import { TOGGLE_LABELS, allows, makesPictures, type PlaybackEngineState, type ToggleName } from "../state.js";
+import { TOGGLE_LABELS, allows, switches, type PlaybackEngineState, type ToggleName } from "../state.js";
 
 export interface OptionsElements {
   form: HTMLFormElement;
@@ -29,6 +29,8 @@ export class OptionsDialog {
   #offer = "";
   #tier = "";
   #toggles: Toggles = { images: false, "audio-out": false, "audio-in": false, "audio-live": false };
+  /** The toggles worth offering: those that switch a block of this wiring. */
+  #switchable: readonly string[] = [];
 
   constructor(
     private readonly elements: OptionsElements,
@@ -55,6 +57,7 @@ export class OptionsDialog {
     this.elements.scene.style.display = open ? "none" : "";
     if (open && state.options !== this.#shown) {
       this.#shown = state.options;
+      this.#switchable = state.topology?.switches ?? [];
       this.#preselect(state.options?.offers[0]);
       this.#draw();
     }
@@ -64,11 +67,14 @@ export class OptionsDialog {
     this.#renderPictures(state);
   }
 
-  /** On while the session has pictures on; it may go back on only where the offer allows. */
+  /**
+   * On while the session has pictures on; it may go back on only where the
+   * offer allows. Shown only where a block of the wiring makes pictures.
+   */
   #renderPictures(state: PlaybackEngineState): void {
     const button = this.elements.pictures;
     const settled = state.settled;
-    button.hidden = !settled || !makesPictures(state);
+    button.hidden = !settled || !switches(state, "images");
     if (!settled) return;
     const on = settled.choice.toggles.images;
     button.setAttribute("aria-pressed", String(on));
@@ -142,7 +148,9 @@ export class OptionsDialog {
     const allowed = offer.tiers.find((tier) => tier.tier === this.#tier)?.toggles;
     const toggles = element("div", "offer-toggles");
     for (const toggle of TOGGLES) {
-      if (!allowed?.[toggle]) continue;
+      // One the wiring has no block for changes nothing, so it is not offered;
+      // it keeps the offer's default.
+      if (!allowed?.[toggle] || !this.#switchable.includes(toggle)) continue;
       const label = element("label", "offer-toggle");
       const box = input("checkbox", toggle, this.#toggles[toggle]);
       box.addEventListener("change", () => {

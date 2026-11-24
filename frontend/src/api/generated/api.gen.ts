@@ -46,6 +46,8 @@ export type MemberSort = "name" | "email" | "role";
 
 export type Medium = "text" | "audio" | "image";
 
+export type Level = "info" | "warning" | "error";
+
 export type InviteStatus =
   | "pending"
   | "accepted"
@@ -71,6 +73,13 @@ export type GameFilter =
   | "public"
   | "favorites"
   | "sponsored";
+
+export type GameField =
+  | "scenario"
+  | "gameStart"
+  | "imageStyle"
+  | "voiceStyle"
+  | "statusFields";
 
 export type EventType =
   | "workshop_updated"
@@ -231,6 +240,7 @@ export interface CreateGameReq {
   systemMessageGameStart?: string;
   systemMessageScenario?: string;
   theme?: string;
+  voiceStyle?: string;
 }
 
 export interface CreateGameShareReq {
@@ -374,6 +384,7 @@ export interface Game {
   systemMessageScenario: string;
   tags: GameTag[];
   theme?: string;
+  voiceStyle: string;
   /** @format uuid */
   workshopId?: string;
 }
@@ -394,6 +405,7 @@ export interface GameFile {
   system_message_game_start: string;
   system_message_scenario: string;
   theme?: string;
+  voice_style?: string;
 }
 
 export interface GameMeta {
@@ -440,6 +452,7 @@ export interface GameTemplate {
   systemMessageGameStart?: string;
   systemMessageScenario?: string;
   theme?: string;
+  voiceStyle?: string;
 }
 
 export interface GameView {
@@ -484,6 +497,7 @@ export interface GameView {
   systemMessageGameStart?: string;
   systemMessageScenario?: string;
   theme?: string;
+  voiceStyle?: string;
   /** @format uuid */
   workshopId?: string;
 }
@@ -494,6 +508,7 @@ export interface GameViewPage {
 }
 
 export interface GenreInfo {
+  fields: GameField[];
   id: Genre;
   needs: Toggle[];
 }
@@ -536,6 +551,11 @@ export interface GuestLoginResp {
 
 export interface GuestTokenResp {
   token: string;
+}
+
+export interface InjectionRequest {
+  kind: string;
+  text: string;
 }
 
 export interface InputRequest {
@@ -616,6 +636,15 @@ export interface InviteView {
   usesCount: number;
   /** @format uuid */
   workshopId?: string;
+}
+
+export interface JournalEntry {
+  detail?: string;
+  kind: string;
+  level: Level;
+  source: string;
+  /** @format date-time */
+  time: string;
 }
 
 export interface KeyMeta {
@@ -719,12 +748,15 @@ export interface NewGuestView {
 }
 
 export interface NodeDetail {
+  injectable?: boolean;
+  injections?: string[];
   inputs: Sample[];
   name: string;
   outputs: Sample[];
   phase: string;
   role: string;
   thread?: ThreadFill;
+  transcript?: TranscriptLine[];
   type: string;
   usage?: UsageRecord;
 }
@@ -1181,6 +1213,7 @@ export interface Topology {
   language?: string;
   name: string;
   nodes: TopologyNode[];
+  switches: string[];
   theme?: string;
   title?: string;
 }
@@ -1188,13 +1221,20 @@ export interface Topology {
 export interface TopologyEdge {
   from: string;
   kind: string;
+  port?: string;
   to: string;
 }
 
 export interface TopologyNode {
+  field?: string;
   name: string;
   place?: Place;
   role: string;
+}
+
+export interface TranscriptLine {
+  speaker: string;
+  text: string;
 }
 
 export interface UpdateApiKeyReq {
@@ -1218,6 +1258,7 @@ export interface UpdateGameReq {
   systemMessageGameStart?: string;
   systemMessageScenario?: string;
   theme?: string;
+  voiceStyle?: string;
 }
 
 export interface UpdateGameShareReq {
@@ -1237,6 +1278,7 @@ export interface UpdateGameYAMLReq {
   system_message_game_start: string;
   system_message_scenario: string;
   theme?: string;
+  voice_style?: string;
 }
 
 export interface UpdateInstitutionReq {
@@ -1916,6 +1958,23 @@ export class Api<
       }),
 
     /**
+     * @description answers the share as the check left it. The check is the smallest call the provider bills, a fraction of a cent on the key: it finds a key the provider rejects (lastErrorCode key_rejected) and an account with no credit left (no_credit) alike, and records the outcome as the key's last usage. A provider that does not answer records nothing: 503 ai_error.
+     *
+     * @name PostApiApikeysIdCheck
+     * @summary Checks a key with its provider, for its owner, and
+     * @request POST:/api/apikeys/{id}/check
+     * @secure
+     */
+    postApiApikeysIdCheck: (id: string, params: RequestParams = {}) =>
+      this.request<KeyShareView, Error>({
+        path: `/api/apikeys/${id}/check`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description play with themselves.
      *
      * @name PutApiApikeysIdDefault
@@ -2396,6 +2455,23 @@ export class Api<
       }),
 
     /**
+     * @description engine saw it: phases, problems, the live conversation's life, pages attaching and leaving. Kept in memory, the latest entries only.
+     *
+     * @name GetApiEngineSessionsIdJournal
+     * @summary Answers what happened in a session so far, as the
+     * @request GET:/api/engine/sessions/{id}/journal
+     * @secure
+     */
+    getApiEngineSessionsIdJournal: (id: string, params: RequestParams = {}) =>
+      this.request<JournalEntry[], Error>({
+        path: `/api/engine/sessions/${id}/journal`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description The browser sends binary frames of microphone audio and text frames of typed input, a JSON LiveInput; it receives the session's events back, binary frames for audio and text frames of JSON SessionEvent for everything else. A rejected input comes back as an `error` event.
      *
      * @name GetApiEngineSessionsIdLive
@@ -2449,6 +2525,29 @@ export class Api<
         path: `/api/engine/sessions/${id}/nodes/${node}/compact`,
         method: "POST",
         secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description The block, such as an observer, puts it in as a direction the model follows, background it may use, or a line it says. Anyone playing the session may inject. A block that takes none is refused, and so are an unknown kind and blank text.
+     *
+     * @name PostApiEngineSessionsIdNodesNodeInject
+     * @summary Puts text into a session's live conversation through a block.
+     * @request POST:/api/engine/sessions/{id}/nodes/{node}/inject
+     * @secure
+     */
+    postApiEngineSessionsIdNodesNodeInject: (
+      id: string,
+      node: string,
+      data: InjectionRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Error>({
+        path: `/api/engine/sessions/${id}/nodes/${node}/inject`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: "application/json",
         ...params,
       }),
 

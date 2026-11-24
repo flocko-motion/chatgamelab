@@ -25,6 +25,7 @@ function queryOptionsOf<F extends string, S extends string, O extends string>(
     options = {
       filters: preset.filters?.map((f) => f.value) ?? NO_FILTERS,
       only: preset.toggles?.map((o) => o.value) ?? NO_TOGGLES,
+      picks: preset.multiFilter?.options.map((o) => o.value) ?? NO_TOGGLES,
       sorts: [...new Set(preset.sorts.map((s) => s.by))],
       defaultSort: preset.defaultSort,
       defaultPageSize: preset.defaultPageSize,

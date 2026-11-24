@@ -15,8 +15,11 @@ type GameFile struct {
 	SystemMessageScenario  string    `json:"system_message_scenario"`
 	SystemMessageGameStart string    `json:"system_message_game_start"`
 	ImageStyle             string    `json:"image_style"`
-	CSS                    string    `json:"css"`
-	StatusFields           string    `json:"status_fields"`
+	// VoiceStyle is how the game's voice sounds; a file without one leaves it
+	// to the engine.
+	VoiceStyle   string `json:"voice_style,omitempty"`
+	CSS          string `json:"css"`
+	StatusFields string `json:"status_fields"`
 	// Genre is the engine genre; a file without one is an adventure.
 	Genre string `json:"genre"`
 	// Theme names the engine theme; without one the engine's default.
@@ -32,6 +35,7 @@ func NewGameFile(game Game) GameFile {
 		SystemMessageScenario:  game.SystemMessageScenario,
 		SystemMessageGameStart: game.SystemMessageGameStart,
 		ImageStyle:             game.ImageStyle,
+		VoiceStyle:             game.VoiceStyle,
 		CSS:                    game.CSS,
 		StatusFields:           game.StatusFields,
 		Genre:                  game.Genre,

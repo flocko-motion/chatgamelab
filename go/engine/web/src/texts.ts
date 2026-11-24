@@ -32,13 +32,29 @@ export function blockLabel(name: string): string {
 }
 
 /**
+ * What a game setting is called in the pipeline view, by the field it stands
+ * for: "voiceStyle" says less than "Voice style". A setting with no field, or
+ * one without a text, is called as its block would be.
+ */
+export function settingLabel(field: string | undefined, name: string): string {
+  const own = current.settings as Partial<Record<string, string>> | undefined;
+  const english_ = english.settings as Record<string, string>;
+  return (field && (own?.[field] ?? english_[field])) || blockLabel(name);
+}
+
+/**
  * What a wire is called in the pipeline view, by the blocks it joins: "style"
  * says more than its kind "props". A wire with no text is called by its kind.
  */
-export function wireLabel(from: string, to: string, kind: string): string {
-  const key = `${from}>${to}`;
+export function wireLabel(from: string, to: string, kind: string, port?: string): string {
   const own = current.wires as Partial<Record<string, string>> | undefined;
-  return own?.[key] ?? (english.wires as Record<string, string>)[key] ?? kind;
+  const english_ = english.wires as Record<string, string>;
+  // A wire named by its port, where two run between the same blocks.
+  for (const key of port ? [`${from}>${to}:${port}`, `${from}>${to}`] : [`${from}>${to}`]) {
+    const found = own?.[key] ?? english_[key];
+    if (found) return found;
+  }
+  return kind;
 }
 
 /**

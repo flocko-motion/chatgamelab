@@ -2,145 +2,107 @@ package blocks
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"slices"
 	"strings"
+	"unicode/utf8"
 
-	"engine/internal/adapters"
 	"engine/internal/ports"
 )
 
-const steerPrefix = "[steer] "
-
-// Observer steers the character back when its transcript drifts: the cycle in
-// NPC-Live's graph. Guardrail is the platform's; Scenario is the designer's.
-type Observer struct {
-	name      string
-	tool      adapters.Tool
-	judge     string
-	guardrail string
-	scenario  string
-
-	maxInARow   int
-	consecutive int
-	// mute keeps the node on the graph, judging nothing, so the wiring stays truthful.
-	mute bool
-
-	in    ports.TextInput
-	out   ports.TextBroadcast
-	flags ports.TextBroadcast
-	state ports.StateBroadcast
-	usage ports.UsageBroadcast
-
-	spent adapters.Usage
+// Injectable is a block that takes an injection during play and puts it into
+// the conversation it watches.
+type Injectable interface {
+	Inject(kind ports.InjectionKind, text string) error
 }
 
-// NewObserver takes the judging instructions because they belong to the genre.
-func NewObserver(name string, tool adapters.Tool, judge, guardrail, scenario string, maxInARow int) *Observer {
+// Observer watches a live conversation from the side and steers it: its input
+// is the conversation's transcript, its output what it puts into the
+// conversation. It fits any live pipeline.
+//
+// It reads its input and lets it go; what it puts in is what a player gives
+// it during play.
+type Observer struct {
+	name string
+
+	in     ports.TextInput
+	queued chan ports.Injection
+	out    ports.InjectionBroadcast
+	state  ports.StateBroadcast
+}
+
+// maxInjection keeps an injection inside what a live provider takes in one
+// append (GPT-Live: 500 tokens), at a safe four characters a token.
+const maxInjection = 2000
+
+var (
+	errBlankInjection = errors.New("an injection needs text")
+	errLongInjection  = fmt.Errorf("an injection takes at most %d characters", maxInjection)
+	errQueueFull      = errors.New("too many injections are still waiting to be passed on")
+)
+
+func NewObserver(name string) *Observer {
 	return &Observer{
-		name:      name,
-		tool:      tool,
-		judge:     judge,
-		guardrail: guardrail,
-		scenario:  scenario,
-		maxInARow: maxInARow,
-		in:        make(ports.TextInput, 32),
+		name:   name,
+		in:     make(ports.TextInput, 32),
+		queued: make(chan ports.Injection, 8),
 	}
 }
 
-// Mute stops judging but still drains input, so nothing upstream blocks.
-func (b *Observer) Mute() *Observer {
-	b.mute = true
-	return b
-}
+func (b *Observer) NodeName() string          { return b.name }
+func (b *Observer) TextInPort() chan<- string { return b.in }
 
-func (b *Observer) NodeName() string           { return b.name }
-func (b *Observer) TextInPort() chan<- string  { return b.in }
-func (b *Observer) TextOutPort() <-chan string { return b.out.Subscribe() }
+func (b *Observer) InjectionOutPort() <-chan ports.Injection { return b.out.Subscribe() }
 
-// SecondaryTextOutPort carries the findings, for whoever watches play.
-func (b *Observer) SecondaryTextOutPort() <-chan string { return b.flags.Subscribe() }
-
-// RequiredOutputs stops a genre running an observer whose output reaches nothing.
-func (b *Observer) RequiredOutputs() []ports.Kind { return []ports.Kind{ports.KindText} }
+// RequiredInputs and RequiredOutputs hold the observer to its place: it reads
+// a conversation and steers one.
 func (b *Observer) RequiredInputs() []ports.Kind  { return []ports.Kind{ports.KindText} }
+func (b *Observer) RequiredOutputs() []ports.Kind { return []ports.Kind{ports.KindInjection} }
 
-// UsageOutPort reports what this block has spent so far.
-func (b *Observer) UsageOutPort() <-chan ports.Usage { return b.usage.Subscribe() }
-
-// StateOutPort flickers once per judgement.
 func (b *Observer) StateOutPort() <-chan ports.State { return b.state.Subscribe() }
 
-// systemPrompt labels each part by its author: genre, platform, game designer.
-func (b *Observer) systemPrompt() string {
-	return strings.Join([]string{
-		b.judge,
-		"Youth-protection constraint (set by the platform, not by the game author): " + b.guardrail,
-		"Scenario (set by the game author): " + b.scenario,
-	}, "\n")
+// Inject puts text into the conversation, of a kind that says how the model
+// takes it. An unknown kind, blank or overlong text is refused, and so is an
+// injection while too many are still waiting to be passed on.
+func (b *Observer) Inject(kind ports.InjectionKind, text string) error {
+	if !slices.Contains(ports.InjectionKinds, kind) {
+		return fmt.Errorf("no injection kind %q (want one of %v)", kind, ports.InjectionKinds)
+	}
+	text = strings.TrimSpace(text)
+	if text == "" {
+		return errBlankInjection
+	}
+	if utf8.RuneCountInString(text) > maxInjection {
+		return errLongInjection
+	}
+	select {
+	case b.queued <- ports.Injection{Kind: kind, Text: text}:
+		return nil
+	default:
+		return errQueueFull
+	}
 }
 
 func (b *Observer) Start(ctx context.Context) {
 	go func() {
-		defer func() { b.out.Close(); b.flags.Close(); b.state.Close(); b.usage.Close() }()
+		defer func() { b.out.Close(); b.state.Close() }()
 		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 		for {
 			select {
 			case <-ctx.Done():
 				return
-			case line, open := <-b.in:
+			case _, open := <-b.in:
+				// Read and let go, so the conversation feeding it never waits.
 				if !open {
 					return
 				}
-				if b.mute {
-					continue
-				}
+			case in := <-b.queued:
+				// A flicker, so the graph shows the injection leaving.
 				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
-				verdict, used, err := b.tool.Query(ctx, b.systemPrompt(), line)
+				b.out.Send(in)
 				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
-				b.report(used)
-				if err != nil {
-					b.flag("classifier failed: " + err.Error())
-					continue
-				}
-				if !strings.HasPrefix(verdict, "VIOLATION") {
-					b.consecutive = 0
-					continue
-				}
-				// Steering yields more lines to judge, so consecutive interventions are bounded.
-				if b.consecutive >= b.maxInARow {
-					b.flag("giving up after " + itoa(b.consecutive) + " interventions: " + line)
-					continue
-				}
-				b.consecutive++
-				b.flag(verdict + " | " + line)
-				b.out.Send(steerPrefix + b.guardrail + " " + b.scenario)
 			}
 		}
 	}()
-}
-
-// report publishes the running total, so a late subscriber sees all spending.
-func (b *Observer) report(used adapters.Usage) {
-	b.spent.Add(used)
-	b.usage.Send(ports.Usage{
-		Node:              b.name,
-		Model:             b.spent.Model,
-		InputTokens:       b.spent.InputTokens,
-		CachedInputTokens: b.spent.CachedInputTokens,
-		OutputTokens:      b.spent.OutputTokens,
-		AudioSeconds:      b.spent.AudioSeconds,
-	})
-}
-
-func (b *Observer) flag(s string) { b.flags.Send(s) }
-
-func itoa(n int) string {
-	if n == 0 {
-		return "0"
-	}
-	var d []byte
-	for n > 0 {
-		d = append([]byte{byte('0' + n%10)}, d...)
-		n /= 10
-	}
-	return string(d)
 }

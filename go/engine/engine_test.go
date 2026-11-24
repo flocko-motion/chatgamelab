@@ -5,11 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"slices"
 	"strings"
 	"testing"
 	"time"
 
 	"engine"
+	"engine/internal/adapters/mock"
 )
 
 // The public surface has to be enough on its own: launch, drive, read events.
@@ -320,16 +322,17 @@ func TestPortraitFailureDoesNotStopTheSession(t *testing.T) {
 	}
 }
 
-// The portrait arrives without anything triggering it, because preparation made
-// it before play began.
+// The portrait arrives without anything triggering it: the game's picture
+// from the gallery, shown before play begins.
 func TestPortraitArrivesWithoutBeingTriggered(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	s, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre:    engine.GenreNPCLive,
-		ID:       "portrait",
-		Scenario: "You are the keeper of a bridge.",
+		Genre:        engine.GenreNPCLive,
+		ID:           "portrait",
+		Scenario:     "You are the keeper of a bridge.",
+		GalleryImage: mock.GalleryImage("bridge"),
 	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
@@ -372,6 +375,11 @@ func TestBlocksReportTheirPhases(t *testing.T) {
 	defer s.Close()
 
 	if err := awaitConnection(ctx, s); err != nil {
+		t.Fatal(err)
+	}
+
+	// The observer works when it passes an injection on.
+	if err := s.Inject("observer", "direction", "Keep the bridge closed."); err != nil {
 		t.Fatal(err)
 	}
 
@@ -528,3 +536,108 @@ func spokenClip() []byte { return bytes.Repeat([]byte{0x00, 0x10}, 24_000) }
 
 // mockOffers is what a test runs on: the mock, with nothing to choose.
 func mockOffers() []engine.Offer { return []engine.Offer{engine.MockOffer()} }
+
+// The journal records a live conversation's life as the engine saw it, kept
+// for a page that reloads and streamed to the one that is open.
+func TestJournalRecordsTheLiveConversation(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	s, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre:    engine.GenreNPCLive,
+		Scenario: "You are the keeper of a bridge.",
+	}, mockOffers())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+
+	streamed := 0
+	deadline := time.After(10 * time.Second)
+	connected := false
+	for !connected || !journalHas(s.Journal(), "live-session", "started") {
+		select {
+		case e := <-s.Events():
+			switch e.Stream {
+			case "journal":
+				streamed++
+			case "connect":
+				if _, err := s.Connect(ctx, "v=0 mock offer"); err != nil {
+					t.Fatal(err)
+				}
+				connected = true
+			}
+		case <-deadline:
+			t.Fatalf("the journal never showed the conversation starting: %+v", s.Journal())
+		}
+	}
+
+	for _, want := range [][2]string{
+		{engine.JournalSession, "launched"},
+		{engine.JournalSession, "settled"},
+		{"live-session", "invited"},
+		{engine.JournalClient, "connect"},
+		{"live-session", "opened"},
+	} {
+		if !journalHas(s.Journal(), want[0], want[1]) {
+			t.Errorf("the journal lacks %s %s: %+v", want[0], want[1], s.Journal())
+		}
+	}
+	if streamed == 0 {
+		t.Error("no journal entry reached the event stream")
+	}
+}
+
+func journalHas(entries []engine.JournalEntry, source, kind string) bool {
+	for _, e := range entries {
+		if e.Source == source && e.Kind == kind {
+			return true
+		}
+	}
+	return false
+}
+
+// A toggle is offered only where it switches a block of the wiring: Adventure
+// makes pictures and speaks, NPC-Live shows the gallery's picture and has
+// nothing to switch.
+func TestTheTopologyNamesTheTogglesItSwitches(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	for genre, want := range map[engine.Genre][]string{
+		engine.GenreAdventure: {"audio-in", "audio-out", "images"},
+		engine.GenreNPCLive:   {},
+	} {
+		s, err := engine.Launch(ctx, engine.SessionSpec{Genre: genre, Scenario: "A bridge."}, mockOffers())
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := s.Topology().Switches; !slices.Equal(got, want) {
+			t.Errorf("%s switches %v, want %v", genre, got, want)
+		}
+		s.Close()
+	}
+}
+
+// A conversation's block shows it whole in its details, both speakers.
+func TestTheLiveBlockShowsItsTranscript(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreNPCLive, Scenario: "You keep a bridge."}, mockOffers())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	if err := awaitConnection(ctx, s); err != nil {
+		t.Fatal(err)
+	}
+	for deadline := time.Now().Add(5 * time.Second); ; {
+		detail, _ := s.Inspect("live-session")
+		if len(detail.Transcript) > 0 && detail.Transcript[0].Speaker == "character" && detail.Transcript[0].Text != "" {
+			return
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("the live block's details show no transcript: %+v", detail.Transcript)
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+}

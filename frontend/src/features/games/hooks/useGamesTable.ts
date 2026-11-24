@@ -1,12 +1,15 @@
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ChangeEvent,
   type RefObject,
 } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { notifications } from "@mantine/notifications";
+import { useTranslation } from "react-i18next";
 import {
   useCreateGame,
   useDeleteGame,
@@ -14,6 +17,7 @@ import {
   useFetchGame,
   useGame,
   useGames,
+  useGenres,
 } from "@/api/hooks";
 import type { CreateGameReq, GameView } from "@/api/types";
 import { useAuth } from "@/providers/AuthProvider";
@@ -23,7 +27,11 @@ import {
   gameToFormData,
   parseGameYaml,
 } from "../lib";
-import { GAME_LIST_PRESETS, type GameListPreset } from "../lib/gameListPresets";
+import {
+  GAME_LIST_PRESETS,
+  withGenreFilter,
+  type GameListPreset,
+} from "../lib/gameListPresets";
 import type { GameEditRights } from "../components/GameEditModal";
 import { useFavoriteState } from "./useFavoriteState";
 import { useGameNavigation } from "./useGameNavigation";
@@ -70,12 +78,20 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
   const { preset, initialGameId, initialCreate, autoImport, onModalClose } = options;
   const config = GAME_LIST_PRESETS[preset];
   const navigate = useNavigate();
+  const { t } = useTranslation("common");
   const { backendUser } = useAuth();
   const userId = backendUser?.id;
   const workshopId = preset === "workshop" ? backendUser?.role?.workshop?.id : undefined;
 
   // ── The list ────────────────────────────────────────────────────────────
-  const list = useGames(config.list);
+  // The gallery can be narrowed to genres, the ones the engine plays.
+  const { data: genres } = useGenres();
+  const genreIds = useMemo(() => (genres ?? []).map((g) => g.id), [genres]);
+  const listPreset = useMemo(
+    () => (preset === "all" ? withGenreFilter(config.list, genreIds) : config.list),
+    [preset, config.list, genreIds],
+  );
+  const list = useGames(listPreset);
 
   // ── Who may do what: the server's flags ────────────────────────────────
   /** The game belongs to the workshop the caller is in (a fact, for badges). */
@@ -103,7 +119,7 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
 
   // ── Playing and favourites ──────────────────────────────────────────────
   const { sessionsLoading, getSessionState } = useGameSessionState();
-  const { playGame, continueGame, restartGame } = useGameNavigation();
+  const { playGame, continueGame, restartGame, openGame } = useGameNavigation();
   const { isFavorite, toggleFavorite } = useFavoriteState();
 
   // ── Viewing and editing one game ────────────────────────────────────────
@@ -131,9 +147,11 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
   // ── Creating, copying, importing ────────────────────────────────────────
   const createGame = useCreateGame();
   const fetchGame = useFetchGame();
-  const [creating, setCreating] = useState<{ initialData: Partial<CreateGameFormData> | null } | null>(
-    initialCreate ? { initialData: null } : null,
-  );
+  // copy: the form holds someone else's game, which saving makes the caller's own.
+  const [creating, setCreating] = useState<{
+    initialData: Partial<CreateGameFormData> | null;
+    copy?: boolean;
+  } | null>(initialCreate ? { initialData: null } : null);
 
   const openCreate = () => setCreating({ initialData: null });
   const closeCreate = () => {
@@ -144,9 +162,16 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
   const submitCreate = async (request: CreateGameReq) => {
     try {
       const newGame = await createGame.mutateAsync(request);
+      const wasCopy = !!creating?.copy;
       setCreating(null);
+      if (wasCopy) {
+        notifications.show({ message: t("games.editModal.savedAsOwn"), color: "green" });
+      }
       if (config.openCreatedGame && newGame.id) {
         navigate({ to: "/games/$gameId", params: { gameId: newGame.id } });
+      } else if (wasCopy && newGame.id) {
+        // The editor goes on with the game as the caller's own now.
+        setViewingId(newGame.id);
       }
       return newGame;
     } catch {
@@ -159,7 +184,29 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
   const copy = async (gameId: string) => {
     const full = await fetchGame(gameId);
     setViewingId(null);
-    setCreating({ initialData: gameToFormData(full) });
+    setCreating({ initialData: gameToFormData(full), copy: true });
+  };
+
+  // A game opened by link that the caller may only copy opens as their copy too.
+  useEffect(() => {
+    if (viewingId && viewedGame?.id === viewingId && viewedPermissions &&
+        !viewedPermissions.canEdit && viewedPermissions.canCopy) {
+      void copy(viewingId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- copy is recreated each render
+  }, [viewingId, viewedGame, viewedPermissions?.canEdit, viewedPermissions?.canCopy]);
+
+  /**
+   * Opens a game in the editor: as it is when the caller may change it, as
+   * their own copy when they may only copy it, and to look at otherwise.
+   */
+  const open = (game: GameView) => {
+    const p = permissions(game);
+    if (!p.canEdit && p.canCopy) {
+      void copy(game.id);
+      return;
+    }
+    view(game);
   };
 
   const openImport = () => fileInputRef.current?.click();
@@ -217,9 +264,10 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
     toggleFavorite,
     getSessionState,
     playGame,
+    openGame,
     continueGame,
     restartGame,
-    view,
+    view: open,
     copy,
     exportGame,
     requestDelete: setDeleting,
@@ -231,10 +279,6 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
       opened: !!viewingId,
       close: closeView,
       isOwner: viewedPermissions?.isOwner ?? false,
-      onCopy:
-        viewingId && viewedPermissions && !viewedPermissions.canEdit && viewedPermissions.canCopy
-          ? () => copy(viewingId)
-          : undefined,
       // Sponsoring sets the game's key: a settings change. Workshop lists
       // don't offer it (the workshop's key plays there).
       onSponsor:
@@ -246,6 +290,7 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
     createModal: {
       opened: !!creating,
       initialData: creating?.initialData ?? null,
+      saveAsOwn: !!creating?.copy,
       close: closeCreate,
       submit: submitCreate,
       loading: createGame.isPending,

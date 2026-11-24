@@ -15,12 +15,19 @@ import (
 	"engine/internal/adapters"
 )
 
-const baseURL = "https://api.mistral.ai/v1"
+// BaseURL is where every Mistral call goes; a variable so a test can point it
+// at a fake.
+var BaseURL = "https://api.mistral.ai/v1"
 
-// ModelsURL is what a key check asks; a variable so a test can point it at a fake.
-var ModelsURL = baseURL + "/models"
-
-// Check asks Mistral whether it accepts the key, at no cost.
+// Check asks Mistral whether the key works and the account behind it can pay,
+// with the smallest call that is billed: adapters.ProbePrompt on the lowest
+// tier's tooling model. It answers nil, or an error wrapping ErrKeyRejected,
+// ErrNoCredit or ErrTransient.
 func Check(ctx context.Context, keys adapters.KeyFunc) error {
-	return adapters.CheckKey(ctx, keys, ModelsURL)
+	models, err := Platform().Models(adapters.TierLow)
+	if err != nil {
+		return err
+	}
+	_, _, err = NewTool(keys, models[adapters.ModelTooling].Name).Query(ctx, "", adapters.ProbePrompt)
+	return err
 }

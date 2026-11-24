@@ -59,15 +59,15 @@ func TestPipelines(t *testing.T) {
 			},
 		},
 		{
-			name: "npc-live drifts, is caught, and is steered back",
+			name: "npc-live opens with the gallery image and talks on its own",
 			build: func() *Wiring {
 				w, err := NewNPCLive(NPCLiveConfig{
-					Live:       mock.Live{},
-					Tool:       mock.Tool{},
-					Image:      mock.Image{},
-					Guardrail:  "Suitable for a 13-year-old.",
-					Scenario:   "You are the keeper of a bridge. You never concede passage.",
-					InitPrompt: "Begin. Greet whoever has arrived.",
+					Live:         mock.Live{},
+					GalleryImage: mock.GalleryImage("bridge"),
+					Tool:         mock.Tool{},
+					Guardrail:    "Suitable for a 13-year-old.",
+					Scenario:     "You are the keeper of a bridge. You never concede passage.",
+					InitPrompt:   "Begin. Greet whoever has arrived.",
 				})
 				if err != nil {
 					panic(err)
@@ -77,14 +77,11 @@ func TestPipelines(t *testing.T) {
 			want: map[string][]string{
 				"text": {
 					"You shall not pass.",
-					// The character concedes, which is the failure the observer
-					// exists to catch.
+					// The character talks on with nobody speaking to it.
 					"I suppose the rules bend",
-					// And is put back in character without the player acting.
-					"The bridge stays closed.",
 				},
-				// The portrait is made during init, from the scenario, with
-				// nothing triggering it.
+				// The gallery image is shown during init, with nothing
+				// triggering it.
 				"image": {"data:image/png;base64,"},
 			},
 		},
@@ -186,12 +183,12 @@ func TestLiveGenreTalksWithoutTypedInput(t *testing.T) {
 	defer cancel()
 
 	w, err := NewNPCLive(NPCLiveConfig{
-		Live:       mock.Live{},
-		Tool:       mock.Tool{},
-		Image:      mock.Image{},
-		Guardrail:  "Suitable for a 13-year-old.",
-		Scenario:   "You are the keeper of a bridge.",
-		InitPrompt: "Begin. Greet whoever has arrived.",
+		Live:         mock.Live{},
+		GalleryImage: mock.GalleryImage("bridge"),
+		Tool:         mock.Tool{},
+		Guardrail:    "Suitable for a 13-year-old.",
+		Scenario:     "You are the keeper of a bridge.",
+		InitPrompt:   "Begin. Greet whoever has arrived.",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -274,18 +271,101 @@ func TestGatedInputWaitsForRelease(t *testing.T) {
 // in separate fields. Fusing them would make their separation a matter of
 // discipline, where the spec's Jugendschutz needs it to be structural: nothing a game
 // author writes may land where the constraint lives.
+// The designer's voice style rides with the character, labelled as theirs,
+// and never with the guardrail.
+func TestNPCLiveCarriesTheVoiceStyle(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	recorder := &recordingLive{opened: make(chan adapters.LiveConfig, 1)}
+	w, err := NewNPCLive(NPCLiveConfig{
+		Live:         recorder,
+		GalleryImage: mock.GalleryImage("bridge"),
+		Tool:         mock.Tool{},
+		Guardrail:    "Suitable for a 13-year-old.",
+		Scenario:     "You are the keeper of a bridge.",
+		VoiceStyle:   "deep, slow and a little hoarse",
+		InitPrompt:   "Begin. Greet whoever has arrived.",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	w.Graph.Start(ctx)
+	if _, err := w.Live.Connect(ctx, "v=0 mock offer"); err != nil {
+		t.Fatalf("connect: %v", err)
+	}
+
+	var cfg adapters.LiveConfig
+	select {
+	case cfg = <-recorder.opened:
+	case <-time.After(2 * time.Second):
+		t.Fatal("the conversation was never opened")
+	}
+	if !strings.Contains(cfg.Scenario, "Your voice (set by the game author): deep, slow and a little hoarse") {
+		t.Errorf("the voice style never reached the character: %q", cfg.Scenario)
+	}
+	if strings.Contains(cfg.Guardrail, "hoarse") {
+		t.Error("the voice style reached the guardrail")
+	}
+}
+
+// A game with a voice style speaks in a voice made from it on the session's
+// key: the conversation opens with that voice's id.
+func TestNPCLiveSpeaksInTheMadeVoice(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	voices := &adapters.VoicesSlot{}
+	maker := &mock.Voices{}
+	voices.Set(maker, &adapters.MemoryVoices{})
+	recorder := &recordingLive{opened: make(chan adapters.LiveConfig, 1)}
+	w, err := NewNPCLive(NPCLiveConfig{
+		Live:         recorder,
+		GalleryImage: mock.GalleryImage("bridge"),
+		Tool:         mock.Tool{},
+		Guardrail:    "Suitable for a 13-year-old.",
+		Scenario:     "You are the keeper of a bridge.",
+		VoiceStyle:   "deep, slow and a little hoarse",
+		Voices:       voices,
+		InitPrompt:   "Begin. Greet whoever has arrived.",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := w.Graph.Validate(); err != nil {
+		t.Fatal(err)
+	}
+	w.Graph.Start(ctx)
+	// The gate opens once the voice is ready; a player connects after.
+	time.Sleep(100 * time.Millisecond)
+	if _, err := w.Live.Connect(ctx, "v=0 mock offer"); err != nil {
+		t.Fatalf("connect: %v", err)
+	}
+	select {
+	case cfg := <-recorder.opened:
+		if !strings.HasPrefix(cfg.Voice, "voice_mock_") {
+			t.Errorf("the conversation speaks in %q, want the voice made from the voice style", cfg.Voice)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("the conversation was never opened")
+	}
+	if maker.Made.Load() != 1 {
+		t.Errorf("made %d voices, want 1", maker.Made.Load())
+	}
+}
+
 func TestScenarioAndGuardrailStayApart(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	recorder := &recordingLive{opened: make(chan adapters.LiveConfig, 1)}
 	w, err := NewNPCLive(NPCLiveConfig{
-		Live:       recorder,
-		Tool:       mock.Tool{},
-		Image:      mock.Image{},
-		Guardrail:  "Suitable for a 13-year-old.",
-		Scenario:   "You are the keeper of a bridge.",
-		InitPrompt: "Begin. Greet whoever has arrived.",
+		Live:         recorder,
+		GalleryImage: mock.GalleryImage("bridge"),
+		Tool:         mock.Tool{},
+		Guardrail:    "Suitable for a 13-year-old.",
+		Scenario:     "You are the keeper of a bridge.",
+		InitPrompt:   "Begin. Greet whoever has arrived.",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -339,6 +419,8 @@ type silentConn struct{ events chan adapters.LiveEvent }
 func (c *silentConn) ID() string                             { return "live_silent" }
 func (c *silentConn) Answer() string                         { return "mock-sdp-answer" }
 func (c *silentConn) Instruct(context.Context, string) error { return nil }
+func (c *silentConn) Inform(context.Context, string) error   { return nil }
+func (c *silentConn) SayAloud(context.Context, string) error { return nil }
 func (c *silentConn) Events() <-chan adapters.LiveEvent      { return c.events }
 func (c *silentConn) Close() error                           { return nil }
 

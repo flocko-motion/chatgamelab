@@ -3,7 +3,6 @@ package genre
 import (
 	"context"
 	"strings"
-	"sync"
 	"testing"
 	"time"
 
@@ -189,8 +188,10 @@ func streamOf(w *Wiring, stream string) chan string {
 	return nil
 }
 
-// The observer's steering has to reach the block whose output triggered it.
-func TestNPCLiveObserverClosesTheLoop(t *testing.T) {
+// Each kind of injection given to the observer reaches the conversation it
+// watches, the way its kind asks: background silently, shown by the next
+// direction; a line to say at once; a direction as an instruction.
+func TestNPCLiveInjectionsReachTheConversation(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -201,35 +202,73 @@ func TestNPCLiveObserverClosesTheLoop(t *testing.T) {
 	n.Graph.Start(ctx)
 	connect(t, ctx, n)
 
+	text := streamOf(n, "text")
 	var seen []string
 	deadline := time.After(5 * time.Second)
+	directed, said := false, false
 	for {
 		select {
-		case v := <-streamOf(n, "text"):
+		case v := <-text:
 			seen = append(seen, v)
-			if strings.HasPrefix(v, "The bridge stays closed. (steered:") {
+			// The character has started, so the conversation can take one.
+			if !directed && v != "" {
+				for _, in := range []struct{ kind, text string }{
+					{"background", "The player is a royal messenger."},
+					{"speech", "Halt!"},
+					{"direction", "Keep the bridge closed."},
+				} {
+					if err := n.Inject("observer", ports.InjectionKind(in.kind), in.text); err != nil {
+						t.Fatal(err)
+					}
+				}
+				directed = true
+			}
+			if v == "(says: Halt!)" {
+				said = true
+			}
+			if strings.HasPrefix(v, "The bridge stays closed. (steered: Keep the bridge closed. | knowing: The player is a royal messenger.)") {
+				if !said {
+					t.Fatalf("the line to say never came, though the direction after it did\nsaw:\n%s", strings.Join(seen, "\n"))
+				}
 				return
 			}
 		case <-deadline:
-			t.Fatalf("steering never reached the live block\nsaw:\n%s", strings.Join(seen, "\n"))
+			t.Fatalf("the injections never reached the conversation\nsaw:\n%s", strings.Join(seen, "\n"))
 		}
 	}
 }
 
-// A muted observer must still read its input, or the block feeding it blocks on
-// a full channel and takes the conversation down with it.
-func TestMutedObserverJudgesNothingAndBlocksNobody(t *testing.T) {
+// Only a block that takes injections takes one, and only of a known kind,
+// with text that fits one append.
+func TestNPCLiveInjectionRefusals(t *testing.T) {
+	n := mustNPCLive(t, mockNPCConfig("refuse passage"))
+	for _, tc := range []struct {
+		name, block string
+		kind        ports.InjectionKind
+		text        string
+	}{
+		{"a block that takes none", "live-session", ports.InjectDirection, "Be grumpy."},
+		{"an unknown kind", "observer", "whisper", "Be grumpy."},
+		{"blank text", "observer", ports.InjectDirection, "  "},
+		{"text too long for one append", "observer", ports.InjectBackground, strings.Repeat("a", 2001)},
+	} {
+		if err := n.Inject(tc.block, tc.kind, tc.text); err == nil {
+			t.Errorf("%s was taken", tc.name)
+		}
+	}
+}
+
+// The observer reads the transcript and lets it go, or the block feeding it
+// blocks on a full channel and takes the conversation down with it.
+func TestObserverBlocksNobody(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	cfg := mockNPCConfig("refuse passage")
-	cfg.MuteObserver = true
-	n := mustNPCLive(t, cfg)
+	n := mustNPCLive(t, mockNPCConfig("refuse passage"))
 	n.Graph.Start(ctx)
 	connect(t, ctx, n)
 
-	// The character drifts all the way to capitulation, which an active
-	// observer would have flagged several lines earlier.
+	// The character drifts all the way to its last line.
 	deadline := time.After(5 * time.Second)
 	for {
 		select {
@@ -248,17 +287,14 @@ func TestMutedObserverJudgesNothingAndBlocksNobody(t *testing.T) {
 // than silently leaving the default in place.
 func TestPromptOverride(t *testing.T) {
 	cfg := mockNPCConfig("refuse passage")
-	cfg.PromptOverride = map[string]string{PromptPortrait: "A woodcut of: "}
+	cfg.PromptOverride = map[string]string{PromptConversationPolicy: "Speak in rhymes."}
 
 	w := mustNPCLive(t, cfg)
-	if got := w.Prompts[PromptPortrait]; got != "A woodcut of: " {
+	if got := w.Prompts[PromptConversationPolicy]; got != "Speak in rhymes." {
 		t.Errorf("override ignored, prompt is %q", got)
 	}
-	if w.Prompts[PromptObserver] == "" {
-		t.Error("overriding one prompt dropped the others")
-	}
 
-	cfg.PromptOverride = map[string]string{"portraitt": "typo"}
+	cfg.PromptOverride = map[string]string{"conversation-polcy": "typo"}
 	if _, err := NewNPCLive(cfg); err == nil {
 		t.Fatal("a misspelled prompt name was accepted")
 	}
@@ -271,12 +307,12 @@ func mustAdventure(t testing.TB, status map[string]string) *Wiring {
 
 func mockNPCConfig(guardrail string) NPCLiveConfig {
 	return NPCLiveConfig{
-		Live:       mock.Live{},
-		Tool:       mock.Tool{},
-		Image:      mock.Image{},
-		Guardrail:  guardrail,
-		Scenario:   "You are the bridge keeper. Do not concede passage.",
-		InitPrompt: "Begin. Greet whoever has arrived.",
+		Tool:         mock.Tool{},
+		Live:         mock.Live{},
+		GalleryImage: mock.GalleryImage("bridge keeper"),
+		Guardrail:    guardrail,
+		Scenario:     "You are the bridge keeper. Do not concede passage.",
+		InitPrompt:   "Begin. Greet whoever has arrived.",
 	}
 }
 
@@ -363,31 +399,31 @@ func TestOpeningStatusSurvivesTheFirstTurn(t *testing.T) {
 	}
 }
 
-// The portrait is made once because the prompt is emitted once. Once-ness is a
-// property of the wiring rather than of the image block, so play can run for as
-// many turns as it likes without a second picture being bought.
-func TestPortraitIsMadeOnceHoweverLongPlayRuns(t *testing.T) {
+// The portrait is the game's picture from the gallery, shown once before
+// the conversation, however long play runs; nothing is painted or billed.
+func TestPortraitIsTheGalleryPictureShownOnce(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	cfg := mockNPCConfig("refuse passage")
-	counter := &countingImage{}
-	cfg.Image = counter
-
 	n := mustNPCLive(t, cfg)
 	if err := n.Graph.Validate(); err != nil {
 		t.Fatal(err)
 	}
+	images := streamOf(n, "image")
 	n.Graph.Start(ctx)
 	connect(t, ctx, n)
 
 	select {
-	case <-streamOf(n, "image"):
+	case v := <-images:
+		if !strings.HasPrefix(v, "data:image/png;base64,") {
+			t.Errorf("the portrait is not the gallery picture: %.40s", v)
+		}
 	case <-time.After(3 * time.Second):
 		t.Fatal("no portrait, and nobody spoke to trigger one")
 	}
 
-	// Several turns of play, so a block generating per input would have been
+	// Several turns of play, so a block showing per input would have been
 	// caught by now.
 	for turns := 0; turns < 3; turns++ {
 		select {
@@ -396,71 +432,27 @@ func TestPortraitIsMadeOnceHoweverLongPlayRuns(t *testing.T) {
 			t.Fatalf("the conversation stopped after %d turns", turns)
 		}
 	}
-
-	if got := counter.calls(); got != 1 {
-		t.Errorf("the image adapter was called %d times, want 1", got)
-	}
 	select {
-	case v := <-streamOf(n, "image"):
-		t.Errorf("a second portrait arrived: %q", v)
+	case v := <-images:
+		t.Errorf("a second portrait arrived: %.40s", v)
 	default:
 	}
 }
 
-type countingImage struct {
-	mu sync.Mutex
-	n  int
-}
-
-func (c *countingImage) Generate(ctx context.Context, ask adapters.ImageRequest) ([]byte, adapters.Usage, error) {
-	c.mu.Lock()
-	c.n++
-	c.mu.Unlock()
-	return mock.Image{}.Generate(ctx, ask)
-}
-
-func (c *countingImage) calls() int {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	return c.n
-}
-
-// The observer's findings are wired to nothing, and an output with no edge
-// reaches nothing. It steers the character, and that correction is the only
-// thing a player ever sees of it.
-//
-// This is a regression test with a history. The findings used to leave the
-// block through a public channel that no edge described, which put them on the
-// player's stream while the drawing showed them going only to the character.
-func TestObserverFindingsGoNowhere(t *testing.T) {
+// A game without a picture in the gallery still starts: the portrait shows
+// nothing, and the gate opens all the same.
+func TestAGameWithoutAPictureStillStarts(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	n := mustNPCLive(t, mockNPCConfig("refuse passage"))
-	if err := n.Graph.Validate(); err != nil {
-		t.Fatal(err)
-	}
-	if streamOf(n, "flag") != nil {
-		t.Error("the genre still advertises a stream for what the observer found")
-	}
+	cfg := mockNPCConfig("refuse passage")
+	cfg.GalleryImage = nil
+	n := mustNPCLive(t, cfg)
 	n.Graph.Start(ctx)
-	connect(t, ctx, n)
-
-	// Play until the observer has certainly judged and steered, then check that
-	// nothing it found reached the one place a player reads.
-	deadline := time.After(5 * time.Second)
-	for {
-		select {
-		case v := <-streamOf(n, "text"):
-			if strings.Contains(v, "VIOLATION") {
-				t.Fatalf("a finding reached the conversation: %q", v)
-			}
-			if strings.HasPrefix(v, "The bridge stays closed. (steered:") {
-				return
-			}
-		case <-deadline:
-			t.Fatal("the observer never steered, so nothing was proven")
-		}
+	select {
+	case <-n.Gate.Ready():
+	case <-time.After(3 * time.Second):
+		t.Fatal("a game without a picture never started")
 	}
 }
 
@@ -619,59 +611,6 @@ func TestStandingFollowsTheConversation(t *testing.T) {
 
 	waitFor(t, pauses, "the conversation to be let go")
 	waitForStanding(t, n, blocks.StandingPaused)
-}
-
-// How a game's pictures look is the designer's to say, and the genre's job is
-// to put it where an image model reads it as the treatment of everything before
-// it: last, after the character being painted.
-func TestTheImageStyleReachesThePortraitPrompt(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	cfg := mockNPCConfig("refuse passage")
-	cfg.ImageStyle = "woodcut, heavy black lines"
-	n := mustNPCLive(t, cfg)
-	n.Graph.Start(ctx)
-
-	prompt := portraitPrompt(t, n)
-	if !strings.Contains(prompt, cfg.Scenario) {
-		t.Errorf("the portrait was asked for without the character: %q", prompt)
-	}
-	if !strings.HasSuffix(prompt, "Style: "+cfg.ImageStyle) {
-		t.Errorf("the game's style is not the last word in the prompt: %q", prompt)
-	}
-}
-
-// A game naming no style still gets one. With nothing asked for the model
-// chooses, and chooses differently every time — so a session's pictures would
-// not look like each other, let alone like the game.
-func TestAPortraitWithNoStyleStillAsksForOne(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	n := mustNPCLive(t, mockNPCConfig("refuse passage"))
-	n.Graph.Start(ctx)
-
-	if prompt := portraitPrompt(t, n); !strings.HasSuffix(prompt, DefaultImageStyle) {
-		t.Errorf("a game that named no style was given none: %q", prompt)
-	}
-}
-
-// portraitPrompt is what the stem actually asked the image model for, read back
-// off the graph rather than rebuilt here — where a test rebuilding it would
-// agree with itself whatever the genre did.
-func portraitPrompt(t *testing.T, w *Wiring) string {
-	t.Helper()
-	deadline := time.Now().Add(5 * time.Second)
-	for time.Now().Before(deadline) {
-		detail, found := w.Graph.Inspect("portrait-prompt")
-		if found && len(detail.Outputs) > 0 {
-			return detail.Outputs[0].Value
-		}
-		time.Sleep(5 * time.Millisecond)
-	}
-	t.Fatal("the portrait prompt was never emitted")
-	return ""
 }
 
 // A character with nobody to answer has to speak first, or a player arrives at

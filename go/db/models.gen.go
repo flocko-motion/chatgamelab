@@ -97,6 +97,7 @@ type Game struct {
 	PlayCount                    int32          `json:"play_count"`
 	CloneCount                   int32          `json:"clone_count"`
 	DeletedAt                    sql.NullTime   `json:"deleted_at"`
+	VoiceStyle                   string         `json:"voice_style"`
 }
 
 type GameCover struct {
@@ -246,6 +247,15 @@ type UserRoleInvite struct {
 	DeletedAt     sql.NullTime   `json:"deleted_at"`
 	AcceptedAt    sql.NullTime   `json:"accepted_at"`
 	AcceptedBy    uuid.NullUUID  `json:"accepted_by"`
+}
+
+type Voice struct {
+	ApiKeyID   uuid.UUID      `json:"api_key_id"`
+	StyleHash  string         `json:"style_hash"`
+	VoiceID    sql.NullString `json:"voice_id"`
+	ClaimedAt  time.Time      `json:"claimed_at"`
+	CreatedAt  sql.NullTime   `json:"created_at"`
+	LastUsedAt sql.NullTime   `json:"last_used_at"`
 }
 
 type Workshop struct {

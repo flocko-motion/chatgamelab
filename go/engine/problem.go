@@ -21,6 +21,9 @@ const (
 	ProblemKeyRejected Problem = "key_rejected"
 	// ProblemUnreachable: the provider does not answer.
 	ProblemUnreachable Problem = "unreachable"
+	// ProblemNoCredit: the provider takes the key, but the account behind it
+	// has no credit left; nothing runs until it is topped up.
+	ProblemNoCredit Problem = "no_credit"
 	// ProblemStale: the session was stored by another engine version, or its
 	// wiring changed, and can no longer be resumed.
 	ProblemStale Problem = "stale"
@@ -39,7 +42,7 @@ const (
 func Problems() []Problem {
 	return []Problem{
 		ProblemNoKey, ProblemGenre, ProblemNoPlays, ProblemKeyRejected, ProblemUnreachable,
-		ProblemStale, ProblemUnknown, ProblemDenied, ProblemPaused, ProblemFailed,
+		ProblemNoCredit, ProblemStale, ProblemUnknown, ProblemDenied, ProblemPaused, ProblemFailed,
 	}
 }
 
@@ -100,6 +103,7 @@ func Refuse(problem Problem, message string) error {
 var (
 	ErrKeyRejected = &Refusal{Problem: ProblemKeyRejected}
 	ErrUnreachable = &Refusal{Problem: ProblemUnreachable}
+	ErrNoCredit    = &Refusal{Problem: ProblemNoCredit}
 	ErrStale       = &Refusal{Problem: ProblemStale}
 	ErrUnknown     = &Refusal{Problem: ProblemUnknown}
 )

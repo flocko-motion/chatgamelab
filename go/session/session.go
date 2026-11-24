@@ -78,6 +78,7 @@ func launch(ctx context.Context, game *gameFacts, offer engine.Offer, payer core
 		return nil, core.PlayRefusal(err)
 	}
 	spec := gameSpec(game, playerLanguage(core.PlayerLanguage(ctx), language), resolveRule(facts))
+	spec.GalleryImage = galleryImage(ctx, game.card)
 	store, player, err := core.LaunchStore(ctx, core.NewPlay{
 		Game: game.ID, Link: link, Payer: payer, Platform: string(offer.Platform),
 		Language: spec.Language, ReplaceEarlier: replace,
@@ -125,11 +126,13 @@ func ResumeSession(ctx context.Context, sessionID uuid.UUID) (*engine.Session, e
 	if err != nil {
 		return nil, err
 	}
-	return engine.Resume(ctx, sessionID.String(), r.Store, []engine.Offer{chosen.Offer})
+	return engine.Resume(ctx, sessionID.String(), r.Store, []engine.Offer{chosen.Offer}, r.Cover)
 }
 
 // gameFacts are what a session's spec is built from.
 type gameFacts struct {
+	// card is the game as the core opened it for the caller, for its cover.
+	card         *core.GameCard
 	ID           uuid.UUID
 	Genre        string
 	Name         string
@@ -137,6 +140,7 @@ type gameFacts struct {
 	Scenario     string
 	GameStart    string
 	ImageStyle   string
+	VoiceStyle   string
 	Theme        *string
 	StatusFields string
 }
@@ -153,8 +157,9 @@ func readGame(ctx context.Context, read func() (*core.GameCard, error)) (*gameFa
 		return nil, core.PlayRefusal(err)
 	}
 	return &gameFacts{
-		ID: card.ID(), Genre: card.Genre(), Name: card.Name(), Description: card.Description(), Theme: card.Theme(),
-		Scenario: content.Scenario(), GameStart: content.GameStart(), ImageStyle: content.ImageStyle(),
+		card: card,
+		ID:   card.ID(), Genre: card.Genre(), Name: card.Name(), Description: card.Description(), Theme: card.Theme(),
+		Scenario: content.Scenario(), GameStart: content.GameStart(), ImageStyle: content.ImageStyle(), VoiceStyle: content.VoiceStyle(),
 		StatusFields: content.StatusFields(),
 	}, nil
 }
@@ -172,6 +177,19 @@ func firstWorking(ctx context.Context, offers []core.PayerOffer, refused error, 
 	}, none)
 }
 
+// galleryImage is the game's cover, for a genre that shows it: whoever may
+// play the game sees it. A game without one shows none.
+func galleryImage(ctx context.Context, card *core.GameCard) []byte {
+	cover, err := card.Cover(ctx)
+	if err != nil {
+		if !errors.Is(err, core.ErrNotFound) {
+			log.Info("gallery image unreadable", "game_id", card.ID(), "error", err)
+		}
+		return nil
+	}
+	return cover.Image
+}
+
 // gameSpec assembles a session spec from a game, the player's language and
 // the youth-protection rule resolved for this play.
 func gameSpec(game *gameFacts, language string, rule Rule) engine.SessionSpec {
@@ -182,6 +200,7 @@ func gameSpec(game *gameFacts, language string, rule Rule) engine.SessionSpec {
 		Scenario:    game.Scenario,
 		InitPrompt:  game.GameStart,
 		ImageStyle:  game.ImageStyle,
+		VoiceStyle:  game.VoiceStyle,
 		Language:    language,
 		Status:      statusValues(game.StatusFields),
 	}

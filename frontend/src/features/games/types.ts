@@ -5,6 +5,8 @@ export interface CreateGameFormData {
   systemMessageScenario?: string;
   systemMessageGameStart?: string;
   imageStyle?: string;
+  /** How the game's voice sounds: the narrator's, or the character's. */
+  voiceStyle?: string;
   statusFields?: string;
   /** One of the engine's genres; empty makes an adventure. */
   genre?: string;

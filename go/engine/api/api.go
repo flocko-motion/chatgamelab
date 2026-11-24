@@ -25,6 +25,9 @@ type API struct {
 	// creating holds creations by one-time key, so a repeat shares the first.
 	creating map[string]*pending
 	opts     Options
+	// stop ends the sweep of idle sessions, once.
+	stop     chan struct{}
+	stopOnce sync.Once
 }
 
 // Options configures the transport for whoever serves it.
@@ -41,7 +44,17 @@ type Options struct {
 	// request's context, so a one-time key answers only the caller who made
 	// it. Without it every caller is one.
 	Caller func(ctx context.Context) string
+	// UnloadAfter is how long a session nobody has a page open on stays in
+	// memory before it is unloaded; zero takes DefaultUnloadAfter, a
+	// negative value keeps every session. Only a transport that can Resume
+	// unloads: the next request restores the session from the store.
+	UnloadAfter time.Duration
 }
+
+// DefaultUnloadAfter is how long a session with no page open stays in memory.
+// Nothing is lost by unloading it: its state is stored, and a live
+// conversation has paused long before, after its own minute of silence.
+const DefaultUnloadAfter = 30 * time.Minute
 
 // CreateFunc launches a session for the playback-engine's request. The
 // context is the request's, carrying whatever the serving side put there; the
@@ -69,11 +82,47 @@ type pending struct {
 
 // New makes the transport for whoever serves it.
 func New(opts Options) *API {
-	return &API{
+	if opts.UnloadAfter == 0 {
+		opts.UnloadAfter = DefaultUnloadAfter
+	}
+	a := &API{
 		sessions:  map[string]*engine.Session{},
 		restoring: map[string]*pending{},
 		creating:  map[string]*pending{},
 		opts:      opts,
+		stop:      make(chan struct{}),
+	}
+	if opts.Resume != nil && opts.UnloadAfter > 0 {
+		go a.sweep()
+	}
+	return a
+}
+
+// sweep unloads, now and then, the sessions no page has been open on for
+// UnloadAfter: each is closed once its last checkpoint is written, and a
+// later request restores it.
+func (a *API) sweep() {
+	tick := time.NewTicker(min(a.opts.UnloadAfter/2, time.Minute))
+	defer tick.Stop()
+	for {
+		select {
+		case <-a.stop:
+			return
+		case <-tick.C:
+		}
+		var idle []*engine.Session
+		a.mu.Lock()
+		for id, s := range a.sessions {
+			if since, alone := s.AloneSince(); alone && time.Since(since) >= a.opts.UnloadAfter {
+				delete(a.sessions, id)
+				idle = append(idle, s)
+			}
+		}
+		a.mu.Unlock()
+		for _, s := range idle {
+			s.Note(engine.JournalSession, "unloaded", fmt.Sprintf("no page open for %s", a.opts.UnloadAfter))
+			s.Close()
+		}
 	}
 }
 
@@ -101,6 +150,7 @@ func (a *API) Forget(id string) {
 // the store still takes writes. A later request restores a session from the
 // store.
 func (a *API) Close() {
+	a.stopOnce.Do(func() { close(a.stop) })
 	a.mu.Lock()
 	sessions := a.sessions
 	a.sessions = map[string]*engine.Session{}
@@ -290,10 +340,12 @@ func (a *API) SchemafRoutes() []schemafapi.Route {
 		schemafapi.NewRoute(PauseEndpoint{a}, "", ""),
 		schemafapi.NewRoute(StateEndpoint{a}, "", ""),
 		schemafapi.NewRoute(HistoryEndpoint{a}, "", ""),
+		schemafapi.NewRoute(JournalEndpoint{a}, "", ""),
 		schemafapi.NewRoute(TopologyEndpoint{a}, "", ""),
 		schemafapi.NewRoute(OptionsEndpoint{a}, "", ""),
 		schemafapi.NewRoute(NodeEndpoint{a}, "", ""),
 		schemafapi.NewRoute(CompactEndpoint{a}, "", ""),
+		schemafapi.NewRoute(InjectEndpoint{a}, "", ""),
 		schemafapi.NewRoute(EdgeEndpoint{a}, "", ""),
 		schemafapi.NewRoute(PromptsEndpoint{a}, "", ""),
 		schemafapi.NewRoute(GraphEndpoint{a}, "", ""),

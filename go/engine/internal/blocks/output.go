@@ -1,10 +1,11 @@
 package blocks
 
 import (
-	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"net/http"
+	"strings"
 
 	"engine/internal/ports"
 )
@@ -114,10 +115,11 @@ func (b *PlayerOutputImage) Start(ctx context.Context) {
 // request. A placeholder adapter that returns text rather than an image is
 // passed through unchanged, so a stub stays readable.
 func dataURL(data ports.ImageData) string {
-	if !bytes.HasPrefix(data, []byte("\x89PNG")) {
+	kind := http.DetectContentType(data)
+	if !strings.HasPrefix(kind, "image/") {
 		return string(data)
 	}
-	return "data:image/png;base64," + base64.StdEncoding.EncodeToString(data)
+	return "data:" + kind + ";base64," + base64.StdEncoding.EncodeToString(data)
 }
 
 type PlayerOutputProps struct {

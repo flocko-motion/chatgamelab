@@ -63,8 +63,11 @@ export class DebugRecorder {
     return [...this.#entries.slice(this.#next), ...this.#entries.slice(0, this.#next)];
   }
 
+  /** The picture is said by its size: its data URL would bury everything else. */
   snapshot(playback: PlaybackEngine): Snapshot {
-    return { state: playback.state, buffer: this.entries() };
+    const state = playback.state;
+    const image = state.image === null ? null : `[picture, ${state.image.length} characters]`;
+    return { state: { ...state, image }, buffer: this.entries() };
   }
 
   #frame(kind: Direction, data: TransportMessage): void {

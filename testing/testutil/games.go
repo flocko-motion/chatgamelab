@@ -186,6 +186,7 @@ func (c caller) UpdateGame(gameID string, game Game) (Game, error) {
 		SystemMessageScenario:  &game.SystemMessageScenario,
 		SystemMessageGameStart: &game.SystemMessageGameStart,
 		ImageStyle:             &game.ImageStyle,
+		VoiceStyle:             &game.VoiceStyle,
 		Css:                    &game.Css,
 		StatusFields:           &game.StatusFields,
 		FirstMessage:           game.FirstMessage,

@@ -1,48 +1,44 @@
 package adapters
 
 import (
-	"context"
 	"errors"
+	"io"
 	"net/http"
-	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
-func key(context.Context) (string, error) { return "sk-test", nil }
-
-// The platform shows a dead key and a provider that is down differently, so
-// the check must keep them apart.
-func TestCheckKeyTellsRejectedFromUnreachable(t *testing.T) {
-	answering := func(status int) string {
-		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if r.Header.Get("Authorization") != "Bearer sk-test" {
-				t.Errorf("the key was not sent: %q", r.Header.Get("Authorization"))
-			}
-			w.WriteHeader(status)
-		}))
-		t.Cleanup(srv.Close)
-		return srv.URL
+// A caller that read the body for the detail still has no credit told apart.
+func TestStatusErrorReadsNoCreditFromTheDetail(t *testing.T) {
+	resp := &http.Response{StatusCode: http.StatusTooManyRequests, Status: "429", Body: io.NopCloser(strings.NewReader(""))}
+	err := StatusError("call", resp, `: {"error":{"code":"credit_balance_exhausted"}}`)
+	if !errors.Is(err, ErrNoCredit) || errors.Is(err, ErrTransient) {
+		t.Errorf("got %v, want no credit and nothing to retry", err)
 	}
-	gone := httptest.NewServer(http.NotFoundHandler())
-	gone.Close()
+}
 
+// An account with no credit left is told apart from a rate limit: both answer
+// 429, but only the rate limit passes on a retry. 402 says the same as the
+// quota code.
+func TestStatusErrorTellsNoCreditFromARateLimit(t *testing.T) {
 	for name, tc := range map[string]struct {
-		url  string
-		want error
+		status              int
+		body                string
+		noCredit, transient bool
 	}{
-		"accepted":     {answering(http.StatusOK), nil},
-		"unauthorized": {answering(http.StatusUnauthorized), ErrKeyRejected},
-		"forbidden":    {answering(http.StatusForbidden), ErrKeyRejected},
-		"failing":      {answering(http.StatusBadGateway), ErrUnreachable},
-		"down":         {gone.URL, ErrUnreachable},
+		"quota used up":    {http.StatusTooManyRequests, `{"error":{"code":"insufficient_quota"}}`, true, false},
+		"credit exhausted": {http.StatusTooManyRequests, `{"error":{"type":"insufficient_quota","code":"credit_balance_exhausted"}}`, true, false},
+		"payment required": {http.StatusPaymentRequired, `{}`, true, false},
+		"rate limit":       {http.StatusTooManyRequests, `{"error":{"code":"rate_limit_exceeded"}}`, false, true},
 	} {
 		t.Run(name, func(t *testing.T) {
-			err := CheckKey(context.Background(), key, tc.url)
-			if tc.want == nil && err != nil {
-				t.Fatalf("got %v, want the key accepted", err)
+			resp := &http.Response{StatusCode: tc.status, Status: http.StatusText(tc.status), Body: io.NopCloser(strings.NewReader(tc.body))}
+			err := StatusError("call", resp, "")
+			if got := errors.Is(err, ErrNoCredit); got != tc.noCredit {
+				t.Errorf("no credit: got %v, want %v (%v)", got, tc.noCredit, err)
 			}
-			if tc.want != nil && !errors.Is(err, tc.want) {
-				t.Fatalf("got %v, want %v", err, tc.want)
+			if got := errors.Is(err, ErrTransient); got != tc.transient {
+				t.Errorf("transient: got %v, want %v (%v)", got, tc.transient, err)
 			}
 		})
 	}

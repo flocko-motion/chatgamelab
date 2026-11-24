@@ -34,9 +34,12 @@ func knownTheme(id string) bool { return slices.Contains(themeIDs, id) }
 type GenreInfo struct {
 	ID    Genre    `json:"id"`
 	Needs []Toggle `json:"needs"`
+	// Fields is the game's fields the genre reads, for an editor to offer.
+	Fields []GameField `json:"fields"`
 }
 
-// GenreList is every genre the engine runs, with its needs.
+// GenreList is every genre the engine runs, with its needs and the game's
+// fields it reads.
 func GenreList() []GenreInfo {
 	var out []GenreInfo
 	for _, g := range Genres() {
@@ -44,7 +47,7 @@ func GenreList() []GenreInfo {
 		if needs == nil {
 			needs = []Toggle{}
 		}
-		out = append(out, GenreInfo{ID: g, Needs: needs})
+		out = append(out, GenreInfo{ID: g, Needs: needs, Fields: g.Fields()})
 	}
 	return out
 }

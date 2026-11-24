@@ -40,7 +40,7 @@ func (c *creator) create(ctx context.Context, req api.CreateRequest) (*engine.Se
 }
 
 func (c *creator) resume(ctx context.Context, id string) (*engine.Session, error) {
-	return engine.Resume(context.WithoutCancel(ctx), id, c.store, mockOffers())
+	return engine.Resume(context.WithoutCancel(ctx), id, c.store, mockOffers(), nil)
 }
 
 func (c *creator) server(t *testing.T) (*api.API, *httptest.Server) {

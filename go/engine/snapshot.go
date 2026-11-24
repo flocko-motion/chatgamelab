@@ -189,3 +189,14 @@ func (r *recorder) replay() []SessionEvent {
 	// a client iterating what it was handed cannot read.
 	return append(make([]SessionEvent, 0, len(r.history)), r.history...)
 }
+
+// conversed says a stored history holds something said by either side: the
+// game had begun, since nobody speaks before the gate opens.
+func conversed(history []SessionEvent) bool {
+	for _, e := range history {
+		if (e.Stream == "text" || e.Stream == "said") && e.Value != "" {
+			return true
+		}
+	}
+	return false
+}

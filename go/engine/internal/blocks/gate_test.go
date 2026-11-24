@@ -212,3 +212,40 @@ func TestInitialReadyDoesNotOpenTheGate(t *testing.T) {
 		t.Fatal("the gate never opened after a full working cycle")
 	}
 }
+
+// A gate still waiting remembers who has reported done: resumed, it waits
+// only for the rest, and the blocks done before need not report again.
+func TestGateRemembersWhoReportedDone(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	first := blocks.NewGate("start", "")
+	first.ExpectReporters(2)
+	first.Start(ctx)
+	first.StateInPort() <- ports.State{Node: "picture", Phase: ports.PhaseWorking}
+	first.StateInPort() <- ports.State{Node: "picture", Phase: ports.PhaseReady}
+	var saved string
+	for deadline := time.Now().Add(time.Second); saved == ""; {
+		if time.Now().After(deadline) {
+			t.Fatal("the gate never noted the picture done")
+		}
+		saved = first.ExportState()
+		time.Sleep(time.Millisecond)
+	}
+	if first.IsOpen() {
+		t.Fatal("the gate opened with one of two done")
+	}
+
+	resumed := blocks.NewGate("start", "")
+	resumed.RestoreState(saved)
+	resumed.ExpectReporters(2)
+	resumed.Start(ctx)
+	// Only the one not done before reports.
+	resumed.StateInPort() <- ports.State{Node: "voice", Phase: ports.PhaseWorking}
+	resumed.StateInPort() <- ports.State{Node: "voice", Phase: ports.PhaseReady}
+	select {
+	case <-resumed.Ready():
+	case <-time.After(time.Second):
+		t.Fatalf("the resumed gate kept waiting; it was saved as %q", saved)
+	}
+}

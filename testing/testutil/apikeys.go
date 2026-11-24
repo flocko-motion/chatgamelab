@@ -35,6 +35,12 @@ func (c caller) GetApiKeyInfo(shareID string) (ApiKeyInfo, error) {
 	return decode[ApiKeyInfo](c.api.GetApiApikeysIdWithResponse(ctx(), shareID))
 }
 
+// CheckApiKey has a key checked with its provider, and answers the share as
+// the check left it.
+func (c caller) CheckApiKey(shareID string) (ApiKeyShare, error) {
+	return decode[ApiKeyShare](c.api.PostApiApikeysIdCheckWithResponse(ctx(), shareID))
+}
+
 // RenameApiKey renames a key.
 func (c caller) RenameApiKey(shareID, name string) (ApiKeyShare, error) {
 	return decode[ApiKeyShare](c.api.PatchApiApikeysIdWithResponse(ctx(), shareID, apiclient.UpdateApiKeyReq{Name: name}))

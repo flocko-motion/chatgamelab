@@ -2,14 +2,16 @@ package genre
 
 import "engine/internal/ports"
 
-// npcLiveLayout draws NPC Live's blocks top down: the portrait, the start,
-// the conversation. Rearrange it in the dev server's pipeline view and paste
-// the copied layout over this one.
+// npcLiveLayout draws NPC Live's blocks top down: the preparation, the start,
+// the conversation. Settings and outputs hang off their blocks and have no
+// place of their own. Rearrange it in the dev server's pipeline view and
+// paste the copied layout over this one.
 var npcLiveLayout = ports.Layout{
-	"portrait-prompt":    {X: 0, Y: 0},
-	"portrait":           {X: 0, Y: 64},
-	"start-game":         {X: 150, Y: 128},
-	"player-input-audio": {X: 300, Y: 192},
-	"live-session":       {X: 150, Y: 256},
-	"observer":           {X: 300, Y: 256},
+	"gallery-image":      {X: 111, Y: 68},
+	"greeting":           {X: 210, Y: 68},
+	"voice":              {X: 0, Y: 69},
+	"start-game":         {X: 110, Y: 151},
+	"player-input-audio": {X: 5, Y: 279},
+	"live-session":       {X: 110, Y: 279},
+	"observer":           {X: 260, Y: 279},
 }

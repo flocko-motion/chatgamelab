@@ -19,14 +19,22 @@ import (
 
 const (
 	liveSessionsURL = "https://api.openai.com/v1/live/sessions"
-	responsesURL    = "https://api.openai.com/v1/responses"
 	imagesURL       = "https://api.openai.com/v1/images/generations"
 )
 
-// ModelsURL is what a key check asks; a variable so a test can point it at a fake.
-var ModelsURL = "https://api.openai.com/v1/models"
+// ResponsesURL is where every GPT call but the live ones goes; a variable so a
+// test can point it at a fake.
+var ResponsesURL = "https://api.openai.com/v1/responses"
 
-// Check asks OpenAI whether it accepts the key, at no cost.
+// Check asks OpenAI whether the key works and the account behind it can pay,
+// with the smallest call that is billed: adapters.ProbePrompt on the lowest
+// tier's tooling model. It answers nil, or an error wrapping ErrKeyRejected,
+// ErrNoCredit or ErrTransient.
 func Check(ctx context.Context, keys adapters.KeyFunc) error {
-	return adapters.CheckKey(ctx, keys, ModelsURL)
+	models, err := Platform().Models(adapters.TierLow)
+	if err != nil {
+		return err
+	}
+	_, _, err = NewTool(keys, models[adapters.ModelTooling].Name).Query(ctx, "", adapters.ProbePrompt)
+	return err
 }

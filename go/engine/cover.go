@@ -128,6 +128,8 @@ func coverFailure(what string, err error) error {
 	switch {
 	case errors.Is(err, adapters.ErrKeyRejected):
 		return Refuse(ProblemKeyRejected, what+": "+err.Error())
+	case errors.Is(err, adapters.ErrNoCredit):
+		return Refuse(ProblemNoCredit, what+": "+err.Error())
 	case errors.Is(err, adapters.ErrUnreachable):
 		return Refuse(ProblemUnreachable, what+": "+err.Error())
 	}
@@ -138,8 +140,8 @@ func coverFailure(what string, err error) error {
 const coverAttempts = 2
 
 // withRetry makes a cover's call again once after a failure, unless the
-// context ended or the provider rejected the key; the usage of every attempt
-// counts.
+// context ended, the provider rejected the key or the account has no credit;
+// the usage of every attempt counts.
 func withRetry[T any](ctx context.Context, call func() (T, adapters.Usage, error)) (T, adapters.Usage, error) {
 	var total adapters.Usage
 	var out T
@@ -148,7 +150,7 @@ func withRetry[T any](ctx context.Context, call func() (T, adapters.Usage, error
 		var used adapters.Usage
 		out, used, err = call()
 		total.Add(used)
-		if err == nil || ctx.Err() != nil || errors.Is(err, adapters.ErrKeyRejected) {
+		if err == nil || ctx.Err() != nil || errors.Is(err, adapters.ErrKeyRejected) || errors.Is(err, adapters.ErrNoCredit) {
 			break
 		}
 		select {

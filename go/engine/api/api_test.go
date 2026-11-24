@@ -352,7 +352,7 @@ func TestPromptsAreReadable(t *testing.T) {
 		Genre:          engine.GenreNPCLive,
 		ID:             "prompts",
 		Scenario:       "You are the keeper of a bridge.",
-		PromptOverride: map[string]string{"portrait": "A woodcut of: "},
+		PromptOverride: map[string]string{"conversation-policy": "Speak in rhymes."},
 	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
@@ -370,11 +370,8 @@ func TestPromptsAreReadable(t *testing.T) {
 	if err := json.NewDecoder(resp.Body).Decode(&prompts); err != nil {
 		t.Fatal(err)
 	}
-	if prompts["portrait"] != "A woodcut of: " {
-		t.Errorf("the override is not what the session reports running on: %q", prompts["portrait"])
-	}
-	if prompts["observer"] == "" {
-		t.Error("a prompt the session uses is missing from what it reports")
+	if prompts["conversation-policy"] != "Speak in rhymes." {
+		t.Errorf("the override is not what the session reports running on: %q", prompts["conversation-policy"])
 	}
 }
 
@@ -485,3 +482,57 @@ func mockOffers() []engine.Offer { return []engine.Offer{engine.MockOffer()} }
 
 // serve is the engine's routes on a plain mux, as the dev server serves them.
 func serve(a *api.API) http.Handler { return api.Mux(a.SchemafRoutes()) }
+
+// An injection goes to a block that takes one; any other block, an unknown
+// kind and blank text are refused.
+func TestInjectionOverHTTP(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	session, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre: engine.GenreNPCLive, ID: "directed", Scenario: "A bridge.",
+	}, mockOffers())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+
+	srv := newServer(t, "directed", session)
+	for _, tc := range []struct {
+		node, body string
+		want       int
+	}{
+		{"observer", `{"kind":"direction","text":"Keep the bridge closed."}`, http.StatusOK},
+		{"observer", `{"kind":"background","text":"The player is a messenger."}`, http.StatusOK},
+		{"observer", `{"kind":"speech","text":"Halt!"}`, http.StatusOK},
+		{"observer", `{"kind":"whisper","text":"Halt!"}`, http.StatusUnprocessableEntity},
+		{"observer", `{"kind":"direction","text":"  "}`, http.StatusUnprocessableEntity},
+		{"live-session", `{"kind":"direction","text":"Be grumpy."}`, http.StatusUnprocessableEntity},
+	} {
+		resp, err := http.Post(srv.URL+"/api/engine/sessions/directed/nodes/"+tc.node+"/inject",
+			"application/json", strings.NewReader(tc.body))
+		if err != nil {
+			t.Fatal(err)
+		}
+		resp.Body.Close()
+		if resp.StatusCode != tc.want {
+			t.Errorf("%s %s: status %d, want %d", tc.node, tc.body, resp.StatusCode, tc.want)
+		}
+	}
+
+	resp, err := http.Get(srv.URL + "/api/engine/sessions/directed/nodes/observer")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	var detail struct {
+		Injectable bool     `json:"injectable"`
+		Injections []string `json:"injections"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&detail); err != nil {
+		t.Fatal(err)
+	}
+	if !detail.Injectable || len(detail.Injections) != 3 {
+		t.Errorf("the observer's detail does not offer the three kinds: %+v", detail)
+	}
+}

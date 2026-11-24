@@ -180,3 +180,66 @@ func (s *scriptedTool) seen() [][2]string {
 	defer s.mu.Unlock()
 	return append([][2]string(nil), s.calls...)
 }
+
+// A kept call answers once and remembers: restored, it gives its reply again
+// without asking the tool, and asked anew it answers the same.
+func TestKeptToolCallAnswersFromMemoryAfterARestart(t *testing.T) {
+	tool := &countingTool{}
+	first := blocks.NewToolCall("greeting", tool, "write")
+	first.Keep = true
+	ctx, cancel := context.WithCancel(context.Background())
+	out := first.TextOutPort()
+	first.Start(ctx)
+	first.TextInPort() <- "brief"
+	reply := <-out
+	cancel()
+	saved := first.ExportState()
+	if saved != reply || tool.calls != 1 {
+		t.Fatalf("kept %q after %d calls, want the reply %q after 1", saved, tool.calls, reply)
+	}
+
+	again := blocks.NewToolCall("greeting", tool, "write")
+	again.Keep = true
+	again.RestoreState(saved)
+	ctx2, cancel2 := context.WithCancel(context.Background())
+	defer cancel2()
+	out2 := again.TextOutPort()
+	again.Start(ctx2)
+	if got := <-out2; got != reply {
+		t.Errorf("restored, it gave %q, want %q", got, reply)
+	}
+	again.TextInPort() <- "brief"
+	if got := <-out2; got != reply {
+		t.Errorf("asked anew, it gave %q, want %q", got, reply)
+	}
+	if tool.calls != 1 {
+		t.Errorf("the tool was asked %d times, want once", tool.calls)
+	}
+}
+
+// Without Keep a call keeps nothing, so a resumed session answers only what
+// it is sent anew.
+func TestToolCallKeepsNothingUnlessAsked(t *testing.T) {
+	b := blocks.NewToolCall("rephrase", &countingTool{}, "write")
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	out := b.TextOutPort()
+	b.Start(ctx)
+	b.TextInPort() <- "an action"
+	<-out
+	if s := b.ExportState(); s != "" {
+		t.Errorf("an unkept call exported %q", s)
+	}
+}
+
+type countingTool struct {
+	mu    sync.Mutex
+	calls int
+}
+
+func (c *countingTool) Query(_ context.Context, _, user string) (string, adapters.Usage, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.calls++
+	return "reply to " + user, adapters.Usage{}, nil
+}

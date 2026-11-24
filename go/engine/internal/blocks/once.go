@@ -2,18 +2,13 @@ package blocks
 
 import (
 	"context"
-	"sync"
 
 	"engine/internal/ports"
 )
 
-// firedMarker is what a fired source exports. The engine never interprets a
-// block's state, so the value only has to be recognisable to this block.
-const firedMarker = "fired"
-
 // OnceText emits one configured line at startup and then closes. It is the init
 // stem in its smallest form: whatever hangs off it runs exactly once per
-// session, which is how a genre says "generate this portrait once" with an edge
+// session, which is how a genre says "make this picture once" with an edge
 // instead of with a flag inside the block doing the work.
 type OnceText struct {
 	name string
@@ -22,39 +17,32 @@ type OnceText struct {
 	out   ports.TextBroadcast
 	state ports.StateBroadcast
 
-	// Guarded because ExportState is called from the caller's goroutine while
-	// the block's own loop is running — a checkpoint never stops the graph.
-	mu    sync.Mutex
-	fired bool
+	// once remembers the line went out, across a restart.
+	once
+	// again sends on a resumed start too (SendAgain).
+	again bool
 }
+
+// SendAgain makes it send once on every start, a resumed one too: for a reader
+// that keeps what it made of the text (a kept ToolCall), which answers from
+// memory and spends nothing. Off, a resumed session stays silent. Set before
+// Start.
+func (b *OnceText) SendAgain() *OnceText { b.again = true; return b }
 
 func NewOnceText(name, text string) *OnceText {
 	return &OnceText{name: name, text: text}
 }
 
-func (b *OnceText) NodeName() string           { return b.name }
+func (b *OnceText) NodeName() string { return b.name }
+
+// SettingField marks it as drawn like a game setting: a text fixed before
+// play, made from what the game's author wrote. Its name says which.
+func (b *OnceText) SettingField() string       { return "" }
 func (b *OnceText) TextOutPort() <-chan string { return b.out.Subscribe() }
 
 // StateOutPort reports the one piece of work this block has. A genre that must
 // not start play before the stem has run wires this to the gate.
 func (b *OnceText) StateOutPort() <-chan ports.State { return b.state.Subscribe() }
-
-// ExportState records that the line has gone out, not the line itself: the text
-// is configuration and arrives again with the spec.
-func (b *OnceText) ExportState() string {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-	if b.fired {
-		return firedMarker
-	}
-	return ""
-}
-
-func (b *OnceText) RestoreState(s string) {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-	b.fired = s == firedMarker
-}
 
 func (b *OnceText) Start(ctx context.Context) {
 	go func() {
@@ -62,30 +50,28 @@ func (b *OnceText) Start(ctx context.Context) {
 
 		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 
-		b.mu.Lock()
-		already := b.fired
-		b.mu.Unlock()
+		already := b.done()
 
-		// Reported even on a resumed session, where there is nothing left to
-		// send: a gating block owes the gate a working-then-ready cycle, or the
-		// game never starts.
-		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
-
-		// A resumed session stays silent, because whatever this line triggered
-		// the first time has already been paid for and persisted. Firing again
-		// would spend money to produce a different result and overwrite the one
-		// the player was shown.
-		if !already {
-			select {
-			case <-ctx.Done():
-				return
-			default:
+		// A resumed session owes the gate its report too, or the game never
+		// starts; nothing runs, so it says it was done before. It stays
+		// silent, because whatever this line triggered the first time has
+		// already been paid for and persisted, unless it sends again for a
+		// reader that answers from memory.
+		if already {
+			if b.again {
+				b.out.Send(b.text)
 			}
-			b.out.Send(b.text)
-			b.mu.Lock()
-			b.fired = true
-			b.mu.Unlock()
+			b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady, Done: true})
+			return
 		}
+		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
+		select {
+		case <-ctx.Done():
+			return
+		default:
+		}
+		b.out.Send(b.text)
+		b.mark()
 
 		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 	}()

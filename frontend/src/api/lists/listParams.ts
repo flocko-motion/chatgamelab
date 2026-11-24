@@ -7,7 +7,7 @@ export const NO_FILTER = "all";
 /**
  * The parameters a list's query asks its endpoint for: the preset's base
  * filters, what the picked filter applies, the toggles that are on, the
- * search, the order and the page.
+ * multi-filter's options picked, the search, the order and the page.
  */
 export function listParams<F extends string, S extends string, O extends string>(
   query: ListQuery<F, S, O>,
@@ -15,7 +15,7 @@ export function listParams<F extends string, S extends string, O extends string>
 ): ListParams {
   const picked = preset.filters?.find((f) => f.value === query.filter);
   const applied: readonly string[] = picked ? (picked.apply ?? [picked.value]) : [];
-  const filter = [...(preset.base ?? []), ...applied, ...query.only];
+  const filter = [...(preset.base ?? []), ...applied, ...query.only, ...query.picked];
   return {
     filter: filter.length > 0 ? filter : undefined,
     search: query.search || undefined,

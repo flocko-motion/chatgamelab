@@ -22,7 +22,7 @@ func NewTool(keys adapters.KeyFunc, model string) *Tool {
 		model: model,
 		// The observer runs beside speech, so it must stay well under one
 		// spoken utterance to go unnoticed.
-		api: client{base: baseURL, http: &http.Client{Timeout: 10 * time.Second}},
+		api: client{base: BaseURL, http: &http.Client{Timeout: 10 * time.Second}},
 	}
 }
 

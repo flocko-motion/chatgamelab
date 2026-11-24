@@ -92,8 +92,13 @@ type LiveConn interface {
 	ID() string
 	// Answer is the SDP answer the browser needs to complete its connection.
 	Answer() string
-	// Instruct appends, so re-injecting the guardrail keeps the character.
+	// Instruct appends an instruction the model follows, which may interrupt
+	// its speech; re-injecting the guardrail keeps the character.
 	Instruct(ctx context.Context, text string) error
+	// Inform appends knowledge the model may use, without saying it now.
+	Inform(ctx context.Context, text string) error
+	// SayAloud appends something for the model to say, in its own words.
+	SayAloud(ctx context.Context, text string) error
 	Events() <-chan LiveEvent
 	Close() error
 }

@@ -35,6 +35,7 @@ func ImportGameFile(ctx context.Context, id uuid.UUID, file obj.GameFile) (*Game
 		Scenario:     &file.SystemMessageScenario,
 		GameStart:    &file.SystemMessageGameStart,
 		ImageStyle:   &file.ImageStyle,
+		VoiceStyle:   &file.VoiceStyle,
 		CSS:          &css,
 		StatusFields: &statusFields,
 	})

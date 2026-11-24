@@ -12,11 +12,14 @@ import { LaunchPanel } from "./launch.js";
 import { AudioIO } from "./audio.js";
 import { WebRTCVoice } from "./voice.js";
 import { HoldToTalk } from "./talk.js";
-import { mountSplit } from "./split.js";
+import { Collapsibles } from "./collapse.js";
+import { mountInsightsSplit, mountSplit } from "./split.js";
 import { View } from "./view.js";
 import { Details } from "./details.js";
 import { startDebugging, type Debugging } from "./debug.js";
 import { Insights } from "./insights.js";
+import { InsightsTabs } from "./tabs.js";
+import { Problems } from "./problems.js";
 import { OptionsDialog } from "./options.js";
 import { mountBackground } from "./theme/backgrounds/index.js";
 import { PRESETS } from "./theme/presets/index.js";
@@ -80,7 +83,24 @@ const hold = required<HTMLButtonElement>("#hold");
 const details = new Details(
   required<HTMLElement>("#details-title"),
   required<HTMLElement>("#details"),
+  required<HTMLElement>("#usage"),
   session,
+);
+const tabs = new InsightsTabs(
+  required<HTMLElement>(".insights-details"),
+  required<HTMLElement>("#insights-tabs"),
+  // A folded lower pane opens when one of its tabs is picked.
+  () => collapsibles.open("details"),
+);
+/** A block or wire picked anywhere opens its tab. */
+const pick = (show: () => Promise<void>): void => {
+  tabs.select("block");
+  void show();
+};
+const problems = new Problems(
+  required<HTMLElement>("#problems"),
+  (source) => pick(() => details.show(source)),
+  (source) => !!playback.state.topology?.nodes.some((node) => node.name === source),
 );
 
 const view = new View({
@@ -111,9 +131,12 @@ const view = new View({
   text: textRenderer,
   background: mountBackground,
 }, {
-  onNodeClick: (name) => void details.show(name),
-  onBackgroundClick: () => details.clear(playback.state),
-  onEdgeClick: (from, to, kind) => void details.showEdge(from, to, kind),
+  onNodeClick: (name) => pick(() => details.show(name)),
+  onBackgroundClick: () => {
+    details.clear(playback.state);
+    tabs.select("usage");
+  },
+  onEdgeClick: (from, to, kind) => pick(() => details.showEdge(from, to, kind)),
 });
 
 const insights = new Insights({
@@ -124,7 +147,8 @@ const insights = new Insights({
   runs: required<HTMLOListElement>("#runs"),
   close: required<HTMLButtonElement>("#details-close"),
 }, {
-  onRun: (name) => void details.show(name),
+  onRun: (name) => pick(() => details.show(name)),
+  isBlock: (source) => !!playback.state.topology?.nodes.some((node) => node.name === source),
   onClose: () => details.clear(playback.state),
 });
 
@@ -143,6 +167,16 @@ useTheme("default");
 themes.addEventListener("change", () => useTheme(themes.value));
 
 mountSplit(required<HTMLElement>("#split"));
+mountInsightsSplit(
+  required<HTMLElement>("#insights-split"),
+  required<HTMLElement>("#insights"),
+  required<HTMLElement>(".insights-graph"),
+  required<HTMLElement>(".insights-details"),
+);
+const collapsibles = new Collapsibles(required<HTMLElement>("#insights"), {
+  graph: required<HTMLButtonElement>("#graph-fold"),
+  details: required<HTMLButtonElement>("#details-fold"),
+});
 
 const options = new OptionsDialog({
   form: required<HTMLFormElement>("#options"),
@@ -176,6 +210,8 @@ playback.subscribe((state) => {
   options.render(state);
   details.refresh(state);
   insights.render(state);
+  problems.render(state.journal);
+  tabs.count("problems", Problems.count(state.journal));
   if (state.redo !== givenBack) {
     givenBack = state.redo;
     if (givenBack !== null && !typed.value) typed.value = givenBack;
@@ -212,6 +248,8 @@ void playback.restore(session).then(async () => {
     await useLanguage(topology.language, location.href);
     talk.refresh();
     insights.relabel();
+    tabs.relabel();
+    collapsibles.relabel();
     debugging?.relabel();
     view.render(playback.state);
   }

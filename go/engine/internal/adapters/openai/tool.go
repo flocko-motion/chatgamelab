@@ -46,7 +46,7 @@ func (t *Tool) Query(ctx context.Context, system, user string) (string, adapters
 		return "", used, err
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, responsesURL, bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, ResponsesURL, bytes.NewReader(body))
 	if err != nil {
 		return "", used, err
 	}

@@ -1,4 +1,4 @@
-import { Alert, Badge, Card, Group, Modal, Select, Stack, TextInput, ThemeIcon, Tooltip } from "@mantine/core";
+import { Alert, Badge, Card, Code, Group, Modal, Select, Stack, TextInput, ThemeIcon, Tooltip } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import {
   IconAlertCircle,
@@ -6,6 +6,7 @@ import {
   IconCircleCheckFilled,
   IconKey,
   IconPlus,
+  IconRefresh,
 } from "@tabler/icons-react";
 import {
   ActionButton,
@@ -43,12 +44,31 @@ export function ApiKeyManagement() {
   const { list, defaultKey } = state;
 
   const keyName = (item: OwnApiKey) => item.key.name || t("apiKeys.unnamed");
+  // The key's last characters, so two keys of one name are told apart.
+  const keyTail = (shortened: string) =>
+    shortened ? (
+      <Tooltip label={t("apiKeys.keyEndsWith")} withArrow>
+        <Code>{shortened}</Code>
+      </Tooltip>
+    ) : null;
   const addedOn = (item: OwnApiKey) =>
     item.key.meta?.createdAt ? new Date(item.key.meta.createdAt).toLocaleString() : "-";
+  // Why the key failed: the engine's problem, said for a key's owner.
   const lastError = (item: OwnApiKey) =>
     item.key.lastUsageSuccess === false && item.key.lastErrorCode
-      ? translateErrorCode(item.key.lastErrorCode)?.message || item.key.lastErrorCode
+      ? keyProblem(item.key.lastErrorCode)
       : null;
+  const keyProblem = (code: string) =>
+    t(`apiKeys.status.reasons.${code}`, { defaultValue: "" }) ||
+    translateErrorCode(code)?.message ||
+    code;
+  const status = (item: OwnApiKey) => (
+    <KeyStatus
+      success={item.key.lastUsageSuccess}
+      checking={state.isChecking(item)}
+      checkedAt={state.checkedAt(item)}
+    />
+  );
   const sharedCount = (item: OwnApiKey) => keyShareGroups(item.shares).total;
 
   const defaultToggle = (item: OwnApiKey) =>
@@ -81,8 +101,24 @@ export function ApiKeyManagement() {
     );
   };
 
-  const deleteButton = (item: OwnApiKey) => (
-    <DeleteIconButton onClick={() => state.deleteModal.open(item)} aria-label={t("delete")} />
+  // The key checked again now: one small billed call to its provider.
+  const checkButton = (item: OwnApiKey) =>
+    item.selfShare ? (
+      <Tooltip label={t("apiKeys.check")} withArrow>
+        <GenericIconButton
+          icon={<IconRefresh size={18} />}
+          onClick={() => state.checkKey(item)}
+          disabled={state.isChecking(item)}
+          aria-label={t("apiKeys.check")}
+        />
+      </Tooltip>
+    ) : null;
+
+  const actions = (item: OwnApiKey) => (
+    <Group gap={2} wrap="nowrap" justify="flex-end">
+      {checkButton(item)}
+      <DeleteIconButton onClick={() => state.deleteModal.open(item)} aria-label={t("delete")} />
+    </Group>
   );
 
   const columns: ListColumn<OwnApiKey, OwnKeyListSort>[] = [
@@ -93,9 +129,12 @@ export function ApiKeyManagement() {
       sortBy: "name",
       render: (item) => (
         <Stack gap={2}>
-          <BodyText size="sm" fw={item.key.isDefault ? 700 : 500}>
-            {keyName(item)}
-          </BodyText>
+          <Group gap={6} wrap="nowrap">
+            <BodyText size="sm" fw={item.key.isDefault ? 700 : 500}>
+              {keyName(item)}
+            </BodyText>
+            {keyTail(item.key.keyShortened)}
+          </Group>
           {lastError(item) && <HelperText c="red.6">{lastError(item)}</HelperText>}
         </Stack>
       ),
@@ -105,7 +144,7 @@ export function ApiKeyManagement() {
       key: "status",
       header: t("apiKeys.statusColumn"),
       sortBy: "status",
-      render: (item) => <KeyStatus success={item.key.lastUsageSuccess} />,
+      render: status,
     },
     {
       key: "shares",
@@ -125,7 +164,7 @@ export function ApiKeyManagement() {
       visibleFrom: "lg",
       render: (item) => <HelperText>{addedOn(item)}</HelperText>,
     },
-    { key: "actions", header: "", render: deleteButton, width: 60, interactive: true },
+    { key: "actions", header: "", render: actions, width: 100, interactive: true },
   ];
 
   const renderCard = (item: OwnApiKey) => (
@@ -134,18 +173,21 @@ export function ApiKeyManagement() {
         <Group gap="sm" wrap="nowrap" align="flex-start" style={{ minWidth: 0 }}>
           {defaultToggle(item)}
           <Stack gap={2} style={{ minWidth: 0 }}>
-            <BodyText size="sm" fw={item.key.isDefault ? 700 : 500}>
-              {keyName(item)}
-            </BodyText>
+            <Group gap={6} wrap="nowrap">
+              <BodyText size="sm" fw={item.key.isDefault ? 700 : 500}>
+                {keyName(item)}
+              </BodyText>
+              {keyTail(item.key.keyShortened)}
+            </Group>
             {platformCell(item)}
-            <KeyStatus success={item.key.lastUsageSuccess} />
+            {status(item)}
             {lastError(item) && <HelperText c="red.6">{lastError(item)}</HelperText>}
             <HelperText>
               {t("apiKeys.addedOn")}: {addedOn(item)}
             </HelperText>
           </Stack>
         </Group>
-        {deleteButton(item)}
+        {actions(item)}
       </Group>
     </Card>
   );
@@ -196,9 +238,12 @@ export function ApiKeyManagement() {
             <Label uppercase>{t("apiKeys.currentDefault.label")}</Label>
             {defaultKey ? (
               <>
-                <BodyText size="sm" fw={700}>
-                  {defaultKey.name || t("apiKeys.unnamed")}
-                </BodyText>
+                <Group gap={6} wrap="nowrap">
+                  <BodyText size="sm" fw={700}>
+                    {defaultKey.name || t("apiKeys.unnamed")}
+                  </BodyText>
+                  {keyTail(defaultKey.keyShortened)}
+                </Group>
                 <Group gap="md">
                   <HelperText>
                     {t("apiKeys.platform")}: {state.defaultKeyPlatformName}
@@ -207,8 +252,7 @@ export function ApiKeyManagement() {
                 </Group>
                 {defaultKey.lastUsageSuccess === false && defaultKey.lastErrorCode && (
                   <HelperText c="red.6">
-                    {translateErrorCode(defaultKey.lastErrorCode)?.message ||
-                      defaultKey.lastErrorCode}
+                    {keyProblem(defaultKey.lastErrorCode)}
                   </HelperText>
                 )}
               </>

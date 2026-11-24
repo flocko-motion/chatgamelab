@@ -19,33 +19,70 @@ func keyed(key string) KeyFunc {
 	return func(context.Context) (string, error) { return key, nil }
 }
 
-// The platform checks a key before creating a session, and the player is
-// told a dead key apart from a provider that is down.
-func TestCheckOfferTellsRejectedFromUnreachable(t *testing.T) {
+// The platform checks a key before creating a session and when one is
+// saved, and the player is told a dead key, an account with no credit and a
+// provider that is down apart. The check is one small billed call, so it
+// finds an empty account too.
+func TestCheckOfferTellsTheKeysProblems(t *testing.T) {
+	var asked []string
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("Authorization") != "Bearer good" {
+		var call struct {
+			Model string `json:"model"`
+			Input string `json:"input"`
+		}
+		_ = json.NewDecoder(r.Body).Decode(&call)
+		asked = append(asked, call.Model+" "+call.Input)
+		switch r.Header.Get("Authorization") {
+		case "Bearer good":
+			_, _ = w.Write([]byte(`{"output":[{"content":[{"text":"2"}]}]}`))
+		case "Bearer empty":
+			w.WriteHeader(http.StatusTooManyRequests)
+			_, _ = w.Write([]byte(`{"error":{"code":"insufficient_quota"}}`))
+		case "Bearer busy":
+			w.WriteHeader(http.StatusTooManyRequests)
+			_, _ = w.Write([]byte(`{"error":{"code":"rate_limit_exceeded"}}`))
+		default:
 			w.WriteHeader(http.StatusUnauthorized)
 		}
 	}))
 	defer srv.Close()
-	saved := openai.ModelsURL
-	defer func() { openai.ModelsURL = saved }()
+	saved := openai.ResponsesURL
+	defer func() { openai.ResponsesURL = saved }()
+	openai.ResponsesURL = srv.URL
 
-	offer := Offer{Platform: PlatformOpenAI, ID: "share", Keys: keyed("good")}
-
-	openai.ModelsURL = srv.URL
-	if err := CheckOffer(context.Background(), offer); err != nil {
+	check := func(key string) error {
+		return CheckOffer(context.Background(), Offer{Platform: PlatformOpenAI, ID: "share", Keys: keyed(key)})
+	}
+	if err := check("good"); err != nil {
 		t.Errorf("a good key: %v", err)
 	}
-	offer.Keys = keyed("dead")
-	if err := CheckOffer(context.Background(), offer); !errors.Is(err, ErrKeyRejected) {
-		t.Errorf("a dead key: got %v, want ErrKeyRejected", err)
+	if len(asked) != 1 || asked[0] != lowestTooling(t, PlatformOpenAI)+" "+adapters.ProbePrompt {
+		t.Errorf("the check asked %q, want the probe on the lowest tier's tooling model", asked)
+	}
+	for key, want := range map[string]error{
+		"dead":  ErrKeyRejected,
+		"empty": ErrNoCredit,
+		"busy":  ErrUnreachable,
+	} {
+		if err := check(key); !errors.Is(err, want) {
+			t.Errorf("key %q: got %v, want %v", key, err, want)
+		}
 	}
 
 	srv.Close()
-	if err := CheckOffer(context.Background(), offer); !errors.Is(err, ErrUnreachable) {
+	if err := check("good"); !errors.Is(err, ErrUnreachable) {
 		t.Errorf("a provider down: got %v, want ErrUnreachable", err)
 	}
+}
+
+func lowestTooling(t *testing.T, platform Platform) string {
+	t.Helper()
+	entry, _ := catalogueEntry(platform)
+	models, err := entry.Models(TierLow)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return models[adapters.ModelTooling].Name
 }
 
 func TestCheckOfferPassesTheMock(t *testing.T) {

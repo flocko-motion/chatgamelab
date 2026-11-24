@@ -193,9 +193,9 @@ func TestChoiceMustMeetTheGenresNeeds(t *testing.T) {
 	custom := MockOffer()
 	custom.Caveats.Customizable = true
 	s := launchOrFail(t, game{spec: SessionSpec{Genre: GenreNPCLive}, offers: []Offer{custom}})
-	err := s.Choose("mock", &Choice{Tier: TierLow, Toggles: Toggles{AudioLive: true}})
-	if err == nil || !strings.Contains(err.Error(), "images") {
-		t.Errorf("err = %v, want the missing images refused", err)
+	err := s.Choose("mock", &Choice{Tier: TierLow, Toggles: Toggles{Images: true}})
+	if err == nil || !strings.Contains(err.Error(), "audio-live") {
+		t.Errorf("err = %v, want the missing audio-live refused", err)
 	}
 }
 
@@ -215,7 +215,7 @@ func TestNothingIsBilledBeforeTheChoice(t *testing.T) {
 	if err := s.Choose("mock", nil); err != nil {
 		t.Fatal(err)
 	}
-	eventually(t, "the portrait to be billed", func() bool { return spent(s, "portrait").Images == 1 })
+	eventually(t, "the game to start", func() bool { return s.Snapshot().Started })
 }
 
 // A reloading page finds the session still choosing, and the same options.
@@ -547,7 +547,7 @@ func TestAdaptLeavesOutBrokenOffers(t *testing.T) {
 // session must still answer.
 func TestNoReaderNeverHangsTheSession(t *testing.T) {
 	s := launchOrFail(t, adventure(mockAdventureOffer(false)))
-	for i := range 2 * cap(s.events) {
+	for i := range 2 * subscriberBuffer {
 		if err := s.SetToggle(ToggleImages, i%2 == 0); err != nil {
 			t.Fatal(err)
 		}

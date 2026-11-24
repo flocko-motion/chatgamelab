@@ -19,7 +19,7 @@
           </button>
           <select id="theme" aria-label="Theme" title="Theme" hidden></select>
           <button id="insights-toggle" class="tool-toggle" type="button" aria-pressed="true" aria-controls="insights">
-            <svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="2.2" /><circle cx="18" cy="12" r="2.2" /><circle cx="6" cy="18" r="2.2" /><path d="M8.1 6.9l7.8 4.2M8.1 17.1l7.8-4.2" /></svg>
+            <svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6.2L4.7 18.3A1.8 1.8 0 0 0 6.3 21h11.4a1.8 1.8 0 0 0 1.6-2.7L14 9.2V3M7.4 15h9.2" /></svg>
             <span id="insights-label" class="tool-label">Insights</span>
           </button>
         </div>
@@ -83,21 +83,37 @@
 
     <aside id="insights">
       <section class="insights-graph">
-        <h2>pipeline</h2>
+        <div class="pane-head">
+          <button id="graph-fold" class="pane-fold" type="button" aria-controls="graph">−</button>
+          <h2>pipeline</h2>
+        </div>
         <div id="graph"></div>
       </section>
-      <section class="insights-feed">
-        <h2 id="runs-title">What happened</h2>
-        <ol id="runs" class="runs"></ol>
-      </section>
-      <section class="insights-details">
+      <div id="insights-split" role="separator" aria-orientation="horizontal" aria-label="Resize the pipeline and the details"></div>
+      <section class="insights-details" data-tab="usage">
         <div class="details-head">
-          <h2 id="details-title">usage</h2>
+          <button id="details-fold" class="pane-fold" type="button" aria-controls="insights-panels">−</button>
+          <div id="insights-tabs" class="insights-tabs"></div>
           <button id="details-close" class="details-close" type="button" aria-label="Close">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
           </button>
         </div>
-        <div id="details"></div>
+        <div id="insights-panels" class="insights-panels">
+          <div id="panel-block" class="tab-panel" role="tabpanel" aria-labelledby="tab-block">
+            <h2 id="details-title"></h2>
+            <div id="details"></div>
+          </div>
+          <div id="panel-usage" class="tab-panel" role="tabpanel" aria-labelledby="tab-usage">
+            <div id="usage"></div>
+          </div>
+          <div id="panel-feed" class="tab-panel insights-feed" role="tabpanel" aria-labelledby="tab-feed">
+            <h2 id="runs-title">What happened</h2>
+            <ol id="runs" class="runs"></ol>
+          </div>
+          <div id="panel-problems" class="tab-panel" role="tabpanel" aria-labelledby="tab-problems">
+            <div id="problems"></div>
+          </div>
+        </div>
       </section>
     </aside>
 

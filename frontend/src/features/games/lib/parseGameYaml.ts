@@ -10,6 +10,7 @@ interface GameYaml {
   system_message_scenario?: string;
   system_message_game_start?: string;
   image_style?: string;
+  voice_style?: string;
   status_fields?: string;
   genre?: string;
   theme?: string;
@@ -36,6 +37,7 @@ export function parseGameYaml(content: string): Partial<CreateGameFormData> {
     systemMessageScenario: str(parsed.system_message_scenario),
     systemMessageGameStart: str(parsed.system_message_game_start),
     imageStyle: str(parsed.image_style),
+    voiceStyle: str(parsed.voice_style),
     statusFields: str(parsed.status_fields),
     genre: str(parsed.genre),
     theme: str(parsed.theme),

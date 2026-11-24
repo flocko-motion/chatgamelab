@@ -11,7 +11,7 @@ import (
 	"engine/internal/adapters"
 )
 
-// driftScript capitulates on purpose: the failure the observer loop exists to catch.
+// driftScript capitulates on purpose: the failure an observer exists to direct against.
 var driftScript = []string{
 	"You shall not pass. The bridge is closed to travellers.",
 	"I suppose the rules bend for someone in a hurry.",
@@ -56,8 +56,10 @@ type liveConn struct {
 	pace    Pace
 	resumed bool
 
-	mu      sync.Mutex
-	drift   int
+	mu    sync.Mutex
+	drift int
+	// known is the background the conversation was given.
+	known   []string
 	seconds float64
 	talking bool
 	events  chan adapters.LiveEvent
@@ -71,7 +73,7 @@ func (c *liveConn) ID() string { return "live_mock" }
 // Answer is a placeholder; the mock is no transport.
 func (c *liveConn) Answer() string { return "mock-sdp-answer" }
 
-// Instruct's first call is the gate's cue to start talking; later ones are steers.
+// Instruct's first call is the gate's cue to start talking; later ones are directions.
 func (c *liveConn) Instruct(_ context.Context, text string) error {
 	c.mu.Lock()
 	first := !c.talking
@@ -86,8 +88,28 @@ func (c *liveConn) Instruct(_ context.Context, text string) error {
 		return nil
 	}
 
-	// A steer ends the drift for good, so the observer's correction cycle stays bounded.
+	// A direction ends the drift for good, so a cycle of directions stays bounded.
+	c.mu.Lock()
+	known := strings.Join(c.known, "; ")
+	c.mu.Unlock()
+	if known != "" {
+		text += " | knowing: " + known
+	}
 	c.say("The bridge stays closed. (steered: " + text + ")")
+	return nil
+}
+
+// Inform is taken in silently, as background is; the next direction shows it.
+func (c *liveConn) Inform(_ context.Context, text string) error {
+	c.mu.Lock()
+	c.known = append(c.known, text)
+	c.mu.Unlock()
+	return nil
+}
+
+// SayAloud is said at once, marked so a test can tell it from the script.
+func (c *liveConn) SayAloud(_ context.Context, text string) error {
+	c.say("(says: " + text + ")")
 	return nil
 }
 
@@ -196,35 +218,22 @@ func (c *liveConn) Close() error {
 type Image struct{ Pace Pace }
 
 func (i Image) Generate(ctx context.Context, req adapters.ImageRequest) ([]byte, adapters.Usage, error) {
-	// Paced, because a portrait is what a gate most often waits on.
+	// Paced, because a picture is what a gate often waits on.
 	wait(ctx, i.Pace)
 	drawn, err := paint(req.Prompt)
 	used := adapters.Usage{Model: "mock-image", InputTokens: int64(len(req.Prompt)), Images: 1}
 	return drawn, used, err
 }
 
-// Tool judges when the system prompt asks for a verdict, by keyword, enough to
-// drive the observer loop deterministically; any other role echoes its input.
+// Tool echoes its input, so a test can tell what reached it.
 type Tool struct{ Pace Pace }
-
-var capitulationMarkers = []string{"i suppose", "fine —", "won't stop you", "go ahead"}
 
 func (t Tool) Query(ctx context.Context, system, user string) (string, adapters.Usage, error) {
 	wait(ctx, t.Pace)
 	used := adapters.Usage{
-		Model:        "mock-tool",
-		InputTokens:  int64(len(system) + len(user)),
-		OutputTokens: 4,
+		Model:       "mock-tool",
+		InputTokens: int64(len(system) + len(user)),
 	}
-	if !strings.Contains(system, "VIOLATION") {
-		used.OutputTokens = int64(len(user))
-		return "[mock-tool] " + user, used, nil
-	}
-	low := strings.ToLower(user)
-	for _, m := range capitulationMarkers {
-		if strings.Contains(low, m) {
-			return "VIOLATION: the character is conceding", used, nil
-		}
-	}
-	return "OK", used, nil
+	used.OutputTokens = int64(len(user))
+	return "[mock-tool] " + user, used, nil
 }

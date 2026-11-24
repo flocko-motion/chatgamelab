@@ -451,6 +451,9 @@
           },
           "theme": {
             "type": "string"
+          },
+          "voiceStyle": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -867,6 +870,9 @@
           "theme": {
             "type": "string"
           },
+          "voiceStyle": {
+            "type": "string"
+          },
           "workshopId": {
             "format": "uuid",
             "type": "string"
@@ -882,6 +888,7 @@
           "systemMessageScenario",
           "systemMessageGameStart",
           "imageStyle",
+          "voiceStyle",
           "css",
           "statusFields",
           "genre",
@@ -902,6 +909,16 @@
           "available"
         ],
         "type": "object"
+      },
+      "GameField": {
+        "enum": [
+          "scenario",
+          "gameStart",
+          "imageStyle",
+          "voiceStyle",
+          "statusFields"
+        ],
+        "type": "string"
       },
       "GameFile": {
         "properties": {
@@ -934,6 +951,9 @@
             "type": "string"
           },
           "theme": {
+            "type": "string"
+          },
+          "voice_style": {
             "type": "string"
           }
         },
@@ -1086,6 +1106,9 @@
           },
           "theme": {
             "type": "string"
+          },
+          "voiceStyle": {
+            "type": "string"
           }
         },
         "required": [
@@ -1212,6 +1235,9 @@
           "theme": {
             "type": "string"
           },
+          "voiceStyle": {
+            "type": "string"
+          },
           "workshopId": {
             "format": "uuid",
             "type": "string"
@@ -1268,6 +1294,12 @@
       },
       "GenreInfo": {
         "properties": {
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/GameField"
+            },
+            "type": "array"
+          },
           "id": {
             "$ref": "#/components/schemas/Genre"
           },
@@ -1280,7 +1312,8 @@
         },
         "required": [
           "id",
-          "needs"
+          "needs",
+          "fields"
         ],
         "type": "object"
       },
@@ -1396,6 +1429,21 @@
         },
         "required": [
           "token"
+        ],
+        "type": "object"
+      },
+      "InjectionRequest": {
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "text"
         ],
         "type": "object"
       },
@@ -1631,6 +1679,33 @@
         ],
         "type": "object"
       },
+      "JournalEntry": {
+        "properties": {
+          "detail": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "level": {
+            "$ref": "#/components/schemas/Level"
+          },
+          "source": {
+            "type": "string"
+          },
+          "time": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "time",
+          "source",
+          "level",
+          "kind"
+        ],
+        "type": "object"
+      },
       "KeyMeta": {
         "properties": {
           "createdAt": {
@@ -1753,6 +1828,14 @@
           "iso"
         ],
         "type": "object"
+      },
+      "Level": {
+        "enum": [
+          "info",
+          "warning",
+          "error"
+        ],
+        "type": "string"
       },
       "MakeGameCoverReq": {
         "properties": {
@@ -1940,6 +2023,15 @@
       },
       "NodeDetail": {
         "properties": {
+          "injectable": {
+            "type": "boolean"
+          },
+          "injections": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "inputs": {
             "items": {
               "$ref": "#/components/schemas/Sample"
@@ -1963,6 +2055,12 @@
           },
           "thread": {
             "$ref": "#/components/schemas/ThreadFill"
+          },
+          "transcript": {
+            "items": {
+              "$ref": "#/components/schemas/TranscriptLine"
+            },
+            "type": "array"
           },
           "type": {
             "type": "string"
@@ -3459,6 +3557,12 @@
             },
             "type": "array"
           },
+          "switches": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "theme": {
             "type": "string"
           },
@@ -3471,7 +3575,8 @@
           "nodes",
           "edges",
           "inputs",
-          "imagery"
+          "imagery",
+          "switches"
         ],
         "type": "object"
       },
@@ -3481,6 +3586,9 @@
             "type": "string"
           },
           "kind": {
+            "type": "string"
+          },
+          "port": {
             "type": "string"
           },
           "to": {
@@ -3496,6 +3604,9 @@
       },
       "TopologyNode": {
         "properties": {
+          "field": {
+            "type": "string"
+          },
           "name": {
             "type": "string"
           },
@@ -3509,6 +3620,21 @@
         "required": [
           "name",
           "role"
+        ],
+        "type": "object"
+      },
+      "TranscriptLine": {
+        "properties": {
+          "speaker": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "speaker",
+          "text"
         ],
         "type": "object"
       },
@@ -3568,6 +3694,9 @@
           },
           "theme": {
             "type": "string"
+          },
+          "voiceStyle": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -3614,6 +3743,9 @@
             "type": "string"
           },
           "theme": {
+            "type": "string"
+          },
+          "voice_style": {
             "type": "string"
           }
         },
@@ -4881,6 +5013,53 @@
         "summary": "Is ShareApiKeyEndpoint at v1's path."
       }
     },
+    "/api/apikeys/{id}/check": {
+      "post": {
+        "description": "answers the share as the check left it.\n\nThe check is the smallest call the provider bills, a fraction of a cent on\nthe key: it finds a key the provider rejects (lastErrorCode key_rejected)\nand an account with no credit left (no_credit) alike, and records the\noutcome as the key's last usage. A provider that does not answer records\nnothing: 503 ai_error.",
+        "operationId": "postApiApikeysIdCheck",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeyShareView"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Checks a key with its provider, for its owner, and"
+      }
+    },
     "/api/apikeys/{id}/default": {
       "put": {
         "description": "play with themselves.",
@@ -6014,6 +6193,57 @@
         "summary": "Submits one player action to a session, typed or spoken."
       }
     },
+    "/api/engine/sessions/{id}/journal": {
+      "get": {
+        "description": "engine saw it: phases, problems, the live conversation's life, pages\nattaching and leaving. Kept in memory, the latest entries only.",
+        "operationId": "getApiEngineSessionsIdJournal",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/JournalEntry"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Answers what happened in a session so far, as the"
+      }
+    },
     "/api/engine/sessions/{id}/live": {
       "get": {
         "description": "The browser sends binary frames of microphone audio and text frames of\ntyped input, a JSON LiveInput; it receives the session's events back,\nbinary frames for audio and text frames of JSON SessionEvent for everything\nelse. A rejected input comes back as an `error` event.",
@@ -6157,6 +6387,65 @@
           }
         ],
         "summary": "Asks a block's thread to compact now."
+      }
+    },
+    "/api/engine/sessions/{id}/nodes/{node}/inject": {
+      "post": {
+        "description": "The block, such as an observer, puts it in as a direction the model\nfollows, background it may use, or a line it says. Anyone playing the\nsession may inject. A block that takes none is refused, and so are an\nunknown kind and blank text.",
+        "operationId": "postApiEngineSessionsIdNodesNodeInject",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "node",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InjectionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Puts text into a session's live conversation through a block."
       }
     },
     "/api/engine/sessions/{id}/options": {

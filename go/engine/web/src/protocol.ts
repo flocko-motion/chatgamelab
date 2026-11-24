@@ -19,6 +19,8 @@ export type StreamName =
   | "settled"
   | "error"
   | "problem"
+  | "journal"
+  | "heartbeat"
   ;
 
 /** One item on the session's events, a text frame on the live WebSocket. */
@@ -66,6 +68,7 @@ export type Problem =
   | "no_plays"
   | "key_rejected"
   | "unreachable"
+  | "no_credit"
   | "stale"
   | "unknown"
   | "denied"
@@ -80,6 +83,7 @@ export const PROBLEMS: readonly Problem[] = [
   "no_plays",
   "key_rejected",
   "unreachable",
+  "no_credit",
   "stale",
   "unknown",
   "denied",

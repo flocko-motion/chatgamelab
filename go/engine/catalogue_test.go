@@ -15,7 +15,8 @@ func TestGenresFollowFromToggles(t *testing.T) {
 	}{
 		{"nothing on", Toggles{}, []Genre{GenreAdventure}},
 		{"images only", Toggles{Images: true}, []Genre{GenreAdventure}},
-		{"live only", Toggles{AudioLive: true}, []Genre{GenreAdventure}},
+		// The live genre's picture comes from the gallery, so it needs no image model.
+		{"live only", Toggles{AudioLive: true}, []Genre{GenreAdventure, GenreNPCLive}},
 		{"live and images", Toggles{AudioLive: true, Images: true}, []Genre{GenreAdventure, GenreNPCLive}},
 		{"everything", Toggles{Images: true, AudioOut: true, AudioIn: true, AudioLive: true}, []Genre{GenreAdventure, GenreNPCLive}},
 	}
@@ -192,6 +193,26 @@ func TestThreadModelsHaveAContextWindow(t *testing.T) {
 					t.Errorf("%s: %s's window says neither when nor where it was read", p.ID, model.Name)
 				}
 			}
+		}
+	}
+}
+
+// An editor offers a genre's own fields: NPC-Live is one character's voice,
+// with no status, and the image style its cover is drawn in; an Adventure
+// has all of them, and its narrator a voice.
+func TestGenresNameTheirFields(t *testing.T) {
+	fields := map[Genre][]GameField{}
+	for _, g := range GenreList() {
+		fields[g.ID] = g.Fields
+	}
+	npc := fields[GenreNPCLive]
+	if !slices.Contains(npc, FieldVoiceStyle) || !slices.Contains(npc, FieldImageStyle) || slices.Contains(npc, FieldStatusFields) {
+		t.Errorf("npc-live fields: %v", npc)
+	}
+	adventure := fields[GenreAdventure]
+	for _, want := range []GameField{FieldScenario, FieldGameStart, FieldImageStyle, FieldStatusFields, FieldVoiceStyle} {
+		if !slices.Contains(adventure, want) {
+			t.Errorf("adventure lacks %q: %v", want, adventure)
 		}
 	}
 }

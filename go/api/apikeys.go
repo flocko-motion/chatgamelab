@@ -235,6 +235,27 @@ func (SetDefaultApiKeyEndpoint) Handle(ctx context.Context, req ApiKeyIDReq) (Ap
 	return wire.KeyShareViewOf(core.ReadKeyShare(ctx, id))
 }
 
+// CheckApiKeyEndpoint checks a key with its provider, for its owner, and
+// answers the share as the check left it.
+//
+// The check is the smallest call the provider bills, a fraction of a cent on
+// the key: it finds a key the provider rejects (lastErrorCode key_rejected)
+// and an account with no credit left (no_credit) alike, and records the
+// outcome as the key's last usage. A provider that does not answer records
+// nothing: 503 ai_error.
+type CheckApiKeyEndpoint struct{}
+
+func (CheckApiKeyEndpoint) Method() string             { return "POST" }
+func (CheckApiKeyEndpoint) Path() string               { return "/api/apikeys/{id}/check" }
+func (CheckApiKeyEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
+func (CheckApiKeyEndpoint) Handle(ctx context.Context, req ApiKeyIDReq) (ApiKeyShareResp, error) {
+	id, err := parseID(req.ID, "Invalid share ID")
+	if err != nil {
+		return ApiKeyShareResp{}, err
+	}
+	return wire.KeyShareViewOf(core.CheckKey(ctx, id))
+}
+
 // DeleteApiKeyEndpoint takes a share back, stopping what draws from it: the
 // owner any share of their key, a head their organisation's, head and staff
 // what draws from it. With cascade=true the owner deletes the key itself,

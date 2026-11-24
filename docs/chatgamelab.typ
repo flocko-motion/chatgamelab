@@ -106,8 +106,9 @@ The player says or types what their character attempts, and the world reacts.
 
 The player talks by voice with one character.
 
-- *The player sees the character first.* A portrait appears, then the character
-  greets the player and the conversation opens.
+- *The player sees the game first.* The game's picture from the gallery
+  appears at once, then the character speaks first: its opening words are
+  written from how the game begins, and the conversation opens with them.
 - *The character holds its line.* It stays in character through a long
   conversation and keeps to what the scenario says it must not concede. When it
   starts to drift or give way, it is pulled back.
@@ -115,10 +116,11 @@ The player talks by voice with one character.
   own words are heard, and only the character's appear.
 - *An idle conversation pauses* after a minute of silence. The player resumes it
   with one press, and the character carries on where it left off. Reloading the
-  page carries on too.
+  page carries on too, and so does a dropped connection, by itself.
 - *Playing takes a microphone.* The player speaks and the character listens.
-- *Playing takes audio-live and images*, for the conversation and the portrait.
-- *An NPC-Live session keeps* the character's portrait and any warnings raised
+- *Playing takes audio-live*, for the conversation; the picture is the game's
+  own, so nothing is painted.
+- *An NPC-Live session keeps* the game's picture and any warnings raised
   during the conversation; the conversation itself is ephemeral.
 
 == Youth protection

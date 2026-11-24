@@ -66,6 +66,11 @@ func (c caller) SessionHistory(sessionID string) ([]SessionEvent, error) {
 	return decode[[]SessionEvent](c.api.GetApiEngineSessionsIdHistoryWithResponse(ctx(), sessionID))
 }
 
+// SessionJournal is what happened in a session, as its journal holds it.
+func (c caller) SessionJournal(sessionID string) ([]JournalEntry, error) {
+	return decode[[]JournalEntry](c.api.GetApiEngineSessionsIdJournalWithResponse(ctx(), sessionID))
+}
+
 // Say sends the player's text into a session.
 func (c caller) Say(sessionID, text string) error {
 	return done(c.api.PostApiEngineSessionsIdInputWithResponse(ctx(), sessionID, apiclient.InputRequest{Text: &text}))
