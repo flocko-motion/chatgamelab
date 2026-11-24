@@ -37,6 +37,14 @@
 //
 //	go run ./cmd/probe -images                   # one picture per setting
 //	go run ./cmd/probe -images -out /tmp/pictures
+//
+// With -speed it times every text model of the model tables instead: a prose
+// turn and the structured Outline turn, each on a fresh thread, three rounds
+// unless -rounds says otherwise: the time to the first piece of text, to the
+// whole reply, the output tokens per second and the cost per call.
+//
+//	go run ./cmd/probe -speed
+//	go run ./cmd/probe -speed -platform openai -rounds 5
 package main
 
 import (
@@ -126,16 +134,24 @@ func main() {
 	language := flag.String("language", "", "with -hearing: the player's language, as a game sets it, such as de")
 	images := flag.Bool("images", false, "draw pictures with the tiers' image settings instead (one round unless -rounds is set)")
 	out := flag.String("out", "", "with -images: a directory to keep the pictures in")
+	speed := flag.Bool("speed", false, "time every text model of the model tables instead (three rounds unless -rounds is set)")
 	flag.Parse()
 
-	if *images {
-		n := 1
+	// roundsOr is -rounds where it is set, else n.
+	roundsOr := func(n int) int {
 		flag.Visit(func(f *flag.Flag) {
 			if f.Name == "rounds" {
 				n = *rounds
 			}
 		})
-		probeImages(*only, *out, n)
+		return n
+	}
+	if *images {
+		probeImages(*only, *out, roundsOr(1))
+		return
+	}
+	if *speed {
+		probeSpeed(*only, roundsOr(3))
 		return
 	}
 	if *hearing {

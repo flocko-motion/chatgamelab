@@ -31,7 +31,7 @@ import "engine/internal/adapters"
 // The mini model serves low and medium, the full one high.
 var (
 	live       = adapters.Model{Name: "gpt-live-1"}
-	tooling    = adapters.Model{Name: "gpt-5.6-luna"}
+	tooling    = adapters.Model{Name: "gpt-6-luna"}
 	speechMini = speaking("gpt-realtime-2.1-mini")
 	speechFull = speaking("gpt-realtime-2.1")
 	hearing    = adapters.Model{Name: "gpt-audio-1.5"}
@@ -63,7 +63,7 @@ func Platform() adapters.Platform {
 		Tiers: adapters.Ladder(
 			adapters.ModelSet{
 				adapters.ModelTooling: tooling,
-				adapters.ModelStory:   {Name: "gpt-5.6-luna"},
+				adapters.ModelStory:   {Name: "gpt-6-luna"},
 				adapters.ModelImage:   picture,
 				adapters.ModelLive:    live,
 				adapters.ModelSpeech:  speechMini,

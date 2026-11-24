@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -28,6 +29,16 @@ func (q *Queries) V2DeleteEngineModelAssignment(ctx context.Context, arg V2Delet
 	return err
 }
 
+const v2DeleteEngineModelAssignments = `-- name: V2DeleteEngineModelAssignments :exec
+DELETE FROM engine_model_assignment WHERE platform = $1
+`
+
+// Gives every task of a platform back its default.
+func (q *Queries) V2DeleteEngineModelAssignments(ctx context.Context, platform string) error {
+	_, err := q.db.ExecContext(ctx, v2DeleteEngineModelAssignments, platform)
+	return err
+}
+
 const v2DeleteEngineModelFacts = `-- name: V2DeleteEngineModelFacts :exec
 DELETE FROM engine_model_facts WHERE platform = $1 AND model = $2
 `
@@ -44,27 +55,38 @@ func (q *Queries) V2DeleteEngineModelFacts(ctx context.Context, arg V2DeleteEngi
 
 const v2EngineModelAssignments = `-- name: V2EngineModelAssignments :many
 
-SELECT platform, tier, model_type, model, modified_at, modified_by
+SELECT platform, tier, model_type, model, quality, modified_at, modified_by
 FROM engine_model_assignment
 ORDER BY platform, tier, model_type
 `
 
+type V2EngineModelAssignmentsRow struct {
+	Platform   string        `json:"platform"`
+	Tier       string        `json:"tier"`
+	ModelType  string        `json:"model_type"`
+	Model      string        `json:"model"`
+	Quality    string        `json:"quality"`
+	ModifiedAt time.Time     `json:"modified_at"`
+	ModifiedBy uuid.NullUUID `json:"modified_by"`
+}
+
 // v2: the admin's overrides of the engine's catalogue (#589), read and
 // written by the secure core (core/engine_overrides.go).
-func (q *Queries) V2EngineModelAssignments(ctx context.Context) ([]EngineModelAssignment, error) {
+func (q *Queries) V2EngineModelAssignments(ctx context.Context) ([]V2EngineModelAssignmentsRow, error) {
 	rows, err := q.db.QueryContext(ctx, v2EngineModelAssignments)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []EngineModelAssignment
+	var items []V2EngineModelAssignmentsRow
 	for rows.Next() {
-		var i EngineModelAssignment
+		var i V2EngineModelAssignmentsRow
 		if err := rows.Scan(
 			&i.Platform,
 			&i.Tier,
 			&i.ModelType,
 			&i.Model,
+			&i.Quality,
 			&i.ModifiedAt,
 			&i.ModifiedBy,
 		); err != nil {
@@ -118,10 +140,10 @@ func (q *Queries) V2EngineModelFacts(ctx context.Context) ([]EngineModelFact, er
 }
 
 const v2SetEngineModelAssignment = `-- name: V2SetEngineModelAssignment :exec
-INSERT INTO engine_model_assignment (platform, tier, model_type, model, modified_by)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO engine_model_assignment (platform, tier, model_type, model, quality, modified_by)
+VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT (platform, tier, model_type)
-DO UPDATE SET model = EXCLUDED.model, modified_at = now(), modified_by = EXCLUDED.modified_by
+DO UPDATE SET model = EXCLUDED.model, quality = EXCLUDED.quality, modified_at = now(), modified_by = EXCLUDED.modified_by
 `
 
 type V2SetEngineModelAssignmentParams struct {
@@ -129,6 +151,7 @@ type V2SetEngineModelAssignmentParams struct {
 	Tier       string        `json:"tier"`
 	ModelType  string        `json:"model_type"`
 	Model      string        `json:"model"`
+	Quality    string        `json:"quality"`
 	ModifiedBy uuid.NullUUID `json:"modified_by"`
 }
 
@@ -138,6 +161,7 @@ func (q *Queries) V2SetEngineModelAssignment(ctx context.Context, arg V2SetEngin
 		arg.Tier,
 		arg.ModelType,
 		arg.Model,
+		arg.Quality,
 		arg.ModifiedBy,
 	)
 	return err

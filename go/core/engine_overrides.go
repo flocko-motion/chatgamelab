@@ -25,10 +25,11 @@ import (
 // developers update the table with each release. A model only the admin added
 // has no figures of the code to come back to, and keeps its entry.
 
-// ModelAssignment is a model the admin assigned to a tier's task.
+// ModelAssignment is what the admin assigned to a tier's task: a model, and
+// for a picture a quality (empty: the slot's own).
 type ModelAssignment struct {
 	Slot       engine.ModelSlot
-	Model      string
+	Choice     engine.SlotChoice
 	ModifiedAt time.Time
 }
 
@@ -60,30 +61,89 @@ func ReadEngineOverrides(ctx context.Context, version string) (EngineOverrides, 
 	return stored, err
 }
 
-// AssignModel assigns a model to a tier's task, or with an empty model gives
-// the task back its default: {Edit, SiteSettings, Everywhere}, the admin. The
-// model must be in the model table and fit the task (engine.CheckOverrides).
-// It answers the overrides as they now are.
-func AssignModel(ctx context.Context, slot engine.ModelSlot, model, version string) (EngineOverrides, error) {
+// AssignModel assigns a model to a tier's task, for a picture with a
+// quality, or with an empty model gives the task back its default: {Edit,
+// SiteSettings, Everywhere}, the admin. The model must be in the model table
+// and fit the task (engine.CheckOverrides). It answers the overrides as they
+// now are.
+func AssignModel(ctx context.Context, slot engine.ModelSlot, choice engine.SlotChoice, version string) (EngineOverrides, error) {
 	if !granted(ctx, rules.Edit, rules.SiteSettings, rules.Everywhere) {
 		return EngineOverrides{}, forbidden("only the admin assigns the engine's models")
 	}
 	return changeEngineOverrides(ctx, version, func(o *engine.Overrides) {
-		if model == "" {
+		if choice.Model == "" {
 			delete(o.Models, slot)
 		} else {
-			o.Models[slot] = model
+			o.Models[slot] = choice
 		}
 	}, func(q *db.Queries) error {
-		if model == "" {
+		if choice.Model == "" {
 			return q.V2DeleteEngineModelAssignment(ctx, db.V2DeleteEngineModelAssignmentParams{
 				Platform: string(slot.Platform), Tier: string(slot.Tier), ModelType: string(slot.Type),
 			})
 		}
 		return q.V2SetEngineModelAssignment(ctx, db.V2SetEngineModelAssignmentParams{
 			Platform: string(slot.Platform), Tier: string(slot.Tier), ModelType: string(slot.Type),
-			Model: model, ModifiedBy: account(ctx),
+			Model: choice.Model, Quality: choice.Quality, ModifiedBy: account(ctx),
 		})
+	})
+}
+
+// ResetModelAssignments gives every task of a platform back its default:
+// {Edit, SiteSettings, Everywhere}, the admin. It answers the overrides as
+// they now are.
+func ResetModelAssignments(ctx context.Context, platform engine.Platform, version string) (EngineOverrides, error) {
+	if !granted(ctx, rules.Edit, rules.SiteSettings, rules.Everywhere) {
+		return EngineOverrides{}, forbidden("only the admin assigns the engine's models")
+	}
+	return changeEngineOverrides(ctx, version, func(o *engine.Overrides) {
+		for slot := range o.Models {
+			if slot.Platform == platform {
+				delete(o.Models, slot)
+			}
+		}
+	}, func(q *db.Queries) error {
+		return q.V2DeleteEngineModelAssignments(ctx, string(platform))
+	})
+}
+
+// ResetModelEntries gives every code model of a platform back the code's
+// figures, and removes the models the admin added that no tier runs; one a
+// tier runs keeps its entry: {Edit, SiteSettings, Everywhere}, the admin. It
+// answers the overrides as they now are.
+func ResetModelEntries(ctx context.Context, platform engine.Platform, version string) (EngineOverrides, error) {
+	if !granted(ctx, rules.Edit, rules.SiteSettings, rules.Everywhere) {
+		return EngineOverrides{}, forbidden("only the admin sets the engine's model table")
+	}
+	codeModels := map[string]bool{}
+	for _, p := range engine.DefaultPlatforms() {
+		if p.ID == platform {
+			for name := range p.Models {
+				codeModels[name] = true
+			}
+		}
+	}
+	var dropped []string
+	return changeEngineOverrides(ctx, version, func(o *engine.Overrides) {
+		inUse := map[string]bool{}
+		for slot, choice := range o.Models {
+			if slot.Platform == platform {
+				inUse[choice.Model] = true
+			}
+		}
+		for name := range o.Facts[platform] {
+			if codeModels[name] || !inUse[name] {
+				delete(o.Facts[platform], name)
+				dropped = append(dropped, name)
+			}
+		}
+	}, func(q *db.Queries) error {
+		for _, name := range dropped {
+			if err := q.V2DeleteEngineModelFacts(ctx, db.V2DeleteEngineModelFactsParams{Platform: string(platform), Model: name}); err != nil {
+				return err
+			}
+		}
+		return nil
 	})
 }
 
@@ -154,7 +214,7 @@ func ApplyEngineOverrides(ctx context.Context, version string) {
 		return
 	}
 	log.Warn("engine overrides do not hold together, model assignments left out", "error", err)
-	overrides.Models = map[engine.ModelSlot]string{}
+	overrides.Models = map[engine.ModelSlot]engine.SlotChoice{}
 	if err := engine.SetOverrides(overrides); err != nil {
 		log.Warn("engine model entries do not hold together, the engine runs on its defaults", "error", err)
 		_ = engine.SetOverrides(engine.Overrides{})
@@ -193,7 +253,7 @@ func changeEngineOverrides(ctx context.Context, version string, change func(*eng
 // takes them: a code model's entry set under another app version is left out.
 func loadEngineOverrides(ctx context.Context, q *db.Queries, version string) (EngineOverrides, engine.Overrides, error) {
 	stored := EngineOverrides{}
-	overrides := engine.Overrides{Models: map[engine.ModelSlot]string{}, Facts: map[engine.Platform]map[string]engine.ModelFactsOverride{}}
+	overrides := engine.Overrides{Models: map[engine.ModelSlot]engine.SlotChoice{}, Facts: map[engine.Platform]map[string]engine.ModelFactsOverride{}}
 
 	assignments, err := q.V2EngineModelAssignments(ctx)
 	if err != nil {
@@ -201,8 +261,9 @@ func loadEngineOverrides(ctx context.Context, q *db.Queries, version string) (En
 	}
 	for _, a := range assignments {
 		slot := engine.ModelSlot{Platform: engine.Platform(a.Platform), Tier: engine.Tier(a.Tier), Type: engine.ModelType(a.ModelType)}
-		stored.Assignments = append(stored.Assignments, ModelAssignment{Slot: slot, Model: a.Model, ModifiedAt: a.ModifiedAt})
-		overrides.Models[slot] = a.Model
+		choice := engine.SlotChoice{Model: a.Model, Quality: a.Quality}
+		stored.Assignments = append(stored.Assignments, ModelAssignment{Slot: slot, Choice: choice, ModifiedAt: a.ModifiedAt})
+		overrides.Models[slot] = choice
 	}
 
 	codeModels := map[engine.Platform]engine.ModelTable{}

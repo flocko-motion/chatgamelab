@@ -118,6 +118,7 @@ export {
   useAssignEngineModel,
   useSetEngineModelEntry,
   useProbeEngineModel,
+  useResetEngineModels,
 } from "./useEngineModels";
 
 // Notifications

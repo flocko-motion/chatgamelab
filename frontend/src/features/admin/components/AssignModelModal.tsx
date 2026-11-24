@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Alert, Group, Modal, Select, Stack } from "@mantine/core";
+import { Alert, Group, Modal, SegmentedControl, Select, Stack } from "@mantine/core";
 import { IconCircleCheck, IconCircleX, IconPlayerPlay } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { ActionButton, CancelButton, GenericButtonWithText, TextButton } from "@components/buttons";
-import { BodyText, HelperText } from "@components/typography";
+import { BodyText, HelperText, Label } from "@components/typography";
 import { getAiQualityTierLabel } from "@/common/lib/aiQualityTier";
 import type { EngineModelsPlatform } from "@/api/types";
-import type { EngineModelsPage, SlotDraft } from "../hooks/useEngineModelsPage";
+import { IMAGE_QUALITIES, type EngineModelsPage, type SlotDraft } from "../hooks/useEngineModelsPage";
 
 /**
  * Assigns a model to a tier's task: a model of the table that fits the task,
@@ -56,12 +56,15 @@ function AssignForm({
   const { t } = useTranslation("common");
   const { slot } = draft;
   const [model, setModel] = useState(slot.model);
+  const [quality, setQuality] = useState(slot.quality ?? "");
+  const picture = slot.type === "image";
+  const unchanged = model === slot.model && quality === (slot.quality ?? "");
   const choices = page.choices(platform, slot.type);
   const result = page.probeResult(platform.id, slot.type, model);
 
   const save = async () => {
     try {
-      await page.assign(platform.id, slot, model);
+      await page.assign(platform.id, slot, model, picture ? quality : undefined);
       onClose();
     } catch {
       // the refusal shows below
@@ -87,6 +90,22 @@ function AssignForm({
         searchable
         allowDeselect={false}
       />
+
+      {picture && (
+        <Stack gap={4}>
+          <Label>{t("serverSettings.models.assign.quality")}</Label>
+          <SegmentedControl
+            value={quality}
+            onChange={setQuality}
+            data={IMAGE_QUALITIES.map((q) => ({ value: q, label: t(`serverSettings.models.quality.${q}`) }))}
+          />
+          <HelperText size="xs">
+            {t("serverSettings.models.assign.qualityHint", {
+              quality: t(`serverSettings.models.quality.${slot.defaultQuality ?? "low"}`),
+            })}
+          </HelperText>
+        </Stack>
+      )}
 
       <Group gap="sm" wrap="wrap">
         {page.probeable(slot.type) ? (
@@ -127,14 +146,12 @@ function AssignForm({
       )}
 
       <Group justify="space-between" wrap="wrap">
-        {slot.assigned ? (
-          <TextButton onClick={() => void reset()}>{t("serverSettings.models.assign.reset")}</TextButton>
-        ) : (
-          <span />
-        )}
+        <TextButton onClick={() => void reset()} disabled={!page.slotChanged(slot)}>
+          {t("serverSettings.models.assign.reset")}
+        </TextButton>
         <Group gap="sm">
           <CancelButton onClick={onClose}>{t("cancel")}</CancelButton>
-          <ActionButton onClick={() => void save()} loading={page.saving} disabled={model === slot.model}>
+          <ActionButton onClick={() => void save()} loading={page.saving} disabled={unchanged}>
             {t("save")}
           </ActionButton>
         </Group>

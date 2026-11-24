@@ -120,6 +120,8 @@ export type EventType =
   | "members_updated"
   | "connected";
 
+export type EngineModelsReset = "assignments" | "entries";
+
 export interface AcceptInviteResp {
   authToken?: string;
   message: string;
@@ -194,6 +196,7 @@ export interface ApproveVerifiedPageReq {
 export interface AssignEngineModelReq {
   model: string;
   platform: Platform;
+  quality?: string;
   tier: Tier;
   type: ModelType;
 }
@@ -906,9 +909,11 @@ export interface ModelFactsOverride {
 export interface ModelSlotView {
   assigned: boolean;
   default: string;
+  defaultQuality?: string;
   model: string;
   /** @format date-time */
   modifiedAt?: string;
+  quality?: string;
   tier: Tier;
   type: ModelType;
 }
@@ -1222,6 +1227,11 @@ export interface PublicWorkshopPlay {
   limit: number;
   remaining: number;
   token: string;
+}
+
+export interface ResetEngineModelsReq {
+  platform: Platform;
+  what: EngineModelsReset;
 }
 
 export interface ReviewGameReq {
@@ -4616,7 +4626,7 @@ export class Api<
       }),
 
     /**
-     * @description The model must be in the platform's model table and fit the task: a hearing model takes audio, an image model makes pictures, a story or speech model has a context window (400 otherwise). An empty model gives the task back its default. Answers the engine's models as they now are.
+     * @description The model must be in the platform's model table and fit the task: a hearing model takes audio, an image model makes pictures, a story or speech model has a context window (400 otherwise). A picture takes a quality (low, medium, high; empty keeps the tier's). An empty model gives the task back its default. Answers the engine's models as they now are.
      *
      * @name PutApiSystemEngineModelsAssignment
      * @summary Assigns a model to a tier's task; admins only.
@@ -4673,6 +4683,28 @@ export class Api<
     ) =>
       this.request<ProbeEngineModelResp, Error>({
         path: `/api/system/engine-models/probe`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: "application/json",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description models ("assignments"), or its model table back the code's figures ("entries", keeping the entries of added models a tier runs); admins only. Answers the engine's models as they now are.
+     *
+     * @name PostApiSystemEngineModelsReset
+     * @summary Gives a platform's tasks back their default
+     * @request POST:/api/system/engine-models/reset
+     * @secure
+     */
+    postApiSystemEngineModelsReset: (
+      data: ResetEngineModelsReq,
+      params: RequestParams = {},
+    ) =>
+      this.request<EngineModelsResp, Error>({
+        path: `/api/system/engine-models/reset`,
         method: "POST",
         body: data,
         secure: true,

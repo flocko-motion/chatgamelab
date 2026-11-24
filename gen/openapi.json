@@ -217,6 +217,9 @@
           "platform": {
             "$ref": "#/components/schemas/Platform"
           },
+          "quality": {
+            "type": "string"
+          },
           "tier": {
             "$ref": "#/components/schemas/Tier"
           },
@@ -973,6 +976,13 @@
           "models"
         ],
         "type": "object"
+      },
+      "EngineModelsReset": {
+        "enum": [
+          "assignments",
+          "entries"
+        ],
+        "type": "string"
       },
       "EngineModelsResp": {
         "properties": {
@@ -2472,11 +2482,17 @@
           "default": {
             "type": "string"
           },
+          "defaultQuality": {
+            "type": "string"
+          },
           "model": {
             "type": "string"
           },
           "modifiedAt": {
             "format": "date-time",
+            "type": "string"
+          },
+          "quality": {
             "type": "string"
           },
           "tier": {
@@ -3591,6 +3607,21 @@
           "token",
           "remaining",
           "limit"
+        ],
+        "type": "object"
+      },
+      "ResetEngineModelsReq": {
+        "properties": {
+          "platform": {
+            "$ref": "#/components/schemas/Platform"
+          },
+          "what": {
+            "$ref": "#/components/schemas/EngineModelsReset"
+          }
+        },
+        "required": [
+          "platform",
+          "what"
         ],
         "type": "object"
       },
@@ -12039,7 +12070,7 @@
     },
     "/api/system/engine-models/assignment": {
       "put": {
-        "description": "The model must be in the platform's model table and fit the task: a\nhearing model takes audio, an image model makes pictures, a story or\nspeech model has a context window (400 otherwise). An empty model gives\nthe task back its default. Answers the engine's models as they now are.",
+        "description": "The model must be in the platform's model table and fit the task: a\nhearing model takes audio, an image model makes pictures, a story or\nspeech model has a context window (400 otherwise). A picture takes a\nquality (low, medium, high; empty keeps the tier's). An empty model gives\nthe task back its default. Answers the engine's models as they now are.",
         "operationId": "putApiSystemEngine-modelsAssignment",
         "requestBody": {
           "content": {
@@ -12176,6 +12207,53 @@
           }
         ],
         "summary": "Asks whether a model answers, with the smallest"
+      }
+    },
+    "/api/system/engine-models/reset": {
+      "post": {
+        "description": "models (\"assignments\"), or its model table back the code's figures\n(\"entries\", keeping the entries of added models a tier runs); admins only.\nAnswers the engine's models as they now are.",
+        "operationId": "postApiSystemEngine-modelsReset",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetEngineModelsReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineModelsResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Gives a platform's tasks back their default"
       }
     },
     "/api/system/settings": {

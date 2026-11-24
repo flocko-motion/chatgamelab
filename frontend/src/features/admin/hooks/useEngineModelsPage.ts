@@ -3,6 +3,7 @@ import {
   useAssignEngineModel,
   useEngineModels,
   useProbeEngineModel,
+  useResetEngineModels,
   useSetEngineModelEntry,
 } from "@/api/hooks";
 import type {
@@ -27,6 +28,9 @@ export const TIERS: Tier[] = ["low", "medium", "high"];
 
 /** The kinds of content a model takes or makes. */
 export const MEDIA: Medium[] = ["text", "image", "audio"];
+
+/** The qualities a picture may be drawn at, cheapest first. */
+export const IMAGE_QUALITIES = ["low", "medium", "high"] as const;
 
 /** A model table entry's price fields, in the order the form shows them. */
 export const PRICE_FIELDS: (keyof Price)[] = [
@@ -90,6 +94,7 @@ export function useEngineModelsPage() {
   const { data, isLoading } = useEngineModels();
   const assign = useAssignEngineModel();
   const setEntry = useSetEngineModelEntry();
+  const reset = useResetEngineModels();
   const probe = useProbeEngineModel();
   const [probes, setProbes] = useState<Record<ProbeKey, ProbeEngineModelResp>>({});
   const [probing, setProbing] = useState<ProbeKey | null>(null);
@@ -110,6 +115,35 @@ export function useEngineModelsPage() {
   /** A model a tier runs a task on without an entry: costs unpriced, no compaction. */
   const unpriced = (p: EngineModelsPlatform, model: string) => !p.models.some((row) => row.model === model);
 
+  /** Whether a tier's task differs from the default: its model, or a picture's quality. */
+  const slotChanged = (s: ModelSlotView) =>
+    s.model !== s.default || (s.type === "image" && (s.quality ?? "") !== (s.defaultQuality ?? ""));
+
+  /** Which parts of a model's entry differ from the code's: all of it for a model the admin added. */
+  const entryChanged = (row: ModelTableRowView) => {
+    const def = row.default;
+    const same = (a?: unknown[], b?: unknown[]) => JSON.stringify([...(a ?? [])].sort()) === JSON.stringify([...(b ?? [])].sort());
+    return {
+      any: !def || row.overridden,
+      added: !def,
+      takes: !def || !same(row.facts.in, def.in),
+      makes: !def || !same(row.facts.out, def.out),
+      window: !def || (row.facts.window ?? 0) !== (def.window ?? 0),
+      price: (field: keyof Price) => !def || (row.facts.price[field] ?? 0) !== (def.price[field] ?? 0),
+    };
+  };
+
+  /** Whether anything of a platform's tiers, or of its model table, differs from the default. */
+  const anyChanged = (p: EngineModelsPlatform, what: "assignments" | "entries") =>
+    what === "assignments" ? p.assignments.some(slotChanged) : p.models.some((row) => row.overridden);
+
+  /** The tiers that run a task on a model, cheapest first, each with its tasks. */
+  const usedBy = (p: EngineModelsPlatform, model: string) =>
+    TIERS.map((tier) => ({
+      tier,
+      types: MODEL_TYPES.filter((type) => slot(p, tier, type)?.model === model),
+    })).filter((use) => use.types.length > 0);
+
   return {
     loading: isLoading,
     platforms,
@@ -117,7 +151,13 @@ export function useEngineModelsPage() {
     types,
     choices,
     unpriced,
-    saving: assign.isPending || setEntry.isPending,
+    usedBy,
+    slotChanged,
+    entryChanged,
+    anyChanged,
+    resetAll: (platform: string, what: "assignments" | "entries") =>
+      reset.mutateAsync({ platform: platform as never, what }),
+    saving: assign.isPending || setEntry.isPending || reset.isPending,
     /** Whether the server refused the last change, and its message, for detail. */
     assignError: assign.error ? (extractRawErrorMessage(assign.error) ?? "") : null,
     entryError: setEntry.error ? (extractRawErrorMessage(setEntry.error) ?? "") : null,
@@ -126,8 +166,8 @@ export function useEngineModelsPage() {
       setEntry.reset();
     },
 
-    assign: (platform: string, s: ModelSlotView, model: string) =>
-      assign.mutateAsync({ platform: platform as never, tier: s.tier, type: s.type, model }),
+    assign: (platform: string, s: ModelSlotView, model: string, quality?: string) =>
+      assign.mutateAsync({ platform: platform as never, tier: s.tier, type: s.type, model, quality }),
     resetSlot: (platform: string, s: ModelSlotView) =>
       assign.mutateAsync({ platform: platform as never, tier: s.tier, type: s.type, model: "" }),
 

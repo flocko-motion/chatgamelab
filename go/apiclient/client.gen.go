@@ -20,6 +20,24 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+// Defines values for EngineModelsReset.
+const (
+	EngineModelsResetAssignments EngineModelsReset = "assignments"
+	EngineModelsResetEntries     EngineModelsReset = "entries"
+)
+
+// Valid indicates whether the value is a known member of the EngineModelsReset enum.
+func (e EngineModelsReset) Valid() bool {
+	switch e {
+	case EngineModelsResetAssignments:
+		return true
+	case EngineModelsResetEntries:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for EventType.
 const (
 	EventTypeConnected       EventType = "connected"
@@ -930,6 +948,7 @@ type ApproveVerifiedPageReq struct {
 type AssignEngineModelReq struct {
 	Model    string    `json:"model"`
 	Platform Platform  `json:"platform"`
+	Quality  *string   `json:"quality,omitempty"`
 	Tier     Tier      `json:"tier"`
 	Type     ModelType `json:"type"`
 }
@@ -1197,6 +1216,9 @@ type EngineModelsPlatform struct {
 	Models       []ModelTableRowView `json:"models"`
 	Name         string              `json:"name"`
 }
+
+// EngineModelsReset defines model for EngineModelsReset.
+type EngineModelsReset string
 
 // EngineModelsResp defines model for EngineModelsResp.
 type EngineModelsResp struct {
@@ -1683,12 +1705,14 @@ type ModelFactsOverride struct {
 
 // ModelSlotView defines model for ModelSlotView.
 type ModelSlotView struct {
-	Assigned   bool       `json:"assigned"`
-	Default    string     `json:"default"`
-	Model      string     `json:"model"`
-	ModifiedAt *time.Time `json:"modifiedAt,omitempty"`
-	Tier       Tier       `json:"tier"`
-	Type       ModelType  `json:"type"`
+	Assigned       bool       `json:"assigned"`
+	Default        string     `json:"default"`
+	DefaultQuality *string    `json:"defaultQuality,omitempty"`
+	Model          string     `json:"model"`
+	ModifiedAt     *time.Time `json:"modifiedAt,omitempty"`
+	Quality        *string    `json:"quality,omitempty"`
+	Tier           Tier       `json:"tier"`
+	Type           ModelType  `json:"type"`
 }
 
 // ModelTableRowView defines model for ModelTableRowView.
@@ -2042,6 +2066,12 @@ type PublicWorkshopPlay struct {
 	Limit     int    `json:"limit"`
 	Remaining int    `json:"remaining"`
 	Token     string `json:"token"`
+}
+
+// ResetEngineModelsReq defines model for ResetEngineModelsReq.
+type ResetEngineModelsReq struct {
+	Platform Platform          `json:"platform"`
+	What     EngineModelsReset `json:"what"`
 }
 
 // ReviewGameReq defines model for ReviewGameReq.
@@ -3093,6 +3123,9 @@ type PutApiSystemEngineModelsEntryJSONRequestBody = SetEngineModelEntryReq
 
 // PostApiSystemEngineModelsProbeJSONRequestBody defines body for PostApiSystemEngineModelsProbe for application/json ContentType.
 type PostApiSystemEngineModelsProbeJSONRequestBody = ProbeEngineModelReq
+
+// PostApiSystemEngineModelsResetJSONRequestBody defines body for PostApiSystemEngineModelsReset for application/json ContentType.
+type PostApiSystemEngineModelsResetJSONRequestBody = ResetEngineModelsReq
 
 // PatchApiSystemSettingsJSONRequestBody defines body for PatchApiSystemSettings for application/json ContentType.
 type PatchApiSystemSettingsJSONRequestBody = UpdateSystemSettingsReq
@@ -4754,7 +4787,8 @@ type ClientInterface interface {
 	//
 	// The model must be in the platform's model table and fit the task: a
 	// hearing model takes audio, an image model makes pictures, a story or
-	// speech model has a context window (400 otherwise). An empty model gives
+	// speech model has a context window (400 otherwise). A picture takes a
+	// quality (low, medium, high; empty keeps the tier's). An empty model gives
 	// the task back its default. Answers the engine's models as they now are.
 	//
 	// Takes any type of body and a specified content type.
@@ -4766,7 +4800,8 @@ type ClientInterface interface {
 	//
 	// The model must be in the platform's model table and fit the task: a
 	// hearing model takes audio, an image model makes pictures, a story or
-	// speech model has a context window (400 otherwise). An empty model gives
+	// speech model has a context window (400 otherwise). A picture takes a
+	// quality (low, medium, high; empty keeps the tier's). An empty model gives
 	// the task back its default. Answers the engine's models as they now are.
 	//
 	// Takes a body of the `application/json` content type.
@@ -4829,6 +4864,28 @@ type ClientInterface interface {
 	//
 	// Corresponds with POST /api/system/engine-models/probe (the `PostApiSystemEngineModelsProbe` operationId).
 	PostApiSystemEngineModelsProbe(ctx context.Context, body PostApiSystemEngineModelsProbeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiSystemEngineModelsResetWithBody Gives a platform's tasks back their default
+	//
+	// models ("assignments"), or its model table back the code's figures
+	// ("entries", keeping the entries of added models a tier runs); admins only.
+	// Answers the engine's models as they now are.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /api/system/engine-models/reset (the `PostApiSystemEngineModelsReset` operationId).
+	PostApiSystemEngineModelsResetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiSystemEngineModelsReset Gives a platform's tasks back their default
+	//
+	// models ("assignments"), or its model table back the code's figures
+	// ("entries", keeping the entries of added models a tier runs); admins only.
+	// Answers the engine's models as they now are.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /api/system/engine-models/reset (the `PostApiSystemEngineModelsReset` operationId).
+	PostApiSystemEngineModelsReset(ctx context.Context, body PostApiSystemEngineModelsResetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiSystemSettings Returns the site-wide settings to an admin.
 	//
@@ -8546,7 +8603,8 @@ func (c *Client) GetApiSystemEngineModels(ctx context.Context, reqEditors ...Req
 //
 // The model must be in the platform's model table and fit the task: a
 // hearing model takes audio, an image model makes pictures, a story or
-// speech model has a context window (400 otherwise). An empty model gives
+// speech model has a context window (400 otherwise). A picture takes a
+// quality (low, medium, high; empty keeps the tier's). An empty model gives
 // the task back its default. Answers the engine's models as they now are.
 //
 // Takes any type of body and a specified content type.
@@ -8568,7 +8626,8 @@ func (c *Client) PutApiSystemEngineModelsAssignmentWithBody(ctx context.Context,
 //
 // The model must be in the platform's model table and fit the task: a
 // hearing model takes audio, an image model makes pictures, a story or
-// speech model has a context window (400 otherwise). An empty model gives
+// speech model has a context window (400 otherwise). A picture takes a
+// quality (low, medium, high; empty keeps the tier's). An empty model gives
 // the task back its default. Answers the engine's models as they now are.
 //
 // Takes a body of the `application/json` content type.
@@ -8672,6 +8731,48 @@ func (c *Client) PostApiSystemEngineModelsProbeWithBody(ctx context.Context, con
 // Corresponds with POST /api/system/engine-models/probe (the `PostApiSystemEngineModelsProbe` operationId).
 func (c *Client) PostApiSystemEngineModelsProbe(ctx context.Context, body PostApiSystemEngineModelsProbeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostApiSystemEngineModelsProbeRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiSystemEngineModelsResetWithBody Gives a platform's tasks back their default
+//
+// models ("assignments"), or its model table back the code's figures
+// ("entries", keeping the entries of added models a tier runs); admins only.
+// Answers the engine's models as they now are.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /api/system/engine-models/reset (the `PostApiSystemEngineModelsReset` operationId).
+func (c *Client) PostApiSystemEngineModelsResetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiSystemEngineModelsResetRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiSystemEngineModelsReset Gives a platform's tasks back their default
+//
+// models ("assignments"), or its model table back the code's figures
+// ("entries", keeping the entries of added models a tier runs); admins only.
+// Answers the engine's models as they now are.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /api/system/engine-models/reset (the `PostApiSystemEngineModelsReset` operationId).
+func (c *Client) PostApiSystemEngineModelsReset(ctx context.Context, body PostApiSystemEngineModelsResetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiSystemEngineModelsResetRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -15165,6 +15266,46 @@ func NewPostApiSystemEngineModelsProbeRequestWithBody(server string, contentType
 	return req, nil
 }
 
+// NewPostApiSystemEngineModelsResetRequest calls the generic PostApiSystemEngineModelsReset builder with application/json body
+func NewPostApiSystemEngineModelsResetRequest(server string, body PostApiSystemEngineModelsResetJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiSystemEngineModelsResetRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiSystemEngineModelsResetRequestWithBody constructs an http.Request for the PostApiSystemEngineModelsReset method, with any body, and a specified content type
+func NewPostApiSystemEngineModelsResetRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/system/engine-models/reset")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewGetApiSystemSettingsRequest constructs an http.Request for the GetApiSystemSettings method
 func NewGetApiSystemSettingsRequest(server string) (*http.Request, error) {
 	var err error
@@ -18732,7 +18873,8 @@ type ClientWithResponsesInterface interface {
 	//
 	// The model must be in the platform's model table and fit the task: a
 	// hearing model takes audio, an image model makes pictures, a story or
-	// speech model has a context window (400 otherwise). An empty model gives
+	// speech model has a context window (400 otherwise). A picture takes a
+	// quality (low, medium, high; empty keeps the tier's). An empty model gives
 	// the task back its default. Answers the engine's models as they now are.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -18744,7 +18886,8 @@ type ClientWithResponsesInterface interface {
 	//
 	// The model must be in the platform's model table and fit the task: a
 	// hearing model takes audio, an image model makes pictures, a story or
-	// speech model has a context window (400 otherwise). An empty model gives
+	// speech model has a context window (400 otherwise). A picture takes a
+	// quality (low, medium, high; empty keeps the tier's). An empty model gives
 	// the task back its default. Answers the engine's models as they now are.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
@@ -18807,6 +18950,28 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with POST /api/system/engine-models/probe (the `PostApiSystemEngineModelsProbe` operationId).
 	PostApiSystemEngineModelsProbeWithResponse(ctx context.Context, body PostApiSystemEngineModelsProbeJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiSystemEngineModelsProbeResponse, error)
+
+	// PostApiSystemEngineModelsResetWithBodyWithResponse Gives a platform's tasks back their default
+	//
+	// models ("assignments"), or its model table back the code's figures
+	// ("entries", keeping the entries of added models a tier runs); admins only.
+	// Answers the engine's models as they now are.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/system/engine-models/reset (the `PostApiSystemEngineModelsReset` operationId).
+	PostApiSystemEngineModelsResetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiSystemEngineModelsResetResponse, error)
+
+	// PostApiSystemEngineModelsResetWithResponse Gives a platform's tasks back their default
+	//
+	// models ("assignments"), or its model table back the code's figures
+	// ("entries", keeping the entries of added models a tier runs); admins only.
+	// Answers the engine's models as they now are.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/system/engine-models/reset (the `PostApiSystemEngineModelsReset` operationId).
+	PostApiSystemEngineModelsResetWithResponse(ctx context.Context, body PostApiSystemEngineModelsResetJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiSystemEngineModelsResetResponse, error)
 
 	// GetApiSystemSettingsWithResponse Returns the site-wide settings to an admin.
 	//
@@ -25355,6 +25520,54 @@ func (r PostApiSystemEngineModelsProbeResponse) ContentType() string {
 	return ""
 }
 
+type PostApiSystemEngineModelsResetResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *EngineModelsResp
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r PostApiSystemEngineModelsResetResponse) GetJSON200() *EngineModelsResp {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiSystemEngineModelsResetResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiSystemEngineModelsResetResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiSystemEngineModelsResetResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiSystemEngineModelsResetResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiSystemEngineModelsResetResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetApiSystemSettingsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -29976,7 +30189,8 @@ func (c *ClientWithResponses) GetApiSystemEngineModelsWithResponse(ctx context.C
 //
 // The model must be in the platform's model table and fit the task: a
 // hearing model takes audio, an image model makes pictures, a story or
-// speech model has a context window (400 otherwise). An empty model gives
+// speech model has a context window (400 otherwise). A picture takes a
+// quality (low, medium, high; empty keeps the tier's). An empty model gives
 // the task back its default. Answers the engine's models as they now are.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
@@ -29994,7 +30208,8 @@ func (c *ClientWithResponses) PutApiSystemEngineModelsAssignmentWithBodyWithResp
 //
 // The model must be in the platform's model table and fit the task: a
 // hearing model takes audio, an image model makes pictures, a story or
-// speech model has a context window (400 otherwise). An empty model gives
+// speech model has a context window (400 otherwise). A picture takes a
+// quality (low, medium, high; empty keeps the tier's). An empty model gives
 // the task back its default. Answers the engine's models as they now are.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
@@ -30086,6 +30301,40 @@ func (c *ClientWithResponses) PostApiSystemEngineModelsProbeWithResponse(ctx con
 		return nil, err
 	}
 	return ParsePostApiSystemEngineModelsProbeResponse(rsp)
+}
+
+// PostApiSystemEngineModelsResetWithBodyWithResponse Gives a platform's tasks back their default
+//
+// models ("assignments"), or its model table back the code's figures
+// ("entries", keeping the entries of added models a tier runs); admins only.
+// Answers the engine's models as they now are.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/system/engine-models/reset (the `PostApiSystemEngineModelsReset` operationId).
+func (c *ClientWithResponses) PostApiSystemEngineModelsResetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiSystemEngineModelsResetResponse, error) {
+	rsp, err := c.PostApiSystemEngineModelsResetWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiSystemEngineModelsResetResponse(rsp)
+}
+
+// PostApiSystemEngineModelsResetWithResponse Gives a platform's tasks back their default
+//
+// models ("assignments"), or its model table back the code's figures
+// ("entries", keeping the entries of added models a tier runs); admins only.
+// Answers the engine's models as they now are.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/system/engine-models/reset (the `PostApiSystemEngineModelsReset` operationId).
+func (c *ClientWithResponses) PostApiSystemEngineModelsResetWithResponse(ctx context.Context, body PostApiSystemEngineModelsResetJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiSystemEngineModelsResetResponse, error) {
+	rsp, err := c.PostApiSystemEngineModelsReset(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiSystemEngineModelsResetResponse(rsp)
 }
 
 // GetApiSystemSettingsWithResponse Returns the site-wide settings to an admin.
@@ -35126,6 +35375,39 @@ func ParsePostApiSystemEngineModelsProbeResponse(rsp *http.Response) (*PostApiSy
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest ProbeEngineModelResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiSystemEngineModelsResetResponse parses an HTTP response from a PostApiSystemEngineModelsResetWithResponse call
+func ParsePostApiSystemEngineModelsResetResponse(rsp *http.Response) (*PostApiSystemEngineModelsResetResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiSystemEngineModelsResetResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EngineModelsResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

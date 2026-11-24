@@ -17,6 +17,44 @@ func (c caller) AssignEngineModel(platform, tier, task, model string) (EngineMod
 	}))
 }
 
+// AssignPicture assigns a picture model at a quality to a tier.
+func (c caller) AssignPicture(platform, tier, model, quality string) (EngineModels, error) {
+	return decode[EngineModels](c.api.PutApiSystemEngineModelsAssignmentWithResponse(ctx(), apiclient.AssignEngineModelReq{
+		Platform: apiclient.Platform(platform), Tier: apiclient.Tier(tier), Type: "image", Model: model, Quality: &quality,
+	}))
+}
+
+// ResetEngineModels gives a platform's tiers ("assignments") or its model
+// table ("entries") back the defaults.
+func (c caller) ResetEngineModels(platform, what string) (EngineModels, error) {
+	return decode[EngineModels](c.api.PostApiSystemEngineModelsResetWithResponse(ctx(), apiclient.ResetEngineModelsReq{
+		Platform: apiclient.Platform(platform), What: apiclient.EngineModelsReset(what),
+	}))
+}
+
+// PictureQuality is the quality a platform's tier draws its pictures at, and
+// the default's.
+func PictureQuality(m EngineModels, platform, tier string) (quality, defaultQuality string) {
+	for _, p := range m.Platforms {
+		if string(p.Id) != platform {
+			continue
+		}
+		for _, a := range p.Assignments {
+			if string(a.Tier) == tier && a.Type == "image" {
+				return deref(a.Quality), deref(a.DefaultQuality)
+			}
+		}
+	}
+	return "", ""
+}
+
+func deref(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
 // AddTextModel puts a text model into a platform's model table: it takes
 // and makes text, at the prices given per million tokens, with a context
 // window.

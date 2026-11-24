@@ -1660,12 +1660,12 @@
           "unused": "Nicht genutzt",
           "added": "Hinzugefügt",
           "stale": "Durch Update zurückgesetzt",
-          "media": "Nimmt {{takes}} · erzeugt {{makes}}",
           "windowValue": "Fenster {{tokens}} Tokens",
-          "read": "Preis vom {{date}}, Quelle: {{source}}"
+          "read": "Preis vom {{date}}, Quelle: {{source}}",
+          "takes": "Nimmt",
+          "makes": "erzeugt"
         },
         "task": "Aufgabe",
-        "changed": "Geändert",
         "unpriced": "Dieses Modell hat keinen Eintrag in der Modelltabelle: Seine Kosten werden nicht berechnet, und eine Geschichte darauf wird nie gekürzt.",
         "refused": "Die Engine hat diese Änderung abgelehnt",
         "types": {
@@ -1698,7 +1698,9 @@
           "model": "Modell",
           "modelHint": "Nur Modelle aus der Modelltabelle, die zu dieser Aufgabe passen. Standard: {{model}}",
           "reset": "Zurück zum Standard",
-          "cellLabel": "{{task}}, {{tier}}: {{model}}. Anderes Modell zuweisen"
+          "cellLabel": "{{task}}, {{tier}}: {{model}}. Anderes Modell zuweisen",
+          "quality": "Bildqualität",
+          "qualityHint": "Der wichtigste Hebel für Kosten und Dauer eines Bildes. Standard: {{quality}}"
         },
         "probe": {
           "button": "Testen",
@@ -1728,6 +1730,23 @@
           "codeRead": "Werte der Engine: vom {{date}}, Quelle: {{source}}",
           "reset": "Zurück zu den Werten der Engine",
           "remove": "Modell entfernen"
+        },
+        "quality": {
+          "low": "niedrig",
+          "medium": "mittel",
+          "high": "hoch"
+        },
+        "resetAll": {
+          "button": "Alles auf Standard zurücksetzen",
+          "confirm": "Zurücksetzen",
+          "assignments": {
+            "title": "{{platform}}: zurück zu den Standardmodellen?",
+            "message": "Jede Stufe nutzt für jede Aufgabe wieder das Modell der Engine, Bilder in der Qualität der Engine. Neue Sitzungen nutzen die Standards, laufende behalten ihre Modelle."
+          },
+          "entries": {
+            "title": "{{platform}}: zurück zur Modelltabelle der Engine?",
+            "message": "Jedes Modell der Engine bekommt wieder die Werte der Engine, und hinzugefügte Modelle, die keine Stufe nutzt, werden entfernt. Hinzugefügte Modelle, die eine Stufe nutzt, behalten ihre Einträge."
+          }
         }
       }
     },

@@ -45,3 +45,15 @@
 .row[data-unused] .rowMain {
   opacity: 0.5;
 }
+
+/* A value the admin changed from the default: highlighted, so a change is seen at a glance. */
+.changed {
+  background: var(--mantine-color-highlight-1);
+  border-radius: 3px;
+  padding: 0 3px;
+}
+
+.changedCell {
+  box-shadow: inset 3px 0 0 var(--mantine-color-highlight-5);
+  padding-left: 6px;
+}

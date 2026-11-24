@@ -8,6 +8,7 @@ import type {
   Error as ApiError,
   ProbeEngineModelReq,
   ProbeEngineModelResp,
+  ResetEngineModelsReq,
   SetEngineModelEntryReq,
 } from "../generated/api.gen";
 
@@ -39,6 +40,11 @@ export function useAssignEngineModel() {
 /** Sets a model's entry in the model table; no facts reset it. */
 export function useSetEngineModelEntry() {
   return useEngineModelsWrite((req: SetEngineModelEntryReq) => api.putApiSystemEngineModelsEntry(req));
+}
+
+/** Gives a platform's tasks their default models, or its model table the code's figures. */
+export function useResetEngineModels() {
+  return useEngineModelsWrite((req: ResetEngineModelsReq) => api.postApiSystemEngineModelsReset(req));
 }
 
 /** Asks whether a model answers; paid by the admin's own key. */

@@ -79,6 +79,7 @@ type EngineModelAssignment struct {
 	Model      string        `json:"model"`
 	ModifiedAt time.Time     `json:"modified_at"`
 	ModifiedBy uuid.NullUUID `json:"modified_by"`
+	Quality    string        `json:"quality"`
 }
 
 type EngineModelFact struct {
