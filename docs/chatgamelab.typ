@@ -81,7 +81,8 @@ and its last line tells the player why.
 
 A session plays on one AI platform at one quality tier (@platforms). The
 optional features *images*, *audio-in* and *audio-out* can be switched off or on
-at any time during play, if available. *Every player may change the prompts* of
+at any time during play, if available and allowed by the session's tier.
+*Every player may change the prompts* of
 the game they are playing with the exception of the Guardrail prompt, 
 which only staff, head and admin may change. Changes apply to all API calls.
 Heads and staff may also adapt them before a session starts.
@@ -89,12 +90,23 @@ Heads and staff may also adapt them before a session starts.
 == AI platforms and tiers <platforms>
 
 A session plays on one *AI platform*, such as OpenAI or Mistral, at one
-*quality tier*: economy, balanced or high. Together they pick the AI model for
-each task in a session:
+*quality tier*: 1 High, 2 Balanced, 3 Economy, 4 Minimal or 5 Off. Together
+they pick the AI model for each task in a session.
 
-A tier changes how well a session plays, never which features it has. Which
-*features* exist depends on the platform: *images* (pictures), *audio-out*
-(spoken narration), *audio-in* (voice input) and *audio-live* (live voice).
+Which *features* exist depends on the platform: *images* (pictures),
+*audio-out* (spoken narration), *audio-in* (voice input) and *audio-live* (live
+voice). A tier sets how well a session plays and which features it may use; a
+higher number is more economical:
+
+#table(
+  columns: 3,
+  [Tier], [Plays with], [Features],
+  [1 High], [the best models], [all],
+  [2 Balanced], [medium models], [all],
+  [3 Economy], [small models], [images and audio only in turns 1–2],
+  [4 Minimal], [small models], [none — text only],
+  [5 Off], [—], [no new turns],
+)
 
 The platform shows, for each platform and tier, which AI model runs each task.
 
@@ -184,7 +196,8 @@ run workshops and play.
 == Roles
 
 - *Admin* — runs the site: sets the site-wide youth-protection rules per age
-  group, the AI quality tiers and the site's free-use key, and upgrades the
+  group, the AI quality tiers, the site's free-use key and its spend limits
+  (@budgets), and upgrades the
   site to new releases
 - *Head* — is a user who *is* part of an organisation, leads it, manages its staff, workshops and rules, runs workshops.
 - *Staff* — is a user who *is* part of an organisation, runs workshops within it.
@@ -361,6 +374,40 @@ or take it back. If user is member of an organisation it can shared with that or
 All members of that organisation can then use the key within that organisation 
 and its workshops. 
 
+=== Budgets <budgets>
+
+Before every turn, the platform decides which key pays and at which tier
+(@platforms).
+
+- *Budget per key share.* The owner of a key share may give it a monthly
+  budget. A month is a calendar month (Europe/Berlin).
+- *Then the free-use key.* When a share's budget is used up, the site's
+  free-use key pays instead, if the admin allows it; otherwise no new turns
+  start on that share.
+- *Free-use key limits.* The admin may set two monthly limits on the free-use
+  key, both optional, X below Y: from X €, everything it pays for plays at tier
+  4 Minimal; from Y €, no new turns start on it.
+- *Tiers.* The admin sets a default tier per access type: workshop,
+  organisation, individual, shared link. Heads, staff and individuals set their
+  own tiers; a workshop's own tier overrides them.
+- *The payer sets the ceiling.* On the free-use key, a more economical own
+  tier is kept; a better one is lowered to the admin's default. Taking over
+  never raises a tier.
+- *Workshops.* Staff choose which of the organisation's key shares a workshop
+  uses, its tier, and whether images and audio are allowed. These switches
+  hold on any key.
+- *NPC-Live* needs audio-live, so it plays at tiers 1–3, not at tier 4.
+- *Visible.* The key page shows each share's budget, spend and remainder, and
+  what 10 adventure turns or 5 minutes of NPC-Live cost per tier. From 80 %
+  used, the dashboard and the game show a warning; once used up, they show that
+  the free-use key now pays, or that play has stopped. Heads and individuals
+  see what would happen right now if their budget ran out.
+- *Emails.* Key owners get one at 50, 90 and 100 % of the budget. The admin
+  gets one at 50, 90 and 100 % of X and, once X is passed, of Y — each stating
+  X, Y, how much of each is used and the days until the month resets.
+- *Estimates.* Spend is estimated from token use and a price table; the
+  provider's bill is authoritative.
+
 == Notifications
 
 A bell beside the avatar tells a user about important facts that are true
@@ -386,7 +433,6 @@ Erasing a user removes their sessions along with their account.
 
 == Open questions
 
-- *Spend limits* — a ceiling on what one session can cost.
 - *A measure of engagement* — such as turns played next to plays, so games
   people stay with stand out.
 
