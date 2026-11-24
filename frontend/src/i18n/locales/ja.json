@@ -5,14 +5,14 @@
       "description": "これにより、あなたのアカウントに適切な保護とコンテンツガイドラインを適用できます。",
       "label": "年齢と保護区分",
       "u13": "13～17歳（保護者の同意なし）",
-      "u13Description": "ChatGameLab を利用できます。アカウントにはより強力な保護設定が適用されます。",
+      "u13Description": "{{siteName}}を利用できます。あなたのアカウントには、より強力な保護設定が適用されます。",
       "u13p": "13～17歳（保護者の同意あり）",
-      "u13pDescription": "保護者の同意があれば ChatGameLab を利用できます。",
+      "u13pDescription": "保護者の同意があれば、{{siteName}}を利用できます。",
       "u18": "18歳以上",
-      "u18Description": "ChatGameLab を利用できます。",
+      "u18Description": "{{siteName}}を利用できます。",
       "under13": "13歳未満",
-      "under13Blocker": "まだ自分のアカウントを作成できません。13歳未満の場合は、青少年団体を通じてのみ ChatGameLab を利用できます。",
-      "under13Description": "まだ自分のアカウントを作成できません。13歳未満の場合は、青少年団体を通じてのみ ChatGameLab を利用できます。"
+      "under13Blocker": "まだ自分のアカウントを作成できません。13歳未満の場合、{{siteName}}は青少年団体を通じてのみ利用できます。",
+      "under13Description": "まだ自分のアカウントを作成できません。13歳未満の場合、{{siteName}}は青少年団体を通じてのみ利用できます。"
     },
     "guest": {
       "leaveConfirm": {
@@ -51,7 +51,7 @@
       }
     },
     "organizationRegistration": {
-      "accountNameDescription": "ChatGameLabで表示される名前です（最大24文字）。",
+      "accountNameDescription": "{{siteName}}で表示される名前です（最大24文字）。",
       "accountNameLabel": "表示名",
       "cityLabel": "市区町村",
       "confirmAdult": "私は18歳以上です。",
@@ -60,9 +60,9 @@
         "emailDescription": "宣言の本文を含む確認メールをこのアドレスに送信します。",
         "introExisting": "組織「{{name}}」には、オンラインで確認する同意宣言が用意されています。これは、以前に署名した利用規約に代わるものです。内容を読み、所属機関を代表して同意してください。",
         "introNewVersion": "同意宣言が更新されました（バージョン{{version}}）。新しい内容を読み、組織「{{name}}」を代表して同意してください。",
-        "introWithdrawn": "組織「{{name}}」による同意宣言への同意が撤回されたため、組織は停止されています。宣言を読み、所属機関を代表して同意すると、ChatGameLabを再び利用できます。",
+        "introWithdrawn": "あなたの団体「{{name}}」による同意宣言への同意が撤回されたため、利用が停止されています。宣言を読み、{{siteName}}を再び利用できるよう、あなたの組織を代表して同意してください。",
         "logout": "ログアウト",
-        "oneHeadIsEnough": "組織の責任者のうち1人が同意すれば十分です。それまでは組織が停止され、メンバーはChatGameLabを利用できません。",
+        "oneHeadIsEnough": "組織の責任者のうち1人が同意すれば十分です。それまでは組織の利用が停止され、メンバーは{{siteName}}を利用できません。",
         "submit": "同意する",
         "title": "宣言を確認"
       },
@@ -207,10 +207,10 @@
       "agreeSuffix2": "",
       "alreadyHaveAccount": "すでにアカウントをお持ちですか？",
       "backButton": "戻る",
-      "chooseType": "ChatGameLabをどのように利用しますか？",
+      "chooseType": "{{siteName}}をどのように利用しますか？",
       "continueButton": "登録へ進む",
       "description": "Auth0を認証プロバイダーとして使用し、ユーザーアカウントを管理しています。アカウント作成のためにAuth0へリダイレクトされた後、プロフィールを完了するためにこちらへ戻ってきます。",
-      "educatorDescription": "ワークショップ、教室、または組織でChatGameLabを利用する",
+      "educatorDescription": "ワークショップや授業、組織で{{siteName}}を利用する",
       "educatorModal": {
         "closeButton": "閉じる",
         "copied": "コピーしました！",
@@ -234,7 +234,7 @@
       "individualTitle": "個人アカウント",
       "loginLink": "ログイン",
       "organizationExistingAccount": "組織は新しいログインで登録します。すでにアカウントをお持ちですか？",
-      "organizationIntro": "ワークショップでChatGameLabを利用したい青少年施設、学校、その他の機関向けです。",
+      "organizationIntro": "ワークショップで{{siteName}}を利用したい青少年センター、学校、その他の組織向けです。",
       "organizationStep1": "Auth0でログイン情報（メールアドレスとパスワード）を作成します。",
       "organizationStep2": "あなた自身と所属団体の情報を入力し、青少年保護ルールを設定して、宣誓に同意します。",
       "organizationStep3": "フォームを送信すると組織がすぐに有効化され、ワークショップを作成できます。",
@@ -776,6 +776,9 @@
         "embed": {
           "copy": "スニペットをコピー",
           "incomplete": "スニペットを取得するには、支払い方法を選択してください。",
+          "mode": "ゲームの進め方",
+          "modeChoose": "プレイヤーが選択",
+          "modeHint": "このゲームはライブ形式または交代形式でプレイできます。質問を省略するには、どちらかをあらかじめ選択してください。キーが対応している形式が1つだけの場合は、その形式でプレイされます。",
           "noKeys": "支払いに使用できる有効なAIキーがありません。キーを追加するか、組織に問い合わせてください。",
           "noOrganisation": "埋め込みの対象は組織のゲームです。組織のワークショップで作られたゲームや、組織の責任者・スタッフが作ったゲームが対象です。このゲームはどの組織にも属していません。",
           "noPages": "まず組織のウェブサイト、つまりゲームを実行するページを登録してください。管理者が承認すると、そこでゲームを開始できるようになります。",
@@ -794,7 +797,7 @@
           "snippetVerifiedHint": "サーバーが訪問者と今回のページビューのIDを設定し、ページのコールバックがその両方を受け取ります。",
           "styleLink": "独自のCSSでスタイルを設定 →",
           "toggle": "ウェブサイトに埋め込む",
-          "toggleHint": "ChatGameLabの要素を周囲に表示せず、このゲームを組織の認証済みページに表示します。訪問者はゲストとしてプレイし、選択したキーが支払います。",
+          "toggleHint": "このゲームを、{{siteName}}の周辺要素なしで、あなたの組織の認証済みページに表示します。訪問者はゲストとしてプレイし、選択したキーの料金が支払われます。",
           "waitingForApproval": "組織のページは管理者の承認待ちです。承認されるまで、そこでゲームを開始することはできません。"
         },
         "fillIn": "すべてが緑色になるまで各セクションを入力してください。",
@@ -871,6 +874,14 @@
             "voiceStyleHint": "物語を読み上げたときにどのように聞こえるかを設定します。"
           },
           "builtInVoice": "内蔵音声",
+          "choices": {
+            "any": "指定なし",
+            "custom": "カスタム",
+            "female": "女性",
+            "male": "男性"
+          },
+          "choicesHint": "男性、女性、または指定なし：物語に合う組み込み音声です。",
+          "customHint": "カスタム：説明から作られる独自の音声です。",
           "duo": {
             "voiceStyle": "キャラクターの声",
             "voiceStyleHint": "各キャラクターには、それぞれ固有の声が割り当てられます。"
@@ -895,8 +906,15 @@
             "greeting": "こんにちは！どうぞ入って、座って、ここへ来た理由を話してください。",
             "narration": "物語は静かな朝に始まります。細い道が未知の世界へと続いています。"
           },
+          "slots": {
+            "a": "1人目のキャラクター",
+            "b": "2人目のキャラクター",
+            "character": "キャラクター",
+            "narrator": "ナレーター"
+          },
           "status": {
             "builtIn": "まだ説明がありません。音声を説明するまで、ゲームは内蔵音声で話します。",
+            "cast": "ゲーム開始時に、選択した種類の中から物語に最も合う組み込み音声が選ばれます。説明によって話し方が決まります。",
             "ownVoice": "この説明専用の音声です。あなたのAIキーで作成されました。",
             "steered": "説明に合わせて、内蔵音声が物語を読み上げます。"
           },
@@ -965,6 +983,8 @@
       },
       "genres": {
         "adventure": "アドベンチャー",
+        "discussion": "ディスカッション",
+        "npc": "キャラクター",
         "npc-duo": "ディスカッション",
         "npc-live": "キャラクター"
       },
@@ -1159,6 +1179,7 @@
       "apiKeys": "APIキー",
       "closeNavigation": "ナビゲーションメニューを閉じる",
       "contact": "お問い合わせ",
+      "contactHint": "{{siteName}}チームに連絡する",
       "goToDashboard": "ダッシュボードへ",
       "leaveWorkshopMode": "ワークショップモードを終了",
       "leaveWorkshopModeTooltip": "ワークショップモードを終了して通常表示に戻ります",
@@ -1349,7 +1370,7 @@
         "consented": "組織は{{date}}にバージョン{{version}}に同意しました。",
         "title": "同意宣言",
         "withdraw": "同意を撤回",
-        "withdrawConfirm": "同意がない場合、組織は停止されます。責任者が再び同意するまで、メンバーはChatGameLabを利用できません。データは保持されます。",
+        "withdrawConfirm": "同意がないため、あなたの組織の利用は停止されています。責任者が再び同意するまで、メンバーは{{siteName}}を利用できません。データは保持されます。",
         "withdrawFailed": "処理に失敗しました。もう一度お試しください。",
         "withdrawTitle": "同意を撤回しますか？"
       },
@@ -1449,14 +1470,14 @@
         "approved": "承認済み",
         "callbackShown": "コールバック：{{url}}",
         "callbackUrl": "コールバックアドレス",
-        "callbackUrlHint": "ChatGameLabが開始前に毎回問い合わせるアドレスです。数秒以内に応答する必要があります。",
+        "callbackUrlHint": "{{siteName}}が各開始前に問い合わせるURLです。数秒以内に応答する必要があります。",
         "copied": "コピーしました",
         "copy": "ページIDをコピー",
         "edit": "ページを変更",
         "editReapproval": "このアドレスは別のサイトにあるため、管理者の再承認待ちになります。承認されるまで、そこでゲームを開始することはできません。同じサイト上の別のポートやパスは承認済みのままです。",
         "editTitle": "ページを変更",
         "empty": "認証済みページはまだありません。",
-        "intro": "認証済みページとは、組織のウェブサイト上にあり、埋め込みゲームを表示できるページです。そこでゲームを開始する前に、ChatGameLabはページのコールバックに開始してよいかを問い合わせます。その際、下記のページIDと、ページが渡す訪問者IDおよびリクエストIDを使用します。{\"ok\": true}という回答だけがゲームを開始します。",
+        "intro": "認証済みページとは、埋め込みゲームを表示できる、あなたの組織のウェブサイト上のページです。そこでゲームを開始する前に、{{siteName}}はページのコールバックに開始してよいかを問い合わせます。その際、下記のページIDと、ページから渡される訪問者IDおよびリクエストIDが送信されます。{\"ok\": true}という応答があった場合のみ、ゲームが開始されます。",
         "pageId": "ページID",
         "pageUrl": "ページアドレス",
         "pageUrlHint": "ゲームを埋め込むページです。ゲームを表示できるのはそのウェブサイトだけです。",
@@ -1615,8 +1636,8 @@
       "workshopInviteDescription": "このワークショップへの参加招待が届いています。"
     },
     "organisationSuspended": {
-      "byAdmin": "運営者により、組織のChatGameLabへのアクセスが停止されています。データは保持されます。",
-      "consentWanted": "組織のChatGameLabへのアクセスは、責任者の1人が現在の同意宣言に同意するまで停止されています。データは保持されます。",
+      "byAdmin": "運営者により、あなたの組織の{{siteName}}へのアクセスが停止されています。データは保持されます。",
+      "consentWanted": "組織の責任者の1人が現在の同意宣言に同意するまで、あなたの組織の{{siteName}}へのアクセスは停止されています。データは保持されます。",
       "contact": "ご質問がある場合は、こちらにお問い合わせください：",
       "logout": "ログアウト",
       "title": "組織は停止中です"
@@ -1648,12 +1669,16 @@
         "backToGames": "ゲームに戻る",
         "cannotOpen": "このゲームは続行できません",
         "cannotStart": "このゲームを開始できません",
+        "chooseMode": "どのようにプレイしますか？",
+        "chooseModeHint": "キャラクターとライブで話すか、文字入力または音声で交代しながら話します。",
         "continue": "続ける",
         "inProgress": "進行中のゲームがあります",
         "inProgressHint": "中断したところから続けるか、最初からやり直してください。",
+        "live": "ライブで話す",
         "noPlaysLeft": "このリンクのプレイ回数が残っていないため、ゲームを新しく開始できません。",
         "offline": "ゲームサーバーに接続できません。",
         "opening": "ゲームを開いています…",
+        "rounds": "交代する",
         "startAnew": "最初から始める",
         "startAnewUsesPlay": "最初から始めると、このリンクのプレイ回数を1回使用します。",
         "starting": "ゲームを開始しています…",
@@ -1688,16 +1713,16 @@
       "about": {
         "details": "制作者は、世界や登場人物、ルールを自分の言葉で説明しています。プレイ中は、AIがそこから物語をリアルタイムで続けていきます。入力した内容に反応し、それに合った画像を作り出すため、同じ展開になることは二度とありません。自分でゲームを作ってみると、自分の指示が結果にどれほど強く影響するのか、そしてAIがどこで限界に達するのかがすぐに分かります。大切なのは、AIについて説明を受けることではなく、実際に試してみることです。",
         "less": "少なく表示",
-        "link": "ChatGameLabについて詳しく見る",
+        "link": "{{siteName}}について詳しく見る",
         "more": "詳しく見る",
-        "oneLiner": "これらのテキストアドベンチャーはChatGameLabで作られました。プログラミングなしで自分で作り、AIがリアルタイムで語ります。"
+        "oneLiner": "これらのテキストアドベンチャーは{{siteName}}で作られています。プログラミングなしで手作りされ、AIがライブで語ります。"
       },
       "copy": "コピー",
       "copyLogin": "ログインしてコピー",
       "cta": {
         "button": "無料で始める",
         "text": "自分でテキストアドベンチャーを作るのは無料で、数分しかかかりません。",
-        "title": "自分だけのChatGameLabゲームを作ろう"
+        "title": "{{siteName}}で自分のゲームを作る"
       },
       "download": "ダウンロード",
       "gamesTitle": "このワークショップのゲーム",
@@ -1724,6 +1749,42 @@
     "search": "検索",
     "searchPlaceholder": "メンバーを検索...",
     "serverSettings": {
+      "branding": {
+        "changed": "変更済み",
+        "description": "このサイトの表示方法を設定します。ブラウザのタブやテキストに表示される名前、運営者、表示するリンクなどです。リンクを非表示にするには、空欄にしてください。",
+        "errors": {
+          "nameRequired": "サイト名が必要です。",
+          "notEmail": "これはメールアドレスではありません。",
+          "notUrl": "これはウェブアドレスではありません。https://またはhttp://で始まる必要があります。"
+        },
+        "fields": {
+          "aiInsightsUrl": "AIインサイトについて",
+          "apiKeyFaqUrl": "AIキーに関するよくある質問",
+          "contactUrl": "お問い合わせ",
+          "creditName": "プログラム開発者",
+          "creditUrl": "開発者のウェブサイト",
+          "educatorInfoUrl": "教育関係者向け情報",
+          "gameTipsUrl": "ゲーム作成のヒント",
+          "helpUrl": "ヘルプ",
+          "operatorName": "運営者",
+          "operatorUrl": "運営者のウェブサイト",
+          "privacyUrl": "プライバシーポリシー",
+          "reportGameUrl": "ゲームを報告",
+          "siteName": "サイト名",
+          "supportEmail": "サポート用メールアドレス",
+          "termsUrl": "利用規約",
+          "websiteUrl": "ウェブサイト"
+        },
+        "groups": {
+          "credit": "フッターのクレジット",
+          "identity": "名前と運営者",
+          "links": "リンク"
+        },
+        "hidden": "非表示",
+        "reset": "デフォルトに戻す",
+        "resetTo": "デフォルトに戻す：{{value}}",
+        "title": "ブランディング"
+      },
       "constraints": {
         "description": "プレイヤーの年齢グループに基づく、AIに必須のルールを定義します。これらの青少年保護ルールは、すべてのAI呼び出しに付加されます。ワークショップモード以外の、ログイン中のすべてのユーザーに適用されます。",
         "title": "年齢グループ別の青少年保護ルール",
@@ -1758,6 +1819,12 @@
         "title": "フリー利用AI品質ティア"
       },
       "notAuthorized": "サーバー設定にアクセスする権限がありません。管理者アクセスが必要です。",
+      "tabs": {
+        "ai": "AIとキー",
+        "branding": "ブランディング",
+        "general": "一般",
+        "youthProtection": "青少年保護"
+      },
       "title": "サーバー設定",
       "updates": {
         "checkNow": "更新を確認",
@@ -1891,7 +1958,7 @@
       "title": "これまでのあなたのラボ"
     },
     "links": {
-      "about": "ChatGameLabについて",
+      "about": "{{siteName}}について",
       "educators": "教育関係者向け",
       "jff": "JFF – メディア教育研究所"
     },
@@ -2000,11 +2067,11 @@
       "greeting": "{{name}}さん、こんにちは。",
       "operator": "運営者",
       "organisation": "組織",
-      "registered": "組織「{{organisation}}」がChatGameLabで有効化されました。あなたは組織の責任者として、ワークショップを作成できます。",
-      "renewed": "ありがとうございます！ChatGameLabの組織「{{organisation}}」について、現在の同意宣言への同意が確認されました。",
-      "signature": "ChatGameLabチーム一同\nJFF – 青少年映画・テレビ・メディア協会",
-      "subjectRegistered": "ChatGameLab：組織「{{organisation}}」が有効化されました – 同意宣言",
-      "subjectRenewed": "ChatGameLab：「{{organisation}}」の同意宣言を確認しました（バージョン{{version}}）",
+      "registered": "組織「{{organisation}}」が{{siteName}}で有効になりました。あなたはその責任者なので、これでワークショップを作成できます。",
+      "renewed": "ありがとうございます！組織「{{organisation}}」が現在の同意宣言に同意したことが{{siteName}}に登録されました。",
+      "signature": "{{siteName}}チームより\n{{operatorName}}",
+      "subjectRegistered": "{{siteName}}：組織「{{organisation}}」が有効になりました ― 同意宣言",
+      "subjectRenewed": "{{siteName}}：「{{organisation}}」の同意宣言を確認しました（バージョン{{version}}）",
       "version": "バージョン",
       "versionValue": "{{version}}（{{date}}現在）"
     }
@@ -2078,12 +2145,14 @@
       "adapted-style": "スタイル",
       "cast": "声を割り当てる",
       "cast-brief": "キャラクター",
+      "character": "キャラクター",
       "condense-scenario": "シナリオを短縮",
       "condensed-scenario": "シナリオ",
       "director": "演出",
       "expand": "ナレーション",
       "gallery-image": "ギャラリー画像",
       "greeting": "テキストを生成",
+      "hearing": "音声を理解する",
       "image": "画像を描く",
       "image-prompt": "画像を説明",
       "image-style": "スタイルを調整",
@@ -2213,7 +2282,10 @@
       "tabUsage": "使用状況"
     },
     "launch": {
+      "chooseMode": "どのようにプレイしますか？",
+      "live": "ライブで話す",
       "noGame": "このページで遊ぶにはゲームが必要です。ゲームのページから開いてください。",
+      "rounds": "交代する（文字または音声）",
       "starting": "ゲームを開始しています…"
     },
     "over": {
@@ -2240,6 +2312,7 @@
       "injectionSent": "会話に送信しました"
     },
     "problems": {
+      "chooseMode": "このゲームはライブ形式または交代形式でプレイできます。どちらかを選択してください。",
       "denied": "このゲームをプレイすることはできません。",
       "failed": "問題が発生したため、ゲームを続けられません。",
       "genre": "利用可能なAIキーでは、この種類のゲームを実行できません。",
@@ -2255,12 +2328,15 @@
       "unreachable": "現在、AIプロバイダーから応答がないため、ゲームを続けられません。数分後にもう一度試してください。"
     },
     "promptNames": {
+      "character": "キャラクター（システムメッセージ）",
       "condense-scenario": "シナリオを短くする",
       "conversation-policy": "キャラクターの話し方",
       "director": "演出",
       "expand": "ターンを語る",
       "game-master": "ゲームマスター（システムメッセージ）",
       "greeting": "最初の言葉",
+      "hear-player": "音声を理解する",
+      "hold-the-line": "信念を貫く",
       "image-style": "スタイルを調整",
       "opening": "オープニング",
       "opening-expand": "オープニングを語る",

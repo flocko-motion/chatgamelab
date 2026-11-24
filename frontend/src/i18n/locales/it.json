@@ -5,14 +5,14 @@
       "description": "Questo ci aiuta ad applicare le linee guida di protezione e di contenuto appropriate al tuo account.",
       "label": "Fascia d’età e livello di protezione",
       "u13": "13–17 anni, senza consenso dei genitori",
-      "u13Description": "Puoi usare ChatGameLab. Al tuo account verranno applicate impostazioni di protezione più rigorose.",
+      "u13Description": "Puoi usare {{siteName}}. Per il tuo account verranno applicate impostazioni di protezione più rigorose.",
       "u13p": "13–17 anni, con consenso dei genitori",
-      "u13pDescription": "Puoi usare ChatGameLab se i tuoi genitori sono d’accordo.",
+      "u13pDescription": "Puoi usare {{siteName}} se i tuoi genitori sono d'accordo.",
       "u18": "18 anni o più",
-      "u18Description": "Puoi usare ChatGameLab.",
+      "u18Description": "Puoi usare {{siteName}}.",
       "under13": "Meno di 13 anni",
-      "under13Blocker": "Non puoi ancora creare un account personale. Se hai meno di 13 anni, puoi usare ChatGameLab solo tramite un’organizzazione giovanile.",
-      "under13Description": "Non puoi ancora creare un account personale. Se hai meno di 13 anni, puoi usare ChatGameLab solo tramite un’organizzazione giovanile."
+      "under13Blocker": "Non puoi ancora creare un account personale. Se hai meno di 13 anni, puoi usare {{siteName}} solo tramite un'organizzazione giovanile.",
+      "under13Description": "Non puoi ancora creare un account personale. Se hai meno di 13 anni, puoi usare {{siteName}} solo tramite un'organizzazione giovanile."
     },
     "guest": {
       "leaveConfirm": {
@@ -51,7 +51,7 @@
       }
     },
     "organizationRegistration": {
-      "accountNameDescription": "Come apparirai in ChatGameLab (massimo 24 caratteri).",
+      "accountNameDescription": "Come compari su {{siteName}} (massimo 24 caratteri).",
       "accountNameLabel": "Nome visualizzato",
       "cityLabel": "Città",
       "confirmAdult": "Ho almeno 18 anni.",
@@ -60,9 +60,9 @@
         "emailDescription": "Invieremo a questo indirizzo la conferma con il testo della dichiarazione.",
         "introExisting": "La tua organizzazione «{{name}}» dispone ora di una dichiarazione che viene confermata online. Questa sostituisce l'accordo utente firmato in precedenza. Leggila e accettala a nome della tua istituzione.",
         "introNewVersion": "La dichiarazione è stata aggiornata (versione {{version}}). Leggi la nuova versione e accettala a nome della tua organizzazione «{{name}}».",
-        "introWithdrawn": "Il consenso della tua organizzazione «{{name}}» alla dichiarazione è stato revocato, pertanto è sospeso. Leggi la dichiarazione e accettala a nome della tua istituzione per poter utilizzare nuovamente ChatGameLab.",
+        "introWithdrawn": "Il consenso della tua organizzazione “{{name}}” alla dichiarazione è stato revocato, quindi l'organizzazione è sospesa. Leggi la dichiarazione e accetta a nome del tuo istituto per poter usare nuovamente {{siteName}}.",
         "logout": "Disconnetti",
-        "oneHeadIsEnough": "È sufficiente che una persona responsabile dell'organizzazione accetti la dichiarazione. Fino ad allora la tua organizzazione resterà sospesa: i suoi membri non potranno utilizzare ChatGameLab.",
+        "oneHeadIsEnough": "È sufficiente che una persona responsabile dell'organizzazione accetti. Fino ad allora la tua organizzazione è sospesa: i suoi membri non possono usare {{siteName}}.",
         "submit": "Accetta",
         "title": "Conferma la dichiarazione"
       },
@@ -207,10 +207,10 @@
       "agreeSuffix2": "",
       "alreadyHaveAccount": "Hai già un account?",
       "backButton": "Indietro",
-      "chooseType": "Come desideri usare ChatGameLab?",
+      "chooseType": "Come vuoi usare {{siteName}}?",
       "continueButton": "Continua alla registrazione",
       "description": "Utilizziamo Auth0 come provider di autenticazione per gestire gli account utente. Verrai reindirizzato ad Auth0 per creare il tuo account, poi tornerai qui per completare il tuo profilo.",
-      "educatorDescription": "Usa ChatGameLab in laboratori, classi o nella tua organizzazione",
+      "educatorDescription": "Usa {{siteName}} nei laboratori, in classe o nella tua organizzazione",
       "educatorModal": {
         "closeButton": "Chiudi",
         "copied": "Copiato!",
@@ -234,7 +234,7 @@
       "individualTitle": "Account personale",
       "loginLink": "Accedi",
       "organizationExistingAccount": "Le organizzazioni si registrano con un nuovo accesso. Hai già un account?",
-      "organizationIntro": "Per centri giovanili, scuole e altre istituzioni che desiderano utilizzare ChatGameLab nei workshop.",
+      "organizationIntro": "Per centri giovanili, scuole e altre istituzioni che vogliono usare {{siteName}} nei laboratori.",
       "organizationStep1": "Crei il tuo accesso con Auth0 (e-mail e password).",
       "organizationStep2": "Inserisci i dati relativi a te e al tuo ente, stabilisci la regola di tutela dei minori e accetti la dichiarazione.",
       "organizationStep3": "Dopo l'invio del modulo, l'organizzazione viene attivata immediatamente e puoi creare workshop.",
@@ -776,6 +776,9 @@
         "embed": {
           "copy": "Copia snippet",
           "incomplete": "Scegli cosa paga per ottenere lo snippet.",
+          "mode": "Come si gioca",
+          "modeChoose": "Sceglie il giocatore",
+          "modeHint": "Questo gioco può essere giocato dal vivo o a turni. Preselezionane uno per saltare la domanda; se la chiave ne supporta solo uno, verrà usato quello.",
           "noKeys": "Non hai una chiave IA funzionante con cui pagare. Aggiungine una o chiedila alla tua organizzazione.",
           "noOrganisation": "L'incorporamento è disponibile per i giochi di un'organizzazione: quelli creati nei suoi workshop o dalla sua direzione e dal suo staff. Questo gioco non appartiene a nessuna organizzazione.",
           "noPages": "Registra prima il sito web della tua organizzazione: la pagina in cui verranno eseguiti i vostri giochi. Un amministratore dovrà approvarla, dopodiché il gioco potrà iniziare lì.",
@@ -794,7 +797,7 @@
           "snippetVerifiedHint": "Il tuo server inserisce il proprio ID del visitatore e di questa visualizzazione della pagina; il callback della tua pagina riceve entrambi.",
           "styleLink": "Personalizzalo con il tuo CSS →",
           "toggle": "Incorpora in un sito web",
-          "toggleHint": "Mostra questo gioco sulla pagina verificata della tua organizzazione, senza elementi ChatGameLab intorno. I visitatori giocano come ospiti; paga la chiave che scegli.",
+          "toggleHint": "Mostra questo gioco sulla pagina verificata della tua organizzazione, senza elementi di {{siteName}} intorno. I visitatori giocano come ospiti; paga la chiave che scegli.",
           "waitingForApproval": "La pagina dell'organizzazione è in attesa dell'approvazione di un amministratore. Fino ad allora, il gioco non può iniziare lì."
         },
         "fillIn": "Compila le sezioni finché non sono tutte verdi.",
@@ -871,6 +874,14 @@
             "voiceStyleHint": "Il suono della storia quando viene letta ad alta voce."
           },
           "builtInVoice": "Voce integrata",
+          "choices": {
+            "any": "Qualsiasi",
+            "custom": "Personalizzata",
+            "female": "Femminile",
+            "male": "Maschile"
+          },
+          "choicesHint": "Maschile, femminile o qualsiasi: una voce integrata adatta alla storia.",
+          "customHint": "Personalizzata: una voce unica, creata a partire dalla descrizione.",
           "duo": {
             "voiceStyle": "Le voci dei personaggi",
             "voiceStyleHint": "A ogni personaggio viene assegnata una voce propria."
@@ -895,8 +906,15 @@
             "greeting": "Ciao! Entra, siediti e dimmi cosa ti porta qui.",
             "narration": "La storia inizia in una mattina tranquilla, quando uno stretto sentiero conduce verso l'ignoto."
           },
+          "slots": {
+            "a": "Primo personaggio",
+            "b": "Secondo personaggio",
+            "character": "Personaggio",
+            "narrator": "Narratore"
+          },
           "status": {
             "builtIn": "Nessuna descrizione: il gioco parla con una voce integrata finché non descrivi la voce.",
+            "cast": "Quando il gioco inizia, sceglie la voce integrata del tipo selezionato che si adatta meglio alla storia. La descrizione determina il modo in cui parla.",
             "ownVoice": "Una voce propria per questa descrizione, creata con la tua chiave IA.",
             "steered": "Una voce integrata legge la storia seguendo le indicazioni della descrizione."
           },
@@ -965,6 +983,8 @@
       },
       "genres": {
         "adventure": "Avventura",
+        "discussion": "Discussione",
+        "npc": "Personaggio",
         "npc-duo": "Discussione",
         "npc-live": "Personaggio"
       },
@@ -1159,6 +1179,7 @@
       "apiKeys": "Chiavi API",
       "closeNavigation": "Chiudi menu di navigazione",
       "contact": "Contatto",
+      "contactHint": "Contatta il team di {{siteName}}",
       "goToDashboard": "Vai alla dashboard",
       "leaveWorkshopMode": "Esci dalla modalità workshop",
       "leaveWorkshopModeTooltip": "Esci dalla modalità workshop e torna alla vista normale",
@@ -1349,7 +1370,7 @@
         "consented": "La tua organizzazione ha accettato la versione {{version}} il {{date}}.",
         "title": "Dichiarazione di consenso",
         "withdraw": "Revoca consenso",
-        "withdrawConfirm": "Senza il consenso, la tua organizzazione viene sospesa: nessun membro può utilizzare ChatGameLab finché un responsabile non accetta nuovamente. I dati vengono conservati.",
+        "withdrawConfirm": "Senza il consenso, la tua organizzazione è sospesa: nessun membro può usare {{siteName}} finché una persona responsabile non dà nuovamente il proprio consenso. I dati vengono conservati.",
         "withdrawFailed": "Operazione non riuscita. Riprova.",
         "withdrawTitle": "Revocare il consenso?"
       },
@@ -1449,14 +1470,14 @@
         "approved": "Approvata",
         "callbackShown": "Callback: {{url}}",
         "callbackUrl": "Indirizzo del callback",
-        "callbackUrlHint": "Qui ChatGameLab chiede il permesso prima di ogni avvio. Deve rispondere entro pochi secondi.",
+        "callbackUrlHint": "Dove {{siteName}} chiede conferma prima di ogni avvio. Deve rispondere entro pochi secondi.",
         "copied": "Copiato",
         "copy": "Copia ID pagina",
         "edit": "Modifica pagina",
         "editReapproval": "Questo indirizzo si trova su un altro sito, che deve essere nuovamente approvato da un amministratore; fino ad allora, i giochi non possono iniziare lì. Un'altra porta o un altro percorso sullo stesso sito rimane approvato.",
         "editTitle": "Modifica la pagina",
         "empty": "Non ci sono ancora pagine verificate.",
-        "intro": "Una pagina verificata è una pagina del sito web della tua organizzazione che può mostrare i giochi incorporati. Prima di avviare un gioco, ChatGameLab chiede al callback della pagina se può farlo, usando l'ID della pagina qui sotto e gli ID del visitatore e della richiesta forniti dalla tua pagina. Solo la risposta {\"ok\": true} avvia il gioco.",
+        "intro": "Una pagina verificata è una pagina del sito web della tua organizzazione che può mostrare i tuoi giochi incorporati. Prima di avviare un gioco, {{siteName}} chiede al callback della pagina se deve avviarlo, fornendo l'ID della pagina qui sotto e gli ID del visitatore e della richiesta trasmessi dalla tua pagina. Solo una risposta {\"ok\": true} avvia il gioco.",
         "pageId": "ID pagina",
         "pageUrl": "Indirizzo della pagina",
         "pageUrlHint": "La pagina in cui sono incorporati i tuoi giochi. Solo il suo sito web può mostrarli.",
@@ -1610,8 +1631,8 @@
       "workshopInviteDescription": "Sei stato invitato a unirti a questo laboratorio."
     },
     "organisationSuspended": {
-      "byAdmin": "Il gestore ha sospeso l'accesso della tua organizzazione a ChatGameLab. I tuoi dati vengono conservati.",
-      "consentWanted": "L'accesso della tua organizzazione a ChatGameLab è sospeso finché uno dei suoi responsabili non accetta la dichiarazione di consenso attuale. I tuoi dati vengono conservati.",
+      "byAdmin": "Il gestore ha sospeso l'accesso della tua organizzazione a {{siteName}}. I tuoi dati vengono conservati.",
+      "consentWanted": "L'accesso della tua organizzazione a {{siteName}} è sospeso finché una delle persone responsabili non accetta l'attuale dichiarazione di consenso. I tuoi dati vengono conservati.",
       "contact": "Per domande, contatta",
       "logout": "Disconnetti",
       "title": "Organizzazione sospesa"
@@ -1643,12 +1664,16 @@
         "backToGames": "Torna ai giochi",
         "cannotOpen": "Questo gioco non può continuare",
         "cannotStart": "Questo gioco non può iniziare",
+        "chooseMode": "Come vuoi giocare?",
+        "chooseModeHint": "Parla dal vivo con il personaggio oppure a turni, scrivendo o parlando.",
         "continue": "Continua",
         "inProgress": "Hai una partita in corso",
         "inProgressHint": "Riprendi da dove avevi interrotto oppure ricomincia dall'inizio.",
+        "live": "Parla dal vivo",
         "noPlaysLeft": "Questo link non ha più partite disponibili, quindi il gioco non può ricominciare.",
         "offline": "Impossibile raggiungere il server di gioco.",
         "opening": "Apertura del gioco…",
+        "rounds": "A turni",
         "startAnew": "Ricomincia",
         "startAnewUsesPlay": "Ricominciare utilizza una delle partite disponibili per questo link.",
         "starting": "Avvio del gioco…",
@@ -1683,16 +1708,16 @@
       "about": {
         "details": "Chi li ha creati descrive il mondo, i personaggi e le regole con parole proprie. Mentre giochi, un'IA continua a raccontare la storia: reagisce a tutto ciò che scrivi e inventa immagini adatte — perciò nessuna partita si svolge nello stesso modo. Crearne uno mostra rapidamente quanto le tue istruzioni influenzino il risultato e dove un'IA raggiunga i propri limiti. È proprio questo il punto: non farti spiegare l'IA, ma provarla.",
         "less": "Meno",
-        "link": "Scopri di più su ChatGameLab",
+        "link": "Scopri di più su {{siteName}}",
         "more": "Scopri di più",
-        "oneLiner": "Queste avventure testuali sono state create con ChatGameLab: costruite a mano, senza programmare, e narrate in tempo reale da un'IA."
+        "oneLiner": "Queste avventure testuali sono state create con {{siteName}}: costruite a mano, senza programmazione, raccontate dal vivo da un'IA."
       },
       "copy": "Copia",
       "copyLogin": "Accedi per copiare",
       "cta": {
         "button": "Inizia gratuitamente",
         "text": "Creare la tua avventura testuale è gratuito e richiede solo pochi minuti.",
-        "title": "Crea il tuo gioco ChatGameLab"
+        "title": "Crea il tuo gioco con {{siteName}}"
       },
       "download": "Scarica",
       "gamesTitle": "Giochi di questo laboratorio",
@@ -1719,6 +1744,42 @@
     "search": "Cerca",
     "searchPlaceholder": "Cerca membri...",
     "serverSettings": {
+      "branding": {
+        "changed": "Modificato",
+        "description": "Come si presenta questo sito: il suo nome nella scheda del browser e nei testi, chi lo gestisce e quali link mostra. Lascia un link vuoto per nasconderlo.",
+        "errors": {
+          "nameRequired": "Il sito deve avere un nome.",
+          "notEmail": "Questo non è un indirizzo email.",
+          "notUrl": "Questo non è un indirizzo web. Inizia con https:// o http://."
+        },
+        "fields": {
+          "aiInsightsUrl": "Informazioni sugli approfondimenti dell'IA",
+          "apiKeyFaqUrl": "Domande sulle chiavi IA",
+          "contactUrl": "Contatti",
+          "creditName": "Programmazione di",
+          "creditUrl": "Il loro sito web",
+          "educatorInfoUrl": "Informazioni per educatori",
+          "gameTipsUrl": "Consigli per creare giochi",
+          "helpUrl": "Aiuto",
+          "operatorName": "Gestore",
+          "operatorUrl": "Sito web del gestore",
+          "privacyUrl": "Informativa sulla privacy",
+          "reportGameUrl": "Segnala un gioco",
+          "siteName": "Nome del sito",
+          "supportEmail": "Email dell'assistenza",
+          "termsUrl": "Condizioni d'uso",
+          "websiteUrl": "Sito web"
+        },
+        "groups": {
+          "credit": "Riconoscimento nel piè di pagina",
+          "identity": "Nome e gestore",
+          "links": "Link"
+        },
+        "hidden": "Nascosto",
+        "reset": "Torna al valore predefinito",
+        "resetTo": "Torna al valore predefinito: {{value}}",
+        "title": "Aspetto"
+      },
       "constraints": {
         "description": "Definisci regole obbligatorie per l'IA in base alla fascia d'età del giocatore. Queste regole di tutela dei minori vengono incluse in ogni chiamata all'IA. Si applicano a tutti gli utenti autenticati al di fuori della modalità workshop.",
         "title": "Regole di tutela dei minori per fascia d'età",
@@ -1753,6 +1814,12 @@
         "title": "Livello qualità IA per uso gratuito"
       },
       "notAuthorized": "Non hai il permesso di accedere alle impostazioni del server. È richiesto l'accesso amministratore.",
+      "tabs": {
+        "ai": "IA e chiavi",
+        "branding": "Aspetto",
+        "general": "Generale",
+        "youthProtection": "Protezione dei minori"
+      },
       "title": "Impostazioni server",
       "updates": {
         "checkNow": "Cerca aggiornamenti",
@@ -1886,7 +1953,7 @@
       "title": "Il tuo laboratorio finora"
     },
     "links": {
-      "about": "Informazioni su ChatGameLab",
+      "about": "Informazioni su {{siteName}}",
       "educators": "Per educatori",
       "jff": "JFF – Institut für Medienpädagogik"
     },
@@ -1994,11 +2061,11 @@
       "greeting": "Ciao {{name}},",
       "operator": "Gestore",
       "organisation": "Organizzazione",
-      "registered": "l'organizzazione «{{organisation}}» è ora attiva su ChatGameLab. Sei il suo responsabile e ora puoi creare workshop.",
-      "renewed": "grazie! ChatGameLab dispone ora del consenso dell'organizzazione «{{organisation}}» alla dichiarazione di consenso attuale.",
-      "signature": "Il tuo team ChatGameLab\nJFF – Jugend Film Fernsehen e.V.",
-      "subjectRegistered": "ChatGameLab: l'organizzazione «{{organisation}}» è attiva – dichiarazione di consenso",
-      "subjectRenewed": "ChatGameLab: dichiarazione di consenso per «{{organisation}}» confermata (versione {{version}})",
+      "registered": "l'organizzazione “{{organisation}}” è ora attiva su {{siteName}}. Sei una persona responsabile dell'organizzazione e ora puoi creare laboratori.",
+      "renewed": "grazie! {{siteName}} ha ora ricevuto il consenso dell'organizzazione “{{organisation}}” alla dichiarazione di consenso attuale.",
+      "signature": "Il team di {{siteName}}\n{{operatorName}}",
+      "subjectRegistered": "{{siteName}}: l'organizzazione “{{organisation}}” è attiva – dichiarazione di consenso",
+      "subjectRenewed": "{{siteName}}: dichiarazione di consenso per “{{organisation}}” confermata (versione {{version}})",
       "version": "Versione",
       "versionValue": "{{version}} (del {{date}})"
     }
@@ -2072,12 +2139,14 @@
       "adapted-style": "Stile",
       "cast": "Assegna le voci",
       "cast-brief": "Personaggi",
+      "character": "Personaggio",
       "condense-scenario": "Accorcia scenario",
       "condensed-scenario": "Scenario",
       "director": "Regia",
       "expand": "Narra",
       "gallery-image": "Immagine della galleria",
       "greeting": "Genera testo",
+      "hearing": "Comprendere il parlato",
       "image": "Disegna immagine",
       "image-prompt": "Descrivi immagine",
       "image-style": "Adatta stile",
@@ -2207,7 +2276,10 @@
       "tabUsage": "Utilizzo"
     },
     "launch": {
+      "chooseMode": "Come vuoi giocare?",
+      "live": "Parla dal vivo",
       "noGame": "Questa pagina richiede un gioco: aprila dalla pagina di un gioco.",
+      "rounds": "A turni, scrivendo o parlando",
       "starting": "Avvio del gioco…"
     },
     "over": {
@@ -2234,6 +2306,7 @@
       "injectionSent": "Inviato alla conversazione"
     },
     "problems": {
+      "chooseMode": "Questo gioco può essere giocato dal vivo o a turni: scegline uno.",
       "denied": "Non puoi giocare a questo gioco.",
       "failed": "Qualcosa è andato storto e il gioco non può continuare.",
       "genre": "La chiave API dell'IA disponibile non può eseguire questo tipo di gioco.",
@@ -2249,12 +2322,15 @@
       "unreachable": "Il fornitore dell'IA non sta rispondendo al momento, quindi il gioco non può continuare. Riprova tra qualche minuto."
     },
     "promptNames": {
+      "character": "Il personaggio (messaggio di sistema)",
       "condense-scenario": "Accorcia lo scenario",
       "conversation-policy": "Come parla il personaggio",
       "director": "Regia",
       "expand": "Narra un turno",
       "game-master": "Master del gioco (messaggio di sistema)",
       "greeting": "Prime parole",
+      "hear-player": "Comprendere il parlato",
+      "hold-the-line": "Mantenere la posizione",
       "image-style": "Adatta lo stile",
       "opening": "Apertura",
       "opening-expand": "Narra l'apertura",

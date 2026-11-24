@@ -5,14 +5,14 @@
       "description": "Ini membantu kami menerapkan perlindungan dan pedoman konten yang tepat pada akun Anda.",
       "label": "Kelompok Usia dan Perlindungan",
       "u13": "13–17 tahun, tanpa persetujuan orang tua",
-      "u13Description": "Anda dapat menggunakan ChatGameLab. Pengaturan perlindungan yang lebih ketat akan diterapkan pada akun Anda.",
+      "u13Description": "Kamu dapat menggunakan {{siteName}}. Pengaturan perlindungan yang lebih ketat akan berlaku untuk akunmu.",
       "u13p": "13–17 tahun, dengan persetujuan orang tua",
-      "u13pDescription": "Anda dapat menggunakan ChatGameLab jika orang tua Anda setuju.",
+      "u13pDescription": "Kamu dapat menggunakan {{siteName}} jika orang tuamu menyetujuinya.",
       "u18": "18 tahun ke atas",
-      "u18Description": "Anda dapat menggunakan ChatGameLab.",
+      "u18Description": "Kamu dapat menggunakan {{siteName}}.",
       "under13": "Di bawah 13 tahun",
-      "under13Blocker": "Anda belum dapat membuat akun sendiri. Jika Anda berusia di bawah 13 tahun, Anda hanya dapat menggunakan ChatGameLab melalui organisasi pemuda.",
-      "under13Description": "Anda belum dapat membuat akun sendiri. Jika Anda berusia di bawah 13 tahun, Anda hanya dapat menggunakan ChatGameLab melalui organisasi pemuda."
+      "under13Blocker": "Kamu belum dapat membuat akun sendiri. Jika usiamu di bawah 13 tahun, kamu hanya dapat menggunakan {{siteName}} melalui organisasi kepemudaan.",
+      "under13Description": "Kamu belum dapat membuat akun sendiri. Jika usiamu di bawah 13 tahun, kamu hanya dapat menggunakan {{siteName}} melalui organisasi kepemudaan."
     },
     "guest": {
       "leaveConfirm": {
@@ -51,7 +51,7 @@
       }
     },
     "organizationRegistration": {
-      "accountNameDescription": "Nama yang ditampilkan kepada Anda di ChatGameLab (maksimal 24 karakter).",
+      "accountNameDescription": "Begitulah kamu akan tampil di {{siteName}} (maksimal 24 karakter).",
       "accountNameLabel": "Nama tampilan",
       "cityLabel": "Kota",
       "confirmAdult": "Saya berusia minimal 18 tahun.",
@@ -60,9 +60,9 @@
         "emailDescription": "Kami mengirimkan konfirmasi beserta teks deklarasi ke alamat ini.",
         "introExisting": "Organisasi Anda, “{{name}}”, kini memiliki deklarasi yang dikonfirmasi secara online. Deklarasi ini menggantikan perjanjian pengguna yang Anda tanda tangani sebelumnya. Silakan baca dan setujui atas nama lembaga Anda.",
         "introNewVersion": "Deklarasi telah diperbarui (versi {{version}}). Silakan baca versi baru dan setujui atas nama organisasi Anda, “{{name}}”.",
-        "introWithdrawn": "Persetujuan organisasi Anda, “{{name}}”, terhadap deklarasi telah ditarik sehingga aksesnya ditangguhkan. Silakan baca deklarasi dan setujui atas nama lembaga Anda agar dapat menggunakan ChatGameLab kembali.",
+        "introWithdrawn": "Persetujuan organisasi “{{name}}” terhadap pernyataan tersebut telah ditarik, sehingga organisasi itu ditangguhkan. Silakan baca pernyataan tersebut dan setujui atas nama lembagamu agar dapat menggunakan {{siteName}} lagi.",
         "logout": "Keluar",
-        "oneHeadIsEnough": "Cukup satu pimpinan organisasi yang menyetujuinya. Sampai saat itu, organisasi Anda ditangguhkan: para anggotanya tidak dapat menggunakan ChatGameLab.",
+        "oneHeadIsEnough": "Cukup jika satu pimpinan organisasi menyetujuinya. Sampai saat itu organisasi kamu ditangguhkan: para anggotanya tidak dapat menggunakan {{siteName}}.",
         "submit": "Setujui",
         "title": "Konfirmasi deklarasi"
       },
@@ -207,10 +207,10 @@
       "agreeSuffix2": "",
       "alreadyHaveAccount": "Sudah punya akun?",
       "backButton": "Kembali",
-      "chooseType": "Bagaimana Anda ingin menggunakan ChatGameLab?",
+      "chooseType": "Bagaimana kamu ingin menggunakan {{siteName}}?",
       "continueButton": "Lanjutkan ke Pendaftaran",
       "description": "Kami menggunakan Auth0 sebagai penyedia autentikasi untuk mengelola akun pengguna. Anda akan diarahkan ke Auth0 untuk membuat akun, lalu kembali ke sini untuk melengkapi profil Anda.",
-      "educatorDescription": "Gunakan ChatGameLab dalam lokakarya, ruang kelas, atau organisasi Anda",
+      "educatorDescription": "Gunakan {{siteName}} dalam lokakarya, kelas, atau organisasimu",
       "educatorModal": {
         "closeButton": "Tutup",
         "copied": "Tersalin!",
@@ -234,7 +234,7 @@
       "individualTitle": "Akun Pribadi",
       "loginLink": "Masuk",
       "organizationExistingAccount": "Organisasi mendaftar dengan login baru. Sudah memiliki akun?",
-      "organizationIntro": "Untuk pusat kegiatan anak muda, sekolah, dan lembaga lain yang ingin menggunakan ChatGameLab dalam lokakarya.",
+      "organizationIntro": "Untuk pusat kegiatan remaja, sekolah, dan lembaga lain yang ingin menggunakan {{siteName}} dalam lokakarya.",
       "organizationStep1": "Buat login Anda melalui Auth0 (email dan kata sandi).",
       "organizationStep2": "Anda memasukkan informasi tentang diri Anda dan lembaga Anda, menetapkan aturan perlindungan anak, lalu menyetujui deklarasi.",
       "organizationStep3": "Setelah formulir dikirim, organisasi langsung diaktifkan dan Anda dapat membuat lokakarya.",
@@ -776,6 +776,9 @@
         "embed": {
           "copy": "Salin snippet",
           "incomplete": "Pilih apa yang akan membayar untuk mendapatkan cuplikannya.",
+          "mode": "Cara memainkan gim",
+          "modeChoose": "Pemain memilih",
+          "modeHint": "Gim ini dapat dimainkan secara langsung atau bergiliran. Pilih salah satu terlebih dahulu untuk melewati pertanyaan; jika kunci hanya mendukung satu mode, mode itulah yang digunakan.",
           "noKeys": "Kamu tidak memiliki kunci AI yang berfungsi untuk membayar. Tambahkan satu, atau minta organisasi kamu menyediakannya.",
           "noOrganisation": "Penyematan ditujukan untuk game milik organisasi: game yang ditulis dalam lokakarya organisasi tersebut, atau oleh pimpinan dan stafnya. Game ini bukan milik organisasi mana pun.",
           "noPages": "Daftarkan situs web organisasi Anda terlebih dahulu: halaman tempat game Anda akan berjalan. Admin akan menyetujuinya, lalu game dapat dimulai di sana.",
@@ -794,7 +797,7 @@
           "snippetVerifiedHint": "Server kamu mengisi ID pengunjung dan tampilan halaman ini; callback halamanmu menerima keduanya.",
           "styleLink": "Atur gayanya dengan CSS milikmu sendiri →",
           "toggle": "Sematkan di situs web",
-          "toggleHint": "Menampilkan game ini di halaman terverifikasi organisasi kamu, tanpa elemen ChatGameLab di sekitarnya. Pengunjung bermain sebagai tamu; kunci yang kamu pilih akan membayar.",
+          "toggleHint": "Menampilkan gim ini di halaman terverifikasi organisasimu, tanpa elemen {{siteName}} lain di sekitarnya. Pengunjung bermain sebagai tamu; kunci yang kamu pilih akan membayar biayanya.",
           "waitingForApproval": "Halaman organisasi sedang menunggu persetujuan admin. Sampai disetujui, game tidak dapat dimulai di sana."
         },
         "fillIn": "Isi semua bagian sampai semuanya berwarna hijau.",
@@ -871,6 +874,14 @@
             "voiceStyleHint": "Seperti apa cerita terdengar saat dibacakan."
           },
           "builtInVoice": "Suara bawaan",
+          "choices": {
+            "any": "Apa saja",
+            "custom": "Kustom",
+            "female": "Perempuan",
+            "male": "Laki-laki"
+          },
+          "choicesHint": "Laki-laki, perempuan, atau apa saja: suara bawaan yang sesuai dengan ceritanya.",
+          "customHint": "Kustom: suara tersendiri yang dibuat berdasarkan deskripsi.",
           "duo": {
             "voiceStyle": "Suara para karakter",
             "voiceStyleHint": "Setiap karakter memiliki suara yang berbeda."
@@ -895,8 +906,15 @@
             "greeting": "Halo! Silakan masuk, duduk, dan ceritakan apa yang membawamu kemari.",
             "narration": "Cerita dimulai pada suatu pagi yang tenang, saat sebuah jalan sempit mengarah menuju sesuatu yang tak dikenal."
           },
+          "slots": {
+            "a": "Karakter pertama",
+            "b": "Karakter kedua",
+            "character": "Karakter",
+            "narrator": "Narator"
+          },
           "status": {
             "builtIn": "Belum ada deskripsi: game menggunakan suara bawaan sampai kamu mendeskripsikan suaranya.",
+            "cast": "Saat gim dimulai, gim akan memilih suara bawaan dari jenis yang kamu pilih dan paling sesuai dengan ceritanya. Deskripsi menentukan cara suara tersebut berbicara.",
             "ownVoice": "Suara khusus untuk deskripsi ini, dibuat dengan kunci AI kamu.",
             "steered": "Suara bawaan membacakan cerita sesuai dengan deskripsi."
           },
@@ -965,6 +983,8 @@
       },
       "genres": {
         "adventure": "Petualangan",
+        "discussion": "Diskusi",
+        "npc": "Karakter",
         "npc-duo": "Diskusi",
         "npc-live": "Karakter"
       },
@@ -1159,6 +1179,7 @@
       "apiKeys": "Kunci API",
       "closeNavigation": "Tutup menu navigasi",
       "contact": "Kontak",
+      "contactHint": "Hubungi tim {{siteName}}",
       "goToDashboard": "Pergi ke Dasbor",
       "leaveWorkshopMode": "Keluar dari Mode Lokakarya",
       "leaveWorkshopModeTooltip": "Keluar dari mode lokakarya dan kembali ke tampilan normal",
@@ -1349,7 +1370,7 @@
         "consented": "Organisasi Anda menyetujui versi {{version}} pada {{date}}.",
         "title": "Deklarasi persetujuan",
         "withdraw": "Tarik persetujuan",
-        "withdrawConfirm": "Tanpa persetujuan, organisasi Anda ditangguhkan: tidak ada anggota yang dapat menggunakan ChatGameLab sampai seorang pimpinan menyetujui kembali. Data organisasi tetap disimpan.",
+        "withdrawConfirm": "Tanpa persetujuan, organisasi kamu ditangguhkan: tidak ada anggota yang dapat menggunakan {{siteName}} sampai seorang pimpinan menyetujuinya lagi. Data organisasi tetap disimpan.",
         "withdrawFailed": "Tindakan tersebut gagal. Silakan coba lagi.",
         "withdrawTitle": "Tarik persetujuan?"
       },
@@ -1449,14 +1470,14 @@
         "approved": "Disetujui",
         "callbackShown": "Callback: {{url}}",
         "callbackUrl": "Alamat callback",
-        "callbackUrlHint": "Tempat ChatGameLab bertanya sebelum setiap permulaan. Halaman tersebut harus menjawab dalam beberapa detik.",
+        "callbackUrlHint": "Di sinilah {{siteName}} bertanya sebelum setiap kali dimulai. Halaman ini harus menjawab dalam beberapa detik.",
         "copied": "Disalin",
         "copy": "Salin ID halaman",
         "edit": "Ubah halaman",
         "editReapproval": "Alamat ini berada di situs lain dan harus menunggu persetujuan admin lagi; sampai disetujui, game tidak dapat dimulai di sana. Port atau path lain di situs yang sama tetap disetujui.",
         "editTitle": "Ubah halaman",
         "empty": "Belum ada halaman terverifikasi.",
-        "intro": "Halaman terverifikasi adalah halaman di situs web organisasi kamu yang boleh menampilkan game yang disematkan. Sebelum game dimulai di sana, ChatGameLab bertanya kepada callback halaman tersebut apakah game boleh dimulai, menggunakan ID halaman di bawah serta ID pengunjung dan permintaan yang diteruskan oleh halamanmu. Hanya jawaban {\"ok\": true} yang akan memulai game.",
+        "intro": "Halaman terverifikasi adalah halaman di situs web organisasimu yang boleh menampilkan gim tersemat milikmu. Sebelum gim dimulai di sana, {{siteName}} menanyakan kepada callback halaman tersebut apakah gim boleh dimulai, dengan ID halaman di bawah ini serta ID pengunjung dan permintaan yang diteruskan oleh halamanmu. Hanya jawaban {\"ok\": true} yang akan memulai gim.",
         "pageId": "ID halaman",
         "pageUrl": "Alamat halaman",
         "pageUrlHint": "Halaman tempat game kamu disematkan. Hanya situs web halaman tersebut yang boleh menampilkannya.",
@@ -1610,8 +1631,8 @@
       "workshopInviteDescription": "Anda telah diundang untuk bergabung dengan lokakarya ini."
     },
     "organisationSuspended": {
-      "byAdmin": "Pengelola telah menangguhkan akses organisasi Anda ke ChatGameLab. Data Anda tetap disimpan.",
-      "consentWanted": "Akses organisasi Anda ke ChatGameLab ditangguhkan sampai salah satu pimpinannya menyetujui deklarasi persetujuan terbaru. Data Anda tetap disimpan.",
+      "byAdmin": "Operator telah menangguhkan akses organisasimu ke {{siteName}}. Data kamu tetap disimpan.",
+      "consentWanted": "Akses organisasimu ke {{siteName}} ditangguhkan sampai salah satu pimpinannya menyetujui pernyataan persetujuan yang berlaku. Data kamu tetap disimpan.",
       "contact": "Jika memiliki pertanyaan, silakan hubungi",
       "logout": "Keluar",
       "title": "Organisasi ditangguhkan"
@@ -1643,12 +1664,16 @@
         "backToGames": "Kembali ke permainan",
         "cannotOpen": "Permainan ini tidak dapat dilanjutkan",
         "cannotStart": "Permainan ini tidak dapat dimulai",
+        "chooseMode": "Bagaimana kamu ingin bermain?",
+        "chooseModeHint": "Berbicaralah langsung dengan karakter, atau bermain bergiliran dengan mengetik atau berbicara.",
         "continue": "Lanjutkan",
         "inProgress": "Anda memiliki permainan yang sedang berlangsung",
         "inProgressHint": "Lanjutkan dari bagian terakhir, atau mulai lagi dari awal.",
+        "live": "Berbicara langsung",
         "noPlaysLeft": "Tautan ini tidak memiliki kesempatan bermain tersisa, jadi permainan tidak dapat dimulai dari awal.",
         "offline": "Tidak dapat terhubung ke server permainan.",
         "opening": "Membuka permainan…",
+        "rounds": "Bergiliran",
         "startAnew": "Mulai dari awal",
         "startAnewUsesPlay": "Memulai dari awal akan menggunakan satu kesempatan bermain dari tautan ini.",
         "starting": "Memulai permainan…",
@@ -1683,16 +1708,16 @@
       "about": {
         "details": "Pembuatnya menjelaskan dunia, karakter, dan aturannya dengan kata-kata mereka sendiri. Saat Anda bermain, AI melanjutkan cerita secara langsung: AI merespons apa pun yang Anda ketik dan menciptakan gambar yang sesuai — sehingga tidak ada dua sesi permainan yang berjalan dengan cara yang sama. Dengan membuatnya sendiri, Anda akan segera melihat betapa kuat instruksi Anda membentuk hasilnya, dan di mana batas kemampuan AI. Itulah intinya: bukan sekadar mendapatkan penjelasan tentang AI, melainkan mencobanya sendiri.",
         "less": "Lebih sedikit",
-        "link": "Selengkapnya tentang ChatGameLab",
+        "link": "Selengkapnya tentang {{siteName}}",
         "more": "Pelajari selengkapnya",
-        "oneLiner": "Petualangan teks ini dibuat dengan ChatGameLab: dirancang sendiri, tanpa pemrograman, dan diceritakan secara langsung oleh AI."
+        "oneLiner": "Petualangan teks ini dibuat dengan {{siteName}}: dirancang sendiri tanpa pemrograman dan diceritakan secara langsung oleh AI."
       },
       "copy": "Salin",
       "copyLogin": "Login untuk menyalin",
       "cta": {
         "button": "Mulai gratis",
         "text": "Membuat petualangan teks sendiri gratis dan hanya membutuhkan waktu beberapa menit.",
-        "title": "Buat game ChatGameLab Anda sendiri"
+        "title": "Buat gim kamu sendiri dengan {{siteName}}"
       },
       "download": "Unduh",
       "gamesTitle": "Permainan dari lokakarya ini",
@@ -1719,6 +1744,42 @@
     "search": "Cari",
     "searchPlaceholder": "Cari anggota...",
     "serverSettings": {
+      "branding": {
+        "changed": "Diubah",
+        "description": "Cara situs ini menampilkan dirinya: namanya di tab browser dan dalam teks, siapa yang mengelolanya, serta tautan yang ditampilkannya. Kosongkan tautan untuk menyembunyikannya.",
+        "errors": {
+          "nameRequired": "Situs ini memerlukan nama.",
+          "notEmail": "Ini bukan alamat email.",
+          "notUrl": "Ini bukan alamat web. Alamat harus diawali https:// atau http://."
+        },
+        "fields": {
+          "aiInsightsUrl": "Tentang wawasan AI",
+          "apiKeyFaqUrl": "Pertanyaan tentang kunci AI",
+          "contactUrl": "Kontak",
+          "creditName": "Diprogram oleh",
+          "creditUrl": "Situs web mereka",
+          "educatorInfoUrl": "Informasi untuk pendidik",
+          "gameTipsUrl": "Tips membuat gim",
+          "helpUrl": "Bantuan",
+          "operatorName": "Operator",
+          "operatorUrl": "Situs web operator",
+          "privacyUrl": "Kebijakan privasi",
+          "reportGameUrl": "Laporkan gim",
+          "siteName": "Nama situs",
+          "supportEmail": "Email dukungan",
+          "termsUrl": "Ketentuan penggunaan",
+          "websiteUrl": "Situs web"
+        },
+        "groups": {
+          "credit": "Kredit di footer",
+          "identity": "Nama dan operator",
+          "links": "Tautan"
+        },
+        "hidden": "Disembunyikan",
+        "reset": "Kembali ke bawaan",
+        "resetTo": "Kembali ke bawaan: {{value}}",
+        "title": "Tampilan"
+      },
       "constraints": {
         "description": "Tentukan aturan AI wajib berdasarkan kelompok usia pemain. Aturan perlindungan anak ini disertakan dalam setiap panggilan AI. Aturan ini berlaku untuk semua pengguna yang telah masuk di luar mode lokakarya.",
         "title": "Aturan perlindungan anak berdasarkan kelompok usia",
@@ -1753,6 +1814,12 @@
         "title": "Tingkat Kualitas AI Penggunaan Gratis"
       },
       "notAuthorized": "Anda tidak memiliki izin untuk mengakses pengaturan server. Diperlukan akses admin.",
+      "tabs": {
+        "ai": "AI dan kunci",
+        "branding": "Tampilan",
+        "general": "Umum",
+        "youthProtection": "Perlindungan anak dan remaja"
+      },
       "title": "Pengaturan Server",
       "updates": {
         "checkNow": "Periksa pembaruan",
@@ -1886,7 +1953,7 @@
       "title": "Lab Anda sejauh ini"
     },
     "links": {
-      "about": "Tentang ChatGameLab",
+      "about": "Tentang {{siteName}}",
       "educators": "Untuk pendidik",
       "jff": "JFF – Institut für Medienpädagogik"
     },
@@ -1994,11 +2061,11 @@
       "greeting": "Halo {{name}},",
       "operator": "Pengelola",
       "organisation": "Organisasi",
-      "registered": "organisasi “{{organisation}}” kini aktif di ChatGameLab. Anda adalah pimpinannya dan kini dapat membuat lokakarya.",
-      "renewed": "terima kasih! ChatGameLab kini memiliki persetujuan organisasi “{{organisation}}” terhadap deklarasi persetujuan terbaru.",
-      "signature": "Tim ChatGameLab Anda\nJFF – Jugend Film Fernsehen e.V.",
-      "subjectRegistered": "ChatGameLab: organisasi “{{organisation}}” aktif – deklarasi persetujuan",
-      "subjectRenewed": "ChatGameLab: deklarasi persetujuan untuk “{{organisation}}” dikonfirmasi (versi {{version}})",
+      "registered": "organisasi “{{organisation}}” kini aktif di {{siteName}}. Kamu adalah pimpinannya dan sekarang dapat membuat lokakarya.",
+      "renewed": "terima kasih! {{siteName}} kini telah menerima persetujuan organisasi “{{organisation}}” terhadap pernyataan persetujuan yang berlaku.",
+      "signature": "Tim {{siteName}}\n{{operatorName}}",
+      "subjectRegistered": "{{siteName}}: organisasi “{{organisation}}” telah aktif – pernyataan persetujuan",
+      "subjectRenewed": "{{siteName}}: pernyataan persetujuan untuk “{{organisation}}” dikonfirmasi (versi {{version}})",
       "version": "Versi",
       "versionValue": "{{version}} (per {{date}})"
     }
@@ -2072,12 +2139,14 @@
       "adapted-style": "Gaya",
       "cast": "Tetapkan suara",
       "cast-brief": "Karakter",
+      "character": "Karakter",
       "condense-scenario": "Persingkat skenario",
       "condensed-scenario": "Skenario",
       "director": "Sutradara",
       "expand": "Narasi",
       "gallery-image": "Gambar galeri",
       "greeting": "Buat teks",
+      "hearing": "Memahami ucapan",
       "image": "Buat gambar",
       "image-prompt": "Deskripsikan gambar",
       "image-style": "Sesuaikan gaya",
@@ -2207,7 +2276,10 @@
       "tabUsage": "Penggunaan"
     },
     "launch": {
+      "chooseMode": "Bagaimana kamu ingin bermain?",
+      "live": "Berbicara langsung",
       "noGame": "Halaman ini memerlukan permainan untuk dimainkan: buka halaman ini dari halaman sebuah permainan.",
+      "rounds": "Bergiliran, dengan mengetik atau berbicara",
       "starting": "Memulai permainan…"
     },
     "over": {
@@ -2234,6 +2306,7 @@
       "injectionSent": "Dikirim ke percakapan"
     },
     "problems": {
+      "chooseMode": "Gim ini dapat dimainkan secara langsung atau bergiliran: pilih salah satunya.",
       "denied": "Kamu tidak dapat memainkan permainan ini.",
       "failed": "Terjadi kesalahan, dan permainan tidak dapat dilanjutkan.",
       "genre": "Kunci AI yang tersedia tidak dapat menjalankan jenis permainan ini.",
@@ -2249,12 +2322,15 @@
       "unreachable": "Penyedia AI sedang tidak merespons, sehingga permainan tidak dapat dilanjutkan. Coba lagi dalam beberapa menit."
     },
     "promptNames": {
+      "character": "Karakter (Pesan Sistem)",
       "condense-scenario": "Persingkat skenario",
       "conversation-policy": "Cara karakter berbicara",
       "director": "Sutradara",
       "expand": "Ceritakan giliran",
       "game-master": "Master game (Pesan Sistem)",
       "greeting": "Kata-kata pertama",
+      "hear-player": "Memahami ucapan",
+      "hold-the-line": "Tetap bertahan",
       "image-style": "Sesuaikan gaya",
       "opening": "Pembukaan",
       "opening-expand": "Ceritakan pembukaan",

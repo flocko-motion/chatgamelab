@@ -5,14 +5,14 @@
       "description": "Dette hjelper oss med å bruke riktig beskyttelse og innholdsretningslinjer på kontoen din.",
       "label": "Alders- og beskyttelsesgruppe",
       "u13": "13–17 år, uten foreldresamtykke",
-      "u13Description": "Du kan bruke ChatGameLab. Sterkere beskyttelsesinnstillinger vil gjelde for kontoen din.",
+      "u13Description": "Du kan bruke {{siteName}}. Strengere beskyttelsesinnstillinger gjelder for kontoen din.",
       "u13p": "13–17 år, med foreldresamtykke",
-      "u13pDescription": "Du kan bruke ChatGameLab hvis foreldrene dine samtykker.",
+      "u13pDescription": "Du kan bruke {{siteName}} hvis foreldrene dine samtykker.",
       "u18": "18 år eller eldre",
-      "u18Description": "Du kan bruke ChatGameLab.",
+      "u18Description": "Du kan bruke {{siteName}}.",
       "under13": "Under 13 år",
-      "under13Blocker": "Du kan ikke opprette din egen konto ennå. Hvis du er under 13, kan du bare bruke ChatGameLab gjennom en ungdomsorganisasjon.",
-      "under13Description": "Du kan ikke opprette din egen konto ennå. Hvis du er under 13, kan du bare bruke ChatGameLab gjennom en ungdomsorganisasjon."
+      "under13Blocker": "Du kan ikke opprette din egen konto ennå. Hvis du er under 13 år, kan du bare bruke {{siteName}} gjennom en ungdomsorganisasjon.",
+      "under13Description": "Du kan ikke opprette din egen konto ennå. Hvis du er under 13 år, kan du bare bruke {{siteName}} gjennom en ungdomsorganisasjon."
     },
     "guest": {
       "leaveConfirm": {
@@ -51,7 +51,7 @@
       }
     },
     "organizationRegistration": {
-      "accountNameDescription": "Slik vises du i ChatGameLab (maksimalt 24 tegn).",
+      "accountNameDescription": "Slik vises du i {{siteName}} (maksimalt 24 tegn).",
       "accountNameLabel": "Visningsnavn",
       "cityLabel": "Sted",
       "confirmAdult": "Jeg er minst 18 år gammel.",
@@ -60,9 +60,9 @@
         "emailDescription": "Vi sender bekreftelsen med teksten i erklæringen til denne adressen.",
         "introExisting": "Organisasjonen deres «{{name}}» har nå en erklæring som bekreftes på nett. Den erstatter brukeravtalen dere signerte tidligere. Les den og godta den på vegne av institusjonen deres.",
         "introNewVersion": "Erklæringen er oppdatert (versjon {{version}}). Les den nye versjonen og godta den på vegne av organisasjonen deres «{{name}}».",
-        "introWithdrawn": "Organisasjonens deres «{{name}}» samtykke til erklæringen er trukket tilbake, og den er derfor suspendert. Les erklæringen og godta den på vegne av institusjonen deres for å bruke ChatGameLab igjen.",
+        "introWithdrawn": "Samtykket fra organisasjonen din «{{name}}» til erklæringen er trukket tilbake, og organisasjonen er derfor suspendert. Les erklæringen og samtykk på vegne av institusjonen din for å bruke {{siteName}} igjen.",
         "logout": "Logg ut",
-        "oneHeadIsEnough": "Det er nok at én organisasjonsleder godtar. Frem til da er organisasjonen suspendert: Medlemmene kan ikke bruke ChatGameLab.",
+        "oneHeadIsEnough": "Det er nok at én leder i organisasjonen samtykker. Inntil da er organisasjonen suspendert: Medlemmene kan ikke bruke {{siteName}}.",
         "submit": "Godta",
         "title": "Bekreft erklæringen"
       },
@@ -207,10 +207,10 @@
       "agreeSuffix2": "",
       "alreadyHaveAccount": "Har du allerede en konto?",
       "backButton": "Tilbake",
-      "chooseType": "Hvordan vil du bruke ChatGameLab?",
+      "chooseType": "Hvordan vil du bruke {{siteName}}?",
       "continueButton": "Fortsett til registrering",
       "description": "Vi bruker Auth0 som vår autentiseringsleverandør for å administrere brukerkontoer. Du blir videresendt til Auth0 for å opprette kontoen din, og deretter sendt tilbake hit for å fullføre profilen din.",
-      "educatorDescription": "Bruk ChatGameLab i workshops, klasserom eller organisasjonen din",
+      "educatorDescription": "Bruk {{siteName}} i verksteder, undervisning eller organisasjonen din",
       "educatorModal": {
         "closeButton": "Lukk",
         "copied": "Kopiert!",
@@ -234,7 +234,7 @@
       "individualTitle": "Personlig konto",
       "loginLink": "Logg inn",
       "organizationExistingAccount": "Organisasjoner registrerer seg med en ny innlogging. Har du allerede en konto?",
-      "organizationIntro": "For ungdomssentre, skoler og andre institusjoner som ønsker å bruke ChatGameLab i workshoper.",
+      "organizationIntro": "For ungdomssentre, skoler og andre institusjoner som ønsker å bruke {{siteName}} i verksteder.",
       "organizationStep1": "Du oppretter innloggingen din med Auth0 (e-post og passord).",
       "organizationStep2": "Du oppgir opplysninger om deg selv og institusjonen din, fastsetter regelen for ungdomsvern og godtar erklæringen.",
       "organizationStep3": "Når du sender inn skjemaet, aktiveres organisasjonen med en gang, og du kan opprette workshoper.",
@@ -776,6 +776,9 @@
         "embed": {
           "copy": "Kopier kodebit",
           "incomplete": "Velg hva som skal betale for å få kodebiten.",
+          "mode": "Slik spilles spillet",
+          "modeChoose": "Spilleren velger",
+          "modeHint": "Dette spillet kan spilles live eller etter tur. Velg én på forhånd for å hoppe over spørsmålet. Hvis nøkkelen bare støtter én, spilles den modusen.",
           "noKeys": "Du har ingen fungerende KI-nøkkel å betale med. Legg til en, eller spør organisasjonen din om en.",
           "noOrganisation": "Innebygging er for en organisasjons spill: spillene som er skrevet i workshopene deres, eller av ledelsen og de ansatte. Dette spillet tilhører ingen organisasjon.",
           "noPages": "Registrer organisasjonens nettsted først: siden spillene deres skal kjøre på. En administrator godkjenner den, og deretter kan spillet starte der.",
@@ -794,7 +797,7 @@
           "snippetVerifiedHint": "Serveren din fyller inn ID-en til besøkeren og til denne sidevisningen; tilbakekallet fra siden din får begge.",
           "styleLink": "Utform den med din egen CSS →",
           "toggle": "Bygg inn på et nettsted",
-          "toggleHint": "Viser dette spillet på organisasjonens verifiserte side, uten noe fra ChatGameLab rundt det. Besøkende spiller som gjester; nøkkelen du velger, betaler.",
+          "toggleHint": "Viser dette spillet på organisasjonens verifiserte side, uten noe fra {{siteName}} rundt det. Besøkende spiller som gjester, og nøkkelen du velger, betaler.",
           "waitingForApproval": "Organisasjonens side venter på godkjenning fra en administrator. Inntil da starter ikke spillet der."
         },
         "fillIn": "Fyll ut delene til alle er grønne.",
@@ -871,6 +874,14 @@
             "voiceStyleHint": "Hvordan historien høres ut når den leses høyt."
           },
           "builtInVoice": "Innebygd stemme",
+          "choices": {
+            "any": "Valgfri",
+            "custom": "Egendefinert",
+            "female": "Kvinnelig",
+            "male": "Mannlig"
+          },
+          "choicesHint": "Mannlig, kvinnelig eller valgfri: en innebygd stemme som passer til historien.",
+          "customHint": "Egendefinert: en egen stemme laget ut fra beskrivelsen.",
           "duo": {
             "voiceStyle": "Figurenes stemmer",
             "voiceStyleHint": "Hver figur får sin egen stemme."
@@ -895,8 +906,15 @@
             "greeting": "Hei! Kom inn, sett deg, og fortell meg hva som bringer deg hit.",
             "narration": "Historien begynner en stille morgen, idet en smal sti fører inn i det ukjente."
           },
+          "slots": {
+            "a": "Første figur",
+            "b": "Andre figur",
+            "character": "Figur",
+            "narrator": "Forteller"
+          },
           "status": {
             "builtIn": "Ingen beskrivelse ennå: Spillet snakker med en innebygd stemme til du beskriver stemmen.",
+            "cast": "Når spillet starter, velger det den innebygde stemmen av den valgte typen som passer best til historien. Beskrivelsen styrer hvordan stemmen snakker.",
             "ownVoice": "En egen stemme for denne beskrivelsen, laget med KI-nøkkelen din.",
             "steered": "En innebygd stemme leser historien, slik beskrivelsen sier."
           },
@@ -965,6 +983,8 @@
       },
       "genres": {
         "adventure": "Eventyr",
+        "discussion": "Diskusjon",
+        "npc": "Figur",
         "npc-duo": "Diskusjon",
         "npc-live": "Figur"
       },
@@ -1159,6 +1179,7 @@
       "apiKeys": "API-nøkler",
       "closeNavigation": "Lukk navigasjonsmeny",
       "contact": "Kontakt",
+      "contactHint": "Ta kontakt med teamet bak {{siteName}}",
       "goToDashboard": "Gå til dashbord",
       "leaveWorkshopMode": "Forlat workshop-modus",
       "leaveWorkshopModeTooltip": "Forlat workshop-modus og gå tilbake til normal visning",
@@ -1349,7 +1370,7 @@
         "consented": "Organisasjonen din godtok versjon {{version}} den {{date}}.",
         "title": "Samtykkeerklæring",
         "withdraw": "Trekk tilbake samtykke",
-        "withdrawConfirm": "Uten samtykke blir organisasjonen suspendert: Ingen medlemmer kan bruke ChatGameLab før en leder godtar igjen. Dataene beholdes.",
+        "withdrawConfirm": "Uten samtykke er organisasjonen suspendert: Ingen medlemmer kan bruke {{siteName}} før en leder samtykker på nytt. Dataene beholdes.",
         "withdrawFailed": "Det fungerte ikke. Prøv igjen.",
         "withdrawTitle": "Trekke tilbake samtykke?"
       },
@@ -1449,14 +1470,14 @@
         "approved": "Godkjent",
         "callbackShown": "Tilbakekall: {{url}}",
         "callbackUrl": "Adresse for tilbakekall",
-        "callbackUrlHint": "Her spør ChatGameLab før hver start. Den må svare innen noen få sekunder.",
+        "callbackUrlHint": "Her spør {{siteName}} før hver oppstart. Den må svare innen noen få sekunder.",
         "copied": "Kopiert",
         "copy": "Kopier side-ID",
         "edit": "Endre side",
         "editReapproval": "Denne adressen ligger på et annet nettsted og venter på godkjenning fra en administrator på nytt; inntil da starter ingen spill der. En annen port eller bane på samme nettsted forblir godkjent.",
         "editTitle": "Endre siden",
         "empty": "Ingen verifiserte sider ennå.",
-        "intro": "En verifisert side er en side på organisasjonens nettsted som kan vise de innebygde spillene dine. Før et spill starter der, spør ChatGameLab sidens tilbakekall om det skal starte, med side-ID-en nedenfor og ID-ene til besøkeren og forespørselen som siden din sender videre. Bare svaret {\"ok\": true} starter spillet.",
+        "intro": "En verifisert side er en side på organisasjonens nettsted som kan vise de innebygde spillene dine. Før et spill starter der, spør {{siteName}} sidens callback om det skal starte, med side-ID-en nedenfor og ID-ene til den besøkende og forespørselen som siden din videresender. Bare svaret {\"ok\": true} starter spillet.",
         "pageId": "Side-ID",
         "pageUrl": "Adresse til siden",
         "pageUrlHint": "Siden som spillene dine er bygget inn i. Bare nettstedet dens kan vise dem.",
@@ -1610,8 +1631,8 @@
       "workshopInviteDescription": "Du er invitert til å bli med i denne workshopen."
     },
     "organisationSuspended": {
-      "byAdmin": "Operatøren har suspendert organisasjonens tilgang til ChatGameLab. Dataene dine beholdes.",
-      "consentWanted": "Organisasjonens tilgang til ChatGameLab er suspendert til en av lederne godtar den gjeldende samtykkeerklæringen. Dataene dine beholdes.",
+      "byAdmin": "Operatøren har suspendert organisasjonens tilgang til {{siteName}}. Dataene dine beholdes.",
+      "consentWanted": "Organisasjonens tilgang til {{siteName}} er suspendert til en av lederne samtykker til den gjeldende samtykkeerklæringen. Dataene dine beholdes.",
       "contact": "Hvis du har spørsmål, kan du kontakte",
       "logout": "Logg ut",
       "title": "Organisasjon suspendert"
@@ -1643,12 +1664,16 @@
         "backToGames": "Tilbake til spillene",
         "cannotOpen": "Dette spillet kan ikke fortsette",
         "cannotStart": "Dette spillet kan ikke startes",
+        "chooseMode": "Hvordan vil du spille?",
+        "chooseModeHint": "Snakk live med figuren, eller ta turer ved å skrive eller snakke.",
         "continue": "Fortsett",
         "inProgress": "Du har et påbegynt spill",
         "inProgressHint": "Fortsett der du slapp, eller start på nytt fra begynnelsen.",
+        "live": "Snakk live",
         "noPlaysLeft": "Denne lenken har ingen spill igjen, så spillet kan ikke startes på nytt.",
         "offline": "Får ikke kontakt med spillserveren.",
         "opening": "Åpner spillet…",
+        "rounds": "Ta turer",
         "startAnew": "Start på nytt",
         "startAnewUsesPlay": "Å starte på nytt bruker ett av spillene på denne lenken.",
         "starting": "Starter spillet…",
@@ -1683,16 +1708,16 @@
       "about": {
         "details": "Skaperne beskriver verdenen, figurene og reglene med sine egne ord. Mens du spiller, forteller en KI historien videre derfra: Den reagerer på det du skriver og finner på bilder som passer — derfor blir aldri to runder helt like. Når du lager et selv, blir det raskt tydelig hvor sterkt instruksjonene dine påvirker resultatet, og hvor grensene til en KI går. Det er hele poenget: ikke å få KI forklart, men å prøve det ut.",
         "less": "Mindre",
-        "link": "Mer om ChatGameLab",
+        "link": "Mer om {{siteName}}",
         "more": "Les mer",
-        "oneLiner": "Disse teksteventyrene er laget med ChatGameLab: bygget for hånd, uten programmering, og fortalt direkte av en KI."
+        "oneLiner": "Disse teksteventyrene er laget med {{siteName}}: bygget for hånd, uten programmering, fortalt live av en KI."
       },
       "copy": "Kopier",
       "copyLogin": "Logg inn for å kopiere",
       "cta": {
         "button": "Kom i gang gratis",
         "text": "Det er gratis å lage ditt eget teksteventyr og tar bare noen få minutter.",
-        "title": "Lag ditt eget ChatGameLab-spill"
+        "title": "Lag ditt eget spill med {{siteName}}"
       },
       "download": "Last ned",
       "gamesTitle": "Spill fra denne workshopen",
@@ -1719,6 +1744,42 @@
     "search": "Søk",
     "searchPlaceholder": "Søk blant medlemmer...",
     "serverSettings": {
+      "branding": {
+        "changed": "Endret",
+        "description": "Slik presenterer dette nettstedet seg: navnet i nettleserfanen og i tekster, hvem som driver det, og hvilke lenker det viser. La en lenke stå tom for å skjule den.",
+        "errors": {
+          "nameRequired": "Nettstedet trenger et navn.",
+          "notEmail": "Dette er ikke en e-postadresse.",
+          "notUrl": "Dette er ikke en nettadresse. Den begynner med https:// eller http://."
+        },
+        "fields": {
+          "aiInsightsUrl": "Om KI-innsikten",
+          "apiKeyFaqUrl": "Spørsmål om KI-nøkler",
+          "contactUrl": "Kontakt",
+          "creditName": "Programmert av",
+          "creditUrl": "Nettstedet deres",
+          "educatorInfoUrl": "Informasjon for undervisere",
+          "gameTipsUrl": "Tips for å lage spill",
+          "helpUrl": "Hjelp",
+          "operatorName": "Operatør",
+          "operatorUrl": "Operatørens nettsted",
+          "privacyUrl": "Personvernerklæring",
+          "reportGameUrl": "Rapporter et spill",
+          "siteName": "Navn på nettstedet",
+          "supportEmail": "E-post for brukerstøtte",
+          "termsUrl": "Bruksvilkår",
+          "websiteUrl": "Nettsted"
+        },
+        "groups": {
+          "credit": "Kreditering i bunnteksten",
+          "identity": "Navn og operatør",
+          "links": "Lenker"
+        },
+        "hidden": "Skjult",
+        "reset": "Tilbake til standard",
+        "resetTo": "Tilbake til standard: {{value}}",
+        "title": "Profilering"
+      },
       "constraints": {
         "description": "Definer obligatoriske KI-regler basert på spillerens aldersgruppe. Disse reglene for ungdomsvern følger med hvert KI-kall. De gjelder for alle innloggede brukere utenfor workshopmodus.",
         "title": "Regler for ungdomsvern etter aldersgruppe",
@@ -1753,6 +1814,12 @@
         "title": "Fritt-bruk AI-kvalitetsnivå"
       },
       "notAuthorized": "Du har ikke tillatelse til å få tilgang til serverinnstillinger. Krever admin-tilgang.",
+      "tabs": {
+        "ai": "KI og nøkler",
+        "branding": "Profilering",
+        "general": "Generelt",
+        "youthProtection": "Ungdomsvern"
+      },
       "title": "Serverinnstillinger",
       "updates": {
         "checkNow": "Søk etter oppdateringer",
@@ -1886,7 +1953,7 @@
       "title": "Laboratoriet ditt så langt"
     },
     "links": {
-      "about": "Om ChatGameLab",
+      "about": "Om {{siteName}}",
       "educators": "For pedagoger",
       "jff": "JFF – Institutt for mediepedagogikk"
     },
@@ -1994,11 +2061,11 @@
       "greeting": "Hei {{name}},",
       "operator": "Eier",
       "organisation": "Organisasjon",
-      "registered": "organisasjonen «{{organisation}}» er nå aktiv på ChatGameLab. Du er organisasjonens leder og kan opprette workshoper nå.",
-      "renewed": "takk! ChatGameLab har nå organisasjonen «{{organisation}}» sitt samtykke til den gjeldende samtykkeerklæringen.",
-      "signature": "ChatGameLab-teamet ditt\nJFF – Jugend Film Fernsehen e.V.",
-      "subjectRegistered": "ChatGameLab: organisasjonen «{{organisation}}» er aktiv – samtykkeerklæring",
-      "subjectRenewed": "ChatGameLab: samtykkeerklæring for «{{organisation}}» bekreftet (versjon {{version}})",
+      "registered": "organisasjonen «{{organisation}}» er nå aktiv på {{siteName}}. Du er leder for organisasjonen og kan opprette verksteder nå.",
+      "renewed": "takk! {{siteName}} har nå organisasjonen «{{organisation}}» sitt samtykke til den gjeldende samtykkeerklæringen.",
+      "signature": "Ditt {{siteName}}-team\n{{operatorName}}",
+      "subjectRegistered": "{{siteName}}: organisasjonen «{{organisation}}» er aktiv – samtykkeerklæring",
+      "subjectRenewed": "{{siteName}}: samtykkeerklæring for «{{organisation}}» bekreftet (versjon {{version}})",
       "version": "Versjon",
       "versionValue": "{{version}} (per {{date}})"
     }
@@ -2072,12 +2139,14 @@
       "adapted-style": "Stil",
       "cast": "Besett stemmer",
       "cast-brief": "Figurer",
+      "character": "Figur",
       "condense-scenario": "Forkort scenario",
       "condensed-scenario": "Scenario",
       "director": "Regi",
       "expand": "Fortell",
       "gallery-image": "Galleribilde",
       "greeting": "Generer tekst",
+      "hearing": "Forstå tale",
       "image": "Tegn bilde",
       "image-prompt": "Beskriv bilde",
       "image-style": "Tilpass stil",
@@ -2207,7 +2276,10 @@
       "tabUsage": "Bruk"
     },
     "launch": {
+      "chooseMode": "Hvordan vil du spille?",
+      "live": "Snakk live",
       "noGame": "Denne siden trenger et spill for å kunne spilles: Åpne den fra siden til et spill.",
+      "rounds": "Ta turer, skriftlig eller muntlig",
       "starting": "Starter spillet…"
     },
     "over": {
@@ -2234,6 +2306,7 @@
       "injectionSent": "Sendt til samtalen"
     },
     "problems": {
+      "chooseMode": "Dette spillet kan spilles live eller etter tur: velg én.",
       "denied": "Du har ikke lov til å spille dette spillet.",
       "failed": "Noe gikk galt, og spillet kan ikke fortsette.",
       "genre": "Den tilgjengelige AI-nøkkelen kan ikke kjøre denne typen spill.",
@@ -2249,12 +2322,15 @@
       "unreachable": "AI-leverandøren svarer ikke akkurat nå, så spillet kan ikke fortsette. Prøv igjen om noen minutter."
     },
     "promptNames": {
+      "character": "Figuren (systemmelding)",
       "condense-scenario": "Kort ned scenarioet",
       "conversation-policy": "Hvordan figuren snakker",
       "director": "Regi",
       "expand": "Fortell en omgang",
       "game-master": "Spillmester (systemmelding)",
       "greeting": "Første ord",
+      "hear-player": "Forstå tale",
+      "hold-the-line": "Hold linjen",
       "image-style": "Tilpass stil",
       "opening": "Åpning",
       "opening-expand": "Fortell åpningen",

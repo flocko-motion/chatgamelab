@@ -5,14 +5,14 @@
       "description": "Ez segít, hogy a megfelelő védelmi és tartalmi irányelveket alkalmazzuk a fiókodra.",
       "label": "Életkor és védelmi csoport",
       "u13": "13–17 éves, szülői beleegyezés nélkül",
-      "u13Description": "Használhatod a ChatGameLabot. Erősebb védelmi beállítások vonatkoznak a fiókodra.",
+      "u13Description": "Használhatod a(z) {{siteName}} oldalt. A fiókodra szigorúbb védelmi beállítások vonatkoznak.",
       "u13p": "13–17 éves, szülői beleegyezéssel",
-      "u13pDescription": "Használhatod a ChatGameLabot, ha a szüleid beleegyeznek.",
+      "u13pDescription": "Használhatod a(z) {{siteName}} oldalt, ha a szüleid hozzájárulnak.",
       "u18": "18 éves vagy idősebb",
-      "u18Description": "Használhatod a ChatGameLabot.",
+      "u18Description": "Használhatod a(z) {{siteName}} oldalt.",
       "under13": "13 év alatt",
-      "under13Blocker": "Még nem hozhatsz létre saját fiókot. Ha 13 év alatti vagy, csak ifjúsági szervezeten keresztül használhatod a ChatGameLabot.",
-      "under13Description": "Még nem hozhatsz létre saját fiókot. Ha 13 év alatti vagy, csak ifjúsági szervezeten keresztül használhatod a ChatGameLabot."
+      "under13Blocker": "Még nem hozhatsz létre saját fiókot. Ha 13 év alatti vagy, a(z) {{siteName}} oldalt csak ifjúsági szervezeten keresztül használhatod.",
+      "under13Description": "Még nem hozhatsz létre saját fiókot. Ha 13 év alatti vagy, a(z) {{siteName}} oldalt csak ifjúsági szervezeten keresztül használhatod."
     },
     "guest": {
       "leaveConfirm": {
@@ -51,7 +51,7 @@
       }
     },
     "organizationRegistration": {
-      "accountNameDescription": "Így jelensz meg a ChatGameLabban (legfeljebb 24 karakter).",
+      "accountNameDescription": "Így jelensz meg a(z) {{siteName}} oldalon (legfeljebb 24 karakter).",
       "accountNameLabel": "Megjelenített név",
       "cityLabel": "Település",
       "confirmAdult": "Legalább 18 éves vagyok.",
@@ -60,9 +60,9 @@
         "emailDescription": "Erre a címre küldjük a nyilatkozat szövegét tartalmazó visszaigazolást.",
         "introExisting": "A „{{name}}” szervezeteteknek mostantól online visszaigazolt nyilatkozata van. Ez felváltja a korábban aláírt felhasználási megállapodást. Kérjük, olvasd el, és intézményetek nevében fogadd el.",
         "introNewVersion": "A nyilatkozat frissült ({{version}}. verzió). Kérjük, olvasd el az új változatot, és a „{{name}}” szervezetetek nevében fogadd el.",
-        "introWithdrawn": "A „{{name}}” szervezetetek nyilatkozathoz adott hozzájárulását visszavonták, ezért a szervezet fel van függesztve. Kérjük, olvasd el a nyilatkozatot, és intézményetek nevében fogadd el, hogy ismét használhassátok a ChatGameLabot.",
+        "introWithdrawn": "A „{{name}}” szervezetetek visszavonta a nyilatkozathoz adott hozzájárulását, ezért a szervezet felfüggesztett állapotba került. Kérjük, olvasd el a nyilatkozatot, és az intézményetek nevében járulj hozzá a(z) {{siteName}} ismételt használatához.",
         "logout": "Kijelentkezés",
-        "oneHeadIsEnough": "Elegendő, ha a szervezet egyik vezetője elfogadja. Addig a szervezetetek fel van függesztve: tagjai nem használhatják a ChatGameLabot.",
+        "oneHeadIsEnough": "Elég, ha a szervezet egyik vezetője hozzájárul. Addig a szervezetetek felfüggesztett állapotban van: tagjai nem használhatják a(z) {{siteName}} oldalt.",
         "submit": "Elfogadom",
         "title": "A nyilatkozat megerősítése"
       },
@@ -207,10 +207,10 @@
       "agreeSuffix2": "",
       "alreadyHaveAccount": "Már van fiókod?",
       "backButton": "Vissza",
-      "chooseType": "Hogyan szeretnéd használni a ChatGameLabot?",
+      "chooseType": "Hogyan szeretnéd használni a(z) {{siteName}} oldalt?",
       "continueButton": "Tovább a regisztrációhoz",
       "description": "Az Auth0-t használjuk hitelesítési szolgáltatóként a felhasználói fiókok kezeléséhez. Át fogunk irányítani az Auth0-ra a fiók létrehozásához, majd ide visszatérve fejezheted be a profilodat.",
-      "educatorDescription": "Használd a ChatGameLabot műhelymunkákon, tanórákon vagy a szervezetedben",
+      "educatorDescription": "Használd a(z) {{siteName}} oldalt műhelyfoglalkozásokon, tanórákon vagy a szervezetetekben",
       "educatorModal": {
         "closeButton": "Bezárás",
         "copied": "Másolva!",
@@ -234,7 +234,7 @@
       "individualTitle": "Személyes fiók",
       "loginLink": "Bejelentkezés",
       "organizationExistingAccount": "A szervezetek új bejelentkezéssel regisztrálnak. Már van fiókod?",
-      "organizationIntro": "Ifjúsági központok, iskolák és más intézmények számára, amelyek műhelyekben szeretnék használni a ChatGameLabot.",
+      "organizationIntro": "Ifjúsági központoknak, iskoláknak és más intézményeknek, amelyek műhelyfoglalkozásokon szeretnék használni a(z) {{siteName}} oldalt.",
       "organizationStep1": "Az Auth0 segítségével létrehozod a bejelentkezésedet (e-mail-cím és jelszó).",
       "organizationStep2": "Megadod a saját és az intézményed adatait, beállítod a gyermekvédelmi szabályt, és elfogadod a nyilatkozatot.",
       "organizationStep3": "Az űrlap elküldése után a szervezet azonnal aktiválódik, és műhelyeket hozhatsz létre.",
@@ -776,6 +776,9 @@
         "embed": {
           "copy": "Kódrészlet másolása",
           "incomplete": "Válaszd ki, mi fizet a kódrészletért.",
+          "mode": "Hogyan zajlik a játék",
+          "modeChoose": "A játékos választ",
+          "modeHint": "Ez a játék élőben vagy felváltva játszható. Válassz ki előre egy lehetőséget a kérdés kihagyásához; ha a kulcs csak az egyik módot támogatja, az lesz használva.",
           "noKeys": "Nincs használható MI-kulcsod a fizetéshez. Adj hozzá egyet, vagy kérj egyet a szervezetedtől.",
           "noOrganisation": "A beágyazás szervezetek játékaihoz használható: a műhelyeikben vagy a vezetőik és munkatársaik által írt játékokhoz. Ez a játék nem tartozik szervezethez.",
           "noPages": "Először regisztráld a szervezeted webhelyét: azt az oldalt, ahol a játékaitok futni fognak. Egy adminisztrátor jóváhagyja, ezután a játék ott is elindulhat.",
@@ -794,7 +797,7 @@
           "snippetVerifiedHint": "A szervered beilleszti a látogató és az oldalmegtekintés azonosítóját; az oldalad callbackje mindkettőt megkapja.",
           "styleLink": "Formázd saját CSS-sel →",
           "toggle": "Beágyazás webhelyre",
-          "toggleHint": "Megjeleníti ezt a játékot a szervezeted ellenőrzött oldalán, a ChatGameLab körítése nélkül. A látogatók vendégként játszanak; a választott kulcs fizet.",
+          "toggleHint": "Megjeleníti ezt a játékot a szervezetetek ellenőrzött oldalán, a(z) {{siteName}} körítését nélkülözve. A látogatók vendégként játszanak; a választott kulcs fizet.",
           "waitingForApproval": "A szervezet oldala egy adminisztrátor jóváhagyására vár. Addig a játék nem indul el ott."
         },
         "fillIn": "Töltsd ki a szakaszokat, amíg mind zöld nem lesz.",
@@ -871,6 +874,14 @@
             "voiceStyleHint": "Milyen a történet hangzása, amikor felolvassák."
           },
           "builtInVoice": "Beépített hang",
+          "choices": {
+            "any": "Bármilyen",
+            "custom": "Egyéni",
+            "female": "Női",
+            "male": "Férfi"
+          },
+          "choicesHint": "Férfi, női vagy bármilyen: a történethez illő beépített hang.",
+          "customHint": "Egyéni: saját hang, amelyet a leírás alapján hozunk létre.",
           "duo": {
             "voiceStyle": "A szereplők hangjai",
             "voiceStyleHint": "Minden szereplő saját hangot kap."
@@ -895,8 +906,15 @@
             "greeting": "Üdvözöllek! Gyere be, ülj le, és mondd el, mi szél hozott ide.",
             "narration": "A történet egy csendes reggelen kezdődik, amikor egy keskeny ösvény az ismeretlenbe vezet."
           },
+          "slots": {
+            "a": "Első szereplő",
+            "b": "Második szereplő",
+            "character": "Szereplő",
+            "narrator": "Narrátor"
+          },
           "status": {
             "builtIn": "Még nincs leírás: a játék beépített hangon szólal meg, amíg le nem írod a hangot.",
+            "cast": "A játék indulásakor kiválasztja a választott típusú, a történethez legjobban illő beépített hangot. A leírás határozza meg, hogyan beszél.",
             "ownVoice": "Ehhez a leíráshoz saját hang készült az MI-kulcsoddal.",
             "steered": "A történetet egy beépített hang olvassa fel a leírásnak megfelelően."
           },
@@ -965,6 +983,8 @@
       },
       "genres": {
         "adventure": "Kaland",
+        "discussion": "Beszélgetés",
+        "npc": "Karakter",
         "npc-duo": "Beszélgetés",
         "npc-live": "Szereplő"
       },
@@ -1159,6 +1179,7 @@
       "apiKeys": "API-kulcsok",
       "closeNavigation": "Navigációs menü bezárása",
       "contact": "Kapcsolat",
+      "contactHint": "Vedd fel a kapcsolatot a(z) {{siteName}} csapatával",
       "goToDashboard": "Ugrás az irányítópultra",
       "leaveWorkshopMode": "Műhely mód elhagyása",
       "leaveWorkshopModeTooltip": "Lépj ki a műhely módból és térj vissza a normál nézetbe",
@@ -1349,7 +1370,7 @@
         "consented": "A szervezetetek {{date}} dátummal elfogadta a {{version}}. verziót.",
         "title": "Hozzájárulási nyilatkozat",
         "withdraw": "Hozzájárulás visszavonása",
-        "withdrawConfirm": "Hozzájárulás nélkül a szervezetetek fel van függesztve: egyetlen tag sem használhatja a ChatGameLabot, amíg valamelyik vezető újra el nem fogadja a nyilatkozatot. Az adatok megmaradnak.",
+        "withdrawConfirm": "Hozzájárulás nélkül a szervezetetek felfüggesztett állapotba kerül: egyetlen tag sem használhatja a(z) {{siteName}} oldalt, amíg egy vezető ismét hozzá nem járul. Az adataitok megmaradnak.",
         "withdrawFailed": "Ez nem sikerült. Kérjük, próbáld újra.",
         "withdrawTitle": "Visszavonod a hozzájárulást?"
       },
@@ -1449,14 +1470,14 @@
         "approved": "Jóváhagyva",
         "callbackShown": "Callback: {{url}}",
         "callbackUrl": "Callback-cím",
-        "callbackUrlHint": "Itt kérdez a ChatGameLab minden indítás előtt. Néhány másodpercen belül válaszolnia kell.",
+        "callbackUrlHint": "Itt kérdez rá a(z) {{siteName}} minden indítás előtt. Néhány másodpercen belül válaszolnia kell.",
         "copied": "Másolva",
         "copy": "Oldalazonosító másolása",
         "edit": "Oldal módosítása",
         "editReapproval": "Ez a cím egy másik webhelyen található, amely ismét adminisztrátori jóváhagyásra vár; addig a játékok ott nem indulnak el. Ugyanazon a webhelyen egy másik port vagy útvonal továbbra is jóváhagyott marad.",
         "editTitle": "Az oldal módosítása",
         "empty": "Még nincs ellenőrzött oldal.",
-        "intro": "Az ellenőrzött oldal a szervezeted webhelyének olyan oldala, amely megjelenítheti a beágyazott játékokat. Mielőtt egy játék ott elindulna, a ChatGameLab megkérdezi az oldal callbackjét, hogy elindulhat-e, az alábbi oldalazonosítóval, valamint a látogató és a kérés azonosítójával, amelyeket az oldalad továbbít. A játékot csak a {\"ok\": true} válasz indítja el.",
+        "intro": "Az ellenőrzött oldal a szervezetetek webhelyének olyan oldala, amely megjelenítheti a beágyazott játékaitokat. Mielőtt ott elindulna egy játék, a(z) {{siteName}} megkérdezi az oldal callbackjét, hogy elindítsa-e, és átadja az alábbi oldalazonosítót, valamint a látogató és a kérés azonosítóját, amelyeket az oldalatok továbbít. Csak a {\"ok\": true} válasz indítja el a játékot.",
         "pageId": "Oldalazonosító",
         "pageUrl": "Oldalcím",
         "pageUrlHint": "Az oldal, amelybe a játékaid be vannak ágyazva. Csak annak webhelye jelenítheti meg őket.",
@@ -1610,8 +1631,8 @@
       "workshopInviteDescription": "Meghívtak, hogy csatlakozz ehhez a műhelyhez."
     },
     "organisationSuspended": {
-      "byAdmin": "Az üzemeltető felfüggesztette a szervezeted ChatGameLab-hozzáférését. Az adataid megmaradnak.",
-      "consentWanted": "A szervezeted ChatGameLab-hozzáférése fel van függesztve, amíg valamelyik vezetője el nem fogadja az aktuális hozzájárulási nyilatkozatot. Az adataid megmaradnak.",
+      "byAdmin": "Az üzemeltető felfüggesztette a szervezetetek hozzáférését a(z) {{siteName}} oldalhoz. Az adataitok megmaradnak.",
+      "consentWanted": "A szervezetetek hozzáférése a(z) {{siteName}} oldalhoz fel van függesztve, amíg egyik vezetőtök nem járul hozzá az aktuális hozzájárulási nyilatkozathoz. Az adataitok megmaradnak.",
       "contact": "Kérdés esetén fordulj hozzá:",
       "logout": "Kijelentkezés",
       "title": "Szervezet felfüggesztve"
@@ -1643,12 +1664,16 @@
         "backToGames": "Vissza a játékokhoz",
         "cannotOpen": "Ez a játék nem folytatható",
         "cannotStart": "Ez a játék nem indítható el",
+        "chooseMode": "Hogyan szeretnél játszani?",
+        "chooseModeHint": "Beszélgess élőben a szereplővel, vagy játsszatok felváltva, gépelve vagy beszélve.",
         "continue": "Folytatás",
         "inProgress": "Van egy folyamatban lévő játékod",
         "inProgressHint": "Folytasd ott, ahol abbahagytad, vagy kezdd újra az elejétől.",
+        "live": "Élő beszélgetés",
         "noPlaysLeft": "Ezen a linken már nincs több játékalkalom, ezért a játék nem indítható újra.",
         "offline": "A játékszerver nem érhető el.",
         "opening": "A játék megnyitása…",
+        "rounds": "Felváltva",
         "startAnew": "Kezdés elölről",
         "startAnewUsesPlay": "Az újrakezdés felhasznál egyet a linken elérhető játékalkalmak közül.",
         "starting": "A játék indítása…",
@@ -1683,16 +1708,16 @@
       "about": {
         "details": "A készítőik saját szavaikkal mutatják be a világot, a szereplőket és a szabályokat. Játék közben egy mesterséges intelligencia folytatja élőben a történetet: reagál mindenre, amit beírsz, és hozzá illő képeket talál ki — ezért nincs két egyforma játékmenet. Ha te magad készítesz egyet, gyorsan meglátod, milyen erősen formálják a saját utasításaid az eredményt, és hol éri el a mesterséges intelligencia a határait. Pont ez a lényeg: nem elmagyarázzuk neked a mesterséges intelligenciát, hanem kipróbálod.",
         "less": "Kevesebb",
-        "link": "További információ a ChatGameLabről",
+        "link": "További információ a(z) {{siteName}} oldalról",
         "more": "Tudj meg többet",
-        "oneLiner": "Ezek a szöveges kalandok a ChatGameLabbal készültek: kézzel építve, programozás nélkül, egy mesterséges intelligencia élő történetmesélésével."
+        "oneLiner": "Ezek a szöveges kalandok a(z) {{siteName}} segítségével készültek: kézzel építve, programozás nélkül, egy MI által élőben elmesélve."
       },
       "copy": "Másolás",
       "copyLogin": "Jelentkezz be a másoláshoz",
       "cta": {
         "button": "Kezdd el ingyen",
         "text": "Saját szöveges kalandot készíteni ingyenes, és csak néhány percet vesz igénybe.",
-        "title": "Készítsd el saját ChatGameLab-játékodat"
+        "title": "Készíts saját játékot a(z) {{siteName}} segítségével"
       },
       "download": "Letöltés",
       "gamesTitle": "A műhely játékai",
@@ -1719,6 +1744,42 @@
     "search": "Keresés",
     "searchPlaceholder": "Keresés a tagok között...",
     "serverSettings": {
+      "branding": {
+        "changed": "Módosítva",
+        "description": "Így jeleníti meg magát ez az oldal: a neve a böngészőlapokon és a szövegekben, az üzemeltetője, valamint a megjelenített hivatkozások. A hivatkozás elrejtéséhez hagyd üresen a mezőt.",
+        "errors": {
+          "nameRequired": "Az oldalnak nevet kell adni.",
+          "notEmail": "Ez nem e-mail-cím.",
+          "notUrl": "Ez nem webcím. A https:// vagy http:// előtaggal kell kezdődnie."
+        },
+        "fields": {
+          "aiInsightsUrl": "Az MI által nyújtott betekintésekről",
+          "apiKeyFaqUrl": "Kérdések az MI-kulcsokról",
+          "contactUrl": "Kapcsolat",
+          "creditName": "Programozta",
+          "creditUrl": "A webhelye",
+          "educatorInfoUrl": "Információ oktatóknak",
+          "gameTipsUrl": "Tippek játékkészítéshez",
+          "helpUrl": "Súgó",
+          "operatorName": "Üzemeltető",
+          "operatorUrl": "Az üzemeltető webhelye",
+          "privacyUrl": "Adatvédelmi szabályzat",
+          "reportGameUrl": "Játék bejelentése",
+          "siteName": "Az oldal neve",
+          "supportEmail": "Támogatási e-mail-cím",
+          "termsUrl": "Felhasználási feltételek",
+          "websiteUrl": "Webhely"
+        },
+        "groups": {
+          "credit": "Készítői megjegyzés a láblécben",
+          "identity": "Név és üzemeltető",
+          "links": "Hivatkozások"
+        },
+        "hidden": "Rejtve",
+        "reset": "Vissza az alapértelmezetthez",
+        "resetTo": "Vissza az alapértelmezetthez: {{value}}",
+        "title": "Megjelenés"
+      },
       "constraints": {
         "description": "Határozz meg kötelező MI-szabályokat a játékos életkori csoportja alapján. Ezek a gyermekvédelmi szabályok minden MI-hívással együtt továbbításra kerülnek. A műhelymódon kívül minden bejelentkezett felhasználóra érvényesek.",
         "title": "Életkori csoportok szerinti gyermekvédelmi szabályok",
@@ -1753,6 +1814,12 @@
         "title": "Szabadon használható MI minőségi szint"
       },
       "notAuthorized": "Nincs jogosultságod a szerverbeállításokhoz. Admin jogosultság szükséges.",
+      "tabs": {
+        "ai": "MI és kulcsok",
+        "branding": "Megjelenés",
+        "general": "Általános",
+        "youthProtection": "Ifjúságvédelem"
+      },
       "title": "Szerver beállítások",
       "updates": {
         "checkNow": "Frissítések keresése",
@@ -1886,7 +1953,7 @@
       "title": "Az eddigi laborod"
     },
     "links": {
-      "about": "A ChatGameLabről",
+      "about": "A(z) {{siteName}} oldalról",
       "educators": "Oktatóknak",
       "jff": "JFF – Médiapedagógiai Intézet"
     },
@@ -1994,11 +2061,11 @@
       "greeting": "Szia, {{name}}!",
       "operator": "Fenntartó",
       "organisation": "Szervezet",
-      "registered": "a „{{organisation}}” szervezet mostantól aktív a ChatGameLabban. Te vagy a vezetője, és mostantól műhelyeket hozhatsz létre.",
-      "renewed": "köszönjük! A „{{organisation}}” szervezet mostantól hozzájárult az aktuális hozzájárulási nyilatkozathoz a ChatGameLabban.",
-      "signature": "A ChatGameLab csapata\nJFF – Jugend Film Fernsehen e.V.",
-      "subjectRegistered": "ChatGameLab: a „{{organisation}}” szervezet aktív – hozzájárulási nyilatkozat",
-      "subjectRenewed": "ChatGameLab: a „{{organisation}}” hozzájárulási nyilatkozata megerősítve ({{version}}. verzió)",
+      "registered": "a „{{organisation}}” szervezet mostantól aktív a(z) {{siteName}} oldalon. Te vagy a szervezet vezetője, és mostantól műhelyfoglalkozásokat hozhatsz létre.",
+      "renewed": "köszönjük! A(z) {{siteName}} mostantól rendelkezik a „{{organisation}}” szervezet hozzájárulásával az aktuális hozzájárulási nyilatkozathoz.",
+      "signature": "A(z) {{siteName}} csapata\n{{operatorName}}",
+      "subjectRegistered": "{{siteName}}: a „{{organisation}}” szervezet aktív – hozzájárulási nyilatkozat",
+      "subjectRenewed": "{{siteName}}: a „{{organisation}}” szervezet hozzájárulási nyilatkozata megerősítve ({{version}}. verzió)",
       "version": "Verzió",
       "versionValue": "{{version}} (állapot: {{date}})"
     }
@@ -2072,12 +2139,14 @@
       "adapted-style": "Stílus",
       "cast": "Hangok kiosztása",
       "cast-brief": "Szereplők",
+      "character": "Szereplő",
       "condense-scenario": "Forgatókönyv rövidítése",
       "condensed-scenario": "Forgatókönyv",
       "director": "Rendező",
       "expand": "Elbeszélés",
       "gallery-image": "Galériakép",
       "greeting": "Szöveg generálása",
+      "hearing": "Beszéd megértése",
       "image": "Kép készítése",
       "image-prompt": "Kép leírása",
       "image-style": "Stílus módosítása",
@@ -2207,7 +2276,10 @@
       "tabUsage": "Használat"
     },
     "launch": {
+      "chooseMode": "Hogyan szeretnél játszani?",
+      "live": "Élő beszélgetés",
       "noGame": "Ennek az oldalnak szüksége van egy játékra: nyisd meg egy játék oldaláról.",
+      "rounds": "Felváltva, gépelve vagy beszélve",
       "starting": "A játék indítása…"
     },
     "over": {
@@ -2234,6 +2306,7 @@
       "injectionSent": "Elküldve a beszélgetésbe"
     },
     "problems": {
+      "chooseMode": "Ez a játék élőben vagy felváltva játszható: válassz egy módot.",
       "denied": "Nem játszhatsz ezzel a játékkal.",
       "failed": "Valami hiba történt, a játék nem folytatódhat.",
       "genre": "A rendelkezésre álló API-kulcs nem tudja futtatni ezt a játéktípust.",
@@ -2249,12 +2322,15 @@
       "unreachable": "A mesterségesintelligencia-szolgáltató jelenleg nem válaszol, ezért a játék nem folytatódhat. Próbáld meg újra néhány perc múlva."
     },
     "promptNames": {
+      "character": "A szereplő (rendszerüzenet)",
       "condense-scenario": "Szenárió rövidítése",
       "conversation-policy": "Ahogyan a szereplő beszél",
       "director": "Rendező",
       "expand": "Egy forduló elbeszélése",
       "game-master": "Játékmester (rendszerüzenet)",
       "greeting": "Első szavak",
+      "hear-player": "Beszéd megértése",
+      "hold-the-line": "Tartsd a vonalat",
       "image-style": "Stílus módosítása",
       "opening": "Kezdés",
       "opening-expand": "A kezdés elbeszélése",

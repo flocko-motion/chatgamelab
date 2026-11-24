@@ -6,14 +6,14 @@
       "description": "Bu, hesabınıza doğru koruma ve içerik yönergelerini uygulamamıza yardımcı olur.",
       "label": "Yaş ve Koruma Grubu",
       "u13": "13–17 yaş, ebeveyn izni olmadan",
-      "u13Description": "ChatGameLab'i kullanabilirsiniz. Hesabınıza daha güçlü koruma ayarları uygulanacaktır.",
+      "u13Description": "{{siteName}}'i kullanabilirsin. Hesabın için daha güçlü koruma ayarları uygulanır.",
       "u13p": "13–17 yaş, ebeveyn izniyle",
-      "u13pDescription": "Ebeveynleriniz kabul ederse ChatGameLab'i kullanabilirsiniz.",
+      "u13pDescription": "Ebeveynlerin izin verirse {{siteName}}'i kullanabilirsin.",
       "u18": "18 yaş veya üzeri",
-      "u18Description": "ChatGameLab'i kullanabilirsiniz.",
+      "u18Description": "{{siteName}}'i kullanabilirsin.",
       "under13": "13 yaşın altında",
-      "under13Blocker": "Henüz kendi hesabınızı oluşturamazsınız. 13 yaşın altındaysanız, ChatGameLab'i yalnızca bir gençlik organizasyonu aracılığıyla kullanabilirsiniz.",
-      "under13Description": "Henüz kendi hesabınızı oluşturamazsınız. 13 yaşın altındaysanız, ChatGameLab'i yalnızca bir gençlik organizasyonu aracılığıyla kullanabilirsiniz."
+      "under13Blocker": "Henüz kendi hesabını oluşturamazsın. 13 yaşından küçüksen {{siteName}}'i yalnızca bir gençlik kuruluşu aracılığıyla kullanabilirsin.",
+      "under13Description": "Henüz kendi hesabını oluşturamazsın. 13 yaşından küçüksen {{siteName}}'i yalnızca bir gençlik kuruluşu aracılığıyla kullanabilirsin."
     },
     "guest": {
       "leaveConfirm": {
@@ -52,7 +52,7 @@
       }
     },
     "organizationRegistration": {
-      "accountNameDescription": "ChatGameLab'de bu şekilde görünürsünüz (en fazla 24 karakter).",
+      "accountNameDescription": "{{siteName}}'te nasıl göründüğün (en fazla 24 karakter).",
       "accountNameLabel": "Görünen ad",
       "cityLabel": "Şehir",
       "confirmAdult": "En az 18 yaşındayım.",
@@ -61,9 +61,9 @@
         "emailDescription": "Beyanın metnini içeren onayı bu adrese gönderiyoruz.",
         "introExisting": "Kuruluşunuz “{{name}}” için artık çevrim içi olarak onaylanan bir beyan bulunmaktadır. Bu beyan, daha önce imzaladığınız kullanıcı sözleşmesinin yerine geçer. Lütfen okuyun ve kurumunuz adına onaylayın.",
         "introNewVersion": "Beyan güncellendi (sürüm {{version}}). Lütfen yeni sürümü okuyun ve kuruluşunuz “{{name}}” adına onaylayın.",
-        "introWithdrawn": "Kuruluşunuzun “{{name}}” beyana verdiği onay geri çekildiği için beyan askıya alındı. ChatGameLab'i yeniden kullanmak için lütfen beyanı okuyun ve kurumunuz adına onaylayın.",
+        "introWithdrawn": "“{{name}}” adlı kuruluşunuzun beyannameye verdiği onay geri çekildiği için kuruluşunuz askıya alındı. {{siteName}}'i yeniden kullanmak için lütfen beyannameyi okuyun ve kurumunuz adına onaylayın.",
         "logout": "Çıkış yap",
-        "oneHeadIsEnough": "Kuruluş yöneticilerinden birinin onaylaması yeterlidir. O zamana kadar kuruluşunuz askıdadır: üyeleri ChatGameLab'i kullanamaz.",
+        "oneHeadIsEnough": "Kuruluş yöneticilerinden birinin onay vermesi yeterlidir. O zamana kadar kuruluşunuz askıya alınır: üyeleri {{siteName}}'i kullanamaz.",
         "submit": "Onayla",
         "title": "Beyanı onayla"
       },
@@ -208,10 +208,10 @@
       "agreeSuffix2": "",
       "alreadyHaveAccount": "Zaten hesabınız var mı?",
       "backButton": "Geri",
-      "chooseType": "ChatGameLab'i nasıl kullanmak istersiniz?",
+      "chooseType": "{{siteName}}'i nasıl kullanmak istiyorsun?",
       "continueButton": "Kayda Devam Et",
       "description": "Kullanıcı hesaplarını yönetmek için kimlik doğrulama sağlayıcısı olarak Auth0 kullanıyoruz. Hesabınızı oluşturmak için Auth0'ya yönlendirilecek, ardından profilinizi tamamlamak üzere buraya geri döneceksiniz.",
-      "educatorDescription": "ChatGameLab'i atölyelerde, sınıflarda veya kuruluşunuzda kullanın",
+      "educatorDescription": "{{siteName}}'i atölyelerde, sınıflarda veya kuruluşunda kullan",
       "educatorModal": {
         "closeButton": "Kapat",
         "copied": "Kopyalandı!",
@@ -235,7 +235,7 @@
       "individualTitle": "Kişisel Hesap",
       "loginLink": "Giriş yap",
       "organizationExistingAccount": "Kuruluşlar yeni bir girişle kaydolur. Zaten bir hesabınız var mı?",
-      "organizationIntro": "ChatGameLab'i atölyelerde kullanmak isteyen gençlik merkezleri, okullar ve diğer kurumlar için.",
+      "organizationIntro": "{{siteName}}'i atölyelerde kullanmak isteyen gençlik merkezleri, okullar ve diğer kurumlar için.",
       "organizationStep1": "Auth0 üzerinden girişinizi oluşturursunuz (e-posta ve parola).",
       "organizationStep2": "Kendiniz ve kurumunuzla ilgili bilgileri girer, çocuk ve genç koruma kuralını belirlersiniz ve beyanı kabul edersiniz.",
       "organizationStep3": "Formu gönderdikten sonra kuruluş hemen etkinleştirilir ve atölye oluşturabilirsiniz.",
@@ -778,6 +778,9 @@
         "embed": {
           "copy": "Kodu kopyala",
           "incomplete": "Kod parçacığını almak için neyin ödeme yaptığını seçin.",
+          "mode": "Oyunun oynanma şekli",
+          "modeChoose": "Oyuncu seçer",
+          "modeHint": "Bu oyun canlı veya sırayla oynanabilir. Soruyu atlamak için birini önceden seç; anahtar yalnızca birini destekliyorsa o seçenek oynanır.",
           "noKeys": "Ödeme yapmak için kullanabileceğin çalışan bir yapay zekâ anahtarın yok. Bir tane ekle veya kuruluşundan iste.",
           "noOrganisation": "Gömme özelliği bir kuruluşun oyunları içindir: atölyelerinde veya yöneticileri ve çalışanları tarafından yazılan oyunlar. Bu oyun herhangi bir kuruluşa ait değil.",
           "noPages": "Önce kuruluşunuzun web sitesini kaydedin: oyunlarınızın çalışacağı sayfayı. Bir yönetici bunu onayladıktan sonra oyun orada başlayabilir.",
@@ -796,7 +799,7 @@
           "snippetVerifiedHint": "Sunucun ziyaretçinin ve bu sayfa görüntülemesinin kimliklerini ekler; sayfanın geri çağrısı her ikisini de alır.",
           "styleLink": "Kendi CSS'inle biçimlendir →",
           "toggle": "Bir web sitesine göm",
-          "toggleHint": "Bu oyunu, ChatGameLab'e ait başka hiçbir şey olmadan kuruluşunun doğrulanmış sayfasında gösterir. Ziyaretçiler konuk olarak oynar; seçtiğin anahtar ödeme yapar.",
+          "toggleHint": "Bu oyunu kuruluşunun doğrulanmış sayfasında, etrafında {{siteName}}'e ait hiçbir unsur olmadan gösterir. Ziyaretçiler konuk olarak oynar; seçtiğin anahtar ödeme yapar.",
           "waitingForApproval": "Kuruluşun sayfası bir yöneticinin onayını bekliyor. O zamana kadar oyun orada başlamaz."
         },
         "fillIn": "Tüm bölümler yeşil olana kadar doldur.",
@@ -873,6 +876,14 @@
             "voiceStyleHint": "Hikâyenin sesli okunduğunda nasıl duyulacağı."
           },
           "builtInVoice": "Yerleşik ses",
+          "choices": {
+            "any": "Herhangi",
+            "custom": "Özel",
+            "female": "Kadın",
+            "male": "Erkek"
+          },
+          "choicesHint": "Erkek, kadın veya herhangi: hikâyeye uygun yerleşik bir ses.",
+          "customHint": "Özel: açıklamadan oluşturulan kendine özgü bir ses.",
           "duo": {
             "voiceStyle": "Karakterlerin sesleri",
             "voiceStyleHint": "Her karaktere kendine özgü bir ses verilir."
@@ -897,8 +908,15 @@
             "greeting": "Merhaba! İçeri gel, otur ve seni buraya getiren şeyi anlat.",
             "narration": "Hikâye, dar bir patikanın bilinmeyene doğru uzandığı sessiz bir sabahla başlar."
           },
+          "slots": {
+            "a": "Birinci karakter",
+            "b": "İkinci karakter",
+            "character": "Karakter",
+            "narrator": "Anlatıcı"
+          },
           "status": {
             "builtIn": "Henüz açıklama yok: Sesi açıklayana kadar oyun yerleşik bir sesle konuşur.",
+            "cast": "Oyun başladığında, seçtiğin türde hikâyeye en uygun yerleşik sesi seçer. Açıklama, sesin nasıl konuşacağını yönlendirir.",
             "ownVoice": "Bu açıklama için kendi yapay zekâ anahtarında oluşturulmuş özel bir ses.",
             "steered": "Hikâyeyi, açıklamanın belirttiği özelliklere göre yerleşik bir ses okur."
           },
@@ -967,6 +985,8 @@
       },
       "genres": {
         "adventure": "Macera",
+        "discussion": "Tartışma",
+        "npc": "Karakter",
         "npc-duo": "Tartışma",
         "npc-live": "Karakter"
       },
@@ -1161,6 +1181,7 @@
       "apiKeys": "API Anahtarları",
       "closeNavigation": "Gezinme menüsünü kapat",
       "contact": "İletişim",
+      "contactHint": "{{siteName}} ekibiyle iletişime geç",
       "goToDashboard": "Panoya git",
       "leaveWorkshopMode": "Atölye Modundan Çık",
       "leaveWorkshopModeTooltip": "Atölye modundan çık ve normal görünüme dön",
@@ -1351,7 +1372,7 @@
         "consented": "Kuruluşunuz {{date}} tarihinde {{version}} sürümünü onayladı.",
         "title": "Onay beyanı",
         "withdraw": "Onayı geri çek",
-        "withdrawConfirm": "Onay olmadan kuruluşunuz askıya alınır: bir yönetici yeniden onaylayana kadar hiçbir üye ChatGameLab'i kullanamaz. Verileri korunur.",
+        "withdrawConfirm": "Onay olmadan kuruluşunuz askıya alınır: bir yönetici yeniden onay verene kadar hiçbir üye {{siteName}}'i kullanamaz. Verileriniz saklanır.",
         "withdrawFailed": "İşlem başarısız oldu. Lütfen tekrar deneyin.",
         "withdrawTitle": "Onay geri çekilsin mi?"
       },
@@ -1451,14 +1472,14 @@
         "approved": "Onaylandı",
         "callbackShown": "Geri çağrı: {{url}}",
         "callbackUrl": "Geri çağrı adresi",
-        "callbackUrlHint": "ChatGameLab her başlatmadan önce burada sorar. Birkaç saniye içinde yanıt vermelidir.",
+        "callbackUrlHint": "{{siteName}} her başlatmadan önce burada soru sorar. Birkaç saniye içinde yanıt vermelidir.",
         "copied": "Kopyalandı",
         "copy": "Sayfa kimliğini kopyala",
         "edit": "Sayfayı değiştir",
         "editReapproval": "Bu adres başka bir sitede ve yeniden bir yöneticinin onayını bekliyor; o zamana kadar oyunlar burada başlamaz. Aynı sitedeki farklı bir bağlantı noktası veya yol onaylanmış olarak kalır.",
         "editTitle": "Sayfayı değiştir",
         "empty": "Henüz doğrulanmış sayfa yok.",
-        "intro": "Doğrulanmış sayfa, kuruluşunun web sitesinde gömülü oyunlarını gösterebilecek bir sayfadır. Bir oyun orada başlamadan önce ChatGameLab, aşağıdaki sayfa kimliği ile sayfanın ilettiği ziyaretçi ve istek kimliklerini kullanarak sayfanın geri çağrısına oyunun başlatılıp başlatılmayacağını sorar. Oyunu yalnızca {\"ok\": true} yanıtı başlatır.",
+        "intro": "Doğrulanmış sayfa, kuruluşunun web sitesinde gömülü oyunlarını gösterebilen bir sayfadır. Bir oyun orada başlamadan önce {{siteName}}, aşağıdaki sayfa kimliğiyle ve sayfanın ilettiği ziyaretçi ile istek kimlikleriyle, sayfanın geri çağırma adresine oyunun başlatılıp başlatılmayacağını sorar. Yalnızca {\"ok\": true} yanıtı oyunu başlatır.",
         "pageId": "Sayfa kimliği",
         "pageUrl": "Sayfa adresi",
         "pageUrlHint": "Oyunlarının gömüldüğü sayfa. Oyunları yalnızca bu web sitesi gösterebilir.",
@@ -1612,8 +1633,8 @@
       "workshopInviteDescription": "Bu atölyeye katılmanız için davet edildiniz."
     },
     "organisationSuspended": {
-      "byAdmin": "İşleten kuruluş, kuruluşunuzun ChatGameLab'e erişimini askıya aldı. Verileriniz korunur.",
-      "consentWanted": "Kuruluşunuzun ChatGameLab'e erişimi, yöneticilerinden biri güncel onay beyanını onaylayana kadar askıdadır. Verileriniz korunur.",
+      "byAdmin": "İşletmeci, kuruluşunun {{siteName}} erişimini askıya aldı. Verilerin saklanır.",
+      "consentWanted": "Kuruluşunun {{siteName}} erişimi, yöneticilerinden biri güncel onay beyanını kabul edene kadar askıya alınmıştır. Verilerin saklanır.",
       "contact": "Sorularınız varsa şu kişiyle iletişime geçin:",
       "logout": "Çıkış yap",
       "title": "Kuruluş askıya alındı"
@@ -1645,12 +1666,16 @@
         "backToGames": "Oyunlara dön",
         "cannotOpen": "Bu oyun devam edemez",
         "cannotStart": "Bu oyun başlatılamaz",
+        "chooseMode": "Nasıl oynamak istiyorsun?",
+        "chooseModeHint": "Karakterle canlı konuşabilir veya yazarak ya da konuşarak sırayla oynayabilirsin.",
         "continue": "Devam et",
         "inProgress": "Devam eden bir oyunun var",
         "inProgressHint": "Kaldığın yerden devam et veya baştan başla.",
+        "live": "Canlı konuş",
         "noPlaysLeft": "Bu bağlantının oyun hakkı kalmadı, bu nedenle oyun yeniden başlatılamaz.",
         "offline": "Oyun sunucusuna ulaşılamıyor.",
         "opening": "Oyun açılıyor…",
+        "rounds": "Sırayla oyna",
         "startAnew": "Baştan başla",
         "startAnewUsesPlay": "Baştan başlamak, bu bağlantının oyun haklarından birini kullanır.",
         "starting": "Oyun başlatılıyor…",
@@ -1685,16 +1710,16 @@
       "about": {
         "details": "Oyunu oluşturanlar dünyayı, karakterleri ve kuralları kendi kelimeleriyle anlatır. Siz oynarken bir yapay zekâ hikâyeyi buradan canlı olarak sürdürür: yazdığınız her şeye tepki verir ve buna uygun görseller oluşturur — bu yüzden hiçbir iki oyun aynı şekilde ilerlemez. Kendi oyununuzu oluşturmak, verdiğiniz talimatların sonucu ne kadar güçlü biçimde şekillendirdiğini ve yapay zekânın sınırlarına nerede ulaştığını kısa sürede gösterir. Asıl amaç da budur: yapay zekânın size açıklanmasını dinlemek değil, onu deneyerek öğrenmek.",
         "less": "Daha az",
-        "link": "ChatGameLab hakkında daha fazla bilgi",
+        "link": "{{siteName}} hakkında daha fazla bilgi",
         "more": "Daha fazla bilgi edin",
-        "oneLiner": "Bu metin maceraları ChatGameLab ile oluşturuldu: programlama yapmadan, elle tasarlandı ve bir yapay zekâ tarafından canlı olarak anlatılıyor."
+        "oneLiner": "Bu metin maceraları {{siteName}} ile oluşturuldu: programlama olmadan elle hazırlandı ve bir yapay zekâ tarafından canlı anlatılıyor."
       },
       "copy": "Kopyala",
       "copyLogin": "Kopyalamak için giriş yapın",
       "cta": {
         "button": "Ücretsiz başlayın",
         "text": "Kendi metin maceranızı oluşturmak ücretsizdir ve yalnızca birkaç dakika sürer.",
-        "title": "Kendi ChatGameLab oyununuzu oluşturun"
+        "title": "{{siteName}} ile kendi oyununu oluştur"
       },
       "download": "İndir",
       "gamesTitle": "Bu atölyedeki oyunlar",
@@ -1721,6 +1746,42 @@
     "search": "Ara",
     "searchPlaceholder": "Üyelerde ara...",
     "serverSettings": {
+      "branding": {
+        "changed": "Değiştirildi",
+        "description": "Bu sitenin kendini nasıl sunduğu: tarayıcı sekmesinde ve metinlerdeki adı, onu kimin işlettiği ve gösterdiği bağlantılar. Bir bağlantıyı gizlemek için alanı boş bırak.",
+        "errors": {
+          "nameRequired": "Sitenin bir ada ihtiyacı var.",
+          "notEmail": "Bu bir e-posta adresi değil.",
+          "notUrl": "Bu bir web adresi değil. https:// veya http:// ile başlamalıdır."
+        },
+        "fields": {
+          "aiInsightsUrl": "Yapay zekâ içgörüleri hakkında",
+          "apiKeyFaqUrl": "Yapay zekâ anahtarları hakkında sorular",
+          "contactUrl": "İletişim",
+          "creditName": "Programlayan",
+          "creditUrl": "Web sitesi",
+          "educatorInfoUrl": "Eğitimciler için bilgiler",
+          "gameTipsUrl": "Oyun oluşturma ipuçları",
+          "helpUrl": "Yardım",
+          "operatorName": "İşletmeci",
+          "operatorUrl": "İşletmecinin web sitesi",
+          "privacyUrl": "Gizlilik politikası",
+          "reportGameUrl": "Oyun bildir",
+          "siteName": "Site adı",
+          "supportEmail": "Destek e-postası",
+          "termsUrl": "Kullanım koşulları",
+          "websiteUrl": "Web sitesi"
+        },
+        "groups": {
+          "credit": "Alt bilgideki katkı",
+          "identity": "Ad ve işletmeci",
+          "links": "Bağlantılar"
+        },
+        "hidden": "Gizli",
+        "reset": "Varsayılana dön",
+        "resetTo": "Varsayılana dön: {{value}}",
+        "title": "Marka görünümü"
+      },
       "constraints": {
         "description": "Oyuncunun yaş grubuna göre zorunlu yapay zekâ kuralları tanımlayın. Bu çocuk ve genç koruma kuralları her yapay zekâ çağrısıyla birlikte gönderilir. Atölye modu dışındaki tüm giriş yapmış kullanıcılar için geçerlidir.",
         "title": "Yaş grubuna göre çocuk ve genç koruma kuralları",
@@ -1755,6 +1816,12 @@
         "title": "Ücretsiz Kullanım Yapay Zekâ Kalite Seviyesi"
       },
       "notAuthorized": "Sunucu ayarlarına erişim izniniz yok. Yönetici erişimi gerekir.",
+      "tabs": {
+        "ai": "Yapay zekâ ve anahtarlar",
+        "branding": "Marka görünümü",
+        "general": "Genel",
+        "youthProtection": "Gençlerin korunması"
+      },
       "title": "Sunucu Ayarları",
       "updates": {
         "checkNow": "Güncellemeleri kontrol et",
@@ -1888,7 +1955,7 @@
       "title": "Şimdiye kadarki laboratuvarınız"
     },
     "links": {
-      "about": "ChatGameLab hakkında",
+      "about": "{{siteName}} hakkında",
       "educators": "Eğitimciler için",
       "jff": "JFF – Medya Eğitimi Enstitüsü"
     },
@@ -1996,11 +2063,11 @@
       "greeting": "Merhaba {{name}},",
       "operator": "İşleten kuruluş",
       "organisation": "Kuruluş",
-      "registered": "“{{organisation}}” kuruluşu artık ChatGameLab'de etkin. Yöneticisisiniz ve artık atölye oluşturabilirsiniz.",
-      "renewed": "teşekkürler! ChatGameLab'de “{{organisation}}” kuruluşunun güncel onay beyanına verdiği onay artık mevcut.",
-      "signature": "ChatGameLab ekibiniz\nJFF – Jugend Film Fernsehen e.V.",
-      "subjectRegistered": "ChatGameLab: “{{organisation}}” kuruluşu etkin – onay beyanı",
-      "subjectRenewed": "ChatGameLab: “{{organisation}}” için onay beyanı onaylandı (sürüm {{version}})",
+      "registered": "“{{organisation}}” kuruluşu artık {{siteName}} üzerinde etkin. Kuruluşun yöneticisisin ve artık atölyeler oluşturabilirsin.",
+      "renewed": "teşekkürler! {{siteName}} artık “{{organisation}}” kuruluşunun güncel onay beyanına verdiği onaya sahip.",
+      "signature": "{{siteName}} ekibin\n{{operatorName}}",
+      "subjectRegistered": "{{siteName}}: “{{organisation}}” kuruluşu etkinleştirildi – onay beyanı",
+      "subjectRenewed": "{{siteName}}: “{{organisation}}” için onay beyanı doğrulandı (sürüm {{version}})",
       "version": "Sürüm",
       "versionValue": "{{version}} ({{date}} itibarıyla)"
     }
@@ -2074,12 +2141,14 @@
       "adapted-style": "Stil",
       "cast": "Sesleri seç",
       "cast-brief": "Karakterler",
+      "character": "Karakter",
       "condense-scenario": "Senaryoyu kısalt",
       "condensed-scenario": "Senaryo",
       "director": "Yönetmen",
       "expand": "Anlat",
       "gallery-image": "Galeri görseli",
       "greeting": "Metin oluştur",
+      "hearing": "Konuşmayı anlama",
       "image": "Resim çiz",
       "image-prompt": "Resmi tarif et",
       "image-style": "Stili uyarla",
@@ -2209,7 +2278,10 @@
       "tabUsage": "Kullanım"
     },
     "launch": {
+      "chooseMode": "Nasıl oynamak istiyorsun?",
+      "live": "Canlı konuş",
       "noGame": "Bu sayfada oynanacak bir oyun gerekiyor: Bir oyunun sayfasından aç.",
+      "rounds": "Sırayla, yazarak veya konuşarak",
       "starting": "Oyun başlatılıyor…"
     },
     "over": {
@@ -2236,6 +2308,7 @@
       "injectionSent": "Konuşmaya gönderildi"
     },
     "problems": {
+      "chooseMode": "Bu oyun canlı veya sırayla oynanabilir: birini seç.",
       "denied": "Bu oyunu oynamana izin verilmiyor.",
       "failed": "Bir şeyler ters gitti ve oyun devam edemiyor.",
       "genre": "Kullanılabilir yapay zekâ anahtarı bu tür bir oyunu çalıştıramıyor.",
@@ -2251,12 +2324,15 @@
       "unreachable": "Yapay zekâ sağlayıcısı şu anda yanıt vermiyor, bu nedenle oyun devam edemiyor. Birkaç dakika sonra tekrar dene."
     },
     "promptNames": {
+      "character": "Karakter (Sistem Mesajı)",
       "condense-scenario": "Senaryoyu kısalt",
       "conversation-policy": "Karakter nasıl konuşur",
       "director": "Yönetmen",
       "expand": "Bir turu anlat",
       "game-master": "Oyun yöneticisi (Sistem Mesajı)",
       "greeting": "İlk sözler",
+      "hear-player": "Konuşmayı anlama",
+      "hold-the-line": "Kararlı kal",
       "image-style": "Stili uyarla",
       "opening": "Açılış",
       "opening-expand": "Açılışı anlat",
