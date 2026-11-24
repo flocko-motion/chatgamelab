@@ -53,5 +53,6 @@ var Models = adapters.ModelTable{
 		InputPerMTok: 2.50, OutputPerMTok: 10.00, AudioInputPerMTok: 32.00,
 	}),
 
-	"gpt-live-1": facts(textAudio, textAudio, "2026-08-11", adapters.Price{AudioPerMinute: 0.05}),
+	"gpt-live-1.1": facts(textAudio, textAudio, "2026-11-25", adapters.Price{AudioPerMinute: 0.05}),
+	"gpt-live-1":   facts(textAudio, textAudio, "2026-08-11", adapters.Price{AudioPerMinute: 0.05}),
 }
