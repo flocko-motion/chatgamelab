@@ -103,6 +103,13 @@ func Payers(ctx context.Context, game uuid.UUID, platform string) ([]Payer, []Pa
 	return c.payers(ctx, game, platform)
 }
 
+// OwnPayers are the keys that may pay for something the caller does in the
+// editor, outside any session and for no game in particular (a voice's
+// preview, a review of the form): Payers without a game, so no sponsor pays.
+func OwnPayers(ctx context.Context) ([]Payer, []PayerStep, error) {
+	return Payers(ctx, uuid.Nil, "")
+}
+
 // source is one step of the cascade as loaded: a payer, or why there is none.
 type source struct {
 	name  string // obj.ApiKeyType*

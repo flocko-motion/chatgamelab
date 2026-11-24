@@ -52,3 +52,26 @@ RETURNING voice_id;
 -- voices the provider holds for the account.
 SELECT voice_id::text FROM voice
 WHERE api_key_id = @api_key_id::uuid AND voice_id IS NOT NULL;
+
+-- name: V2RemoveVoice :one
+-- Removes the voice made on a key for a voice style, its sample with it, and
+-- answers its id, for the provider to delete too; no row when there is none.
+-- A claim (no voice yet) stays: a session is making that voice now.
+DELETE FROM voice
+WHERE api_key_id = @api_key_id::uuid AND style_hash = @style_hash::text AND voice_id IS NOT NULL
+RETURNING voice_id;
+
+-- name: V2VoiceSample :one
+-- The sample of the voice made on a key for a voice style.
+SELECT audio, content_type
+FROM voice_sample
+WHERE api_key_id = @api_key_id::uuid AND style_hash = @style_hash::text;
+
+-- name: V2SetVoiceSample :exec
+-- Keeps a voice's sample; the voice must exist, and a sample made before
+-- stays (it keeps the language it was first made in).
+INSERT INTO voice_sample (api_key_id, style_hash, audio, content_type)
+SELECT v.api_key_id, v.style_hash, @audio::bytea, @content_type::text
+FROM voice v
+WHERE v.api_key_id = @api_key_id::uuid AND v.style_hash = @style_hash::text AND v.voice_id IS NOT NULL
+ON CONFLICT (api_key_id, style_hash) DO NOTHING;

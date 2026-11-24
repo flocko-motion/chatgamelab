@@ -27,16 +27,16 @@ type (
 // Embedding is what a designer sets for a game's embed link.
 type Embedding struct {
 	Enabled      bool
-	Verified     bool   // the verified mode; otherwise any website
+	Mode         string // the mode asked for; "" is the verified mode, the only one
 	PaidBy       string // the key share it draws from; "" keeps the one paying now
-	VerifiedPage string // the verified page, for the verified mode
+	VerifiedPage string // the verified page it runs on
 }
 
 // SetGameEmbed sets a game's embed link, making it the first time.
 func (c caller) SetGameEmbed(gameID string, e Embedding) (*GameEmbed, error) {
-	req := apiclient.SetGameEmbedReq{Enabled: e.Enabled, Mode: "any"}
-	if e.Verified {
-		req.Mode = "verified"
+	req := apiclient.SetGameEmbedReq{Enabled: e.Enabled, Mode: "verified"}
+	if e.Mode != "" {
+		req.Mode = e.Mode
 	}
 	if e.PaidBy != "" {
 		id, err := uuid.Parse(e.PaidBy)

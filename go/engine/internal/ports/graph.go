@@ -24,6 +24,22 @@ type Graph struct {
 	journal *Journal
 }
 
+// VoiceMaker is a block that makes a voice of its own for the game, kept on
+// the key that pays, rather than speak in a provider's built-in voice.
+type VoiceMaker interface {
+	MakesVoice()
+}
+
+// MakesVoices reports whether a block of the graph makes a voice of its own.
+func (g *Graph) MakesVoices() bool {
+	for _, n := range g.nodes {
+		if _, ok := n.(VoiceMaker); ok {
+			return true
+		}
+	}
+	return false
+}
+
 // setting is a field of the game as a block reads it, for the drawing: the
 // block holds the value from the start, so nothing flows.
 type setting struct {

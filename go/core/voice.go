@@ -1,7 +1,7 @@
 // package: core / voices
 // type:    logic
 // job:     keeps the custom voices made on a key, for the engine to reuse them
-// limits:  only for a payer the core chose; the engine makes and deletes the voices themselves
+// limits:  only for a payer the core chose; the engine makes and deletes the voices themselves, and speaks their samples
 package core
 
 import (
@@ -76,4 +76,39 @@ func (v keyVoices) Evict(ctx context.Context) (string, bool, error) {
 
 func (v keyVoices) IDs(ctx context.Context) ([]string, error) {
 	return store.Queries().V2VoiceIDs(ctx, v.key)
+}
+
+// Remove removes the voice made on the key for a style, and its sample with
+// it, and answers its id, for the provider to delete; false when there is
+// none. A claim stays: a session is making that voice now.
+func (v keyVoices) Remove(ctx context.Context, hash string) (string, bool, error) {
+	id, err := store.Queries().V2RemoveVoice(ctx, db.V2RemoveVoiceParams{ApiKeyID: v.key, StyleHash: hash})
+	if errors.Is(err, sql.ErrNoRows) {
+		return "", false, nil
+	}
+	if err != nil {
+		return "", false, err
+	}
+	return id.String, id.Valid, nil
+}
+
+// Sample answers the sample kept for the voice made on the key for a style,
+// and its media type; false when there is none.
+func (v keyVoices) Sample(ctx context.Context, hash string) ([]byte, string, bool, error) {
+	row, err := store.Queries().V2VoiceSample(ctx, db.V2VoiceSampleParams{ApiKeyID: v.key, StyleHash: hash})
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, "", false, nil
+	}
+	if err != nil {
+		return nil, "", false, err
+	}
+	return row.Audio, row.ContentType, true, nil
+}
+
+// KeepSample keeps a sample for the voice made on the key for a style. It
+// keeps nothing when the voice is gone, and a sample kept before stays.
+func (v keyVoices) KeepSample(ctx context.Context, hash string, audio []byte, contentType string) error {
+	return store.Queries().V2SetVoiceSample(ctx, db.V2SetVoiceSampleParams{
+		ApiKeyID: v.key, StyleHash: hash, Audio: audio, ContentType: contentType,
+	})
 }

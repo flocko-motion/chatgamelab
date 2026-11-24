@@ -43,7 +43,7 @@ func (GetGameEmbedEndpoint) Handle(ctx context.Context, req GameIDReq) (GameEmbe
 type SetGameEmbedReq struct {
 	ID      string `path:"id"`
 	Enabled bool   `json:"enabled"`
-	// Mode is "any" (any website) or "verified" (one verified page).
+	// Mode is "verified" (one verified page), the only mode.
 	Mode string `json:"mode"`
 	// SponsorKeyShareID is the share it is paid by; null keeps the one
 	// paying now. The first time it is required.

@@ -12,8 +12,6 @@ import { notifications } from "@mantine/notifications";
 import { useTranslation } from "react-i18next";
 import {
   useCreateGame,
-  useDeleteGame,
-  useExportGameFile,
   useFetchGame,
   useGame,
   useGames,
@@ -25,7 +23,6 @@ import type { CreateGameReq, GameView } from "@/api/types";
 import { useAuth } from "@/providers/AuthProvider";
 import type { CreateGameFormData } from "../types";
 import {
-  downloadGameFile,
   gameToFormData,
   GameFileError,
   readGameFile,
@@ -36,7 +33,7 @@ import {
   withGenreFilter,
   type GameListPreset,
 } from "../lib/gameListPresets";
-import type { GameEditRights } from "../components/GameEditModal";
+import type { GameEditRights } from "./useGameEditor";
 import { useFavoriteState } from "./useFavoriteState";
 import { useGameNavigation } from "./useGameNavigation";
 import { useGameSessionState } from "./useGameSessionState";
@@ -75,8 +72,9 @@ export interface GamePermissions {
 
 /**
  * Everything a game list does, for GamesTable to render: the server-side
- * query and page, what the caller may do with each game, and the modals for
- * viewing, creating, copying, importing, sponsoring and deleting.
+ * query and page, what the caller may do with each game, and the editor and
+ * modals for viewing, creating, copying, importing and sponsoring. Exporting
+ * and deleting live in the editor.
  */
 export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: UseGamesTableDeps) {
   const { preset, initialGameId, initialCreate, autoImport, onModalClose } = options;
@@ -222,27 +220,11 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
     setCreating({ initialData: gameToFormData(full), copy: true });
   };
 
-  // A game opened by link that the caller may only copy opens as their copy too.
-  useEffect(() => {
-    if (viewingId && viewedGame?.id === viewingId && viewedPermissions &&
-        !viewedPermissions.canEdit && viewedPermissions.canCopy) {
-      void copy(viewingId);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- copy is recreated each render
-  }, [viewingId, viewedGame, viewedPermissions?.canEdit, viewedPermissions?.canCopy]);
-
   /**
-   * Opens a game in the editor: as it is when the caller may change it, as
-   * their own copy when they may only copy it, and to look at otherwise.
+   * Opens a game in the editor as itself: to change when the caller may, to
+   * look at otherwise, with a copy of their own a button away.
    */
-  const open = (game: GameView) => {
-    const p = permissions(game);
-    if (!p.canEdit && p.canCopy) {
-      void copy(game.id);
-      return;
-    }
-    view(game);
-  };
+  const open = view;
 
   const openImport = () => fileInputRef.current?.click();
 
@@ -267,29 +249,6 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
     return () => clearTimeout(timer);
   }, [autoImport, fileInputRef]);
 
-  // ── Exporting ───────────────────────────────────────────────────────────
-  const exportFile = useExportGameFile();
-  const exportGame = async (game: GameView) => {
-    try {
-      downloadGameFile(await exportFile.mutateAsync(game.id), game.name);
-    } catch {
-      // shown by the mutation's error handler
-    }
-  };
-
-  // ── Deleting ────────────────────────────────────────────────────────────
-  const deleteGame = useDeleteGame();
-  const [deleting, setDeleting] = useState<GameView | null>(null);
-  const confirmDelete = async () => {
-    if (!deleting) return;
-    try {
-      await deleteGame.mutateAsync(deleting.id);
-      setDeleting(null);
-    } catch {
-      // shown by the mutation's error handler
-    }
-  };
-
   // ── Sponsoring ──────────────────────────────────────────────────────────
   const [sponsoring, setSponsoring] = useState<GameView | null>(null);
 
@@ -307,8 +266,6 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
     restartGame,
     view: open,
     copy,
-    exportGame,
-    requestDelete: setDeleting,
     openCreate,
     openImport,
     importFile,
@@ -317,6 +274,13 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
       opened: !!viewingId,
       close: closeView,
       isOwner: viewedPermissions?.isOwner ?? false,
+      /** Someone else's game of the workshop: the delete page says so (a fact). */
+      isOthersWorkshopGame:
+        !!viewedGame && !!viewedPermissions && !viewedPermissions.isOwner && isWorkshopGame(viewedGame),
+      /** Makes the caller's own copy of the game they are looking at. */
+      copy: () => {
+        if (viewingId) void copy(viewingId);
+      },
       // Sponsoring sets the game's key: a settings change. Workshop lists
       // don't offer it (the workshop's key plays there).
       onSponsor:
@@ -332,17 +296,6 @@ export function useGamesTable(options: UseGamesTableOptions, { fileInputRef }: U
       close: closeCreate,
       submit: submitCreate,
       loading: createGame.isPending || importCover.isPending,
-    },
-    deleteModal: {
-      game: deleting,
-      opened: !!deleting,
-      close: () => setDeleting(null),
-      confirm: confirmDelete,
-      loading: deleteGame.isPending,
-      isOwner: deleting ? permissions(deleting).isOwner : false,
-      /** Someone else's game of the workshop: the dialog says so (a fact). */
-      isOthersWorkshopGame:
-        !!deleting && !permissions(deleting).isOwner && isWorkshopGame(deleting),
     },
     sponsorModal: {
       game: sponsoring,

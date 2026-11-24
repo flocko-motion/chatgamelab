@@ -75,6 +75,27 @@ func (q *Queries) V2ReleaseVoice(ctx context.Context, arg V2ReleaseVoiceParams) 
 	return err
 }
 
+const v2RemoveVoice = `-- name: V2RemoveVoice :one
+DELETE FROM voice
+WHERE api_key_id = $1::uuid AND style_hash = $2::text AND voice_id IS NOT NULL
+RETURNING voice_id
+`
+
+type V2RemoveVoiceParams struct {
+	ApiKeyID  uuid.UUID `json:"api_key_id"`
+	StyleHash string    `json:"style_hash"`
+}
+
+// Removes the voice made on a key for a voice style, its sample with it, and
+// answers its id, for the provider to delete too; no row when there is none.
+// A claim (no voice yet) stays: a session is making that voice now.
+func (q *Queries) V2RemoveVoice(ctx context.Context, arg V2RemoveVoiceParams) (sql.NullString, error) {
+	row := q.db.QueryRowContext(ctx, v2RemoveVoice, arg.ApiKeyID, arg.StyleHash)
+	var voice_id sql.NullString
+	err := row.Scan(&voice_id)
+	return voice_id, err
+}
+
 const v2SetVoice = `-- name: V2SetVoice :exec
 UPDATE voice SET voice_id = $1::text, created_at = now(), last_used_at = now()
 WHERE api_key_id = $2::uuid AND style_hash = $3::text
@@ -89,6 +110,33 @@ type V2SetVoiceParams struct {
 // Records the voice a claim made; it is used from now on.
 func (q *Queries) V2SetVoice(ctx context.Context, arg V2SetVoiceParams) error {
 	_, err := q.db.ExecContext(ctx, v2SetVoice, arg.VoiceID, arg.ApiKeyID, arg.StyleHash)
+	return err
+}
+
+const v2SetVoiceSample = `-- name: V2SetVoiceSample :exec
+INSERT INTO voice_sample (api_key_id, style_hash, audio, content_type)
+SELECT v.api_key_id, v.style_hash, $1::bytea, $2::text
+FROM voice v
+WHERE v.api_key_id = $3::uuid AND v.style_hash = $4::text AND v.voice_id IS NOT NULL
+ON CONFLICT (api_key_id, style_hash) DO NOTHING
+`
+
+type V2SetVoiceSampleParams struct {
+	Audio       []byte    `json:"audio"`
+	ContentType string    `json:"content_type"`
+	ApiKeyID    uuid.UUID `json:"api_key_id"`
+	StyleHash   string    `json:"style_hash"`
+}
+
+// Keeps a voice's sample; the voice must exist, and a sample made before
+// stays (it keeps the language it was first made in).
+func (q *Queries) V2SetVoiceSample(ctx context.Context, arg V2SetVoiceSampleParams) error {
+	_, err := q.db.ExecContext(ctx, v2SetVoiceSample,
+		arg.Audio,
+		arg.ContentType,
+		arg.ApiKeyID,
+		arg.StyleHash,
+	)
 	return err
 }
 
@@ -165,4 +213,28 @@ func (q *Queries) V2VoiceIDs(ctx context.Context, apiKeyID uuid.UUID) ([]string,
 		return nil, err
 	}
 	return items, nil
+}
+
+const v2VoiceSample = `-- name: V2VoiceSample :one
+SELECT audio, content_type
+FROM voice_sample
+WHERE api_key_id = $1::uuid AND style_hash = $2::text
+`
+
+type V2VoiceSampleParams struct {
+	ApiKeyID  uuid.UUID `json:"api_key_id"`
+	StyleHash string    `json:"style_hash"`
+}
+
+type V2VoiceSampleRow struct {
+	Audio       []byte `json:"audio"`
+	ContentType string `json:"content_type"`
+}
+
+// The sample of the voice made on a key for a voice style.
+func (q *Queries) V2VoiceSample(ctx context.Context, arg V2VoiceSampleParams) (V2VoiceSampleRow, error) {
+	row := q.db.QueryRowContext(ctx, v2VoiceSample, arg.ApiKeyID, arg.StyleHash)
+	var i V2VoiceSampleRow
+	err := row.Scan(&i.Audio, &i.ContentType)
+	return i, err
 }

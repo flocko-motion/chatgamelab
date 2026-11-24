@@ -1163,9 +1163,10 @@ type Genre string
 
 // GenreInfo defines model for GenreInfo.
 type GenreInfo struct {
-	Fields []GameField `json:"fields"`
-	Id     Genre       `json:"id"`
-	Needs  []Toggle    `json:"needs"`
+	Fields      []GameField `json:"fields"`
+	Id          Genre       `json:"id"`
+	MakesVoices bool        `json:"makesVoices"`
+	Needs       []Toggle    `json:"needs"`
 }
 
 // GetCurrentUserResp defines model for GetCurrentUserResp.
@@ -1692,6 +1693,25 @@ type PublicWorkshopPlay struct {
 	Limit     int    `json:"limit"`
 	Remaining int    `json:"remaining"`
 	Token     string `json:"token"`
+}
+
+// ReviewGameReq defines model for ReviewGameReq.
+type ReviewGameReq struct {
+	Description            string `json:"description"`
+	Genre                  string `json:"genre"`
+	ImageStyle             string `json:"imageStyle"`
+	Name                   string `json:"name"`
+	StatusFields           string `json:"statusFields"`
+	SystemMessageGameStart string `json:"systemMessageGameStart"`
+	SystemMessageScenario  string `json:"systemMessageScenario"`
+	VoiceStyle             string `json:"voiceStyle"`
+}
+
+// ReviewGameResp defines model for ReviewGameResp.
+type ReviewGameResp struct {
+	Field   string `json:"field"`
+	Missing bool   `json:"missing"`
+	Text    string `json:"text"`
 }
 
 // Role defines model for Role.
@@ -2274,6 +2294,21 @@ type VerifiedPagesResp struct {
 	Pages []VerifiedPageView `json:"pages"`
 }
 
+// VoiceSampleReq defines model for VoiceSampleReq.
+type VoiceSampleReq struct {
+	Genre      string `json:"genre"`
+	Scenario   string `json:"scenario"`
+	VoiceStyle string `json:"voiceStyle"`
+}
+
+// VoiceSampleResp defines model for VoiceSampleResp.
+type VoiceSampleResp struct {
+	Audio       []byte `json:"audio"`
+	ContentType string `json:"contentType"`
+	OwnVoice    bool   `json:"ownVoice"`
+	Stored      bool   `json:"stored"`
+}
+
 // Workshop defines model for Workshop.
 type Workshop struct {
 	Active                     bool                   `json:"active"`
@@ -2565,6 +2600,9 @@ type PostApiEngineSessionsIdTogglesJSONRequestBody = ToggleRequest
 // PostApiGamesNewJSONRequestBody defines body for PostApiGamesNew for application/json ContentType.
 type PostApiGamesNewJSONRequestBody = CreateGameReq
 
+// PostApiGamesReviewJSONRequestBody defines body for PostApiGamesReview for application/json ContentType.
+type PostApiGamesReviewJSONRequestBody = ReviewGameReq
+
 // PostApiGamesIdJSONRequestBody defines body for PostApiGamesId for application/json ContentType.
 type PostApiGamesIdJSONRequestBody = UpdateGameReq
 
@@ -2639,6 +2677,12 @@ type PostApiUsersIdRoleJSONRequestBody = SetUserRoleReq
 
 // PatchApiVerifiedPagesIdJSONRequestBody defines body for PatchApiVerifiedPagesId for application/json ContentType.
 type PatchApiVerifiedPagesIdJSONRequestBody = UpdateVerifiedPageReq
+
+// PostApiVoicesNewJSONRequestBody defines body for PostApiVoicesNew for application/json ContentType.
+type PostApiVoicesNewJSONRequestBody = VoiceSampleReq
+
+// PostApiVoicesSampleJSONRequestBody defines body for PostApiVoicesSample for application/json ContentType.
+type PostApiVoicesSampleJSONRequestBody = VoiceSampleReq
 
 // PostApiWorkshopsJSONRequestBody defines body for PostApiWorkshops for application/json ContentType.
 type PostApiWorkshopsJSONRequestBody = CreateWorkshopReq
@@ -3344,6 +3388,44 @@ type ClientInterface interface {
 	//
 	// Corresponds with POST /api/games/new (the `PostApiGamesNew` operationId).
 	PostApiGamesNew(ctx context.Context, body PostApiGamesNewJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiGamesReviewWithBody Reviews a game's form as the editor holds it, saved or
+	//
+	// not, and answers the one point most worth improving: the field it is
+	// about (title, description, scenario, gameStart, imageStyle, voiceStyle,
+	// statusFields), empty when there is nothing to fix; missing when a
+	// required field is empty, which the client says in its own words; else one
+	// short sentence in the caller's language. Nothing is stored, and nothing
+	// blocks saving.
+	//
+	// The caller pays with their own keys, as in the editor: workshop,
+	// organisation, own, site; never a game's sponsor. None: 400 no_api_key; a
+	// key its provider rejects: 400 invalid_api_key; a provider that fails or
+	// takes too long: 503 ai_error.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /api/games/review (the `PostApiGamesReview` operationId).
+	PostApiGamesReviewWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiGamesReview Reviews a game's form as the editor holds it, saved or
+	//
+	// not, and answers the one point most worth improving: the field it is
+	// about (title, description, scenario, gameStart, imageStyle, voiceStyle,
+	// statusFields), empty when there is nothing to fix; missing when a
+	// required field is empty, which the client says in its own words; else one
+	// short sentence in the caller's language. Nothing is stored, and nothing
+	// blocks saving.
+	//
+	// The caller pays with their own keys, as in the editor: workshop,
+	// organisation, own, site; never a game's sponsor. None: 400 no_api_key; a
+	// key its provider rejects: 400 invalid_api_key; a provider that fails or
+	// takes too long: 503 ai_error.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /api/games/review (the `PostApiGamesReview` operationId).
+	PostApiGamesReview(ctx context.Context, body PostApiGamesReviewJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteApiGamesId Deletes a game and answers with it as it was. Deleting
 	//
@@ -4436,6 +4518,76 @@ type ClientInterface interface {
 	//
 	// Corresponds with GET /api/version (the `GetApiVersion` operationId).
 	GetApiVersion(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiVoicesNewWithBody Makes a new voice for a voice style on the paying key and
+	//
+	// answers its sample, as VoiceSampleEndpoint does. The voice made before for
+	// that key and style, and its sample, are deleted: every game with exactly
+	// this voice style on this key speaks in the new voice from now on. A genre
+	// that makes no voices of its own, or an empty voice style, makes none and
+	// only plays the built-in voice.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /api/voices/new (the `PostApiVoicesNew` operationId).
+	PostApiVoicesNewWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiVoicesNew Makes a new voice for a voice style on the paying key and
+	//
+	// answers its sample, as VoiceSampleEndpoint does. The voice made before for
+	// that key and style, and its sample, are deleted: every game with exactly
+	// this voice style on this key speaks in the new voice from now on. A genre
+	// that makes no voices of its own, or an empty voice style, makes none and
+	// only plays the built-in voice.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /api/voices/new (the `PostApiVoicesNew` operationId).
+	PostApiVoicesNew(ctx context.Context, body PostApiVoicesNewJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiVoicesSampleWithBody Has the voice a game of the genre speaks in say a
+	//
+	// neutral sample line, the same for every game, in the caller's language,
+	// and answers it as audio. It reads the form as it is, so a game not yet
+	// saved is heard too.
+	//
+	// A genre that makes voices of its own (makesVoices in /api/genres) speaks
+	// in the voice made for the voice style on the paying key: the first sample
+	// makes the voice when there is none and keeps the sample, and later ones
+	// play it without asking the provider (stored: true). Otherwise, and with an
+	// empty voice style, a built-in voice speaks, as the style steers it.
+	//
+	// The caller pays with their own keys, as in the editor: workshop,
+	// organisation, own, site; never a game's sponsor. None that speaks live:
+	// 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a
+	// provider that fails: 503 ai_error.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /api/voices/sample (the `PostApiVoicesSample` operationId).
+	PostApiVoicesSampleWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiVoicesSample Has the voice a game of the genre speaks in say a
+	//
+	// neutral sample line, the same for every game, in the caller's language,
+	// and answers it as audio. It reads the form as it is, so a game not yet
+	// saved is heard too.
+	//
+	// A genre that makes voices of its own (makesVoices in /api/genres) speaks
+	// in the voice made for the voice style on the paying key: the first sample
+	// makes the voice when there is none and keeps the sample, and later ones
+	// play it without asking the provider (stored: true). Otherwise, and with an
+	// empty voice style, a built-in voice speaks, as the style steers it.
+	//
+	// The caller pays with their own keys, as in the editor: workshop,
+	// organisation, own, site; never a game's sponsor. None that speaks live:
+	// 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a
+	// provider that fails: 503 ai_error.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /api/voices/sample (the `PostApiVoicesSample` operationId).
+	PostApiVoicesSample(ctx context.Context, body PostApiVoicesSampleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiWorkshops Lists a page of the workshops the caller may list,
 	//
@@ -5842,6 +5994,64 @@ func (c *Client) PostApiGamesNewWithBody(ctx context.Context, contentType string
 // Corresponds with POST /api/games/new (the `PostApiGamesNew` operationId).
 func (c *Client) PostApiGamesNew(ctx context.Context, body PostApiGamesNewJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostApiGamesNewRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiGamesReviewWithBody Reviews a game's form as the editor holds it, saved or
+//
+// not, and answers the one point most worth improving: the field it is
+// about (title, description, scenario, gameStart, imageStyle, voiceStyle,
+// statusFields), empty when there is nothing to fix; missing when a
+// required field is empty, which the client says in its own words; else one
+// short sentence in the caller's language. Nothing is stored, and nothing
+// blocks saving.
+//
+// The caller pays with their own keys, as in the editor: workshop,
+// organisation, own, site; never a game's sponsor. None: 400 no_api_key; a
+// key its provider rejects: 400 invalid_api_key; a provider that fails or
+// takes too long: 503 ai_error.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /api/games/review (the `PostApiGamesReview` operationId).
+func (c *Client) PostApiGamesReviewWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiGamesReviewRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiGamesReview Reviews a game's form as the editor holds it, saved or
+//
+// not, and answers the one point most worth improving: the field it is
+// about (title, description, scenario, gameStart, imageStyle, voiceStyle,
+// statusFields), empty when there is nothing to fix; missing when a
+// required field is empty, which the client says in its own words; else one
+// short sentence in the caller's language. Nothing is stored, and nothing
+// blocks saving.
+//
+// The caller pays with their own keys, as in the editor: workshop,
+// organisation, own, site; never a game's sponsor. None: 400 no_api_key; a
+// key its provider rejects: 400 invalid_api_key; a provider that fails or
+// takes too long: 503 ai_error.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /api/games/review (the `PostApiGamesReview` operationId).
+func (c *Client) PostApiGamesReview(ctx context.Context, body PostApiGamesReviewJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiGamesReviewRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8084,6 +8294,116 @@ func (c *Client) PatchApiVerifiedPagesId(ctx context.Context, id string, body Pa
 // Corresponds with GET /api/version (the `GetApiVersion` operationId).
 func (c *Client) GetApiVersion(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetApiVersionRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiVoicesNewWithBody Makes a new voice for a voice style on the paying key and
+//
+// answers its sample, as VoiceSampleEndpoint does. The voice made before for
+// that key and style, and its sample, are deleted: every game with exactly
+// this voice style on this key speaks in the new voice from now on. A genre
+// that makes no voices of its own, or an empty voice style, makes none and
+// only plays the built-in voice.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /api/voices/new (the `PostApiVoicesNew` operationId).
+func (c *Client) PostApiVoicesNewWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiVoicesNewRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiVoicesNew Makes a new voice for a voice style on the paying key and
+//
+// answers its sample, as VoiceSampleEndpoint does. The voice made before for
+// that key and style, and its sample, are deleted: every game with exactly
+// this voice style on this key speaks in the new voice from now on. A genre
+// that makes no voices of its own, or an empty voice style, makes none and
+// only plays the built-in voice.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /api/voices/new (the `PostApiVoicesNew` operationId).
+func (c *Client) PostApiVoicesNew(ctx context.Context, body PostApiVoicesNewJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiVoicesNewRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiVoicesSampleWithBody Has the voice a game of the genre speaks in say a
+//
+// neutral sample line, the same for every game, in the caller's language,
+// and answers it as audio. It reads the form as it is, so a game not yet
+// saved is heard too.
+//
+// A genre that makes voices of its own (makesVoices in /api/genres) speaks
+// in the voice made for the voice style on the paying key: the first sample
+// makes the voice when there is none and keeps the sample, and later ones
+// play it without asking the provider (stored: true). Otherwise, and with an
+// empty voice style, a built-in voice speaks, as the style steers it.
+//
+// The caller pays with their own keys, as in the editor: workshop,
+// organisation, own, site; never a game's sponsor. None that speaks live:
+// 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a
+// provider that fails: 503 ai_error.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /api/voices/sample (the `PostApiVoicesSample` operationId).
+func (c *Client) PostApiVoicesSampleWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiVoicesSampleRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PostApiVoicesSample Has the voice a game of the genre speaks in say a
+//
+// neutral sample line, the same for every game, in the caller's language,
+// and answers it as audio. It reads the form as it is, so a game not yet
+// saved is heard too.
+//
+// A genre that makes voices of its own (makesVoices in /api/genres) speaks
+// in the voice made for the voice style on the paying key: the first sample
+// makes the voice when there is none and keeps the sample, and later ones
+// play it without asking the provider (stored: true). Otherwise, and with an
+// empty voice style, a built-in voice speaks, as the style steers it.
+//
+// The caller pays with their own keys, as in the editor: workshop,
+// organisation, own, site; never a game's sponsor. None that speaks live:
+// 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a
+// provider that fails: 503 ai_error.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /api/voices/sample (the `PostApiVoicesSample` operationId).
+func (c *Client) PostApiVoicesSample(ctx context.Context, body PostApiVoicesSampleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiVoicesSampleRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10432,6 +10752,46 @@ func NewPostApiGamesNewRequestWithBody(server string, contentType string, body i
 	}
 
 	operationPath := fmt.Sprintf("/api/games/new")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostApiGamesReviewRequest calls the generic PostApiGamesReview builder with application/json body
+func NewPostApiGamesReviewRequest(server string, body PostApiGamesReviewJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiGamesReviewRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiGamesReviewRequestWithBody constructs an http.Request for the PostApiGamesReview method, with any body, and a specified content type
+func NewPostApiGamesReviewRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/games/review")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -14201,6 +14561,86 @@ func NewGetApiVersionRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewPostApiVoicesNewRequest calls the generic PostApiVoicesNew builder with application/json body
+func NewPostApiVoicesNewRequest(server string, body PostApiVoicesNewJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiVoicesNewRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiVoicesNewRequestWithBody constructs an http.Request for the PostApiVoicesNew method, with any body, and a specified content type
+func NewPostApiVoicesNewRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/voices/new")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostApiVoicesSampleRequest calls the generic PostApiVoicesSample builder with application/json body
+func NewPostApiVoicesSampleRequest(server string, body PostApiVoicesSampleJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiVoicesSampleRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiVoicesSampleRequestWithBody constructs an http.Request for the PostApiVoicesSample method, with any body, and a specified content type
+func NewPostApiVoicesSampleRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/voices/sample")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewGetApiWorkshopsRequest constructs an http.Request for the GetApiWorkshops method
 func NewGetApiWorkshopsRequest(server string, params *GetApiWorkshopsParams) (*http.Request, error) {
 	var err error
@@ -15521,6 +15961,44 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /api/games/new (the `PostApiGamesNew` operationId).
 	PostApiGamesNewWithResponse(ctx context.Context, body PostApiGamesNewJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiGamesNewResponse, error)
 
+	// PostApiGamesReviewWithBodyWithResponse Reviews a game's form as the editor holds it, saved or
+	//
+	// not, and answers the one point most worth improving: the field it is
+	// about (title, description, scenario, gameStart, imageStyle, voiceStyle,
+	// statusFields), empty when there is nothing to fix; missing when a
+	// required field is empty, which the client says in its own words; else one
+	// short sentence in the caller's language. Nothing is stored, and nothing
+	// blocks saving.
+	//
+	// The caller pays with their own keys, as in the editor: workshop,
+	// organisation, own, site; never a game's sponsor. None: 400 no_api_key; a
+	// key its provider rejects: 400 invalid_api_key; a provider that fails or
+	// takes too long: 503 ai_error.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/games/review (the `PostApiGamesReview` operationId).
+	PostApiGamesReviewWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiGamesReviewResponse, error)
+
+	// PostApiGamesReviewWithResponse Reviews a game's form as the editor holds it, saved or
+	//
+	// not, and answers the one point most worth improving: the field it is
+	// about (title, description, scenario, gameStart, imageStyle, voiceStyle,
+	// statusFields), empty when there is nothing to fix; missing when a
+	// required field is empty, which the client says in its own words; else one
+	// short sentence in the caller's language. Nothing is stored, and nothing
+	// blocks saving.
+	//
+	// The caller pays with their own keys, as in the editor: workshop,
+	// organisation, own, site; never a game's sponsor. None: 400 no_api_key; a
+	// key its provider rejects: 400 invalid_api_key; a provider that fails or
+	// takes too long: 503 ai_error.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/games/review (the `PostApiGamesReview` operationId).
+	PostApiGamesReviewWithResponse(ctx context.Context, body PostApiGamesReviewJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiGamesReviewResponse, error)
+
 	// DeleteApiGamesIdWithResponse Deletes a game and answers with it as it was. Deleting
 	//
 	// takes mayDelete (403 otherwise).
@@ -16742,6 +17220,76 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with GET /api/version (the `GetApiVersion` operationId).
 	GetApiVersionWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiVersionResponse, error)
+
+	// PostApiVoicesNewWithBodyWithResponse Makes a new voice for a voice style on the paying key and
+	//
+	// answers its sample, as VoiceSampleEndpoint does. The voice made before for
+	// that key and style, and its sample, are deleted: every game with exactly
+	// this voice style on this key speaks in the new voice from now on. A genre
+	// that makes no voices of its own, or an empty voice style, makes none and
+	// only plays the built-in voice.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/voices/new (the `PostApiVoicesNew` operationId).
+	PostApiVoicesNewWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiVoicesNewResponse, error)
+
+	// PostApiVoicesNewWithResponse Makes a new voice for a voice style on the paying key and
+	//
+	// answers its sample, as VoiceSampleEndpoint does. The voice made before for
+	// that key and style, and its sample, are deleted: every game with exactly
+	// this voice style on this key speaks in the new voice from now on. A genre
+	// that makes no voices of its own, or an empty voice style, makes none and
+	// only plays the built-in voice.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/voices/new (the `PostApiVoicesNew` operationId).
+	PostApiVoicesNewWithResponse(ctx context.Context, body PostApiVoicesNewJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiVoicesNewResponse, error)
+
+	// PostApiVoicesSampleWithBodyWithResponse Has the voice a game of the genre speaks in say a
+	//
+	// neutral sample line, the same for every game, in the caller's language,
+	// and answers it as audio. It reads the form as it is, so a game not yet
+	// saved is heard too.
+	//
+	// A genre that makes voices of its own (makesVoices in /api/genres) speaks
+	// in the voice made for the voice style on the paying key: the first sample
+	// makes the voice when there is none and keeps the sample, and later ones
+	// play it without asking the provider (stored: true). Otherwise, and with an
+	// empty voice style, a built-in voice speaks, as the style steers it.
+	//
+	// The caller pays with their own keys, as in the editor: workshop,
+	// organisation, own, site; never a game's sponsor. None that speaks live:
+	// 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a
+	// provider that fails: 503 ai_error.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/voices/sample (the `PostApiVoicesSample` operationId).
+	PostApiVoicesSampleWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiVoicesSampleResponse, error)
+
+	// PostApiVoicesSampleWithResponse Has the voice a game of the genre speaks in say a
+	//
+	// neutral sample line, the same for every game, in the caller's language,
+	// and answers it as audio. It reads the form as it is, so a game not yet
+	// saved is heard too.
+	//
+	// A genre that makes voices of its own (makesVoices in /api/genres) speaks
+	// in the voice made for the voice style on the paying key: the first sample
+	// makes the voice when there is none and keeps the sample, and later ones
+	// play it without asking the provider (stored: true). Otherwise, and with an
+	// empty voice style, a built-in voice speaks, as the style steers it.
+	//
+	// The caller pays with their own keys, as in the editor: workshop,
+	// organisation, own, site; never a game's sponsor. None that speaks live:
+	// 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a
+	// provider that fails: 503 ai_error.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /api/voices/sample (the `PostApiVoicesSample` operationId).
+	PostApiVoicesSampleWithResponse(ctx context.Context, body PostApiVoicesSampleJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiVoicesSampleResponse, error)
 
 	// GetApiWorkshopsWithResponse Lists a page of the workshops the caller may list,
 	//
@@ -19130,6 +19678,54 @@ func (r PostApiGamesNewResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r PostApiGamesNewResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiGamesReviewResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *ReviewGameResp
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r PostApiGamesReviewResponse) GetJSON200() *ReviewGameResp {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiGamesReviewResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiGamesReviewResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiGamesReviewResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiGamesReviewResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiGamesReviewResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -23435,6 +24031,102 @@ func (r GetApiVersionResponse) ContentType() string {
 	return ""
 }
 
+type PostApiVoicesNewResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *VoiceSampleResp
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r PostApiVoicesNewResponse) GetJSON200() *VoiceSampleResp {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiVoicesNewResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiVoicesNewResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiVoicesNewResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiVoicesNewResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiVoicesNewResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiVoicesSampleResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *VoiceSampleResp
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r PostApiVoicesSampleResponse) GetJSON200() *VoiceSampleResp {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PostApiVoicesSampleResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PostApiVoicesSampleResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiVoicesSampleResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiVoicesSampleResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiVoicesSampleResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetApiWorkshopsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -25040,6 +25732,56 @@ func (c *ClientWithResponses) PostApiGamesNewWithResponse(ctx context.Context, b
 		return nil, err
 	}
 	return ParsePostApiGamesNewResponse(rsp)
+}
+
+// PostApiGamesReviewWithBodyWithResponse Reviews a game's form as the editor holds it, saved or
+//
+// not, and answers the one point most worth improving: the field it is
+// about (title, description, scenario, gameStart, imageStyle, voiceStyle,
+// statusFields), empty when there is nothing to fix; missing when a
+// required field is empty, which the client says in its own words; else one
+// short sentence in the caller's language. Nothing is stored, and nothing
+// blocks saving.
+//
+// The caller pays with their own keys, as in the editor: workshop,
+// organisation, own, site; never a game's sponsor. None: 400 no_api_key; a
+// key its provider rejects: 400 invalid_api_key; a provider that fails or
+// takes too long: 503 ai_error.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/games/review (the `PostApiGamesReview` operationId).
+func (c *ClientWithResponses) PostApiGamesReviewWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiGamesReviewResponse, error) {
+	rsp, err := c.PostApiGamesReviewWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiGamesReviewResponse(rsp)
+}
+
+// PostApiGamesReviewWithResponse Reviews a game's form as the editor holds it, saved or
+//
+// not, and answers the one point most worth improving: the field it is
+// about (title, description, scenario, gameStart, imageStyle, voiceStyle,
+// statusFields), empty when there is nothing to fix; missing when a
+// required field is empty, which the client says in its own words; else one
+// short sentence in the caller's language. Nothing is stored, and nothing
+// blocks saving.
+//
+// The caller pays with their own keys, as in the editor: workshop,
+// organisation, own, site; never a game's sponsor. None: 400 no_api_key; a
+// key its provider rejects: 400 invalid_api_key; a provider that fails or
+// takes too long: 503 ai_error.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/games/review (the `PostApiGamesReview` operationId).
+func (c *ClientWithResponses) PostApiGamesReviewWithResponse(ctx context.Context, body PostApiGamesReviewJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiGamesReviewResponse, error) {
+	rsp, err := c.PostApiGamesReview(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiGamesReviewResponse(rsp)
 }
 
 // DeleteApiGamesIdWithResponse Deletes a game and answers with it as it was. Deleting
@@ -26954,6 +27696,100 @@ func (c *ClientWithResponses) GetApiVersionWithResponse(ctx context.Context, req
 	return ParseGetApiVersionResponse(rsp)
 }
 
+// PostApiVoicesNewWithBodyWithResponse Makes a new voice for a voice style on the paying key and
+//
+// answers its sample, as VoiceSampleEndpoint does. The voice made before for
+// that key and style, and its sample, are deleted: every game with exactly
+// this voice style on this key speaks in the new voice from now on. A genre
+// that makes no voices of its own, or an empty voice style, makes none and
+// only plays the built-in voice.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/voices/new (the `PostApiVoicesNew` operationId).
+func (c *ClientWithResponses) PostApiVoicesNewWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiVoicesNewResponse, error) {
+	rsp, err := c.PostApiVoicesNewWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiVoicesNewResponse(rsp)
+}
+
+// PostApiVoicesNewWithResponse Makes a new voice for a voice style on the paying key and
+//
+// answers its sample, as VoiceSampleEndpoint does. The voice made before for
+// that key and style, and its sample, are deleted: every game with exactly
+// this voice style on this key speaks in the new voice from now on. A genre
+// that makes no voices of its own, or an empty voice style, makes none and
+// only plays the built-in voice.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/voices/new (the `PostApiVoicesNew` operationId).
+func (c *ClientWithResponses) PostApiVoicesNewWithResponse(ctx context.Context, body PostApiVoicesNewJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiVoicesNewResponse, error) {
+	rsp, err := c.PostApiVoicesNew(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiVoicesNewResponse(rsp)
+}
+
+// PostApiVoicesSampleWithBodyWithResponse Has the voice a game of the genre speaks in say a
+//
+// neutral sample line, the same for every game, in the caller's language,
+// and answers it as audio. It reads the form as it is, so a game not yet
+// saved is heard too.
+//
+// A genre that makes voices of its own (makesVoices in /api/genres) speaks
+// in the voice made for the voice style on the paying key: the first sample
+// makes the voice when there is none and keeps the sample, and later ones
+// play it without asking the provider (stored: true). Otherwise, and with an
+// empty voice style, a built-in voice speaks, as the style steers it.
+//
+// The caller pays with their own keys, as in the editor: workshop,
+// organisation, own, site; never a game's sponsor. None that speaks live:
+// 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a
+// provider that fails: 503 ai_error.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/voices/sample (the `PostApiVoicesSample` operationId).
+func (c *ClientWithResponses) PostApiVoicesSampleWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiVoicesSampleResponse, error) {
+	rsp, err := c.PostApiVoicesSampleWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiVoicesSampleResponse(rsp)
+}
+
+// PostApiVoicesSampleWithResponse Has the voice a game of the genre speaks in say a
+//
+// neutral sample line, the same for every game, in the caller's language,
+// and answers it as audio. It reads the form as it is, so a game not yet
+// saved is heard too.
+//
+// A genre that makes voices of its own (makesVoices in /api/genres) speaks
+// in the voice made for the voice style on the paying key: the first sample
+// makes the voice when there is none and keeps the sample, and later ones
+// play it without asking the provider (stored: true). Otherwise, and with an
+// empty voice style, a built-in voice speaks, as the style steers it.
+//
+// The caller pays with their own keys, as in the editor: workshop,
+// organisation, own, site; never a game's sponsor. None that speaks live:
+// 400 no_api_key; a key its provider rejects: 400 invalid_api_key; a
+// provider that fails: 503 ai_error.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /api/voices/sample (the `PostApiVoicesSample` operationId).
+func (c *ClientWithResponses) PostApiVoicesSampleWithResponse(ctx context.Context, body PostApiVoicesSampleJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiVoicesSampleResponse, error) {
+	rsp, err := c.PostApiVoicesSample(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiVoicesSampleResponse(rsp)
+}
+
 // GetApiWorkshopsWithResponse Lists a page of the workshops the caller may list,
 //
 // and the total: an admin all of them, a head or staff their
@@ -28717,6 +29553,39 @@ func ParsePostApiGamesNewResponse(rsp *http.Response) (*PostApiGamesNewResponse,
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest GameView
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiGamesReviewResponse parses an HTTP response from a PostApiGamesReviewWithResponse call
+func ParsePostApiGamesReviewResponse(rsp *http.Response) (*PostApiGamesReviewResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiGamesReviewResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ReviewGameResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -31684,6 +32553,72 @@ func ParseGetApiVersionResponse(rsp *http.Response) (*GetApiVersionResponse, err
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest GetVersionResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiVoicesNewResponse parses an HTTP response from a PostApiVoicesNewWithResponse call
+func ParsePostApiVoicesNewResponse(rsp *http.Response) (*PostApiVoicesNewResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiVoicesNewResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VoiceSampleResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiVoicesSampleResponse parses an HTTP response from a PostApiVoicesSampleWithResponse call
+func ParsePostApiVoicesSampleResponse(rsp *http.Response) (*PostApiVoicesSampleResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiVoicesSampleResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VoiceSampleResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

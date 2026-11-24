@@ -36,7 +36,7 @@ import { EXTERNAL_LINKS } from "@/config/externalLinks";
 import { publicWorkshopPath } from "@/common/lib/publicWorkshop";
 import { buildShareUrl } from "@/common/lib/url";
 import { takeReturnTo } from "@/common/lib/returnTo";
-import { GameEditModal } from "@/features/games/components/GameEditModal";
+import { GameEditor } from "@/features/games/components/editor/GameEditor";
 import { downloadGameFile } from "@/features/games/lib";
 
 interface PublicWorkshopPageProps {
@@ -161,7 +161,7 @@ export function PublicWorkshopPage({
         <CallToAction />
       </Stack>
 
-      <GameEditModal
+      <GameEditor
         opened={copy.modal.opened}
         onClose={copy.modal.close}
         onCreate={copy.modal.onCreate}

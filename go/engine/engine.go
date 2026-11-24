@@ -300,54 +300,9 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 	}
 	s.openJournal()
 
-	var w *genre.Wiring
-	switch spec.Genre {
-	case GenreAdventure:
-		var err error
-		w, err = genre.NewAdventure(genre.AdventureConfig{
-			Tool:                &s.slots.tool,
-			Hearing:             &s.slots.hearing,
-			Thread:              &s.slots.thread,
-			Window:              s.usage.window,
-			Image:               &s.slots.image,
-			Scenario:            spec.Scenario,
-			Guardrail:           spec.Guardrail,
-			Description:         spec.Description,
-			ImageStyle:          spec.ImageStyle,
-			VoiceStyle:          spec.VoiceStyle,
-			StartingMessage:     spec.InitPrompt,
-			Status:              spec.Status,
-			Language:            spec.Language,
-			Dice:                spec.Dice,
-			PromptOverride:      spec.PromptOverride,
-			ConstraintFrequency: spec.ConstraintFrequency,
-		})
-		if err != nil {
-			return nil, err
-		}
-	case GenreNPCLive:
-		var err error
-		w, err = genre.NewNPCLive(genre.NPCLiveConfig{
-			Live:           &s.slots.live,
-			GalleryImage:   spec.GalleryImage,
-			Tool:           &s.slots.tool,
-			GameStart:      spec.InitPrompt,
-			Language:       spec.Language,
-			Voice:          spec.Voice,
-			VoiceStyle:     spec.VoiceStyle,
-			Voices:         &s.slots.voices,
-			BuiltinVoices:  openai.LiveVoices,
-			Guardrail:      spec.Guardrail,
-			Scenario:       spec.Scenario,
-			InitPrompt:     spec.initPrompt(),
-			PromptOverride: spec.PromptOverride,
-			IdleAfter:      spec.idleAfter(),
-		})
-		if err != nil {
-			return nil, err
-		}
-	default:
-		return nil, fmt.Errorf("unknown genre %q", spec.Genre)
+	w, err := s.wire(spec)
+	if err != nil {
+		return nil, err
 	}
 
 	if err := w.Graph.Validate(); err != nil {
@@ -968,4 +923,47 @@ func (spec SessionSpec) adapters(settled settlement) (equipment, error) {
 		return equipment{}, fmt.Errorf("unknown platform %q", settled.offer.Platform)
 	}
 	return kit, nil
+}
+
+// wire builds the spec's genre on the session's slots: its graph, unstarted.
+func (s *Session) wire(spec SessionSpec) (*genre.Wiring, error) {
+	switch spec.Genre {
+	case GenreAdventure:
+		return genre.NewAdventure(genre.AdventureConfig{
+			Tool:                &s.slots.tool,
+			Hearing:             &s.slots.hearing,
+			Thread:              &s.slots.thread,
+			Window:              s.usage.window,
+			Image:               &s.slots.image,
+			Scenario:            spec.Scenario,
+			Guardrail:           spec.Guardrail,
+			Description:         spec.Description,
+			ImageStyle:          spec.ImageStyle,
+			VoiceStyle:          spec.VoiceStyle,
+			StartingMessage:     spec.InitPrompt,
+			Status:              spec.Status,
+			Language:            spec.Language,
+			Dice:                spec.Dice,
+			PromptOverride:      spec.PromptOverride,
+			ConstraintFrequency: spec.ConstraintFrequency,
+		})
+	case GenreNPCLive:
+		return genre.NewNPCLive(genre.NPCLiveConfig{
+			Live:           &s.slots.live,
+			GalleryImage:   spec.GalleryImage,
+			Tool:           &s.slots.tool,
+			GameStart:      spec.InitPrompt,
+			Language:       spec.Language,
+			Voice:          spec.Voice,
+			VoiceStyle:     spec.VoiceStyle,
+			Voices:         &s.slots.voices,
+			BuiltinVoices:  openai.LiveVoices,
+			Guardrail:      spec.Guardrail,
+			Scenario:       spec.Scenario,
+			InitPrompt:     spec.initPrompt(),
+			PromptOverride: spec.PromptOverride,
+			IdleAfter:      spec.idleAfter(),
+		})
+	}
+	return nil, fmt.Errorf("unknown genre %q", spec.Genre)
 }

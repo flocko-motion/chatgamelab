@@ -16,6 +16,9 @@ type (
 	Game                = apiclient.Game
 	JournalEntry        = apiclient.JournalEntry
 	GameView            = apiclient.GameView
+	VoiceSample         = apiclient.VoiceSampleResp
+	Review              = apiclient.ReviewGameResp
+	ReviewForm          = apiclient.ReviewGameReq
 	GameFile            = apiclient.GameFile
 	GameShare           = apiclient.ShareLinkView
 	PrivateShareStatus  = apiclient.PrivateShareStatusResp

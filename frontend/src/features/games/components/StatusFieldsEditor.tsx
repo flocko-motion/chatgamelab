@@ -1,6 +1,7 @@
 import { Stack, Group, TextInput, Text, Paper } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { TextButton, DeleteIconButton } from "@components/buttons";
+import { HelperText } from "@components/typography";
 import { useTranslation } from "react-i18next";
 import { useMemo } from "react";
 
@@ -13,6 +14,10 @@ interface StatusFieldsEditorProps {
   value: string;
   onChange: (value: string) => void;
   readOnly?: boolean;
+  /** No adding beyond this many values; more already there stay. */
+  max?: number;
+  /** Says why there is no adding once max is reached. */
+  maxHint?: string;
 }
 
 function parseStatusFields(jsonString: string): StatusField[] {
@@ -49,6 +54,8 @@ export function StatusFieldsEditor({
   value,
   onChange,
   readOnly = false,
+  max,
+  maxHint,
 }: StatusFieldsEditorProps) {
   const { t } = useTranslation("common");
 
@@ -124,7 +131,10 @@ export function StatusFieldsEditor({
             </Paper>
           ))
         )}
-        {!readOnly && (
+        {!readOnly && max !== undefined && fields.length >= max && maxHint && (
+          <HelperText ta="center">{maxHint}</HelperText>
+        )}
+        {!readOnly && (max === undefined || fields.length < max) && (
           <TextButton
             size="xs"
             onClick={handleAddField}

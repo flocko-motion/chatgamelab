@@ -64,6 +64,39 @@ type VoiceStore interface {
 	IDs(ctx context.Context) ([]string, error)
 }
 
+// VoiceSamples is a VoiceStore that also keeps each voice's sample, and
+// removes one voice by its style, so an editor can hear a voice without the
+// provider speaking it again, and replace a voice that does not fit.
+type VoiceSamples interface {
+	VoiceStore
+	// Remove removes the voice made for a style, and its sample, and answers
+	// its id, for the provider to delete; false when there is none.
+	Remove(ctx context.Context, styleHash string) (voiceID string, ok bool, err error)
+	// Sample answers the sample kept for the voice made for a style.
+	Sample(ctx context.Context, styleHash string) (audio []byte, contentType string, ok bool, err error)
+	// KeepSample keeps a sample for the voice made for a style; nothing when
+	// the voice is gone, and a sample kept before stays.
+	KeepSample(ctx context.Context, styleHash string, audio []byte, contentType string) error
+}
+
+// SayRequest is one line for a voice to say, outside any game: the voice (a
+// made voice's id, a built-in voice's name, or empty for the default), how to
+// say it, and the line.
+type SayRequest struct {
+	Voice        string
+	Instructions string
+	Line         string
+}
+
+// SayRate is the sample rate of what a Sayer answers: 16-bit signed
+// little-endian mono PCM.
+const SayRate = 24000
+
+// Sayer has a voice say one line and answers the audio, as PCM at SayRate.
+type Sayer interface {
+	Say(ctx context.Context, req SayRequest) ([]byte, Usage, error)
+}
+
 // VoicesSlot holds the settled offer's voice maker and the store for its
 // key; either is nil where the platform makes no voices or keeps none.
 type VoicesSlot struct {
@@ -96,11 +129,17 @@ type MemoryVoices struct {
 	voices  map[string]string
 	pending map[string]bool
 	order   []string
+	samples map[string]memorySample
+}
+
+type memorySample struct {
+	audio       []byte
+	contentType string
 }
 
 func (m *MemoryVoices) init() {
 	if m.voices == nil {
-		m.voices, m.pending = map[string]string{}, map[string]bool{}
+		m.voices, m.pending, m.samples = map[string]string{}, map[string]bool{}, map[string]memorySample{}
 	}
 }
 
@@ -156,6 +195,7 @@ func (m *MemoryVoices) Evict(context.Context) (string, bool, error) {
 		m.order = m.order[1:]
 		if id := m.voices[hash]; id != "" {
 			delete(m.voices, hash)
+			delete(m.samples, hash)
 			return id, true, nil
 		}
 	}
@@ -172,6 +212,38 @@ func (m *MemoryVoices) IDs(context.Context) ([]string, error) {
 		}
 	}
 	return ids, nil
+}
+
+func (m *MemoryVoices) Remove(_ context.Context, hash string) (string, bool, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.init()
+	id := m.voices[hash]
+	if id == "" {
+		return "", false, nil
+	}
+	delete(m.voices, hash)
+	delete(m.samples, hash)
+	return id, true, nil
+}
+
+func (m *MemoryVoices) Sample(_ context.Context, hash string) ([]byte, string, bool, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.init()
+	s, ok := m.samples[hash]
+	return s.audio, s.contentType, ok, nil
+}
+
+func (m *MemoryVoices) KeepSample(_ context.Context, hash string, audio []byte, contentType string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.init()
+	if _, kept := m.samples[hash]; kept || m.voices[hash] == "" {
+		return nil
+	}
+	m.samples[hash] = memorySample{audio: audio, contentType: contentType}
+	return nil
 }
 
 // touch moves a voice to the back of the order: the front is unused longest.

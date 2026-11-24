@@ -116,6 +116,16 @@ func (g Genre) Fields() []GameField {
 	return []GameField{FieldScenario, FieldGameStart, FieldImageStyle, FieldStatusFields, FieldVoiceStyle}
 }
 
+// MakesVoices reports whether the genre makes a voice of its own for a game,
+// kept per key and voice style: whether its wiring holds a block that makes
+// one. A genre that does not speaks in a provider's built-in voice, which the
+// voice style only steers, so there is no voice to remake.
+func (g Genre) MakesVoices() bool {
+	s := &Session{usage: newUsageLedger()}
+	w, err := s.wire(SessionSpec{Genre: g})
+	return err == nil && w.Graph.MakesVoices()
+}
+
 // PlayableGenres is every genre whose needs the toggles meet.
 func PlayableGenres(toggles Toggles) []Genre {
 	var out []Genre

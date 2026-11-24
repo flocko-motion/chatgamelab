@@ -216,3 +216,20 @@ func TestGenresNameTheirFields(t *testing.T) {
 		}
 	}
 }
+
+// A genre makes voices of its own when its wiring holds a block that makes
+// one: NPC-Live's character has one, an Adventure narrates in a built-in
+// voice. The editor offers making a new voice only where one is made.
+func TestGenreSaysWhetherItMakesVoices(t *testing.T) {
+	want := map[Genre]bool{GenreAdventure: false, GenreNPCLive: true}
+	for g, makes := range want {
+		if got := g.MakesVoices(); got != makes {
+			t.Errorf("%s.MakesVoices() = %v, want %v", g, got, makes)
+		}
+	}
+	for _, info := range GenreList() {
+		if info.MakesVoices != want[info.ID] {
+			t.Errorf("GenreList: %s makesVoices = %v, want %v", info.ID, info.MakesVoices, want[info.ID])
+		}
+	}
+}

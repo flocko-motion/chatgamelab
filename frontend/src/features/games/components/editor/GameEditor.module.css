@@ -1,0 +1,91 @@
+/* The editor's window: one fixed width on every page, a column whose middle
+   alone scrolls, so the title above and the buttons below never move. */
+.window {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.windowFixed {
+  flex: 0 0 var(--modal-size);
+  max-width: 100%;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.footer {
+  flex-shrink: 0;
+  border-top: 1px solid var(--mantine-color-default-border);
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+}
+
+.adminAction {
+  outline: 3px solid var(--mantine-color-red-6);
+}
+
+/* The overview on a desktop: a card per section. */
+.card {
+  height: 100%;
+  cursor: pointer;
+}
+
+.card:focus-visible,
+.row:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+}
+
+.cardNext {
+  border-width: 2px;
+  border-color: var(--mantine-primary-color-filled);
+}
+
+.thumb {
+  max-width: 160px;
+  margin-top: 6px;
+}
+
+/* The overview on a phone: a compact list, like the phone's settings. */
+.list {
+  overflow: hidden;
+}
+
+.row {
+  display: block;
+  width: 100%;
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  cursor: pointer;
+}
+
+.row + .row {
+  border-top: 1px solid var(--mantine-color-default-border);
+}
+
+.rowNext {
+  background: var(--mantine-primary-color-light);
+}
+
+/* Deleting: the game as it fades, its cover grey and pale. */
+.fading {
+  max-width: 260px;
+  width: 100%;
+  margin: 0 auto;
+  filter: grayscale(1);
+  opacity: 0.45;
+}
+
+.genreCard {
+  height: 100%;
+  border-width: 2px;
+  cursor: pointer;
+}
+
+.genreCard:hover,
+.genreCard:focus-visible {
+  border-color: var(--mantine-primary-color-filled);
+}

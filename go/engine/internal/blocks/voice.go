@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -63,6 +64,9 @@ func NewVoice(name, style string, slot *adapters.VoicesSlot) *Voice {
 }
 
 func (b *Voice) NodeName() string { return b.name }
+
+// MakesVoice marks the block as one that makes a voice of its own.
+func (b *Voice) MakesVoice() {}
 
 // TextInPort takes the description to make the voice from;
 // SecondaryTextInPort the built-in voice to fall back to, by name.
@@ -139,23 +143,44 @@ func (b *Voice) voice(ctx context.Context) string {
 		b.journal.Note(b.name, "built-in", "the game has no voice style: "+b.builtinSaying(fallback))
 		return fallback
 	}
-	maker, store := b.slot.Get()
-	if maker == nil || store == nil {
-		b.journal.Note(b.name, "built-in", "this platform makes no voices: "+b.builtinSaying(fallback))
+	id, err := b.Make(ctx, description)
+	if err != nil {
+		if errors.Is(err, ErrNoVoices) {
+			b.journal.Note(b.name, "built-in", "this platform makes no voices: "+b.builtinSaying(fallback))
+		}
 		return fallback
 	}
+	return id
+}
+
+// ErrNoVoices says the platform makes no voices, or keeps none.
+var ErrNoVoices = errors.New("this platform makes no voices")
+
+// Make answers the voice for the block's voice style on the slot's key: the
+// one made before, the one another session is making, or a new one made from
+// the description and kept. The journal says which; an error when there is
+// none, ErrNoVoices where the platform makes none.
+func (b *Voice) Make(ctx context.Context, description string) (string, error) {
+	maker, store := b.slot.Get()
+	if maker == nil || store == nil {
+		return "", ErrNoVoices
+	}
 	hash := StyleHash(b.style)
+	if id, _, err := store.Lookup(ctx, hash); err == nil && id != "" {
+		_ = store.Touch(ctx, hash)
+		return id, nil
+	}
 
 	claimed, err := store.Claim(ctx, hash)
 	if err != nil {
-		b.journal.Warn(b.name, "store-failed", "the voices could not be read: "+err.Error()+"; "+b.builtinSaying(fallback))
-		return fallback
+		b.journal.Warn(b.name, "store-failed", "the voices could not be read: "+err.Error()+"; the built-in voice speaks, as the voice style says")
+		return "", err
 	}
 	if !claimed {
 		if id := b.awaitOther(ctx, store, hash); id != "" {
-			return id
+			return id, nil
 		}
-		return fallback
+		return "", errors.New("the voice another session was making did not come")
 	}
 
 	// A voice once begun is finished and kept, even when this session ends
@@ -166,14 +191,14 @@ func (b *Voice) voice(ctx context.Context) string {
 	id, err := b.create(making, maker, store, hash, description)
 	if err != nil {
 		_ = store.Release(making, hash)
-		b.journal.Warn(b.name, "create-failed", "no voice could be made: "+err.Error()+"; "+b.builtinSaying(fallback))
-		return fallback
+		b.journal.Warn(b.name, "create-failed", "no voice could be made: "+err.Error()+"; the built-in voice speaks, as the voice style says")
+		return "", err
 	}
 	if err := store.Record(making, hash, id); err != nil {
 		b.journal.Warn(b.name, "store-failed", "the new voice "+id+" could not be kept: "+err.Error())
 	}
 	b.journal.Note(b.name, "created", fmt.Sprintf("a new voice for this voice style on this key, made in %.1f s: %s", time.Since(started).Seconds(), id))
-	return id
+	return id, nil
 }
 
 // awaitBrief waits for the description to make the voice from, and takes the

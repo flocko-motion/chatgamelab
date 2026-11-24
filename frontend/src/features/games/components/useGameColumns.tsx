@@ -1,5 +1,5 @@
-import { Group, Text, Tooltip } from "@mantine/core";
-import { IconDownload, IconStar, IconStarFilled } from "@tabler/icons-react";
+import { Text, Tooltip } from "@mantine/core";
+import { IconStar, IconStarFilled } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import type { GameView } from "@/api/types";
 import type { GameListSort } from "@/api/hooks";
@@ -10,8 +10,7 @@ import { gameListDate } from "../lib";
 import type { GamesTableState } from "../hooks/useGamesTable";
 import { GamePlayButtons } from "./GamePlayButtons";
 import { WorkshopBadges } from "./WorkshopBadges";
-import type { GameCardAction } from "./GameCard";
-import { GameActionIcon, GameBadges, GameNameCell, VisibilityBadge } from "./GameListCells";
+import { GameBadges, GameNameCell, VisibilityBadge } from "./GameListCells";
 
 type GameColumn = ListColumn<GameView, GameListSort>;
 
@@ -19,7 +18,6 @@ type GameColumn = ListColumn<GameView, GameListSort>;
 export function useGameColumns(state: GamesTableState): GameColumn[] {
   const { t } = useTranslation("common");
   const { sortBy } = state.list.query;
-  const actions = useGameActions(state);
 
   const columns: Record<GameColumnKey, GameColumn | null> = {
     favorite: {
@@ -131,8 +129,7 @@ export function useGameColumns(state: GamesTableState): GameColumn[] {
       render: (game) => {
         const { hasSession, session } = state.getSessionState(game);
         return (
-          <Group gap="xs" wrap="nowrap">
-            <div style={{ width: 140, flexShrink: 0 }}>
+          <div style={{ width: 140 }}>
               <GamePlayButtons
                 game={game}
                 hasSession={hasSession}
@@ -146,13 +143,7 @@ export function useGameColumns(state: GamesTableState): GameColumn[] {
                   restart: t("allGames.restart"),
                 }}
               />
-            </div>
-            <Group gap={4} wrap="nowrap">
-              {actions(game).map((action) => (
-                <GameActionIcon key={action.key} action={action} />
-              ))}
-            </Group>
-          </Group>
+          </div>
         );
       },
     },
@@ -161,32 +152,4 @@ export function useGameColumns(state: GamesTableState): GameColumn[] {
   return state.config.columns
     .map((key) => columns[key])
     .filter((c): c is GameColumn => c !== null);
-}
-
-/**
- * The actions on a game the caller may take, beside the button that opens it
- * in the editor: export, delete. Copying needs no action of its own: a game
- * the caller may not edit opens as their own copy.
- */
-export function useGameActions(state: GamesTableState) {
-  const { t } = useTranslation("common");
-  return (game: GameView): GameCardAction[] => {
-    const p = state.permissions(game);
-    const actions: GameCardAction[] = [];
-    actions.push({
-      key: "export",
-      icon: <IconDownload size={16} />,
-      label: t("games.importExport.exportButton"),
-      onClick: () => state.exportGame(game),
-    });
-    if (p.canDelete) {
-      actions.push({
-        key: "delete",
-        icon: null,
-        label: t("deleteGame"),
-        onClick: () => state.requestDelete(game),
-      });
-    }
-    return actions;
-  };
 }

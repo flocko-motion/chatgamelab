@@ -11,7 +11,7 @@ import (
 )
 
 // EmbedTestSuite checks embedding a game on another website (#340): its
-// embed link plays framed on any website, or only on a verified page after
+// embed link plays framed only on its organisation's verified page, after
 // the host's yes; off stops the snippet and on revives it.
 type EmbedTestSuite struct {
 	testutil.BaseSuite
@@ -43,36 +43,37 @@ func (s *EmbedTestSuite) world() world {
 	return world{org: org, game: game, share: share, head: head}
 }
 
-// A designer turns on embedding, and the game plays framed on any website
-// by its token alone.
-func (s *EmbedTestSuite) TestAGameEmbeddedForAnyWebsitePlaysThere() {
+// A game embeds only for a verified page: there is no embedding on any
+// website by the token alone.
+func (s *EmbedTestSuite) TestAGameEmbedsOnlyForAVerifiedPage() {
 	w := s.world()
 
-	embed := Must(w.head.SetGameEmbed(w.game, testutil.Embedding{Enabled: true, PaidBy: w.share}))
-	s.True(embed.Enabled)
-	s.Equal("any", embed.Mode)
-	s.NotEmpty(embed.Token)
-
-	Must(s.Public().CreateSession(testutil.ForShare(embed.Token)))
-	policy := Must(s.Public().PlaybackPolicy("new&share=" + embed.Token))
-	s.Contains(policy, "frame-ancestors *")
+	_, err := w.head.SetGameEmbed(w.game, testutil.Embedding{Enabled: true, Mode: "any", PaidBy: w.share})
+	s.Invalid(err, "any website")
+	_, err = w.head.SetGameEmbed(w.game, testutil.Embedding{Enabled: true, PaidBy: w.share})
+	s.Invalid(err, "no verified page")
+	s.Nil(Must(w.head.GetGameEmbed(w.game)))
 }
 
 // Off stops the snippet; on revives the same one.
 func (s *EmbedTestSuite) TestOffStopsTheSnippetAndOnRevivesIt() {
 	w := s.world()
-	first := Must(w.head.SetGameEmbed(w.game, testutil.Embedding{Enabled: true, PaidBy: w.share}))
+	h := s.StartHost()
+	page := Must(w.head.CreateVerifiedPage(w.org, h.URL+"/play", h.URL+"/callback")).Id.String()
+	first := Must(w.head.SetGameEmbed(w.game, testutil.Embedding{Enabled: true, PaidBy: w.share, VerifiedPage: page}))
+	s.Equal("verified", first.Mode)
+	start := testutil.ForShare(first.Token).FromHost("visitor-1", "request-1")
 
-	off := Must(w.head.SetGameEmbed(w.game, testutil.Embedding{Enabled: false}))
+	off := Must(w.head.SetGameEmbed(w.game, testutil.Embedding{Enabled: false, VerifiedPage: page}))
 	s.Equal(first.Token, off.Token)
 	// refused as for a token that opens nothing
-	_, err := s.Public().CreateSession(testutil.ForShare(first.Token))
+	_, err := s.Public().CreateSession(start)
 	s.Refused(err, "denied")
 	s.Contains(Must(s.Public().PlaybackPolicy("new&share="+first.Token)), "frame-ancestors 'self'")
 
-	on := Must(w.head.SetGameEmbed(w.game, testutil.Embedding{Enabled: true}))
+	on := Must(w.head.SetGameEmbed(w.game, testutil.Embedding{Enabled: true, VerifiedPage: page}))
 	s.Equal(first.Token, on.Token)
-	Must(s.Public().CreateSession(testutil.ForShare(first.Token)))
+	Must(s.Public().CreateSession(start))
 }
 
 // An ordinary share link does not embed: only the platform frames it.
@@ -102,7 +103,7 @@ func (s *EmbedTestSuite) TestAVerifiedPageStartsAGameOnlyOnItsHostsYes() {
 	s.Len(page.PageId, 16)
 	s.Equal(h.URL, page.Origin)
 	embed := Must(w.head.SetGameEmbed(w.game, testutil.Embedding{
-		Enabled: true, Verified: true, PaidBy: w.share, VerifiedPage: page.Id.String(),
+		Enabled: true, PaidBy: w.share, VerifiedPage: page.Id.String(),
 	}))
 
 	_, err := s.Public().CreateSession(testutil.ForShare(embed.Token))
@@ -129,7 +130,7 @@ func (s *EmbedTestSuite) TestAReturningVisitorIsTheSameGuest() {
 	h := s.StartHost()
 	page := Must(w.head.CreateVerifiedPage(w.org, h.URL+"/play", h.URL+"/callback"))
 	embed := Must(w.head.SetGameEmbed(w.game, testutil.Embedding{
-		Enabled: true, Verified: true, PaidBy: w.share, VerifiedPage: page.Id.String(),
+		Enabled: true, PaidBy: w.share, VerifiedPage: page.Id.String(),
 	}))
 
 	first := Must(s.Public().CreateSession(testutil.ForShare(embed.Token).FromHost("visitor-9", "a")))
@@ -149,7 +150,7 @@ func (s *EmbedTestSuite) TestAGameEmbedsOnlyForItsOrganisationsPages() {
 	page := Must(elsewhere.head.CreateVerifiedPage(elsewhere.org, "https://example.org/play", "https://example.org/callback"))
 
 	_, err := w.head.SetGameEmbed(w.game, testutil.Embedding{
-		Enabled: true, Verified: true, PaidBy: w.share, VerifiedPage: page.Id.String(),
+		Enabled: true, PaidBy: w.share, VerifiedPage: page.Id.String(),
 	})
 	s.Invalid(err)
 }

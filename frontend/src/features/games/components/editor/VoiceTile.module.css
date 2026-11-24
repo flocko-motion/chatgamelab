@@ -1,0 +1,75 @@
+/* The voice in the cover's shape: a waveform on a gradient, a play button in
+   the middle; the bars move while the sample plays. */
+.tile {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border-radius: var(--mantine-radius-md);
+  background: linear-gradient(135deg, var(--mantine-color-violet-7), var(--mantine-color-cyan-6));
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+
+.tile:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+}
+
+.tile:disabled {
+  cursor: default;
+}
+
+.bars {
+  position: absolute;
+  inset: 0 8%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bar {
+  width: 3%;
+  border-radius: 99px;
+  background: rgb(255 255 255 / 40%);
+}
+
+.playing .bar {
+  animation: voice-bar 0.7s ease-in-out infinite;
+}
+
+.playing .bar:nth-child(5n + 1) { animation-duration: 0.5s; }
+.playing .bar:nth-child(5n + 2) { animation-duration: 0.62s; }
+.playing .bar:nth-child(5n + 3) { animation-duration: 0.74s; }
+.playing .bar:nth-child(5n + 4) { animation-duration: 0.86s; }
+
+@keyframes voice-bar {
+  0%, 100% { transform: scaleY(0.35); }
+  50% { transform: scaleY(1); }
+}
+
+.centre {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button {
+  width: 34%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 92%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mantine-color-violet-7);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 25%);
+}
+
+.icon {
+  width: 45%;
+  height: 45%;
+}

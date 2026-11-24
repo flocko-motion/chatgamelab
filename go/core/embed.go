@@ -34,18 +34,16 @@ import (
 // A game's embed link (#340): one per game, its token random and kept for
 // good, as the game id is public and the link spends a sponsor's key. Off
 // keeps the token, so on revives the same snippet. Whoever may share the
-// game controls it. On any website the token starts a game; on a verified
-// page only the host's yes does (EmbedPlay).
+// game controls it. A game embeds only on a verified page of its
+// organisation, and only the host's yes starts it there (EmbedPlay); the
+// token alone starts nothing.
 
 // EmbedMode is who may show an embedded game.
 type EmbedMode string
 
-const (
-	// EmbedAnyWebsite: any website, by the token alone.
-	EmbedAnyWebsite EmbedMode = "any"
-	// EmbedVerified: one verified page, on its host's yes.
-	EmbedVerified EmbedMode = "verified"
-)
+// EmbedVerified: one verified page, on its host's yes. It is the only mode:
+// for now only organisations embed, on their own verified page.
+const EmbedVerified EmbedMode = "verified"
 
 // GameEmbed is a game's embed link as the designer sees it.
 type GameEmbed struct {
@@ -180,12 +178,8 @@ func SetGameEmbed(ctx context.Context, game uuid.UUID, s EmbedSettings) (*GameEm
 // embedPage checks the mode and answers its verified page: one of the
 // game's organisation's.
 func embedPage(ctx context.Context, card *GameCard, s EmbedSettings) (uuid.NullUUID, error) {
-	switch s.Mode {
-	case EmbedAnyWebsite:
-		return uuid.NullUUID{}, nil
-	case EmbedVerified:
-	default:
-		return uuid.NullUUID{}, refuse("unknown mode %q; known: any, verified", s.Mode)
+	if s.Mode != EmbedVerified {
+		return uuid.NullUUID{}, refuse("unknown mode %q; known: verified", s.Mode)
 	}
 	if s.VerifiedPage == nil {
 		return uuid.NullUUID{}, refuse("verifiedPageId is required for the verified mode")
@@ -240,8 +234,8 @@ func (f Framing) Framed() bool { return f.Ancestors != framedBySelf }
 const framedBySelf = "'self'"
 
 // EmbedFraming is who may frame the playback-engine opened for share token
-// or session: anyone for an embed link on any website, a verified page's
-// origin, otherwise the platform alone.
+// or session: a verified page's origin for its embed link, otherwise the
+// platform alone.
 func EmbedFraming(ctx context.Context, token string, session *uuid.UUID) Framing {
 	self := Framing{Ancestors: framedBySelf}
 	if token == "" && session == nil {
@@ -257,8 +251,6 @@ func EmbedFraming(ctx context.Context, token string, session *uuid.UUID) Framing
 	switch {
 	case !r.Embed || !r.Enabled:
 		return self
-	case EmbedMode(r.EmbedMode.String) == EmbedAnyWebsite:
-		return Framing{Ancestors: "*"}
 	case EmbedMode(r.EmbedMode.String) == EmbedVerified && r.VerifiedOrigin.Valid:
 		return Framing{Ancestors: r.VerifiedOrigin.String, AssetOrigin: r.VerifiedOrigin.String}
 	}
@@ -308,15 +300,15 @@ func publicOnly(_, address string, _ syscall.RawConn) error {
 }
 
 // EmbedPlay opens the play behind a share token, for the engine's start. An
-// embed link of the verified mode starts on its host's yes only, asked with
-// ids; its guest is the player ID hashed with the link. Any other link
-// opens as by ShareLinkPlay.
+// embed link starts on its host's yes only, asked with ids; its guest is
+// the player ID hashed with the link. Any other link opens as by
+// ShareLinkPlay.
 func EmbedPlay(ctx context.Context, token string, ids HostIDs) (*LinkPlay, error) {
 	row, err := openToken(ctx, token)
 	if err != nil {
 		return nil, err
 	}
-	if row.mode != EmbedVerified {
+	if row.mode == "" {
 		return openLinkPlay(ctx, row, token)
 	}
 	refused := engine.Refuse(engine.ProblemHostRefused, "the host page did not let this game start")

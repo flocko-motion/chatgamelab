@@ -22,11 +22,16 @@ export interface HelperTextProps {
   children: ReactNode;
   c?: string;
   ta?: 'left' | 'center' | 'right';
+  /** At most this many lines, cut with an ellipsis. */
+  lineClamp?: number;
+  /** One line, cut with an ellipsis. */
+  truncate?: boolean;
+  size?: 'xs' | 'sm';
 }
 
-export function HelperText({ children, c, ta }: HelperTextProps) {
+export function HelperText({ children, c, ta, lineClamp, truncate, size = 'sm' }: HelperTextProps) {
   return (
-    <Text size="sm" c={c || "gray.5"} ta={ta}>
+    <Text size={size} c={c || "gray.5"} ta={ta} lineClamp={lineClamp} truncate={truncate}>
       {children}
     </Text>
   );

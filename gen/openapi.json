@@ -1386,6 +1386,9 @@
           "id": {
             "$ref": "#/components/schemas/Genre"
           },
+          "makesVoices": {
+            "type": "boolean"
+          },
           "needs": {
             "items": {
               "$ref": "#/components/schemas/Toggle"
@@ -1396,7 +1399,8 @@
         "required": [
           "id",
           "needs",
-          "fields"
+          "fields",
+          "makesVoices"
         ],
         "type": "object"
       },
@@ -3003,6 +3007,64 @@
           "token",
           "remaining",
           "limit"
+        ],
+        "type": "object"
+      },
+      "ReviewGameReq": {
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "genre": {
+            "type": "string"
+          },
+          "imageStyle": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "statusFields": {
+            "type": "string"
+          },
+          "systemMessageGameStart": {
+            "type": "string"
+          },
+          "systemMessageScenario": {
+            "type": "string"
+          },
+          "voiceStyle": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "genre",
+          "name",
+          "description",
+          "systemMessageScenario",
+          "systemMessageGameStart",
+          "imageStyle",
+          "voiceStyle",
+          "statusFields"
+        ],
+        "type": "object"
+      },
+      "ReviewGameResp": {
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "missing": {
+            "type": "boolean"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "field",
+          "missing",
+          "text"
         ],
         "type": "object"
       },
@@ -4662,6 +4724,49 @@
         },
         "required": [
           "pages"
+        ],
+        "type": "object"
+      },
+      "VoiceSampleReq": {
+        "properties": {
+          "genre": {
+            "type": "string"
+          },
+          "scenario": {
+            "type": "string"
+          },
+          "voiceStyle": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "genre",
+          "voiceStyle",
+          "scenario"
+        ],
+        "type": "object"
+      },
+      "VoiceSampleResp": {
+        "properties": {
+          "audio": {
+            "format": "byte",
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "ownVoice": {
+            "type": "boolean"
+          },
+          "stored": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "audio",
+          "contentType",
+          "stored",
+          "ownVoice"
         ],
         "type": "object"
       },
@@ -7456,6 +7561,53 @@
           }
         ],
         "summary": "Creates a game owned by the caller from the filled-in"
+      }
+    },
+    "/api/games/review": {
+      "post": {
+        "description": "not, and answers the one point most worth improving: the field it is\nabout (title, description, scenario, gameStart, imageStyle, voiceStyle,\nstatusFields), empty when there is nothing to fix; missing when a\nrequired field is empty, which the client says in its own words; else one\nshort sentence in the caller's language. Nothing is stored, and nothing\nblocks saving.\n\nThe caller pays with their own keys, as in the editor: workshop,\norganisation, own, site; never a game's sponsor. None: 400 no_api_key; a\nkey its provider rejects: 400 invalid_api_key; a provider that fails or\ntakes too long: 503 ai_error.",
+        "operationId": "postApiGamesReview",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewGameReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewGameResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Reviews a game's form as the editor holds it, saved or"
       }
     },
     "/api/games/{id}": {
@@ -11870,6 +12022,100 @@
           }
         },
         "summary": "Reports the release the server runs."
+      }
+    },
+    "/api/voices/new": {
+      "post": {
+        "description": "answers its sample, as VoiceSampleEndpoint does. The voice made before for\nthat key and style, and its sample, are deleted: every game with exactly\nthis voice style on this key speaks in the new voice from now on. A genre\nthat makes no voices of its own, or an empty voice style, makes none and\nonly plays the built-in voice.",
+        "operationId": "postApiVoicesNew",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoiceSampleReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceSampleResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Makes a new voice for a voice style on the paying key and"
+      }
+    },
+    "/api/voices/sample": {
+      "post": {
+        "description": "neutral sample line, the same for every game, in the caller's language,\nand answers it as audio. It reads the form as it is, so a game not yet\nsaved is heard too.\n\nA genre that makes voices of its own (makesVoices in /api/genres) speaks\nin the voice made for the voice style on the paying key: the first sample\nmakes the voice when there is none and keeps the sample, and later ones\nplay it without asking the provider (stored: true). Otherwise, and with an\nempty voice style, a built-in voice speaks, as the style steers it.\n\nThe caller pays with their own keys, as in the editor: workshop,\norganisation, own, site; never a game's sponsor. None that speaks live:\n400 no_api_key; a key its provider rejects: 400 invalid_api_key; a\nprovider that fails: 503 ai_error.",
+        "operationId": "postApiVoicesSample",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoiceSampleReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceSampleResp"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Has the voice a game of the genre speaks in say a"
       }
     },
     "/api/workshops": {
