@@ -29,6 +29,14 @@
 //	go run ./cmd/probe                     # every platform with a key, 10 rounds
 //	go run ./cmd/probe -rounds 3 -platform mistral
 //	go run ./cmd/probe -hearing -clips ~/clips -language de -rounds 2
+//
+// With -images it draws pictures instead, with every setting a platform's
+// tiers draw with (model, quality, size), once per round unless -rounds says
+// otherwise: whether each answered, the latency, the cost per picture and the
+// size it came back in; with -out it keeps the pictures in a directory.
+//
+//	go run ./cmd/probe -images                   # one picture per setting
+//	go run ./cmd/probe -images -out /tmp/pictures
 package main
 
 import (
@@ -116,8 +124,20 @@ func main() {
 	hearing := flag.Bool("hearing", false, "probe the hearing models instead of the story models")
 	clips := flag.String("clips", "", "with -hearing: a directory of WAV clips, each named after its words")
 	language := flag.String("language", "", "with -hearing: the player's language, as a game sets it, such as de")
+	images := flag.Bool("images", false, "draw pictures with the tiers' image settings instead (one round unless -rounds is set)")
+	out := flag.String("out", "", "with -images: a directory to keep the pictures in")
 	flag.Parse()
 
+	if *images {
+		n := 1
+		flag.Visit(func(f *flag.Flag) {
+			if f.Name == "rounds" {
+				n = *rounds
+			}
+		})
+		probeImages(*only, *out, n)
+		return
+	}
 	if *hearing {
 		probeHearing(*only, *clips, *language, *rounds)
 		return
