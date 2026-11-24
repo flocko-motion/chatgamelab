@@ -25,6 +25,10 @@ type CreateRequest struct {
 	// Once is a key the playback-engine makes for one intent to start, so a
 	// repeat within OnceWindow answers the same session.
 	Once string `json:"once"`
+	// Mode is the player's wish, live or rounds, for a game whose genre
+	// plays both on the offers at hand; without one, such a game is refused
+	// with choose_mode for the player to choose. A wish, never a lock.
+	Mode engine.Mode `json:"mode,omitempty"`
 	// PromptOverride adapts the genre's prompts by name before the session
 	// starts; whoever serves the engine decides who may.
 	PromptOverride map[string]string `json:"promptOverride,omitempty"`

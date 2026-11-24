@@ -11,7 +11,7 @@ import (
 // stored with the spec, and a resumed session runs on it.
 func TestPromptEditedDuringPlayTakesEffect(t *testing.T) {
 	store := &engine.MemoryPersist{}
-	s := launchStored(t, store, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "edit"})
+	s := launchStored(t, store, engine.SessionSpec{Subgenre: engine.SubgenreAdventureRounds, ID: "edit"})
 	waitForTurn(t, s, "[story turn 2]")
 
 	if err := s.SetPrompt("expand", "TELL IT IN RHYME"); err != nil {
@@ -43,7 +43,7 @@ func TestPromptEditedDuringPlayTakesEffect(t *testing.T) {
 
 // A prompt the genre lacks is refused, and nothing is stored.
 func TestUnknownPromptIsRefusedDuringPlay(t *testing.T) {
-	s := launchStored(t, &engine.MemoryPersist{}, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "typo"})
+	s := launchStored(t, &engine.MemoryPersist{}, engine.SessionSpec{Subgenre: engine.SubgenreAdventureRounds, ID: "typo"})
 	defer s.Close()
 	if err := s.SetPrompt("expnad", "x"); err == nil {
 		t.Error("a misspelled prompt was accepted")
@@ -53,7 +53,7 @@ func TestUnknownPromptIsRefusedDuringPlay(t *testing.T) {
 // A block's details list the prompts it runs on, each marked when it is no
 // longer the genre's own.
 func TestBlockDetailListsItsPrompts(t *testing.T) {
-	s := launchStored(t, &engine.MemoryPersist{}, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "show"})
+	s := launchStored(t, &engine.MemoryPersist{}, engine.SessionSpec{Subgenre: engine.SubgenreAdventureRounds, ID: "show"})
 	defer s.Close()
 	if err := s.SetPrompt("expand", "TELL IT IN RHYME"); err != nil {
 		t.Fatal(err)
@@ -90,16 +90,18 @@ func TestBlockDetailListsItsPrompts(t *testing.T) {
 	}
 }
 
-// Each genre lists its own prompts by name, as a launch that adapts them
-// needs them.
+// Each half of a genre lists its own prompts by name, as a launch that
+// adapts them needs them.
 func TestGenresListTheirPrompts(t *testing.T) {
 	for _, info := range engine.GenreList() {
-		if len(info.Prompts) == 0 {
-			t.Errorf("%s lists no prompts", info.ID)
-		}
-		for _, p := range info.Prompts {
-			if p.Name == "" || p.Text == "" {
-				t.Errorf("%s lists an empty prompt: %+v", info.ID, p)
+		for _, half := range info.Subgenres {
+			if len(half.Prompts) == 0 {
+				t.Errorf("%s lists no prompts", half.ID)
+			}
+			for _, p := range half.Prompts {
+				if p.Name == "" || p.Text == "" {
+					t.Errorf("%s lists an empty prompt: %+v", half.ID, p)
+				}
 			}
 		}
 	}

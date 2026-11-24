@@ -42,19 +42,53 @@ const (
 	PlatformMistral Platform = "mistral"
 )
 
+// Genre is a game's genre, as the game stores it: a container of two
+// halves, <genre>-live and <genre>-rounds, which play the same game and only
+// read it differently. A genre may offer one half for now.
 type Genre string
 
 const (
 	GenreAdventure Genre = "adventure"
-	GenreNPCLive   Genre = "npc-live"
-	// GenreNPCDuo is two live characters talking to each other, with the
-	// player free to join in.
-	GenreNPCDuo Genre = "npc-duo"
+	// GenreNPC is one character to talk to.
+	GenreNPC Genre = "npc"
+	// GenreDiscussion is two characters talking to each other, with the player
+	// free to join in.
+	GenreDiscussion Genre = "discussion"
+)
+
+// Mode is a half of a genre: live, a full-duplex conversation, or rounds,
+// played in turns.
+type Mode string
+
+const (
+	ModeLive   Mode = "live"
+	ModeRounds Mode = "rounds"
+)
+
+// Subgenre is one half of a genre, named <genre>-<mode>: what a session
+// plays, chosen at launch and fixed for the session.
+type Subgenre string
+
+const (
+	SubgenreAdventureRounds Subgenre = "adventure-rounds"
+	SubgenreNPCLive         Subgenre = "npc-live"
+	// SubgenreNPCRounds is the character in turns, typed or spoken: the
+	// chatbot.
+	SubgenreNPCRounds Subgenre = "npc-rounds"
+	// SubgenreDiscussionLive is two live characters talking to each other.
+	SubgenreDiscussionLive Subgenre = "discussion-live"
 )
 
 // SessionSpec is everything a session needs, fully resolved so the engine never calls back into the platform.
 type SessionSpec struct {
-	Genre Genre `json:"genre"`
+	// Genre is the game's genre. Subgenre is the half of it the session
+	// plays: picked at launch from the genre and the player's Mode where the
+	// spec names none (PickSubgenre), and fixed for the session.
+	Genre    Genre    `json:"genre,omitempty"`
+	Subgenre Subgenre `json:"subgenre,omitempty"`
+	// Mode is the player's wish, live or rounds, for a genre whose halves
+	// both fit the offers; a wish, never a lock.
+	Mode Mode `json:"mode,omitempty"`
 
 	ID string `json:"id,omitempty"`
 
@@ -121,7 +155,7 @@ type SessionSpec struct {
 
 	// Voices is the game's choice for each voice its genre speaks in, by the
 	// voice's name (Genre.VoiceSlots): a built-in voice of a gender, any the
-	// cast finds fitting, or, where the genre makes one, a voice of its own.
+	// cast finds fitting, or, where the half makes one, a voice of its own.
 	// A voice it chose nothing for is any. Which voice each one speaks in is
 	// cast once and kept with the session.
 	Voices map[string]VoiceChoice `json:"voices,omitempty"`
@@ -142,6 +176,28 @@ type SessionSpec struct {
 	Script []string `json:"script,omitempty"`
 	// ScriptIntervalMs is an int because a time.Duration would read a JSON number as nanoseconds.
 	ScriptIntervalMs int `json:"scriptIntervalMs,omitempty"`
+}
+
+// resolved is the spec with the half it plays: the one it names, or the one
+// PickSubgenre finds for its genre and mode on the offers. The genre follows
+// from the half where the spec names none.
+func (spec SessionSpec) resolved(offers []Offer) (SessionSpec, error) {
+	// A genre that names a half, as a stored spec may, plays that half.
+	if half := Subgenre(spec.Genre); spec.Subgenre == "" && slices.Contains(Subgenres(), half) {
+		spec.Subgenre, spec.Genre = half, ""
+	}
+	spec.Genre = GenreNamed(string(spec.Genre))
+	if spec.Subgenre == "" && spec.Genre != "" {
+		s, err := PickSubgenre(spec.Genre, spec.Mode, offers)
+		if err != nil {
+			return spec, err
+		}
+		spec.Subgenre = s
+	}
+	if spec.Genre == "" {
+		spec.Genre = spec.Subgenre.Genre()
+	}
+	return spec, nil
 }
 
 // GuardrailSource is the level of the platform's fallback chain a guardrail
@@ -301,7 +357,7 @@ type resumption struct {
 // session's first state is saved before Launch returns, and a failed save
 // refuses the launch.
 func Launch(ctx context.Context, spec SessionSpec, offers []Offer) (*Session, error) {
-	if spec.Genre == GenreAdventure && len(spec.Dice) == 0 {
+	if spec.Subgenre == SubgenreAdventureRounds && len(spec.Dice) == 0 {
 		spec.Dice = rollDice()
 	}
 	return launch(ctx, spec, offers, nil)
@@ -320,6 +376,10 @@ func rollDice() []int {
 }
 
 func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumption) (*Session, error) {
+	spec, err := spec.resolved(offers)
+	if err != nil {
+		return nil, err
+	}
 	if err := refusal(Validate(spec, offers)); err != nil {
 		return nil, err
 	}
@@ -376,9 +436,9 @@ func launch(ctx context.Context, spec SessionSpec, offers []Offer, from *resumpt
 		return nil, fmt.Errorf("store the session: %w", err)
 	}
 	if from != nil {
-		s.journal.Note(JournalSession, "resumed", fmt.Sprintf("genre %s, %d history events", spec.Genre, len(s.recorder.replay())))
+		s.journal.Note(JournalSession, "resumed", fmt.Sprintf("genre %s, %d history events", spec.Subgenre, len(s.recorder.replay())))
 	} else {
-		s.journal.Note(JournalSession, "launched", "genre "+string(spec.Genre))
+		s.journal.Note(JournalSession, "launched", "genre "+string(spec.Subgenre))
 	}
 	go s.keep()
 	go s.keepJournal()
@@ -623,7 +683,7 @@ func (s *Session) Connect(ctx context.Context, offer, seat string) (string, erro
 		return "", fmt.Errorf("no seat %q", seat)
 	}
 	if live == nil {
-		return "", fmt.Errorf("genre %q holds no live conversation at seat %q", s.spec.Genre, seat)
+		return "", fmt.Errorf("genre %q holds no live conversation at seat %q", s.spec.Subgenre, seat)
 	}
 	s.journal.Note(JournalClient, "connect", "the browser offers to open the audio connection "+seat)
 	answer, err := live.Connect(ctx, offer)
@@ -828,7 +888,7 @@ func (s *Session) Say(text string) error {
 		return err
 	}
 	if s.wiring.Say == nil {
-		return fmt.Errorf("genre %q takes no typed input", s.spec.Genre)
+		return fmt.Errorf("genre %q takes no typed input", s.spec.Subgenre)
 	}
 	s.wiring.Say(text)
 	return nil
@@ -842,7 +902,7 @@ func (s *Session) Speak(audio []byte) error {
 		return err
 	}
 	if s.wiring.Speak == nil {
-		return fmt.Errorf("genre %q takes no audio input", s.spec.Genre)
+		return fmt.Errorf("genre %q takes no audio input", s.spec.Subgenre)
 	}
 	s.journal.Note(JournalClient, "speak", fmt.Sprintf("a clip of %d bytes", len(audio)))
 	err := s.wiring.Speak(audio)
@@ -858,7 +918,7 @@ func (s *Session) Pause() error {
 		return err
 	}
 	if s.wiring.Live == nil {
-		return fmt.Errorf("genre %q holds no live conversation", s.spec.Genre)
+		return fmt.Errorf("genre %q holds no live conversation", s.spec.Subgenre)
 	}
 	s.wiring.Live.Pause()
 	if s.wiring.Partner != nil {
@@ -961,6 +1021,9 @@ func (s *Session) Mermaid() string { return s.wiring.Graph.Mermaid() }
 
 // ID is the session's ID, the handle that plays it.
 func (s *Session) ID() string { return s.spec.ID }
+
+// Subgenre is the half of its genre the session plays, fixed at launch.
+func (s *Session) Subgenre() Subgenre { return s.spec.Subgenre }
 
 // release closes the adapters once the session has ended.
 func (s *Session) release() {
@@ -1120,8 +1183,8 @@ func builtinVoices(platform Platform, model adapters.ModelType) []adapters.Built
 // Its voices are cast from the platform's built-in voices.
 func (s *Session) wire(spec SessionSpec, platform Platform) (*genre.Wiring, error) {
 	live := builtinVoices(platform, adapters.ModelLive)
-	switch spec.Genre {
-	case GenreAdventure:
+	switch spec.Subgenre {
+	case SubgenreAdventureRounds:
 		return genre.NewAdventure(genre.AdventureConfig{
 			Tool:                &s.slots.tool,
 			Hearing:             &s.slots.hearing,
@@ -1142,7 +1205,7 @@ func (s *Session) wire(spec SessionSpec, platform Platform) (*genre.Wiring, erro
 			PromptOverride:      spec.PromptOverride,
 			ConstraintFrequency: spec.ConstraintFrequency,
 		})
-	case GenreNPCLive:
+	case SubgenreNPCLive:
 		return genre.NewNPCLive(genre.NPCLiveConfig{
 			Live:           &s.slots.live,
 			GalleryImage:   spec.GalleryImage,
@@ -1159,7 +1222,24 @@ func (s *Session) wire(spec SessionSpec, platform Platform) (*genre.Wiring, erro
 			PromptOverride: spec.PromptOverride,
 			IdleAfter:      spec.idleAfter(),
 		})
-	case GenreNPCDuo:
+	case SubgenreNPCRounds:
+		return genre.NewNPCRounds(genre.NPCRoundsConfig{
+			Thread:              &s.slots.thread,
+			Hearing:             &s.slots.hearing,
+			Window:              s.usage.window,
+			GalleryImage:        spec.GalleryImage,
+			Scenario:            spec.Scenario,
+			Guardrail:           spec.guardrail(),
+			GameStart:           spec.InitPrompt,
+			VoiceStyle:          spec.VoiceStyle,
+			Tool:                &s.slots.tool,
+			SpeechVoices:        builtinVoices(platform, adapters.ModelSpeech),
+			VoiceChoices:        spec.Voices,
+			Language:            spec.Language,
+			PromptOverride:      spec.PromptOverride,
+			ConstraintFrequency: spec.ConstraintFrequency,
+		})
+	case SubgenreDiscussionLive:
 		return genre.NewNPCDuo(genre.NPCDuoConfig{
 			Live:           &s.slots.live,
 			Tool:           &s.slots.tool,
@@ -1174,5 +1254,5 @@ func (s *Session) wire(spec SessionSpec, platform Platform) (*genre.Wiring, erro
 			PromptOverride: spec.PromptOverride,
 		})
 	}
-	return nil, fmt.Errorf("unknown genre %q", spec.Genre)
+	return nil, fmt.Errorf("unknown genre %q", spec.Subgenre)
 }

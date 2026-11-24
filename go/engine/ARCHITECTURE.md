@@ -40,11 +40,11 @@ and configured by prompt into whatever role a genre needs:
 | Block | Mechanism | Roles |
 | --- | --- | --- |
 | **Tool call** | one single-shot call, text in; text out, or with a schema JSON whose fields wires take | rephrase, condense, translate, describe a voice |
-| **Tool call that takes audio** | one clip of speech in, a structured result out | rephrase of a spoken action |
-| **Threaded call** | a call on a continuing conversation, spoken while narration is on | Expand, sharing Outline's thread, and narration |
+| **Tool call that takes audio** | one clip of speech in, a structured result out | rephrase of a spoken action, hearing the player's words |
+| **Threaded call** | a call on a continuing conversation, spoken while narration is on; its message is its prompt, or, when it answers, the player's input; a cue on its opening input goes once, as the game's own message | Expand, sharing Outline's thread, and narration; NPC-Rounds' character |
 | **Threaded call with a structured result** | a threaded call whose reply is JSON of a schema | Outline: its outline, image prompt and status |
 | **Image generation** | prompt in, image out | scene illustration |
-| **Gallery image** | a picture it is given, out once; the image generation's output and gate cycle, with no call | NPC-Live's picture |
+| **Gallery image** | a picture it is given, out once; the image generation's output and gate cycle, with no call | the NPC genres' picture |
 | **Live session** | a long-lived, full-duplex speech-to-speech connection | NPC-Live's conversation |
 | **Observer** | reads a live conversation's transcript, both sides with their timing, and directs it, on a log of its own | NPC-Live's director |
 
@@ -84,8 +84,8 @@ set, written by hand.
   The completeness check refuses a failure output left unwired. The provider's
   reason stays on the block's state report, for the graph view, which draws
   failure edges apart as a pale red line.
-- Two genres justify neither a DSL nor a generic scheduler, so the graph stays
-  Go and keeps its type safety.
+- A handful of genres justify neither a DSL nor a generic scheduler, so the
+  graph stays Go and keeps its type safety.
 
 ### Prompts and the guardrail
 
@@ -113,7 +113,8 @@ the loop. The gate waits for the blocks wired into it to report
 working-then-ready and sends the cue that opens the game. What gates is a
 wiring decision: NPC-Live gates on the game's picture and releases the player's
 voice with the gate; Adventure gates on its preparation and releases the
-player's input once the opening's prose is done.
+player's input once the opening's prose is done; NPC-Rounds gates on the
+picture, and its cue has the character speak first.
 
 Every block reports its state changes, and every report reaches the client,
 which draws the wiring once and then tracks phases. That drawing, with the
@@ -161,7 +162,32 @@ and Insights shows the problems.
 
 ## Genres
 
+A **genre** is what a game stores: a container of two **halves**, its
+subgenres, named `<genre>-live` and `<genre>-rounds`. Both halves play the same
+game and only read it differently, so the editor shows the genre's fields, the
+same for both. A half is what the engine wires: each subgenre is one wiring,
+with its own needs and its own prompts. A genre may have a single half.
+
+| Genre | Live | Rounds |
+| --- | --- | --- |
+| `adventure` | — | `adventure-rounds`: Adventure |
+| `npc` | `npc-live`: NPC-Live | `npc-rounds`: NPC-Rounds |
+| `discussion` | `discussion-live`: two live characters | — |
+
+- **The half is picked at launch** (`PickSubgenre`), from the halves whose
+  needs an offer meets: the one that fits, where one does; the player's mode,
+  `live` or `rounds`, where both do. A mode is a wish, never a lock, so a mode
+  that does not fit gives way to the half that does. Both fitting and no mode
+  is refused with `choose_mode`, for the player to choose; none fitting with
+  `genre`.
+- **The half is fixed for the session**: the spec stores it, and a resumed
+  session plays it again. A spec whose genre is a half's name plays that half
+  (`npc-live`); a former genre's name stands for its genre (`npc-duo` for
+  `discussion`), as in a game file (`GenreNamed`).
+
 ### Adventure
+
+`adventure-rounds`, the only half of `adventure`.
 
 **Rephrase → outline → expand**, because a single-shot "what happens next" call
 is too willing to do what the player asked. Rephrase turns the input into third
@@ -259,6 +285,8 @@ speaks it.
 
 ### NPC-Live
 
+`npc-live`, the live half of `npc`.
+
 The game's picture from the gallery is shown and gates the conversation:
 nothing is painted, so the conversation starts at once. Beside it, a tool call
 writes the character's first words from the scenario and how the game begins;
@@ -339,6 +367,43 @@ director listens and does nothing. It fits any live pipeline.
 The scenario and the guardrail reach the model through separate channels of the
 live session, so designer text and the platform's constraint stay apart.
 
+### NPC-Rounds
+
+`npc-rounds`, the rounds half of `npc`: the character in turns, the chatbot.
+It reads the same game as NPC-Live: the scenario, the game start, the voice
+style and the cover.
+
+- **The game's picture shows first** and gates the game: the gallery image,
+  with no `images` toggle and nothing painted.
+- **The character speaks first.** The gate's cue, the genre's opening prompt,
+  goes to the character's opening input as the game's own message; the
+  System Message carries the scenario and how the game begins, so the first
+  words are written from them. A resumed session never opens twice.
+- **One threaded conversation on the story model**, the character's only seat.
+  Its System Message is the character prompt, the scenario and how the game
+  begins, both labelled as the author's, the voice style for spoken answers,
+  the player's language and the youth-protection rule. The character answers:
+  each line the player sends is the call's message, as the player's own.
+  Replies are tidied as Expand's are. Its summary request asks for who the
+  character is and where it stands, what the player has said and tried, what
+  it has conceded and still holds back.
+- **The player types or speaks**, on two inputs always wired, as in Adventure:
+  a typed line goes to the character and to `said` at once; a spoken clip goes
+  to the hearing call, whose reply is the player's words verbatim, for the
+  character and for `said`. Nothing heard leads to `voice_failed`.
+- **No observer.** The constraints travel with the calls instead: the
+  youth-protection rule, worded as in Adventure, and the genre's
+  `hold-the-line` prompt, which keeps the character to what its scenario says
+  it must not concede, at the character's constraint frequency; the opening
+  always carries them.
+- **Toggles**: `audio-out` has the answers spoken, the conversation running on
+  the tier's speaking model meanwhile, in the character's cast voice;
+  `audio-in` switches the hearing call. It needs no toggle.
+- **A failed answer** leads to `turn_failed`, and the game goes on.
+- **The thread is persisted** like Adventure's story thread: a session resumes
+  and reads back its whole conversation, and the thread compacts near its
+  model's window.
+
 ## AI platforms
 
 The engine publishes a **catalogue** of the AI platforms it runs: what a person
@@ -349,9 +414,10 @@ written into the engine.
   four **toggles**, each saying whether a feature exists on it: `images`,
   `audio-out` (narration), `audio-in` (voice input) and `audio-live`
   (full-duplex speech).
-- **A genre declares the toggles it needs**, so the genres a platform can run
-  follow from its toggles. NPC-Live needs `audio-live`; a launch on a
-  platform that lacks it is refused.
+- **A half declares the toggles it needs**, so the genres a platform can run
+  follow from its toggles: a genre runs where one of its halves does. A live
+  half needs `audio-live`; a rounds half needs none. A launch of a half on a
+  platform that lacks what it needs is refused.
 - **A tier decides quality, never whether a feature exists.** The tiers are
   `low`, `medium` and `high`, labelled Economy, Balanced and High; `max` is
   read as `high`.
@@ -362,10 +428,10 @@ written into the engine.
 | Toggle | Model type | Used by |
 | --- | --- | --- |
 | — | **tooling** | rephrase, translate, observer |
-| — | **story** | Outline and Expand, on one continuing conversation |
+| — | **story** | Outline and Expand, on one continuing conversation; NPC-Rounds' character |
 | `images` | **image** | image generation |
-| `audio-out` | **speech** | the story model, speaking: Outline and Expand while narration is on |
-| `audio-in` | **hearing** | the tool call that takes audio: Rephrase of a spoken action |
+| `audio-out` | **speech** | the story model, speaking: Outline and Expand, or NPC-Rounds' character, while narration is on |
+| `audio-in` | **hearing** | the tool call that takes audio: Rephrase of a spoken action, NPC-Rounds' hearing |
 | `audio-live` | **live** | the live-session block |
 
 Tiers have capabilities and model choices: a model and its parameters are set
@@ -405,11 +471,13 @@ every story and speech model has a window.
 
 The catalogue is exposed as `engine.Platforms()`, as the transport's
 `GET platforms`, and printed by `cmd/models`. Beside it, `GET genres` lists each
-genre with the toggles it needs, the game fields it reads and its own prompts
-as written, for a launch that adapts them, and `GET themes`
-the playback-engine's looks, for the game editor. The editor shows a genre's
+genre with the toggles it cannot run without at all (those every half needs),
+the game fields it reads, whether a half makes a voice of its own, and its
+halves: each with its mode, the toggles it needs and its own prompts as
+written, for a launch that adapts the chosen half's; and `GET themes` the
+playback-engine's looks, for the game editor. The editor shows a genre's
 fields and no others: an Adventure reads the scenario, the game start, the
-image style, the status fields and the voice style; NPC-Live the scenario, the
+image style, the status fields and the voice style; an NPC the scenario, the
 game start, the image style its cover is drawn in, and the voice style.
 
 - **The voice style** is how a game's voice sounds, in the designer's words,
@@ -417,9 +485,10 @@ game start, the image style its cover is drawn in, and the voice style.
   an Adventure puts it in the System Message for its spoken turns, where the
   narrator follows it.
 - **A genre names the voices it speaks in, its voice slots**, each with the
-  block that speaks it (`Graph.Speaks`): Adventure's `narrator`, NPC-Live's
-  `character`, Discussion's `a` and `b`. `GET genres` lists them with their
-  choices, read off the graph (`Genre.VoiceSlots`): `male`, `female` and
+  block that speaks it (`Graph.Speaks`): Adventure's `narrator`, the NPC
+  halves' `character`, Discussion's `a` and `b`. `GET genres` lists them with
+  their choices, per half read off its graph (`Subgenre.VoiceSlots`) and per
+  genre the halves' together, one slot per name: `male`, `female` and
   `any` for every slot, as each is cast from the speaking model's built-in
   voices; `custom` only where a block that makes a voice feeds the speaker.
   The spec carries the game's choice per slot (`voices`); a slot it names
@@ -433,7 +502,9 @@ game start, the image style its cover is drawn in, and the voice style.
   its own). Adventure's `cast` gives the narrator's voice to Expand, whose
   thread speaks every turn in it (`ThreadTurn.Voice`; gpt-realtime opens a
   fresh session when the voice changes); Discussion's `cast` names both
-  characters and casts them; NPC-Live's `voice-brief` casts the character.
+  characters and casts them; NPC-Live's `voice-brief` casts the character;
+  NPC-Rounds' `cast` gives the character's voice to its thread, as
+  Adventure's does, and a `custom` choice is cast as `any` there.
   The cast is kept (`Keep`), and the speaker keeps the voice in its state,
   so a resumed session speaks in it from its first word. A failed cast
   answers through `cast-fallback` at once: the first voice of the slot's
@@ -621,7 +692,10 @@ resolves nothing against platform data.
   replacement.
 - **The guardrail as changed during play**, kept to in place of the resolved
   one; the resolved one stays beside it.
-- **Genre, title, image style.**
+- **Genre, half and mode** — the game's genre; the half it plays, picked at
+  launch where the spec names none and fixed after; and the player's wish,
+  live or rounds, it was picked by.
+- **Title, image style.**
 - **Theme** — the playback-engine's look, one of its presets; empty is the
   default look. Listed by `GET themes`.
 - **Language** — the player's, fixed at creation and carried to the
@@ -678,9 +752,9 @@ key stays on the server.
 - **A live conversation is not re-attached** after a restart: it comes back
   paused, and the player resumes it with one press from the kept transcript,
   as after idling.
-- **A refusal names its problem** — no key, a genre the key cannot run, no
-  plays left, a rejected key, an unreachable provider, a stale or unknown
-  session — so the playback-engine can say why. A key rejected during play is
+- **A refusal names its problem** — no key, a genre the key cannot run, a
+  genre whose halves both fit with no mode chosen, no plays left, a rejected
+  key, an unreachable provider, a stale or unknown session — so the playback-engine can say why. A key rejected during play is
   reported on the `problem` stream, distinct from a lost connection.
 - **A session may begin by choosing.** With more than one offer, or one the
   player may customize, the graph is built and waits: the player's options
@@ -718,7 +792,8 @@ internals out of reach of any other module.
   unreachable 502, failed 500, any other 422.
 - **Creating goes through the transport, doing the serving side's work.**
   `POST sessions` names a game or a share token, the player's language and a
-  one-time key, and may adapt the genre's prompts by name, which the serving
+  one-time key, may name a mode, live or rounds, and may adapt the chosen
+  half's prompts by name, which the serving
   side allows or refuses; the serving side supplies the function that launches the
   session (the platform from its game and key cascade, the standalone launcher
   from its game file). A repeat of the one-time key within ten minutes answers
@@ -836,7 +911,11 @@ wants to own when things render.
   it creates one, passing on a host page's `player` and `request` IDs with a
   share token. It then replaces its own URL with the session's, keeping its
   format, stylesheet and language, without a reload, and tells a same-origin
-  parent page by `postMessage({ type: "session", id })`. It remembers the session in its own
+  parent page by `postMessage({ type: "session", id })`. A game whose genre
+  plays live and in rounds on the offers is answered `choose_mode`; the
+  launch panel asks which and creates again with the same one-time key. A
+  page opened with `mode=live` or `mode=rounds`, as an embed's `data-mode`
+  sets it, never asks. It remembers the session in its own
   browser storage per game or share, so a host page reloaded with `new` offers
   to continue or start anew. Every launch error is shown on its launch panel,
   with a way to try again or start anew. The headless playback-engine follows the same
@@ -914,6 +993,12 @@ session end to end with the headless playback-engine.
 - Voice input on Adventure: push-to-talk in the playback-engine, one clip per
   press over the session's connection, heard and rephrased in one call on
   OpenAI's gpt-audio-1.5 or Mistral's Voxtral, the player's line on `said`.
+- Genres in pairs: a genre holds a live and a rounds half, picked at launch,
+  asked of the player in the playback-engine where both fit.
+- NPC-Rounds: the cover, the character's first words from the gate's cue,
+  typed and spoken turns answered on one threaded conversation with the
+  constraints and the character's line at its frequency, spoken with
+  `audio-out`, resumed with its thread.
 
 ### Missing
 

@@ -19,7 +19,7 @@ func sampleOffer() (Offer, *MemoryVoices) {
 
 func TestTheFirstSampleMakesTheVoiceAndKeepsWhatItSaid(t *testing.T) {
 	offer, store := sampleOffer()
-	spec := VoiceSampleSpec{Genre: GenreNPCLive, VoiceStyle: "deep and slow", Line: "Hello there."}
+	spec := VoiceSampleSpec{Genre: GenreNPC, VoiceStyle: "deep and slow", Line: "Hello there."}
 
 	first, err := SpeakSample(context.Background(), spec, offer)
 	if err != nil {
@@ -52,7 +52,7 @@ func TestTheFirstSampleMakesTheVoiceAndKeepsWhatItSaid(t *testing.T) {
 
 func TestANewVoiceReplacesTheVoiceAndItsSample(t *testing.T) {
 	offer, store := sampleOffer()
-	spec := VoiceSampleSpec{Genre: GenreNPCLive, VoiceStyle: "bright and quick", Line: "Hello there."}
+	spec := VoiceSampleSpec{Genre: GenreNPC, VoiceStyle: "bright and quick", Line: "Hello there."}
 	first, err := SpeakSample(context.Background(), spec, offer)
 	if err != nil {
 		t.Fatalf("SpeakSample: %v", err)
@@ -77,7 +77,7 @@ func TestANewVoiceReplacesTheVoiceAndItsSample(t *testing.T) {
 
 func TestWithoutVoiceStyleTheBuiltInVoiceSpeaksAndNothingIsKept(t *testing.T) {
 	offer, store := sampleOffer()
-	sample, err := SpeakSample(context.Background(), VoiceSampleSpec{Genre: GenreNPCLive, Line: "Hello there."}, offer)
+	sample, err := SpeakSample(context.Background(), VoiceSampleSpec{Genre: GenreNPC, Line: "Hello there."}, offer)
 	if err != nil {
 		t.Fatalf("SpeakSample: %v", err)
 	}

@@ -71,3 +71,42 @@ test("a creation cut short repeats its one-time key", async () => {
 
   assert.deepEqual(onces, ["k1"]);
 });
+
+test("an embed may name live or rounds, which skips the choice", () => {
+  assert.deepEqual(opening(new URLSearchParams("new&share=t1&mode=rounds")), {
+    kind: "new",
+    selector: { kind: "share", id: "t1", mode: "rounds" },
+  });
+  assert.deepEqual(opening(new URLSearchParams("new&game=g1&mode=live")), {
+    kind: "new",
+    selector: { kind: "game", id: "g1", mode: "live" },
+  });
+  // Anything else is no mode, and the player chooses where there is a choice.
+  assert.deepEqual(opening(new URLSearchParams("new&game=g1&mode=loud")), {
+    kind: "new",
+    selector: { kind: "game", id: "g1" },
+  });
+});
+
+test("a game that plays live and in rounds asks which, then creates in the mode chosen", async () => {
+  const bodies: Array<{ mode?: string; once?: string }> = [];
+  const client = {
+    postApiEngineSessions: async (body: { mode?: string; once?: string }) => {
+      bodies.push(body);
+      if (!body.mode) {
+        throw new Response(JSON.stringify({ error: "choose", code: "choose_mode" }), { status: 422 });
+      }
+      return { data: { id: "s1" } };
+    },
+  } as unknown as EngineClient;
+  const pending = transientMemory();
+
+  const asked = await create(client, { kind: "game", id: "g1" }, "en", pending);
+  assert.deepEqual(asked, { choose: true });
+
+  const created = await create(client, { kind: "game", id: "g1", mode: "rounds" }, "en", pending);
+  assert.deepEqual(created, { id: "s1" });
+  // One intent: the choice carries on with the same one-time key.
+  assert.equal(bodies[1]?.mode, "rounds");
+  assert.equal(bodies[0]?.once, bodies[1]?.once);
+});

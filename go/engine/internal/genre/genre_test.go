@@ -21,6 +21,7 @@ func TestGraphsAreValid(t *testing.T) {
 	}{
 		{"adventure", mustAdventure(t, nil).Graph},
 		{"npc-live", mustNPCLive(t, mockNPCConfig("stay in character")).Graph},
+		{"npc-rounds", npcRounds(t, NPCRoundsConfig{}).Graph},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			if err := tc.graph.Validate(); err != nil {
@@ -807,6 +808,7 @@ func TestDeclaredInputsMatchTheWiring(t *testing.T) {
 	}{
 		{"adventure", func() *Wiring { return mustAdventure(t, nil) }, []ports.InputMode{ports.InputText, ports.InputAudioPushToTalk}},
 		{"npc-live", func() *Wiring { return mustNPCLive(t, mockNPCConfig("refuse passage")) }, []ports.InputMode{ports.InputAudioFullDuplex}},
+		{"npc-rounds", func() *Wiring { return npcRounds(t, NPCRoundsConfig{}) }, []ports.InputMode{ports.InputText, ports.InputAudioPushToTalk}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			w := tc.build()

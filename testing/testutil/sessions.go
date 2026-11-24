@@ -14,6 +14,7 @@ import (
 type NewSession struct {
 	game, share, language, once string
 	hostPlayer, hostRequest     string
+	mode                        string
 }
 
 // ForGame creates a session of a game.
@@ -31,6 +32,9 @@ func (n NewSession) FromHost(player, request string) NewSession {
 
 // InLanguage plays the session in a language.
 func (n NewSession) InLanguage(language string) NewSession { n.language = language; return n }
+
+// InMode asks to play live or in rounds, for a game whose genre plays both.
+func (n NewSession) InMode(mode string) NewSession { n.mode = mode; return n }
 
 // Once sends a one-time key; without one, every creation gets a fresh key.
 func (n NewSession) Once(key string) NewSession { n.once = key; return n }
@@ -54,6 +58,10 @@ func (n NewSession) request() apiclient.CreateRequest {
 	}
 	if n.hostRequest != "" {
 		req.Request = &n.hostRequest
+	}
+	if n.mode != "" {
+		mode := apiclient.Mode(n.mode)
+		req.Mode = &mode
 	}
 	return req
 }

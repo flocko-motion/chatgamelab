@@ -6,6 +6,7 @@ import {
   useOpenSession,
   type NewSession,
 } from "@/api/hooks";
+import type { Mode } from "@/api/types";
 import {
   problemFromError,
   unplayable,
@@ -19,6 +20,8 @@ export type LaunchView =
   | { readonly kind: "working"; readonly text: "starting" | "opening" }
   /** The starter adapts the game's prompts before the session starts. */
   | { readonly kind: "advanced"; readonly game: string }
+  /** The game plays live and in rounds, and the player chooses which. */
+  | { readonly kind: "choose"; readonly what: NewSession }
   | {
       readonly kind: "refused";
       readonly problem: Problem | "offline";
@@ -102,11 +105,9 @@ export function usePlaybackLaunch(
         toSession(id);
         return null;
       } catch (thrown) {
-        return {
-          kind: "refused",
-          problem: await problemFromError(thrown),
-          when: "start",
-        };
+        const problem = await problemFromError(thrown);
+        if (problem === "choose_mode") return { kind: "choose", what };
+        return { kind: "refused", problem, when: "start" };
       }
     },
     [create, language, toSession],
@@ -222,10 +223,17 @@ export function usePlaybackLaunch(
       );
     },
     tryAgain: () => setAttempt((n) => n + 1),
-    /** Starts the game with its prompts adapted, from the advanced settings. */
-    startWithPrompts: (prompts: Record<string, string>) => {
+    /** Starts the game the player chose to play live or in rounds. */
+    choose: (mode: Mode) => {
+      if (view.kind !== "choose") return;
+      const what = { ...view.what, mode };
       setView({ kind: "working", text: "starting" });
-      void start({ game: target.id, prompts }).then(
+      void start(what).then((refused) => refused && setView(refused));
+    },
+    /** Starts the game with its prompts adapted, from the advanced settings. */
+    startWithPrompts: (prompts: Record<string, string>, mode?: Mode) => {
+      setView({ kind: "working", text: "starting" });
+      void start({ game: target.id, prompts, mode }).then(
         (refused) => refused && setView(refused),
       );
     },

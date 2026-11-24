@@ -38,7 +38,7 @@ func resume(t *testing.T, store engine.Persist, id string) *engine.Session {
 // conversation the model is holding.
 func TestResumeContinuesTheThread(t *testing.T) {
 	store := &engine.MemoryPersist{}
-	first := launchStored(t, store, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s1"})
+	first := launchStored(t, store, engine.SessionSpec{Subgenre: engine.SubgenreAdventureRounds, ID: "s1"})
 	if err := first.Say("I try to cross the bridge"); err != nil {
 		t.Fatal(err)
 	}
@@ -72,7 +72,7 @@ func hasText(events []engine.SessionEvent, prefix string) bool {
 func TestResumeKeepsTheSpecAndPreference(t *testing.T) {
 	store := &engine.MemoryPersist{}
 	first := launchStored(t, store, engine.SessionSpec{
-		Genre: engine.GenreAdventure, ID: "s5", Title: "The Bridge", Theme: "noir", Language: "de",
+		Subgenre: engine.SubgenreAdventureRounds, ID: "s5", Title: "The Bridge", Theme: "noir", Language: "de",
 	})
 	first.Close()
 
@@ -90,7 +90,7 @@ func TestResumeKeepsTheSpecAndPreference(t *testing.T) {
 // playback-engine can offer to start anew.
 func TestResumeRefusesAnotherVersion(t *testing.T) {
 	store := &engine.MemoryPersist{}
-	first := launchStored(t, store, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s6"})
+	first := launchStored(t, store, engine.SessionSpec{Subgenre: engine.SubgenreAdventureRounds, ID: "s6"})
 	first.Close()
 
 	stored, err := store.LoadState(context.Background(), "s6")
@@ -114,7 +114,7 @@ func TestResumeRefusesUnknownBlock(t *testing.T) {
 	store := &engine.MemoryPersist{}
 	if err := store.SaveState(context.Background(), "s3", engine.Stored{
 		Version: engine.SchemaVersion,
-		Spec:    engine.SessionSpec{Genre: engine.GenreAdventure},
+		Spec:    engine.SessionSpec{Subgenre: engine.SubgenreAdventureRounds},
 		State:   engine.SessionState{Blocks: map[string]string{"a-block-that-left": "{}"}},
 	}); err != nil {
 		t.Fatal(err)
@@ -138,7 +138,7 @@ func TestResumeOfNothingIsUnknown(t *testing.T) {
 // A fresh launch with the same spec starts over, which is what makes the
 // resume tests meaningful.
 func TestFreshLaunchDoesNotContinue(t *testing.T) {
-	s := launchStored(t, &engine.MemoryPersist{}, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s2"})
+	s := launchStored(t, &engine.MemoryPersist{}, engine.SessionSpec{Subgenre: engine.SubgenreAdventureRounds, ID: "s2"})
 	defer s.Close()
 
 	s.Say("I try to cross the bridge")
@@ -151,9 +151,9 @@ func TestFreshLaunchDoesNotContinue(t *testing.T) {
 func TestResumeRestoresStatusValues(t *testing.T) {
 	store := &engine.MemoryPersist{}
 	first := launchStored(t, store, engine.SessionSpec{
-		Genre:  engine.GenreAdventure,
-		ID:     "s4",
-		Status: map[string]string{"Health": "Wounded", "Gold": "12"},
+		Subgenre: engine.SubgenreAdventureRounds,
+		ID:       "s4",
+		Status:   map[string]string{"Health": "Wounded", "Gold": "12"},
 	})
 	first.Say("I press on")
 	// JSON, so values with spaces arrive whole. The opening set the values,
@@ -178,7 +178,7 @@ func TestResumedConversationWaitsPaused(t *testing.T) {
 
 	store := &engine.MemoryPersist{}
 	spec := engine.SessionSpec{
-		Genre: engine.GenreNPCLive, ID: "live", Persist: store,
+		Subgenre: engine.SubgenreNPCLive, ID: "live", Persist: store,
 		Scenario: "You keep a bridge.", Guardrail: "Suitable for a 13-year-old.",
 		GalleryImage: mock.GalleryImage("bridge"),
 	}
@@ -209,7 +209,7 @@ func TestResumeOfAnOlderStoredLiveGameStarts(t *testing.T) {
 
 	store := &engine.MemoryPersist{}
 	spec := engine.SessionSpec{
-		Genre: engine.GenreNPCLive, ID: "older", Persist: store,
+		Subgenre: engine.SubgenreNPCLive, ID: "older", Persist: store,
 		Scenario: "You keep a bridge.", Guardrail: "Suitable for a 13-year-old.",
 	}
 	first, err := engine.Launch(ctx, spec, mockOffers())
@@ -249,7 +249,7 @@ func TestResumedLiveGameOpensWithoutANewPortrait(t *testing.T) {
 
 	store := &engine.MemoryPersist{}
 	spec := engine.SessionSpec{
-		Genre: engine.GenreNPCLive, ID: "live", Persist: store,
+		Subgenre: engine.SubgenreNPCLive, ID: "live", Persist: store,
 		Scenario: "You keep a bridge.", Guardrail: "Suitable for a 13-year-old.",
 		GalleryImage: mock.GalleryImage("bridge"),
 	}
@@ -345,7 +345,7 @@ func TestResumeShowsAGalleryImageNotYetShown(t *testing.T) {
 
 	store := &engine.MemoryPersist{}
 	first, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre: engine.GenreNPCLive, ID: "late", Persist: store,
+		Subgenre: engine.SubgenreNPCLive, ID: "late", Persist: store,
 		Scenario: "You keep a bridge.",
 	}, mockOffers())
 	if err != nil {
@@ -375,7 +375,7 @@ func TestResumeKeepsTheJournal(t *testing.T) {
 
 	store := &engine.MemoryPersist{}
 	first, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre: engine.GenreNPCLive, ID: "journalled", Persist: store,
+		Subgenre: engine.SubgenreNPCLive, ID: "journalled", Persist: store,
 		Scenario: "You keep a bridge.", GalleryImage: mock.GalleryImage("bridge"),
 	}, mockOffers())
 	if err != nil {
@@ -419,7 +419,7 @@ func TestResumeBeforeTheGateOpenedStillStarts(t *testing.T) {
 
 	store := &engine.MemoryPersist{}
 	first, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre: engine.GenreNPCLive, ID: "early", Persist: store,
+		Subgenre: engine.SubgenreNPCLive, ID: "early", Persist: store,
 		Scenario: "You keep a bridge.",
 		// Slow enough that the first words are not written yet when it closes.
 		MockPaceMs: 400,
@@ -478,7 +478,7 @@ func TestSavesOfASessionNeverOverlap(t *testing.T) {
 
 	store := &overlapWatch{}
 	s, err := engine.Launch(ctx, engine.SessionSpec{
-		Genre: engine.GenreNPCLive, ID: "ordered", Persist: store,
+		Subgenre: engine.SubgenreNPCLive, ID: "ordered", Persist: store,
 		Scenario: "You keep a bridge.", GalleryImage: mock.GalleryImage("bridge"),
 	}, mockOffers())
 	if err != nil {

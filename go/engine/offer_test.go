@@ -38,7 +38,7 @@ func (g game) opening() (settlement, []string, bool) { return g.spec.opening(g.o
 func check(g game) []Issue { return Validate(g.spec, g.offers) }
 
 func adventure(offers ...Offer) game {
-	return game{spec: SessionSpec{Genre: GenreAdventure}, offers: offers}
+	return game{spec: SessionSpec{Subgenre: SubgenreAdventureRounds}, offers: offers}
 }
 
 func launchOrFail(t *testing.T, spec game) *Session {
@@ -118,7 +118,7 @@ func TestOptionsLeaveOutOffersThatCannotRunTheGenre(t *testing.T) {
 		Allow:   map[Tier]Toggles{TierLow: {}},
 		Default: Choice{Tier: TierLow},
 	}
-	spec := game{spec: SessionSpec{Genre: GenreNPCLive}, offers: []Offer{text, MockOffer()}}
+	spec := game{spec: SessionSpec{Subgenre: SubgenreNPCLive}, offers: []Offer{text, MockOffer()}}
 	s := launchOrFail(t, spec)
 	options := s.Options()
 	if len(options.Offers) != 1 || options.Offers[0].Offer != "mock" {
@@ -192,7 +192,7 @@ func TestChoiceOnAFixedOfferTakesTheDefault(t *testing.T) {
 func TestChoiceMustMeetTheGenresNeeds(t *testing.T) {
 	custom := MockOffer()
 	custom.Caveats.Customizable = true
-	s := launchOrFail(t, game{spec: SessionSpec{Genre: GenreNPCLive}, offers: []Offer{custom}})
+	s := launchOrFail(t, game{spec: SessionSpec{Subgenre: SubgenreNPCLive}, offers: []Offer{custom}})
 	err := s.Choose("mock", &Choice{Tier: TierLow, Toggles: Toggles{Images: true}})
 	if err == nil || !strings.Contains(err.Error(), "audio-live") {
 		t.Errorf("err = %v, want the missing audio-live refused", err)
@@ -201,7 +201,7 @@ func TestChoiceMustMeetTheGenresNeeds(t *testing.T) {
 
 // Nothing runs before the choice, so nothing is billed.
 func TestNothingIsBilledBeforeTheChoice(t *testing.T) {
-	s := launchOrFail(t, game{spec: SessionSpec{Genre: GenreNPCLive, Scenario: "a keeper"}, offers: []Offer{
+	s := launchOrFail(t, game{spec: SessionSpec{Subgenre: SubgenreNPCLive, Scenario: "a keeper"}, offers: []Offer{
 		MockOffer(), secondMock(),
 	}})
 	time.Sleep(150 * time.Millisecond)
@@ -436,9 +436,9 @@ func TestValidateErrors(t *testing.T) {
 	}{
 		"no offer":           {adventure(), "offers"},
 		"unknown genre":      {game{spec: SessionSpec{Genre: "quiz"}, offers: []Offer{MockOffer()}}, "genre"},
-		"unknown prompt":     {game{spec: SessionSpec{Genre: GenreNPCLive, PromptOverride: map[string]string{"portrait-x": ""}}, offers: []Offer{MockOffer()}}, "promptOverride.portrait-x"},
+		"unknown prompt":     {game{spec: SessionSpec{Subgenre: SubgenreNPCLive, PromptOverride: map[string]string{"portrait-x": ""}}, offers: []Offer{MockOffer()}}, "promptOverride.portrait-x"},
 		"adventure override": {game{spec: SessionSpec{Genre: GenreAdventure, PromptOverride: map[string]string{"observer": ""}}, offers: []Offer{MockOffer()}}, "promptOverride.observer"},
-		"no offer runs it":   {game{spec: SessionSpec{Genre: GenreNPCLive}, offers: []Offer{oneOffer(PlatformMistral, TierLow, Toggles{})}}, "offers"},
+		"no offer runs it":   {game{spec: SessionSpec{Subgenre: SubgenreNPCLive}, offers: []Offer{oneOffer(PlatformMistral, TierLow, Toggles{})}}, "offers"},
 	} {
 		t.Run(name, func(t *testing.T) {
 			if issues := check(tc.spec); !hasErrorAt(issues, tc.field) {
@@ -458,7 +458,7 @@ func TestVoiceChoicesOnlyWarn(t *testing.T) {
 	}{
 		"voice of another genre": {SessionSpec{Genre: GenreAdventure, Voices: map[string]VoiceChoice{"character": VoiceCustom}}, "voices.character"},
 		"choice the voice lacks": {SessionSpec{Genre: GenreAdventure, Voices: map[string]VoiceChoice{"narrator": VoiceCustom}}, "voices.narrator"},
-		"no such choice":         {SessionSpec{Genre: GenreNPCLive, Voices: map[string]VoiceChoice{"character": "robot"}}, "voices.character"},
+		"no such choice":         {SessionSpec{Subgenre: SubgenreNPCLive, Voices: map[string]VoiceChoice{"character": "robot"}}, "voices.character"},
 	} {
 		t.Run(name, func(t *testing.T) {
 			issues := check(game{spec: tc.spec, offers: []Offer{MockOffer()}})
@@ -467,7 +467,7 @@ func TestVoiceChoicesOnlyWarn(t *testing.T) {
 			}
 		})
 	}
-	ok := check(game{spec: SessionSpec{Genre: GenreNPCLive, Voices: map[string]VoiceChoice{"character": VoiceCustom}}, offers: []Offer{MockOffer()}})
+	ok := check(game{spec: SessionSpec{Subgenre: SubgenreNPCLive, Voices: map[string]VoiceChoice{"character": VoiceCustom}}, offers: []Offer{MockOffer()}})
 	if slices.ContainsFunc(ok, func(i Issue) bool { return strings.HasPrefix(i.Field, "voices") }) {
 		t.Errorf("issues = %v, want a custom character accepted", ok)
 	}

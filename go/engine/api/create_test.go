@@ -32,7 +32,7 @@ func (c *creator) create(ctx context.Context, req api.CreateRequest) (*engine.Se
 	}
 	n := c.launches.Add(1)
 	return engine.Launch(context.WithoutCancel(ctx), engine.SessionSpec{
-		Genre:    engine.GenreAdventure,
+		Subgenre: engine.SubgenreAdventureRounds,
 		ID:       fmt.Sprintf("%s-%d", req.Game, n),
 		Language: req.Language,
 		Persist:  c.store,
@@ -305,5 +305,41 @@ func TestCloseEndsEverySession(t *testing.T) {
 	}
 	if got := c.launches.Load(); got != 1 {
 		t.Errorf("a request after Close launched anew (%d launches); it should restore", got)
+	}
+}
+
+// A game whose genre plays live and in rounds on the offers is refused with
+// choose_mode until the player chooses; the same one-time key then creates
+// it in the mode chosen.
+func TestCreateAsksLiveOrRounds(t *testing.T) {
+	store := &engine.MemoryPersist{}
+	var launched engine.Subgenre
+	a := api.New(api.Options{Dev: func() bool { return true },
+		Create: func(ctx context.Context, req api.CreateRequest) (*engine.Session, error) {
+			s, err := engine.Launch(context.WithoutCancel(ctx), engine.SessionSpec{
+				Genre: engine.GenreNPC, Mode: req.Mode, ID: "npc-" + string(req.Mode), Persist: store,
+				Scenario: "You are the bridge keeper.",
+			}, mockOffers())
+			if err == nil {
+				launched = s.Subgenre()
+			}
+			return s, err
+		},
+		Resume: func(ctx context.Context, id string) (*engine.Session, error) {
+			return engine.Resume(context.WithoutCancel(ctx), id, store, mockOffers(), nil)
+		},
+	})
+	srv := httptest.NewServer(serve(a))
+	t.Cleanup(srv.Close)
+
+	resp := post(t, srv.URL+"/api/engine/sessions", api.CreateRequest{Game: "troll", Once: "k1"})
+	var refusal struct{ Code string }
+	_ = json.NewDecoder(resp.Body).Decode(&refusal)
+	if resp.StatusCode != http.StatusUnprocessableEntity || refusal.Code != string(engine.ProblemChooseMode) {
+		t.Fatalf("no mode: %s %+v, want 422 choose_mode", resp.Status, refusal)
+	}
+	created(t, post(t, srv.URL+"/api/engine/sessions", api.CreateRequest{Game: "troll", Once: "k1", Mode: engine.ModeRounds}))
+	if launched != engine.SubgenreNPCRounds {
+		t.Errorf("launched %q, want npc-rounds", launched)
 	}
 }

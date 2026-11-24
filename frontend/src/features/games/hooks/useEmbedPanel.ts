@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useGameEmbed, useSetGameEmbed, useVerifiedPages } from "@/api/hooks";
-import type { GameView } from "@/api/types";
+import { useGameEmbed, useGenres, useSetGameEmbed, useVerifiedPages } from "@/api/hooks";
+import type { GameView, Mode } from "@/api/types";
 import { engineRoot } from "@/features/play/playback";
 import { embedSnippet } from "../lib/embedSnippet";
 import { usePayingKeys } from "./usePayingKeys";
@@ -32,6 +32,12 @@ export function useEmbedPanel(game: GameView) {
   const { data: embed, isLoading } = useGameEmbed(game.id, shown);
   const save = useSetGameEmbed(game.id);
   const { keys, loading: keysLoading } = usePayingKeys();
+  // Live or rounds, for a game whose genre plays both: a part of the snippet
+  // only, so the host decides, and none leaves the choice to the player.
+  const { data: genres } = useGenres();
+  const modes = genres?.find((g) => g.id === game.genre)?.subgenres.map((s) => s.mode) ?? [];
+  const [mode, setMode] = useState<Mode | null>(null);
+  const preselected = mode && modes.includes(mode) ? mode : undefined;
 
   // Verified pages are the game's organisation's, as the server names it
   // (its workshop's, or its creator's). The list is answered to the
@@ -134,6 +140,7 @@ export function useEmbedPanel(game: GameView) {
         loaderUrl: new URL("playback-engine/embed.js", engineRoot()).href,
         token: embed.token,
         verified: true,
+        mode: preselected,
         placeholders: {
           css: t("games.editor.embed.snippetCss"),
           player: t("games.editor.embed.snippetPlayer"),
@@ -165,6 +172,11 @@ export function useEmbedPanel(game: GameView) {
     snippet,
     /** Its page still waits for an admin's approval: nothing starts there yet. */
     waitingForApproval,
+    /** The halves a host may preselect, live first: a choice only where there are two. */
+    modes: modes.length > 1 ? modes : [],
+    /** The half the snippet preselects; null leaves the choice to the player. */
+    mode: preselected ?? null,
+    setMode,
     setOn: (on: boolean) => change({ on }),
     setShare: (shareId: string | null) => change({ shareId }),
   };

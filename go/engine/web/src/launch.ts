@@ -6,20 +6,31 @@
  * of sessions. Headless, so the node harness starts sessions the way the
  * page does.
  */
-import { refusalOf, type CreateRequest, type EngineClient } from "./client.js";
+import { refusalOf, type CreateRequest, type EngineClient, type Mode } from "./client.js";
 import { explain } from "./state.js";
 import { notice, type Notice } from "./texts.js";
 
 /**
  * What `new` names: a game, or a share token. A share embedded on a verified
  * page also carries the host's ID of its visitor and of this request, which
- * the host is asked about before the game starts.
+ * the host is asked about before the game starts. A mode, live or rounds, is
+ * the wish for a game that plays both, as an embed may name it; without one
+ * the player is asked.
  */
 export interface Selector {
   readonly kind: "game" | "share";
   readonly id: string;
   readonly player?: string;
   readonly request?: string;
+  readonly mode?: Mode;
+}
+
+const MODES: readonly Mode[] = ["live", "rounds"];
+
+/** The mode a page names, if it names one there is. */
+function modeOf(params: URLSearchParams): { mode?: Mode } {
+  const mode = params.get("mode");
+  return MODES.find((known) => known === mode) ? { mode: mode as Mode } : {};
 }
 
 /** The little the playback-engine keeps, such as browser storage; never throws. */
@@ -42,12 +53,12 @@ export function opening(params: URLSearchParams): Opening {
   if (params.has("new")) {
     const game = params.get("game");
     const share = params.get("share");
-    if (game) return { kind: "new", selector: { kind: "game", id: game } };
+    if (game) return { kind: "new", selector: { kind: "game", id: game, ...modeOf(params) } };
     if (share) {
       const player = params.get("player");
       const request = params.get("request");
       const host = { ...(player === null ? {} : { player }), ...(request === null ? {} : { request }) };
-      return { kind: "new", selector: { kind: "share", id: share, ...hostIds(host) } };
+      return { kind: "new", selector: { kind: "share", id: share, ...hostIds(host), ...modeOf(params) } };
     }
   }
   return { kind: "nothing" };
@@ -55,8 +66,11 @@ export function opening(params: URLSearchParams): Opening {
 
 const ONCE_PREFIX = "cgl.once.";
 
-/** A session, or what to tell the player about why there is none. */
-export type Created = { readonly id: string } | { readonly notice: Notice };
+/**
+ * A session; the player to choose live or rounds, as the game plays both;
+ * or what to tell the player about why there is none.
+ */
+export type Created = { readonly id: string } | { readonly choose: true } | { readonly notice: Notice };
 
 /**
  * Creates a session through the engine's client. The one-time key is kept in
@@ -75,10 +89,11 @@ export async function create(
   const once = key ?? pending.get(onceKey) ?? randomKey();
   pending.set(onceKey, once);
 
+  const mode = selector.mode ? { mode: selector.mode } : {};
   const body: CreateRequest =
     selector.kind === "game"
-      ? { game: selector.id, language, once }
-      : { share: selector.id, ...hostIds(selector), language, once };
+      ? { game: selector.id, language, once, ...mode }
+      : { share: selector.id, ...hostIds(selector), language, once, ...mode };
   try {
     const { data } = await client.postApiEngineSessions(body);
     pending.remove(onceKey);
@@ -86,6 +101,8 @@ export async function create(
   } catch (thrown) {
     const refusal = await refusalOf(thrown);
     if (!refusal) return { notice: notice("errors.serverUnreachable") };
+    // The same intent goes on once the player has chosen, with the same key.
+    if (refusal.problem === "choose_mode") return { choose: true };
     // Refused: the next try is a new intent, with a new key.
     pending.remove(onceKey);
     return { notice: explain(refusal) };

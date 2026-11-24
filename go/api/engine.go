@@ -687,13 +687,13 @@ func createSession(ctx context.Context, req EngineCreateReq) (*engine.Session, e
 	var created *session.Created
 	var err error
 	if req.Share != "" {
-		created, err = session.CreateShareSession(lifetime, req.Share, core.HostIDs{Player: req.Player, Request: req.Request}, req.Language, req.PromptOverride)
+		created, err = session.CreateShareSession(lifetime, req.Share, core.HostIDs{Player: req.Player, Request: req.Request}, req.Language, req.Mode, req.PromptOverride)
 	} else {
 		gameID, parseErr := uuid.Parse(req.Game)
 		if parseErr != nil {
 			return nil, engine.Refuse(engine.ProblemDenied, "no such game")
 		}
-		created, err = session.CreateGameSession(lifetime, gameID, req.Language, req.PromptOverride)
+		created, err = session.CreateGameSession(lifetime, gameID, req.Language, req.Mode, req.PromptOverride)
 	}
 	if err != nil {
 		return nil, err

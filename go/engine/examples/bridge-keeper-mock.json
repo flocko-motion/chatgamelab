@@ -1,6 +1,6 @@
 {
   "spec": {
-    "genre": "npc-live",
+    "genre": "npc",
     "id": "bridge-keeper",
     "title": "The Bridge Keeper",
     "mockPaceMs": 1200,

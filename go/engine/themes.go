@@ -29,30 +29,51 @@ func Themes() []ThemeInfo {
 
 func knownTheme(id string) bool { return slices.Contains(themeIDs, id) }
 
-// GenreInfo is one genre as the game editor lists it, with the toggles it
-// cannot run without.
+// GenreInfo is one genre as the game editor lists it: the toggles it cannot
+// run without at all, the game's fields it reads, and its halves.
 type GenreInfo struct {
 	ID    Genre    `json:"id"`
 	Needs []Toggle `json:"needs"`
-	// Fields is the game's fields the genre reads, for an editor to offer.
+	// Fields is the game's fields the genre reads, the same for both
+	// halves, for an editor to offer.
 	Fields []GameField `json:"fields"`
-	// VoiceSlots are the voices the genre speaks in and what a game may
-	// choose for each, for an editor to offer.
+	// VoiceSlots are the voices the genre speaks in, both halves', and what
+	// a game may choose for each, for an editor to offer.
 	VoiceSlots []VoiceSlot `json:"voiceSlots"`
-	// Prompts are the genre's own prompts, for a launch that adapts them.
-	Prompts []GenrePrompt `json:"prompts"`
+	// Subgenres are its halves, live first.
+	Subgenres []SubgenreInfo `json:"subgenres"`
 }
 
-// GenreList is every genre the engine runs, with its needs and the game's
-// fields it reads.
+// SubgenreInfo is one half of a genre: its mode, the toggles it needs, the
+// voices it speaks in, and its own prompts, for a launch that adapts them.
+type SubgenreInfo struct {
+	ID         Subgenre      `json:"id"`
+	Mode       Mode          `json:"mode"`
+	Needs      []Toggle      `json:"needs"`
+	VoiceSlots []VoiceSlot   `json:"voiceSlots"`
+	Prompts    []GenrePrompt `json:"prompts"`
+}
+
+// GenreList is every genre a game can be, with its needs, the game's fields
+// it reads and its halves.
 func GenreList() []GenreInfo {
 	var out []GenreInfo
 	for _, g := range Genres() {
-		needs := g.Needs()
-		if needs == nil {
-			needs = []Toggle{}
+		info := GenreInfo{ID: g, Needs: orNone(g.Needs()), Fields: g.Fields(), VoiceSlots: g.VoiceSlots(), Subgenres: []SubgenreInfo{}}
+		for _, s := range g.Subgenres() {
+			info.Subgenres = append(info.Subgenres, SubgenreInfo{
+				ID: s, Mode: s.Mode(), Needs: orNone(s.Needs()), VoiceSlots: s.VoiceSlots(), Prompts: s.Prompts(),
+			})
 		}
-		out = append(out, GenreInfo{ID: g, Needs: needs, Fields: g.Fields(), VoiceSlots: g.VoiceSlots(), Prompts: g.Prompts()})
+		out = append(out, info)
 	}
 	return out
+}
+
+// orNone lists no toggles as an empty list, never as null.
+func orNone(toggles []Toggle) []Toggle {
+	if toggles == nil {
+		return []Toggle{}
+	}
+	return toggles
 }

@@ -1,6 +1,6 @@
 {
   "spec": {
-    "genre": "npc-live",
+    "genre": "npc",
     "id": "stopped-clock",
     "title": "The Stopped Clock",
     "voices": { "character": "male" },

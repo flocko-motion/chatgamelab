@@ -30,7 +30,7 @@ function address(host: HTMLElement): string {
   url.search = "";
   url.searchParams.set("new", "");
   url.searchParams.set("share", host.dataset["token"] ?? "");
-  for (const name of ["player", "request", "lang", "css"]) {
+  for (const name of ["player", "request", "lang", "css", "mode"]) {
     const value = host.dataset[name];
     if (value) url.searchParams.set(name, value);
   }

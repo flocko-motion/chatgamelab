@@ -58,6 +58,7 @@ const (
 	CodeStale       = "stale"
 	CodeKeyRejected = "key_rejected"
 	CodeGenre       = "genre"
+	CodeChooseMode  = "choose_mode"
 	// CodeHostRefused: the page a game is embedded in did not let it start.
 	CodeHostRefused = "host_refused"
 	// CodeVerifiedPageExists: the organisation has its one verified page already.

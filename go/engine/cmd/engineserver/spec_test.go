@@ -24,7 +24,7 @@ func TestExampleSpecsLoad(t *testing.T) {
 				t.Fatal(err)
 			}
 			spec := g.Spec
-			if spec.Genre == "" {
+			if spec.Genre == "" && spec.Subgenre == "" {
 				t.Error("spec names no genre")
 			}
 			if spec.Scenario == "" || spec.Guardrail == "" {

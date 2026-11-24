@@ -109,12 +109,24 @@ The platform shows, for each platform and tier, which AI model runs each task.
 The genre decides how a game plays. A genre is a game mechanic built into the
 engine.
 
-Each genre needs certain features, and a game plays only when the key share used
-for the session provides them.
+A genre comes as a pair of *halves*: *live*, a conversation by voice as it
+happens, and *rounds*, played in turns. Both halves play the same game and only
+read it differently, so a game is made once, for its genre. A genre may have a
+single half.
+
+- *Each half needs certain features*, and a game plays when the key share used
+  for the session provides them for one of its halves.
+- *The player picks the half* when the game starts, where both fit; where one
+  fits, the game starts straight away. A website that embeds the game may pick
+  for the player. Designers and staff limit the halves only through the key
+  share.
+- *The half stays for the session*: continuing a session continues it in the
+  same half.
 
 === Adventure
 
 The player says or types what their character attempts, and the world reacts.
+Adventure plays in rounds.
 
 - *The game keeps control of outcomes.* The player can try anything; what
   happens is decided by a plausible world reacting to the attempt.
@@ -123,7 +135,11 @@ The player says or types what their character attempts, and the world reacts.
 - *A game can track status* — values the scenario defines, updated as the story
   moves.
 
-=== NPC-Live
+=== NPC
+
+The player talks with one character, live or in rounds.
+
+==== NPC-Live
 
 The player talks by voice with one character.
 
@@ -144,6 +160,25 @@ The player talks by voice with one character.
   own, so nothing is painted.
 - *An NPC-Live session keeps* the game's picture and any warnings raised
   during the conversation; the conversation itself is ephemeral.
+
+==== NPC-Rounds
+
+The player and the character take turns, as in a chat.
+
+- *The player sees the game first.* The game's picture appears, then the
+  character speaks first, with opening words written from how the game begins.
+- *The player types or speaks a turn*, and the character answers in writing,
+  read aloud in the game's voice when audio-out is on.
+- *The character holds its line.* The youth-protection rule and what the
+  scenario says it must not concede go with its answers.
+- *Playing needs no feature of the key*; audio-in and audio-out are optional.
+- *An NPC-Rounds session keeps the whole conversation*: it can be continued and
+  read back.
+
+=== Discussion
+
+Two characters talk with each other by voice, and the player may join in or
+only listen. Discussion plays live.
 
 == Youth protection
 
@@ -177,8 +212,6 @@ alongside the game itself:
 - *Rejecting a turn* — a check that can stop a turn's output, e.g. for a factual
   error. A live character is already speaking as it generates, so this needs a
   decision before NPC-Live ships.
-- *Typing to a live character* — a route for players who cannot or would rather
-  not speak.
 - *Cutting a character off* — whether a youth-protection hit stops the character
   mid-sentence or lets it finish.
 

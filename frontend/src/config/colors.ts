@@ -170,12 +170,12 @@ export const semanticColors = {
 
 /**
  * The genres' colours: a fill each, with ink text and an ink outline on top
- * (≥ 7.8:1). Adventure cyan, Encounter magenta, Duo a lighter magenta, Chatbot violet.
+ * (≥ 7.8:1). Adventure cyan, Character (npc) magenta, Discussion a lighter magenta, Chatbot violet.
  */
 export const genreColors: Record<string, string> = {
   adventure: accentColors[5],
-  'npc-live': highlightColors[4],
-  'npc-duo': highlightColors[2],
+  npc: highlightColors[4],
+  discussion: highlightColors[2],
   chatbot: violetColors[3],
 };
 

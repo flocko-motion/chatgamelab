@@ -56,7 +56,7 @@ func TestPlatformsJSON(t *testing.T) {
 			t.Errorf("toggle %q not stated", toggle)
 		}
 	}
-	if len(openai.Genres) != 3 || openai.Genres[0] != "adventure" || openai.Genres[1] != "npc-live" || openai.Genres[2] != "npc-duo" {
+	if len(openai.Genres) != 3 || openai.Genres[0] != "adventure" || openai.Genres[1] != "npc" || openai.Genres[2] != "discussion" {
 		t.Errorf("genres = %v", openai.Genres)
 	}
 
@@ -75,8 +75,9 @@ func TestPlatformsJSON(t *testing.T) {
 	}
 
 	mistral := platforms[1]
-	if mistral.Toggles["audio-live"] || len(mistral.Genres) != 1 {
-		t.Errorf("mistral = %+v, want no live voice and adventure only", mistral)
+	// Without live voice, a genre plays where its rounds half does.
+	if mistral.Toggles["audio-live"] || fmt.Sprint(mistral.Genres) != "[adventure npc]" {
+		t.Errorf("mistral = %+v, want no live voice, and adventure and npc", mistral)
 	}
 	if mock := platforms[2]; mock.ID != "mock" || mock.UserKeys == nil || *mock.UserKeys {
 		t.Errorf("mock = %+v, want no user keys", mock)
@@ -110,12 +111,23 @@ func TestListsJSON(t *testing.T) {
 		t.Errorf("themes = %v, want the default first", themes)
 	}
 
-	var genres []struct {
+	type half struct {
 		ID    string   `json:"id"`
+		Mode  string   `json:"mode"`
 		Needs []string `json:"needs"`
 	}
+	var genres []struct {
+		ID        string   `json:"id"`
+		Needs     []string `json:"needs"`
+		Subgenres []half   `json:"subgenres"`
+	}
 	remarshal(t, engine.GenreList(), &genres)
-	want := map[string][]string{"adventure": {}, "npc-live": {"audio-live"}, "npc-duo": {"audio-live"}}
+	want := map[string][]string{"adventure": {}, "npc": {}, "discussion": {"audio-live"}}
+	halves := map[string]string{
+		"adventure":  "[{adventure-rounds rounds []}]",
+		"npc":        "[{npc-live live [audio-live]} {npc-rounds rounds []}]",
+		"discussion": "[{discussion-live live [audio-live]}]",
+	}
 	if len(genres) != len(want) {
 		t.Fatalf("genres = %+v", genres)
 	}
@@ -123,6 +135,9 @@ func TestListsJSON(t *testing.T) {
 		needs, known := want[g.ID]
 		if !known || fmt.Sprint(g.Needs) != fmt.Sprint(needs) || g.Needs == nil {
 			t.Errorf("genre %+v, want needs %v", g, needs)
+		}
+		if got := fmt.Sprint(g.Subgenres); got != halves[g.ID] {
+			t.Errorf("%s halves %s, want %s", g.ID, got, halves[g.ID])
 		}
 	}
 }

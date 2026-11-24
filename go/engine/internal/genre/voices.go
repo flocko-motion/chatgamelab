@@ -116,3 +116,56 @@ func voiceList(voices []adapters.BuiltinVoice) string {
 	}
 	return b.String()
 }
+
+// speakerCast is what one speaker of a thread, such as a narrator, is cast
+// from: the voice it is (slot) and what it is (role), the speaking model's
+// built-in voices, the game's language, and the gender the game chose.
+type speakerCast struct {
+	slot, role string
+	voices     []adapters.BuiltinVoice
+	language   string
+	choice     VoiceChoice
+}
+
+// fallback is the voice the speaker speaks in without a cast: the first of
+// its gender; for any, "", the speaking model's own.
+func (n speakerCast) fallback() string {
+	if presentation(n.choice) == "" {
+		return ""
+	}
+	return fallbackVoice(n.voices, n.choice, n.language)
+}
+
+// brief is what the cast reads: the scenario and the author's note.
+func (n speakerCast) brief(scenario, style string) string {
+	return "Scenario:\n" + scenario + "\n\nThe author's note on the " + n.role + "'s voice:\n" + voiceNote(style)
+}
+
+// tail says the game's language and the gender asked for, and lists the
+// voices, those of the game's language first.
+func (n speakerCast) tail() string {
+	var b strings.Builder
+	if n.language != "" {
+		b.WriteString("\nThe game is told in " + languageName(n.language) + ": pick a voice that speaks it natively, if any does.")
+	}
+	if gender := presentation(n.choice); gender != "" {
+		b.WriteString("\nThe game asks for a " + gender + " voice.")
+	}
+	b.WriteString("\nThe built-in voices:\n")
+	b.WriteString(voiceList(castable(n.voices, VoiceAny, n.language)))
+	return b.String()
+}
+
+// schema is the cast's reply: the speaker's voice, one of the gender asked.
+func (n speakerCast) schema() *adapters.Schema {
+	voice := map[string]any{"type": "string", "description": "the built-in voice the " + n.role + " speaks in"}
+	if names := voiceEnum(castable(n.voices, n.choice, n.language)); len(names) > 0 {
+		voice["enum"] = names
+	}
+	return &adapters.Schema{Name: "cast", Body: map[string]any{
+		"type":                 "object",
+		"properties":           map[string]any{n.slot: voice},
+		"required":             []any{n.slot},
+		"additionalProperties": false,
+	}}
+}

@@ -28,7 +28,7 @@ var live = Toggles{Images: true, AudioLive: true}
 // A session's models come from its platform's tier table for the settled tier,
 // and nowhere else.
 func TestModelsComeFromTheSettledTier(t *testing.T) {
-	spec := game{spec: SessionSpec{Genre: GenreNPCLive}, offers: []Offer{oneOffer(PlatformOpenAI, TierHigh, live)}}
+	spec := game{spec: SessionSpec{Subgenre: SubgenreNPCLive}, offers: []Offer{oneOffer(PlatformOpenAI, TierHigh, live)}}
 	if issues := check(spec); hasError(issues) {
 		t.Fatal(issues)
 	}
@@ -52,7 +52,7 @@ func TestMaxIsReadAsHigh(t *testing.T) {
 	if err := json.Unmarshal([]byte(blob), &offers); err != nil {
 		t.Fatal(err)
 	}
-	spec := game{spec: SessionSpec{Genre: GenreNPCLive}, offers: offers}
+	spec := game{spec: SessionSpec{Subgenre: SubgenreNPCLive}, offers: offers}
 
 	issues := check(spec)
 	if hasError(issues) {
@@ -77,7 +77,7 @@ func TestMaxIsReadAsHigh(t *testing.T) {
 }
 
 func TestUnknownTierIsRefused(t *testing.T) {
-	spec := game{spec: SessionSpec{Genre: GenreNPCLive}, offers: []Offer{oneOffer(PlatformMock, "luxurious", live)}}
+	spec := game{spec: SessionSpec{Subgenre: SubgenreNPCLive}, offers: []Offer{oneOffer(PlatformMock, "luxurious", live)}}
 	issues := check(spec)
 	if !hasWarningAt(issues, "offers[0].caveats.allow.luxurious") || !hasErrorAt(issues, "offers") {
 		t.Errorf("issues = %v, want the offer left out for its unknown tier", issues)

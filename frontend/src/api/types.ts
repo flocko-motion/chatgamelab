@@ -14,6 +14,7 @@ export type {
   GameTemplate,
   GameView,
   GenreInfo,
+  Mode,
   ReviewGameReq,
   ReviewGameResp,
   GetCurrentUserResp,

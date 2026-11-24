@@ -51,7 +51,7 @@ func TestTwoPagesOnASessionBothGetEverything(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	session, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "twice"}, mockOffers())
+	session, err := engine.Launch(ctx, engine.SessionSpec{Subgenre: engine.SubgenreAdventureRounds, ID: "twice"}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,7 +101,7 @@ func TestAnIdleSessionIsUnloadedAndRestored(t *testing.T) {
 	defer srv.Close()
 
 	first, err := engine.Launch(context.Background(), engine.SessionSpec{
-		Genre: engine.GenreAdventure, ID: "idle", Persist: store,
+		Subgenre: engine.SubgenreAdventureRounds, ID: "idle", Persist: store,
 	}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
@@ -139,7 +139,7 @@ func TestASessionWithAPageOpenStays(t *testing.T) {
 	srv := httptest.NewServer(serve(a))
 	defer srv.Close()
 
-	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "open", Persist: store}, mockOffers())
+	s, err := engine.Launch(ctx, engine.SessionSpec{Subgenre: engine.SubgenreAdventureRounds, ID: "open", Persist: store}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -168,7 +168,7 @@ func TestASessionWithAPageOpenStays(t *testing.T) {
 func TestTheBeatIsSetOnDevServersOnly(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	session, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreNPCLive, ID: "beat", Scenario: "A bridge."}, mockOffers())
+	session, err := engine.Launch(ctx, engine.SessionSpec{Subgenre: engine.SubgenreNPCLive, ID: "beat", Scenario: "A bridge."}, mockOffers())
 	if err != nil {
 		t.Fatal(err)
 	}

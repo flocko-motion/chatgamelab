@@ -15,6 +15,7 @@ export type {
   CreateRequest,
   EdgeDetail,
   JournalEntry,
+  Mode,
   NodeDetail,
   ObserverState,
   OfferOption,

@@ -2,6 +2,8 @@
 export const EMBED_STYLING_DOCS_URL =
   "https://github.com/flocko-motion/chatgamelab/blob/v2/development/docs/embed-styling.md";
 
+import type { Mode } from "@/api/types";
+
 /** The frame's height the snippet starts with; the host changes it. */
 const SNIPPET_HEIGHT = "32rem";
 
@@ -13,6 +15,8 @@ export interface SnippetParts {
   verified: boolean;
   /** The words standing in for what the host fills in, in the designer's language. */
   placeholders: { css: string; player: string; request: string };
+  /** Live or rounds, for a game that plays both; none lets the player choose. */
+  mode?: Mode;
 }
 
 /**
@@ -20,13 +24,14 @@ export interface SnippetParts {
  * game fills and the loader script. A verified page also passes its
  * visitor's and page view's IDs, which its callback gets.
  */
-export function embedSnippet({ loaderUrl, token, verified, placeholders }: SnippetParts): string {
+export function embedSnippet({ loaderUrl, token, verified, placeholders, mode }: SnippetParts): string {
   const ids = verified ? ` data-player="${placeholders.player}" data-request="${placeholders.request}"` : "";
+  const half = mode ? ` data-mode="${mode}"` : "";
   return [
     "<style data-cgl>",
     `  /* ${placeholders.css} */`,
     "</style>",
-    `<div data-cgl-embed data-token="${token}"${ids} style="height: ${SNIPPET_HEIGHT}"></div>`,
+    `<div data-cgl-embed data-token="${token}"${ids}${half} style="height: ${SNIPPET_HEIGHT}"></div>`,
     `<script src="${loaderUrl}" async></script>`,
   ].join("\n");
 }

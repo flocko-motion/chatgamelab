@@ -304,16 +304,23 @@ func (s *SessionTestSuite) TestGameGenre() {
 	game := Must(user.GetGameByID(gameID))
 	s.Equal("adventure", game.Genre)
 
-	game.Genre = "npc-live"
+	game.Genre = "npc"
 	updated := Must(user.UpdateGame(gameID, game))
-	s.Equal("npc-live", updated.Genre)
+	s.Equal("npc", updated.Genre)
 
 	game.Genre = "opera"
 	_, err := user.UpdateGame(gameID, game)
 	s.Invalid(err)
 
 	yaml := Must(user.GetGameYAML(gameID))
-	s.True(strings.Contains(yaml, "genre: npc-live"), yaml)
+	s.True(strings.Contains(yaml, "genre: npc"), yaml)
+
+	// A game file from before genres came in pairs names the old genre.
+	s.Require().NoError(user.PutGameYAML(gameID, strings.Replace(yaml, "genre: npc", "genre: npc-live", 1)))
+	s.Equal("npc", Must(user.GetGameByID(gameID)).Genre, "npc-live is read as npc")
+	game.Genre = "npc-live"
+	_, err = user.UpdateGame(gameID, game)
+	s.Invalid(err, "the old name is no genre to set")
 
 	s.NotEmpty(Must(user.ListGenres()))
 	s.Equal("default", Must(user.ListThemes())[0].Id)
