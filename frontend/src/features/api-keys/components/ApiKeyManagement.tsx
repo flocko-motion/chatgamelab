@@ -1,4 +1,4 @@
-import { Alert, Badge, Card, Code, Group, Modal, Select, Stack, TextInput, ThemeIcon, Tooltip } from "@mantine/core";
+import { Alert, Badge, Card, Code, Group, Modal, Select, Stack, ThemeIcon, Tooltip } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import {
   IconAlertCircle,
@@ -22,7 +22,6 @@ import { HelpLink } from "@components/HelpLink";
 import { HELP_LINKS } from "@/config/helpLinks";
 import type { OwnApiKey, OwnKeyListSort } from "@/api/hooks";
 import {
-  getAiQualityTierLabel,
   getAiQualityTierOptions,
   normalizeAiQualityTier,
 } from "@/common/lib/aiQualityTier";
@@ -32,6 +31,7 @@ import { keyShareGroups } from "../lib/keyShareGroups";
 import { useApiKeyManagement } from "../hooks/useApiKeyManagement";
 import { ApiKeyShares } from "./ApiKeyShares";
 import { KeyStatus } from "./KeyStatus";
+import { NewKeyFields } from "./NewKeyFields";
 
 /**
  * The caller's API keys: the default key and quality tier, and every key in
@@ -300,45 +300,10 @@ export function ApiKeyManagement() {
         size="md"
       >
         <Stack gap="md">
-          <Select
-            label={t("apiKeys.createModal.platformLabel")}
-            placeholder={t("apiKeys.createModal.platformPlaceholder")}
-            data={createModal.platforms.map((p) => ({ value: p.id, label: p.name }))}
-            required
-            value={createModal.platform || null}
-            onChange={(value) => value && createModal.setPlatform(value)}
-            error={createModal.errors.platform}
-            allowDeselect={false}
-          />
-          {createModal.tiers.length > 0 && (
-            <Stack gap={0}>
-              {createModal.tiers.map((tier) => (
-                <HelperText key={tier.id}>
-                  {getAiQualityTierLabel(t, tier.id ?? "")}: {tier.models?.story?.name}
-                </HelperText>
-              ))}
-            </Stack>
-          )}
-          <TextInput
-            label={t("apiKeys.createModal.nameLabel")}
-            placeholder={t("apiKeys.createModal.namePlaceholder")}
-            value={createModal.name}
-            onChange={(e) => createModal.setName(e.currentTarget.value)}
-            error={createModal.errors.name}
-          />
-          <TextInput
-            label={t("apiKeys.createModal.keyLabel")}
-            placeholder={t("apiKeys.createModal.keyPlaceholder")}
-            description={t("apiKeys.createModal.keyDescription")}
-            required
-            type="password"
-            value={createModal.key}
-            onChange={(e) => createModal.setKey(e.currentTarget.value)}
-            error={createModal.errors.key}
-          />
+          <NewKeyFields form={createModal.form} />
           <Group justify="flex-end" mt="md">
             <TextButton onClick={createModal.close}>{t("cancel")}</TextButton>
-            <ActionButton size="md" onClick={createModal.submit} loading={createModal.loading}>
+            <ActionButton size="md" onClick={createModal.submit} loading={createModal.form.loading}>
               {t("apiKeys.createModal.submit")}
             </ActionButton>
           </Group>

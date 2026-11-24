@@ -12,10 +12,10 @@ type ThemeInfo struct {
 var themeIDs = []string{
 	"default", "minimal", "horror", "adventure", "detective", "noir", "steampunk", "zombie",
 	"barbie", "retro", "western", "desert", "school", "candy", "superhero", "sunshine",
-	"storybook", "educational", "scifi", "cyberpunk", "medieval", "mystery", "mystic", "space",
-	"terminal", "hacker", "playful", "nature", "ocean", "underwater", "pirate", "fire", "tech",
-	"greenFantasy", "abstract", "romance", "glitch", "snowy", "fairy", "jungle", "garden",
-	"circus", "nautical", "matrix",
+	"storybook", "educational", "spielfieber", "scifi", "cyberpunk", "medieval", "mystery",
+	"mystic", "space", "terminal", "hacker", "playful", "nature", "ocean", "underwater", "pirate",
+	"fire", "tech", "greenFantasy", "abstract", "romance", "glitch", "snowy", "fairy", "jungle",
+	"garden", "circus", "nautical", "matrix",
 }
 
 // Themes is every theme a spec may name, the default first.

@@ -52,6 +52,7 @@ const FONTS = [
   ["pirata-one", "Pirata One", ["400"]],
   ["patrick-hand", "Patrick Hand", ["400"]],
   ["chewy", "Chewy", ["400"]],
+  ["poppins", "Poppins", ["400", "500", "600", "700"]],
 ];
 
 const SUBSETS = new Set(["latin", "latin-ext"]);
