@@ -193,6 +193,10 @@ export {
   useVerifiedPages,
   useCreateVerifiedPage,
   useDeleteVerifiedPage,
+  useAllVerifiedPages,
+  useApproveVerifiedPage,
+  type VerifiedPageListFilter,
+  type VerifiedPageListSort,
 } from "./useVerifiedPages";
 
 // A game's embed link on another website

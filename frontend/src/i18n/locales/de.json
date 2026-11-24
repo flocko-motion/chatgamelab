@@ -215,6 +215,25 @@
   "common": {
     "actions": "Aktionen",
     "admin": {
+      "verifiedPages": {
+        "organisation": "Organisation",
+        "page": "Seite",
+        "status": "Status",
+        "filters": {
+          "all": "Alle",
+          "waiting": "Wartend",
+          "approved": "Freigegeben"
+        },
+        "title": "Seiten, die Spiele einbetten",
+        "description": "Die verifizierte Seite jeder Organisation. Ihre Spiele starten dort erst, wenn du sie freigibst; eine geänderte Adresse oder ein geänderter Callback wartet wieder auf Freigabe.",
+        "empty": "Noch keine Organisation hat eine Seite registriert.",
+        "loadError": "Die Seiten konnten nicht geladen werden.",
+        "approved": "Freigegeben",
+        "waiting": "Wartet auf Freigabe",
+        "callback": "Callback: {{url}}",
+        "approve": "Freigeben",
+        "withdraw": "Freigabe zurückziehen"
+      },
       "invites": {
         "actions": "Aktionen",
         "empty": "Keine ausstehenden Einladungen.",
@@ -977,6 +996,7 @@
           }
         },
         "embed": {
+          "waitingForApproval": "Die Seite der Organisation wartet auf die Freigabe durch einen Admin. Bis dahin startet das Spiel dort nicht.",
           "toggle": "Auf einer Website einbetten",
           "toggleHint": "Zeigt dieses Spiel auf der verifizierten Seite deiner Organisation, ohne etwas von ChatGameLab drumherum. Besucher spielen als Gäste; der gewählte Schlüssel bezahlt.",
           "page": "Verifizierte Seite",
@@ -1131,6 +1151,8 @@
     },
     "myOrganization": {
       "verifiedPages": {
+        "approved": "Freigegeben",
+        "waiting": "Wartet auf die Freigabe durch einen Admin",
         "intro": "Eine verifizierte Seite ist eine Seite auf der Website deiner Organisation, die eure eingebetteten Spiele zeigen darf. Bevor dort ein Spiel startet, fragt ChatGameLab den Callback der Seite, ob es starten soll, mit der Seiten-ID unten und den IDs von Besucher und Anfrage, die eure Seite mitgibt. Nur die Antwort {\"ok\": true} startet das Spiel.",
         "empty": "Noch keine verifizierten Seiten.",
         "addTitle": "Seite registrieren",

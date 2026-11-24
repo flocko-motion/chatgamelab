@@ -60,6 +60,9 @@ export function EmbedSection({ game }: { game: GameView }) {
           )}
 
           {panel.incomplete && <HelperText>{t("games.editor.embed.incomplete")}</HelperText>}
+          {panel.waitingForApproval && (
+            <HelperText c="orange.8">{t("games.editor.embed.waitingForApproval")}</HelperText>
+          )}
 
           {panel.snippet && (
             <Stack gap="xs">

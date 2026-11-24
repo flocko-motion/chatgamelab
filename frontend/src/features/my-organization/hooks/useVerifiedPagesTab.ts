@@ -62,6 +62,8 @@ export function useVerifiedPagesTab(institutionId: string | undefined) {
     /** Whether the server answers the list: the caller may manage the pages. */
     available: pages.isSuccess,
     pages: pages.data ?? [],
+    /** An organisation has one verified page: registering is for one without. */
+    mayRegister: (pages.data ?? []).length === 0,
     draft: { pageUrl, setPageUrl, callbackUrl, setCallbackUrl, valid: draftValid },
     add,
     adding: create.isPending,

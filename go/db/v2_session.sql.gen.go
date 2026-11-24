@@ -651,6 +651,7 @@ const v2ShareLinkPlay = `-- name: V2ShareLinkPlay :many
 SELECT gs.id, gs.game_id, gs.workshop_id, gs.institution_id, gs.remaining, gs.ai_quality_tier,
   gs.created_by, gs.api_key_share_id, w.ai_quality_tier AS workshop_tier,
   gs.embed, gs.enabled, gs.embed_mode, gs.verified_page_id, vp.page_id AS verified_page_key, vp.callback_url,
+  (vp.approved_at IS NOT NULL)::bool AS verified_page_approved,
   (o.id IS NOT NULL AND (o.suspended_at IS NOT NULL
      OR institution_consent_missing(o.id, $1::text, $2::text)))::bool AS organisation_suspended
 FROM game_share gs
@@ -684,6 +685,7 @@ type V2ShareLinkPlayRow struct {
 	VerifiedPageID        uuid.NullUUID  `json:"verified_page_id"`
 	VerifiedPageKey       sql.NullString `json:"verified_page_key"`
 	CallbackUrl           sql.NullString `json:"callback_url"`
+	VerifiedPageApproved  bool           `json:"verified_page_approved"`
 	OrganisationSuspended bool           `json:"organisation_suspended"`
 }
 
@@ -721,6 +723,7 @@ func (q *Queries) V2ShareLinkPlay(ctx context.Context, arg V2ShareLinkPlayParams
 			&i.VerifiedPageID,
 			&i.VerifiedPageKey,
 			&i.CallbackUrl,
+			&i.VerifiedPageApproved,
 			&i.OrganisationSuspended,
 		); err != nil {
 			return nil, err

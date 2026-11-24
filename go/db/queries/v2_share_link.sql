@@ -57,7 +57,7 @@ WHERE id = @id::uuid;
 -- A game's embed link, if it has one: its token, whether it is on, its mode
 -- and verified page, and the share that pays with its source and key.
 SELECT gs.id, gs.token, gs.enabled, gs.embed_mode, gs.verified_page_id, gs.institution_id,
-  vp.page_url AS verified_page_url,
+  vp.page_url AS verified_page_url, (vp.approved_at IS NOT NULL)::bool AS verified_page_approved,
   gs.api_key_share_id, c.source_share_id,
   k.id AS key_id, k.name AS key_name, k.platform
 FROM game_share gs
@@ -85,7 +85,8 @@ WHERE id = @id::uuid AND embed;
 -- name: V2EmbedFraming :many
 -- Who may frame the playback-engine for a share token, or for the session
 -- it plays (session set): an embed link's switch, mode and verified origin.
-SELECT gs.embed, gs.enabled, gs.embed_mode, vp.origin AS verified_origin
+SELECT gs.embed, gs.enabled, gs.embed_mode, vp.origin AS verified_origin,
+  (vp.approved_at IS NOT NULL)::bool AS verified_page_approved
 FROM game_share gs
 LEFT JOIN verified_page vp ON vp.id = gs.verified_page_id
 WHERE (sqlc.narg(token)::text IS NOT NULL AND gs.token = sqlc.narg(token)::text)

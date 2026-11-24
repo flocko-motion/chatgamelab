@@ -1,3 +1,7 @@
+// package: core / playing
+// type:    logic
+// job:     what a play reads and writes: its share link, its rule's facts, the stores a session lives in
+// limits:  building and running sessions (-> session/)
 package core
 
 import (
@@ -59,12 +63,8 @@ type LinkPlay struct {
 	OutsideID string
 }
 
-// ShareLinkPlay opens the play behind a share link's token: {Play,
-// GameCard, ViaShareLink}. A token that opens none is not found and counts
-// as a guess (tokenlock), and so does an embed link switched off; a link of
-// a suspended organisation is refused (organisation_suspended), and so is a
-// game not ready to play. An embed link starts only with its host's yes
-// (EmbedPlay), never by its token alone.
+// ShareLinkPlay opens the play behind a share link's token. An embed link
+// never starts by its token alone: only by its host's yes (EmbedPlay).
 func ShareLinkPlay(ctx context.Context, token string) (*LinkPlay, error) {
 	play, err := openToken(ctx, token)
 	if err != nil {
@@ -97,6 +97,7 @@ type linkPlayRow struct {
 	enabled     bool      // an embed link switched off plays no more
 	mode        EmbedMode // an embed link's mode; empty for any other link
 	pageKey     string    // the verified page's page ID
+	approved    bool      // the verified page is approved by an admin
 	callbackURL string    // where the verified page's host is asked
 }
 
@@ -146,7 +147,7 @@ func linkPlay(ctx context.Context, token sql.NullString, id uuid.NullUUID) (*lin
 			}.lastChecked(k.LastUsageSuccess, k.LastErrorCode),
 		},
 		gameID: r.GameID, enabled: r.Enabled, mode: EmbedMode(r.EmbedMode.String),
-		pageKey: r.VerifiedPageKey.String, callbackURL: r.CallbackUrl.String,
+		pageKey: r.VerifiedPageKey.String, callbackURL: r.CallbackUrl.String, approved: r.VerifiedPageApproved,
 	}
 	if r.Remaining.Valid {
 		play.Remaining = &r.Remaining.Int32
@@ -168,9 +169,8 @@ type PlayerRules struct {
 	Organisation *RuleSource // their own (head, staff), else the current workshop's
 }
 
-// PlayRuleFacts are the facts the youth-protection rule of a play reads
-// (session/rule.go holds the cascade, after the spec): who plays, the share
-// link's workshop and organisation, its author, and the site's rules by age.
+// PlayRuleFacts are what a play's youth-protection rule reads; the cascade
+// is session/rule.go's.
 type PlayRuleFacts struct {
 	LinkGuest        bool // the player came through a share link: a guest, not known
 	Player           *PlayerRules
@@ -180,9 +180,8 @@ type PlayRuleFacts struct {
 	Site             map[string]*string
 }
 
-// ReadPlayRuleFacts reads the facts the rule of the caller's play reads,
-// through link if any. They are read for the play only: the rule is part of
-// playing, whoever may see the workshops behind it.
+// ReadPlayRuleFacts reads them for the caller's play only: the rule is part
+// of playing, whoever may see the workshops behind it.
 func ReadPlayRuleFacts(ctx context.Context, link *LinkPlay) (PlayRuleFacts, error) {
 	q := store.Queries()
 	facts := PlayRuleFacts{LinkGuest: true}
@@ -253,10 +252,8 @@ func workshopSourceName(name string, org sql.NullString) string {
 	return name
 }
 
-// NewPlay is what a new session is saved with: its game, the payer chosen
-// for it, and what its start takes. Who plays and where the core decides:
-// the caller, in the workshop they are in, or, through Link without an
-// account, a guest made for the play.
+// NewPlay is what a new session is saved with. Who plays the core decides:
+// the caller, or through Link without an account a guest made for it.
 type NewPlay struct {
 	Game           uuid.UUID
 	Link           *LinkPlay // played through this share link
@@ -266,12 +263,8 @@ type NewPlay struct {
 	ReplaceEarlier bool // starting anew replaces the player's earlier sessions of the game
 }
 
-// LaunchStore is the store a new session is launched with: its first save
-// creates it, counts the play and does what the start takes (a guest's
-// account, a play of the link, replacing earlier sessions) in one
-// transaction, so a refused launch leaves nothing behind. It answers who
-// plays. A game the caller may not start is refused (MayStartPlaying,
-// MayStartPlayingByLink).
+// LaunchStore is the store a session launches with: its first save does all
+// the start takes in one transaction, so a refused launch leaves nothing.
 func LaunchStore(ctx context.Context, p NewPlay) (engine.Persist, uuid.UUID, error) {
 	meta := sessionstore.NewSession{
 		GameID: p.Game, ApiKeyShareID: p.Payer.ShareID, Platform: p.Platform, Language: p.Language,
@@ -307,9 +300,7 @@ func Replaced(store engine.Persist) []uuid.UUID { return sessionstore.Replaced(s
 // ErrNoPlaysLeft: the share link ran out of plays as the session started.
 var ErrNoPlaysLeft = sessionstore.ErrNoPlaysLeft
 
-// Resuming is a stored session as its resume needs it: its game and
-// platform, the share link it was played through, if that still pays, and
-// the store it goes on in.
+// Resuming is a stored session as its resume needs it.
 type Resuming struct {
 	GameID   uuid.UUID
 	Platform string
@@ -345,9 +336,8 @@ func ResumeSession(ctx context.Context, id uuid.UUID) (*Resuming, error) {
 	return r, nil
 }
 
-// guestName is a readable name for a guest playing through a link, e.g.
-// "guest-red-dragon-a1b2": the suffix keeps it unique, as colour and animal
-// pairs are few.
+// guestName is like "guest-red-dragon-a1b2": the suffix keeps it unique, as
+// colour and animal pairs are few.
 func guestName() string {
 	names := ung.NewUniqueNameGenerator(
 		ung.WithDictionaries([][]string{dictionaries.Colors, dictionaries.Animals}),
@@ -356,9 +346,8 @@ func guestName() string {
 	return "guest-" + names.Generate() + "-" + functional.First(functional.GenerateSecureToken(2))
 }
 
-// PlayRefusal is an error of the core's play functions as the refusal the
-// playback-engine tells the player: not found or forbidden is denied, a
-// missing key is no key, a refusal stays one, anything else failed.
+// PlayRefusal turns the core's errors into the refusals the playback-engine
+// tells the player.
 func PlayRefusal(err error) error {
 	var refusal *engine.Refusal
 	var coded interface{ Code() string }
@@ -375,9 +364,8 @@ func PlayRefusal(err error) error {
 	return engine.Refuse(engine.ProblemFailed, err.Error())
 }
 
-// SessionMaker names who creates a session, so a one-time key answers only
-// its maker: the caller's account, or nobody for a guest, whose key the
-// transport binds to the share token.
+// SessionMaker names who creates a session, so a one-time key answers its
+// maker only; a guest's the transport binds to the share token.
 func SessionMaker(ctx context.Context) string {
 	if me := from(ctx).Account(); me != nil {
 		return "user:" + me.String()

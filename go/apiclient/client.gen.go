@@ -653,6 +653,45 @@ func (e UserSort) Valid() bool {
 	}
 }
 
+// Defines values for VerifiedPageFilter.
+const (
+	VerifiedPageFilterApproved VerifiedPageFilter = "approved"
+	VerifiedPageFilterWaiting  VerifiedPageFilter = "waiting"
+)
+
+// Valid indicates whether the value is a known member of the VerifiedPageFilter enum.
+func (e VerifiedPageFilter) Valid() bool {
+	switch e {
+	case VerifiedPageFilterApproved:
+		return true
+	case VerifiedPageFilterWaiting:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for VerifiedPageSort.
+const (
+	VerifiedPageSortCreatedAt    VerifiedPageSort = "createdAt"
+	VerifiedPageSortOrganisation VerifiedPageSort = "organisation"
+	VerifiedPageSortStatus       VerifiedPageSort = "status"
+)
+
+// Valid indicates whether the value is a known member of the VerifiedPageSort enum.
+func (e VerifiedPageSort) Valid() bool {
+	switch e {
+	case VerifiedPageSortCreatedAt:
+		return true
+	case VerifiedPageSortOrganisation:
+		return true
+	case VerifiedPageSortStatus:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for WorkshopFilter.
 const (
 	WorkshopFilterActive WorkshopFilter = "active"
@@ -747,6 +786,11 @@ type ApiKeyView struct {
 	Platform         string             `json:"platform"`
 	UserId           openapi_types.UUID `json:"userId"`
 	UserName         string             `json:"userName"`
+}
+
+// ApproveVerifiedPageReq defines model for ApproveVerifiedPageReq.
+type ApproveVerifiedPageReq struct {
+	Approved bool `json:"approved"`
 }
 
 // AvailableKey defines model for AvailableKey.
@@ -1034,15 +1078,16 @@ type GameEmbedResp struct {
 
 // GameEmbedView defines model for GameEmbedView.
 type GameEmbedView struct {
-	Enabled           bool                `json:"enabled"`
-	Id                openapi_types.UUID  `json:"id"`
-	KeyName           string              `json:"keyName"`
-	Mode              string              `json:"mode"`
-	Platform          string              `json:"platform"`
-	SponsorKeyShareId *openapi_types.UUID `json:"sponsorKeyShareId,omitempty"`
-	Token             string              `json:"token"`
-	VerifiedPageId    *openapi_types.UUID `json:"verifiedPageId,omitempty"`
-	VerifiedPageUrl   *string             `json:"verifiedPageUrl,omitempty"`
+	Enabled              bool                `json:"enabled"`
+	Id                   openapi_types.UUID  `json:"id"`
+	KeyName              string              `json:"keyName"`
+	Mode                 string              `json:"mode"`
+	Platform             string              `json:"platform"`
+	SponsorKeyShareId    *openapi_types.UUID `json:"sponsorKeyShareId,omitempty"`
+	Token                string              `json:"token"`
+	VerifiedPageApproved bool                `json:"verifiedPageApproved"`
+	VerifiedPageId       *openapi_types.UUID `json:"verifiedPageId,omitempty"`
+	VerifiedPageUrl      *string             `json:"verifiedPageUrl,omitempty"`
 }
 
 // GameField defines model for GameField.
@@ -2275,18 +2320,33 @@ type UserViewPage struct {
 	Total int        `json:"total"`
 }
 
+// VerifiedPageFilter defines model for VerifiedPageFilter.
+type VerifiedPageFilter string
+
+// VerifiedPageSort defines model for VerifiedPageSort.
+type VerifiedPageSort string
+
 // VerifiedPageView defines model for VerifiedPageView.
 type VerifiedPageView struct {
-	CallbackUrl    string             `json:"callbackUrl"`
-	CreatedAt      time.Time          `json:"createdAt"`
-	Id             openapi_types.UUID `json:"id"`
-	MayDelete      bool               `json:"mayDelete"`
-	MayEdit        bool               `json:"mayEdit"`
-	ModifiedAt     time.Time          `json:"modifiedAt"`
-	OrganisationId openapi_types.UUID `json:"organisationId"`
-	Origin         string             `json:"origin"`
-	PageId         string             `json:"pageId"`
-	PageUrl        string             `json:"pageUrl"`
+	ApprovedAt       *time.Time         `json:"approvedAt,omitempty"`
+	CallbackUrl      string             `json:"callbackUrl"`
+	CreatedAt        time.Time          `json:"createdAt"`
+	Id               openapi_types.UUID `json:"id"`
+	MayApprove       bool               `json:"mayApprove"`
+	MayDelete        bool               `json:"mayDelete"`
+	MayEdit          bool               `json:"mayEdit"`
+	ModifiedAt       time.Time          `json:"modifiedAt"`
+	OrganisationId   openapi_types.UUID `json:"organisationId"`
+	OrganisationName string             `json:"organisationName"`
+	Origin           string             `json:"origin"`
+	PageId           string             `json:"pageId"`
+	PageUrl          string             `json:"pageUrl"`
+}
+
+// VerifiedPageViewPage defines model for VerifiedPageViewPage.
+type VerifiedPageViewPage struct {
+	Items []VerifiedPageView `json:"items"`
+	Total int                `json:"total"`
 }
 
 // VerifiedPagesResp defines model for VerifiedPagesResp.
@@ -2525,6 +2585,16 @@ type GetApiUsersParams struct {
 	Offset  *int          `form:"offset,omitempty" json:"offset,omitempty"`
 }
 
+// GetApiVerifiedPagesParams defines parameters for GetApiVerifiedPages.
+type GetApiVerifiedPagesParams struct {
+	Filter  *[]VerifiedPageFilter `form:"filter,omitempty" json:"filter,omitempty"`
+	Search  *string               `form:"search,omitempty" json:"search,omitempty"`
+	SortBy  *VerifiedPageSort     `form:"sortBy,omitempty" json:"sortBy,omitempty"`
+	SortDir *SortDir              `form:"sortDir,omitempty" json:"sortDir,omitempty"`
+	Limit   *int                  `form:"limit,omitempty" json:"limit,omitempty"`
+	Offset  *int                  `form:"offset,omitempty" json:"offset,omitempty"`
+}
+
 // GetApiWorkshopsParams defines parameters for GetApiWorkshops.
 type GetApiWorkshopsParams struct {
 	InstitutionId *string           `form:"institutionId,omitempty" json:"institutionId,omitempty"`
@@ -2677,6 +2747,9 @@ type PostApiUsersIdRoleJSONRequestBody = SetUserRoleReq
 
 // PatchApiVerifiedPagesIdJSONRequestBody defines body for PatchApiVerifiedPagesId for application/json ContentType.
 type PatchApiVerifiedPagesIdJSONRequestBody = UpdateVerifiedPageReq
+
+// PutApiVerifiedPagesIdApprovalJSONRequestBody defines body for PutApiVerifiedPagesIdApproval for application/json ContentType.
+type PutApiVerifiedPagesIdApprovalJSONRequestBody = ApproveVerifiedPageReq
 
 // PostApiVoicesNewJSONRequestBody defines body for PostApiVoicesNew for application/json ContentType.
 type PostApiVoicesNewJSONRequestBody = VoiceSampleReq
@@ -4485,6 +4558,13 @@ type ClientInterface interface {
 	// Corresponds with GET /api/users/{id}/stats (the `GetApiUsersIdStats` operationId).
 	GetApiUsersIdStats(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetApiVerifiedPages Lists a page of the verified pages the caller
+	//
+	// may see, waiting first: every one for an admin, the allow list.
+	//
+	// Corresponds with GET /api/verified-pages (the `GetApiVerifiedPages` operationId).
+	GetApiVerifiedPages(ctx context.Context, params *GetApiVerifiedPagesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// DeleteApiVerifiedPagesId Removes a verified page; the games embedded
 	//
 	// for it start nothing until they get another.
@@ -4509,6 +4589,24 @@ type ClientInterface interface {
 	//
 	// Corresponds with PATCH /api/verified-pages/{id} (the `PatchApiVerifiedPagesId` operationId).
 	PatchApiVerifiedPagesId(ctx context.Context, id string, body PatchApiVerifiedPagesIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutApiVerifiedPagesIdApprovalWithBody Approves a verified page or withdraws the
+	//
+	// approval, for an admin.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PUT /api/verified-pages/{id}/approval (the `PutApiVerifiedPagesIdApproval` operationId).
+	PutApiVerifiedPagesIdApprovalWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutApiVerifiedPagesIdApproval Approves a verified page or withdraws the
+	//
+	// approval, for an admin.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PUT /api/verified-pages/{id}/approval (the `PutApiVerifiedPagesIdApproval` operationId).
+	PutApiVerifiedPagesIdApproval(ctx context.Context, id string, body PutApiVerifiedPagesIdApprovalJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiVersion Reports the release the server runs.
 	//
@@ -8230,6 +8328,23 @@ func (c *Client) GetApiUsersIdStats(ctx context.Context, id string, reqEditors .
 	return c.Client.Do(req)
 }
 
+// GetApiVerifiedPages Lists a page of the verified pages the caller
+//
+// may see, waiting first: every one for an admin, the allow list.
+//
+// Corresponds with GET /api/verified-pages (the `GetApiVerifiedPages` operationId).
+func (c *Client) GetApiVerifiedPages(ctx context.Context, params *GetApiVerifiedPagesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiVerifiedPagesRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 // DeleteApiVerifiedPagesId Removes a verified page; the games embedded
 //
 // for it start nothing until they get another.
@@ -8275,6 +8390,44 @@ func (c *Client) PatchApiVerifiedPagesIdWithBody(ctx context.Context, id string,
 // Corresponds with PATCH /api/verified-pages/{id} (the `PatchApiVerifiedPagesId` operationId).
 func (c *Client) PatchApiVerifiedPagesId(ctx context.Context, id string, body PatchApiVerifiedPagesIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPatchApiVerifiedPagesIdRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PutApiVerifiedPagesIdApprovalWithBody Approves a verified page or withdraws the
+//
+// approval, for an admin.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PUT /api/verified-pages/{id}/approval (the `PutApiVerifiedPagesIdApproval` operationId).
+func (c *Client) PutApiVerifiedPagesIdApprovalWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiVerifiedPagesIdApprovalRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// PutApiVerifiedPagesIdApproval Approves a verified page or withdraws the
+//
+// approval, for an admin.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PUT /api/verified-pages/{id}/approval (the `PutApiVerifiedPagesIdApproval` operationId).
+func (c *Client) PutApiVerifiedPagesIdApproval(ctx context.Context, id string, body PutApiVerifiedPagesIdApprovalJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiVerifiedPagesIdApprovalRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -14453,6 +14606,120 @@ func NewGetApiUsersIdStatsRequest(server string, id string) (*http.Request, erro
 	return req, nil
 }
 
+// NewGetApiVerifiedPagesRequest constructs an http.Request for the GetApiVerifiedPages method
+func NewGetApiVerifiedPagesRequest(server string, params *GetApiVerifiedPagesParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/verified-pages")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Filter != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "filter", *params.Filter, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "array", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Search != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "search", *params.Search, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortBy != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortBy", *params.SortBy, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.SortDir != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "sortDir", *params.SortDir, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Offset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "offset", *params.Offset, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewDeleteApiVerifiedPagesIdRequest constructs an http.Request for the DeleteApiVerifiedPagesId method
 func NewDeleteApiVerifiedPagesIdRequest(server string, id string) (*http.Request, error) {
 	var err error
@@ -14525,6 +14792,53 @@ func NewPatchApiVerifiedPagesIdRequestWithBody(server string, id string, content
 	}
 
 	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPutApiVerifiedPagesIdApprovalRequest calls the generic PutApiVerifiedPagesIdApproval builder with application/json body
+func NewPutApiVerifiedPagesIdApprovalRequest(server string, id string, body PutApiVerifiedPagesIdApprovalJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutApiVerifiedPagesIdApprovalRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPutApiVerifiedPagesIdApprovalRequestWithBody constructs an http.Request for the PutApiVerifiedPagesIdApproval method, with any body, and a specified content type
+func NewPutApiVerifiedPagesIdApprovalRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/verified-pages/%s/approval", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -17183,6 +17497,15 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /api/users/{id}/stats (the `GetApiUsersIdStats` operationId).
 	GetApiUsersIdStatsWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiUsersIdStatsResponse, error)
 
+	// GetApiVerifiedPagesWithResponse Lists a page of the verified pages the caller
+	//
+	// may see, waiting first: every one for an admin, the allow list.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /api/verified-pages (the `GetApiVerifiedPages` operationId).
+	GetApiVerifiedPagesWithResponse(ctx context.Context, params *GetApiVerifiedPagesParams, reqEditors ...RequestEditorFn) (*GetApiVerifiedPagesResponse, error)
+
 	// DeleteApiVerifiedPagesIdWithResponse Removes a verified page; the games embedded
 	//
 	// for it start nothing until they get another.
@@ -17209,6 +17532,24 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with PATCH /api/verified-pages/{id} (the `PatchApiVerifiedPagesId` operationId).
 	PatchApiVerifiedPagesIdWithResponse(ctx context.Context, id string, body PatchApiVerifiedPagesIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchApiVerifiedPagesIdResponse, error)
+
+	// PutApiVerifiedPagesIdApprovalWithBodyWithResponse Approves a verified page or withdraws the
+	//
+	// approval, for an admin.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PUT /api/verified-pages/{id}/approval (the `PutApiVerifiedPagesIdApproval` operationId).
+	PutApiVerifiedPagesIdApprovalWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiVerifiedPagesIdApprovalResponse, error)
+
+	// PutApiVerifiedPagesIdApprovalWithResponse Approves a verified page or withdraws the
+	//
+	// approval, for an admin.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PUT /api/verified-pages/{id}/approval (the `PutApiVerifiedPagesIdApproval` operationId).
+	PutApiVerifiedPagesIdApprovalWithResponse(ctx context.Context, id string, body PutApiVerifiedPagesIdApprovalJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiVerifiedPagesIdApprovalResponse, error)
 
 	// GetApiVersionWithResponse Reports the release the server runs.
 	//
@@ -23887,6 +24228,54 @@ func (r GetApiUsersIdStatsResponse) ContentType() string {
 	return ""
 }
 
+type GetApiVerifiedPagesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *VerifiedPageViewPage
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetApiVerifiedPagesResponse) GetJSON200() *VerifiedPageViewPage {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r GetApiVerifiedPagesResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r GetApiVerifiedPagesResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiVerifiedPagesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiVerifiedPagesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiVerifiedPagesResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type DeleteApiVerifiedPagesIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -23977,6 +24366,54 @@ func (r PatchApiVerifiedPagesIdResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r PatchApiVerifiedPagesIdResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PutApiVerifiedPagesIdApprovalResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *VerifiedPageView
+	// JSONDefault the response for an HTTP default `application/json` response
+	JSONDefault *Error
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r PutApiVerifiedPagesIdApprovalResponse) GetJSON200() *VerifiedPageView {
+	return r.JSON200
+}
+
+// GetJSONDefault returns the response for an HTTP default `application/json` response
+func (r PutApiVerifiedPagesIdApprovalResponse) GetJSONDefault() *Error {
+	return r.JSONDefault
+}
+
+// GetBody returns the raw response body bytes
+func (r PutApiVerifiedPagesIdApprovalResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r PutApiVerifiedPagesIdApprovalResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutApiVerifiedPagesIdApprovalResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PutApiVerifiedPagesIdApprovalResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -27634,6 +28071,21 @@ func (c *ClientWithResponses) GetApiUsersIdStatsWithResponse(ctx context.Context
 	return ParseGetApiUsersIdStatsResponse(rsp)
 }
 
+// GetApiVerifiedPagesWithResponse Lists a page of the verified pages the caller
+//
+// may see, waiting first: every one for an admin, the allow list.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /api/verified-pages (the `GetApiVerifiedPages` operationId).
+func (c *ClientWithResponses) GetApiVerifiedPagesWithResponse(ctx context.Context, params *GetApiVerifiedPagesParams, reqEditors ...RequestEditorFn) (*GetApiVerifiedPagesResponse, error) {
+	rsp, err := c.GetApiVerifiedPages(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiVerifiedPagesResponse(rsp)
+}
+
 // DeleteApiVerifiedPagesIdWithResponse Removes a verified page; the games embedded
 //
 // for it start nothing until they get another.
@@ -27677,6 +28129,36 @@ func (c *ClientWithResponses) PatchApiVerifiedPagesIdWithResponse(ctx context.Co
 		return nil, err
 	}
 	return ParsePatchApiVerifiedPagesIdResponse(rsp)
+}
+
+// PutApiVerifiedPagesIdApprovalWithBodyWithResponse Approves a verified page or withdraws the
+//
+// approval, for an admin.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PUT /api/verified-pages/{id}/approval (the `PutApiVerifiedPagesIdApproval` operationId).
+func (c *ClientWithResponses) PutApiVerifiedPagesIdApprovalWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiVerifiedPagesIdApprovalResponse, error) {
+	rsp, err := c.PutApiVerifiedPagesIdApprovalWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiVerifiedPagesIdApprovalResponse(rsp)
+}
+
+// PutApiVerifiedPagesIdApprovalWithResponse Approves a verified page or withdraws the
+//
+// approval, for an admin.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PUT /api/verified-pages/{id}/approval (the `PutApiVerifiedPagesIdApproval` operationId).
+func (c *ClientWithResponses) PutApiVerifiedPagesIdApprovalWithResponse(ctx context.Context, id string, body PutApiVerifiedPagesIdApprovalJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiVerifiedPagesIdApprovalResponse, error) {
+	rsp, err := c.PutApiVerifiedPagesIdApproval(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiVerifiedPagesIdApprovalResponse(rsp)
 }
 
 // GetApiVersionWithResponse Reports the release the server runs.
@@ -32471,6 +32953,39 @@ func ParseGetApiUsersIdStatsResponse(rsp *http.Response) (*GetApiUsersIdStatsRes
 	return response, nil
 }
 
+// ParseGetApiVerifiedPagesResponse parses an HTTP response from a GetApiVerifiedPagesWithResponse call
+func ParseGetApiVerifiedPagesResponse(rsp *http.Response) (*GetApiVerifiedPagesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiVerifiedPagesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VerifiedPageViewPage
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseDeleteApiVerifiedPagesIdResponse parses an HTTP response from a DeleteApiVerifiedPagesIdWithResponse call
 func ParseDeleteApiVerifiedPagesIdResponse(rsp *http.Response) (*DeleteApiVerifiedPagesIdResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -32513,6 +33028,39 @@ func ParsePatchApiVerifiedPagesIdResponse(rsp *http.Response) (*PatchApiVerified
 	}
 
 	response := &PatchApiVerifiedPagesIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VerifiedPageView
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutApiVerifiedPagesIdApprovalResponse parses an HTTP response from a PutApiVerifiedPagesIdApprovalWithResponse call
+func ParsePutApiVerifiedPagesIdApprovalResponse(rsp *http.Response) (*PutApiVerifiedPagesIdApprovalResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutApiVerifiedPagesIdApprovalResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

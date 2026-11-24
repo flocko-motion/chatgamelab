@@ -1,7 +1,7 @@
-// Package sessionstore keeps the engine's sessions on the platform's
-// tables: the engine.Persist the core hands a session it let start or
-// resume (core.LaunchStore, core.ResumeSession). It stores what it is given
-// and decides nothing; who may play is the core's.
+// package: core/internal/sessionstore / sessions on the platform's tables
+// type:    logic
+// job:     the engine.Persist the core hands a session it let start or resume
+// limits:  stores what it is given and decides nothing; who may play is the core's
 package sessionstore
 
 import (
@@ -176,6 +176,7 @@ func unknownSession(sessionID string) error {
 	return engine.Refuse(engine.ProblemUnknown, fmt.Sprintf("there is no session %q", sessionID))
 }
 
+// SaveEvent keeps one history event.
 func (SessionStore) SaveEvent(ctx context.Context, sessionID string, e engine.SessionEvent) error {
 	id, err := uuid.Parse(sessionID)
 	if err != nil {
@@ -191,6 +192,7 @@ func (SessionStore) SaveEvent(ctx context.Context, sessionID string, e engine.Se
 	return store.Queries().V2TouchGameSession(ctx, id)
 }
 
+// SaveState keeps the session's state.
 func (SessionStore) SaveState(ctx context.Context, sessionID string, stored engine.Stored) error {
 	id, err := uuid.Parse(sessionID)
 	if err != nil {
@@ -215,6 +217,7 @@ func (SessionStore) SaveState(ctx context.Context, sessionID string, stored engi
 	return nil
 }
 
+// LoadState is the session's last kept state.
 func (SessionStore) LoadState(ctx context.Context, sessionID string) (engine.Stored, error) {
 	id, err := uuid.Parse(sessionID)
 	if err != nil {
@@ -235,6 +238,7 @@ func (SessionStore) LoadState(ctx context.Context, sessionID string) (engine.Sto
 	return stored, nil
 }
 
+// LoadHistory is the session's history, in order.
 func (SessionStore) LoadHistory(ctx context.Context, sessionID string) ([]engine.SessionEvent, error) {
 	id, err := uuid.Parse(sessionID)
 	if err != nil {

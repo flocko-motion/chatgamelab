@@ -1,3 +1,7 @@
+// package: core / lists
+// type:    logic
+// job:     every entity list as one core.List: its spec and its one query
+// limits:  the list contract itself (-> list.go)
 package core
 
 import (
@@ -21,9 +25,8 @@ func keepAll[T any](string) func(T) bool { return func(T) bool { return true } }
 
 // ── Users ──────────────────────────────────────────────────────────────────
 
-// Users is the user list (the admins'): {List, UserCard}. The filter
-// noGuests leaves out guests and users without a role; orders name
-// (default), email, role, organisation and createdAt.
+// Users is the admins' user list; noGuests leaves out guests and users
+// without a role.
 var Users Lister[*UserCard] = users{}
 
 type users struct{}
@@ -112,9 +115,8 @@ func userEmail(u *UserCard) string {
 
 // ── Organisations ──────────────────────────────────────────────────────────
 
-// Organisations is the organisation list: {List, OrganisationCard}. The
-// filter recentlyRegistered keeps those registered lately; orders name
-// (default), createdAt and registeredAt.
+// Organisations is the organisation list; recentlyRegistered keeps those
+// registered lately.
 var Organisations Lister[*OrganisationCard] = organisations{}
 
 type organisations struct{}
@@ -164,9 +166,7 @@ func organisationRegisteredAt(o *OrganisationCard) time.Time {
 
 // ── Invites ────────────────────────────────────────────────────────────────
 
-// Invites is the invite list narrowed by f: {List, Invite} and {List,
-// HeadInvite}. Orders role, organisation, status and modifiedAt (default,
-// newest first).
+// Invites is the invite list narrowed by f, newest first.
 func Invites(f InviteFilter) Lister[*InviteCard] { return invites{f} }
 
 type invites struct{ filter InviteFilter }
@@ -200,10 +200,8 @@ func (l invites) Query(ctx context.Context, q ListQuery) (Page[*InviteCard], err
 
 // ── Workshops and their participants ───────────────────────────────────────
 
-// Workshops is organisation id's workshop list (every workshop the caller
-// may list without one): {List, WorkshopCard}. The filter active keeps the
-// active ones; orders name, createdAt (default, newest first), modifiedAt
-// and participantCount.
+// Workshops is organisation id's workshop list, or every one the caller may
+// list without an id.
 func Workshops(organisation *uuid.UUID) Lister[*WorkshopCard] { return workshops{organisation} }
 
 type workshops struct{ organisation *uuid.UUID }
@@ -238,9 +236,8 @@ func (l workshops) Query(ctx context.Context, q ListQuery) (Page[*WorkshopCard],
 	}), nil
 }
 
-// Participants is workshop id's participant list, as its card lists them:
-// empty for a caller who may not list them. Orders name, role, gamesCount
-// and createdAt (when they joined; default, first first).
+// Participants is workshop id's participant list, as its card lists them;
+// empty for a caller who may not.
 func Participants(id uuid.UUID) Lister[WorkshopParticipant] { return participants{id} }
 
 type participants struct{ workshop uuid.UUID }
@@ -282,9 +279,7 @@ func keepPlatform[T any](platform func(T) string) func(string) func(T) bool {
 	}
 }
 
-// OrganisationKeys is the list of the keys given to organisation id:
-// {List, ApiKeyShare}, narrowed to the organisation. Filters platform:<id>;
-// orders name (default), owner and platform.
+// OrganisationKeys is the list of the keys given to organisation id.
 func OrganisationKeys(id uuid.UUID) Lister[*KeyShareCard] { return organisationKeys{id} }
 
 type organisationKeys struct{ organisation uuid.UUID }
@@ -314,17 +309,14 @@ func (l organisationKeys) Query(ctx context.Context, q ListQuery) (Page[*KeyShar
 	}), nil
 }
 
-// OwnKey is one of the caller's keys: their own use of it (Self, the share
-// that makes it a default or deletes it) and every share of it, Self
-// included.
+// OwnKey is one of the caller's keys: their own use of it (Self) and every
+// share of it, Self included.
 type OwnKey struct {
 	Self   *KeyShareCard
 	Shares []*KeyShareCard
 }
 
-// OwnKeys is the list of the caller's keys. Filters platform:<id>; orders
-// createdAt (default, oldest first), name, platform and status (working,
-// not used yet, failed).
+// OwnKeys is the list of the caller's keys, oldest first.
 var OwnKeys Lister[OwnKey] = ownKeys{}
 
 type ownKeys struct{}
@@ -378,4 +370,48 @@ func usageRank(success *bool) int {
 		return 0
 	}
 	return 2
+}
+
+// ── Verified pages ─────────────────────────────────────────────────────────
+
+// VerifiedPages is the verified pages the caller may see: the admins' allow
+// list, waiting first.
+func VerifiedPages() Lister[*VerifiedPage] { return verifiedPages{} }
+
+type verifiedPages struct{}
+
+func (verifiedPages) Spec() ListSpec {
+	return ListSpec{
+		Filters:     []string{"waiting", "approved"},
+		Sorts:       []string{"status", "organisation", "createdAt"},
+		DefaultSort: "status",
+		DefaultDir:  "asc",
+	}
+}
+
+func (verifiedPages) Query(ctx context.Context, q ListQuery) (Page[*VerifiedPage], error) {
+	all, err := ListAllVerifiedPages(ctx)
+	if err != nil {
+		return Page[*VerifiedPage]{}, err
+	}
+	approved := func(p *VerifiedPage) bool { return p.ApprovedAt != nil }
+	return pageItems(all, q, itemRules[*VerifiedPage]{
+		search: func(p *VerifiedPage) []string { return []string{p.OrganisationName, p.PageURL} },
+		filter: func(name string) func(*VerifiedPage) bool {
+			if name == "approved" {
+				return approved
+			}
+			return func(p *VerifiedPage) bool { return !approved(p) }
+		},
+		sorts: map[string]func(a, b *VerifiedPage) int{
+			"status": byValue(func(p *VerifiedPage) int {
+				if approved(p) {
+					return 1
+				}
+				return 0
+			}),
+			"organisation": byText(func(p *VerifiedPage) string { return p.OrganisationName }),
+			"createdAt":    byValue(func(p *VerifiedPage) int64 { return p.CreatedAt.UnixNano() }),
+		},
+	}), nil
 }

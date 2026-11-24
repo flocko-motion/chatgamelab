@@ -169,3 +169,61 @@ func (DeleteVerifiedPageEndpoint) Handle(ctx context.Context, req VerifiedPageID
 	}
 	return MessageResp{Message: "Verified page removed"}, nil
 }
+
+// VerifiedPageFilter narrows the verified page list by approval.
+type VerifiedPageFilter string
+
+const (
+	VerifiedPageFilterWaiting  VerifiedPageFilter = "waiting"
+	VerifiedPageFilterApproved VerifiedPageFilter = "approved"
+)
+
+// VerifiedPageSort orders the verified page list; the default is status,
+// waiting first.
+type VerifiedPageSort string
+
+const (
+	VerifiedPageSortStatus       VerifiedPageSort = "status"
+	VerifiedPageSortOrganisation VerifiedPageSort = "organisation"
+	VerifiedPageSortCreatedAt    VerifiedPageSort = "createdAt"
+)
+
+// ListAllVerifiedPagesReq filters, sorts and pages the verified page list.
+type ListAllVerifiedPagesReq struct {
+	ListParams[VerifiedPageFilter, VerifiedPageSort]
+}
+
+// VerifiedPagePageResp is a page of verified pages and the total.
+type VerifiedPagePageResp = wire.Page[wire.VerifiedPageView]
+
+// ListAllVerifiedPagesEndpoint lists a page of the verified pages the caller
+// may see, waiting first: every one for an admin, the allow list.
+type ListAllVerifiedPagesEndpoint struct{}
+
+func (ListAllVerifiedPagesEndpoint) Method() string             { return "GET" }
+func (ListAllVerifiedPagesEndpoint) Path() string               { return "/api/verified-pages" }
+func (ListAllVerifiedPagesEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
+func (ListAllVerifiedPagesEndpoint) Handle(ctx context.Context, req ListAllVerifiedPagesReq) (VerifiedPagePageResp, error) {
+	return wire.VerifiedPageViewPageOf(core.List(ctx, core.VerifiedPages(), req.query()))
+}
+
+// ApproveVerifiedPageReq approves a verified page, or withdraws the approval.
+type ApproveVerifiedPageReq struct {
+	ID       string `path:"id"`
+	Approved bool   `json:"approved"`
+}
+
+// ApproveVerifiedPageEndpoint approves a verified page or withdraws the
+// approval, for an admin.
+type ApproveVerifiedPageEndpoint struct{}
+
+func (ApproveVerifiedPageEndpoint) Method() string             { return "PUT" }
+func (ApproveVerifiedPageEndpoint) Path() string               { return "/api/verified-pages/{id}/approval" }
+func (ApproveVerifiedPageEndpoint) Auth() schemafapi.AuthLevel { return schemafapi.AuthRequired }
+func (ApproveVerifiedPageEndpoint) Handle(ctx context.Context, req ApproveVerifiedPageReq) (VerifiedPageResp, error) {
+	id, err := parseID(req.ID, "Invalid verified page ID")
+	if err != nil {
+		return VerifiedPageResp{}, err
+	}
+	return wire.VerifiedPageViewOf(core.ApproveVerifiedPage(ctx, id, req.Approved))
+}

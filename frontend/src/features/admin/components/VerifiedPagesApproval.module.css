@@ -1,0 +1,6 @@
+/* A page's address may be long and unbroken: it wraps rather than widening the row. */
+.page {
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+}

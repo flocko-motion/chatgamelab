@@ -59,6 +59,8 @@ const (
 	CodeGenre       = "genre"
 	// CodeHostRefused: the page a game is embedded in did not let it start.
 	CodeHostRefused = "host_refused"
+	// CodeVerifiedPageExists: the organisation has its one verified page already.
+	CodeVerifiedPageExists = "verified_page_exists"
 )
 
 // Playable is a game's playability when the caller can start it; otherwise

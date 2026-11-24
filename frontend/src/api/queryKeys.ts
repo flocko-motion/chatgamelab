@@ -69,6 +69,7 @@ export const queryKeys = {
   institutionMembers: (institutionId: string) =>
     ["institution-members", institutionId] as const,
   verifiedPages: (institutionId: string) => ["verified-pages", institutionId] as const,
+  allVerifiedPages: ["verified-pages", "all"] as const,
   gameEmbed: (gameId: string) => ["game-embed", gameId] as const,
 
   // Organisations registering themselves

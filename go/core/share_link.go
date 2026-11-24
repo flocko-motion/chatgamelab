@@ -1,3 +1,7 @@
+// package: core / share links
+// type:    logic
+// job:     share links and sponsored games: vouchers for plays, paid by a share drawn for them
+// limits:  a game's embed link (-> embed.go); playing through a link (-> play.go)
 package core
 
 import (
@@ -14,15 +18,8 @@ import (
 	"github.com/google/uuid"
 )
 
-// A share link is a voucher: plays of one game for whoever has its token,
-// paid by a share drawn for it from a share of a key (#451). Money leaves
-// the organisation here, so a link may be limited by plays, and whoever pays
-// sees and stops it: the key's owner, and, when an organisation's key pays,
-// its head and staff. Its maker and the game's owner manage it too. Those in
-// a workshop see its link, so they can hand it on, but do not change it.
-//
-// A sponsored game is the same without a token: the game's public plays
-// draw from a share drawn for it.
+// A share link spends money (#451), so whoever pays sees and stops it, and
+// it may be limited by plays. A sponsored game is the same without a token.
 
 // ShareLinkCard is a share link as the caller sees it: with its token, the
 // game, who pays, and the caller's right to change or stop it.
@@ -117,9 +114,8 @@ func loadShareLinks(ctx context.Context, p db.V2ShareLinksParams) ([]*ShareLinkC
 	return links, nil
 }
 
-// ShareLinkDraft is a new share link for a game: paid either by a share the
-// caller may draw from (From), or by a workshop's key (Workshop); with an
-// optional limit of plays and a tier.
+// ShareLinkDraft is a new share link: paid by a share (From) or a workshop's
+// key (Workshop).
 type ShareLinkDraft struct {
 	Game     uuid.UUID
 	From     *uuid.UUID
@@ -128,17 +124,9 @@ type ShareLinkDraft struct {
 	Tier     *string
 }
 
-// CreateShareLink makes a share link for a game the caller may share, {Share,
-// GameCard}, and returns it.
-//
-//   - Paid by a share the caller may draw from ({Share, ApiKey, Own} for
-//     their own key, {Share, ApiKeyShare} for their organisation's).
-//   - Paid by a workshop's key: the game must be the workshop's, and the
-//     caller its organisation's head or staff, or in it while it allows
-//     sharing. A workshop has one link per game: an existing one is
-//     returned.
-//
-// A key known to fail is refused.
+// CreateShareLink makes a share link for a game the caller may share, paid
+// by a share they may draw from or by the game's workshop's key. A workshop
+// has one link per game, so its existing one is returned.
 func CreateShareLink(ctx context.Context, d ShareLinkDraft) (*ShareLinkCard, error) {
 	game, err := ReadGameCard(ctx, d.Game)
 	if err != nil {
@@ -301,9 +289,7 @@ func DeleteShareLink(ctx context.Context, id uuid.UUID) error {
 }
 
 // SponsorGame makes a share pay for a game's public plays, replacing what
-// paid before. It takes {Edit, GameCard} on the game and the right to draw
-// from the share ({Share, ApiKey, Own} or {Share, ApiKeyShare}). A key known
-// to fail is refused.
+// paid before; it takes editing the game and drawing from the share.
 func SponsorGame(ctx context.Context, game, from uuid.UUID) (*GameCard, error) {
 	g, err := ReadGameCard(ctx, game)
 	if err != nil {
@@ -342,9 +328,8 @@ func SponsorGame(ctx context.Context, game, from uuid.UUID) (*GameCard, error) {
 	return ReadGameCard(ctx, game)
 }
 
-// EndSponsorship stops a share paying for a game's public plays: for those
-// who edit the game, and for whoever may take that share back (the payer,
-// and head and staff when their organisation's key pays).
+// EndSponsorship stops a sponsorship, for those who edit the game or may
+// take the share back.
 func EndSponsorship(ctx context.Context, game uuid.UUID) error {
 	sponsor, err := store.Queries().V2GameSponsor(ctx, game)
 	if err != nil || !sponsor.Valid {

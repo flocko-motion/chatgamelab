@@ -1,13 +1,15 @@
 // package: core / verified pages
 // type:    logic
-// job:     an organisation's pages that may frame its embedded games: list, register, change, remove
+// job:     an organisation's page that may frame its embedded games: register, change, remove, approve
 // limits:  asking a page's host (-> embed.go)
 package core
 
 import (
 	"context"
 	"crypto/rand"
+	"database/sql"
 	"encoding/hex"
+	"errors"
 	"net"
 	"net/url"
 	"strings"
@@ -21,28 +23,28 @@ import (
 	"github.com/google/uuid"
 )
 
-// A verified page is an organisation's page on its own website that may
+// A verified page is an organisation's one page on its own website that may
 // frame its embedded games (#340). Its head and staff register and manage
-// it; no one approves it. Before a game embedded for the page starts, the
-// platform asks the page's callback, and the host says yes or no
-// (embed.go).
+// it; an admin approves it, and a change of its address or callback
+// withdraws the approval. The host's yes to each start is embed.go's.
 
 // pageIDBytes is the length of a page ID: 16 hex characters.
 const pageIDBytes = 8
 
-// VerifiedPage is one verified page as its organisation's head and staff
-// see it.
+// VerifiedPage is one verified page.
 type VerifiedPage struct {
-	ID             uuid.UUID
-	OrganisationID uuid.UUID
-	PageID         string // the ID the host recognises in the callback
-	Origin         string // who may frame the playback-engine: scheme, host, port
-	PageURL        string
-	CallbackURL    string
-	CreatedAt      time.Time
-	ModifiedAt     time.Time
+	ID               uuid.UUID
+	OrganisationID   uuid.UUID
+	OrganisationName string
+	PageID           string     // the ID the host recognises in the callback
+	Origin           string     // who may frame the playback-engine: scheme, host, port
+	ApprovedAt       *time.Time // nil: not approved, its games start nothing
+	PageURL          string
+	CallbackURL      string
+	CreatedAt        time.Time
+	ModifiedAt       time.Time
 
-	mayEdit, mayDelete bool
+	mayEdit, mayDelete, mayApprove bool
 }
 
 // MayEdit says whether the caller may change it: {Edit, VerifiedPage}.
@@ -51,19 +53,36 @@ func (p *VerifiedPage) MayEdit() bool { return p.mayEdit }
 // MayDelete says whether the caller may remove it: {Delete, VerifiedPage}.
 func (p *VerifiedPage) MayDelete() bool { return p.mayDelete }
 
-// ListVerifiedPages lists organisation org's verified pages, for its head
-// and staff: {List, VerifiedPage, OfOwnOrganisation}. Anyone else gets
+// MayApprove says whether the caller may approve it or withdraw the
+// approval: {Manage, VerifiedPage}.
+func (p *VerifiedPage) MayApprove() bool { return p.mayApprove }
+
+// ListVerifiedPages lists organisation org's verified page, at most one,
+// for its head and staff, or anyone who lists every page. Anyone else gets
 // not found.
 func ListVerifiedPages(ctx context.Context, org uuid.UUID) ([]*VerifiedPage, error) {
 	rights := verifiedPageGates(ctx, org)
 	if !rights.list {
 		return nil, ErrNotFound
 	}
-	return loadVerifiedPages(ctx, org, nil, rights)
+	return loadVerifiedPages(ctx, &org, nil, rights)
 }
 
-// readVerifiedPage opens one verified page for the caller who may list its
-// organisation's.
+// ListAllVerifiedPages lists the verified pages the caller may see, the
+// unapproved first: every one for an admin, the admins' allow list; their
+// organisation's for its head and staff.
+func ListAllVerifiedPages(ctx context.Context) ([]*VerifiedPage, error) {
+	all, org := verifiedPageListScope(ctx)
+	switch {
+	case all:
+		return loadVerifiedPages(ctx, nil, nil, verifiedPageRights{list: true})
+	case org != nil:
+		return ListVerifiedPages(ctx, *org)
+	}
+	return []*VerifiedPage{}, nil
+}
+
+// readVerifiedPage opens one verified page for a caller who may list it.
 func readVerifiedPage(ctx context.Context, id uuid.UUID) (*VerifiedPage, error) {
 	org, err := store.Queries().V2VerifiedPageOrganisation(ctx, id)
 	if err != nil {
@@ -73,7 +92,7 @@ func readVerifiedPage(ctx context.Context, id uuid.UUID) (*VerifiedPage, error) 
 	if !rights.list {
 		return nil, ErrNotFound
 	}
-	pages, err := loadVerifiedPages(ctx, org, &id, rights)
+	pages, err := loadVerifiedPages(ctx, &org, &id, rights)
 	if err != nil {
 		return nil, err
 	}
@@ -83,18 +102,23 @@ func readVerifiedPage(ctx context.Context, id uuid.UUID) (*VerifiedPage, error) 
 	return pages[0], nil
 }
 
-func loadVerifiedPages(ctx context.Context, org uuid.UUID, id *uuid.UUID, rights verifiedPageRights) ([]*VerifiedPage, error) {
-	rows, err := store.Queries().V2VerifiedPages(ctx, db.V2VerifiedPagesParams{InstitutionID: org, ID: nullUUID(id)})
+func loadVerifiedPages(ctx context.Context, org, id *uuid.UUID, rights verifiedPageRights) ([]*VerifiedPage, error) {
+	rows, err := store.Queries().V2VerifiedPages(ctx, db.V2VerifiedPagesParams{InstitutionID: nullUUID(org), ID: nullUUID(id)})
 	if err != nil {
 		return nil, err
 	}
+	mayApprove := mayApproveVerifiedPages(ctx)
 	pages := make([]*VerifiedPage, len(rows))
 	for i, r := range rows {
-		pages[i] = &VerifiedPage{
-			ID: r.ID, OrganisationID: r.InstitutionID, PageID: r.PageID, Origin: r.Origin,
-			PageURL: r.PageUrl, CallbackURL: r.CallbackUrl, CreatedAt: r.CreatedAt, ModifiedAt: r.ModifiedAt,
-			mayEdit: rights.edit, mayDelete: rights.delete,
+		p := &VerifiedPage{
+			ID: r.ID, OrganisationID: r.InstitutionID, OrganisationName: r.InstitutionName, PageID: r.PageID,
+			Origin: r.Origin, PageURL: r.PageUrl, CallbackURL: r.CallbackUrl, CreatedAt: r.CreatedAt, ModifiedAt: r.ModifiedAt,
+			mayEdit: rights.edit, mayDelete: rights.delete, mayApprove: mayApprove,
 		}
+		if r.ApprovedAt.Valid {
+			p.ApprovedAt = &r.ApprovedAt.Time
+		}
+		pages[i] = p
 	}
 	return pages, nil
 }
@@ -106,8 +130,9 @@ type VerifiedPageDraft struct {
 	CallbackURL string
 }
 
-// CreateVerifiedPage registers a verified page for organisation org, with a
-// new page ID: {Create, VerifiedPage, OfOwnOrganisation}.
+// CreateVerifiedPage registers organisation org's verified page, unapproved,
+// with a new page ID: {Create, VerifiedPage, OfOwnOrganisation}. An
+// organisation has one; a second is refused (verified_page_exists).
 func CreateVerifiedPage(ctx context.Context, org uuid.UUID, d VerifiedPageDraft) (*VerifiedPage, error) {
 	if !verifiedPageGates(ctx, org).create {
 		return nil, forbidden("you may not register pages for this organisation")
@@ -124,6 +149,9 @@ func CreateVerifiedPage(ctx context.Context, org uuid.UUID, d VerifiedPageDraft)
 		InstitutionID: org, PageID: pageID, Origin: origin,
 		PageUrl: d.PageURL, CallbackUrl: d.CallbackURL, CreatedBy: account(ctx).UUID,
 	})
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, conflict("verified_page_exists", "the organisation has a verified page already")
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +160,8 @@ func CreateVerifiedPage(ctx context.Context, org uuid.UUID, d VerifiedPageDraft)
 }
 
 // UpdateVerifiedPage changes a verified page's address and callback; its
-// page ID stays: {Edit, VerifiedPage, OfOwnOrganisation}.
+// page ID stays, and a change withdraws its approval: {Edit, VerifiedPage,
+// OfOwnOrganisation}.
 func UpdateVerifiedPage(ctx context.Context, id uuid.UUID, d VerifiedPageDraft) (*VerifiedPage, error) {
 	page, err := readVerifiedPage(ctx, id)
 	if err != nil {
@@ -153,9 +182,30 @@ func UpdateVerifiedPage(ctx context.Context, id uuid.UUID, d VerifiedPageDraft) 
 	return readVerifiedPage(ctx, id)
 }
 
+// ApproveVerifiedPage approves a verified page, or withdraws the approval:
+// {Manage, VerifiedPage, Everywhere}.
+func ApproveVerifiedPage(ctx context.Context, id uuid.UUID, approve bool) (*VerifiedPage, error) {
+	page, err := readVerifiedPage(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if !page.MayApprove() {
+		return nil, forbidden("you may not approve verified pages")
+	}
+	var by uuid.NullUUID
+	if approve {
+		by = account(ctx)
+	}
+	if err := store.Queries().V2ApproveVerifiedPage(ctx, db.V2ApproveVerifiedPageParams{ID: id, ApprovedBy: by}); err != nil {
+		return nil, err
+	}
+	log.Info("verified page approval set", "verified_page_id", id, "approved", approve, "by", account(ctx).UUID)
+	return readVerifiedPage(ctx, id)
+}
+
 // DeleteVerifiedPage removes a verified page: {Delete, VerifiedPage,
-// OfOwnOrganisation}. The games embedded for it start nothing until they
-// get another page.
+// OfOwnOrganisation}. The organisation's embedded games start nothing until
+// it has another, approved.
 func DeleteVerifiedPage(ctx context.Context, id uuid.UUID) error {
 	page, err := readVerifiedPage(ctx, id)
 	if err != nil {

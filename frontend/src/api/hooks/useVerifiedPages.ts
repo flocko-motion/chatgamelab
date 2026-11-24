@@ -6,8 +6,17 @@ import type {
   CreateVerifiedPageReq,
   Error as ApiError,
   MessageResp,
+  VerifiedPageFilter,
+  VerifiedPageSort,
   VerifiedPageView,
 } from "../generated/api.gen";
+import { useEntityList, type List, type ListPreset } from "../lists";
+
+/** A filter of the verified page list (the server's enum): waiting or approved. */
+export type VerifiedPageListFilter = VerifiedPageFilter;
+
+/** An order of the verified page list (the server's enum). */
+export type VerifiedPageListSort = VerifiedPageSort;
 
 /**
  * An organisation's verified pages: the pages on its own website that may
@@ -44,6 +53,31 @@ export function useDeleteVerifiedPage() {
     mutationFn: ({ id }) => api.deleteApiVerifiedPagesId(id).then((r) => r.data),
     onSuccess: (_, { institutionId }) =>
       queryClient.invalidateQueries({ queryKey: queryKeys.verifiedPages(institutionId) }),
+    onError: handleApiError,
+  });
+}
+
+/** The verified pages the caller may see, waiting first, as a list: the admins' allow list. */
+export function useAllVerifiedPages<F extends string, O extends VerifiedPageListFilter = never>(
+  preset: ListPreset<F, VerifiedPageListSort, O>,
+): List<VerifiedPageView, F, VerifiedPageListSort, O> {
+  return useEntityList<VerifiedPageView, F, VerifiedPageListSort, O>(preset, {
+    key: (params) => [...queryKeys.allVerifiedPages, { ...params }],
+    fetch: (params) =>
+      api.getApiVerifiedPages(params as Parameters<typeof api.getApiVerifiedPages>[0]).then((r) => r.data),
+  });
+}
+
+/** Approves a verified page, or withdraws the approval; for an admin. */
+export function useApproveVerifiedPage() {
+  const queryClient = useQueryClient();
+  return useMutation<VerifiedPageView, ApiError, { id: string; approved: boolean }>({
+    mutationFn: ({ id, approved }) =>
+      api.putApiVerifiedPagesIdApproval(id, { approved }).then((r) => r.data),
+    onSuccess: (page) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.allVerifiedPages });
+      queryClient.invalidateQueries({ queryKey: queryKeys.verifiedPages(page.organisationId) });
+    },
     onError: handleApiError,
   });
 }

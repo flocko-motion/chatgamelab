@@ -68,6 +68,29 @@ func (c caller) ListVerifiedPages(orgID string) ([]VerifiedPage, error) {
 	return resp.Pages, err
 }
 
+// ListAllVerifiedPages is every verified page the caller may see: the
+// admins' allow list.
+func (c caller) ListAllVerifiedPages() ([]VerifiedPage, error) {
+	return decodeItems[VerifiedPage](c.api.GetApiVerifiedPagesWithResponse(ctx(), &apiclient.GetApiVerifiedPagesParams{}))
+}
+
+// ApproveVerifiedPage approves a verified page, or withdraws the approval.
+func (c caller) ApproveVerifiedPage(pageID string, approved bool) (VerifiedPage, error) {
+	return decode[VerifiedPage](c.api.PutApiVerifiedPagesIdApprovalWithResponse(ctx(), pageID,
+		apiclient.ApproveVerifiedPageReq{Approved: approved}))
+}
+
+// UpdateVerifiedPage changes a verified page's address and callback.
+func (c caller) UpdateVerifiedPage(pageID, pageURL, callbackURL string) (VerifiedPage, error) {
+	return decode[VerifiedPage](c.api.PatchApiVerifiedPagesIdWithResponse(ctx(), pageID,
+		apiclient.UpdateVerifiedPageReq{PageUrl: pageURL, CallbackUrl: callbackURL}))
+}
+
+// DeleteVerifiedPage removes a verified page.
+func (c caller) DeleteVerifiedPage(pageID string) error {
+	return done(c.api.DeleteApiVerifiedPagesIdWithResponse(ctx(), pageID))
+}
+
 // CreateVerifiedPage registers a verified page for an organisation.
 func (c caller) CreateVerifiedPage(orgID, pageURL, callbackURL string) (VerifiedPage, error) {
 	return decode[VerifiedPage](c.api.PostApiInstitutionsIdVerifiedPagesWithResponse(ctx(), orgID,
