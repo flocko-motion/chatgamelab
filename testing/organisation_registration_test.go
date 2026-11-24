@@ -186,6 +186,16 @@ func (s *OrganisationRegistrationTestSuite) consent(email string) testutil.Decla
 	}
 }
 
+// The dev organisation the dev sign-in offers is never suspended: its
+// consent to the current declaration is preseeded, also after a restart.
+func (s *OrganisationRegistrationTestSuite) TestTheDevOrganisationIsNotSuspended() {
+	for _, member := range []*testutil.UserClient{s.DevHead(), s.DevStaff()} {
+		s.Equal("", s.suspension(member), "%s's organisation", member.Name)
+	}
+	s.RestartBackend()
+	s.Equal("", s.suspension(s.DevHead()), "after a restart")
+}
+
 // suspension is why the caller's organisation is suspended, as they see it.
 func (s *OrganisationRegistrationTestSuite) suspension(member *testutil.UserClient) string {
 	me := Must(member.WhoAmI())

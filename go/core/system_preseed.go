@@ -18,6 +18,7 @@ import (
 	"cgl/core/internal/store"
 	"cgl/db"
 	"cgl/functional"
+	"cgl/legal"
 	"cgl/log"
 	"cgl/obj"
 
@@ -65,6 +66,7 @@ func preseed(ctx context.Context) {
 		}
 	}
 	preseedDevUsers(ctx)
+	preseedDevConsent(ctx)
 	preseedDevKey(ctx, DevAdmin1UserID)
 	preseedDevPlatformKeys(ctx, DevAdmin1UserID)
 	preseedDevGames(ctx)
@@ -136,6 +138,30 @@ func preseedDevUsers(ctx context.Context) {
 			}
 		}
 		setDevUserRole(ctx, slot)
+	}
+}
+
+// preseedDevConsent keeps the dev organisation's consent to the current
+// declaration, given by head-1, so it is not suspended: also after the
+// declaration changes.
+func preseedDevConsent(ctx context.Context) {
+	q := store.Queries()
+	declaration := legal.CurrentDeclaration()
+	latest, err := q.V2LatestConsent(ctx, DevInstitutionID)
+	if err != nil {
+		log.Warn("failed to read the dev organisation's consent", "error", err)
+		return
+	}
+	if len(latest) == 1 && latest[0].Kind == "consent" &&
+		latest[0].DeclarationVersion == declaration.Version && latest[0].DeclarationHash == declaration.Hash {
+		return
+	}
+	if _, err := recordConsent(ctx, q, DevInstitutionID, DevHead1UserID, legal.Consent{
+		PersonName: "head-1", PersonFunction: "Head", Email: "head-1@dev.local",
+		Organisation: "Dev Organization", Operator: "Dev Operator",
+		Street: "Devstraße 1", PostalCode: "00000", City: "Devstadt",
+	}); err != nil {
+		log.Warn("failed to record the dev organisation's consent", "error", err)
 	}
 }
 
