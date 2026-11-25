@@ -8,6 +8,7 @@ import {
   IconPlayerPlay,
   IconPlayerPlayFilled,
   IconPencil,
+  IconEdit,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { blocksContinue, unplayable } from "@/common/lib/playability";
@@ -148,6 +149,8 @@ export function GameCard({
         >
           <span className={classes.playCircle}>
             <IconPlayerPlayFilled className={classes.playIcon} aria-hidden />
+            {/* Shown instead while the pointer is on Edit: what that click does. */}
+            <IconEdit className={classes.editIcon} aria-hidden />
           </span>
         </button>
         <div className={classes.overlayTop}>

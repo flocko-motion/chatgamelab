@@ -47,7 +47,7 @@ export function GamesTable(props: GamesTableProps) {
       <GameCard
         game={game}
         onEdit={() => state.view(game)}
-        editLabel={p.canEdit ? t("editGame") : t("games.editor.open")}
+        editLabel={t("edit")}
         onOpen={(canStartNew) => state.openGame(game, session, canStartNew)}
         playLabel={t("allGames.play")}
         hasSession={hasSession}

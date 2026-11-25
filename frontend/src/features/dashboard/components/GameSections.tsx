@@ -82,7 +82,7 @@ function DashboardGameCard({ game, card, date }: { game: GameView; card: CardAct
       hasSession={!!card.session(game)}
       continueLabel={t("allGames.continue")}
       onEdit={() => card.edit(game)}
-      editLabel={card.mayEdit(game) ? t("editGame") : t("games.editor.open")}
+      editLabel={t("edit")}
       isOwner={card.isOwner(game)}
       isFavorite={game.isFavorite}
       onToggleFavorite={() => card.toggleFavorite(game)}

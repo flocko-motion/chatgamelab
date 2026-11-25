@@ -47,7 +47,8 @@
 }
 
 /* Over the cover, on hover (and for the keyboard on focus): a big round
-   button with a gamepad, as a video shows its play button. */
+   button with a play triangle, as a video shows its play button; while the
+   pointer is on Edit, a pencil instead. */
 .playHint {
   all: unset;
   position: absolute;
@@ -96,6 +97,27 @@
   width: 45%;
   height: 45%;
   margin-left: 6%;
+}
+
+/* The pencil: hidden until the pointer is on Edit, then it takes the
+   triangle's place. A game that cannot start shows it too, as Edit works. */
+.editIcon {
+  display: none;
+  width: 45%;
+  height: 45%;
+}
+
+.card:has(.edit:hover) .playIcon {
+  display: none;
+}
+
+.card:has(.edit:hover) .editIcon {
+  display: block;
+}
+
+.card[data-unplayable]:has(.edit:hover) .playHint {
+  display: flex;
+  opacity: 1;
 }
 
 .overlayTop,
