@@ -11,10 +11,9 @@ import (
 	"net"
 	"net/smtp"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
-
-	"cgl/functional"
 )
 
 // dialTimeout bounds connecting to the mail server.
@@ -24,18 +23,29 @@ const dialTimeout = 15 * time.Second
 // logins very slowly.
 const sessionTimeout = 2 * time.Minute
 
-// smtpConfig is the mail server and its login, from the environment.
+// smtpConfig is the mail server and its login.
 type smtpConfig struct {
 	host, port, user, password, from string
 }
 
-func smtpConfigFromEnv() smtpConfig {
+// defaultPort is the submission port, used while a server names none.
+const defaultPort = 587
+
+func (s Server) config() smtpConfig {
+	port := s.Port
+	if port == 0 {
+		port = defaultPort
+	}
+	from := strings.TrimSpace(s.From)
+	if from == "" {
+		from = strings.TrimSpace(s.User)
+	}
 	return smtpConfig{
-		host:     strings.TrimSpace(functional.EnvOrDefault("SMTP_HOST", "")),
-		port:     strings.TrimSpace(functional.EnvOrDefault("SMTP_PORT", "587")),
-		user:     functional.EnvOrDefault("SMTP_USER", ""),
-		password: functional.EnvOrDefault("SMTP_PASSWORD", ""),
-		from:     strings.TrimSpace(functional.EnvOrDefault("SMTP_FROM", "ChatGameLab <noreply@chatgamelab.eu>")),
+		host:     strings.TrimSpace(s.Host),
+		port:     strconv.Itoa(port),
+		user:     s.User,
+		password: s.Password,
+		from:     from,
 	}
 }
 

@@ -1,5 +1,4 @@
 {
-  "_sourceHash": "511c1a97217e633a",
   "auth": {
     "ageGroup": {
       "description": "Dette hjælper os med at anvende de rette beskyttelses- og indholdsretningslinjer på din konto.",
@@ -39,12 +38,6 @@
         "message": "Vent venligst, mens vi omdirigerer dig til login-siden.",
         "title": "Omdirigerer til Auth0..."
       },
-      "role": {
-        "admin": "Log ind som administrator",
-        "guest": "Log ind som gæst",
-        "student": "Log ind som elev",
-        "teacher": "Log ind som lærer"
-      },
       "unavailable": {
         "message": "Denne instans tilbyder ikke login. Gæster i en workshop kan i stedet indtaste deres kode.",
         "title": "Login er ikke tilgængeligt"
@@ -61,6 +54,7 @@
         "introExisting": "Jeres organisation “{{name}}” har nu en erklæring, der bekræftes online. Den erstatter den brugeraftale, du tidligere underskrev. Læs den, og godkend den på vegne af jeres institution.",
         "introNewVersion": "Erklæringen er blevet opdateret (version {{version}}). Læs den nye version, og godkend den på vegne af jeres organisation “{{name}}”.",
         "introWithdrawn": "Din organisations “{{name}}” samtykke til erklæringen er trukket tilbage, så den er suspenderet. Læs erklæringen, og acceptér den på vegne af din institution for at bruge {{siteName}} igen.",
+        "later": "Senere",
         "logout": "Log ud",
         "oneHeadIsEnough": "Det er nok, at én organisationsleder accepterer. Indtil da er din organisation suspenderet: Dens medlemmer kan ikke bruge {{siteName}}.",
         "submit": "Godkend",
@@ -123,23 +117,8 @@
         "tooLong": "Højst {{max}} tegn. Forkort den, eller vælg et forslag."
       }
     },
-    "participant": {
-      "leaveConfirm": {
-        "confirm": "Forlad workshop",
-        "message": "Er du sikker på, at du vil forlade denne workshop? Du skal bruge et nyt invitationslink for at tilslutte dig igen.",
-        "title": "Forlad workshop?"
-      },
-      "leaveWorkshop": "Forlad workshop",
-      "organization": "Organisation",
-      "role": "Workshopdeltager",
-      "workshop": "Workshop"
-    },
     "profile": {
-      "ageGroup": "Aldersgruppe",
-      "ageGroupDescription": "Bestemmer hvilke indholdsretningslinjer der gælder for dine spil. Du kan ændre dette når som helst.",
       "ageGroupSection": "Alders- og beskyttelsesgruppe",
-      "ageGroupU13": "13-17 år",
-      "ageGroupU18": "18+",
       "gamesCreated": "Spil oprettet",
       "gamesPlayed": "Spillede spil",
       "guestCode": {
@@ -154,19 +133,12 @@
       "noRole": "Ingen rolle tildelt",
       "organization": "Organisation",
       "organizationSection": "Organisation og rolle",
-      "participantCode": {
-        "error": "Din adgangskode kunne ikke indlæses.",
-        "hint": "Tag et billede af denne kode, eller skriv den ned, og hold den for dig selv. Den giver dig adgang til din konto igen når som helst og på enhver enhed: indtast ordene under “Indtast kode” på startsiden, eller scan QR-koden.",
-        "longTokenHint": "Tag et billede af QR-koden, eller gem linket, og hold det for dig selv. Det giver dig adgang til din konto igen når som helst. Din workshopleder kan give dig en kort kode på fire ord ved at nulstille din adgang.",
-        "title": "Din adgangskode"
-      },
       "role": "Rolle",
       "roles": {
         "admin": "Administrator",
         "guest": "Gæst",
         "head": "Organisationsleder",
         "individual": "Individ",
-        "participant": "Deltager",
         "staff": "Workshopleder"
       },
       "statisticsSection": "Statistik",
@@ -175,12 +147,6 @@
       "workshopSection": "Workshop og organisation"
     },
     "register": {
-      "ageGroupLabel": "Aldersgruppe",
-      "ageGroupRequired": "Vælg venligst din aldersgruppe",
-      "ageGroupU13": "13-17 år",
-      "ageGroupU18": "18 år eller ældre",
-      "ageGroupUnder13": "Under 13",
-      "ageGroupUnder13Error": "Du skal være mindst 13 år for at bruge ChatGameLab.",
       "cancelButton": "Annuller",
       "emailDescription": "Valgfrit. Vi bruger den til vigtige meddelelser.",
       "emailLabel": "E-mailadresse",
@@ -211,25 +177,6 @@
       "continueButton": "Fortsæt til registrering",
       "description": "Vi bruger Auth0 som vores godkendelsesudbyder til at administrere brugerkonti. Du bliver omdirigeret til Auth0 for at oprette din konto og derefter sendt tilbage hertil for at færdiggøre din profil.",
       "educatorDescription": "Brug {{siteName}} i workshops, undervisning eller i din organisation",
-      "educatorModal": {
-        "closeButton": "Luk",
-        "copied": "Kopieret!",
-        "copyEmail": "Kopiér e-mail",
-        "eduInfo": "Få mere at vide om at bruge ChatGameLab til undervisningsformål:",
-        "intro": "For at bruge ChatGameLab med din organisation (skole, universitet, institution), skal du følge disse trin:",
-        "registerButton": "Opret personlig konto",
-        "step1": "1. Opret en personlig konto",
-        "step1Description": "Opret først din personlige konto. Dette bliver dit login til platformen.",
-        "step2": "2. Send os en e-mail",
-        "step2Description": "Skriv en e-mail til",
-        "step2Item1": "Din registrerede e-mailadresse",
-        "step2Item2": "Navnet på din organisation (skole, institution osv.)",
-        "step2WithInfo": "med:",
-        "step3": "3. Vi opsætter din organisation",
-        "step3Description": "Vi opretter din organisation og gør dig til leder. Derefter kan du invitere kolleger og planlægge workshops.",
-        "title": "Underviser- \u0026 professionel adgang"
-      },
-      "educatorTitle": "Underviser / Professionel",
       "individualDescription": "Skab og spil AI-drevne teksteventyr",
       "individualTitle": "Personlig konto",
       "loginLink": "Log ind",
@@ -245,11 +192,6 @@
     },
     "settings": {
       "accountSection": "Konto",
-      "ageGroupDescription": "Bestemmer hvilke indholdsretningslinjer der gælder for dine spil.",
-      "ageGroupLabel": "Aldersgruppe",
-      "ageGroupU13": "13-17 år",
-      "ageGroupU18": "18 år eller ældre",
-      "emailChangeNote": "Kontakt venligst webstedets administrator for at ændre din e-mailadresse.",
       "emailDescription": "Valgfrit. Organisationer inviterer dig via den; ingen anden konto må bruge den.",
       "emailLabel": "E-mail",
       "emailPlaceholder": "dig@eksempel.org",
@@ -288,9 +230,7 @@
           "title": "Slet invitation"
         },
         "role": "Rolle",
-        "searchPlaceholder": "Søg efter e-mail, rolle, status eller organisation...",
         "sort": {
-          "label": "Sorter efter",
           "modifiedAt-asc": "Ændret (ældste)",
           "modifiedAt-desc": "Ændret (nyeste)",
           "organization-asc": "Organisation (A-Å)",
@@ -347,7 +287,6 @@
         "postalCode": "Postnummer",
         "removeMember": "Fjern medlem",
         "removeMemberConfirm": "Er du sikker på, at du vil fjerne {{name}} fra denne organisation?",
-        "searchPlaceholder": "Søg i organisationer...",
         "sendInvite": "Send invitation",
         "status": "Status og samtykke",
         "statusActive": "Aktiv",
@@ -364,16 +303,6 @@
         "title": "Administrer organisationer"
       },
       "registrations": {
-        "bell": {
-          "empty": "Ingen organisationer har registreret sig de sidste to uger.",
-          "intro_one": "Denne organisation registrerede sig de sidste to uger og er allerede aktiveret.",
-          "intro_other": "Disse {{count}} organisationer registrerede sig de sidste to uger og er allerede aktiveret.",
-          "label": "Nye organisationer",
-          "later": "Senere",
-          "open": "Gå til oversigten",
-          "suspendHint": "E-mailadresser bekræftes ikke i øjeblikket. Se kort på nye organisationer, og suspendér dem i oversigten, hvis noget er forkert.",
-          "title": "Nye organisationer"
-        },
         "date": "Registreret",
         "description": "Organisationer, der selv har registreret sig de sidste to uger. De er aktive med det samme uden at bekræfte e-mailadressen; se på dem, og suspendér en, hvis noget er forkert.",
         "empty": "Ingen organisationer har selv registreret sig de sidste to uger.",
@@ -396,8 +325,6 @@
           "all": "Alle brugere",
           "noGuests": "Uden gæster"
         },
-        "hideGuests": "Skjul gæster ({{count}})",
-        "hideGuestsShort": "Gæster ({{count}})",
         "joined": "Tilsluttet",
         "loadError": "Kunne ikke indlæse brugere",
         "makeAdmin": "Gør til admin",
@@ -415,8 +342,6 @@
         "removeAdminTitle": "Fjern admin-rolle",
         "removeAdminWarning": "Denne bruger mister alle administrative rettigheder.",
         "role": "Rolle",
-        "searchPlaceholder": "Søg efter navn, e-mail, rolle eller organisation...",
-        "showing": "Viser {{count}} af {{total}} brugere",
         "signUpInProgress": "Tilmelding i gang",
         "signingUp": "Tilmelder sig",
         "sort": {
@@ -424,7 +349,6 @@
           "email-desc": "E-mail (Å-A)",
           "joined-asc": "Tilsluttet (ældste)",
           "joined-desc": "Tilsluttet (nyeste)",
-          "label": "Sorter efter",
           "name-asc": "Navn (A-Å)",
           "name-desc": "Navn (Å-A)",
           "organization-asc": "Organisation (A-Å)",
@@ -458,7 +382,6 @@
       "high": "Høj",
       "label": "AI-kvalitetsniveau",
       "low": "Sparsom",
-      "max": "Maks (Premium + lyd)",
       "medium": "Afbalanceret",
       "newSessionsOnly": "Dette niveau gælder kun for nye sessioner. Eksisterende sessioner beholder det niveau, de startede med.",
       "serverDefault": "Serverstandard"
@@ -470,7 +393,6 @@
         "message": "Dette opretter en kopi af \"{{name}}\" i dine spil.",
         "title": "Kopiér spil"
       },
-      "copyGame": "Kopiér spil",
       "empty": {
         "conditions": {
           "favorites": "en af dine favoritter",
@@ -581,8 +503,6 @@
         "toggle": "Delinger og sponsorater",
         "unknownGame": "Ukendt spil",
         "unknownOrg": "Ukendt organisation",
-        "unknownUser": "Ukendt bruger",
-        "unknownWorkshop": "Ukendt workshop",
         "unlimited": "Ubegrænset antal brug"
       },
       "sort": {
@@ -639,24 +559,9 @@
     },
     "error": "Fejl",
     "footer": {
-      "copyright": "JFF - Institut für Medienpädagogik",
-      "jffTitle": "JFF - Institute for Educational Research and Innovation",
       "programmedBy": "Programmeret af"
     },
-    "gamePlayer": {
-      "rebuilding": {
-        "description": "Du kan snart spille spil igen her.",
-        "title": "Spilvisningen bliver bygget om"
-      }
-    },
     "games": {
-      "actions": {
-        "delete": "Slet",
-        "edit": "Rediger",
-        "export": "Eksportér",
-        "play": "Spil",
-        "view": "Vis"
-      },
       "badges": {
         "myGame": "Mit spil",
         "public": "Offentligt",
@@ -686,7 +591,6 @@
         "namePlaceholder": "f.eks. Rum-eventyr",
         "publicDescription": "Offentlige spil er synlige og spilbare for alle brugere på denne platform.",
         "publicLabel": "Gør dette spil offentligt",
-        "publicOwnerOnly": "Kun spillets opretter kan gøre et spil offentligt.",
         "submit": "Opret spil",
         "title": "Opret nyt spil"
       },
@@ -711,7 +615,7 @@
         "imageStyleHint": "For eksempel: tegnefilm, realistisk, pixelart, akvarel...",
         "name": "Spilnavn",
         "scenario": "Hvad handler spillet om?",
-        "scenarioHint": "Beskriv kort: Hvordan fungerer spillet? Hvordan ser spilverdenen ud? Sprog \u000026 tone (f.eks. spansk for elever i 6. klasse)?\nHvilken rolle har spilleren? Skriv \"Spilleren ...\". \nHvis du vil have AI'en til at spille rollen som en bestemt person, skal du skrive \"Du er ...\".\nHvad er målet? Hvordan ved spilleren, at han eller hun har vundet?",
+        "scenarioHint": "Beskriv kort: Hvordan fungerer spillet? Hvordan ser spilverdenen ud? Sprog \u0026 tone (f.eks. spansk for elever i 6. klasse)?\nHvilken rolle har spilleren? Skriv \"Spilleren ...\". \nHvis du vil have AI'en til at spille rollen som en bestemt person, skal du skrive \"Du er ...\".\nHvad er målet? Hvordan ved spilleren, at han eller hun har vundet?",
         "scenarioPlaceholder": "Du er en opdagelsesrejsende i en mystisk skov. Dit mål er at finde den skjulte skat...",
         "statusFields": "Spilværdier",
         "statusFieldsHint": "Hvad skal spillet holde styr på? For eksempel liv, point eller ammunition. Spillet husker disse værdier og opdaterer dem undervejs.",
@@ -915,8 +819,7 @@
           "status": {
             "builtIn": "Ingen beskrivelse endnu: Spillet taler med en indbygget stemme, indtil du beskriver stemmen.",
             "cast": "Når spillet starter, vælger det den indbyggede stemme af den valgte type, der passer bedst til historien. Beskrivelsen styrer, hvordan den taler.",
-            "ownVoice": "En egen stemme til denne beskrivelse, lavet med din AI-nøgle.",
-            "steered": "En indbygget stemme læser historien op, sådan som beskrivelsen angiver."
+            "ownVoice": "En egen stemme til denne beskrivelse, lavet med din AI-nøgle."
           },
           "stop": "Stop prøven"
         },
@@ -957,10 +860,6 @@
         "titleView": "Spil",
         "untitled": "Spil uden titel"
       },
-      "empty": {
-        "description": "Opret dit første spil for at komme i gang med interaktive AI-drevne eventyr.",
-        "title": "Ingen spil endnu"
-      },
       "errors": {
         "loadFailed": "Kunne ikke indlæse spil. Prøv igen.",
         "nameRequired": "Spilnavn er påkrævet",
@@ -975,7 +874,6 @@
       "fields": {
         "created": "Oprettet",
         "creator": "Skaber",
-        "me": "Mig",
         "modified": "Ændret",
         "name": "Navn",
         "playCount": "Spil",
@@ -984,9 +882,7 @@
       "genres": {
         "adventure": "Eventyr",
         "discussion": "Diskussion",
-        "npc": "Karakter",
-        "npc-duo": "Diskussion",
-        "npc-live": "Figur"
+        "npc": "Karakter"
       },
       "importExport": {
         "coverFailed": "Spillet blev importeret, men forsiden kunne ikke tjekkes. Du kan tegne en ny i editoren.",
@@ -1002,7 +898,6 @@
         "importButton": "Importér spil"
       },
       "newGame": "Nyt spil",
-      "playNow": "Spil nu",
       "privacyHint": "Et spils navn og beskrivelse kan blive offentligt synlige. Brug venligst ikke rigtige navne.",
       "privacyHintShort": "Kan blive offentligt synligt – brug venligst ikke rigtige navne.",
       "privateShare": {
@@ -1050,12 +945,10 @@
         "active": "Aktiv",
         "privateShareLink": "Privat delingslink",
         "privateShareLinkDescription": "Private delingslinks kan deles med andre. Enhver med linket kan spille spillet anonymt uden en konto. En API-nøgle skal vælges til at dække omkostningerne.",
-        "publicGameWorkshopHint": "Dette er et offentligt spil og ikke en del af din workshop. Delingsmuligheder er ikke tilgængelige for offentlige spil i workshoptilstand.",
         "publicSponsoring": "Offentlig sponsorering",
         "publicSponsoringDescription": "Alle brugere på platformen kan spille dette spil gratis – din tildelte API-nøgle dækker omkostningen.",
         "sectionTitle": "Delingsmuligheder",
-        "sectionTitleShareOnly": "Delingsmuligheder",
-        "workshopShareRequiresPublic": "Dette spil skal være offentligt, før det kan deles i workshoppen."
+        "sectionTitleShareOnly": "Delingsmuligheder"
       },
       "sort": {
         "createdAt-asc": "Oprettet (ældste)",
@@ -1165,7 +1058,6 @@
           "zombie": "Zombie"
         }
       },
-      "title": "Mine oprettede spil",
       "viewModal": {
         "readOnlyNotice": "Dette spil er oprettet af en anden bruger. Du kan se detaljerne, men ikke redigere. Brug \"Kopiér\" for at lave din egen redigerbare version.",
         "title": "Spildetaljer"
@@ -1193,25 +1085,6 @@
     "help": "Hjælp",
     "home": {
       "codeCta": "Indtast kode",
-      "features": {
-        "create": {
-          "description": "Design interaktive tekst-eventyr drevet af AI",
-          "title": "Skab eventyr"
-        },
-        "learn": {
-          "description": "Perfekt til undervisningsworkshops og klasseaktiviteter",
-          "title": "Lær og undervis"
-        },
-        "play": {
-          "description": "Deltag i samarbejdende historiefortælling med venner",
-          "title": "Spil sammen"
-        },
-        "title": "Hvorfor vælge ChatGameLab?",
-        "understand": {
-          "description": "Udforsk hvordan AI-modeller skaber historier, og lær hvordan de virker",
-          "title": "Forstå AI"
-        }
-      },
       "loginCta": "Log ind og udforsk",
       "splashDescription": "En læringsplatform til at skabe og spille AI-drevne tekst-eventyr. Perfekt til lærere, elever og kreative historiefortællere."
     },
@@ -1248,19 +1121,9 @@
       "guest": {
         "loggingIn": "Logger dig ind..."
       },
-      "participant": {
-        "loggingIn": "Logger dig ind..."
-      },
       "success": {
         "message": "Du har tilsluttet dig workshoppen. Omdirigerer...",
         "title": "Velkommen!"
-      },
-      "switchWorkshop": {
-        "message": "Dine spil og fremskridt i den nuværende workshop forbliver, men du kan ikke få adgang til dem, før du tilslutter dig igen.",
-        "stayButton": "Bliv i nuværende workshop",
-        "switchButton": "Skift workshop",
-        "title": "Skift workshop?",
-        "warning": "Du er i øjeblikket i workshop \"{{currentWorkshop}}\". Hvis du tilslutter dig \"{{newWorkshop}}\", forlader du din nuværende workshop."
       }
     },
     "labels": {
@@ -1295,31 +1158,25 @@
     "logout": "Log ud",
     "me": "Mig",
     "myGames": {
-      "continue": "Spil",
       "copyConfirm": {
         "confirm": "Kopiér spil",
         "message": "Dette opretter en kopi af \"{{name}}\" i dine spil.",
         "title": "Kopiér spil"
       },
-      "copyGame": "Kopiér spil",
       "empty": {
         "description": "Opret dit første spil for at komme i gang med interaktive AI-drevne eventyr.",
         "title": "Ingen spil endnu"
       },
-      "favorite": "Føj til favoritter",
       "filters": {
         "all": "Alle",
         "favorites": "Favoritter"
       },
-      "play": "Spil",
-      "restart": "Genstart",
       "restartConfirm": {
         "confirm": "Genstart",
         "message": "Er du sikker på, at du vil genstarte \"{{game}}\"? Dine aktuelle fremskridt går tabt.",
         "title": "Genstart spil"
       },
-      "title": "Mine spil",
-      "unfavorite": "Fjern fra favoritter"
+      "title": "Mine spil"
     },
     "myOrganization": {
       "actions": "Handlinger",
@@ -1331,7 +1188,6 @@
         "allPlatforms": "Alle platforme",
         "allowPublicSponsoring": "Tillad offentlig sponsorering",
         "allowPublicSponsoringDesc": "Denne nøgle kan bruges til at sponsorere spil for alle brugere.",
-        "filterByPlatform": "Filtrér efter platform",
         "freeUseKey": {
           "description": "Angiv en gratisnøgle, så alle organisationsmedlemmer kan spille spil uden deres egen API-nøgle.",
           "remove": "Fjern",
@@ -1351,13 +1207,10 @@
         "platform": "Platform",
         "publicSponsoring": "Offentlig sponsorering",
         "removeShare": "Fjern fra organisationen",
-        "searchPlaceholder": "Søg efter navn eller ejer...",
         "selectKey": "Vælg API-nøgle",
         "selectKeyPlaceholder": "Vælg en nøgle at dele...",
         "share": "Del",
-        "shareKey": "Del nøgle",
         "shareKeyTitle": "Føj en API-nøgle til organisationen",
-        "showDetails": "Vis detaljer",
         "title": "Organisationens API-nøgler"
       },
       "autoShare": {
@@ -1367,7 +1220,10 @@
         "personalKeyGroup": "Personlige nøgler"
       },
       "declaration": {
+        "agree": "Læs og godkend",
         "consented": "Jeres organisation godkendte version {{version}} den {{date}}.",
+        "goAgree": "Gå til jeres organisation",
+        "newVersion": "Der er en ny version {{version}} af samtykkeerklæringen. Jeres organisation forbliver aktiv; læs den, og godkend den på dens vegne.",
         "title": "Samtykkeerklæring",
         "withdraw": "Træk samtykke tilbage",
         "withdrawConfirm": "Uden samtykke er din organisation suspenderet: Intet medlem kan bruge {{siteName}}, før en leder accepterer igen. Dens data bliver bevaret.",
@@ -1385,9 +1241,6 @@
       "inviteTeacher": "Inviter lærer",
       "inviteTeacherDescription": "Send en invitation til en lærer om at tilslutte sig din organisation.",
       "inviteTeacherTitle": "Inviter lærer",
-      "inviteUser": "Inviter bruger",
-      "inviteUserDescription": "Send en invitation til en bruger om at tilslutte sig din organisation uden en specifik rolle.",
-      "inviteUserTitle": "Inviter bruger",
       "lastHeadError": "Du er den sidste leder af denne organisation. Kontakt webstedsadministratorerne, hvis du skal forlade den.",
       "leaveConfirm": "Er du sikker på, at du vil forlade \"{{name}}\"?",
       "leaveError": "Kunne ikke forlade organisationen. Prøv igen.",
@@ -1454,7 +1307,6 @@
       "removeTitle": "Fjern medlem",
       "removeWarning": "Denne bruger mister adgang til organisationen.",
       "role": "Rolle",
-      "searchPlaceholder": "Søg efter medlemmer...",
       "showing": "{{count}} medlemmer",
       "sort": {
         "label": "Sorter efter",
@@ -1492,20 +1344,12 @@
         "active": "Aktiv",
         "activeDescription": "Aktive workshops lader deltagere tilslutte sig og oprette spil.",
         "activeLabel": "Aktiv",
-        "addIndividual": "Tilføj organisationsmedlem",
         "addIndividualError": "Det lykkedes ikke at tilføje medlem til workshoppen.",
-        "addIndividualHint": "Når du tilføjer en bruger, sættes vedkommende automatisk i workshoptilstand. De ser workshopvisningen i stedet for deres normale dashboard. Gør kun dette, hvis det er tilsigtet.",
-        "addIndividualStaffNote": "Ledere og undervisere bør selv tilmelde sig workshops via workshoplisten – de vises ikke her.",
-        "addIndividualSuccess": "Medlem tilføjet",
-        "addIndividualSuccessMessage": "{{name}} er blevet tilføjet til workshoppen.",
-        "addIndividualTitle": "Tilføj person til workshop",
         "addToWorkshop": "Tilføj til workshop",
         "aiQualityTierHint": "Kvalitetsniveau for AI-svar. Højere niveauer koster mere, men kan have højere kvalitet. Tomt bruger serverstandarden.",
         "allowGameSharing": "Tillad deling af spil",
         "allowGameSharingHint": "Når aktiveret, kan deltagere oprette delingslinks til deres spil med workshopens API-nøgle",
-        "anonymousParticipant": "Anonym deltager",
         "create": "Opret workshop",
-        "createFirst": "Opret din første workshop",
         "createInviteLink": "Opret invitationslink",
         "createTitle": "Opret workshop",
         "deactivate": "Deaktivér",
@@ -1528,10 +1372,8 @@
         "inviteByEmailSuccessMessage": "Der er oprettet en invitation. Brugeren ser den under ventende invitationer.",
         "inviteByEmailTitle": "Invitér bruger til workshop",
         "inviteCreatedAt": "Oprettet",
-        "inviteDescription": "Generér et invitationslink, som deltagere kan bruge til at tilslutte sig denne workshop.",
         "inviteExpiresAt": "Udløber",
         "inviteLink": "Invitationslink",
-        "inviteLinkDescription": "Del dette link med deltagere for at lade dem tilslutte sig workshoppen.",
         "inviteLinkTitle": "Invitationslink til deltagere – {{name}}",
         "inviteUsage": "Forbrug",
         "isPaused": "Sæt workshop på pause",
@@ -1547,14 +1389,11 @@
         "noDefaultModel": "Brug platformstandard",
         "noGuestToken": "Dette medlem har ikke noget link til login igen. Kun gæster har et.",
         "noIndividuals": "Ingen individuelle brugere i denne organisation.",
-        "noParticipantToken": "Denne deltager har ikke et invitationslink. Kun anonyme deltagere (gæster) har genanvendelige invitationslinks.",
         "noParticipants": "Ingen deltagere endnu",
         "noResults": "Ingen workshops matcher din søgning eller dit filter.",
         "notAuthorized": "Du har ikke tilladelse til at administrere workshops. Kun ledere og lærere har adgang til denne side.",
         "participantGames": "{{count}} spil",
         "participantJoined": "Deltog {{date}}",
-        "participantLinkTitle": "Link til at logge ind igen",
-        "participantLinkTitleNamed": "Link til at logge ind igen for {{name}}",
         "participantName": "Deltagernavn",
         "participants": "Deltagere",
         "promptConstraintsFallbackOrg": "Organisationens ungdomsbeskyttelsesregel bruges som standard: {{constraint}}",
@@ -1578,7 +1417,6 @@
         "selectApiKey": "Vælg en API-nøgle",
         "settings": "Indstillinger",
         "shareGuestLink": "Vis link til login igen",
-        "shareParticipantLink": "Vis link til at logge ind igen",
         "showOtherParticipantsGames": "Vis andre deltageres spil",
         "showOtherParticipantsGamesHint": "Ledere og personale kan altid se alle deltageres spil til moderation",
         "showPublicGames": "Vis offentlige spil for deltagerne",
@@ -1612,7 +1450,6 @@
       "decline": "Afvis",
       "declineConfirm": "Er du sikker på, at du vil afvise denne invitation?",
       "declineTitle": "Afvis invitation",
-      "empty": "Ingen nye notifikationer.",
       "inviteDescription": "Du er blevet inviteret til at deltage som {{role}}.",
       "inviteToJoin": "Organisationsinvitation",
       "nothingNew": "Intet nyt",
@@ -1761,6 +1598,7 @@
           "educatorInfoUrl": "Information til undervisere",
           "gameTipsUrl": "Tips til at lave spil",
           "helpUrl": "Hjælp",
+          "operatorLegalName": "Operatørens juridiske navn (til juridiske tekster)",
           "operatorName": "Operatør",
           "operatorUrl": "Operatørens websted",
           "privacyUrl": "Privatlivspolitik",
@@ -1787,13 +1625,10 @@
         "title": "Ungdomsbeskyttelsesregler efter aldersgruppe",
         "u13Hint": "Indsættes i hver AI-prompt for indloggede brugere på 13-17 år uden forældresamtykke registreret.",
         "u13Label": "Ungdomsbeskyttelsesregel for brugere på 13-17 år uden forældresamtykke (U13)",
-        "u13Placeholder": "f.eks. Hold alt indhold strengt alderssvarende for teenagere. Ingen vold, ingen romantisk indhold, ingen horror.",
         "u13pHint": "Indsættes i hver AI-prompt for indloggede brugere på 13-17 år med forældresamtykke registreret.",
         "u13pLabel": "Ungdomsbeskyttelsesregel for brugere på 13-17 år med forældresamtykke (U13p)",
-        "u13pPlaceholder": "f.eks. alderssvarende indhold for teenagere, hvis forældre har givet samtykke. Visse modne temaer tilladt, intet eksplicit indhold.",
         "u18Hint": "Indsættes i hver AI-prompt for loggede brugere på 18 år og derover.",
-        "u18Label": "Ungdomsbeskyttelsesregel for brugere på 18 år og derover (U18)",
-        "u18Placeholder": "f.eks. Hold indholdet passende. Undgå eksplicit vold eller seksuelt indhold."
+        "u18Label": "Ungdomsbeskyttelsesregel for brugere på 18 år og derover (U18)"
       },
       "defaultTier": {
         "description": "Serverens generelle fallback-niveau bruges, når der ikke er angivet et specifikt niveau på workshop-, institutions- eller brugerniveau. Højere niveauer koster mere, men kan have højere kvalitet.",
@@ -1814,6 +1649,26 @@
       "freeUseTier": {
         "description": "Kvalitetsniveau brugt, når frit-brugs API-nøglen er aktiv. Højere niveauer koster mere, men kan have højere kvalitet. Lad stå tomt for at bruge standardniveauet.",
         "title": "Frit-brugs AI-kvalitetsniveau"
+      },
+      "mail": {
+        "clearPassword": "Fjern adgangskode",
+        "consentCopy": "Kopier af samtykker til",
+        "consentCopyHint": "Modtager en kopi af hver organisations samtykke. Tomt: support-e-mailen.",
+        "description": "Den server, {{siteName}} sender mails igennem, for eksempel bekræftelsen af en organisations samtykke. Uden server bliver mails kun skrevet til loggen.",
+        "from": "Afsender",
+        "fromHint": "Tomt: brugernavnet er afsenderen.",
+        "fromPlaceholder": "Navn \u003cnoreply@example.org\u003e",
+        "host": "Server",
+        "hostHint": "Kun værtsnavnet, uden port. Tomt: mails bliver kun logget.",
+        "password": "Adgangskode",
+        "passwordNone": "Ingen adgangskode sat.",
+        "passwordSet": "Der er sat en adgangskode. Lad feltet stå tomt for at beholde den.",
+        "port": "Port",
+        "portHint": "587 med STARTTLS, 465 med TLS.",
+        "save": "Gem",
+        "saveFailed": "Kunne ikke gemme. Tjek felterne.",
+        "title": "Mailserver",
+        "user": "Brugernavn"
       },
       "models": {
         "assign": {
@@ -1929,6 +1784,7 @@
         "ai": "AI og nøgler",
         "branding": "Branding",
         "general": "Generelt",
+        "mail": "E-mail",
         "models": "AI-modeller",
         "youthProtection": "Beskyttelse af unge"
       },
@@ -1994,49 +1850,6 @@
     }
   },
   "dashboard": {
-    "cards": {
-      "externalLinks": {
-        "edu": {
-          "description": "Mediepædagogisk arbejde med ChatGameLab",
-          "title": "Om ChatGameLab"
-        },
-        "jff": {
-          "description": "Projekts koordinator og ledende organisation.",
-          "title": "JFF – Institut für Medienpädagogik"
-        },
-        "mainSite": {
-          "description": "Lær mere om uddannelsesprojektet bag denne platform.",
-          "title": "ChatGameLab-projektet"
-        },
-        "title": "Om ChatGameLab"
-      },
-      "lastPlayed": {
-        "empty": "Ingen spilhistorik endnu. Begynd at spille et spil!",
-        "title": "Senest spillet",
-        "viewAll": "Alle spil"
-      },
-      "myGames": {
-        "empty": "Ingen spil endnu. Opret dit første spil!",
-        "title": "Mine spil",
-        "viewAll": "Alle kreationer"
-      },
-      "myWorkshops": {
-        "empty": "Ingen aktive workshops. Opret en workshop i din organisation!",
-        "title": "Mine workshops",
-        "viewAll": "Alle workshops"
-      },
-      "newGames": {
-        "empty": "Ingen spil tilgængelige endnu.",
-        "title": "Nye spil",
-        "viewAll": "Alle spil"
-      },
-      "popularGames": {
-        "empty": "Ingen spil tilgængelige endnu.",
-        "plays": "{{count}} gennemspilninger",
-        "title": "Populære spil",
-        "viewAll": "Alle spil"
-      }
-    },
     "continue": {
       "go": "Fortsæt",
       "hint": "fortsæt, hvor du slap",
@@ -2045,15 +1858,14 @@
       "title": "Fortsæt spillet"
     },
     "fresh": {
-      "by": "af {{name}}",
       "empty": "Ingen nye spil endnu.",
       "title": "Nye spil",
       "viewAll": "Se galleriet"
     },
     "hero": {
       "create": "Opret",
-      "greeting": "Hej {{name}}. Hvad skal vi \u0003cmark\u0003ebygge\u0003c/mark\u0003 i dag?",
-      "greetingNoName": "Hej. Hvad skal vi \u0003cmark\u0003ebygge\u0003c/mark\u0003 i dag?",
+      "greeting": "Hej {{name}}. Hvad skal vi \u003cmark\u003ebygge\u003c/mark\u003e i dag?",
+      "greetingNoName": "Hej. Hvad skal vi \u003cmark\u003ebygge\u003c/mark\u003e i dag?",
       "journal": "Laboratoriejournal · {{date}}",
       "promptLabel": "Beskriv en spilidé",
       "promptPlaceholder": "Beskriv en spilidé … AI'en hjælper dig med at forme den"
@@ -2066,8 +1878,7 @@
     },
     "links": {
       "about": "Om {{siteName}}",
-      "educators": "For undervisere",
-      "jff": "JFF – Institut für Medienpädagogik"
+      "educators": "For undervisere"
     },
     "ownGames": {
       "empty": "Ingen spil endnu. Beskriv en idé ovenfor, og opret dit første!",
@@ -2080,20 +1891,11 @@
       "plays_other": "{{count}} afprøvninger",
       "title": "Mest populære"
     },
-    "quickActions": {
-      "createNewGame": "Opret nyt spil",
-      "createWorkshop": "Opret workshop",
-      "importGame": "Importér spil",
-      "inviteMembers": "Invitér medlemmer",
-      "startNewGame": "Start nyt spil",
-      "title": "Hurtige handlinger"
-    },
-    "someone": "nogen",
     "untitled": "Uden titel",
     "untitledGame": "Unavngivet spil",
     "version": {
       "mismatch": {
-        "message": "Frontend-version \u0003frontendVersion\u0003{{frontendVersion}}\u0003/frontendVersion\u0003 matcher ikke backend-version \u0003backendVersion\u0003{{backendVersion}}\u0003/backendVersion\u0003. Det kan give uventet adfærd. Kontakt support, hvis problemet fortsætter.",
+        "message": "Frontend-version \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e matcher ikke backend-version \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. Det kan give uventet adfærd. Kontakt support, hvis problemet fortsætter.",
         "title": "Versionskonflikt registreret"
       }
     },
@@ -2190,10 +1992,8 @@
     "filters": {
       "all": "Alle spil",
       "mine": "Mine spil",
-      "public": "Offentlige spil",
-      "workshop": "Workshopspil"
+      "public": "Offentlige spil"
     },
-    "gameType": "Spil",
     "infoModal": {
       "body": "Du er gået ind i workshoptilstand. I denne tilstand er alt, hvad du gør, knyttet til denne workshop – spil du opretter, spilsessioner og delingslinks.\n\nDu kan gå ud når som helst. At forlade den afslutter ikke workshoppen og fjerner ikke det, du har lavet.",
       "dontShowAgain": "Vis ikke dette igen",
@@ -2218,8 +2018,7 @@
     },
     "showInviteLink": "Vis invitationslink",
     "showPublicPageLink": "Vis link til offentlig side",
-    "title": "Min workshop",
-    "you": "Dig"
+    "title": "Min workshop"
   },
   "navigation": {
     "adminPanel": "Adminpanel",
@@ -2268,8 +2067,6 @@
       "observer": "Instruktør",
       "opening-brief": "Sådan begynder det",
       "outline": "Planlæg scene",
-      "portrait": "Tegn portræt",
-      "portrait-prompt": "Beskriv portræt",
       "props-store": "Spilstatus",
       "rephrase": "Genfortæl handling",
       "rephrase-audio": "Forstå tale",
@@ -2491,52 +2288,50 @@
       "recording": "Lytter… slip for at sende"
     },
     "wires": {
-      "adapted-style\u0003eimage-prompt": "stil",
-      "adapted-style\u0003eimage-style": "anmodning",
-      "adapted-style\u0003estart-game": "klar",
-      "cast\u0003clive-a:voiceA": "stemme",
-      "cast\u0003clive-b:voiceB": "stemme",
-      "cast\u0003cstart-game": "klar",
-      "cast-brief\u0003ccast": "figurer",
-      "condense-scenario\u0003econdensed-scenario": "svar",
-      "condensed-scenario\u0003econdense-scenario": "anmodning",
-      "condensed-scenario\u0003eimage-prompt": "scenarie",
-      "condensed-scenario\u0003estart-game": "klar",
-      "director\u0003clive-a": "indskud",
-      "director\u0003clive-b": "indskud",
-      "gallery-image\u0003estart-game": "klar",
-      "greeting\u0003clive-a": "første ord",
-      "greeting\u0003elive-session": "første ord",
-      "greeting\u0003estart-game": "klar",
-      "image-prompt\u0003eimage": "prompt",
-      "image-style\u0003eadapted-style": "svar",
-      "live-a\u0003cdirector": "transskription",
-      "live-b\u0003cdirector": "transskription",
-      "live-session\u0003eobserver": "transskription",
-      "observer\u0003elive-session": "indsættelse",
-      "opening-brief\u0003egreeting": "oplæg",
-      "outline\u0003eexpand": "plan",
-      "outline\u0003eimage-prompt": "scene",
-      "outline\u0003eprops-store": "ændringer",
-      "player-input-audio\u0003clive-a": "tale",
-      "player-input-audio\u0003clive-b": "tale",
-      "player-input-audio\u0003elive-session": "tale",
-      "player-input-audio\u0003erephrase-audio": "tale",
-      "player-input-text\u0003erephrase": "handling",
-      "portrait\u0003estart-game": "klar",
-      "portrait-prompt\u0003eportrait": "prompt",
-      "props-store\u0003eoutline": "status",
-      "rephrase\u0003eoutline": "handling",
-      "rephrase-audio\u0003eoutline": "handling",
-      "start-game\u0003clive-a": "signal",
-      "start-game\u0003clive-b": "signal",
-      "start-game\u0003elive-session": "signal",
-      "start-game\u0003eoutline": "prompt",
-      "voice\u0003elive-session:secondary": "stemmens stil",
-      "voice\u0003elive-session:voice": "stemme",
-      "voice\u0003estart-game": "klar",
-      "voice-brief\u0003evoice:description": "beskrivelse",
-      "voice-brief\u0003evoice:voice": "reservestemme"
+      "adapted-style\u003eimage-prompt": "stil",
+      "adapted-style\u003eimage-style": "anmodning",
+      "adapted-style\u003estart-game": "klar",
+      "cast-brief\u003ecast": "figurer",
+      "cast\u003elive-a:voiceA": "stemme",
+      "cast\u003elive-b:voiceB": "stemme",
+      "cast\u003estart-game": "klar",
+      "condense-scenario\u003econdensed-scenario": "svar",
+      "condensed-scenario\u003econdense-scenario": "anmodning",
+      "condensed-scenario\u003eimage-prompt": "scenarie",
+      "condensed-scenario\u003estart-game": "klar",
+      "director\u003elive-a": "indsættelse",
+      "director\u003elive-b": "indsættelse",
+      "gallery-image\u003estart-game": "klar",
+      "greeting\u003elive-a": "første ord",
+      "greeting\u003elive-session": "første ord",
+      "greeting\u003estart-game": "klar",
+      "image-prompt\u003eimage": "prompt",
+      "image-style\u003eadapted-style": "svar",
+      "live-a\u003edirector": "transskription",
+      "live-b\u003edirector": "transskription",
+      "live-session\u003eobserver": "transskription",
+      "observer\u003elive-session": "indsættelse",
+      "opening-brief\u003egreeting": "oplæg",
+      "outline\u003eexpand": "plan",
+      "outline\u003eimage-prompt": "scene",
+      "outline\u003eprops-store": "ændringer",
+      "player-input-audio\u003elive-a": "tale",
+      "player-input-audio\u003elive-b": "tale",
+      "player-input-audio\u003elive-session": "tale",
+      "player-input-audio\u003erephrase-audio": "tale",
+      "player-input-text\u003erephrase": "handling",
+      "props-store\u003eoutline": "status",
+      "rephrase-audio\u003eoutline": "handling",
+      "rephrase\u003eoutline": "handling",
+      "start-game\u003elive-a": "startsignal",
+      "start-game\u003elive-b": "startsignal",
+      "start-game\u003elive-session": "startsignal",
+      "start-game\u003eoutline": "prompt",
+      "voice-brief\u003evoice:description": "beskrivelse",
+      "voice-brief\u003evoice:voice": "reservestemme",
+      "voice\u003elive-session:secondary": "stemmens stil",
+      "voice\u003elive-session:voice": "stemme",
+      "voice\u003estart-game": "klar"
     }
   }
 }

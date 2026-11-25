@@ -206,8 +206,15 @@ func confirmConsent(ctx context.Context, c legal.Consent, language string) {
 	} else {
 		log.Warn("site branding unreadable, mailing with its defaults", "error", err)
 	}
-	site := legal.Site{Name: b.SiteName, Operator: b.OperatorName}
-	for _, msg := range legal.Confirmations(c, site, language, mail.NotifyAddress(b.SupportEmail)) {
-		_ = mail.Send(msg) // Send logs its failures
+	server, copyTo, err := mailServer(ctx)
+	if err != nil {
+		log.Warn("mail settings unreadable, logging the confirmation instead", "error", err)
+	}
+	if copyTo == "" {
+		copyTo = b.SupportEmail
+	}
+	site := legal.Site{Name: b.SiteName, Operator: b.OperatorName, OperatorLegal: b.LegalOperator()}
+	for _, msg := range legal.Confirmations(c, site, language, copyTo) {
+		_ = mail.Send(server, msg) // Send logs its failures
 	}
 }

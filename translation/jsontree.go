@@ -254,3 +254,29 @@ func findPlaceholders(s, placeholder string) []string {
 	sort.Strings(out)
 	return out
 }
+
+// pruneFields drops from s the leaves the source src lacks, and names them.
+func pruneFields(s, src string) (pruned string, dropped []string, err error) {
+	keep, err := leaves(src)
+	if err != nil {
+		return "", nil, err
+	}
+	have, err := leaves(s)
+	if err != nil {
+		return "", nil, err
+	}
+	paths := map[string]bool{}
+	for p := range have {
+		if _, ok := keep[p]; ok {
+			paths[p] = true
+		} else {
+			dropped = append(dropped, p)
+		}
+	}
+	sort.Strings(dropped)
+	if len(dropped) == 0 {
+		return s, nil, nil
+	}
+	pruned, err = extractPaths(s, paths)
+	return pruned, dropped, err
+}

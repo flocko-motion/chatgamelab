@@ -254,6 +254,87 @@ func (s *SystemSettingsTestSuite) TestSiteRulesStartAsTheDefaultAndGoBack() {
 		"the default's text stores nothing, so the default keeps applying")
 }
 
+// --- A fresh instance and its mail ---
+
+// operators are names a fresh instance must not show: the software is
+// neutral, and an instance's operator brands it.
+var operators = []string{"JFF", "Jugend Film Fernsehen", "Aktion Jugendschutz", "chatgamelab.eu"}
+
+// A fresh instance names no operator: its branding is the site's name and
+// the software's credit, and the declaration names no one.
+func (s *SystemSettingsTestSuite) TestAFreshInstanceNamesNoOperator() {
+	site := Must(s.Public().GetSite())
+	s.Equal("ChatGameLab", site.Branding.SiteName)
+	s.Empty(site.Branding.OperatorName)
+	s.Empty(site.Branding.OperatorLegalName)
+	s.Empty(site.Branding.SupportEmail)
+	s.Empty(site.Branding.PrivacyUrl)
+
+	branding := testutil.AsSent(site.Branding)
+	declaration := Must(s.Public().GetDeclaration())
+	for _, name := range operators {
+		s.NotContains(branding, name, "the branding")
+		s.NotContains(declaration.Declaration.Text, name, "the declaration")
+	}
+}
+
+// The declaration names the site's operator by their legal name, else by
+// their name.
+func (s *SystemSettingsTestSuite) TestTheDeclarationNamesTheOperator() {
+	admin := s.DevUser()
+	Must(admin.SetSiteBranding(map[string]string{"operatorName": "Muster", "operatorLegalName": ""}))
+	s.Contains(Must(s.Public().GetDeclaration()).Declaration.Text, "Datenschutzerklärung von Muster (Anbieter)")
+
+	Must(admin.SetSiteBranding(map[string]string{"operatorLegalName": "Verein Muster e.V."}))
+	s.Contains(Must(s.Public().GetDeclaration()).Declaration.Text, "Datenschutzerklärung von Verein Muster e.V. (Anbieter)")
+}
+
+// The admin sets the mail server; its password is written, never read back.
+func (s *SystemSettingsTestSuite) TestTheMailServerKeepsItsPassword() {
+	admin := s.DevUser()
+	mail := Must(admin.GetSystemSettings()).Mail
+	s.Empty(mail.Host, "a fresh instance only logs mails")
+	s.Equal(587, mail.Port)
+	s.False(mail.PasswordSet)
+
+	password := "geheim-123"
+	set := func(m testutil.MailSettingsReq) testutil.MailSettings {
+		return Must(admin.UpdateSystemSettings(testutil.SettingsUpdate{Mail: &m})).Mail
+	}
+	mail = set(testutil.MailSettingsReq{Host: "smtp.example.org", Port: 465, User: "post@example.org",
+		From: "Muster <noreply@example.org>", ConsentCopyEmail: "kopie@example.org", Password: &password})
+	s.Equal("smtp.example.org", mail.Host)
+	s.Equal(465, mail.Port)
+	s.Equal("Muster <noreply@example.org>", mail.From)
+	s.Equal("kopie@example.org", mail.ConsentCopyEmail)
+	s.True(mail.PasswordSet)
+
+	s.NotContains(testutil.AsSent(Must(admin.GetSystemSettings())), password, "no answer carries the password")
+
+	mail = set(testutil.MailSettingsReq{Host: "smtp.example.org", Port: 587, User: "post@example.org"})
+	s.True(mail.PasswordSet, "a change without a password keeps it")
+	s.Empty(mail.ConsentCopyEmail)
+
+	cleared := ""
+	mail = set(testutil.MailSettingsReq{Password: &cleared})
+	s.False(mail.PasswordSet, "an empty password clears it")
+	s.Empty(mail.Host, "and an empty host only logs mails again")
+
+	for name, bad := range map[string]testutil.MailSettingsReq{
+		"a port out of range": {Host: "smtp.example.org", Port: 70000},
+		"a host with a port":  {Host: "smtp.example.org:25"},
+		"a broken sender":     {Host: "smtp.example.org", From: "kein Absender"},
+		"a broken copy":       {Host: "smtp.example.org", ConsentCopyEmail: "kopie"},
+	} {
+		_, err := admin.UpdateSystemSettings(testutil.SettingsUpdate{Mail: &bad})
+		s.Invalid(err, name)
+	}
+
+	head := s.CreateUser("head")
+	_, err := head.UpdateSystemSettings(testutil.SettingsUpdate{Mail: &testutil.MailSettingsReq{Host: "evil.example.org"}})
+	s.Forbidden(err, "only the admin sets the mail server")
+}
+
 // --- Session retention ---
 
 // retention sets the site's session retention, in hours.

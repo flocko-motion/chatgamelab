@@ -1,5 +1,4 @@
 {
-  "_sourceHash": "98425c3aa434b7f9",
   "auth": {
     "ageGroup": {
       "description": "これにより、あなたのアカウントに適切な保護とコンテンツガイドラインを適用できます。",
@@ -39,12 +38,6 @@
         "message": "ログインページへリダイレクト中です。しばらくお待ちください。",
         "title": "Auth0へリダイレクト中..."
       },
-      "role": {
-        "admin": "管理者としてログイン",
-        "guest": "ゲストとしてログイン",
-        "student": "生徒としてログイン",
-        "teacher": "教師としてログイン"
-      },
       "unavailable": {
         "message": "このインスタンスではログインを利用できません。ワークショップのゲストは代わりにコードを入力できます。",
         "title": "サインインを利用できません"
@@ -61,6 +54,7 @@
         "introExisting": "組織「{{name}}」には、オンラインで確認する同意宣言が用意されています。これは、以前に署名した利用規約に代わるものです。内容を読み、所属機関を代表して同意してください。",
         "introNewVersion": "同意宣言が更新されました（バージョン{{version}}）。新しい内容を読み、組織「{{name}}」を代表して同意してください。",
         "introWithdrawn": "あなたの団体「{{name}}」による同意宣言への同意が撤回されたため、利用が停止されています。宣言を読み、{{siteName}}を再び利用できるよう、あなたの組織を代表して同意してください。",
+        "later": "あとで",
         "logout": "ログアウト",
         "oneHeadIsEnough": "組織の責任者のうち1人が同意すれば十分です。それまでは組織の利用が停止され、メンバーは{{siteName}}を利用できません。",
         "submit": "同意する",
@@ -123,23 +117,8 @@
         "tooLong": "最大{{max}}文字です。短くするか、候補を選択してください。"
       }
     },
-    "participant": {
-      "leaveConfirm": {
-        "confirm": "ワークショップを退出",
-        "message": "このワークショップを退出してもよろしいですか？再参加には新しい招待リンクが必要です。",
-        "title": "ワークショップを退出しますか？"
-      },
-      "leaveWorkshop": "ワークショップを退出",
-      "organization": "組織",
-      "role": "ワークショップ参加者",
-      "workshop": "ワークショップ"
-    },
     "profile": {
-      "ageGroup": "年齢層",
-      "ageGroupDescription": "これはゲームに適用されるコンテンツガイドラインを決定します。いつでも変更できます。",
       "ageGroupSection": "年齢と保護区分",
-      "ageGroupU13": "13～17歳",
-      "ageGroupU18": "18歳以上",
       "gamesCreated": "作成したゲーム",
       "gamesPlayed": "プレイしたゲーム数",
       "guestCode": {
@@ -154,19 +133,12 @@
       "noRole": "役割なし",
       "organization": "組織",
       "organizationSection": "組織と役割",
-      "participantCode": {
-        "error": "アクセスコードを読み込めませんでした。",
-        "hint": "このコードを写真に撮るか書き留めて、自分だけで保管してください。いつでも、どのデバイスからでもアカウントに戻るために使えます。ホームページで「コードを入力」の下にある欄に単語を入力するか、QRコードをスキャンしてください。",
-        "longTokenHint": "QRコードを写真に撮るかリンクを保存して、自分だけで保管してください。いつでもアカウントに戻るために使えます。ワークショップのリーダーは、アクセスをリセットして短い4単語のコードを発行できます。",
-        "title": "アクセスコード"
-      },
       "role": "役割",
       "roles": {
         "admin": "管理者",
         "guest": "ゲスト",
         "head": "組織代表",
         "individual": "個人",
-        "participant": "参加者",
         "staff": "ワークショップリーダー"
       },
       "statisticsSection": "統計",
@@ -175,12 +147,6 @@
       "workshopSection": "ワークショップと組織"
     },
     "register": {
-      "ageGroupLabel": "年齢層",
-      "ageGroupRequired": "年齢層を選択してください",
-      "ageGroupU13": "13～17歳",
-      "ageGroupU18": "18歳以上",
-      "ageGroupUnder13": "13歳未満",
-      "ageGroupUnder13Error": "ChatGameLabを利用するには13歳以上である必要があります。",
       "cancelButton": "キャンセル",
       "emailDescription": "任意です。重要なお知らせに使用します。",
       "emailLabel": "メールアドレス",
@@ -211,25 +177,6 @@
       "continueButton": "登録へ進む",
       "description": "Auth0を認証プロバイダーとして使用し、ユーザーアカウントを管理しています。アカウント作成のためにAuth0へリダイレクトされた後、プロフィールを完了するためにこちらへ戻ってきます。",
       "educatorDescription": "ワークショップや授業、組織で{{siteName}}を利用する",
-      "educatorModal": {
-        "closeButton": "閉じる",
-        "copied": "コピーしました！",
-        "copyEmail": "メールアドレスをコピー",
-        "eduInfo": "教育目的でのChatGameLabの利用について詳しく知る：",
-        "intro": "組織（学校、大学、機関）でChatGameLabを利用するには、以下の手順に従ってください。",
-        "registerButton": "個人アカウントを作成",
-        "step1": "1. 個人アカウントを作成",
-        "step1Description": "まず個人アカウントを作成します。これがプラットフォームへのログインになります。",
-        "step2": "2. 私たちにメールを送る",
-        "step2Description": "以下の宛先にメールを送ってください",
-        "step2Item1": "登録済みのメールアドレス",
-        "step2Item2": "組織名（学校、機関など）",
-        "step2WithInfo": "記載内容：",
-        "step3": "3. 私たちがあなたの組織を設定します",
-        "step3Description": "こちらであなたの組織を作成し、責任者として割り当てます。その後、同僚を招待したりワークショップを設定できます。",
-        "title": "教育者・法人向けアクセス"
-      },
-      "educatorTitle": "教育者／プロフェッショナル",
       "individualDescription": "AI搭載のテキストアドベンチャーを作成してプレイする",
       "individualTitle": "個人アカウント",
       "loginLink": "ログイン",
@@ -245,11 +192,6 @@
     },
     "settings": {
       "accountSection": "アカウント",
-      "ageGroupDescription": "これはゲームに適用されるコンテンツガイドラインを決定します。",
-      "ageGroupLabel": "年齢層",
-      "ageGroupU13": "13～17歳",
-      "ageGroupU18": "18歳以上",
-      "emailChangeNote": "メールアドレスを変更する場合は、サイト管理者にお問い合わせください。",
       "emailDescription": "任意。組織はこのアドレスであなたを招待します。他のアカウントは使用できません。",
       "emailLabel": "メールアドレス",
       "emailPlaceholder": "you@example.org",
@@ -288,9 +230,7 @@
           "title": "招待を削除"
         },
         "role": "役割",
-        "searchPlaceholder": "メール・役割・ステータス・組織で検索...",
         "sort": {
-          "label": "並び替え",
           "modifiedAt-asc": "更新日（古い順）",
           "modifiedAt-desc": "更新日（新しい順）",
           "organization-asc": "組織（A-Z）",
@@ -347,7 +287,6 @@
         "postalCode": "郵便番号",
         "removeMember": "メンバーを削除",
         "removeMemberConfirm": "{{name}}をこの組織から削除してもよろしいですか？",
-        "searchPlaceholder": "組織を検索...",
         "sendInvite": "招待を送信",
         "status": "ステータスと同意",
         "statusActive": "有効",
@@ -364,16 +303,6 @@
         "title": "組織を管理"
       },
       "registrations": {
-        "bell": {
-          "empty": "過去2週間に登録した組織はありません。",
-          "intro_one": "この組織は過去2週間に登録され、すでに有効化されています。",
-          "intro_other": "これら{{count}}組織は過去2週間に登録され、すでに有効化されています。",
-          "label": "新しい組織",
-          "later": "後で",
-          "open": "概要へ",
-          "suspendHint": "現在、メールアドレスは確認されていません。新しい組織を簡単に確認し、問題があれば概要から停止してください。",
-          "title": "新しい組織"
-        },
         "date": "登録日",
         "description": "過去2週間に自ら登録した組織です。メールアドレスを確認しなくてもすぐに有効化されます。内容を確認し、問題があれば停止してください。",
         "empty": "過去2週間に自ら登録した組織はありません。",
@@ -396,8 +325,6 @@
           "all": "すべてのユーザー",
           "noGuests": "ゲストを除く"
         },
-        "hideGuests": "ゲストを非表示（{{count}}）",
-        "hideGuestsShort": "ゲスト（{{count}}）",
         "joined": "参加日",
         "loadError": "ユーザーを読み込めませんでした",
         "makeAdmin": "管理者にする",
@@ -415,8 +342,6 @@
         "removeAdminTitle": "管理者権限を削除",
         "removeAdminWarning": "このユーザーはすべての管理権限を失います。",
         "role": "役割",
-        "searchPlaceholder": "名前・メール・役割・組織で検索...",
-        "showing": "{{count}} / {{total}} ユーザー表示",
         "signUpInProgress": "登録処理中",
         "signingUp": "登録中",
         "sort": {
@@ -424,7 +349,6 @@
           "email-desc": "メール（Z-A）",
           "joined-asc": "参加日（古い順）",
           "joined-desc": "参加日（新しい順）",
-          "label": "並び替え",
           "name-asc": "名前（A-Z）",
           "name-desc": "名前（Z-A）",
           "organization-asc": "組織（A-Z）",
@@ -458,7 +382,6 @@
       "high": "高品質",
       "label": "AI品質ティア",
       "low": "節約",
-      "max": "最大（プレミアム＋音声）",
       "medium": "バランス",
       "newSessionsOnly": "この階層は新しいセッションにのみ適用されます。既存のセッションは開始時の階層が維持されます。",
       "serverDefault": "サーバーデフォルト"
@@ -470,7 +393,6 @@
         "message": "「{{name}}」を自分のゲームにコピーします。",
         "title": "ゲームをコピー"
       },
-      "copyGame": "ゲームをコピー",
       "empty": {
         "conditions": {
           "favorites": "お気に入りの1つ",
@@ -581,8 +503,6 @@
         "toggle": "共有とスポンサー",
         "unknownGame": "不明なゲーム",
         "unknownOrg": "不明な組織",
-        "unknownUser": "不明なユーザー",
-        "unknownWorkshop": "不明なワークショップ",
         "unlimited": "無制限の利用"
       },
       "sort": {
@@ -639,24 +559,9 @@
     },
     "error": "エラー",
     "footer": {
-      "copyright": "JFF - Institut für Medienpädagogik",
-      "jffTitle": "JFF - Institute for Educational Research and Innovation",
       "programmedBy": "開発"
     },
-    "gamePlayer": {
-      "rebuilding": {
-        "description": "まもなく、ここでまたゲームをプレイできるようになります。",
-        "title": "ゲームプレイヤーを再構築中です"
-      }
-    },
     "games": {
-      "actions": {
-        "delete": "削除",
-        "edit": "編集",
-        "export": "エクスポート",
-        "play": "プレイ",
-        "view": "表示"
-      },
       "badges": {
         "myGame": "自分のゲーム",
         "public": "公開",
@@ -686,7 +591,6 @@
         "namePlaceholder": "例：Space Adventure",
         "publicDescription": "公開ゲームは、このプラットフォーム上のすべてのユーザーが閲覧・プレイできます。",
         "publicLabel": "このゲームを公開する",
-        "publicOwnerOnly": "ゲームを公開できるのは、ゲームの作成者だけです。",
         "submit": "ゲームを作成",
         "title": "新しいゲームを作成"
       },
@@ -711,7 +615,7 @@
         "imageStyleHint": "例：カートゥーン、リアル、ピクセルアート、水彩など",
         "name": "ゲーム名",
         "scenario": "ゲームは何について？",
-        "scenarioHint": "簡単に説明してください：ゲームはどのように進みますか？世界はどのようなところですか？言語 \u00026 トーン（例：小学6年生向けのスペイン語）？\nプレイヤーはどのような役割を担いますか？「プレイヤーは…」と書いてください。\nAIに特定の人物の役割を演じさせたい場合は、「あなたは…」と書いてください。\n目標は何ですか？プレイヤーは勝ったことをどうやって知りますか？",
+        "scenarioHint": "簡単に説明してください：ゲームはどのように進みますか？世界はどのようなところですか？言語 \u0026 トーン（例：小学6年生向けのスペイン語）？\nプレイヤーはどのような役割を担いますか？「プレイヤーは…」と書いてください。\nAIに特定の人物の役割を演じさせたい場合は、「あなたは…」と書いてください。\n目標は何ですか？プレイヤーは勝ったことをどうやって知りますか？",
         "scenarioPlaceholder": "あなたは謎めいた森を探検する冒険者。目的は隠された宝を見つけること...",
         "statusFields": "ゲームの値",
         "statusFieldsHint": "何を記録しますか？例：体力、ポイント、弾薬など。ゲームはこれらの値を覚えてプレイ中に更新します。",
@@ -915,8 +819,7 @@
           "status": {
             "builtIn": "まだ説明がありません。音声を説明するまで、ゲームは内蔵音声で話します。",
             "cast": "ゲーム開始時に、選択した種類の中から物語に最も合う組み込み音声が選ばれます。説明によって話し方が決まります。",
-            "ownVoice": "この説明専用の音声です。あなたのAIキーで作成されました。",
-            "steered": "説明に合わせて、内蔵音声が物語を読み上げます。"
+            "ownVoice": "この説明専用の音声です。あなたのAIキーで作成されました。"
           },
           "stop": "サンプルを停止"
         },
@@ -957,10 +860,6 @@
         "titleView": "ゲーム",
         "untitled": "無題のゲーム"
       },
-      "empty": {
-        "description": "最初のゲームを作成して、AI搭載のインタラクティブな冒険を始めましょう。",
-        "title": "まだゲームがありません"
-      },
       "errors": {
         "loadFailed": "ゲームを読み込めませんでした。もう一度お試しください。",
         "nameRequired": "ゲーム名は必須です",
@@ -975,7 +874,6 @@
       "fields": {
         "created": "作成日",
         "creator": "作成者",
-        "me": "自分",
         "modified": "更新日",
         "name": "名前",
         "playCount": "プレイ数",
@@ -984,9 +882,7 @@
       "genres": {
         "adventure": "アドベンチャー",
         "discussion": "ディスカッション",
-        "npc": "キャラクター",
-        "npc-duo": "ディスカッション",
-        "npc-live": "キャラクター"
+        "npc": "キャラクター"
       },
       "importExport": {
         "coverFailed": "ゲームはインポートされましたが、カバー画像を確認できませんでした。エディターで新しい画像を描かせることができます。",
@@ -1002,7 +898,6 @@
         "importButton": "ゲームをインポート"
       },
       "newGame": "新しいゲーム",
-      "playNow": "今すぐプレイ",
       "privacyHint": "ゲームの名前と説明は公開される可能性があります。実名は使用しないでください。",
       "privacyHintShort": "公開される可能性があります。実名は使用しないでください。",
       "privateShare": {
@@ -1050,12 +945,10 @@
         "active": "有効",
         "privateShareLink": "非公開共有リンク",
         "privateShareLinkDescription": "非公開共有リンクは他の人と共有できます。リンクを持つ人なら誰でもアカウントなしで匿名プレイできます。費用を賄うためのAPIキーを選択する必要があります。",
-        "publicGameWorkshopHint": "これは公開ゲームであり、あなたのワークショップの一部ではありません。ワークショップモードでは公開ゲームの共有オプションは利用できません。",
         "publicSponsoring": "公開スポンサリング",
         "publicSponsoringDescription": "プラットフォーム上の全ユーザーが無料でこのゲームをプレイできます。割り当てられたAPIキーが費用を負担します。",
         "sectionTitle": "共有オプション",
-        "sectionTitleShareOnly": "共有オプション",
-        "workshopShareRequiresPublic": "ワークショップで共有するには、このゲームを公開する必要があります。"
+        "sectionTitleShareOnly": "共有オプション"
       },
       "sort": {
         "createdAt-asc": "作成日（古い順）",
@@ -1165,7 +1058,6 @@
           "zombie": "ゾンビ"
         }
       },
-      "title": "作成したゲーム",
       "viewModal": {
         "readOnlyNotice": "このゲームは他のユーザーが作成しました。詳細の閲覧はできますが編集はできません。「コピー」を使って編集可能な自分のバージョンを作成してください。",
         "title": "ゲーム詳細"
@@ -1193,25 +1085,6 @@
     "help": "ヘルプ",
     "home": {
       "codeCta": "コードを入力",
-      "features": {
-        "create": {
-          "description": "AI搭載のインタラクティブなテキストアドベンチャーを設計",
-          "title": "冒険を作る"
-        },
-        "learn": {
-          "description": "教育ワークショップや授業活動に最適",
-          "title": "学びと指導"
-        },
-        "play": {
-          "description": "友達と協力して物語を紡ごう",
-          "title": "一緒に遊ぶ"
-        },
-        "title": "ChatGameLabを選ぶ理由",
-        "understand": {
-          "description": "AIモデルがどのように物語を生み出すのかを探求し、仕組みを学ぼう",
-          "title": "AIを理解する"
-        }
-      },
       "loginCta": "ログインして探索",
       "splashDescription": "AI搭載のテキストアドベンチャーゲームを作成・プレイする教育プラットフォーム。教師、生徒、創作好きに最適です。"
     },
@@ -1248,19 +1121,9 @@
       "guest": {
         "loggingIn": "ログインしています…"
       },
-      "participant": {
-        "loggingIn": "ログインしています..."
-      },
       "success": {
         "message": "ワークショップに参加しました。リダイレクト中...",
         "title": "ようこそ！"
-      },
-      "switchWorkshop": {
-        "message": "現在のワークショップでのゲームや進行状況は残りますが、再参加するまでアクセスできません。",
-        "stayButton": "現在のワークショップに留まる",
-        "switchButton": "ワークショップを切り替える",
-        "title": "ワークショップを切り替えますか？",
-        "warning": "現在「{{currentWorkshop}}」に参加しています。「{{newWorkshop}}」に参加すると現在のワークショップから抜けることになります。"
       }
     },
     "labels": {
@@ -1295,31 +1158,25 @@
     "logout": "ログアウト",
     "me": "自分",
     "myGames": {
-      "continue": "プレイ",
       "copyConfirm": {
         "confirm": "ゲームをコピー",
         "message": "「{{name}}」を自分のゲームにコピーします。",
         "title": "ゲームをコピー"
       },
-      "copyGame": "ゲームをコピー",
       "empty": {
         "description": "最初のゲームを作成して、AI搭載のインタラクティブな冒険を始めましょう。",
         "title": "まだゲームがありません"
       },
-      "favorite": "お気に入りに追加",
       "filters": {
         "all": "すべて",
         "favorites": "お気に入り"
       },
-      "play": "プレイ",
-      "restart": "リスタート",
       "restartConfirm": {
         "confirm": "リスタート",
         "message": "本当に「{{game}}」をリスタートしますか？現在の進行状況は失われます。",
         "title": "ゲームをリスタート"
       },
-      "title": "自分のゲーム",
-      "unfavorite": "お気に入りから削除"
+      "title": "自分のゲーム"
     },
     "myOrganization": {
       "actions": "操作",
@@ -1331,7 +1188,6 @@
         "allPlatforms": "すべてのプラットフォーム",
         "allowPublicSponsoring": "公開スポンサーを許可",
         "allowPublicSponsoringDesc": "すべてのユーザーがゲームのスポンサーにこのキーを使用できます。",
-        "filterByPlatform": "プラットフォームで絞り込み",
         "freeUseKey": {
           "description": "フリー利用キーを設定すると、組織のメンバー全員が自分のAPIキーなしでゲームをプレイできます。",
           "remove": "削除",
@@ -1351,13 +1207,10 @@
         "platform": "プラットフォーム",
         "publicSponsoring": "公開スポンサー",
         "removeShare": "組織から削除",
-        "searchPlaceholder": "名前または所有者で検索...",
         "selectKey": "APIキーを選択",
         "selectKeyPlaceholder": "共有するキーを選択...",
         "share": "共有",
-        "shareKey": "キーを共有",
         "shareKeyTitle": "組織にAPIキーを追加",
-        "showDetails": "詳細を表示",
         "title": "組織のAPIキー"
       },
       "autoShare": {
@@ -1367,7 +1220,10 @@
         "personalKeyGroup": "個人キー"
       },
       "declaration": {
+        "agree": "読んで同意する",
         "consented": "組織は{{date}}にバージョン{{version}}に同意しました。",
+        "goAgree": "組織へ移動",
+        "newVersion": "同意宣言の新しいバージョン{{version}}があります。組織の利用は継続されます。内容を読み、組織を代表して同意してください。",
         "title": "同意宣言",
         "withdraw": "同意を撤回",
         "withdrawConfirm": "同意がないため、あなたの組織の利用は停止されています。責任者が再び同意するまで、メンバーは{{siteName}}を利用できません。データは保持されます。",
@@ -1385,9 +1241,6 @@
       "inviteTeacher": "教師を招待",
       "inviteTeacherDescription": "教師を組織に招待するメールを送信します。",
       "inviteTeacherTitle": "教師を招待",
-      "inviteUser": "ユーザーを招待",
-      "inviteUserDescription": "特定の役割を指定せずにユーザーを組織に招待します。",
-      "inviteUserTitle": "ユーザーを招待",
       "lastHeadError": "あなたはこの組織の最後の代表です。退出する必要がある場合はサイト管理者に連絡してください。",
       "leaveConfirm": "「{{name}}」を退出してもよろしいですか？",
       "leaveError": "組織を退出できませんでした。もう一度お試しください。",
@@ -1454,7 +1307,6 @@
       "removeTitle": "メンバーを削除",
       "removeWarning": "このユーザーは組織へのアクセスを失います。",
       "role": "役割",
-      "searchPlaceholder": "メンバーを検索...",
       "showing": "{{count}}名のメンバー",
       "sort": {
         "label": "並び替え",
@@ -1492,24 +1344,12 @@
         "active": "アクティブ",
         "activeDescription": "アクティブなワークショップでは参加者が参加し、ゲームを作成できます。",
         "activeLabel": "アクティブ",
-        "addIndividual": "組織メンバーを追加",
         "addIndividualError": "ワークショップへのメンバー追加に失敗しました。",
-        "addIndividualHint": "ユーザーを追加すると自動的にワークショップモードになります。通常のダッシュボードではなくワークショップビューが表示されます。意図した場合のみ実行してください。",
-        "addIndividualStaffNote": "責任者と教師は自身でワークショップ一覧から参加する必要があり、ここには表示されません。",
-        "addIndividualSuccess": "メンバーを追加しました",
-        "addIndividualSuccessMessage": "{{name}}がワークショップに追加されました。",
-        "addIndividualTitle": "ワークショップに個人を追加",
         "addToWorkshop": "ワークショップに追加",
-        "aiQualityHigh": "High (Premium)",
-        "aiQualityLow": "Low (Economy)",
-        "aiQualityMedium": "Medium (Balanced)",
-        "aiQualityTier": "AI Quality Tier",
         "aiQualityTierHint": "AIレスポンスの品質レベル。ティアが高いほどコストがかかりますが、品質が上がる場合があります。空欄の場合はサーバーデフォルトを使用します。",
         "allowGameSharing": "ゲーム共有を許可",
         "allowGameSharingHint": "有効にすると、参加者はワークショップのAPIキーを使ってゲームの共有リンクを作成できます",
-        "anonymousParticipant": "匿名参加者",
         "create": "ワークショップを作成",
-        "createFirst": "最初のワークショップを作成",
         "createInviteLink": "招待リンクを作成",
         "createTitle": "ワークショップを作成",
         "deactivate": "無効化",
@@ -1532,10 +1372,8 @@
         "inviteByEmailSuccessMessage": "招待が作成されました。ユーザーは保留中の招待で確認できます。",
         "inviteByEmailTitle": "ワークショップにユーザーを招待",
         "inviteCreatedAt": "作成日",
-        "inviteDescription": "参加者がこのワークショップに参加するための招待リンクを生成します。",
         "inviteExpiresAt": "有効期限",
         "inviteLink": "招待リンク",
-        "inviteLinkDescription": "このリンクを参加者と共有して、ワークショップに参加してもらいます。",
         "inviteLinkTitle": "参加者への招待リンク – {{name}}",
         "inviteUsage": "使用回数",
         "isPaused": "ワークショップを一時停止",
@@ -1551,14 +1389,11 @@
         "noDefaultModel": "プラットフォームのデフォルトを使用",
         "noGuestToken": "このメンバーには再ログインリンクがありません。再ログインリンクを持つのはゲストだけです。",
         "noIndividuals": "この組織には個人ユーザーがいません。",
-        "noParticipantToken": "この参加者には招待リンクがありません。匿名参加者（ゲスト）のみが再利用可能な招待リンクを持っています。",
         "noParticipants": "参加者がいません",
         "noResults": "検索またはフィルターに一致するワークショップはありません。",
         "notAuthorized": "ワークショップを管理する権限がありません。代表と教師のみがアクセスできます。",
         "participantGames": "{{count}}ゲーム",
         "participantJoined": "{{date}}に参加",
-        "participantLinkTitle": "再ログインリンク",
-        "participantLinkTitleNamed": "{{name}}の再ログインリンク",
         "participantName": "参加者名",
         "participants": "参加者",
         "promptConstraintsFallbackOrg": "組織の青少年保護ルールを既定値として使用：{{constraint}}",
@@ -1580,10 +1415,8 @@
         "resetAccessWarning": "以前のリンクとコードは使用できなくなります。ゲストが現在ログインしている端末でも同様です。",
         "revokeInvite": "招待リンクを無効化",
         "selectApiKey": "APIキーを選択",
-        "serverDefault": "Server Default",
         "settings": "設定",
         "shareGuestLink": "再ログインリンクを表示",
-        "shareParticipantLink": "再ログインリンクを表示",
         "showOtherParticipantsGames": "他の参加者のゲームを表示",
         "showOtherParticipantsGamesHint": "責任者とスタッフは常に全参加者のゲームを閲覧でき、モデレーションに利用できます",
         "showPublicGames": "公開ゲームを参加者に表示",
@@ -1617,7 +1450,6 @@
       "decline": "辞退",
       "declineConfirm": "この招待を辞退してもよろしいですか？",
       "declineTitle": "招待を辞退",
-      "empty": "新しい通知はありません。",
       "inviteDescription": "{{role}}としての招待があります。",
       "inviteToJoin": "組織からの招待",
       "nothingNew": "新しい通知はありません",
@@ -1766,6 +1598,7 @@
           "educatorInfoUrl": "教育関係者向け情報",
           "gameTipsUrl": "ゲーム作成のヒント",
           "helpUrl": "ヘルプ",
+          "operatorLegalName": "運営者の法的名称（法的文書用）",
           "operatorName": "運営者",
           "operatorUrl": "運営者のウェブサイト",
           "privacyUrl": "プライバシーポリシー",
@@ -1792,13 +1625,10 @@
         "title": "年齢グループ別の青少年保護ルール",
         "u13Hint": "保護者の同意が登録されていない13～17歳のログインユーザーに対するすべてのAIプロンプトへ挿入されます。",
         "u13Label": "13～17歳のユーザー向け青少年保護ルール、保護者の同意なし（U13）",
-        "u13Placeholder": "例：すべてのコンテンツを厳密にティーン向けに保ち、暴力・恋愛・ホラーを含めないでください。",
         "u13pHint": "保護者の同意が登録されている13～17歳のログインユーザーに対するすべてのAIプロンプトへ挿入されます。",
         "u13pLabel": "13～17歳のユーザー向け青少年保護ルール、保護者の同意あり（U13p）",
-        "u13pPlaceholder": "例: 保護者が同意したティーン向けの年齢相応なコンテンツ。成熟したテーマを一部許可、露骨な表現は不可。",
         "u18Hint": "18歳以上のログインユーザー向けに、すべてのAIプロンプトへ挿入されます。",
-        "u18Label": "18歳以上のユーザー向け青少年保護ルール（U18）",
-        "u18Placeholder": "例：コンテンツを適切に保ち、露骨な暴力や性的表現は避けてください。"
+        "u18Label": "18歳以上のユーザー向け青少年保護ルール（U18）"
       },
       "defaultTier": {
         "description": "ワークショップ・団体・ユーザーで特定のティアが設定されていない場合に使用されるサーバー全体のフォールバックティア。ティアが高いほどコストがかかりますが、品質が向上する場合があります。",
@@ -1819,6 +1649,26 @@
       "freeUseTier": {
         "description": "フリー利用APIキーが使用される際の品質ティア。ティアが高いほどコストがかかりますが、品質が向上する場合があります。空欄の場合はデフォルトティアを使用します。",
         "title": "フリー利用AI品質ティア"
+      },
+      "mail": {
+        "clearPassword": "パスワードを削除",
+        "consentCopy": "同意のコピーの送信先",
+        "consentCopyHint": "すべての組織の同意のコピーを受け取ります。空欄の場合、サポート用メールアドレス。",
+        "description": "{{siteName}}がメールを送信する際に使うサーバーです。たとえば、組織の同意の確認メールに使われます。サーバーがない場合、メールはログに書き込まれるだけです。",
+        "from": "送信者",
+        "fromHint": "空欄の場合、ユーザー名が送信者になります。",
+        "fromPlaceholder": "名前 \u003cnoreply@example.org\u003e",
+        "host": "サーバー",
+        "hostHint": "ポート番号なしのホスト名のみ。空欄の場合、メールはログに記録されるだけです。",
+        "password": "パスワード",
+        "passwordNone": "パスワードは設定されていません。",
+        "passwordSet": "パスワードが設定されています。変更しない場合は空欄のままにしてください。",
+        "port": "ポート",
+        "portHint": "STARTTLSは587、TLSは465。",
+        "save": "保存",
+        "saveFailed": "保存できませんでした。入力内容を確認してください。",
+        "title": "メールサーバー",
+        "user": "ユーザー名"
       },
       "models": {
         "assign": {
@@ -1934,6 +1784,7 @@
         "ai": "AIとキー",
         "branding": "ブランディング",
         "general": "一般",
+        "mail": "メール",
         "models": "AIモデル",
         "youthProtection": "青少年保護"
       },
@@ -1999,49 +1850,6 @@
     }
   },
   "dashboard": {
-    "cards": {
-      "externalLinks": {
-        "edu": {
-          "description": "ChatGameLabによるメディア教育の取り組み",
-          "title": "ChatGameLabについて"
-        },
-        "jff": {
-          "description": "プロジェクトコーディネーターおよび主導組織。",
-          "title": "JFF – Institut für Medienpädagogik"
-        },
-        "mainSite": {
-          "description": "このプラットフォームの教育プロジェクトについて詳しく知る。",
-          "title": "ChatGameLabプロジェクト"
-        },
-        "title": "ChatGameLabについて"
-      },
-      "lastPlayed": {
-        "empty": "まだプレイ履歴がありません。ゲームをプレイしましょう！",
-        "title": "最近プレイしたゲーム",
-        "viewAll": "すべてのゲーム"
-      },
-      "myGames": {
-        "empty": "まだゲームがありません。最初のゲームを作りましょう！",
-        "title": "自分のゲーム",
-        "viewAll": "すべての作品"
-      },
-      "myWorkshops": {
-        "empty": "アクティブなワークショップがありません。組織でワークショップを作成しましょう！",
-        "title": "自分のワークショップ",
-        "viewAll": "すべてのワークショップ"
-      },
-      "newGames": {
-        "empty": "まだゲームがありません。",
-        "title": "新着ゲーム",
-        "viewAll": "すべてのゲーム"
-      },
-      "popularGames": {
-        "empty": "まだゲームがありません。",
-        "plays": "{{count}}回プレイ",
-        "title": "人気のゲーム",
-        "viewAll": "すべてのゲーム"
-      }
-    },
     "continue": {
       "go": "続ける",
       "hint": "前回の続きから再開",
@@ -2050,15 +1858,14 @@
       "title": "ゲームを続ける"
     },
     "fresh": {
-      "by": "{{name}}作",
       "empty": "新しいゲームはまだありません。",
       "title": "新しいゲーム",
       "viewAll": "ギャラリーを見る"
     },
     "hero": {
       "create": "作成",
-      "greeting": "こんにちは、{{name}}さん。今日は何を\u0003cmark\u0003作り\u0003c/mark\u0003ましょう？",
-      "greetingNoName": "こんにちは。今日は何を\u0003cmark\u0003作り\u0003c/mark\u0003ましょう？",
+      "greeting": "こんにちは、{{name}}さん。今日は何を\u003cmark\u003e作り\u003c/mark\u003eましょう？",
+      "greetingNoName": "こんにちは。今日は何を\u003cmark\u003e作り\u003c/mark\u003eましょう？",
       "journal": "ラボ日誌 · {{date}}",
       "promptLabel": "ゲームのアイデアを説明",
       "promptPlaceholder": "ゲームのアイデアを説明してください…AIが形にするのを手伝います"
@@ -2071,8 +1878,7 @@
     },
     "links": {
       "about": "{{siteName}}について",
-      "educators": "教育関係者向け",
-      "jff": "JFF – メディア教育研究所"
+      "educators": "教育関係者向け"
     },
     "ownGames": {
       "empty": "ゲームはまだありません。上でアイデアを説明して、最初のゲームを作りましょう！",
@@ -2085,16 +1891,6 @@
       "plays_other": "{{count}}回プレイ",
       "title": "人気ランキング"
     },
-    "quickActions": {
-      "createNewGame": "新しいゲームを作成",
-      "createRoom": "ルームを作成",
-      "createWorkshop": "ワークショップを作成",
-      "importGame": "ゲームをインポート",
-      "inviteMembers": "メンバーを招待",
-      "startNewGame": "新しいゲームを開始",
-      "title": "クイックアクション"
-    },
-    "someone": "誰か",
     "untitled": "無題",
     "untitledGame": "無題のゲーム",
     "version": {
@@ -2196,10 +1992,8 @@
     "filters": {
       "all": "すべてのゲーム",
       "mine": "自分のゲーム",
-      "public": "公開ゲーム",
-      "workshop": "ワークショップゲーム"
+      "public": "公開ゲーム"
     },
-    "gameType": "ゲーム",
     "infoModal": {
       "body": "ワークショップモードに入りました。このモードでは、あなたの行うすべての操作—作成するゲーム、プレイセッション、共有リンク—がこのワークショップに紐づきます。\n\nいつでも退出できます。退出してもワークショップが終了したり、作成したものが削除されたりすることはありません。",
       "dontShowAgain": "今後表示しない",
@@ -2224,8 +2018,7 @@
     },
     "showInviteLink": "招待リンクを表示",
     "showPublicPageLink": "公開ページのリンクを表示",
-    "title": "私のワークショップ",
-    "you": "あなた"
+    "title": "私のワークショップ"
   },
   "navigation": {
     "adminPanel": "管理パネル",
@@ -2274,8 +2067,6 @@
       "observer": "ディレクター",
       "opening-brief": "始まり方",
       "outline": "シーンを計画",
-      "portrait": "肖像画を描く",
-      "portrait-prompt": "肖像画を説明",
       "props-store": "ゲーム状態",
       "rephrase": "アクションを言い換え",
       "rephrase-audio": "音声を理解",
@@ -2497,52 +2288,50 @@
       "recording": "聞き取り中…送信するには指を離してください"
     },
     "wires": {
-      "adapted-style\u0003eimage-prompt": "スタイル",
-      "adapted-style\u0003eimage-style": "リクエスト",
-      "adapted-style\u0003estart-game": "準備完了",
-      "cast\u0003live-a:voiceA": "声",
-      "cast\u0003live-b:voiceB": "声",
-      "cast\u0003start-game": "準備完了",
-      "cast-brief\u0003cast": "キャラクター",
-      "condense-scenario\u0003econdensed-scenario": "回答",
-      "condensed-scenario\u0003econdense-scenario": "リクエスト",
-      "condensed-scenario\u0003eimage-prompt": "シナリオ",
-      "condensed-scenario\u0003estart-game": "準備完了",
-      "director\u0003live-a": "差し込み",
-      "director\u0003live-b": "差し込み",
-      "gallery-image\u0003estart-game": "準備完了",
-      "greeting\u0003elive-session": "最初の言葉",
-      "greeting\u0003estart-game": "準備完了",
-      "greeting\u0003live-a": "最初の言葉",
-      "image-prompt\u0003eimage": "プロンプト",
-      "image-style\u0003eadapted-style": "回答",
-      "live-a\u0003director": "文字起こし",
-      "live-b\u0003director": "文字起こし",
-      "live-session\u0003eobserver": "文字起こし",
-      "observer\u0003elive-session": "入力",
-      "opening-brief\u0003egreeting": "概要",
-      "outline\u0003eexpand": "計画",
-      "outline\u0003eimage-prompt": "シーン",
-      "outline\u0003eprops-store": "変更",
-      "player-input-audio\u0003elive-session": "音声",
-      "player-input-audio\u0003erephrase-audio": "音声",
-      "player-input-audio\u0003live-a": "音声",
-      "player-input-audio\u0003live-b": "音声",
-      "player-input-text\u0003erephrase": "アクション",
-      "portrait\u0003estart-game": "準備完了",
-      "portrait-prompt\u0003eportrait": "プロンプト",
-      "props-store\u0003eoutline": "状態",
-      "rephrase\u0003eoutline": "アクション",
-      "rephrase-audio\u0003eoutline": "アクション",
-      "start-game\u0003elive-session": "導入",
-      "start-game\u0003eoutline": "プロンプト",
-      "start-game\u0003live-a": "合図",
-      "start-game\u0003live-b": "合図",
-      "voice\u0003elive-session:secondary": "声のスタイル",
-      "voice\u0003elive-session:voice": "音声",
-      "voice\u0003estart-game": "準備完了",
-      "voice-brief\u0003evoice:description": "説明",
-      "voice-brief\u0003evoice:voice": "代替音声"
+      "adapted-style\u003eimage-prompt": "スタイル",
+      "adapted-style\u003eimage-style": "リクエスト",
+      "adapted-style\u003estart-game": "準備完了",
+      "cast-brief\u003ecast": "キャラクター",
+      "cast\u003elive-a:voiceA": "声",
+      "cast\u003elive-b:voiceB": "声",
+      "cast\u003estart-game": "準備完了",
+      "condense-scenario\u003econdensed-scenario": "回答",
+      "condensed-scenario\u003econdense-scenario": "リクエスト",
+      "condensed-scenario\u003eimage-prompt": "シナリオ",
+      "condensed-scenario\u003estart-game": "準備完了",
+      "director\u003elive-a": "差し込み",
+      "director\u003elive-b": "差し込み",
+      "gallery-image\u003estart-game": "準備完了",
+      "greeting\u003elive-a": "最初の言葉",
+      "greeting\u003elive-session": "最初の言葉",
+      "greeting\u003estart-game": "準備完了",
+      "image-prompt\u003eimage": "プロンプト",
+      "image-style\u003eadapted-style": "回答",
+      "live-a\u003edirector": "書き起こし",
+      "live-b\u003edirector": "書き起こし",
+      "live-session\u003eobserver": "書き起こし",
+      "observer\u003elive-session": "差し込み",
+      "opening-brief\u003egreeting": "指示",
+      "outline\u003eexpand": "プラン",
+      "outline\u003eimage-prompt": "シーン",
+      "outline\u003eprops-store": "変更",
+      "player-input-audio\u003elive-a": "音声",
+      "player-input-audio\u003elive-b": "音声",
+      "player-input-audio\u003elive-session": "音声",
+      "player-input-audio\u003erephrase-audio": "音声",
+      "player-input-text\u003erephrase": "アクション",
+      "props-store\u003eoutline": "状態",
+      "rephrase-audio\u003eoutline": "アクション",
+      "rephrase\u003eoutline": "アクション",
+      "start-game\u003elive-a": "きっかけ",
+      "start-game\u003elive-b": "きっかけ",
+      "start-game\u003elive-session": "きっかけ",
+      "start-game\u003eoutline": "プロンプト",
+      "voice-brief\u003evoice:description": "説明",
+      "voice-brief\u003evoice:voice": "代替の声",
+      "voice\u003elive-session:secondary": "声の説明",
+      "voice\u003elive-session:voice": "声",
+      "voice\u003estart-game": "準備完了"
     }
   }
 }

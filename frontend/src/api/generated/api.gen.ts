@@ -235,6 +235,7 @@ export interface Branding {
   educatorInfoUrl: string;
   gameTipsUrl: string;
   helpUrl: string;
+  operatorLegalName: string;
   operatorName: string;
   operatorUrl: string;
   privacyUrl: string;
@@ -853,6 +854,24 @@ export interface KeyShareViewPage {
 export interface Language {
   iso: string;
   label: string;
+}
+
+export interface MailSettings {
+  consentCopyEmail: string;
+  from: string;
+  host: string;
+  passwordSet: boolean;
+  port: number;
+  user: string;
+}
+
+export interface MailSettingsReq {
+  consentCopyEmail: string;
+  from: string;
+  host: string;
+  password?: string;
+  port: number;
+  user: string;
 }
 
 export interface MakeGameCoverReq {
@@ -1508,6 +1527,7 @@ export interface SystemSettings {
   freeUseApiKeyWorking?: boolean;
   /** @format uuid */
   id: string;
+  mail: MailSettings;
   /** @format date-time */
   modifiedAt?: string;
   promptConstraintDefaults: SiteRuleTexts;
@@ -1646,6 +1666,7 @@ export interface UpdateSiteBrandingReq {
 export interface UpdateSystemSettingsReq {
   defaultAiQualityTier?: string;
   freeUseAiQualityTier?: string;
+  mail?: MailSettingsReq;
   promptConstraintU13?: string;
   promptConstraintU13p?: string;
   promptConstraintU18?: string;
@@ -4733,7 +4754,7 @@ export class Api<
       }),
 
     /**
-     * @description Only the fields sent change. The default AI quality tier cannot be empty; an empty free-use tier clears it; a constraint emptied, or set to its default, is the default again. The session retention is whole hours, 0 or more. Answers with the settings as they apply.
+     * @description Only the fields sent change. The default AI quality tier cannot be empty; an empty free-use tier clears it; a constraint emptied, or set to its default, is the default again. The session retention is whole hours, 0 or more. The mail server changes as a whole, but for its password: absent, it stays; empty, it is cleared. Answers with the settings as they apply; the password never.
      *
      * @name PatchApiSystemSettings
      * @summary Updates the site-wide settings; admins only.

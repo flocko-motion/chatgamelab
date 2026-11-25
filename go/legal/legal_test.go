@@ -6,11 +6,11 @@ import (
 	"time"
 )
 
-// The current declaration is version 1.0, whole, with a stable hash and a
+// The current declaration is version 1.1, whole, with a stable hash and a
 // title without Markdown.
 func TestCurrentDeclaration(t *testing.T) {
 	d := CurrentDeclaration()
-	if d.Version != "1.0" || d.Date != "2026-11-12" {
+	if d.Version != "1.1" || d.Date != "2026-11-25" {
 		t.Fatalf("unexpected version/date: %s %s", d.Version, d.Date)
 	}
 	if d.Title() != "Einverständniserklärung der Einrichtung zur Nutzung eines Organisationszugangs im ChatGameLab" {
@@ -33,6 +33,27 @@ func TestCurrentDeclaration(t *testing.T) {
 	}
 	if _, ok := DeclarationByVersion("0.9"); ok {
 		t.Fatal("unknown version must not resolve")
+	}
+}
+
+// The current declaration names no operator of its own: it names the site's,
+// filled in by Of, and the hash stays whoever the operator is.
+func TestDeclarationNamesTheSitesOperator(t *testing.T) {
+	d := CurrentDeclaration()
+	if !strings.Contains(d.Text, operatorPlaceholder) {
+		t.Fatal("the declaration does not name the operator by placeholder")
+	}
+	for _, name := range []string{"JFF", "Jugend Film Fernsehen", "Aktion Jugendschutz"} {
+		if strings.Contains(d.Text, name) {
+			t.Errorf("the declaration names %q", name)
+		}
+	}
+	of := d.Of("Verein Muster e.V.")
+	if !strings.Contains(of.Text, "Datenschutzerklärung von Verein Muster e.V. (Anbieter)") || strings.Contains(of.Text, operatorPlaceholder) {
+		t.Errorf("operator not filled in:\n%s", of.Body())
+	}
+	if of.Hash != d.Hash {
+		t.Error("the hash changed with the operator")
 	}
 }
 

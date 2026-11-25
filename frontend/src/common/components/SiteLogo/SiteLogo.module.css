@@ -1,0 +1,52 @@
+/* --s is the symbol's height; the name scales with it. */
+.root {
+  --s: var(--size-base);
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--s) * 0.22);
+  max-width: 100%;
+  color: var(--mantine-color-text);
+}
+
+@media (min-width: 48em) {
+  .root {
+    --s: var(--size-sm, var(--size-base));
+  }
+}
+
+@media (min-width: 75em) {
+  .root {
+    --s: var(--size-lg, var(--size-sm, var(--size-base)));
+  }
+}
+
+.stacked {
+  flex-direction: column;
+  gap: calc(var(--s) * 0.12);
+}
+
+.symbol {
+  height: var(--s);
+  width: auto;
+  flex-shrink: 0;
+  display: block;
+}
+
+.name {
+  font-family: var(--mantine-font-family-monospace);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-size: calc(var(--s) * 0.48);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.stacked .name {
+  font-size: calc(var(--s) * 0.3);
+  white-space: normal;
+  text-align: center;
+  overflow-wrap: anywhere;
+}

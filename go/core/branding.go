@@ -16,49 +16,50 @@ import (
 // The site's branding is how an instance presents itself: its name, its
 // operator, its support address and the links the web app shows. The admin
 // sets it; everyone reads it, also before signing in, since the login page
-// shows it. A field the admin never set has its default, today's value; an
-// empty link or address shows nothing.
+// shows it. A field the admin never set has its default: the site is called
+// ChatGameLab and the software's authors are credited; it names no operator,
+// so a fresh instance shows no one's branding. An empty link or address shows
+// nothing.
 
 // Branding is the site's branding as it applies.
 type Branding struct {
-	SiteName        string `json:"siteName"`        // the instance's name: page title, texts, mails
-	OperatorName    string `json:"operatorName"`    // who runs the instance: footer, mails
-	OperatorURL     string `json:"operatorUrl"`     // the operator's website
-	SupportEmail    string `json:"supportEmail"`    // where users write for help
-	WebsiteURL      string `json:"websiteUrl"`      // the instance's own website
-	ContactURL      string `json:"contactUrl"`      // contact page
-	PrivacyURL      string `json:"privacyUrl"`      // privacy policy
-	TermsURL        string `json:"termsUrl"`        // terms of use
-	EducatorInfoURL string `json:"educatorInfoUrl"` // using the instance for education
-	HelpURL         string `json:"helpUrl"`         // help pages
-	GameTipsURL     string `json:"gameTipsUrl"`     // tips for making games
-	APIKeyFAQURL    string `json:"apiKeyFaqUrl"`    // questions about AI keys
-	AIInsightsURL   string `json:"aiInsightsUrl"`   // what the AI insights show
-	ReportGameURL   string `json:"reportGameUrl"`   // reporting a game
-	CreditName      string `json:"creditName"`      // who programmed the software: footer
-	CreditURL       string `json:"creditUrl"`       // their website
+	SiteName          string `json:"siteName"`          // the instance's name: page title, texts, mails
+	OperatorName      string `json:"operatorName"`      // who runs the instance: footer, mails
+	OperatorLegalName string `json:"operatorLegalName"` // the operator's legal name: legal texts
+	OperatorURL       string `json:"operatorUrl"`       // the operator's website
+	SupportEmail      string `json:"supportEmail"`      // where users write for help
+	WebsiteURL        string `json:"websiteUrl"`        // the instance's own website
+	ContactURL        string `json:"contactUrl"`        // contact page
+	PrivacyURL        string `json:"privacyUrl"`        // privacy policy
+	TermsURL          string `json:"termsUrl"`          // terms of use
+	EducatorInfoURL   string `json:"educatorInfoUrl"`   // using the instance for education
+	HelpURL           string `json:"helpUrl"`           // help pages
+	GameTipsURL       string `json:"gameTipsUrl"`       // tips for making games
+	APIKeyFAQURL      string `json:"apiKeyFaqUrl"`      // questions about AI keys
+	AIInsightsURL     string `json:"aiInsightsUrl"`     // what the AI insights show
+	ReportGameURL     string `json:"reportGameUrl"`     // reporting a game
+	CreditName        string `json:"creditName"`        // who programmed the software: footer
+	CreditURL         string `json:"creditUrl"`         // their website
 }
 
 // DefaultBranding is what a field shows while the admin has not set it.
 func DefaultBranding() Branding {
 	return Branding{
-		SiteName:        "ChatGameLab",
-		OperatorName:    "JFF – Institut für Medienpädagogik",
-		OperatorURL:     "https://jff.de",
-		SupportEmail:    "chatgamelab@jff.de",
-		WebsiteURL:      "https://chatgamelab.eu",
-		ContactURL:      "https://chatgamelab.eu/kontakt/",
-		PrivacyURL:      "https://chatgamelab.eu/datenschutz/",
-		TermsURL:        "https://chatgamelab.eu/nutzungsbedingungen/",
-		EducatorInfoURL: "https://chatgamelab.eu/edu/",
-		HelpURL:         "https://chatgamelab.eu/hilfe/",
-		GameTipsURL:     "https://chatgamelab.eu/hilfe/",
-		APIKeyFAQURL:    "https://chatgamelab.eu/faq#api",
-		AIInsightsURL:   "https://chatgamelab.eu/ai-insights",
-		ReportGameURL:   "https://chatgamelab.eu/melden",
-		CreditName:      "omnitopos.net",
-		CreditURL:       "https://omnitopos.net",
+		SiteName:   "ChatGameLab",
+		CreditName: "omnitopos.net",
+		CreditURL:  "https://omnitopos.net",
 	}
+}
+
+// LegalOperator is the name legal texts give the operator: their legal name,
+// else their name, else the site's while no operator is set.
+func (b Branding) LegalOperator() string {
+	for _, name := range []string{b.OperatorLegalName, b.OperatorName, b.SiteName} {
+		if name != "" {
+			return name
+		}
+	}
+	return ""
 }
 
 // BrandingChange is what changes in the site's branding, fields by their
@@ -163,7 +164,8 @@ func applyBranding(stored map[string]string) Branding {
 // brandingFields are b's fields by their JSON name.
 func brandingFields(b *Branding) map[string]*string {
 	return map[string]*string{
-		"siteName": &b.SiteName, "operatorName": &b.OperatorName, "operatorUrl": &b.OperatorURL,
+		"siteName": &b.SiteName, "operatorName": &b.OperatorName, "operatorLegalName": &b.OperatorLegalName,
+		"operatorUrl":  &b.OperatorURL,
 		"supportEmail": &b.SupportEmail, "websiteUrl": &b.WebsiteURL, "contactUrl": &b.ContactURL,
 		"privacyUrl": &b.PrivacyURL, "termsUrl": &b.TermsURL, "educatorInfoUrl": &b.EducatorInfoURL,
 		"helpUrl": &b.HelpURL, "gameTipsUrl": &b.GameTipsURL, "apiKeyFaqUrl": &b.APIKeyFAQURL,

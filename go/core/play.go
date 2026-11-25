@@ -13,7 +13,6 @@ import (
 	"cgl/core/internal/store"
 	"cgl/db"
 	"cgl/functional"
-	"cgl/legal"
 	"cgl/obj"
 
 	"engine"
@@ -103,10 +102,7 @@ type linkPlayRow struct {
 
 // linkPlay loads a share link by its token or its id, with its payer.
 func linkPlay(ctx context.Context, token sql.NullString, id uuid.NullUUID) (*linkPlayRow, error) {
-	declaration := legal.CurrentDeclaration()
-	rows, err := store.Queries().V2ShareLinkPlay(ctx, db.V2ShareLinkPlayParams{
-		Token: token, ID: id, DeclarationVersion: declaration.Version, DeclarationHash: declaration.Hash,
-	})
+	rows, err := store.Queries().V2ShareLinkPlay(ctx, db.V2ShareLinkPlayParams{Token: token, ID: id})
 	if err != nil {
 		return nil, err
 	}

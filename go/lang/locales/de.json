@@ -208,7 +208,8 @@
         "emailDescription": "An diese Adresse schicken wir die Bestätigung mit dem Text der Erklärung.",
         "submit": "Zustimmen",
         "introWithdrawn": "Die Zustimmung eurer Organisation „{{name}}“ zur Einverständniserklärung wurde widerrufen, deshalb ist sie ausgesetzt. Bitte lies die Erklärung und stimme im Namen eurer Einrichtung zu, um {{siteName}} wieder zu nutzen.",
-        "logout": "Abmelden"
+        "logout": "Abmelden",
+        "later": "Später"
       }
     }
   },
@@ -1431,7 +1432,10 @@
         "withdraw": "Zustimmung widerrufen",
         "withdrawTitle": "Zustimmung widerrufen?",
         "withdrawConfirm": "Ohne Zustimmung ist eure Organisation ausgesetzt: Kein Mitglied kann {{siteName}} nutzen, bis eine Leitung wieder zustimmt. Ihre Daten bleiben erhalten.",
-        "withdrawFailed": "Das hat nicht geklappt. Bitte erneut versuchen."
+        "withdrawFailed": "Das hat nicht geklappt. Bitte erneut versuchen.",
+        "newVersion": "Es gibt eine neue Version {{version}} der Einverständniserklärung. Eure Organisation bleibt aktiv; bitte lies sie und stimme in ihrem Namen zu.",
+        "agree": "Lesen und zustimmen",
+        "goAgree": "Zur Organisation"
       }
     },
     "name": "Name",
@@ -1635,7 +1639,8 @@
           "aiInsightsUrl": "Über die KI-Einblicke",
           "reportGameUrl": "Spiel melden",
           "creditName": "Programmiert von",
-          "creditUrl": "Deren Website"
+          "creditUrl": "Deren Website",
+          "operatorLegalName": "Rechtlicher Name des Betreibers (für Rechtstexte)"
         },
         "changed": "Geändert",
         "resetTo": "Zurück zum Standard: {{value}}",
@@ -1650,7 +1655,8 @@
         "branding": "Erscheinungsbild",
         "ai": "KI und Schlüssel",
         "youthProtection": "Jugendschutz",
-        "models": "KI-Modelle"
+        "models": "KI-Modelle",
+        "mail": "E-Mail"
       },
       "models": {
         "fixed": "Die Modelle dieser Plattform legt die Engine fest; sie lassen sich hier nicht ändern.",
@@ -1754,6 +1760,26 @@
             "message": "Jedes Modell der Engine bekommt wieder die Werte der Engine, und hinzugefügte Modelle, die keine Stufe nutzt, werden entfernt. Hinzugefügte Modelle, die eine Stufe nutzt, behalten ihre Einträge."
           }
         }
+      },
+      "mail": {
+        "title": "Mailserver",
+        "description": "Der Server, über den {{siteName}} Mails verschickt, etwa die Bestätigung der Zustimmung einer Organisation. Ohne Server landen Mails nur im Log.",
+        "host": "Server",
+        "hostHint": "Nur der Hostname, ohne Port. Leer: Mails werden nur protokolliert.",
+        "port": "Port",
+        "portHint": "587 mit STARTTLS, 465 mit TLS.",
+        "user": "Benutzername",
+        "password": "Passwort",
+        "passwordSet": "Ein Passwort ist gesetzt. Leer lassen, um es zu behalten.",
+        "passwordNone": "Kein Passwort gesetzt.",
+        "from": "Absender",
+        "fromHint": "Leer: Der Benutzername ist der Absender.",
+        "fromPlaceholder": "Name \u003cnoreply@example.org\u003e",
+        "consentCopy": "Kopien der Zustimmungen an",
+        "consentCopyHint": "Erhält eine Kopie jeder Zustimmung einer Organisation. Leer: die Support-E-Mail.",
+        "save": "Speichern",
+        "clearPassword": "Passwort entfernen",
+        "saveFailed": "Speichern hat nicht geklappt. Bitte prüfe die Felder."
       }
     },
     "settings": "Einstellungen",
@@ -1827,7 +1853,7 @@
     "untitled": "Unbenannt",
     "version": {
       "mismatch": {
-        "message": "Frontend-Version {{frontendVersion}} stimmt nicht mit Backend-Version {{backendVersion}} überein. Dies kann zu unerwartetem Verhalten führen. Kontaktiere den Support, wenn Probleme weiterhin bestehen.",
+        "message": "Frontend-Version \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e stimmt nicht mit Backend-Version \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e überein. Dies kann zu unerwartetem Verhalten führen. Kontaktiere den Support, wenn Probleme weiterhin bestehen.",
         "title": "Versionenkonflikt erkannt"
       }
     },

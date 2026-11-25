@@ -9,7 +9,6 @@ import (
 	"cgl/core/internal/rules"
 	"cgl/core/internal/store"
 	"cgl/db"
-	"cgl/legal"
 	"cgl/log"
 
 	"engine"
@@ -132,10 +131,7 @@ const (
 // someone else's, or its player may no longer play it. Paused: its workshop
 // is paused.
 func OpenSession(ctx context.Context, id uuid.UUID, use SessionUse) error {
-	declaration := legal.CurrentDeclaration()
-	f, err := store.Queries().V2SessionFacts(ctx, db.V2SessionFactsParams{
-		ID: id, DeclarationVersion: declaration.Version, DeclarationHash: declaration.Hash,
-	})
+	f, err := store.Queries().V2SessionFacts(ctx, id)
 	if errors.Is(err, sql.ErrNoRows) {
 		return engine.Refuse(engine.ProblemUnknown, "there is no session "+id.String())
 	}

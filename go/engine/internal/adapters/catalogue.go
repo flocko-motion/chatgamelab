@@ -214,15 +214,15 @@ func Ladder(low, medium, high ModelSet) []TierModels {
 // Platform is what a person choosing a platform and a tier needs to know.
 // Facts says what each model is, one entry for every model a tier names.
 type Platform struct {
-	ID       string       `json:"id"`
-	Name     string       `json:"name"`
-	UserKeys bool         `json:"userKeys"`
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	UserKeys bool   `json:"userKeys"`
 	// Configurable says an admin may replace the platform's models and set
 	// their prices (engine.SetOverrides).
-	Configurable bool `json:"configurable"`
-	Toggles  Toggles      `json:"toggles"`
-	Tiers    []TierModels `json:"tiers"`
-	Facts    ModelTable   `json:"models"`
+	Configurable bool         `json:"configurable"`
+	Toggles      Toggles      `json:"toggles"`
+	Tiers        []TierModels `json:"tiers"`
+	Facts        ModelTable   `json:"models"`
 	// Voices are the built-in voices each speaking model type speaks in,
 	// such as the live model's, for a genre to cast its voices from.
 	Voices map[ModelType][]BuiltinVoice `json:"-"`

@@ -237,6 +237,12 @@ type SystemSetting struct {
 	FreeUseApiKeyID       uuid.NullUUID   `json:"free_use_api_key_id"`
 	Branding              json.RawMessage `json:"branding"`
 	SessionRetentionHours int32           `json:"session_retention_hours"`
+	SmtpHost              string          `json:"smtp_host"`
+	SmtpPort              int32           `json:"smtp_port"`
+	SmtpUser              string          `json:"smtp_user"`
+	SmtpPassword          string          `json:"smtp_password"`
+	SmtpFrom              string          `json:"smtp_from"`
+	ConsentCopyEmail      string          `json:"consent_copy_email"`
 }
 
 type UserFavouriteGame struct {

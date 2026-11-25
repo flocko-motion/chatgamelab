@@ -1,5 +1,4 @@
 {
-  "_sourceHash": "98425c3aa434b7f9",
   "auth": {
     "ageGroup": {
       "description": "دا زموږ سره مرسته کوي چې ستاسو حساب ته د مناسبې ساتنې او منځپانګې لارښوونې پلي کړو.",
@@ -39,12 +38,6 @@
         "message": "لږ تمه وکړئ تر څو مو د ننوتلو پاڼې ته واړوو.",
         "title": "Auth0 ته درلېږو..."
       },
-      "role": {
-        "admin": "د مدیر په توګه ننوتل",
-        "guest": "د مېلمه په توګه ننوتل",
-        "student": "د زده کوونکي په توګه ننوتل",
-        "teacher": "د ښوونکي په توګه ننوتل"
-      },
       "unavailable": {
         "message": "په دې ځای کې ننوتل فعال نه دي. په ورکشاپ کې مېلمانه کولای شي پر ځای یې خپل کوډ دننه کړي.",
         "title": "ننوتل شتون نه لري"
@@ -61,6 +54,7 @@
         "introExisting": "ستاسو سازمان «{{name}}» اوس یوه اعلامیه لري چې آنلاین تاییدېږي. دا هغه د کارولو تړون بدلوي چې تاسو مخکې لاسلیک کړی و. مهرباني وکړئ ویې لولئ او د خپلې ادارې په استازیتوب موافقه وکړئ.",
         "introNewVersion": "اعلامیه تازه شوې ده (نسخه {{version}}). مهرباني وکړئ نوې نسخه ولولئ او د خپل سازمان «{{name}}» په استازیتوب موافقه وکړئ.",
         "introWithdrawn": "ستاسو د ادارې «{{name}}» موافقه له اعلامیې څخه بېرته اخیستل شوې، نو اداره مو ځنډول شوې ده. مهرباني وکړئ اعلامیه ولولئ او د خپلې ادارې په استازیتوب موافقه وکړئ، څو بیا له {{siteName}} څخه کار واخلئ.",
+        "later": "وروسته",
         "logout": "وتل",
         "oneHeadIsEnough": "که د ادارې له مشرانو څخه یوازې یو کس موافقه وکړي، هم بسنه کوي. تر هغه وخته ستاسو اداره ځنډول شوې ده: غړي یې نه شي کولی له {{siteName}} څخه کار واخلي.",
         "submit": "موافقه کول",
@@ -123,23 +117,8 @@
         "tooLong": "تر ټولو ډېر {{max}} توري. مهرباني وکړئ لنډ یې کړئ یا یو وړاندیز وټاکئ."
       }
     },
-    "participant": {
-      "leaveConfirm": {
-        "confirm": "ورکشاپ پرېښودل",
-        "message": "ډاډه یاست چې دا ورکشاپ پرېږدئ؟ د بیا ګډون لپاره به نوي بلنې ته اړتیا ولرئ.",
-        "title": "ورکشاپ پرېږدئ؟"
-      },
-      "leaveWorkshop": "ورکشاپ پرېږدئ",
-      "organization": "سازمان",
-      "role": "د ورکشاپ ګډونوال",
-      "workshop": "ورکشاپ"
-    },
     "profile": {
-      "ageGroup": "د عمر ډله",
-      "ageGroupDescription": "دا ټاکي چې کوم د منځپانګې لارښودونه ستاسو لوبو ته پلي کېږي. تاسو هر وخت دا بدلولای شئ.",
       "ageGroupSection": "د عمر او ساتنې ډله",
-      "ageGroupU13": "۱۳-۱۷ کاله",
-      "ageGroupU18": "۱۸+",
       "gamesCreated": "جوړ شوي لوبې",
       "gamesPlayed": "ترسره شوې لوبې",
       "guestCode": {
@@ -153,20 +132,13 @@
       "noOrganization": "هیڅ سازمان نشته",
       "noRole": "هیڅ ونډه نه ده ټاکل شوې",
       "organization": "سازمان",
-      "organizationSection": "سازمان \u0006 ونډه",
-      "participantCode": {
-        "error": "ستاسو د لاسرسي کوډ نه شو پورته کېدای.",
-        "hint": "د دې کوډ عکس واخلئ یا یې ولیکئ، او له نورو سره یې مه شریکوئ. دا کوډ تاسو هر وخت او په هره وسیله خپل حساب ته بېرته ننباسي: د کورپاڼې په «کوډ دننه کړئ» برخه کې ټکي ولیکئ یا د QR کوډ سکین کړئ.",
-        "longTokenHint": "د QR کوډ عکس واخلئ یا لینک خوندي کړئ، او له نورو سره یې مه شریکوئ. دا تاسو هر وخت خپل حساب ته بېرته ننباسي. ستاسو د ورکشاپ مشر کولای شي ستاسو د لاسرسي په بیا تنظیمولو سره یو لنډ څلور-کلمه‌ییز کوډ درکړي.",
-        "title": "ستاسو د لاسرسي کوډ"
-      },
+      "organizationSection": "سازمان \u0026 ونډه",
       "role": "ونډه",
       "roles": {
         "admin": "اداري",
         "guest": "مېلمه",
         "head": "د سازمان مشر",
         "individual": "انفرادي",
-        "participant": "ګډونوال",
         "staff": "د ورکشاپ مشر"
       },
       "statisticsSection": "احصایې",
@@ -175,12 +147,6 @@
       "workshopSection": "ورکشاپ او سازمان"
     },
     "register": {
-      "ageGroupLabel": "د عمر ډله",
-      "ageGroupRequired": "مهرباني وکړئ خپله د عمر ډله وټاکئ",
-      "ageGroupU13": "۱۳-۱۷ کلن",
-      "ageGroupU18": "۱۸ یا زیات",
-      "ageGroupUnder13": "له ۱۳ څخه کم",
-      "ageGroupUnder13Error": "د ChatGameLab د کارولو لپاره باید لږ تر لږه ۱۳ کلن یاست.",
       "cancelButton": "لغوه",
       "emailDescription": "اختیاري. موږ به دا د مهمو خبرتیاوو لپاره وکاروو.",
       "emailLabel": "د برېښنالیک پته",
@@ -211,25 +177,6 @@
       "continueButton": "ثبت ته دوام ورکړئ",
       "description": "موږ Auth0 د تصدیق چمتو کوونکي په توګه کاروو ترڅو د کاروونکو حسابونه اداره کړو. تاسو به حساب جوړولو لپاره Auth0 ته واړول شئ، بيا به دلته راوګرځول شئ څو خپل پروفایل بشپړ کړئ.",
       "educatorDescription": "له {{siteName}} څخه په ورکشاپونو، ټولګیو یا خپله اداره کې کار واخلئ",
-      "educatorModal": {
-        "closeButton": "بندول",
-        "copied": "کاپي شو!",
-        "copyEmail": "برېښنالیک کاپي کړئ",
-        "eduInfo": "د ChatGameLab د تعلیمي کارونې په اړه نور معلومات ترلاسه کړئ:",
-        "intro": "د خپلې مؤسسې (ښوونځي، پوهنتون، بنسټ) سره د ChatGameLab د کارولو لپاره، لاندې ګامونه تعقیب کړئ:",
-        "registerButton": "شخصي حساب جوړ کړئ",
-        "step1": "شخصي حساب جوړ کړئ",
-        "step1Description": "لومړی خپل شخصي حساب جوړ کړئ. دا به ستاسو د پلاتفورم ننوت وي.",
-        "step2": "۲. موږ ته برېښنالیک راولېږئ",
-        "step2Description": "برېښنالیک ولیکئ",
-        "step2Item1": "ستاسو ثبت شوې برېښنالیک پته",
-        "step2Item2": "ستاسو د سازمان نوم (ښوونځی، اداره، او نور)",
-        "step2WithInfo": "سره:",
-        "step3": "۳. موږ به ستاسو سازمان جوړ کړو",
-        "step3Description": "موږ به ستاسو سازمان جوړ کړو او تاسو به مشري ته وټاکو. بيا کولای شئ همکاران راوبلئ او کارګاهونه تنظیم کړئ.",
-        "title": "د ښوونکي او مسلکي لاسرسی"
-      },
-      "educatorTitle": "ښوونکی / مسلکي",
       "individualDescription": "د AI پر مټ متني مزلونه جوړ او ولوبوئ",
       "individualTitle": "شخصي حساب",
       "loginLink": "ننوځئ",
@@ -245,11 +192,6 @@
     },
     "settings": {
       "accountSection": "حساب",
-      "ageGroupDescription": "دا ټاکي چې کوم د منځپانګې لارښودونه ستاسو لوبو ته پلي کېږي.",
-      "ageGroupLabel": "د عمر ډله",
-      "ageGroupU13": "۱۳-۱۷ کاله",
-      "ageGroupU18": "۱۸ یا زیات",
-      "emailChangeNote": "د برېښنالیک د بدلون لپاره مهرباني وکړئ د سایټ له مدیر سره اړیکه ونیسئ.",
       "emailDescription": "اختیاري. ادارې به د همدې له لارې تاسو ته بلنه درکړي؛ هېڅ بل حساب یې نه شي کارولی.",
       "emailLabel": "برېښنالیک",
       "emailPlaceholder": "تاسو@example.org",
@@ -288,9 +230,7 @@
           "title": "بلنه ړنګول"
         },
         "role": "ونډه",
-        "searchPlaceholder": "د برېښنالیک، ونډې، حالت یا سازمان له مخې پلټنه...",
         "sort": {
-          "label": "ترتیبول پر",
           "modifiedAt-asc": "بدل شوی (تر ټولو زاړه)",
           "modifiedAt-desc": "بدل شوی (تر ټولو نوي)",
           "organization-asc": "سازمان (A-Z)",
@@ -347,7 +287,6 @@
         "postalCode": "پوستي کوډ",
         "removeMember": "غړی لرې کول",
         "removeMemberConfirm": "ډاډه یاست چې {{name}} له دې سازمانه لرې کوئ؟",
-        "searchPlaceholder": "سازمانونه وپلټئ...",
         "sendInvite": "بلنه واستوئ",
         "status": "حالت او موافقه",
         "statusActive": "فعال",
@@ -364,16 +303,6 @@
         "title": "سازمانونه اداره کړئ"
       },
       "registrations": {
-        "bell": {
-          "empty": "په تېرو دوو اوونیو کې هېڅ سازمان نه دی ثبت شوی.",
-          "intro_one": "دا سازمان په تېرو دوو اوونیو کې ثبت شوی او لا دمخه فعال شوی دی.",
-          "intro_other": "دا {{count}} سازمانونه په تېرو دوو اوونیو کې ثبت شوي او لا دمخه فعال شوي دي.",
-          "label": "نوي سازمانونه",
-          "later": "وروسته",
-          "open": "لنډیز ته تلل",
-          "suspendHint": "اوس مهال برېښنالیک پتې نه تاییدېږي. نوي سازمانونه ژر وګورئ او که ستونزه وي، په لنډیز کې یې وځنډوئ.",
-          "title": "نوي سازمانونه"
-        },
         "date": "ثبت شوی",
         "description": "هغه سازمانونه چې په تېرو دوو اوونیو کې یې ځانونه ثبت کړي دي. دوی د برېښنالیک پتې له تایید پرته سمدستي فعالېږي؛ وګورئ یې او که ستونزه وي، یو سازمان وځنډوئ.",
         "empty": "په تېرو دوو اوونیو کې هېڅ سازمان خپل ځان نه دی ثبت کړی.",
@@ -396,8 +325,6 @@
           "all": "ټول کاروونکي",
           "noGuests": "له مېلمنو پرته"
         },
-        "hideGuests": "مېلمانه پټ کړئ ({{count}})",
-        "hideGuestsShort": "مېلمانه ({{count}})",
         "joined": "ګډ شوی",
         "loadError": "کارنان نه شول پورته کېدل",
         "makeAdmin": "مدیر یې وګرځوئ",
@@ -415,8 +342,6 @@
         "removeAdminTitle": "اداري ونډه لرې کول",
         "removeAdminWarning": "دا کارن به ټول اداري امتیازات له لاسه ورکړي.",
         "role": "ونډه",
-        "searchPlaceholder": "د نوم، برېښنالیک، ونډې یا سازمان له مخې پلټنه...",
-        "showing": "{{count}} له {{total}} کارنان ښودل شوي",
         "signUpInProgress": "د نوم‌لیکنې بهیر روان دی",
         "signingUp": "نوم‌لیکنه کېږي",
         "sort": {
@@ -424,7 +349,6 @@
           "email-desc": "برېښنالیک (Z-A)",
           "joined-asc": "ګډ شوی (تر ټولو زاړه)",
           "joined-desc": "ګډ شوی (تر ټولو نوي)",
-          "label": "ترتیبول پر",
           "name-asc": "نوم (A-Z)",
           "name-desc": "نوم (Z-A)",
           "organization-asc": "سازمان (A-Z)",
@@ -458,7 +382,6 @@
       "high": "لوړ",
       "label": "د AI کیفیت پوړ",
       "low": "اقتصادي",
-      "max": "اعظمي (پریمیوم + غږ)",
       "medium": "متوازن",
       "newSessionsOnly": "دا کچه یوازې پر نوو ناستو پلي کېږي. شته ناستې هغه کچه ساتي چې پکې یې پیل کړی و.",
       "serverDefault": "د سرور اصلي"
@@ -470,7 +393,6 @@
         "message": "دا به \"{{name}}\" ستاسو په لوبو کې یوه کاپي جوړه کړي.",
         "title": "لوبه کاپي کړئ"
       },
-      "copyGame": "لوبه کاپي کړئ",
       "empty": {
         "conditions": {
           "favorites": "ستاسو له خوښو څخه",
@@ -578,11 +500,9 @@
         "revokeGameShare": "د شریکولو لینک لغوه کړئ",
         "revokePrivateShare": "د شریکولو لینک لغوه کړئ",
         "sponsorships": "د لوبې سپانسرۍ",
-        "toggle": "شریکونې \u0006 سپانسرۍ",
+        "toggle": "شریکونې \u0026 سپانسرۍ",
         "unknownGame": "نامعلومه لوبه",
         "unknownOrg": "نامعلوم سازمان",
-        "unknownUser": "نامعلوم کارن",
-        "unknownWorkshop": "نامعلوم ورکشاپ",
         "unlimited": "لامحدود کارونې"
       },
       "sort": {
@@ -639,24 +559,9 @@
     },
     "error": "تېروتنه",
     "footer": {
-      "copyright": "JFF - Institut für Medienpädagogik",
-      "jffTitle": "JFF - Institute for Educational Research and Innovation",
       "programmedBy": "برنامه شوی لخوا"
     },
-    "gamePlayer": {
-      "rebuilding": {
-        "description": "ژر به دلته بیا لوبې کولی شئ.",
-        "title": "د لوبې چلوونکی بیا جوړېږي"
-      }
-    },
     "games": {
-      "actions": {
-        "delete": "ړنګول",
-        "edit": "سمول",
-        "export": "صادرول",
-        "play": "ولوبئ",
-        "view": "کتل"
-      },
       "badges": {
         "myGame": "زما لوبه",
         "public": "عامه",
@@ -686,7 +591,6 @@
         "namePlaceholder": "لکه: د فضا سیر",
         "publicDescription": "عامې لوبې ټول کاروونکي په دې پلاتفورم کې لیدلای او لوبولای شي.",
         "publicLabel": "دا لوبه عامه کړئ",
-        "publicOwnerOnly": "یوازې د لوبې جوړوونکی کولای شي لوبه عامه کړي.",
         "submit": "لوبه جوړه کړئ",
         "title": "نوې لوبه جوړه کړئ"
       },
@@ -915,8 +819,7 @@
           "status": {
             "builtIn": "لا هېڅ تشرېح نشته: تر هغه چې تاسو غږ تشرېح کړئ، لوبه له مخکې جوړ شوي غږ سره خبرې کوي.",
             "cast": "کله چې لوبه پیل شي، د ټاکل شوي ډول له منځه هغه له مخکې جوړه شوې غږیزه بڼه ټاکي چې له کیسې سره تر ټولو ډېره مناسبه وي. تشریح ټاکي چې غږ به څنګه خبرې کوي.",
-            "ownVoice": "د دې تشرېح لپاره ځانګړی غږ، چې ستاسې په AI کیلي جوړ شوی.",
-            "steered": "له مخکې جوړ شوی غږ کیسه د تشرېح له مخې لولي."
+            "ownVoice": "د دې تشرېح لپاره ځانګړی غږ، چې ستاسې په AI کیلي جوړ شوی."
           },
           "stop": "د نمونې غږول بندول"
         },
@@ -957,10 +860,6 @@
         "titleView": "لوبه",
         "untitled": "بې‌سرلیکه لوبه"
       },
-      "empty": {
-        "description": "خپله لومړنۍ لوبه جوړه کړئ تر څو له AI سره متقابل ماجرا ته داخل شئ.",
-        "title": "تر اوسه هیڅ لوبه نشته"
-      },
       "errors": {
         "loadFailed": "لوبې پورته نه شوې. بیا هڅه وکړئ.",
         "nameRequired": "د لوبې نوم اړین دی",
@@ -975,7 +874,6 @@
       "fields": {
         "created": "جوړه شوې",
         "creator": "جوړونکی",
-        "me": "زه",
         "modified": "بدل شوې",
         "name": "نوم",
         "playCount": "پلې",
@@ -984,9 +882,7 @@
       "genres": {
         "adventure": "ماجراجویي",
         "discussion": "بحث",
-        "npc": "کرکټر",
-        "npc-duo": "بحث",
-        "npc-live": "کرکټر"
+        "npc": "کرکټر"
       },
       "importExport": {
         "coverFailed": "لوبه وارد شوه، خو د هغې پوښ انځور ونه کتل شو. په سمونګر کې نوی انځور رسمولی شئ.",
@@ -1002,7 +898,6 @@
         "importButton": "لوبه وارد کړئ"
       },
       "newGame": "نوې لوبه",
-      "playNow": "همدا اوس ولوبئ",
       "privacyHint": "د لوبې نوم او تشریح ښايي عامه ښکاره شي. مهرباني وکړئ اصلي نومونه مه کاروئ.",
       "privacyHintShort": "ښايي عامه ښکاره شي – مهرباني وکړئ اصلي نومونه مه کاروئ.",
       "privateShare": {
@@ -1050,12 +945,10 @@
         "active": "فعال",
         "privateShareLink": "شخصي شریکولو لینک",
         "privateShareLinkDescription": "شخصي شریکولو لینکونه له نورو سره شریکېدلی شي. هر څوک چې لینک ولري، لوبه بې حسابه په پټه لوبولای شي. د لګښت پوښلو لپاره باید API کیلي وټاکل شي.",
-        "publicGameWorkshopHint": "دا یوه عامه لوبه ده او ستاسو د کارګاه برخه نه ده. د کارګاه حالت کې د عامو لوبو لپاره د شریکولو اختیارونه شتون نه لري.",
         "publicSponsoring": "عام سپانسرۍ",
         "publicSponsoringDescription": "د پلاتفورم ټول کاروونکي دا لوبه وړیا لوبولای شي - ستاسو ټاکل شوې API کیلي لګښت ورکوي.",
         "sectionTitle": "د شریکولو اختیارونه",
-        "sectionTitleShareOnly": "د شریکولو اختیارونه",
-        "workshopShareRequiresPublic": "مخکې له دې چې دا لوبه په ورکشاپ کې شریکه شي، باید عامه وي."
+        "sectionTitleShareOnly": "د شریکولو اختیارونه"
       },
       "sort": {
         "createdAt-asc": "جوړه شوې (تر ټولو زاړه)",
@@ -1111,7 +1004,7 @@
         "basicInfo": "د لوبې عمومي معلومات. یوازې ستاسو لپاره دي.",
         "importExport": "واردول/صادرول",
         "quickStart": "چټک پیل",
-        "story": "کیسه \u0006 AI",
+        "story": "کیسه \u0026 AI",
         "storyInfo": "هر څه دلته AI ته استول کېږي څو ستاسو د لوبې نړۍ او کیسه جوړ کړي.",
         "style": "ډیزاین",
         "styleInfo": "د لوبې ظاهري اختیاري ترتیبات."
@@ -1165,7 +1058,6 @@
           "zombie": "زامبي"
         }
       },
-      "title": "زما جوړې شوې لوبې",
       "viewModal": {
         "readOnlyNotice": "دا لوبه بل کارن جوړه کړې. تاسو یې کتلای شئ خو سمول نه. د \"کاپي\" کارولو سره خپله نسخه جوړه کړئ.",
         "title": "د لوبې جزییات"
@@ -1193,25 +1085,6 @@
     "help": "مرسته",
     "home": {
       "codeCta": "کوډ دننه کړئ",
-      "features": {
-        "create": {
-          "description": "د AI په مرسته متقابل متني ماجراوې ډیزاین کړئ",
-          "title": "ماجراوې جوړ کړئ"
-        },
-        "learn": {
-          "description": "د ښوونیزو ورکشاپونو او ټولګي فعالیتونو لپاره مناسب",
-          "title": "وزده \u0006 ښوونه وکړئ"
-        },
-        "play": {
-          "description": "له ملګرو سره په ګډ داستان جوړونه کې ګډون وکړئ",
-          "title": "په ګډه ولوبئ"
-        },
-        "title": "ولې ChatGameLab وټاکو؟",
-        "understand": {
-          "description": "ومومئ چې AI ماډلونه کیسې څنګه جوړوي او څنګه کار کوي",
-          "title": "AI وپېژنئ"
-        }
-      },
       "loginCta": "ننوزئ او وپلټئ",
       "splashDescription": "یو ښوونیز پلاتفورم د AI متني ماجرايي لوبو د جوړولو او لوبولو لپاره. د ښوونکو، زده کوونکي او خلاقه لیکوالانو لپاره مناسب."
     },
@@ -1248,19 +1121,9 @@
       "guest": {
         "loggingIn": "تاسو ننوتئ..."
       },
-      "participant": {
-        "loggingIn": "تاسو ننویسو..."
-      },
       "success": {
         "message": "تاسو په بریالیتوب سره ورکشاپ ته یو ځای شوئ. درلېږو...",
         "title": "ښه راغلاست!"
-      },
-      "switchWorkshop": {
-        "message": "ستاسو لوبې او پرمختګ په اوسني ورکشاپ کې خوندي پاتې کېږي، خو تر بیا ګډون پورې ورته لاسرسی نه لرئ.",
-        "stayButton": "اوسني ورکشاپ کې پاتې کېږم",
-        "switchButton": "ورکشاپ بدل کړم",
-        "title": "ورکشاپ بدل کړم؟",
-        "warning": "تاسو اوس د \"{{currentWorkshop}}\" ورکشاپ غړی یاست. \"{{newWorkshop}}\" ته ننوتل به مو له اوسني ورکشاپه وباسي."
       }
     },
     "labels": {
@@ -1295,31 +1158,25 @@
     "logout": "وتل",
     "me": "زه",
     "myGames": {
-      "continue": "لوبه وکړئ",
       "copyConfirm": {
         "confirm": "لوبه کاپي کړئ",
         "message": "دا به \"{{name}}\" ستاسو په لوبو کې یوه کاپي جوړه کړي.",
         "title": "لوبه کاپي کړئ"
       },
-      "copyGame": "لوبه کاپي کړئ",
       "empty": {
         "description": "خپله لومړنۍ لوبه جوړه کړئ تر څو له AI سره متقابل ماجرا پیل کړئ.",
         "title": "تر اوسه لوبه نشته"
       },
-      "favorite": "مینه والو ته ورزیات کړئ",
       "filters": {
         "all": "ټول",
         "favorites": "مینه وال"
       },
-      "play": "ولوبئ",
-      "restart": "بیا پیلول",
       "restartConfirm": {
         "confirm": "بیا پیلول",
         "message": "ایا ډاډه یاست چې غواړئ \"{{game}}\" بیا پیل کړئ؟ ستاسو اوسنی پرمختګ به له منځه ولاړ شي.",
         "title": "لوبه بیا پیلول"
       },
-      "title": "زما لوبې",
-      "unfavorite": "له مینه والو لرې کړئ"
+      "title": "زما لوبې"
     },
     "myOrganization": {
       "actions": "عملونه",
@@ -1331,7 +1188,6 @@
         "allPlatforms": "ټول پلاتفورمونه",
         "allowPublicSponsoring": "عامه سپانسرۍ ته اجازه",
         "allowPublicSponsoringDesc": "دا کیلي کولای شي د ټولو کارنان لپاره لوبې سپانسر کړي.",
-        "filterByPlatform": "د پلاتفورم له مخې فلټر",
         "freeUseKey": {
           "description": "د وړیا کارولو کیلي وټاکئ څو د سازمان ټول غړي پرته له خپلې API کیلي لوبې وکولی شي.",
           "remove": "لرې کول",
@@ -1351,13 +1207,10 @@
         "platform": "پلاتفورم",
         "publicSponsoring": "عامه سپانسرۍ",
         "removeShare": "له سازمان څخه لرې کول",
-        "searchPlaceholder": "د نوم یا مالک له مخې پلټنه...",
         "selectKey": "API کیلي وټاکئ",
         "selectKeyPlaceholder": "هغه کیلي وټاکئ چې شریکه شي...",
         "share": "شریکول",
-        "shareKey": "کیلي شریکه کړئ",
         "shareKeyTitle": "سازمان ته د API کیلي اضافه کول",
-        "showDetails": "جزیات ښکاره کړئ",
         "title": "زما سازمان API کیلي"
       },
       "autoShare": {
@@ -1367,7 +1220,10 @@
         "personalKeyGroup": "شخصي کیلي"
       },
       "declaration": {
+        "agree": "ولولئ او موافقه وکړئ",
         "consented": "ستاسو سازمان د {{date}} په نېټه له نسخې {{version}} سره موافقه کړې.",
+        "goAgree": "خپل سازمان ته لاړ شئ",
+        "newVersion": "د موافقې اعلامیې نوې نسخه {{version}} شته. ستاسو سازمان فعال پاتې دی؛ مهرباني وکړئ هغه ولولئ او د خپل سازمان په استازیتوب ورسره موافقه وکړئ.",
         "title": "د موافقې اعلامیه",
         "withdraw": "موافقت بېرته اخیستل",
         "withdrawConfirm": "له موافقې پرته ستاسو اداره ځنډول کېږي: هېڅ غړی نه شي کولی له {{siteName}} څخه کار واخلي، تر هغه چې یو مشر بیا موافقه وکړي. د ادارې معلومات به خوندي پاتې شي.",
@@ -1385,9 +1241,6 @@
       "inviteTeacher": "ښوونکی وبللئ",
       "inviteTeacherDescription": "یو ښوونکی خپل سازمان ته وبللئ.",
       "inviteTeacherTitle": "ښوونکی وبللئ",
-      "inviteUser": "کارن وبللئ",
-      "inviteUserDescription": "بې له ځانګړې ونډې کارن سازمان ته وبللئ.",
-      "inviteUserTitle": "کارن وبللئ",
       "lastHeadError": "تاسو د سازمان وروستی مشر یاست. که اړتیا لرئ ووځئ، له د سایټ مدیرانو سره اړیکه ونیسئ.",
       "leaveConfirm": "ډاډه یاست چې \"{{name}}\" پرېږدئ؟",
       "leaveError": "له سازمانه وتل ونه شول. بیا هڅه وکړئ.",
@@ -1454,7 +1307,6 @@
       "removeTitle": "غړی لرې کول",
       "removeWarning": "دا کارن به د سازمان لاسرسی له لاسه ورکړي.",
       "role": "ونډه",
-      "searchPlaceholder": "غړي وپلټئ...",
       "showing": "{{count}} غړي",
       "sort": {
         "label": "ترتیبول پر",
@@ -1492,24 +1344,12 @@
         "active": "فعال",
         "activeDescription": "فعال ورکشاپونه ګډونوالو ته اجازه ورکوي چې لوبې جوړې کړي.",
         "activeLabel": "فعال",
-        "addIndividual": "د سازمان غړی زیات کړئ",
         "addIndividualError": "کارګاه ته د غړي په زیاتولو کې پاتې راغلو.",
-        "addIndividualHint": "د کاروونکي زیاتول هغه په اوتومات ډول کارګاه حالت ته وړي. هغوی به د خپل عادي ډشبورډ پر ځای د کارګاه لید وګوري. یوازې هغه وخت دا کار وکړئ چې هدف وي.",
-        "addIndividualStaffNote": "مشریان او ښوونکي باید کارګاه ته د خپل کارګاه لست له لارې پخپله ورشي - دلته نه ښکاري.",
-        "addIndividualSuccess": "غړی زیات شو",
-        "addIndividualSuccessMessage": "{{name}} د کارګاه غړی شو.",
-        "addIndividualTitle": "فرد کارګاه ته زیات کړئ",
         "addToWorkshop": "کارګاه ته زیات کړئ",
-        "aiQualityHigh": "High (Premium)",
-        "aiQualityLow": "Low (Economy)",
-        "aiQualityMedium": "Medium (Balanced)",
-        "aiQualityTier": "AI Quality Tier",
         "aiQualityTierHint": "د AI ځواب کیفیت پوړ. لوړې کچې ګرانې دي خو ښایي کیفیت یې ښه وي. تش یې پرېږدئ تر څو د سرور اصلي وکارول شي.",
         "allowGameSharing": "د لوبې شریکول اجازه کړئ",
         "allowGameSharingHint": "کله چې فعال وي، ګډونوال کولای شي د خپلو لوبو لپاره د کارګاه د API کیلي په کارولو شریکولو لینکونه جوړ کړي",
-        "anonymousParticipant": "بې نومه ګډونوال",
         "create": "ورکشاپ جوړ کړئ",
-        "createFirst": "خپل لومړی ورکشاپ جوړ کړئ",
         "createInviteLink": "د بلنې لینک جوړ کړئ",
         "createTitle": "ورکشاپ جوړ کړئ",
         "deactivate": "غیر فعال کړئ",
@@ -1532,10 +1372,8 @@
         "inviteByEmailSuccessMessage": "بلنه جوړه شوه. کاروونکی به یې په خپلو منتظرو بلنو کې وویني.",
         "inviteByEmailTitle": "کاروونکی کارګاه ته وبولئ",
         "inviteCreatedAt": "جوړ شوی",
-        "inviteDescription": "د بلنې لینک تولید کړئ چې ګډونوال پرې ورکشاپ ته داخل شي.",
         "inviteExpiresAt": "پای نیټه",
         "inviteLink": "د بلنې لینک",
-        "inviteLinkDescription": "دا لینک له ګډونوالو سره شریک کړئ چې ورکشاپ ته راشي.",
         "inviteLinkTitle": "د ګډونوالو لپاره د بلنې لینک – {{name}}",
         "inviteUsage": "کارونه",
         "isPaused": "ورکشاپ وځنډوئ",
@@ -1551,14 +1389,11 @@
         "noDefaultModel": "د پلاتفورم تلواله وکاروئ",
         "noGuestToken": "دا غړی د بیا ننوتلو لینک نه لري. یوازې مېلمانه یې لري.",
         "noIndividuals": "په دې سازمان کې انفرادي کاروونکي نشته.",
-        "noParticipantToken": "دغه ګډونوال د بلنې لینک نه لري. یوازې بې نومه ګډونوال (مېلمانه) د بیا کارونې لینک لري.",
         "noParticipants": "تر اوسه ګډونوال نشته",
         "noResults": "ستاسو له لټون یا فلټر سره هېڅ ورکشاپ سمون نه لري.",
         "notAuthorized": "تاسو ورکشاپونه نه شئ اداره کولی. یوازې مشران او ښوونکي اجازه لري.",
         "participantGames": "{{count}} لوبې",
         "participantJoined": "{{date}} کې ګډ شوی",
-        "participantLinkTitle": "د بیا ننوتلو لینک",
-        "participantLinkTitleNamed": "د {{name}} لپاره د بیا ننوتلو لینک",
         "participantName": "د ګډونوال نوم",
         "participants": "ګډونوال",
         "promptConstraintsFallbackOrg": "د سازمان د ځوانانو د ساتنې تګلاره د اصلي تګلارې په توګه کارول کېږي: {{constraint}}",
@@ -1580,10 +1415,8 @@
         "resetAccessWarning": "پخوانی لینک او کوډ نور کار نه کوي – حتی په هغو وسیلو کې هم نه چې مېلمه اوس پکې ننوتی دی.",
         "revokeInvite": "د بلنې لینک لغوه کړئ",
         "selectApiKey": "API کیلي وټاکئ",
-        "serverDefault": "Server Default",
         "settings": "ترتیبات",
         "shareGuestLink": "د بیا ننوتلو لینک ښودل",
-        "shareParticipantLink": "د بیا ننوتلو لینک وښایئ",
         "showOtherParticipantsGames": "د نورو ګډونوالو لوبې ښودل",
         "showOtherParticipantsGamesHint": "مشري او کارکوونکي تل د ټولو ګډونوالو لوبې د منځګړتوب لپاره لیدلی شي",
         "showPublicGames": "ګډونوالو ته عامه لوبې وښایئ",
@@ -1617,7 +1450,6 @@
       "decline": "رد",
       "declineConfirm": "ډاډه یاست چې دا بلنه رد کړئ؟",
       "declineTitle": "بلنه ردول",
-      "empty": "نوې خبرتیاوې نشته.",
       "inviteDescription": "تاسو ته د {{role}} په توګه د ګډون بلنه درکړل شوې.",
       "inviteToJoin": "د سازمان بلنه",
       "nothingNew": "نوي څه نشته",
@@ -1766,6 +1598,7 @@
           "educatorInfoUrl": "د ښوونکو لپاره معلومات",
           "gameTipsUrl": "د لوبو جوړولو لارښوونې",
           "helpUrl": "مرسته",
+          "operatorLegalName": "د چلوونکي قانوني نوم (د قانوني متنونو لپاره)",
           "operatorName": "چلوونکی",
           "operatorUrl": "د چلوونکي وېب‌پاڼه",
           "privacyUrl": "د محرمیت تګلاره",
@@ -1792,13 +1625,10 @@
         "title": "د عمر ډلې له مخې د ځوانانو د ساتنې اصول",
         "u13Hint": "د هغو ننوتلو کاروونکو هر AI غوښتنلیک ته ورزیاتېږي چې ۱۳-۱۷ کلن وي او د والدینو اجازه ثبت شوې نه وي.",
         "u13Label": "د ۱۳–۱۷ کلونو کاروونکو لپاره د ځوانانو د ساتنې تګلاره، د مور او پلار له رضایت پرته (U13)",
-        "u13Placeholder": "لکه: ټول منځپانګه د تنکیو ځوانانو لپاره کلکه مناسبه وساتئ. تشدد مه کوئ، رومانتيک منځپانګه مه کوئ، د وېروونکې موضوع نه کاروئ.",
         "u13pHint": "د هغو ننوتلو کاروونکو هر AI غوښتنلیک ته ورزیاتېږي چې ۱۳-۱۷ کلن وي او د والدینو اجازه یې ثبت شوې وي.",
         "u13pLabel": "د ۱۳–۱۷ کلونو کاروونکو لپاره د ځوانانو د ساتنې تګلاره، د مور او پلار له رضایت سره (U13p)",
-        "u13pPlaceholder": "لکه: د هغو ځوانانو لپاره د عمر له پلوه مناسبه منځپانګه چې د والدینو اجازې لري. ځینې بالغې موضوعګانې منل کېږي، خو څرګند محتوا نشته.",
         "u18Hint": "د هغو ننوتلو کاروونکو لپاره چې عمر یې ۱۸ یا زیات وي، په هر AI حکم کې ورګډېږي.",
-        "u18Label": "د ۱۸ کلونو او پورته کاروونکو لپاره د ځوانانو د ساتنې تګلاره (U18)",
-        "u18Placeholder": "لکه: منځپانګه مناسبه وساتئ. له څرګند تشدد یا جنسي منځپانګې ډډه وکړئ."
+        "u18Label": "د ۱۸ کلونو او پورته کاروونکو لپاره د ځوانانو د ساتنې تګلاره (U18)"
       },
       "defaultTier": {
         "description": "په سرور کې عمومي تلواله پوړ چې هغه مهال کارېږي کله چې په ورکشاپ، اداره یا کارن کې ځانګړی پوړ نه وي. لوړې کچې زیات لګښت لري خو ښايي کیفیت یې ښه وي.",
@@ -1819,6 +1649,26 @@
       "freeUseTier": {
         "description": "هغه کیفیت پوړ چې ازاد کارونې API کیلي کاروي. لوړې کچې ګرانې دي خو ښايي کیفیت یې ښه وي. تش پرېږدئ تر څو تلواله وکارول شي.",
         "title": "د ازاد کارونې AI کیفیت پوړ"
+      },
+      "mail": {
+        "clearPassword": "پټنوم لرې کړئ",
+        "consentCopy": "د موافقو کاپیګانې ورکول",
+        "consentCopyHint": "د هر سازمان د موافقې کاپي ترلاسه کوي. تش: د ملاتړ بریښنالیک.",
+        "description": "هغه سرور چې {{siteName}} خپل بریښنالیکونه ورڅخه لېږي، لکه د سازمان د موافقې تایید. پرته له سرور، بریښنالیکونه یوازې په لاګ کې لیکل کېږي.",
+        "from": "لېږونکی",
+        "fromHint": "تش: د کاروونکي نوم لېږونکی دی.",
+        "fromPlaceholder": "Name \u003cnoreply@example.org\u003e",
+        "host": "سرور",
+        "hostHint": "یوازې د کوربه نوم، پرته له پورټ. تش: بریښنالیکونه یوازې لاګ کېږي.",
+        "password": "پټنوم",
+        "passwordNone": "هېڅ پټنوم نه دی ټاکل شوی.",
+        "passwordSet": "پټنوم ټاکل شوی دی. د ساتلو لپاره یې تش پرېږدئ.",
+        "port": "پورټ",
+        "portHint": "۵۸۷ له STARTTLS سره، ۴۶۵ له TLS سره.",
+        "save": "خوندي کړئ",
+        "saveFailed": "خوندي نه شو. مهرباني وکړئ ډګرونه وګورئ.",
+        "title": "د بریښنالیک سرور",
+        "user": "د کاروونکي نوم"
       },
       "models": {
         "assign": {
@@ -1934,6 +1784,7 @@
         "ai": "مصنوعي ځیرکتیا او کیلي",
         "branding": "بڼه",
         "general": "عمومي",
+        "mail": "بریښنالیک",
         "models": "د مصنوعي ځیرکتیا ماډلونه",
         "youthProtection": "د ځوانانو ساتنه"
       },
@@ -1999,49 +1850,6 @@
     }
   },
   "dashboard": {
-    "cards": {
-      "externalLinks": {
-        "edu": {
-          "description": "د ChatGameLab سره د رسنیو روزنیز کار",
-          "title": "د ChatGameLab په اړه"
-        },
-        "jff": {
-          "description": "د پروژې همغږي کوونکی او مخکښ سازمان.",
-          "title": "JFF – Institut für Medienpädagogik"
-        },
-        "mainSite": {
-          "description": "په دې پلاتفورم پسې تعلیمي پروژې په اړه نور زده کړئ.",
-          "title": "د ChatGameLab پروژه"
-        },
-        "title": "د ChatGameLab په اړه"
-      },
-      "lastPlayed": {
-        "empty": "تر اوسه د لوبې هېڅ تاریخ نشته. یوه لوبه پیل کړئ!",
-        "title": "وروستۍ لوبه شوې",
-        "viewAll": "ټولې لوبې"
-      },
-      "myGames": {
-        "empty": "تر اوسه لوبې نشته. خپله لومړنۍ لوبه جوړه کړئ!",
-        "title": "زما لوبې",
-        "viewAll": "ټولې جوړونې"
-      },
-      "myWorkshops": {
-        "empty": "هیڅ فعال ورکشاپ نشته. په خپل سازمان کې ورکشاپ جوړ کړئ!",
-        "title": "زما ورکشاپونه",
-        "viewAll": "ټول ورکشاپونه"
-      },
-      "newGames": {
-        "empty": "لا تر اوسه لوبې شتون نه لري.",
-        "title": "نوې لوبې",
-        "viewAll": "ټولې لوبې"
-      },
-      "popularGames": {
-        "empty": "لا تر اوسه لوبې شتون نه لري.",
-        "plays": "{{count}} لوبې",
-        "title": "مشهورې لوبې",
-        "viewAll": "ټولې لوبې"
-      }
-    },
     "continue": {
       "go": "دوام ورکول",
       "hint": "له هغه ځایه دوام ورکړئ چې درېدلي وئ",
@@ -2050,15 +1858,14 @@
       "title": "لوبې ته دوام ورکول"
     },
     "fresh": {
-      "by": "د {{name}} لخوا",
       "empty": "تر اوسه نوې لوبې نشته.",
       "title": "نوې لوبې",
       "viewAll": "ګالري کتل"
     },
     "hero": {
       "create": "جوړول",
-      "greeting": "سلام {{name}}. نن څه \u0003cmark\u0003جوړ\u0003c/mark\u0003 کړو؟",
-      "greetingNoName": "سلام. نن څه \u0003cmark\u0003جوړ\u0003c/mark\u0003 کړو؟",
+      "greeting": "سلام {{name}}. نن څه \u003cmark\u003eجوړ\u003c/mark\u003e کړو؟",
+      "greetingNoName": "سلام. نن څه \u003cmark\u003eجوړ\u003c/mark\u003e کړو؟",
       "journal": "د لابراتوار یادښت · {{date}}",
       "promptLabel": "د لوبې یوه مفکوره بیان کړئ",
       "promptPlaceholder": "د لوبې یوه مفکوره بیان کړئ… AI به ستاسو سره د هغې په جوړولو کې مرسته وکړي"
@@ -2071,8 +1878,7 @@
     },
     "links": {
       "about": "د {{siteName}} په اړه",
-      "educators": "د ښوونکو لپاره",
-      "jff": "JFF – د رسنیو د روزنې انسټیټیوټ"
+      "educators": "د ښوونکو لپاره"
     },
     "ownGames": {
       "empty": "تر اوسه لوبې نشته. پورته یوه مفکوره بیان کړئ او خپله لومړۍ لوبه جوړه کړئ!",
@@ -2085,21 +1891,11 @@
       "plays_other": "{{count}} ځله لوبول شوې",
       "title": "تر ټولو مشهورې"
     },
-    "quickActions": {
-      "createNewGame": "نوې لوبه جوړه کړئ",
-      "createRoom": "خونه/کمره جوړه کړئ",
-      "createWorkshop": "ورکشاپ جوړ کړئ",
-      "importGame": "لوبه وارد کړئ",
-      "inviteMembers": "غړي وبللئ",
-      "startNewGame": "نوې لوبه پیل کړئ",
-      "title": "چټک عملونه"
-    },
-    "someone": "یو څوک",
     "untitled": "بې نومه",
     "untitledGame": "بې‌سرلیک لوبه",
     "version": {
       "mismatch": {
-        "message": "د مخکښې نسخې \u0003frontendVersion\u0003{{frontendVersion}}\u0003/frontendVersion\u0003 نسخې له شاتنۍ \u0003backendVersion\u0003{{backendVersion}}\u0003/backendVersion\u0003 سره نه سمون خوري. دا ښايي نا متوقع چلند رامنځته کړي. که ستونزه پاتې شي، له ملاتړ سره اړیکه ونیسئ.",
+        "message": "د مخکښې نسخې \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e نسخې له شاتنۍ \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e سره نه سمون خوري. دا ښايي نا متوقع چلند رامنځته کړي. که ستونزه پاتې شي، له ملاتړ سره اړیکه ونیسئ.",
         "title": "د نسخې نا سمون کشف شو"
       }
     },
@@ -2196,10 +1992,8 @@
     "filters": {
       "all": "ټولې لوبې",
       "mine": "زما لوبې",
-      "public": "عامه لوبې",
-      "workshop": "د ورکشاپ لوبې"
+      "public": "عامه لوبې"
     },
-    "gameType": "لوبه",
     "infoModal": {
       "body": "تاسو د کارګاه حالت ته ننوتلي یاست. تر هغه چې په دې حالت کې یاست، هر څه چې کوئ له دې کارګاه سره تړلي دي - لوبې چې جوړوئ، د لوبو ناستې، او شریکولو لینکونه.\n\nهر وخت وتلای شئ. وتل نه کارګاه ختموي او نه هغه څه لرې کوي چې تاسې جوړ کړي.",
       "dontShowAgain": "دا بیا مه ښیه",
@@ -2224,8 +2018,7 @@
     },
     "showInviteLink": "د بلنې لینک وښایئ",
     "showPublicPageLink": "د عامه پاڼې لینک وښایئ",
-    "title": "زما ورکشاپ",
-    "you": "تاسو"
+    "title": "زما ورکشاپ"
   },
   "navigation": {
     "adminPanel": "د مدیر کړکۍ",
@@ -2274,8 +2067,6 @@
       "observer": "ډایرکټر",
       "opening-brief": "لوبه څنګه پیلېږي",
       "outline": "صحنه پلانول",
-      "portrait": "انځور رسمول",
-      "portrait-prompt": "څېره تشریح کول",
       "props-store": "د لوبې حالت",
       "rephrase": "کړنه بیا بیانول",
       "rephrase-audio": "خبره پوهېدل",
@@ -2497,52 +2288,50 @@
       "recording": "اورم… د لېږلو لپاره یې خوشې کړئ"
     },
     "wires": {
-      "adapted-style\u0003eimage-prompt": "سټایل",
-      "adapted-style\u0003eimage-style": "غوښتنه",
-      "adapted-style\u0003estart-game": "چمتو",
-      "cast\u0003live-a:voiceA": "غږ",
-      "cast\u0003live-b:voiceB": "غږ",
-      "cast\u0003start-game": "چمتو",
-      "cast-brief\u0003cast": "کرکټرونه",
-      "condense-scenario\u0003econdensed-scenario": "ځواب",
-      "condensed-scenario\u0003econdense-scenario": "غوښتنه",
-      "condensed-scenario\u0003eimage-prompt": "سناریو",
-      "condensed-scenario\u0003estart-game": "چمتو",
-      "director\u0003live-a": "منځ‌خبرتیا",
-      "director\u0003live-b": "منځ‌خبرتیا",
-      "gallery-image\u0003estart-game": "چمتو",
-      "greeting\u0003elive-session": "لومړنۍ خبرې",
-      "greeting\u0003estart-game": "چمتو",
-      "greeting\u0003live-a": "لومړۍ خبرې",
-      "image-prompt\u0003eimage": "پرامپټ",
-      "image-style\u0003eadapted-style": "ځواب",
-      "live-a\u0003director": "متن",
-      "live-b\u0003director": "متن",
-      "live-session\u0003eobserver": "لیکل شوی متن",
-      "observer\u0003elive-session": "داخلونه",
-      "opening-brief\u0003egreeting": "لنډه لارښوونه",
-      "outline\u0003eexpand": "پلان",
-      "outline\u0003eimage-prompt": "صحنه",
-      "outline\u0003eprops-store": "بدلونونه",
-      "player-input-audio\u0003elive-session": "خبره",
-      "player-input-audio\u0003erephrase-audio": "خبره",
-      "player-input-audio\u0003live-a": "وینا",
-      "player-input-audio\u0003live-b": "وینا",
-      "player-input-text\u0003erephrase": "کړنه",
-      "portrait\u0003estart-game": "چمتو",
-      "portrait-prompt\u0003eportrait": "پرامپټ",
-      "props-store\u0003eoutline": "حالت",
-      "rephrase\u0003eoutline": "کړنه",
-      "rephrase-audio\u0003eoutline": "کړنه",
-      "start-game\u0003elive-session": "پیل‌نښه",
-      "start-game\u0003eoutline": "پرامپټ",
-      "start-game\u0003live-a": "د پیل اشاره",
-      "start-game\u0003live-b": "د پیل اشاره",
-      "voice\u0003elive-session:secondary": "د غږ بڼه",
-      "voice\u0003elive-session:voice": "غږ",
-      "voice\u0003estart-game": "چمتو",
-      "voice-brief\u0003evoice:description": "تشریح",
-      "voice-brief\u0003evoice:voice": "بدیل غږ"
+      "adapted-style\u003eimage-prompt": "سټایل",
+      "adapted-style\u003eimage-style": "غوښتنه",
+      "adapted-style\u003estart-game": "چمتو",
+      "cast-brief\u003ecast": "کرکټرونه",
+      "cast\u003elive-a:voiceA": "غږ",
+      "cast\u003elive-b:voiceB": "غږ",
+      "cast\u003estart-game": "چمتو",
+      "condense-scenario\u003econdensed-scenario": "ځواب",
+      "condensed-scenario\u003econdense-scenario": "غوښتنه",
+      "condensed-scenario\u003eimage-prompt": "سناریو",
+      "condensed-scenario\u003estart-game": "چمتو",
+      "director\u003elive-a": "دننه کول",
+      "director\u003elive-b": "دننه کول",
+      "gallery-image\u003estart-game": "چمتو",
+      "greeting\u003elive-a": "لومړۍ خبرې",
+      "greeting\u003elive-session": "لومړۍ خبرې",
+      "greeting\u003estart-game": "چمتو",
+      "image-prompt\u003eimage": "لارښوونه",
+      "image-style\u003eadapted-style": "ځواب",
+      "live-a\u003edirector": "متن",
+      "live-b\u003edirector": "متن",
+      "live-session\u003eobserver": "متن",
+      "observer\u003elive-session": "دننه کول",
+      "opening-brief\u003egreeting": "لنډیز",
+      "outline\u003eexpand": "پلان",
+      "outline\u003eimage-prompt": "صحنه",
+      "outline\u003eprops-store": "بدلونونه",
+      "player-input-audio\u003elive-a": "خبرې",
+      "player-input-audio\u003elive-b": "خبرې",
+      "player-input-audio\u003elive-session": "خبرې",
+      "player-input-audio\u003erephrase-audio": "خبرې",
+      "player-input-text\u003erephrase": "کړنه",
+      "props-store\u003eoutline": "حالت",
+      "rephrase-audio\u003eoutline": "کړنه",
+      "rephrase\u003eoutline": "کړنه",
+      "start-game\u003elive-a": "اشاره",
+      "start-game\u003elive-b": "اشاره",
+      "start-game\u003elive-session": "اشاره",
+      "start-game\u003eoutline": "لارښوونه",
+      "voice-brief\u003evoice:description": "تشریح",
+      "voice-brief\u003evoice:voice": "بدیل غږ",
+      "voice\u003elive-session:secondary": "د غږ سټایل",
+      "voice\u003elive-session:voice": "غږ",
+      "voice\u003estart-game": "چمتو"
     }
   }
 }

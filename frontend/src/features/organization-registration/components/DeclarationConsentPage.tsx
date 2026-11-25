@@ -16,13 +16,23 @@ function introKey(status: ConsentStatusView | undefined): string {
 }
 
 /**
- * Shown to a head while their organisation is suspended for want of a
- * consent: the declaration, with the organisation's details and
- * youth-protection restriction to confirm. Consenting lifts the suspension.
+ * A head's consent to the current declaration: the declaration, with the
+ * organisation's details and youth-protection restriction to confirm. Shown
+ * as a page while the organisation is suspended for want of a consent (with
+ * onLogout), or in a dialog to bring an older consent up to date (with
+ * onLater and onConsented).
  */
-export function DeclarationConsentPage({ onLogout }: { onLogout: () => void }) {
+export function DeclarationConsentPage({
+  onLogout,
+  onLater,
+  onConsented,
+}: {
+  onLogout?: () => void;
+  onLater?: () => void;
+  onConsented?: () => void;
+}) {
   const { t } = useTranslation("auth");
-  const p = useDeclarationConsentForm();
+  const p = useDeclarationConsentForm(onConsented);
 
   if (p.loadFailed) {
     return (
@@ -139,9 +149,15 @@ export function DeclarationConsentPage({ onLogout }: { onLogout: () => void }) {
             </Alert>
           )}
           <Group justify="space-between">
-            <TextButton onClick={onLogout} disabled={p.saving}>
-              {t("organizationRegistration.consentPage.logout")}
-            </TextButton>
+            {onLater ? (
+              <TextButton onClick={onLater} disabled={p.saving}>
+                {t("organizationRegistration.consentPage.later")}
+              </TextButton>
+            ) : (
+              <TextButton onClick={onLogout} disabled={p.saving}>
+                {t("organizationRegistration.consentPage.logout")}
+              </TextButton>
+            )}
             <ActionButton onClick={p.submit} loading={p.saving}>
               {t("organizationRegistration.consentPage.submit")}
             </ActionButton>

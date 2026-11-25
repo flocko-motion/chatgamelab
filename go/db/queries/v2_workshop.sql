@@ -93,8 +93,8 @@ SELECT EXISTS (
 
 -- name: V2PublicWorkshop :many
 -- The workshop behind a public page's slug, while its page is switched on
--- and its organisation is not suspended (by an admin, or for want of a
--- consent to @declaration_*).
+-- and its organisation is not suspended (by an admin, or for want of any
+-- consent).
 SELECT w.id, w.name, w.public_description, w.public_links, w.default_api_key_share_id,
   w.institution_id, w.created_by, ks.created_by AS key_share_created_by
 FROM workshop w
@@ -102,7 +102,7 @@ JOIN institution i ON i.id = w.institution_id
 LEFT JOIN api_key_share ks ON ks.id = w.default_api_key_share_id
 WHERE w.public_slug = @slug AND w.deleted_at IS NULL AND w.public
   AND i.suspended_at IS NULL
-  AND NOT institution_consent_missing(i.id, @declaration_version::text, @declaration_hash::text);
+  AND NOT institution_consent_lacking(i.id);
 
 -- name: V2PublicSlugExists :one
 -- Deleted workshops keep their slug, so an old link never points at a new workshop.

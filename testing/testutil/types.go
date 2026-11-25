@@ -58,6 +58,8 @@ type (
 	GameTemplate      = apiclient.GameTemplate
 	UserUpdate        = apiclient.UpdateUserReq
 	SettingsUpdate    = apiclient.UpdateSystemSettingsReq
+	MailSettingsReq   = apiclient.MailSettingsReq
+	MailSettings      = apiclient.MailSettings
 	WorkshopInvite    = apiclient.CreateWorkshopInviteReq
 	InstitutionCreate = apiclient.CreateInstitutionReq
 )

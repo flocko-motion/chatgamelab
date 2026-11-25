@@ -1,5 +1,4 @@
 {
-  "_sourceHash": "98425c3aa434b7f9",
   "auth": {
     "ageGroup": {
       "description": "Tämä auttaa meitä soveltamaan oikeat suojaus- ja sisältöohjeet tiliisi.",
@@ -39,12 +38,6 @@
         "message": "Odota hetki, kun ohjaamme sinut kirjautumissivulle.",
         "title": "Ohjataan Auth0:aan..."
       },
-      "role": {
-        "admin": "Kirjaudu ylläpitäjänä",
-        "guest": "Kirjaudu vieraana",
-        "student": "Kirjaudu opiskelijana",
-        "teacher": "Kirjaudu opettajana"
-      },
       "unavailable": {
         "message": "Tässä palvelussa ei ole kirjautumista. Työpajan vieraat voivat syöttää koodinsa sen sijaan.",
         "title": "Kirjautuminen ei ole käytettävissä"
@@ -61,6 +54,7 @@
         "introExisting": "Organisaatiollanne ”{{name}}” on nyt verkossa vahvistettava ilmoitus. Se korvaa aiemmin allekirjoittamanne käyttösopimuksen. Lukekaa se ja hyväksykää se organisaationne puolesta.",
         "introNewVersion": "Ilmoitus on päivitetty (versio {{version}}). Lukekaa uusi versio ja hyväksykää se organisaationne ”{{name}}” puolesta.",
         "introWithdrawn": "Organisaatiosi ”{{name}}” suostumus ilmoitukseen peruttiin, joten sen käyttö on keskeytetty. Lue ilmoitus ja hyväksy se laitoksesi puolesta, jotta voit käyttää palvelua {{siteName}} uudelleen.",
+        "later": "Myöhemmin",
         "logout": "Kirjaudu ulos",
         "oneHeadIsEnough": "Riittää, että yksi organisaation johtajista antaa suostumuksensa. Siihen asti organisaatiosi käyttö on keskeytetty: sen jäsenet eivät voi käyttää palvelua {{siteName}}.",
         "submit": "Hyväksy",
@@ -123,23 +117,8 @@
         "tooLong": "Enintään {{max}} merkkiä. Lyhennä tekstiä tai valitse ehdotus."
       }
     },
-    "participant": {
-      "leaveConfirm": {
-        "confirm": "Poistu työpajasta",
-        "message": "Haluatko varmasti poistua tästä työpajasta? Tarvitset uuden kutsulinkin liittyäksesi uudelleen.",
-        "title": "Poistu työpajasta?"
-      },
-      "leaveWorkshop": "Poistu työpajasta",
-      "organization": "Organisaatio",
-      "role": "Työpajan osallistuja",
-      "workshop": "Työpaja"
-    },
     "profile": {
-      "ageGroup": "Ikäryhmä",
-      "ageGroupDescription": "Määrittää, mitä sisältöohjeita peleihisi sovelletaan. Voit vaihtaa tätä milloin tahansa.",
       "ageGroupSection": "Ikä- ja suojaryhmä",
-      "ageGroupU13": "13–17 vuotta",
-      "ageGroupU18": "18+",
       "gamesCreated": "Luodut pelit",
       "gamesPlayed": "Pelatut pelit",
       "guestCode": {
@@ -153,20 +132,13 @@
       "noOrganization": "Ei organisaatiota",
       "noRole": "Roolia ei ole asetettu",
       "organization": "Organisaatio",
-      "organizationSection": "Organisaatio p rooli",
-      "participantCode": {
-        "error": "Käyttökoodiasi ei voitu ladata.",
-        "hint": "Ota tästä koodista kuva tai kirjoita se muistiin ja pidä se omana tietonasi. Sen avulla pääset takaisin tilillesi milloin tahansa ja millä tahansa laitteella: syötä sanat etusivun kohtaan ”Syötä koodi” tai skannaa QR-koodi.",
-        "longTokenHint": "Ota QR-koodista kuva tai tallenna linkki ja pidä se omana tietonasi. Sen avulla pääset takaisin tilillesi milloin tahansa. Työpajan ohjaaja voi antaa sinulle lyhyen nelisanaisen koodin nollaamalla käyttöoikeutesi.",
-        "title": "Käyttökoodisi"
-      },
+      "organizationSection": "Organisaatio \u0026 rooli",
       "role": "Rooli",
       "roles": {
         "admin": "Ylläpitäjä",
         "guest": "Vieras",
         "head": "Organisaation johtaja",
         "individual": "Yksityinen",
-        "participant": "Osallistuja",
         "staff": "Työpajan vetäjä"
       },
       "statisticsSection": "Tilastot",
@@ -175,12 +147,6 @@
       "workshopSection": "Työpaja ja organisaatio"
     },
     "register": {
-      "ageGroupLabel": "Ikäryhmä",
-      "ageGroupRequired": "Valitse ikäryhmäsi",
-      "ageGroupU13": "13–17-vuotias",
-      "ageGroupU18": "18-vuotias tai vanhempi",
-      "ageGroupUnder13": "Alle 13",
-      "ageGroupUnder13Error": "ChatGameLabia käyttääksesi sinun on oltava vähintään 13-vuotias.",
       "cancelButton": "Peruuta",
       "emailDescription": "Valinnainen. Käytämme sitä tärkeisiin ilmoituksiin.",
       "emailLabel": "Sähköpostiosoite",
@@ -211,25 +177,6 @@
       "continueButton": "Jatka rekisteröintiin",
       "description": "Käytämme Auth0:aa todennuksen tarjoajana käyttäjätilien hallintaan. Sinut ohjataan Auth0:aan luomaan tilisi, minkä jälkeen palaat tänne viimeistelemään profiilisi.",
       "educatorDescription": "Käytä palvelua {{siteName}} työpajoissa, oppitunneilla tai organisaatiossasi",
-      "educatorModal": {
-        "closeButton": "Sulje",
-        "copied": "Kopioitu!",
-        "copyEmail": "Kopioi sähköposti",
-        "eduInfo": "Lue lisää ChatGameLabin käyttämisestä opetustarkoituksiin:",
-        "intro": "Jos haluat käyttää ChatGameLabia organisaatiosi (koulu, yliopisto, laitos) kanssa, toimi näin:",
-        "registerButton": "Luo henkilökohtainen tili",
-        "step1": "1. Luo henkilökohtainen tili",
-        "step1Description": "Luo ensin henkilökohtainen tilisi. Tämä toimii kirjautumistunnuksenasi alustalle.",
-        "step2": "2. Lähetä meille sähköposti",
-        "step2Description": "Kirjoita sähköposti osoitteeseen",
-        "step2Item1": "Rekisteröity sähköpostiosoitteesi",
-        "step2Item2": "Organisaatiosi nimi (koulu, laitos jne.)",
-        "step2WithInfo": "ja liitä mukaan:",
-        "step3": "3. Me perustamme organisaatiosi",
-        "step3Description": "Luomme organisaatiosi ja asetamme sinut vastuuhenkilöksi. Voit sen jälkeen kutsua kollegoita ja luoda työpajoja.",
-        "title": "Opettaja- ja ammattilaiskäyttö"
-      },
-      "educatorTitle": "Opettaja / Ammattilainen",
       "individualDescription": "Luo ja pelaa tekoälyllä ohjattuja tekstiseikkailuja",
       "individualTitle": "Henkilökohtainen tili",
       "loginLink": "Kirjaudu sisään",
@@ -245,11 +192,6 @@
     },
     "settings": {
       "accountSection": "Tili",
-      "ageGroupDescription": "Määrittää, mitä sisältöohjeita peleihisi sovelletaan.",
-      "ageGroupLabel": "Ikäryhmä",
-      "ageGroupU13": "13–17 vuotta",
-      "ageGroupU18": "18-vuotias tai vanhempi",
-      "emailChangeNote": "Ota yhteyttä sivuston ylläpitäjään, jos haluat vaihtaa sähköpostiosoitteesi.",
       "emailDescription": "Valinnainen. Organisaatiot kutsuvat sinut sen avulla; mikään muu tili ei saa käyttää sitä.",
       "emailLabel": "Sähköposti",
       "emailPlaceholder": "sinä@esimerkki.fi",
@@ -288,9 +230,7 @@
           "title": "Poista kutsu"
         },
         "role": "Rooli",
-        "searchPlaceholder": "Hae sähköpostin, roolin, tilan tai organisaation perusteella...",
         "sort": {
-          "label": "Järjestä",
           "modifiedAt-asc": "Muokattu (vanhin)",
           "modifiedAt-desc": "Muokattu (uusin)",
           "organization-asc": "Organisaatio (A-Ö)",
@@ -347,7 +287,6 @@
         "postalCode": "Postinumero",
         "removeMember": "Poista jäsen",
         "removeMemberConfirm": "Haluatko varmasti poistaa käyttäjän {{name}} tästä organisaatiosta?",
-        "searchPlaceholder": "Hae organisaatioita...",
         "sendInvite": "Lähetä kutsu",
         "status": "Tila ja suostumus",
         "statusActive": "Aktiivinen",
@@ -364,16 +303,6 @@
         "title": "Hallinnoi organisaatioita"
       },
       "registrations": {
-        "bell": {
-          "empty": "Yksikään organisaatio ei ole rekisteröitynyt viimeisen kahden viikon aikana.",
-          "intro_one": "Tämä organisaatio rekisteröityi viimeisen kahden viikon aikana ja on jo aktivoitu.",
-          "intro_other": "Nämä {{count}} organisaatiota rekisteröityivät viimeisen kahden viikon aikana ja on jo aktivoitu.",
-          "label": "Uudet organisaatiot",
-          "later": "Myöhemmin",
-          "open": "Siirry yleiskatsaukseen",
-          "suspendHint": "Sähköpostiosoitteita ei tällä hetkellä vahvisteta. Tarkista uudet organisaatiot nopeasti ja jäädytä ne yleiskatsauksessa, jos jokin on vialla.",
-          "title": "Uudet organisaatiot"
-        },
         "date": "Rekisteröity",
         "description": "Organisaatiot, jotka ovat rekisteröityneet itse viimeisen kahden viikon aikana. Ne aktivoidaan heti ilman sähköpostiosoitteen vahvistamista; tarkista ne ja jäädytä organisaatio, jos jokin on vialla.",
         "empty": "Yksikään organisaatio ei ole rekisteröitynyt itse viimeisen kahden viikon aikana.",
@@ -396,8 +325,6 @@
           "all": "Kaikki käyttäjät",
           "noGuests": "Ilman vieraita"
         },
-        "hideGuests": "Piilota vieraat ({{count}})",
-        "hideGuestsShort": "Vieraat ({{count}})",
         "joined": "Liittynyt",
         "loadError": "Käyttäjien lataus epäonnistui",
         "makeAdmin": "Tee ylläpitäjä",
@@ -415,8 +342,6 @@
         "removeAdminTitle": "Poista ylläpitäjärooli",
         "removeAdminWarning": "Tämä käyttäjä menettää kaikki ylläpito-oikeudet.",
         "role": "Rooli",
-        "searchPlaceholder": "Hae nimen, sähköpostin, roolin tai organisaation perusteella...",
-        "showing": "Näytetään {{count}} / {{total}} käyttäjää",
         "signUpInProgress": "Rekisteröityminen käynnissä",
         "signingUp": "Rekisteröidytään",
         "sort": {
@@ -424,7 +349,6 @@
           "email-desc": "Sähköposti (Ö-A)",
           "joined-asc": "Liittynyt (vanhin)",
           "joined-desc": "Liittynyt (uusin)",
-          "label": "Järjestä",
           "name-asc": "Nimi (A-Ö)",
           "name-desc": "Nimi (Ö-A)",
           "organization-asc": "Organisaatio (A-Ö)",
@@ -458,7 +382,6 @@
       "high": "Korkea",
       "label": "AI-laatutaso",
       "low": "Säästeliäs",
-      "max": "Maksimi (Premium + ääni)",
       "medium": "Tasapainoinen",
       "newSessionsOnly": "Tämä taso koskee vain uusia istuntoja. Olemassa olevat istunnot säilyttävät aloitushetken tason.",
       "serverDefault": "Palvelimen oletus"
@@ -470,7 +393,6 @@
         "message": "Tämä luo kopion pelistä \"{{name}}\" omiin peleihisi.",
         "title": "Kopioi peli"
       },
-      "copyGame": "Kopioi peli",
       "empty": {
         "conditions": {
           "favorites": "suosikkeihisi kuuluva",
@@ -578,11 +500,9 @@
         "revokeGameShare": "Peruuta jakolinkki",
         "revokePrivateShare": "Peru jakolinkki",
         "sponsorships": "Pelisponsoroinnit",
-        "toggle": "Jaot p sponsoroinnit",
+        "toggle": "Jaot \u0026 sponsoroinnit",
         "unknownGame": "Tuntematon peli",
         "unknownOrg": "Tuntematon organisaatio",
-        "unknownUser": "Tuntematon käyttäjä",
-        "unknownWorkshop": "Tuntematon työpaja",
         "unlimited": "Rajattomasti käyttöjä"
       },
       "sort": {
@@ -639,24 +559,9 @@
     },
     "error": "Virhe",
     "footer": {
-      "copyright": "JFF - Institut für Medienpädagogik",
-      "jffTitle": "JFF - Institute for Educational Research and Innovation",
       "programmedBy": "Ohjelmoinut"
     },
-    "gamePlayer": {
-      "rebuilding": {
-        "description": "Täällä voi taas pelata pian.",
-        "title": "Pelinäkymää rakennetaan uudelleen"
-      }
-    },
     "games": {
-      "actions": {
-        "delete": "Poista",
-        "edit": "Muokkaa",
-        "export": "Vie",
-        "play": "Pelaa",
-        "view": "Näytä"
-      },
       "badges": {
         "myGame": "Oma peli",
         "public": "Julkinen",
@@ -686,7 +591,6 @@
         "namePlaceholder": "esim. Avaruusseikkailu",
         "publicDescription": "Julkiset pelit ovat näkyvissä ja pelattavissa kaikille tämän alustan käyttäjille.",
         "publicLabel": "Tee pelistä julkinen",
-        "publicOwnerOnly": "Vain pelin luoja voi tehdä pelistä julkisen.",
         "submit": "Luo peli",
         "title": "Luo uusi peli"
       },
@@ -915,8 +819,7 @@
           "status": {
             "builtIn": "Kuvausta ei vielä ole: peli puhuu sisäänrakennetulla äänellä, kunnes kuvaat äänen.",
             "cast": "Pelin alkaessa se valitsee valitsemastasi tyypistä tarinaan parhaiten sopivan sisäänrakennetun äänen. Kuvaus ohjaa sitä, miten ääni puhuu.",
-            "ownVoice": "Tälle kuvaukselle on oma ääni, joka on luotu tekoälyavaimellasi.",
-            "steered": "Sisäänrakennettu ääni lukee tarinan kuvauksen mukaisesti."
+            "ownVoice": "Tälle kuvaukselle on oma ääni, joka on luotu tekoälyavaimellasi."
           },
           "stop": "Pysäytä ääninäyte"
         },
@@ -957,10 +860,6 @@
         "titleView": "Peli",
         "untitled": "Nimetön peli"
       },
-      "empty": {
-        "description": "Luo ensimmäinen pelisi ja aloita interaktiiviset AI-seikkailut.",
-        "title": "Ei vielä pelejä"
-      },
       "errors": {
         "loadFailed": "Pelien lataus epäonnistui. Yritä uudelleen.",
         "nameRequired": "Pelin nimi on pakollinen",
@@ -975,7 +874,6 @@
       "fields": {
         "created": "Luotu",
         "creator": "Tekijä",
-        "me": "Minä",
         "modified": "Muokattu",
         "name": "Nimi",
         "playCount": "Pelikerrat",
@@ -984,9 +882,7 @@
       "genres": {
         "adventure": "Seikkailu",
         "discussion": "Keskustelu",
-        "npc": "Hahmo",
-        "npc-duo": "Keskustelu",
-        "npc-live": "Hahmo"
+        "npc": "Hahmo"
       },
       "importExport": {
         "coverFailed": "Peli tuotiin, mutta sen kansikuvaa ei voitu tarkistaa. Voit piirrättää uuden editorissa.",
@@ -1002,7 +898,6 @@
         "importButton": "Tuo peli"
       },
       "newGame": "Uusi peli",
-      "playNow": "Pelaa nyt",
       "privacyHint": "Pelin nimi ja kuvaus voivat tulla julkisesti näkyviin. Älä käytä oikeita nimiä.",
       "privacyHintShort": "Voi tulla julkisesti näkyviin – älä käytä oikeita nimiä.",
       "privateShare": {
@@ -1050,12 +945,10 @@
         "active": "Aktiivinen",
         "privateShareLink": "Yksityinen jakolinkki",
         "privateShareLinkDescription": "Yksityisiä jakolinkkejä voi jakaa muille. Kuka tahansa linkin saanut voi pelata peliä anonyymisti ilman tiliä. Kulujen kattamiseen on valittava API-avain.",
-        "publicGameWorkshopHint": "Tämä on julkinen peli eikä osa työpajaasi. Jakovaihtoehdot eivät ole käytettävissä työpajatilassa julkisille peleille.",
         "publicSponsoring": "Julkinen sponsorointi",
         "publicSponsoringDescription": "Kaikki alustan käyttäjät voivat pelata tätä peliä ilmaiseksi – sinulle osoitettu API-avain kattaa kulut.",
         "sectionTitle": "Jakovaihtoehdot",
-        "sectionTitleShareOnly": "Jakovaihtoehdot",
-        "workshopShareRequiresPublic": "Pelin on oltava julkinen, ennen kuin sen voi jakaa työpajassa."
+        "sectionTitleShareOnly": "Jakovaihtoehdot"
       },
       "sort": {
         "createdAt-asc": "Luotu (vanhin)",
@@ -1111,7 +1004,7 @@
         "basicInfo": "Yleiset tiedot pelistä. Vain sinulle, ei vaikuta peliin.",
         "importExport": "Tuo/Vie",
         "quickStart": "Pikakäynnistys",
-        "story": "Tarina p AI",
+        "story": "Tarina \u0026 AI",
         "storyInfo": "Kaikki täällä lähetetään AI:lle pelimaailman ja tarinan luomista varten.",
         "style": "Ulkoasu",
         "styleInfo": "Valinnaiset asetukset pelin ulkoasua varten pelatessa."
@@ -1165,7 +1058,6 @@
           "zombie": "Zombie"
         }
       },
-      "title": "Luomani pelit",
       "viewModal": {
         "readOnlyNotice": "Tämän pelin on luonut toinen käyttäjä. Voit tarkastella tietoja, mutta et muokata. Käytä \"Kopioi\" luodaksesi oman muokattavan version.",
         "title": "Pelin tiedot"
@@ -1193,25 +1085,6 @@
     "help": "Ohje",
     "home": {
       "codeCta": "Syötä koodi",
-      "features": {
-        "create": {
-          "description": "Suunnittele AI:n voimin toimivia interaktiivisia tekstiseikkailuja",
-          "title": "Luo seikkailuja"
-        },
-        "learn": {
-          "description": "Täydellinen koulutustyöpajoihin ja luokkahuoneeseen",
-          "title": "Opi p opeta"
-        },
-        "play": {
-          "description": "Liity ystäviin yhteisiin tarinankerrontaseikkailuihin",
-          "title": "Pelaa yhdessä"
-        },
-        "title": "Miksi valita ChatGameLab?",
-        "understand": {
-          "description": "Tutki, miten AI-mallit luovat tarinoita ja opi niiden toiminta",
-          "title": "Ymmärrä AI"
-        }
-      },
       "loginCta": "Kirjaudu ja tutki",
       "splashDescription": "Koulutusalusta AI-tekstiseikkailujen luomiseen ja pelaamiseen. Täydellinen opettajille, opiskelijoille ja luoville tarinankertojille."
     },
@@ -1248,19 +1121,9 @@
       "guest": {
         "loggingIn": "Kirjaudutaan sisään..."
       },
-      "participant": {
-        "loggingIn": "Kirjataan sinut sisään..."
-      },
       "success": {
         "message": "Liityit työpajaan onnistuneesti. Uudelleenohjataan...",
         "title": "Tervetuloa!"
-      },
-      "switchWorkshop": {
-        "message": "Nykyisen työpajan pelisi ja edistymisesi säilyvät, mutta et pääse niihin käsiksi ennen kuin liityt takaisin.",
-        "stayButton": "Pysy nykyisessä työpajassa",
-        "switchButton": "Vaihda työpajaa",
-        "title": "Vaihda työpajaa?",
-        "warning": "Olet tällä hetkellä työpajassa \"{{currentWorkshop}}\". Työpajaan \"{{newWorkshop}}\" liittyminen poistaa sinut nykyisestä työpajasta."
       }
     },
     "labels": {
@@ -1295,31 +1158,25 @@
     "logout": "Kirjaudu ulos",
     "me": "Minä",
     "myGames": {
-      "continue": "Pelaa",
       "copyConfirm": {
         "confirm": "Kopioi peli",
         "message": "Tämä luo kopion pelistä \"{{name}}\" omiin peleihisi.",
         "title": "Kopioi peli"
       },
-      "copyGame": "Kopioi peli",
       "empty": {
         "description": "Luo ensimmäinen pelisi ja aloita interaktiiviset AI-seikkailut.",
         "title": "Ei vielä pelejä"
       },
-      "favorite": "Lisää suosikkeihin",
       "filters": {
         "all": "Kaikki",
         "favorites": "Suosikit"
       },
-      "play": "Pelaa",
-      "restart": "Käynnistä uudelleen",
       "restartConfirm": {
         "confirm": "Käynnistä uudelleen",
         "message": "Haluatko varmasti käynnistää pelin \"{{game}}\" uudelleen? Nykyinen edistymisesi menetetään.",
         "title": "Käynnistä peli uudelleen"
       },
-      "title": "Omat pelini",
-      "unfavorite": "Poista suosikeista"
+      "title": "Omat pelini"
     },
     "myOrganization": {
       "actions": "Toiminnot",
@@ -1331,7 +1188,6 @@
         "allPlatforms": "Kaikki alustat",
         "allowPublicSponsoring": "Salli julkinen sponsorointi",
         "allowPublicSponsoringDesc": "Tätä avainta voidaan käyttää pelien sponsorointiin kaikille käyttäjille.",
-        "filterByPlatform": "Suodata alustan mukaan",
         "freeUseKey": {
           "description": "Aseta maksuton avain, jotta kaikki organisaation jäsenet voivat pelata pelejä ilman omaa API-avainta.",
           "remove": "Poista",
@@ -1351,13 +1207,10 @@
         "platform": "Alusta",
         "publicSponsoring": "Julkinen sponsorointi",
         "removeShare": "Poista organisaatiosta",
-        "searchPlaceholder": "Hae nimen tai omistajan mukaan...",
         "selectKey": "Valitse API-avain",
         "selectKeyPlaceholder": "Valitse avain jaettavaksi...",
         "share": "Jaa",
-        "shareKey": "Jaa avain",
         "shareKeyTitle": "Lisää API-avain organisaatiolle",
-        "showDetails": "Näytä tiedot",
         "title": "Organisaation API-avaimet"
       },
       "autoShare": {
@@ -1367,7 +1220,10 @@
         "personalKeyGroup": "Henkilökohtaiset avaimet"
       },
       "declaration": {
+        "agree": "Lue ja hyväksy",
         "consented": "Organisaationne hyväksyi version {{version}} {{date}}.",
+        "goAgree": "Siirry organisaatioon",
+        "newVersion": "Suostumusilmoituksesta on uusi versio {{version}}. Organisaationne pysyy aktiivisena; lukekaa se ja hyväksykää se sen puolesta.",
         "title": "Suostumusilmoitus",
         "withdraw": "Peruuta suostumus",
         "withdrawConfirm": "Ilman suostumusta organisaatiosi käyttö on keskeytetty: kukaan sen jäsenistä ei voi käyttää palvelua {{siteName}}, ennen kuin johtaja antaa suostumuksensa uudelleen. Sen tiedot säilytetään.",
@@ -1385,9 +1241,6 @@
       "inviteTeacher": "Kutsu opettaja",
       "inviteTeacherDescription": "Lähetä kutsu opettajalle liittyä organisaatioosi.",
       "inviteTeacherTitle": "Kutsu opettaja",
-      "inviteUser": "Kutsu käyttäjä",
-      "inviteUserDescription": "Lähetä käyttäjälle kutsu liittyä organisaatioosi ilman tiettyä roolia.",
-      "inviteUserTitle": "Kutsu käyttäjä",
       "lastHeadError": "Olet organisaation viimeinen johtaja. Ota yhteyttä sivuston ylläpitoon, jos haluat lähteä.",
       "leaveConfirm": "Haluatko varmasti lähteä organisaatiosta \"{{name}}\"?",
       "leaveError": "Organisaatiosta poistuminen epäonnistui. Yritä uudelleen.",
@@ -1454,7 +1307,6 @@
       "removeTitle": "Poista jäsen",
       "removeWarning": "Tämä käyttäjä menettää pääsyn organisaatioon.",
       "role": "Rooli",
-      "searchPlaceholder": "Hae jäseniä...",
       "showing": "{{count}} jäsentä",
       "sort": {
         "label": "Järjestä",
@@ -1492,24 +1344,12 @@
         "active": "Aktiivinen",
         "activeDescription": "Aktiiviset työpajat sallivat osallistujien liittyä ja luoda pelejä.",
         "activeLabel": "Aktiivinen",
-        "addIndividual": "Lisää organisaation jäsen",
         "addIndividualError": "Jäsenen lisääminen työpajaan epäonnistui.",
-        "addIndividualHint": "Käyttäjän lisääminen siirtää hänet automaattisesti työpajatilaan. Hän näkee työpajanäkymän normaalin kojelaudan sijaan. Käytä tätä vain tarkoituksella.",
-        "addIndividualStaffNote": "Vastuuhenkilöiden ja opettajien tulisi liittyä työpajoihin itse työpajalistan kautta – heitä ei luetella täällä.",
-        "addIndividualSuccess": "Jäsen lisätty",
-        "addIndividualSuccessMessage": "{{name}} on lisätty työpajaan.",
-        "addIndividualTitle": "Lisää henkilö työpajaan",
         "addToWorkshop": "Lisää työpajaan",
-        "aiQualityHigh": "High (Premium)",
-        "aiQualityLow": "Low (Economy)",
-        "aiQualityMedium": "Medium (Balanced)",
-        "aiQualityTier": "AI Quality Tier",
         "aiQualityTierHint": "AI:n vastausten laatutaso. Korkeampi taso maksaa enemmän, mutta voi tarjota paremman laadun. Tyhjä = palvelimen oletus.",
         "allowGameSharing": "Salli pelien jakaminen",
         "allowGameSharingHint": "Kun käytössä, osallistujat voivat luoda peleilleen jakolinkkejä työpajan API-avainta käyttäen",
-        "anonymousParticipant": "Anonyymi osallistuja",
         "create": "Luo työpaja",
-        "createFirst": "Luo ensimmäinen työpajasi",
         "createInviteLink": "Luo kutsulinkki",
         "createTitle": "Luo työpaja",
         "deactivate": "Poista käytöstä",
@@ -1532,10 +1372,8 @@
         "inviteByEmailSuccessMessage": "Kutsu on luotu. Käyttäjä näkee sen odottavissa kutsuissaan.",
         "inviteByEmailTitle": "Kutsu käyttäjä työpajaan",
         "inviteCreatedAt": "Luotu",
-        "inviteDescription": "Luo kutsulinkki, jolla osallistujat voivat liittyä tähän työpajaan.",
         "inviteExpiresAt": "Vanhenee",
         "inviteLink": "Kutsulinkki",
-        "inviteLinkDescription": "Jaa tämä linkki, jotta osallistujat voivat liittyä työpajaan.",
         "inviteLinkTitle": "Osallistujien kutsulinkki – {{name}}",
         "inviteUsage": "Käytöt",
         "isPaused": "Keskeytä työpaja",
@@ -1551,14 +1389,11 @@
         "noDefaultModel": "Käytä alustan oletusta",
         "noGuestToken": "Tällä jäsenellä ei ole uudelleenkirjautumislinkkiä. Vain vierailla on sellainen.",
         "noIndividuals": "Organisaatiossa ei ole yksittäisiä käyttäjiä.",
-        "noParticipantToken": "Tällä osallistujalla ei ole kutsulinkkiä. Vain anonyymeillä (vieras) osallistujilla on uudelleenkäytettäviä kutsulinkkejä.",
         "noParticipants": "Ei osallistujia",
         "noResults": "Hakusi tai suodattimesi mukaisia työpajoja ei löytynyt.",
         "notAuthorized": "Sinulla ei ole oikeutta hallita työpajoja. Vain johtajat ja opettajat voivat käyttää tätä sivua.",
         "participantGames": "{{count}} peliä",
         "participantJoined": "Liittynyt {{date}}",
-        "participantLinkTitle": "Uudelleenkirjautumislinkki",
-        "participantLinkTitleNamed": "Käyttäjän {{name}} uudelleenkirjautumislinkki",
         "participantName": "Osallistujan nimi",
         "participants": "Osallistujat",
         "promptConstraintsFallbackOrg": "Oletuksena käytetään organisaation nuorisosuojasääntöä: {{constraint}}",
@@ -1580,10 +1415,8 @@
         "resetAccessWarning": "Aiempi linkki ja koodi lakkaavat toimimasta – myös laitteilla, joilla vieras on parhaillaan kirjautuneena.",
         "revokeInvite": "Peru kutsulinkki",
         "selectApiKey": "Valitse API-avain",
-        "serverDefault": "Server Default",
         "settings": "Asetukset",
         "shareGuestLink": "Näytä uudelleenkirjautumislinkki",
-        "shareParticipantLink": "Näytä uudelleenkirjautumislinkki",
         "showOtherParticipantsGames": "Näytä muiden osallistujien pelit",
         "showOtherParticipantsGamesHint": "Vastuuhenkilöt ja henkilökunta voivat aina nähdä kaikkien osallistujien pelit valvontaa varten",
         "showPublicGames": "Näytä julkiset pelit osallistujille",
@@ -1617,7 +1450,6 @@
       "decline": "Hylkää",
       "declineConfirm": "Haluatko varmasti hylätä tämän kutsun?",
       "declineTitle": "Hylkää kutsu",
-      "empty": "Ei uusia ilmoituksia.",
       "inviteDescription": "Sinut on kutsuttu liittymään roolissa {{role}}.",
       "inviteToJoin": "Organisaatiokutsu",
       "nothingNew": "Ei uutta",
@@ -1766,6 +1598,7 @@
           "educatorInfoUrl": "Tietoa kouluttajille",
           "gameTipsUrl": "Vinkkejä pelien tekemiseen",
           "helpUrl": "Ohje",
+          "operatorLegalName": "Ylläpitäjän oikeudellinen nimi (lakitekstejä varten)",
           "operatorName": "Ylläpitäjä",
           "operatorUrl": "Ylläpitäjän verkkosivusto",
           "privacyUrl": "Tietosuojakäytäntö",
@@ -1792,13 +1625,10 @@
         "title": "Ikäryhmäkohtaiset nuorisosuojasäännöt",
         "u13Hint": "Lisätään jokaiseen tekoälykehotteeseen kirjautuneille 13–17-vuotiaille käyttäjille, joilla ei ole huoltajan suostumusta.",
         "u13Label": "13–17-vuotiaiden käyttäjien nuorisosuojasääntö ilman vanhempien suostumusta (U13)",
-        "u13Placeholder": "esim. Pidä kaikki sisältö ehdottoman ikäryhmälle sopivana. Ei väkivaltaa, ei romanttista sisältöä, ei kauhuteemoja.",
         "u13pHint": "Lisätään jokaiseen tekoälykehotteeseen kirjautuneille 13–17-vuotiaille käyttäjille, joilla on huoltajan suostumus.",
         "u13pLabel": "13–17-vuotiaiden käyttäjien nuorisosuojasääntö vanhempien suostumuksella (U13p)",
-        "u13pPlaceholder": "esim. Ikäkauden mukainen sisältö nuorille, joiden vanhemmat ovat antaneet suostumuksensa. Joitakin aikuismaisia teemoja sallittu, ei eksplisiittistä sisältöä.",
         "u18Hint": "Lisätään jokaiseen tekoälykehotteeseen kirjautuneille 18 vuotta täyttäneille käyttäjille.",
-        "u18Label": "Vähintään 18-vuotiaiden käyttäjien nuorisosuojasääntö (U18)",
-        "u18Placeholder": "esim. Pidä sisältö sopivana. Vältä eksplisiittistä väkivaltaa tai seksuaalista sisältöä."
+        "u18Label": "Vähintään 18-vuotiaiden käyttäjien nuorisosuojasääntö (U18)"
       },
       "defaultTier": {
         "description": "Palvelimen laajuinen varatila, jota käytetään, kun työpajalle, organisaatiolle tai käyttäjälle ei ole määritetty tasoa. Korkeammat tasot maksavat enemmän, mutta voivat tarjota parempaa laatua.",
@@ -1819,6 +1649,26 @@
       "freeUseTier": {
         "description": "Laatutaso, jota käytetään, kun vapaaseen käyttöön tarkoitettu API-avain on aktiivinen. Korkeammat tasot maksavat enemmän, mutta voivat tarjota parempaa laatua. Jätä tyhjäksi käyttääksesi oletustasoa.",
         "title": "Vapaaseen käyttöön tarkoitettu AI-laatutaso"
+      },
+      "mail": {
+        "clearPassword": "Poista salasana",
+        "consentCopy": "Suostumusten kopiot osoitteeseen",
+        "consentCopyHint": "Saa kopion jokaisen organisaation suostumuksesta. Tyhjä: tukisähköposti.",
+        "description": "Palvelin, jonka kautta {{siteName}} lähettää sähköpostit, esimerkiksi vahvistuksen organisaation suostumuksesta. Ilman palvelinta sähköpostit vain kirjoitetaan lokiin.",
+        "from": "Lähettäjä",
+        "fromHint": "Tyhjä: käyttäjätunnus on lähettäjä.",
+        "fromPlaceholder": "Nimi \u003cnoreply@example.org\u003e",
+        "host": "Palvelin",
+        "hostHint": "Vain isäntänimi, ilman porttia. Tyhjä: sähköpostit vain kirjataan lokiin.",
+        "password": "Salasana",
+        "passwordNone": "Salasanaa ei ole asetettu.",
+        "passwordSet": "Salasana on asetettu. Jätä tyhjäksi, jos haluat säilyttää sen.",
+        "port": "Portti",
+        "portHint": "587 STARTTLS-salauksella, 465 TLS-salauksella.",
+        "save": "Tallenna",
+        "saveFailed": "Tallennus epäonnistui. Tarkista kentät.",
+        "title": "Sähköpostipalvelin",
+        "user": "Käyttäjätunnus"
       },
       "models": {
         "assign": {
@@ -1934,6 +1784,7 @@
         "ai": "Tekoäly ja avaimet",
         "branding": "Brändäys",
         "general": "Yleiset",
+        "mail": "Sähköposti",
         "models": "Tekoälymallit",
         "youthProtection": "Nuorten suojaus"
       },
@@ -1999,49 +1850,6 @@
     }
   },
   "dashboard": {
-    "cards": {
-      "externalLinks": {
-        "edu": {
-          "description": "Mediakasvatustyö ChatGameLabilla",
-          "title": "Tietoa ChatGameLabista"
-        },
-        "jff": {
-          "description": "Hankkeen koordinaattori ja päätaho.",
-          "title": "JFF – Institut für Medienpädagogik"
-        },
-        "mainSite": {
-          "description": "Lue lisää tämän alustan taustalla olevasta koulutushankkeesta.",
-          "title": "ChatGameLab-projekti"
-        },
-        "title": "Tietoa ChatGameLabista"
-      },
-      "lastPlayed": {
-        "empty": "Pelihistoriaa ei ole vielä. Aloita pelaaminen!",
-        "title": "Viimeksi pelatut",
-        "viewAll": "Kaikki pelit"
-      },
-      "myGames": {
-        "empty": "Ei vielä pelejä. Luo ensimmäinen pelisi!",
-        "title": "Omat pelit",
-        "viewAll": "Kaikki luomukset"
-      },
-      "myWorkshops": {
-        "empty": "Ei aktiivisia työpajoja. Luo työpaja organisaatiossasi!",
-        "title": "Omat työpajani",
-        "viewAll": "Kaikki työpajat"
-      },
-      "newGames": {
-        "empty": "Ei vielä pelejä saatavilla.",
-        "title": "Uudet pelit",
-        "viewAll": "Kaikki pelit"
-      },
-      "popularGames": {
-        "empty": "Ei vielä pelejä saatavilla.",
-        "plays": "{{count}} pelikertaa",
-        "title": "Suosituimmat pelit",
-        "viewAll": "Kaikki pelit"
-      }
-    },
     "continue": {
       "go": "Jatka",
       "hint": "jatka siitä, mihin jäit",
@@ -2050,15 +1858,14 @@
       "title": "Jatka peliä"
     },
     "fresh": {
-      "by": "tekijä {{name}}",
       "empty": "Ei vielä uusia pelejä.",
       "title": "Uudet pelit",
       "viewAll": "Katso galleria"
     },
     "hero": {
       "create": "Luo",
-      "greeting": "Hei {{name}}. Mitä \u0003cmark\u0003rakennetaan\u0003c/mark\u0003 tänään?",
-      "greetingNoName": "Hei. Mitä \u0003cmark\u0003rakennetaan\u0003c/mark\u0003 tänään?",
+      "greeting": "Hei {{name}}. Mitä \u003cmark\u003erakennetaan\u003c/mark\u003e tänään?",
+      "greetingNoName": "Hei. Mitä \u003cmark\u003erakennetaan\u003c/mark\u003e tänään?",
       "journal": "Laboratoriopäiväkirja · {{date}}",
       "promptLabel": "Kuvaile peli-idea",
       "promptPlaceholder": "Kuvaile peli-idea… tekoäly auttaa sinua kehittämään sitä"
@@ -2071,8 +1878,7 @@
     },
     "links": {
       "about": "Tietoa palvelusta {{siteName}}",
-      "educators": "Kasvattajille",
-      "jff": "JFF – mediapedagogiikan instituutti"
+      "educators": "Kasvattajille"
     },
     "ownGames": {
       "empty": "Ei vielä pelejä. Kuvaile yllä idea ja luo ensimmäinen pelisi!",
@@ -2085,21 +1891,11 @@
       "plays_other": "{{count}} pelikertaa",
       "title": "Suosituimmat"
     },
-    "quickActions": {
-      "createNewGame": "Luo uusi peli",
-      "createRoom": "Luo huone",
-      "createWorkshop": "Luo työpaja",
-      "importGame": "Tuo peli",
-      "inviteMembers": "Kutsu jäseniä",
-      "startNewGame": "Aloita uusi peli",
-      "title": "Pikatoiminnot"
-    },
-    "someone": "joku",
     "untitled": "Nimetön",
     "untitledGame": "Nimeämätön peli",
     "version": {
       "mismatch": {
-        "message": "Käyttöliittymän versio \u00003cfrontendVersion\u00003e{{frontendVersion}}\u00003c/frontendVersion\u0000f ei vastaa taustajärjestelmän versiota \u00003cbackendVersion\u00003e{{backendVersion}}\u00003c/backendVersion\u0000f. Tämä voi aiheuttaa odottamatonta toimintaa. Ota yhteyttä tukeen, jos ongelma jatkuu.",
+        "message": "Käyttöliittymän versio \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e ei vastaa taustajärjestelmän versiota \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. Tämä voi aiheuttaa odottamatonta toimintaa. Ota yhteyttä tukeen, jos ongelma jatkuu.",
         "title": "Versioepäsuhta havaittu"
       }
     },
@@ -2196,10 +1992,8 @@
     "filters": {
       "all": "Kaikki pelit",
       "mine": "Omat pelit",
-      "public": "Julkiset pelit",
-      "workshop": "Työpajan pelit"
+      "public": "Julkiset pelit"
     },
-    "gameType": "Peli",
     "infoModal": {
       "body": "Olet siirtynyt työpajatilaan. Tässä tilassa kaikki toimintasi liittyy tähän työpajaan – luomasi pelit, pelisessiot ja jakolinkit.\n\nVoit poistua milloin tahansa. Poistuminen ei päätä työpajaa eikä poista tekemiäsi asioita.",
       "dontShowAgain": "Älä näytä tätä uudelleen",
@@ -2224,8 +2018,7 @@
     },
     "showInviteLink": "Näytä kutsulinkki",
     "showPublicPageLink": "Näytä julkisen sivun linkki",
-    "title": "Oma työpaja",
-    "you": "Sinä"
+    "title": "Oma työpaja"
   },
   "navigation": {
     "adminPanel": "Ylläpitopaneeli",
@@ -2274,8 +2067,6 @@
       "observer": "Ohjaaja",
       "opening-brief": "Miten peli alkaa",
       "outline": "Suunnittele kohtaus",
-      "portrait": "Piirrä muotokuva",
-      "portrait-prompt": "Kuvaile muotokuvaa",
       "props-store": "Pelitilanne",
       "rephrase": "Muotoile toiminta uudelleen",
       "rephrase-audio": "Ymmärrä puhe",
@@ -2497,53 +2288,50 @@
       "recording": "Kuuntelen… vapauta lähettääksesi"
     },
     "wires": {
-      "adapted-style\u001eimage-prompt": "tyyli",
-      "adapted-style\u001eimage-style": "pyyntö",
-      "adapted-style\u001estart-game": "valmis",
-      "cast\u0003eclive-a:voiceA": "ääni",
-      "cast\u0003eclive-b:voiceB": "ääni",
-      "cast\u0003ecstart-game": "valmis",
-      "cast-brief\u0003ccast": "hahmot",
-      "condense-scenario\u001econdensed-scenario": "vastaus",
-      "condensed-scenario\u001econdense-scenario": "pyyntö",
-      "condensed-scenario\u001eimage-prompt": "skenaario",
-      "condensed-scenario\u001estart-game": "valmis",
-      "director\u0003elive-a": "välihuomautus",
-      "director\u0003elive-b": "välihuomautus",
-      "gallery-image\u0003estart-game": "valmis",
-      "greeting\u0003elive-a": "ensimmäiset sanat",
-      "greeting\u0003elive-session": "ensimmäiset sanat",
-      "greeting\u0003estart-game": "valmis",
-      "image-prompt\u001eimage": "kehote",
-      "image-style\u001eadapted-style": "vastaus",
-      "live-a\u0003edirector": "litterointi",
-      "live-b\u0003edirector": "litterointi",
-      "live-session\u001eobserver": "litterointi",
-      "observer\u0003elive-session": "syöte",
-      "observer\u001elive-session": "vihje",
-      "opening-brief\u0003egreeting": "ohje",
-      "outline\u001eexpand": "suunnitelma",
-      "outline\u001eimage-prompt": "kohtaus",
-      "outline\u001eprops-store": "muutokset",
-      "player-input-audio\u0003elive-a": "puhe",
-      "player-input-audio\u0003elive-b": "puhe",
-      "player-input-audio\u001elive-session": "puhe",
-      "player-input-audio\u001erephrase-audio": "puhe",
-      "player-input-text\u001erephrase": "toiminta",
-      "portrait\u001estart-game": "valmis",
-      "portrait-prompt\u001eportrait": "kehote",
-      "props-store\u001eoutline": "tila",
-      "rephrase\u001eoutline": "toiminta",
-      "rephrase-audio\u001eoutline": "toiminta",
-      "start-game\u0003elive-a": "aloitussignaali",
-      "start-game\u0003elive-b": "aloitussignaali",
-      "start-game\u001elive-session": "alkusysäys",
-      "start-game\u001eoutline": "kehote",
-      "voice\u0003elive-session:secondary": "äänityyli",
-      "voice\u0003elive-session:voice": "ääni",
-      "voice\u0003estart-game": "valmis",
-      "voice-brief\u0003evoice:description": "kuvaus",
-      "voice-brief\u0003evoice:voice": "varapuheääni"
+      "adapted-style\u003eimage-prompt": "tyyli",
+      "adapted-style\u003eimage-style": "pyyntö",
+      "adapted-style\u003estart-game": "valmis",
+      "cast-brief\u003ecast": "hahmot",
+      "cast\u003elive-a:voiceA": "ääni",
+      "cast\u003elive-b:voiceB": "ääni",
+      "cast\u003estart-game": "valmis",
+      "condense-scenario\u003econdensed-scenario": "vastaus",
+      "condensed-scenario\u003econdense-scenario": "pyyntö",
+      "condensed-scenario\u003eimage-prompt": "tilanne",
+      "condensed-scenario\u003estart-game": "valmis",
+      "director\u003elive-a": "syöttö",
+      "director\u003elive-b": "syöttö",
+      "gallery-image\u003estart-game": "valmis",
+      "greeting\u003elive-a": "ensimmäiset sanat",
+      "greeting\u003elive-session": "ensimmäiset sanat",
+      "greeting\u003estart-game": "valmis",
+      "image-prompt\u003eimage": "kehote",
+      "image-style\u003eadapted-style": "vastaus",
+      "live-a\u003edirector": "litterointi",
+      "live-b\u003edirector": "litterointi",
+      "live-session\u003eobserver": "litterointi",
+      "observer\u003elive-session": "syöttö",
+      "opening-brief\u003egreeting": "ohje",
+      "outline\u003eexpand": "suunnitelma",
+      "outline\u003eimage-prompt": "kohtaus",
+      "outline\u003eprops-store": "muutokset",
+      "player-input-audio\u003elive-a": "puhe",
+      "player-input-audio\u003elive-b": "puhe",
+      "player-input-audio\u003elive-session": "puhe",
+      "player-input-audio\u003erephrase-audio": "puhe",
+      "player-input-text\u003erephrase": "toiminta",
+      "props-store\u003eoutline": "tila",
+      "rephrase-audio\u003eoutline": "toiminta",
+      "rephrase\u003eoutline": "toiminta",
+      "start-game\u003elive-a": "vihje",
+      "start-game\u003elive-b": "vihje",
+      "start-game\u003elive-session": "vihje",
+      "start-game\u003eoutline": "kehote",
+      "voice-brief\u003evoice:description": "kuvaus",
+      "voice-brief\u003evoice:voice": "varaääni",
+      "voice\u003elive-session:secondary": "äänen tyyli",
+      "voice\u003elive-session:voice": "ääni",
+      "voice\u003estart-game": "valmis"
     }
   }
 }

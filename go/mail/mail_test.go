@@ -7,7 +7,7 @@ import (
 )
 
 func TestBuildMessageEncodesUmlauts(t *testing.T) {
-	raw, err := buildMessage("ChatGameLab <noreply@chatgamelab.eu>", Message{
+	raw, err := buildMessage("ChatGameLab <noreply@example.org>", Message{
 		To: "a@example.org", Subject: "Bestätigung", Body: "Grüße\nZeile 2", SentAt: time.Now(),
 	})
 	if err != nil {
@@ -23,9 +23,8 @@ func TestBuildMessageEncodesUmlauts(t *testing.T) {
 }
 
 func TestSendWithoutSMTPKeeps(t *testing.T) {
-	t.Setenv("SMTP_HOST", "")
 	KeepSent()
-	if err := Send(Message{To: "x@example.org", Subject: "s", Body: "b"}); err != nil {
+	if err := Send(Server{}, Message{To: "x@example.org", Subject: "s", Body: "b"}); err != nil {
 		t.Fatal(err)
 	}
 	if got := Sent(); len(got) == 0 || got[0].To != "x@example.org" {
@@ -39,5 +38,16 @@ func TestEnvelopeAddress(t *testing.T) {
 	}
 	if got := envelopeAddress(" a@b.de "); got != "a@b.de" {
 		t.Fatal(got)
+	}
+}
+
+func TestServerConfigDefaults(t *testing.T) {
+	cfg := Server{Host: " smtp.example.org ", User: "me@example.org"}.config()
+	if cfg.host != "smtp.example.org" || cfg.port != "587" || cfg.from != "me@example.org" {
+		t.Errorf("config = %+v; want the host trimmed, port 587, the user as sender", cfg)
+	}
+	cfg = Server{Host: "h", Port: 465, User: "u", From: "Site <noreply@example.org>"}.config()
+	if cfg.port != "465" || cfg.from != "Site <noreply@example.org>" {
+		t.Errorf("config = %+v; want port 465 and the sender set", cfg)
 	}
 }

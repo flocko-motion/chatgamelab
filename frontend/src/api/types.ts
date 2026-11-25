@@ -16,6 +16,7 @@ export type {
   ProbeEngineModelResp,
   Tier,
   Branding,
+  MailSettings,
   SiteResp,
   ConsentStatusView,
   CreateGameReq,

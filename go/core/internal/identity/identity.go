@@ -12,8 +12,6 @@ import (
 	"cgl/api/auth"
 	"cgl/core/internal/rules"
 	"cgl/core/internal/store"
-	"cgl/db"
-	"cgl/legal"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
 	"github.com/google/uuid"
@@ -63,12 +61,7 @@ func New(ctx context.Context, adm *schemafapi.Admission) (*Caller, error) {
 	if err != nil {
 		return nil, auth.ErrNoAccount
 	}
-	declaration := legal.CurrentDeclaration()
-	row, err := store.Queries().V2ReadCaller(ctx, db.V2ReadCallerParams{
-		ID:                 id,
-		DeclarationVersion: declaration.Version,
-		DeclarationHash:    declaration.Hash,
-	})
+	row, err := store.Queries().V2ReadCaller(ctx, id)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, auth.ErrNoAccount
 	}
@@ -89,7 +82,7 @@ func New(ctx context.Context, adm *schemafapi.Admission) (*Caller, error) {
 	c := &Caller{
 		account:      &row.ID,
 		registering:  row.Registering,
-		suspension:   suspensionOf(row.SuspendedByAdmin, row.ConsentMissing),
+		suspension:   suspensionOf(row.SuspendedByAdmin, row.ConsentLacking),
 		organisation: nullable(row.InstitutionID),
 
 		workshopShowsPublic:   row.WorkshopShowsPublic,
@@ -162,16 +155,16 @@ type Suspension string
 const (
 	NotSuspended       Suspension = ""
 	SuspendedByAdmin   Suspension = "admin"   // an admin suspended it; only an admin lifts it
-	SuspendedNoConsent Suspension = "consent" // its newest consent does not cover the current declaration
+	SuspendedNoConsent Suspension = "consent" // it has no consent: none yet, or withdrawn
 )
 
 // suspensionOf is the suspension of both causes; an admin's goes first, as no
 // consent lifts it.
-func suspensionOf(byAdmin, consentMissing bool) Suspension {
+func suspensionOf(byAdmin, consentLacking bool) Suspension {
 	switch {
 	case byAdmin:
 		return SuspendedByAdmin
-	case consentMissing:
+	case consentLacking:
 		return SuspendedNoConsent
 	}
 	return NotSuspended

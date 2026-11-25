@@ -11,7 +11,7 @@ SELECT s.id, s.user_id, s.game_id, s.workshop_id, s.game_share_id,
   (g.id IS NULL OR g.deleted_at IS NOT NULL)::bool       AS game_gone,
   COALESCE(w.is_paused, false)::bool                     AS workshop_paused,
   (o.id IS NOT NULL AND (o.suspended_at IS NOT NULL
-           OR institution_consent_missing(o.id, @declaration_version::text, @declaration_hash::text)))::bool AS organisation_suspended
+           OR institution_consent_lacking(o.id)))::bool AS organisation_suspended
 FROM game_session s
 JOIN app_user u        ON u.id = s.user_id
 LEFT JOIN game g       ON g.id = s.game_id
@@ -63,7 +63,7 @@ SELECT gs.id, gs.game_id, gs.workshop_id, gs.institution_id, gs.remaining, gs.ai
   gs.embed, gs.enabled, gs.embed_mode, gs.verified_page_id, vp.page_id AS verified_page_key, vp.callback_url,
   (vp.approved_at IS NOT NULL)::bool AS verified_page_approved,
   (o.id IS NOT NULL AND (o.suspended_at IS NOT NULL
-     OR institution_consent_missing(o.id, @declaration_version::text, @declaration_hash::text)))::bool AS organisation_suspended
+     OR institution_consent_lacking(o.id)))::bool AS organisation_suspended
 FROM game_share gs
 LEFT JOIN workshop w    ON w.id = gs.workshop_id
 LEFT JOIN institution o ON o.id = COALESCE(gs.institution_id, w.institution_id)

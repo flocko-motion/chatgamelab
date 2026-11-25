@@ -30,8 +30,7 @@ const MaxPromptConstraintLength = 200
 var declarationVersions = []struct {
 	Version string
 	Date    string // the legal text's date, YYYY-MM-DD
-	// Consent is the binding sentence a person ticks to agree, wording agreed
-	// with the JFF's legal counsel.
+	// Consent is the binding sentence a person ticks to agree.
 	Consent string
 }{
 	{
@@ -40,16 +39,34 @@ var declarationVersions = []struct {
 		Consent: "Ich habe die Einverständniserklärung gelesen und stimme ihr im Namen meiner Einrichtung zu. " +
 			"Ich bestätige, dass ich berechtigt bin, diese Erklärung für meine Einrichtung abzugeben.",
 	},
+	{
+		// names the instance's operator instead of one fixed provider
+		Version: "1.1",
+		Date:    "2026-11-25",
+		Consent: "Ich habe die Einverständniserklärung gelesen und stimme ihr im Namen meiner Einrichtung zu. " +
+			"Ich bestätige, dass ich berechtigt bin, diese Erklärung für meine Einrichtung abzugeben.",
+	},
 }
+
+// operatorPlaceholder stands in a declaration for the operator's legal name,
+// filled in by Of; the hash covers the text with the placeholder, so renaming
+// the operator asks no organisation to consent again.
+const operatorPlaceholder = "{{operatorLegalName}}"
 
 // Declaration is one version of the declaration an organisation consents to,
 // in the binding language.
 type Declaration struct {
 	Version string
 	Date    string
-	Text    string // Markdown; the first line is the title, in bold
+	Text    string // Markdown; the first line is the title, in bold; the operator as a placeholder until Of
 	Consent string // the sentence a person ticks to agree
-	Hash    string // hex SHA-256 of Text, stored with every consent
+	Hash    string // hex SHA-256 of Text with the placeholder, stored with every consent
+}
+
+// Of is d as the operator, by their legal name, offers it.
+func (d Declaration) Of(operator string) Declaration {
+	d.Text = strings.ReplaceAll(d.Text, operatorPlaceholder, operator)
+	return d
 }
 
 // Title is the declaration's title, without its Markdown.

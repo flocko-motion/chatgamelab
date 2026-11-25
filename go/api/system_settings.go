@@ -64,7 +64,9 @@ type SystemSettingsReq struct{}
 // Only the fields sent change. The default AI quality tier cannot be empty;
 // an empty free-use tier clears it; a constraint emptied, or set to its
 // default, is the default again. The session retention is whole hours, 0 or
-// more. Answers with the settings as they apply.
+// more. The mail server changes as a whole, but for its password: absent, it
+// stays; empty, it is cleared. Answers with the settings as they apply; the
+// password never.
 type UpdateSystemSettingsEndpoint struct{}
 
 func (UpdateSystemSettingsEndpoint) Method() string { return "PATCH" }
@@ -77,7 +79,19 @@ func (UpdateSystemSettingsEndpoint) Handle(ctx context.Context, req UpdateSystem
 		DefaultTier: req.DefaultAiQualityTier, FreeUseTier: req.FreeUseAiQualityTier,
 		U13: req.PromptConstraintU13, U13p: req.PromptConstraintU13p, U18: req.PromptConstraintU18,
 		SessionRetentionHours: req.SessionRetentionHours,
+		Mail:                  mailChange(req.Mail),
 	}))
+}
+
+// mailChange is the mail server the request sets; nil: it stays.
+func mailChange(m *MailSettingsReq) *core.MailChange {
+	if m == nil {
+		return nil
+	}
+	return &core.MailChange{
+		Host: m.Host, Port: m.Port, User: m.User, From: m.From,
+		ConsentCopyEmail: m.ConsentCopyEmail, Password: m.Password,
+	}
 }
 
 // siteSettingsView is the site's settings as v1 sent them.
@@ -101,6 +115,22 @@ type UpdateSystemSettingsReq struct {
 	// SessionRetentionHours is how long a session not played is kept, in
 	// hours; 0 keeps every session.
 	SessionRetentionHours *int `json:"sessionRetentionHours"`
+	// Mail is the mail server; absent: it stays.
+	Mail *MailSettingsReq `json:"mail"`
+}
+
+// MailSettingsReq is the mail server as it is to be.
+type MailSettingsReq struct {
+	Host string `json:"host"` // empty: mails are only logged
+	Port int    `json:"port"` // 0: 587
+	User string `json:"user"`
+	From string `json:"from"` // the sender; empty: the user
+	// ConsentCopyEmail receives a copy of every organisation's consent;
+	// empty: the site's support address.
+	ConsentCopyEmail string `json:"consentCopyEmail"`
+	// Password is the login's password: absent, it stays; empty, it is
+	// cleared.
+	Password *string `json:"password"`
 }
 
 // SetSystemFreeUseApiKeyEndpoint sets or clears the site-wide free-use API

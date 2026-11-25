@@ -6,7 +6,7 @@ export type BrandingField = keyof Branding;
 
 /** The branding fields the admin edits, in groups as the form shows them. */
 export const BRANDING_GROUPS: { id: string; fields: BrandingField[] }[] = [
-  { id: "identity", fields: ["siteName", "operatorName", "operatorUrl", "supportEmail"] },
+  { id: "identity", fields: ["siteName", "operatorName", "operatorLegalName", "operatorUrl", "supportEmail"] },
   {
     id: "links",
     fields: [

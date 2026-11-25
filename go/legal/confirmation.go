@@ -26,10 +26,12 @@ type Consent struct {
 }
 
 // Site is who sends the confirmation: the site's name and its operator,
-// as the site's branding says.
+// as the site's branding says, and the operator's legal name, which the
+// declaration names.
 type Site struct {
-	Name     string
-	Operator string
+	Name          string
+	Operator      string
+	OperatorLegal string
 }
 
 // berlin is the time zone of the dates in mails.
@@ -60,6 +62,7 @@ func confirmation(c Consent, site Site, language, to string) mail.Message {
 	if !ok {
 		d = CurrentDeclaration() // a consent names a published version
 	}
+	d = d.Of(site.OperatorLegal)
 	vars := map[string]string{
 		"name":         c.PersonName,
 		"organisation": c.Organisation,

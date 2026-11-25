@@ -111,6 +111,21 @@ type SystemSettings struct {
 	FreeUseApiKeyName     string     `json:"freeUseApiKeyName,omitempty"`
 	FreeUseApiKeyPlatform string     `json:"freeUseApiKeyPlatform,omitempty"`
 	FreeUseApiKeyWorking  *bool      `json:"freeUseApiKeyWorking,omitempty"`
+	// Mail is the mail server mails go through.
+	Mail MailSettings `json:"mail"`
+}
+
+// MailSettings are the mail server mails go through; its password shows
+// only as whether one is set.
+type MailSettings struct {
+	Host        string `json:"host"` // empty: mails are only logged
+	Port        int    `json:"port"` // 465: implicit TLS; otherwise STARTTLS when offered
+	User        string `json:"user"`
+	From        string `json:"from"` // the sender; empty: the user
+	PasswordSet bool   `json:"passwordSet"`
+	// ConsentCopyEmail receives a copy of every organisation's consent;
+	// empty: the site's support address.
+	ConsentCopyEmail string `json:"consentCopyEmail"`
 }
 
 // SiteRuleTexts are the site's rules per age group.

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Alert, Container, Group, Loader, Stack, Tabs } from "@mantine/core";
-import { IconAlertCircle, IconBrush, IconCpu, IconRefresh, IconShieldLock, IconSparkles } from "@tabler/icons-react";
+import { IconAlertCircle, IconBrush, IconCpu, IconMail, IconRefresh, IconShieldLock, IconSparkles } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "@components/typography";
 import { useAuth } from "@/providers/AuthProvider";
@@ -9,6 +9,7 @@ import { useServerSettings } from "../hooks/useServerSettings";
 import { SiteUpdates } from "./SiteUpdates";
 import { SessionRetentionSettings } from "./SessionRetentionSettings";
 import { SiteBranding } from "./SiteBranding";
+import { MailSettings } from "./MailSettings";
 import { AiSettings } from "./AiSettings";
 import { YouthProtectionSettings } from "./YouthProtectionSettings";
 import { EngineModels } from "./EngineModels";
@@ -43,6 +44,9 @@ export function ServerSettings() {
             <Tabs.Tab value="branding" leftSection={<IconBrush size={16} />}>
               {t("serverSettings.tabs.branding")}
             </Tabs.Tab>
+            <Tabs.Tab value="mail" leftSection={<IconMail size={16} />}>
+              {t("serverSettings.tabs.mail")}
+            </Tabs.Tab>
             <Tabs.Tab value="ai" leftSection={<IconSparkles size={16} />}>
               {t("serverSettings.tabs.ai")}
             </Tabs.Tab>
@@ -62,6 +66,9 @@ export function ServerSettings() {
           </Tabs.Panel>
           <Tabs.Panel value="branding" pt="lg">
             <SiteBranding />
+          </Tabs.Panel>
+          <Tabs.Panel value="mail" pt="lg">
+            {state.loading ? <Centered /> : <MailSettings state={state} />}
           </Tabs.Panel>
           <Tabs.Panel value="ai" pt="lg">
             {state.loading ? <Centered /> : <AiSettings state={state} />}

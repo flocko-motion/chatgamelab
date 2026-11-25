@@ -1,5 +1,4 @@
 {
-  "_sourceHash": "511c1a97217e633a",
   "auth": {
     "ageGroup": {
       "description": "To nám pomáhá uplatňovat správnou ochranu a obsahové pokyny pro váš účet.",
@@ -39,12 +38,6 @@
         "message": "Počkejte prosím, než vás přesměrujeme na přihlašovací stránku.",
         "title": "Přesměrování na Auth0..."
       },
-      "role": {
-        "admin": "Přihlásit se jako administrátor",
-        "guest": "Přihlásit se jako host",
-        "student": "Přihlásit se jako student",
-        "teacher": "Přihlásit se jako učitel"
-      },
       "unavailable": {
         "message": "Tato instance nenabízí přihlašování. Hosté ve workshopu mohou místo toho zadat svůj kód.",
         "title": "Přihlášení není k dispozici"
@@ -61,6 +54,7 @@
         "introExisting": "Vaše organizace „{{name}}“ nyní má prohlášení, které je potvrzeno online. Nahrazuje uživatelskou smlouvu, kterou jste dříve podepsali. Přečtěte si ho a souhlaste s ním jménem své instituce.",
         "introNewVersion": "Prohlášení bylo aktualizováno (verze {{version}}). Přečtěte si novou verzi a souhlaste s ní jménem své organizace „{{name}}“.",
         "introWithdrawn": "Souhlas vaší organizace „{{name}}“ s prohlášením byl odvolán, proto je její přístup pozastaven. Přečtěte si prosím prohlášení a jménem vaší instituce s ním znovu souhlaste, abyste mohli {{siteName}} opět používat.",
+        "later": "Později",
         "logout": "Odhlásit se",
         "oneHeadIsEnough": "Stačí, když souhlas udělí jedna osoba z vedení organizace. Do té doby je přístup vaší organizace pozastaven: její členové nemohou používat {{siteName}}.",
         "submit": "Souhlasit",
@@ -123,23 +117,8 @@
         "tooLong": "Nejvýše {{max}} znaků. Zkraťte text nebo vyberte návrh."
       }
     },
-    "participant": {
-      "leaveConfirm": {
-        "confirm": "Opustit workshop",
-        "message": "Opravdu chcete opustit tento workshop? Pro znovupřipojení budete potřebovat nový odkaz s pozvánkou.",
-        "title": "Opustit workshop?"
-      },
-      "leaveWorkshop": "Opustit workshop",
-      "organization": "Organizace",
-      "role": "Účastník workshopu",
-      "workshop": "Workshop"
-    },
     "profile": {
-      "ageGroup": "Věková skupina",
-      "ageGroupDescription": "Určuje, která pravidla pro obsah se na vaše hry vztahují. Můžete to kdykoli změnit.",
       "ageGroupSection": "Věková a ochranná skupina",
-      "ageGroupU13": "13–17 let",
-      "ageGroupU18": "18+",
       "gamesCreated": "Vytvořené hry",
       "gamesPlayed": "Odehrané hry",
       "guestCode": {
@@ -153,20 +132,13 @@
       "noOrganization": "Žádná organizace",
       "noRole": "Není přiřazena žádná role",
       "organization": "Organizace",
-      "organizationSection": "Organizace \u00026 role",
-      "participantCode": {
-        "error": "Přístupový kód se nepodařilo načíst.",
-        "hint": "Vyfoťte si tento kód nebo si ho zapište a nikomu ho neukazujte. Kdykoli a na jakémkoli zařízení se s ním můžete vrátit ke svému účtu: na domovské stránce zadejte slova pod „Zadat kód“ nebo naskenujte QR kód.",
-        "longTokenHint": "Vyfoťte si QR kód nebo si uložte odkaz a nikomu ho neukazujte. Kdykoli se s ním můžete vrátit ke svému účtu. Vedoucí workshopu vám může po obnovení přístupu poskytnout krátký čtyřslovný kód.",
-        "title": "Váš přístupový kód"
-      },
+      "organizationSection": "Organizace \u0026 role",
       "role": "Role",
       "roles": {
         "admin": "Administrátor",
         "guest": "Host",
         "head": "Vedoucí organizace",
         "individual": "Jednotlivec",
-        "participant": "Účastník",
         "staff": "Vedoucí workshopu"
       },
       "statisticsSection": "Statistiky",
@@ -175,12 +147,6 @@
       "workshopSection": "Workshop a organizace"
     },
     "register": {
-      "ageGroupLabel": "Věková skupina",
-      "ageGroupRequired": "Vyberte prosím svou věkovou skupinu",
-      "ageGroupU13": "13–17 let",
-      "ageGroupU18": "18 nebo více",
-      "ageGroupUnder13": "Méně než 13",
-      "ageGroupUnder13Error": "Abyste mohli ChatGameLab používat, musíte být starší 13 let.",
       "cancelButton": "Zrušit",
       "emailDescription": "Volitelné. Použijeme ho pro důležitá upozornění.",
       "emailLabel": "E-mailová adresa",
@@ -211,25 +177,6 @@
       "continueButton": "Pokračovat k registraci",
       "description": "Jako poskytovatele ověřování používáme Auth0 ke správě uživatelských účtů. Budete přesměrováni na Auth0, kde si účet vytvoříte, a poté se vrátíte sem k dokončení profilu.",
       "educatorDescription": "Používej {{siteName}} na workshopech, ve třídě nebo ve své organizaci",
-      "educatorModal": {
-        "closeButton": "Zavřít",
-        "copied": "Zkopírováno!",
-        "copyEmail": "Zkopírovat e-mail",
-        "eduInfo": "Získejte více informací o používání ChatGameLab pro vzdělávací účely:",
-        "intro": "Chcete-li používat ChatGameLab ve vaší organizaci (škole, univerzitě, instituci), postupujte takto:",
-        "registerButton": "Vytvořit osobní účet",
-        "step1": "1. Vytvořte osobní účet",
-        "step1Description": "Nejprve si vytvořte osobní účet. Bude sloužit jako vaše přihlášení do platformy.",
-        "step2": "2. Pošlete nám e-mail",
-        "step2Description": "Napište e-mail na",
-        "step2Item1": "Vaši registrovanou e-mailovou adresu",
-        "step2Item2": "Název vaší organizace (škola, instituce atd.)",
-        "step2WithInfo": "s:",
-        "step3": "3. My nastavíme vaši organizaci",
-        "step3Description": "Vytvoříme vaši organizaci a nastavíme vás jako vedoucího. Poté můžete zvát kolegy a připravovat workshopy.",
-        "title": "Přístup pro pedagogy a profesionály"
-      },
-      "educatorTitle": "Pedagog / profesionál",
       "individualDescription": "Vytvářejte a hrajte textová dobrodružství poháněná AI",
       "individualTitle": "Osobní účet",
       "loginLink": "Přihlásit se",
@@ -245,11 +192,6 @@
     },
     "settings": {
       "accountSection": "Účet",
-      "ageGroupDescription": "Určuje, která pravidla pro obsah se na vaše hry vztahují.",
-      "ageGroupLabel": "Věková skupina",
-      "ageGroupU13": "13–17 let",
-      "ageGroupU18": "18 nebo více",
-      "emailChangeNote": "Pro změnu e-mailové adresy kontaktujte administrátora webu.",
       "emailDescription": "Volitelné. Organizace vás prostřednictvím této adresy zvou; žádný jiný účet ji nesmí používat.",
       "emailLabel": "E-mail",
       "emailPlaceholder": "vy@example.org",
@@ -288,9 +230,7 @@
           "title": "Smazat pozvánku"
         },
         "role": "Role",
-        "searchPlaceholder": "Hledejte podle e-mailu, role, stavu nebo organizace...",
         "sort": {
-          "label": "Řadit podle",
           "modifiedAt-asc": "Upraveno (nejstarší)",
           "modifiedAt-desc": "Upraveno (nejnovější)",
           "organization-asc": "Organizace (A–Z)",
@@ -347,7 +287,6 @@
         "postalCode": "PSČ",
         "removeMember": "Odebrat člena",
         "removeMemberConfirm": "Opravdu chcete odstranit {{name}} z této organizace?",
-        "searchPlaceholder": "Hledat organizace...",
         "sendInvite": "Poslat pozvánku",
         "status": "Stav a souhlas",
         "statusActive": "Aktivní",
@@ -364,16 +303,6 @@
         "title": "Správa organizací"
       },
       "registrations": {
-        "bell": {
-          "empty": "V posledních dvou týdnech se nezaregistrovala žádná organizace.",
-          "intro_one": "Tato organizace se zaregistrovala v posledních dvou týdnech a již byla aktivována.",
-          "intro_other": "Těchto {{count}} organizací se zaregistrovalo v posledních dvou týdnech a již byly aktivovány.",
-          "label": "Nové organizace",
-          "later": "Později",
-          "open": "Přejít na přehled",
-          "suspendHint": "E-mailové adresy se v současnosti nepotvrzují. Krátce zkontrolujte nové organizace a v přehledu je pozastavte, pokud je něco v nepořádku.",
-          "title": "Nové organizace"
-        },
         "date": "Registrováno",
         "description": "Organizace, které se samy zaregistrovaly v posledních dvou týdnech. Jsou ihned aktivní bez potvrzení e-mailové adresy; prohlédněte si je a případně některou pozastavte.",
         "empty": "V posledních dvou týdnech se sama nezaregistrovala žádná organizace.",
@@ -396,8 +325,6 @@
           "all": "Všichni uživatelé",
           "noGuests": "Bez hostů"
         },
-        "hideGuests": "Skrýt hosty ({{count}})",
-        "hideGuestsShort": "Hosté ({{count}})",
         "joined": "Připojil se",
         "loadError": "Nepodařilo se načíst uživatele",
         "makeAdmin": "Udělá admina",
@@ -415,8 +342,6 @@
         "removeAdminTitle": "Odebrat roli administrátora",
         "removeAdminWarning": "Tento uživatel přijde o všechna administrátorská oprávnění.",
         "role": "Role",
-        "searchPlaceholder": "Hledejte podle jména, e-mailu, role nebo organizace...",
-        "showing": "Zobrazuje se {{count}} z {{total}} uživatelů",
         "signUpInProgress": "Registrace probíhá",
         "signingUp": "Registruje se",
         "sort": {
@@ -424,7 +349,6 @@
           "email-desc": "E-mail (Z–A)",
           "joined-asc": "Připojen (nejstarší)",
           "joined-desc": "Připojen (nejnovější)",
-          "label": "Řadit podle",
           "name-asc": "Jméno (A–Z)",
           "name-desc": "Jméno (Z–A)",
           "organization-asc": "Organizace (A–Z)",
@@ -458,7 +382,6 @@
       "high": "Vysoká",
       "label": "Úroveň kvality AI",
       "low": "Úsporná",
-      "max": "Max (Premium + Audio)",
       "medium": "Vyvážená",
       "newSessionsOnly": "Tato úroveň se vztahuje pouze na nové relace. Stávající relace si ponechají úroveň, se kterou začaly.",
       "serverDefault": "Výchozí serveru"
@@ -470,7 +393,6 @@
         "message": "Vytvoří se kopie hry „{{name}}“ ve vaší knihovně.",
         "title": "Kopírovat hru"
       },
-      "copyGame": "Kopírovat hru",
       "empty": {
         "conditions": {
           "favorites": "mezi vašimi oblíbenými",
@@ -578,11 +500,9 @@
         "revokeGameShare": "Zrušit odkaz ke sdílení",
         "revokePrivateShare": "Zrušit odkaz ke sdílení",
         "sponsorships": "Sponzorování her",
-        "toggle": "Sdílení \u00026 sponzorování",
+        "toggle": "Sdílení \u0026 sponzorování",
         "unknownGame": "Neznámá hra",
         "unknownOrg": "Neznámá organizace",
-        "unknownUser": "Neznámý uživatel",
-        "unknownWorkshop": "Neznámý workshop",
         "unlimited": "Neomezený počet použití"
       },
       "sort": {
@@ -639,24 +559,9 @@
     },
     "error": "Chyba",
     "footer": {
-      "copyright": "JFF - Institut für Medienpädagogik",
-      "jffTitle": "JFF - Institute for Educational Research and Innovation",
       "programmedBy": "Programoval"
     },
-    "gamePlayer": {
-      "rebuilding": {
-        "description": "Brzy si tu budete moci znovu zahrát.",
-        "title": "Herní přehrávač se přepracovává"
-      }
-    },
     "games": {
-      "actions": {
-        "delete": "Smazat",
-        "edit": "Upravit",
-        "export": "Exportovat",
-        "play": "Hrát",
-        "view": "Zobrazit"
-      },
       "badges": {
         "myGame": "Moje hra",
         "public": "Veřejná",
@@ -686,7 +591,6 @@
         "namePlaceholder": "např. Vesmírné dobrodružství",
         "publicDescription": "Veřejné hry jsou viditelné a hratelné pro všechny uživatele na této platformě.",
         "publicLabel": "Zpřístupnit hru veřejně",
-        "publicOwnerOnly": "Hru může zveřejnit pouze její tvůrce.",
         "submit": "Vytvořit hru",
         "title": "Vytvořit novou hru"
       },
@@ -711,7 +615,7 @@
         "imageStyleHint": "Například: kreslený, realistický, pixel art, akvarel...",
         "name": "Název hry",
         "scenario": "O čem je hra?",
-        "scenarioHint": "Stručně popište: Jak hra funguje? Jaký je herní svět? Jazyk \u0002a6 tón (např. španělština pro žáky šesté třídy)?\nJakou roli má hráč? Napište „Hráč …“.\nPokud chcete, aby AI převzala roli konkrétní osoby, napište „Jste …“.\nJaký je cíl? Jak hráč pozná, že vyhrál?",
+        "scenarioHint": "Stručně popište: Jak hra funguje? Jaký je herní svět? Jazyk \u0026 tón (např. španělština pro žáky šesté třídy)?\nJakou roli má hráč? Napište „Hráč …“.\nPokud chcete, aby AI převzala roli konkrétní osoby, napište „Jste …“.\nJaký je cíl? Jak hráč pozná, že vyhrál?",
         "scenarioPlaceholder": "Jste průzkumník v tajemném lese. Vaším cílem je najít ukrytý poklad...",
         "statusFields": "Hodnoty hry",
         "statusFieldsHint": "Co má hra sledovat? Například zdraví, body nebo munici. Hra si tyto hodnoty pamatuje a během hraní je aktualizuje.",
@@ -915,8 +819,7 @@
           "status": {
             "builtIn": "Zatím bez popisu: hra mluví vestavěným hlasem, dokud hlas nepopíšete.",
             "cast": "Při spuštění hra vybere vestavěný hlas zvoleného typu, který se k příběhu hodí nejlépe. Popis určuje, jak hlas mluví.",
-            "ownVoice": "Vlastní hlas pro tento popis, vytvořený na vašem klíči AI.",
-            "steered": "Příběh předčítá vestavěný hlas podle zadaného popisu."
+            "ownVoice": "Vlastní hlas pro tento popis, vytvořený na vašem klíči AI."
           },
           "stop": "Zastavit ukázku"
         },
@@ -957,10 +860,6 @@
         "titleView": "Hra",
         "untitled": "Hra bez názvu"
       },
-      "empty": {
-        "description": "Vytvořte svou první hru a začněte s interaktivními dobrodružstvími poháněnými AI.",
-        "title": "Zatím žádné hry"
-      },
       "errors": {
         "loadFailed": "Nepodařilo se načíst hry. Zkuste to prosím znovu.",
         "nameRequired": "Název hry je povinný",
@@ -975,7 +874,6 @@
       "fields": {
         "created": "Vytvořeno",
         "creator": "Autor",
-        "me": "Já",
         "modified": "Upraveno",
         "name": "Název",
         "playCount": "Počet odehrání",
@@ -984,9 +882,7 @@
       "genres": {
         "adventure": "Dobrodružství",
         "discussion": "Diskuse",
-        "npc": "Postava",
-        "npc-duo": "Diskuse",
-        "npc-live": "Postava"
+        "npc": "Postava"
       },
       "importExport": {
         "coverFailed": "Hra byla importována, ale její titulní obrázek se nepodařilo ověřit. V editoru můžeš vytvořit nový.",
@@ -1002,7 +898,6 @@
         "importButton": "Importovat hru"
       },
       "newGame": "Nová hra",
-      "playNow": "Hrát hned",
       "privacyHint": "Název a popis hry se mohou stát veřejně viditelnými. Nepoužívejte prosím skutečná jména.",
       "privacyHintShort": "Může se stát veřejně viditelným – nepoužívejte prosím skutečná jména.",
       "privateShare": {
@@ -1050,12 +945,10 @@
         "active": "Aktivní",
         "privateShareLink": "Soukromý odkaz ke sdílení",
         "privateShareLinkDescription": "Soukromé odkazy ke sdílení můžete sdílet s ostatními. Kdokoli s odkazem může hrát hru anonymně bez účtu. Je nutné vybrat klíč API, který pokryje náklady.",
-        "publicGameWorkshopHint": "Toto je veřejná hra a není součástí vašeho workshopu. Možnosti sdílení nejsou ve workshopovém režimu pro veřejné hry k dispozici.",
         "publicSponsoring": "Veřejné sponzorování",
         "publicSponsoringDescription": "Všichni uživatelé na platformě mohou tuto hru hrát zdarma – náklady pokrývá vámi přiřazený klíč API.",
         "sectionTitle": "Možnosti sdílení",
-        "sectionTitleShareOnly": "Možnosti sdílení",
-        "workshopShareRequiresPublic": "Tato hra musí být před sdílením ve workshopu veřejná."
+        "sectionTitleShareOnly": "Možnosti sdílení"
       },
       "sort": {
         "createdAt-asc": "Vytvořeno (nejstarší)",
@@ -1111,7 +1004,7 @@
         "basicInfo": "Obecné informace o hře. Jsou jen pro vás a neovlivní hraní.",
         "importExport": "Import/Export",
         "quickStart": "Rychlý start",
-        "story": "Příběh \u00026 AI",
+        "story": "Příběh \u0026 AI",
         "storyInfo": "Vše zde se posílá AI, aby utvářela svět a příběh hry.",
         "style": "Design",
         "styleInfo": "Volitelná nastavení vzhledu hry během hraní."
@@ -1165,7 +1058,6 @@
           "zombie": "Zombie"
         }
       },
-      "title": "Mnou vytvořené hry",
       "viewModal": {
         "readOnlyNotice": "Tuto hru vytvořil jiný uživatel. Můžete si prohlédnout detaily, ale upravovat ji nelze. Pomocí „Kopírovat“ si vytvoříte vlastní editovatelnou verzi.",
         "title": "Detaily hry"
@@ -1193,25 +1085,6 @@
     "help": "Nápověda",
     "home": {
       "codeCta": "Zadat kód",
-      "features": {
-        "create": {
-          "description": "Navrhujte interaktivní textová dobrodružství poháněná AI",
-          "title": "Vytvářejte dobrodružství"
-        },
-        "learn": {
-          "description": "Ideální pro vzdělávací workshopy a školní aktivity",
-          "title": "Učte \u00026 vzdělávejte"
-        },
-        "play": {
-          "description": "Přidejte se k přátelům při společném vyprávění příběhů",
-          "title": "Hrajte společně"
-        },
-        "title": "Proč si vybrat ChatGameLab?",
-        "understand": {
-          "description": "Zkoumejte, jak AI modely vytvářejí příběhy, a pochopte, jak fungují",
-          "title": "Poznejte AI"
-        }
-      },
       "loginCta": "Přihlaste se a prozkoumejte",
       "splashDescription": "Vzdělávací platforma pro tvorbu a hraní textových dobrodružství poháněných AI. Ideální pro učitele, studenty i kreativní vypravěče."
     },
@@ -1248,19 +1121,9 @@
       "guest": {
         "loggingIn": "Probíhá přihlašování..."
       },
-      "participant": {
-        "loggingIn": "Přihlašujeme vás..."
-      },
       "success": {
         "message": "Úspěšně jste se připojili k workshopu. Přesměrovávám...",
         "title": "Vítejte!"
-      },
-      "switchWorkshop": {
-        "message": "Vaše hry a postup v současném workshopu zůstanou zachovány, ale nebudete je moci zobrazit, dokud se znovu nepřipojíte.",
-        "stayButton": "Zůstat v aktuálním workshopu",
-        "switchButton": "Přepnout workshop",
-        "title": "Přepnout workshop?",
-        "warning": "Momentálně jste v workshopu „{{currentWorkshop}}“. Připojením k „{{newWorkshop}}“ tento workshop opustíte."
       }
     },
     "labels": {
@@ -1295,31 +1158,25 @@
     "logout": "Odhlásit se",
     "me": "Já",
     "myGames": {
-      "continue": "Hrát",
       "copyConfirm": {
         "confirm": "Kopírovat hru",
         "message": "Vytvoří se kopie hry „{{name}}“ ve vaší knihovně.",
         "title": "Kopírovat hru"
       },
-      "copyGame": "Kopírovat hru",
       "empty": {
         "description": "Vytvořte svou první hru a začněte s interaktivními dobrodružstvími poháněnými AI.",
         "title": "Zatím žádné hry"
       },
-      "favorite": "Přidat do oblíbených",
       "filters": {
         "all": "Vše",
         "favorites": "Oblíbené"
       },
-      "play": "Hrát",
-      "restart": "Restartovat",
       "restartConfirm": {
         "confirm": "Restartovat",
         "message": "Opravdu chcete restartovat hru „{{game}}“? Váš aktuální postup bude ztracen.",
         "title": "Restartovat hru"
       },
-      "title": "Moje hry",
-      "unfavorite": "Odebrat z oblíbených"
+      "title": "Moje hry"
     },
     "myOrganization": {
       "actions": "Akce",
@@ -1331,7 +1188,6 @@
         "allPlatforms": "Všechny platformy",
         "allowPublicSponsoring": "Povolit veřejné sponzorování",
         "allowPublicSponsoringDesc": "Tento klíč lze použít ke sponzorování her pro všechny uživatele.",
-        "filterByPlatform": "Filtrovat podle platformy",
         "freeUseKey": {
           "description": "Nastavte klíč pro bezplatné použití, aby všichni členové organizace mohli hrát hry, aniž by potřebovali vlastní klíč API.",
           "remove": "Odebrat",
@@ -1351,13 +1207,10 @@
         "platform": "Platforma",
         "publicSponsoring": "Veřejné sponzorování",
         "removeShare": "Odebrat z organizace",
-        "searchPlaceholder": "Hledat podle názvu nebo vlastníka...",
         "selectKey": "Vybrat API klíč",
         "selectKeyPlaceholder": "Zvolte klíč ke sdílení...",
         "share": "Sdílet",
-        "shareKey": "Sdílet klíč",
         "shareKeyTitle": "Přidat API klíč organizaci",
-        "showDetails": "Zobrazit podrobnosti",
         "title": "API klíče organizace"
       },
       "autoShare": {
@@ -1367,7 +1220,10 @@
         "personalKeyGroup": "Osobní klíče"
       },
       "declaration": {
+        "agree": "Přečíst a souhlasit",
         "consented": "Vaše organizace souhlasila s verzí {{version}} dne {{date}}.",
+        "goAgree": "K vaší organizaci",
+        "newVersion": "Existuje nová verze {{version}} prohlášení o souhlasu. Vaše organizace zůstává aktivní; přečtěte si ho prosím a souhlaste s ním jejím jménem.",
         "title": "Prohlášení o souhlasu",
         "withdraw": "Odvolat souhlas",
         "withdrawConfirm": "Bez souhlasu je přístup vaší organizace pozastaven: žádný člen nemůže používat {{siteName}}, dokud vedení znovu neudělí souhlas. Její data zůstanou zachována.",
@@ -1385,9 +1241,6 @@
       "inviteTeacher": "Pozvat učitele",
       "inviteTeacherDescription": "Pošlete pozvánku učiteli, aby se přidal do vaší organizace.",
       "inviteTeacherTitle": "Pozvat učitele",
-      "inviteUser": "Pozvat uživatele",
-      "inviteUserDescription": "Pošlete pozvánku uživateli, aby se přidal do vaší organizace bez specifické role.",
-      "inviteUserTitle": "Pozvat uživatele",
       "lastHeadError": "Jste poslední vedoucí této organizace. Pokud potřebujete odejít, kontaktujte administrátory webu.",
       "leaveConfirm": "Opravdu chcete opustit „{{name}}“?",
       "leaveError": "Nepodařilo se opustit organizaci. Zkuste to prosím znovu.",
@@ -1454,7 +1307,6 @@
       "removeTitle": "Odebrat člena",
       "removeWarning": "Tento uživatel ztratí přístup k organizaci.",
       "role": "Role",
-      "searchPlaceholder": "Hledat členy...",
       "showing": "{{count}} členů",
       "sort": {
         "label": "Řadit podle",
@@ -1492,20 +1344,12 @@
         "active": "Aktivní",
         "activeDescription": "Aktivní workshopy umožňují účastníkům připojit se a vytvářet hry.",
         "activeLabel": "Aktivní",
-        "addIndividual": "Přidat člena organizace",
         "addIndividualError": "Nepodařilo se přidat člena do workshopu.",
-        "addIndividualHint": "Přidáním uživatele jej automaticky přepnete do režimu workshopu. Místo svého běžného panelu tak uvidí zobrazení workshopu. Dělejte to pouze tehdy, pokud je to záměr.",
-        "addIndividualStaffNote": "Vedoucí a učitelé by se měli k workshopům připojovat sami prostřednictvím seznamu workshopů – nejsou zde uvedeni.",
-        "addIndividualSuccess": "Člen přidán",
-        "addIndividualSuccessMessage": "{{name}} byl přidán do workshopu.",
-        "addIndividualTitle": "Přidat osobu do workshopu",
         "addToWorkshop": "Přidat do workshopu",
         "aiQualityTierHint": "Úroveň kvality odpovědí AI. Vyšší úrovně jsou dražší, ale mohou mít vyšší kvalitu. Prázdné = výchozí serveru.",
         "allowGameSharing": "Povolit sdílení her",
         "allowGameSharingHint": "Když je tato možnost zapnutá, účastníci mohou vytvářet odkazy na sdílení svých her s využitím klíče API workshopu",
-        "anonymousParticipant": "Anonymní účastník",
         "create": "Vytvořit workshop",
-        "createFirst": "Vytvořte svůj první workshop",
         "createInviteLink": "Vytvořit odkaz s pozvánkou",
         "createTitle": "Vytvořit workshop",
         "deactivate": "Deaktivovat",
@@ -1528,10 +1372,8 @@
         "inviteByEmailSuccessMessage": "Pozvánka byla vytvořena. Uživatel ji uvidí ve svých čekajících pozvánkách.",
         "inviteByEmailTitle": "Pozvat uživatele do workshopu",
         "inviteCreatedAt": "Vytvořeno",
-        "inviteDescription": "Vygenerujte odkaz, který účastníci mohou použít k připojení do tohoto workshopu.",
         "inviteExpiresAt": "Platnost do",
         "inviteLink": "Odkaz s pozvánkou",
-        "inviteLinkDescription": "Sdílejte tento odkaz s účastníky, aby se mohli připojit k workshopu.",
         "inviteLinkTitle": "Pozvánkový odkaz pro účastníky – {{name}}",
         "inviteUsage": "Využití",
         "isPaused": "Pozastavit workshop",
@@ -1547,14 +1389,11 @@
         "noDefaultModel": "Použít výchozí platformy",
         "noGuestToken": "Tento člen nemá odkaz pro opětovné přihlášení. Takový odkaz mají pouze hosté.",
         "noIndividuals": "V této organizaci nejsou žádní jednotliví uživatelé.",
-        "noParticipantToken": "Tento účastník nemá odkaz s pozvánkou. Opakovaně použitelné odkazy mají pouze anonymní účastníci (hosté).",
         "noParticipants": "Zatím žádní účastníci",
         "noResults": "Vyhledávání ani filtr neodpovídá žádným workshopům.",
         "notAuthorized": "Nemáte oprávnění spravovat workshopy. Přístup mají pouze vedoucí a učitelé.",
         "participantGames": "{{count}} her",
         "participantJoined": "Připojen {{date}}",
-        "participantLinkTitle": "Odkaz pro opětovné přihlášení",
-        "participantLinkTitleNamed": "Odkaz pro opětovné přihlášení pro {{name}}",
         "participantName": "Jméno účastníka",
         "participants": "Účastníci",
         "promptConstraintsFallbackOrg": "Jako výchozí se používá pravidlo ochrany dětí a mládeže organizace: {{constraint}}",
@@ -1578,7 +1417,6 @@
         "selectApiKey": "Vyberte API klíč",
         "settings": "Nastavení",
         "shareGuestLink": "Zobrazit odkaz pro opětovné přihlášení",
-        "shareParticipantLink": "Zobrazit odkaz pro opětovné přihlášení",
         "showOtherParticipantsGames": "Zobrazit hry ostatních účastníků",
         "showOtherParticipantsGamesHint": "Vedoucí a personál vždy vidí všechny hry účastníků kvůli moderování",
         "showPublicGames": "Zobrazit účastníkům veřejné hry",
@@ -1612,7 +1450,6 @@
       "decline": "Odmítnout",
       "declineConfirm": "Opravdu chcete odmítnout tuto pozvánku?",
       "declineTitle": "Odmítnout pozvánku",
-      "empty": "Žádná nová oznámení.",
       "inviteDescription": "Byli jste pozváni, abyste se připojili jako {{role}}.",
       "inviteToJoin": "Pozvánka do organizace",
       "nothingNew": "Nic nového",
@@ -1761,6 +1598,7 @@
           "educatorInfoUrl": "Informace pro vzdělavatele",
           "gameTipsUrl": "Tipy pro tvorbu her",
           "helpUrl": "Nápověda",
+          "operatorLegalName": "Právní název provozovatele (pro právní texty)",
           "operatorName": "Provozovatel",
           "operatorUrl": "Web provozovatele",
           "privacyUrl": "Zásady ochrany osobních údajů",
@@ -1787,13 +1625,10 @@
         "title": "Pravidla ochrany dětí a mládeže podle věku",
         "u13Hint": "Vkládá se do každého AI promptu pro přihlášené uživatele ve věku 13–17 let bez záznamu o rodičovském souhlasu.",
         "u13Label": "Pravidlo ochrany dětí a mládeže pro uživatele ve věku 13–17 let bez souhlasu rodičů (U13)",
-        "u13Placeholder": "např. Udržujte veškerý obsah přísně vhodný pro teenagery. Žádné násilí, žádný romantický obsah, žádné hororové motivy.",
         "u13pHint": "Vkládá se do každého AI promptu pro přihlášené uživatele ve věku 13–17 let se záznamem o rodičovském souhlasu.",
         "u13pLabel": "Pravidlo ochrany dětí a mládeže pro uživatele ve věku 13–17 let se souhlasem rodičů (U13p)",
-        "u13pPlaceholder": "např. Obsah vhodný pro teenagery, jejichž rodiče dali souhlas. Některá vyspělejší témata povolena, žádný explicitní obsah.",
         "u18Hint": "Vkládá se do každého promptu AI pro přihlášené uživatele ve věku 18 let a více.",
-        "u18Label": "Pravidlo ochrany dětí a mládeže pro uživatele od 18 let (U18)",
-        "u18Placeholder": "např. Udržujte obsah vhodný. Vyhněte se explicitnímu násilí nebo sexuálnímu obsahu."
+        "u18Label": "Pravidlo ochrany dětí a mládeže pro uživatele od 18 let (U18)"
       },
       "defaultTier": {
         "description": "Celoserverová záložní úroveň používaná, když není konkrétní úroveň nastavena na úrovni workshopu, instituce nebo uživatele. Vyšší úrovně jsou dražší, ale mohou mít vyšší kvalitu.",
@@ -1814,6 +1649,26 @@
       "freeUseTier": {
         "description": "Úroveň kvality používaná, když je aktivní API klíč pro volné používání. Vyšší úrovně jsou dražší, ale mohou mít vyšší kvalitu. Nechte prázdné pro výchozí úroveň.",
         "title": "Úroveň kvality AI pro volné používání"
+      },
+      "mail": {
+        "clearPassword": "Odebrat heslo",
+        "consentCopy": "Kopie souhlasů na",
+        "consentCopyHint": "Dostává kopii souhlasu každé organizace. Prázdné: e-mail podpory.",
+        "description": "Server, přes který {{siteName}} odesílá e-maily, například potvrzení souhlasu organizace. Bez serveru se e-maily pouze zapisují do protokolu.",
+        "from": "Odesílatel",
+        "fromHint": "Prázdné: odesílatelem je uživatelské jméno.",
+        "fromPlaceholder": "Jméno \u003cnoreply@example.org\u003e",
+        "host": "Server",
+        "hostHint": "Pouze název hostitele, bez portu. Prázdné: e-maily se pouze zaznamenávají.",
+        "password": "Heslo",
+        "passwordNone": "Heslo není nastaveno.",
+        "passwordSet": "Heslo je nastaveno. Pro ponechání nechte prázdné.",
+        "port": "Port",
+        "portHint": "587 se STARTTLS, 465 s TLS.",
+        "save": "Uložit",
+        "saveFailed": "Uložení se nezdařilo. Zkontrolujte prosím pole.",
+        "title": "Poštovní server",
+        "user": "Uživatelské jméno"
       },
       "models": {
         "assign": {
@@ -1929,6 +1784,7 @@
         "ai": "Umělá inteligence a klíče",
         "branding": "Vzhled",
         "general": "Obecné",
+        "mail": "E-mail",
         "models": "Modely AI",
         "youthProtection": "Ochrana dětí a mládeže"
       },
@@ -1994,49 +1850,6 @@
     }
   },
   "dashboard": {
-    "cards": {
-      "externalLinks": {
-        "edu": {
-          "description": "Mediální pedagogika s ChatGameLab",
-          "title": "O ChatGameLab"
-        },
-        "jff": {
-          "description": "Koordinátor projektu a vedoucí organizace.",
-          "title": "JFF – Institut für Medienpädagogik"
-        },
-        "mainSite": {
-          "description": "Zjistěte více o vzdělávacím projektu stojícím za touto platformou.",
-          "title": "Projekt ChatGameLab"
-        },
-        "title": "O ChatGameLab"
-      },
-      "lastPlayed": {
-        "empty": "Zatím žádná historie hraní. Začněte hrát hru!",
-        "title": "Naposledy hráno",
-        "viewAll": "Všechny hry"
-      },
-      "myGames": {
-        "empty": "Zatím žádné hry. Vytvořte svou první!",
-        "title": "Moje hry",
-        "viewAll": "Všechny výtvory"
-      },
-      "myWorkshops": {
-        "empty": "Žádné aktivní workshopy. Vytvořte workshop ve své organizaci!",
-        "title": "Moje workshopy",
-        "viewAll": "Všechny workshopy"
-      },
-      "newGames": {
-        "empty": "Zatím nejsou dostupné žádné hry.",
-        "title": "Nové hry",
-        "viewAll": "Všechny hry"
-      },
-      "popularGames": {
-        "empty": "Zatím nejsou dostupné žádné hry.",
-        "plays": "{{count}} odehrání",
-        "title": "Populární hry",
-        "viewAll": "Všechny hry"
-      }
-    },
     "continue": {
       "go": "Pokračovat",
       "hint": "pokračujte tam, kde jste skončili",
@@ -2045,15 +1858,14 @@
       "title": "Pokračovat ve hře"
     },
     "fresh": {
-      "by": "od {{name}}",
       "empty": "Zatím žádné nové hry.",
       "title": "Nové hry",
       "viewAll": "Zobrazit galerii"
     },
     "hero": {
       "create": "Vytvořit",
-      "greeting": "Ahoj, {{name}}. Co dnes \u0003cmark\u0003vytvoříme\u0003c/mark\u0003?",
-      "greetingNoName": "Ahoj. Co dnes \u0003cmark\u0003vytvoříme\u0003c/mark\u0003?",
+      "greeting": "Ahoj, {{name}}. Co dnes \u003cmark\u003evytvoříme\u003c/mark\u003e?",
+      "greetingNoName": "Ahoj. Co dnes \u003cmark\u003evytvoříme\u003c/mark\u003e?",
       "journal": "Laboratorní deník · {{date}}",
       "promptLabel": "Popište nápad na hru",
       "promptPlaceholder": "Popište nápad na hru… AI vám pomůže ho rozvinout"
@@ -2066,8 +1878,7 @@
     },
     "links": {
       "about": "O {{siteName}}",
-      "educators": "Pro pedagogy",
-      "jff": "JFF – Institut pro mediální pedagogiku"
+      "educators": "Pro pedagogy"
     },
     "ownGames": {
       "empty": "Zatím žádné hry. Popište výše svůj nápad a vytvořte svou první hru!",
@@ -2080,20 +1891,11 @@
       "plays_other": "{{count}} hraní",
       "title": "Nejoblíbenější"
     },
-    "quickActions": {
-      "createNewGame": "Vytvořit novou hru",
-      "createWorkshop": "Vytvořit workshop",
-      "importGame": "Importovat hru",
-      "inviteMembers": "Pozvat členy",
-      "startNewGame": "Spustit novou hru",
-      "title": "Rychlé akce"
-    },
-    "someone": "někdo",
     "untitled": "Bez názvu",
     "untitledGame": "Nepojmenovaná hra",
     "version": {
       "mismatch": {
-        "message": "Verze frontendu \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e neodpovídá verzi backendu \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. To může způsobit neočekávané chování. Pokud problémy přetrvávají, kontaktujte podporu.",
+        "message": "Verze frontendu \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e neodpovídá verzi backendu \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. To může způsobit neočekávané chování. Pokud problémy přetrvávají, kontaktujte podporu.",
         "title": "Zjištěna nekompatibilita verzí"
       }
     },
@@ -2190,10 +1992,8 @@
     "filters": {
       "all": "Všechny hry",
       "mine": "Moje hry",
-      "public": "Veřejné hry",
-      "workshop": "Workshopové hry"
+      "public": "Veřejné hry"
     },
-    "gameType": "Hra",
     "infoModal": {
       "body": "Přepli jste se do režimu workshopu. V tomto režimu se vše, co děláte – hry, které vytváříte, herní relace i odkazy ke sdílení – váže k tomuto workshopu.\n\nMůžete kdykoli odejít. Odchod neukončí workshop ani neodstraní nic, co jste vytvořili.",
       "dontShowAgain": "Příště nezobrazovat",
@@ -2218,8 +2018,7 @@
     },
     "showInviteLink": "Zobrazit pozvánkový odkaz",
     "showPublicPageLink": "Zobrazit odkaz na veřejnou stránku",
-    "title": "Můj workshop",
-    "you": "Vy"
+    "title": "Můj workshop"
   },
   "navigation": {
     "adminPanel": "Admin panel",
@@ -2268,8 +2067,6 @@
       "observer": "Režie",
       "opening-brief": "Jak začít",
       "outline": "Naplánovat scénu",
-      "portrait": "Nakreslit portrét",
-      "portrait-prompt": "Popsat portrét",
       "props-store": "Stav hry",
       "rephrase": "Přeformulovat akci",
       "rephrase-audio": "Porozumět řeči",
@@ -2491,53 +2288,50 @@
       "recording": "Poslouchám… uvolněním odešlete"
     },
     "wires": {
-      "adapted-style\u001eimage-prompt": "styl",
-      "adapted-style\u001eimage-style": "požadavek",
-      "adapted-style\u001estart-game": "připraveno",
-      "cast\u0003elive-a:voiceA": "hlas",
-      "cast\u0003elive-b:voiceB": "hlas",
-      "cast\u0003estart-game": "připraveno",
-      "cast-brief\u0003ecast": "postavy",
-      "condense-scenario\u001econdensed-scenario": "odpověď",
-      "condensed-scenario\u001econdense-scenario": "požadavek",
-      "condensed-scenario\u001eimage-prompt": "scénář",
-      "condensed-scenario\u001estart-game": "připraveno",
-      "director\u0003elive-a": "vstup",
-      "director\u0003elive-b": "vstup",
-      "gallery-image\u0003estart-game": "připraveno",
-      "greeting\u0003elive-a": "první slova",
-      "greeting\u0003elive-session": "první slova",
-      "greeting\u0003estart-game": "připraveno",
-      "image-prompt\u001eimage": "prompt",
-      "image-style\u001eadapted-style": "odpověď",
-      "live-a\u0003edirector": "přepis",
-      "live-b\u0003edirector": "přepis",
-      "live-session\u001eobserver": "přepis",
-      "observer\u0003elive-session": "vložení",
-      "observer\u001elive-session": "nápověda",
-      "opening-brief\u0003egreeting": "zadání",
-      "outline\u001eexpand": "plán",
-      "outline\u001eimage-prompt": "scéna",
-      "outline\u001eprops-store": "změny",
-      "player-input-audio\u0003elive-a": "řeč",
-      "player-input-audio\u0003elive-b": "řeč",
-      "player-input-audio\u001elive-session": "řeč",
-      "player-input-audio\u001erephrase-audio": "řeč",
-      "player-input-text\u001erephrase": "akce",
-      "portrait\u001estart-game": "připraveno",
-      "portrait-prompt\u001eportrait": "prompt",
-      "props-store\u001eoutline": "stav",
-      "rephrase\u001eoutline": "akce",
-      "rephrase-audio\u001eoutline": "akce",
-      "start-game\u0003elive-a": "pokyn",
-      "start-game\u0003elive-b": "pokyn",
-      "start-game\u001elive-session": "podnět",
-      "start-game\u001eoutline": "prompt",
-      "voice\u0003elive-session:secondary": "styl hlasu",
-      "voice\u0003elive-session:voice": "hlas",
-      "voice\u0003estart-game": "připraveno",
-      "voice-brief\u0003evoice:description": "popis",
-      "voice-brief\u0003evoice:voice": "náhradní hlas"
+      "adapted-style\u003eimage-prompt": "styl",
+      "adapted-style\u003eimage-style": "požadavek",
+      "adapted-style\u003estart-game": "hotovo",
+      "cast-brief\u003ecast": "postavy",
+      "cast\u003elive-a:voiceA": "hlas",
+      "cast\u003elive-b:voiceB": "hlas",
+      "cast\u003estart-game": "hotovo",
+      "condense-scenario\u003econdensed-scenario": "odpověď",
+      "condensed-scenario\u003econdense-scenario": "požadavek",
+      "condensed-scenario\u003eimage-prompt": "scénář",
+      "condensed-scenario\u003estart-game": "hotovo",
+      "director\u003elive-a": "vložení",
+      "director\u003elive-b": "vložení",
+      "gallery-image\u003estart-game": "hotovo",
+      "greeting\u003elive-a": "první slova",
+      "greeting\u003elive-session": "první slova",
+      "greeting\u003estart-game": "hotovo",
+      "image-prompt\u003eimage": "zadání",
+      "image-style\u003eadapted-style": "odpověď",
+      "live-a\u003edirector": "přepis",
+      "live-b\u003edirector": "přepis",
+      "live-session\u003eobserver": "přepis",
+      "observer\u003elive-session": "vložení",
+      "opening-brief\u003egreeting": "pokyny",
+      "outline\u003eexpand": "plán",
+      "outline\u003eimage-prompt": "scéna",
+      "outline\u003eprops-store": "změny",
+      "player-input-audio\u003elive-a": "řeč",
+      "player-input-audio\u003elive-b": "řeč",
+      "player-input-audio\u003elive-session": "řeč",
+      "player-input-audio\u003erephrase-audio": "řeč",
+      "player-input-text\u003erephrase": "akce",
+      "props-store\u003eoutline": "stav",
+      "rephrase-audio\u003eoutline": "akce",
+      "rephrase\u003eoutline": "akce",
+      "start-game\u003elive-a": "startovní signál",
+      "start-game\u003elive-b": "startovní signál",
+      "start-game\u003elive-session": "startovní signál",
+      "start-game\u003eoutline": "zadání",
+      "voice-brief\u003evoice:description": "popis",
+      "voice-brief\u003evoice:voice": "náhradní hlas",
+      "voice\u003elive-session:secondary": "styl hlasu",
+      "voice\u003elive-session:voice": "hlas",
+      "voice\u003estart-game": "hotovo"
     }
   }
 }

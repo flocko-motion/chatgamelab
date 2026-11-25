@@ -1,5 +1,4 @@
 {
-  "_sourceHash": "511c1a97217e633a",
   "auth": {
     "ageGroup": {
       "description": "Dit helpt ons de juiste beschermings- en inhoudsrichtlijnen op je account toe te passen.",
@@ -39,12 +38,6 @@
         "message": "Even geduld, we leiden je door naar de inlogpagina.",
         "title": "Doorsturen naar Auth0..."
       },
-      "role": {
-        "admin": "Inloggen als admin",
-        "guest": "Inloggen als gast",
-        "student": "Inloggen als leerling",
-        "teacher": "Inloggen als docent"
-      },
       "unavailable": {
         "message": "Op deze instantie kun je je niet aanmelden. Gasten in een workshop kunnen in plaats daarvan hun code invoeren.",
         "title": "Aanmelden niet beschikbaar"
@@ -61,6 +54,7 @@
         "introExisting": "Je organisatie ‘{{name}}’ heeft nu een verklaring die online wordt bevestigd. Deze vervangt de gebruikersovereenkomst die je eerder hebt ondertekend. Lees de verklaring en ga er namens je instelling mee akkoord.",
         "introNewVersion": "De verklaring is bijgewerkt (versie {{version}}). Lees de nieuwe versie en ga er namens je organisatie ‘{{name}}’ mee akkoord.",
         "introWithdrawn": "De toestemming van jullie organisatie “{{name}}” voor de verklaring is ingetrokken. Daarom is de organisatie opgeschort. Lees de verklaring en stem namens jullie instelling in om {{siteName}} weer te gebruiken.",
+        "later": "Later",
         "logout": "Uitloggen",
         "oneHeadIsEnough": "Het is voldoende als één leidinggevende van de organisatie instemt. Tot die tijd is jullie organisatie opgeschort: leden kunnen {{siteName}} niet gebruiken.",
         "submit": "Akkoord",
@@ -123,23 +117,8 @@
         "tooLong": "Maximaal {{max}} tekens. Maak de tekst korter of kies een suggestie."
       }
     },
-    "participant": {
-      "leaveConfirm": {
-        "confirm": "Workshop verlaten",
-        "message": "Weet je zeker dat je deze workshop wilt verlaten? Je hebt een nieuwe uitnodigingslink nodig om opnieuw deel te nemen.",
-        "title": "Workshop verlaten?"
-      },
-      "leaveWorkshop": "Workshop verlaten",
-      "organization": "Organisatie",
-      "role": "Workshopdeelnemer",
-      "workshop": "Workshop"
-    },
     "profile": {
-      "ageGroup": "Leeftijdsgroep",
-      "ageGroupDescription": "Bepaalt welke inhoudsrichtlijnen op je games van toepassing zijn. Je kunt dit op elk moment wijzigen.",
       "ageGroupSection": "Leeftijds- en beschermingsgroep",
-      "ageGroupU13": "13-17 jaar",
-      "ageGroupU18": "18+",
       "gamesCreated": "Gemaakte games",
       "gamesPlayed": "Gespeelde spellen",
       "guestCode": {
@@ -154,19 +133,12 @@
       "noRole": "Geen rol toegewezen",
       "organization": "Organisatie",
       "organizationSection": "Organisatie \u0026 rol",
-      "participantCode": {
-        "error": "Je toegangscode kon niet worden geladen.",
-        "hint": "Maak een foto van deze code of schrijf hem op en houd hem voor jezelf. Zo krijg je op elk moment en op elk apparaat weer toegang tot je account: voer de woorden onder ‘Code invoeren’ op de startpagina in of scan de QR-code.",
-        "longTokenHint": "Maak een foto van de QR-code of bewaar de link en houd hem voor jezelf. Zo krijg je op elk moment weer toegang tot je account. De workshopbegeleider kan je een korte code van vier woorden geven door je toegang opnieuw in te stellen.",
-        "title": "Je toegangscode"
-      },
       "role": "Rol",
       "roles": {
         "admin": "Beheerder",
         "guest": "Gast",
         "head": "Hoofd van de organisatie",
         "individual": "Individu",
-        "participant": "Deelnemer",
         "staff": "Workshopleider"
       },
       "statisticsSection": "Statistieken",
@@ -175,12 +147,6 @@
       "workshopSection": "Workshop \u0026 organisatie"
     },
     "register": {
-      "ageGroupLabel": "Leeftijdsgroep",
-      "ageGroupRequired": "Selecteer je leeftijdsgroep",
-      "ageGroupU13": "13-17 jaar oud",
-      "ageGroupU18": "18 jaar of ouder",
-      "ageGroupUnder13": "Jonger dan 13",
-      "ageGroupUnder13Error": "Je moet minstens 13 jaar oud zijn om ChatGameLab te gebruiken.",
       "cancelButton": "Annuleren",
       "emailDescription": "Optioneel. We gebruiken dit voor belangrijke meldingen.",
       "emailLabel": "E-mailadres",
@@ -211,25 +177,6 @@
       "continueButton": "Doorgaan naar registratie",
       "description": "We gebruiken Auth0 als onze authenticatieprovider om gebruikersaccounts te beheren. Je wordt doorgestuurd naar Auth0 om je account aan te maken en vervolgens hierheen teruggestuurd om je profiel te voltooien.",
       "educatorDescription": "Gebruik {{siteName}} in workshops, in de klas of binnen je organisatie",
-      "educatorModal": {
-        "closeButton": "Sluiten",
-        "copied": "Gekopieerd!",
-        "copyEmail": "E-mail kopiëren",
-        "eduInfo": "Lees meer over het gebruik van ChatGameLab voor onderwijsdoeleinden:",
-        "intro": "Om ChatGameLab met je organisatie (school, universiteit, instelling) te gebruiken, volg je deze stappen:",
-        "registerButton": "Persoonlijk account aanmaken",
-        "step1": "1. Maak een persoonlijk account aan",
-        "step1Description": "Maak eerst je persoonlijke account aan. Dit wordt je login voor het platform.",
-        "step2": "2. Stuur ons een e-mail",
-        "step2Description": "Schrijf een e-mail naar",
-        "step2Item1": "Je geregistreerde e-mailadres",
-        "step2Item2": "De naam van je organisatie (school, instelling, enz.)",
-        "step2WithInfo": "met:",
-        "step3": "3. Wij richten je organisatie in",
-        "step3Description": "We maken je organisatie aan en wijzen jou aan als hoofd. Daarna kun je collega’s uitnodigen en workshops opzetten.",
-        "title": "Toegang voor docenten \u0026 professionals"
-      },
-      "educatorTitle": "Docent / Professional",
       "individualDescription": "Creëer en speel door AI aangestuurde tekstavonturen",
       "individualTitle": "Persoonlijk account",
       "loginLink": "Inloggen",
@@ -245,11 +192,6 @@
     },
     "settings": {
       "accountSection": "Account",
-      "ageGroupDescription": "Bepaalt welke inhoudsrichtlijnen op je games van toepassing zijn.",
-      "ageGroupLabel": "Leeftijdsgroep",
-      "ageGroupU13": "13-17 jaar",
-      "ageGroupU18": "18 jaar of ouder",
-      "emailChangeNote": "Neem contact op met de sitebeheerder om je e-mailadres te wijzigen.",
       "emailDescription": "Optioneel. Organisaties nodigen je hiermee uit; geen ander account mag het gebruiken.",
       "emailLabel": "E-mail",
       "emailPlaceholder": "jij@voorbeeld.org",
@@ -288,9 +230,7 @@
           "title": "Uitnodiging verwijderen"
         },
         "role": "Rol",
-        "searchPlaceholder": "Zoek op e-mail, rol, status of organisatie...",
         "sort": {
-          "label": "Sorteren op",
           "modifiedAt-asc": "Gewijzigd (oudste eerst)",
           "modifiedAt-desc": "Gewijzigd (nieuwste eerst)",
           "organization-asc": "Organisatie (A-Z)",
@@ -347,7 +287,6 @@
         "postalCode": "Postcode",
         "removeMember": "Lid verwijderen",
         "removeMemberConfirm": "Weet je zeker dat je {{name}} uit deze organisatie wilt verwijderen?",
-        "searchPlaceholder": "Zoek organisaties...",
         "sendInvite": "Uitnodiging versturen",
         "status": "Status en instemming",
         "statusActive": "Actief",
@@ -364,16 +303,6 @@
         "title": "Organisaties beheren"
       },
       "registrations": {
-        "bell": {
-          "empty": "In de afgelopen twee weken heeft geen enkele organisatie zich geregistreerd.",
-          "intro_one": "Deze organisatie heeft zich in de afgelopen twee weken geregistreerd en is al geactiveerd.",
-          "intro_other": "Deze {{count}} organisaties hebben zich in de afgelopen twee weken geregistreerd en zijn al geactiveerd.",
-          "label": "Nieuwe organisaties",
-          "later": "Later",
-          "open": "Naar overzicht",
-          "suspendHint": "E-mailadressen zijn momenteel niet bevestigd. Bekijk nieuwe organisaties kort en schort ze in het overzicht op als er iets niet klopt.",
-          "title": "Nieuwe organisaties"
-        },
         "date": "Geregistreerd",
         "description": "Organisaties die zich in de afgelopen twee weken zelf hebben geregistreerd. Ze zijn direct actief, zonder bevestiging van het e-mailadres; bekijk ze en schort een organisatie op als er iets niet klopt.",
         "empty": "In de afgelopen twee weken heeft geen enkele organisatie zich zelf geregistreerd.",
@@ -396,8 +325,6 @@
           "all": "Alle gebruikers",
           "noGuests": "Zonder gasten"
         },
-        "hideGuests": "Gasten verbergen ({{count}})",
-        "hideGuestsShort": "Gasten ({{count}})",
         "joined": "Toegetreden",
         "loadError": "Gebruikers laden mislukt",
         "makeAdmin": "Admin maken",
@@ -415,8 +342,6 @@
         "removeAdminTitle": "Adminrol verwijderen",
         "removeAdminWarning": "Deze gebruiker verliest alle beheerdersrechten.",
         "role": "Rol",
-        "searchPlaceholder": "Zoek op naam, e-mail, rol of organisatie...",
-        "showing": "{{count}} van {{total}} gebruikers",
         "signUpInProgress": "Registratie wordt uitgevoerd",
         "signingUp": "Bezig met registreren",
         "sort": {
@@ -424,7 +349,6 @@
           "email-desc": "E-mail (Z-A)",
           "joined-asc": "Toegetreden (oudste eerst)",
           "joined-desc": "Toegetreden (nieuwste eerst)",
-          "label": "Sorteren op",
           "name-asc": "Naam (A-Z)",
           "name-desc": "Naam (Z-A)",
           "organization-asc": "Organisatie (A-Z)",
@@ -458,7 +382,6 @@
       "high": "Hoog",
       "label": "AI-kwaliteitsniveau",
       "low": "Zuinig",
-      "max": "Max (Premium + audio)",
       "medium": "Gebalanceerd",
       "newSessionsOnly": "Deze klasse is alleen van toepassing op nieuwe sessies. Bestaande sessies behouden de klasse waarmee ze zijn gestart.",
       "serverDefault": "Serverstandaard"
@@ -470,7 +393,6 @@
         "message": "Dit maakt een kopie van \"{{name}}\" in jouw games.",
         "title": "Game kopiëren"
       },
-      "copyGame": "Game kopiëren",
       "empty": {
         "conditions": {
           "favorites": "een van je favorieten",
@@ -581,8 +503,6 @@
         "toggle": "Shares \u0026 sponsoring",
         "unknownGame": "Onbekende game",
         "unknownOrg": "Onbekende organisatie",
-        "unknownUser": "Onbekende gebruiker",
-        "unknownWorkshop": "Onbekende workshop",
         "unlimited": "Onbeperkt aantal keer"
       },
       "sort": {
@@ -639,24 +559,9 @@
     },
     "error": "Fout",
     "footer": {
-      "copyright": "JFF - Institut für Medienpädagogik",
-      "jffTitle": "JFF - Institut für Medienpädagogik",
       "programmedBy": "Geprogrammeerd door"
     },
-    "gamePlayer": {
-      "rebuilding": {
-        "description": "Je kunt hier binnenkort weer spelen.",
-        "title": "De spelweergave wordt opnieuw gebouwd"
-      }
-    },
     "games": {
-      "actions": {
-        "delete": "Verwijderen",
-        "edit": "Bewerken",
-        "export": "Exporteren",
-        "play": "Spelen",
-        "view": "Bekijken"
-      },
       "badges": {
         "myGame": "Mijn game",
         "public": "Openbaar",
@@ -686,7 +591,6 @@
         "namePlaceholder": "bijv. Ruimteavontuur",
         "publicDescription": "Openbare games zijn zichtbaar en speelbaar voor alle gebruikers op dit platform.",
         "publicLabel": "Maak deze game openbaar",
-        "publicOwnerOnly": "Alleen de maker van het spel kan een spel openbaar maken.",
         "submit": "Game aanmaken",
         "title": "Nieuwe game maken"
       },
@@ -915,8 +819,7 @@
           "status": {
             "builtIn": "Nog geen beschrijving: het spel spreekt met een ingebouwde stem totdat je de stem beschrijft.",
             "cast": "Bij de start kiest het spel de ingebouwde stem van het gekozen type die het beste bij het verhaal past. De beschrijving bepaalt hoe de stem spreekt.",
-            "ownVoice": "Een eigen stem voor deze beschrijving, gemaakt met jouw AI-sleutel.",
-            "steered": "Een ingebouwde stem leest het verhaal voor, zoals de beschrijving aangeeft."
+            "ownVoice": "Een eigen stem voor deze beschrijving, gemaakt met jouw AI-sleutel."
           },
           "stop": "Voorbeeld stoppen"
         },
@@ -957,10 +860,6 @@
         "titleView": "Spel",
         "untitled": "Spel zonder titel"
       },
-      "empty": {
-        "description": "Maak je eerste game om te beginnen met interactieve AI-avonturen.",
-        "title": "Nog geen games"
-      },
       "errors": {
         "loadFailed": "Games laden mislukt. Probeer het opnieuw.",
         "nameRequired": "Gamenaam is verplicht",
@@ -975,7 +874,6 @@
       "fields": {
         "created": "Aangemaakt",
         "creator": "Maker",
-        "me": "Ik",
         "modified": "Gewijzigd",
         "name": "Naam",
         "playCount": "Speelbeurten",
@@ -984,9 +882,7 @@
       "genres": {
         "adventure": "Avontuur",
         "discussion": "Discussie",
-        "npc": "Personage",
-        "npc-duo": "Discussie",
-        "npc-live": "Personage"
+        "npc": "Personage"
       },
       "importExport": {
         "coverFailed": "Het spel is geïmporteerd, maar de omslag kon niet worden gecontroleerd. Je kunt in de editor een nieuwe laten tekenen.",
@@ -1002,7 +898,6 @@
         "importButton": "Game importeren"
       },
       "newGame": "Nieuw spel",
-      "playNow": "Nu spelen",
       "privacyHint": "De naam en beschrijving van een spel kunnen openbaar zichtbaar worden. Gebruik daarom geen echte namen.",
       "privacyHintShort": "Kan openbaar zichtbaar worden – gebruik geen echte namen.",
       "privateShare": {
@@ -1050,12 +945,10 @@
         "active": "Actief",
         "privateShareLink": "Privé-deellink",
         "privateShareLinkDescription": "Privé-deellinks kunnen met anderen worden gedeeld. Iedereen met de link kan het spel anoniem spelen zonder account. Er moet een API-sleutel worden geselecteerd om de kosten te dekken.",
-        "publicGameWorkshopHint": "Dit is een openbaar spel en maakt geen deel uit van je workshop. Deelopties zijn niet beschikbaar voor openbare games in workshopmodus.",
         "publicSponsoring": "Openbare sponsoring",
         "publicSponsoringDescription": "Alle gebruikers op het platform kunnen dit spel gratis spelen - jouw toegewezen API-sleutel betaalt de kosten.",
         "sectionTitle": "Deelopties",
-        "sectionTitleShareOnly": "Deelopties",
-        "workshopShareRequiresPublic": "Dit spel moet openbaar zijn voordat het in de workshop kan worden gedeeld."
+        "sectionTitleShareOnly": "Deelopties"
       },
       "sort": {
         "createdAt-asc": "Aangemaakt (oudste eerst)",
@@ -1165,7 +1058,6 @@
           "zombie": "Zombie"
         }
       },
-      "title": "Mijn gemaakte games",
       "viewModal": {
         "readOnlyNotice": "Deze game is gemaakt door een andere gebruiker. Je kunt de details bekijken maar niet bewerken. Gebruik \"Kopiëren\" om je eigen bewerkbare versie te maken.",
         "title": "Gamedetails"
@@ -1193,25 +1085,6 @@
     "help": "Help",
     "home": {
       "codeCta": "Code invoeren",
-      "features": {
-        "create": {
-          "description": "Ontwerp interactieve tekstavonturen met AI",
-          "title": "Avonturen creëren"
-        },
-        "learn": {
-          "description": "Perfect voor onderwijsworkshops en klasactiviteiten",
-          "title": "Leren \u0026 lesgeven"
-        },
-        "play": {
-          "description": "Doe mee met vrienden in gezamenlijke verhalen",
-          "title": "Samen spelen"
-        },
-        "title": "Waarom ChatGameLab?",
-        "understand": {
-          "description": "Ontdek hoe AI-modellen verhalen maken en leer hoe ze werken",
-          "title": "Begrijp AI"
-        }
-      },
       "loginCta": "Inloggen en ontdekken",
       "splashDescription": "Een educatief platform voor het maken en spelen van AI-gestuurde tekstavonturen. Perfect voor docenten, leerlingen en creatieve vertellers."
     },
@@ -1248,19 +1121,9 @@
       "guest": {
         "loggingIn": "Je wordt aangemeld..."
       },
-      "participant": {
-        "loggingIn": "Je wordt ingelogd..."
-      },
       "success": {
         "message": "Je bent succesvol lid geworden van de workshop. Bezig met doorsturen...",
         "title": "Welkom!"
-      },
-      "switchWorkshop": {
-        "message": "Je games en voortgang in de huidige workshop blijven behouden, maar je kunt ze niet openen tot je terugkeert.",
-        "stayButton": "Blijven in huidige workshop",
-        "switchButton": "Workshop wisselen",
-        "title": "Workshop wisselen?",
-        "warning": "Je zit momenteel in workshop \"{{currentWorkshop}}\". Als je \"{{newWorkshop}}\" joint, verlaat je je huidige workshop."
       }
     },
     "labels": {
@@ -1295,31 +1158,25 @@
     "logout": "Uitloggen",
     "me": "Ik",
     "myGames": {
-      "continue": "Spelen",
       "copyConfirm": {
         "confirm": "Game kopiëren",
         "message": "Dit maakt een kopie van \"{{name}}\" in jouw games.",
         "title": "Game kopiëren"
       },
-      "copyGame": "Game kopiëren",
       "empty": {
         "description": "Maak je eerste game om te beginnen met interactieve AI-avonturen.",
         "title": "Nog geen games"
       },
-      "favorite": "Toevoegen aan favorieten",
       "filters": {
         "all": "Alle",
         "favorites": "Favorieten"
       },
-      "play": "Spelen",
-      "restart": "Opnieuw starten",
       "restartConfirm": {
         "confirm": "Opnieuw starten",
         "message": "Weet je zeker dat je \"{{game}}\" opnieuw wilt starten? Je huidige voortgang gaat verloren.",
         "title": "Spel opnieuw starten"
       },
-      "title": "Mijn games",
-      "unfavorite": "Verwijderen uit favorieten"
+      "title": "Mijn games"
     },
     "myOrganization": {
       "actions": "Acties",
@@ -1331,7 +1188,6 @@
         "allPlatforms": "Alle platforms",
         "allowPublicSponsoring": "Publieke sponsoring toestaan",
         "allowPublicSponsoringDesc": "Deze sleutel kan worden gebruikt om games voor alle gebruikers te sponsoren.",
-        "filterByPlatform": "Filter op platform",
         "freeUseKey": {
           "description": "Stel een free-use sleutel in zodat alle organisatiemedewerkers games kunnen spelen zonder zelf een API-sleutel nodig te hebben.",
           "remove": "Verwijderen",
@@ -1351,13 +1207,10 @@
         "platform": "Platform",
         "publicSponsoring": "Publieke sponsoring",
         "removeShare": "Uit organisatie verwijderen",
-        "searchPlaceholder": "Zoek op naam of eigenaar...",
         "selectKey": "API-sleutel selecteren",
         "selectKeyPlaceholder": "Kies een sleutel om te delen...",
         "share": "Delen",
-        "shareKey": "Sleutel delen",
         "shareKeyTitle": "Een API-sleutel aan de organisatie toevoegen",
-        "showDetails": "Details weergeven",
         "title": "Organisatie-API-sleutels"
       },
       "autoShare": {
@@ -1367,7 +1220,10 @@
         "personalKeyGroup": "Persoonlijke sleutels"
       },
       "declaration": {
+        "agree": "Lezen en instemmen",
         "consented": "Je organisatie heeft op {{date}} ingestemd met versie {{version}}.",
+        "goAgree": "Naar de organisatie",
+        "newVersion": "Er is een nieuwe versie {{version}} van de verklaring van instemming. Jullie organisatie blijft actief; lees de verklaring en stem namens de organisatie in.",
         "title": "Verklaring van instemming",
         "withdraw": "Instemming intrekken",
         "withdrawConfirm": "Zonder toestemming is jullie organisatie opgeschort: geen enkel lid kan {{siteName}} gebruiken totdat een leidinggevende opnieuw instemt. De gegevens blijven bewaard.",
@@ -1385,9 +1241,6 @@
       "inviteTeacher": "Docent uitnodigen",
       "inviteTeacherDescription": "Stuur een uitnodiging naar een docent om je organisatie te joinen.",
       "inviteTeacherTitle": "Docent uitnodigen",
-      "inviteUser": "Gebruiker uitnodigen",
-      "inviteUserDescription": "Stuur een uitnodiging naar een gebruiker om je organisatie te joinen zonder specifieke rol.",
-      "inviteUserTitle": "Gebruiker uitnodigen",
       "lastHeadError": "Je bent het laatste hoofd van deze organisatie. Neem contact op met de sitebeheerders als je wilt vertrekken.",
       "leaveConfirm": "Weet je zeker dat je \"{{name}}\" wilt verlaten?",
       "leaveError": "Organisatie verlaten mislukt. Probeer het opnieuw.",
@@ -1454,7 +1307,6 @@
       "removeTitle": "Lid verwijderen",
       "removeWarning": "Deze gebruiker verliest toegang tot de organisatie.",
       "role": "Rol",
-      "searchPlaceholder": "Zoek leden...",
       "showing": "{{count}} leden",
       "sort": {
         "label": "Sorteren op",
@@ -1492,20 +1344,12 @@
         "active": "Actief",
         "activeDescription": "Actieve workshops laten deelnemers meedoen en games maken.",
         "activeLabel": "Actief",
-        "addIndividual": "Organisatielid toevoegen",
         "addIndividualError": "Het toevoegen van het lid aan de workshop is mislukt.",
-        "addIndividualHint": "Een gebruiker toevoegen zet hen automatisch in workshopmodus. Ze zien dan de workshopweergave in plaats van hun normale dashboard. Doe dit alleen als dat de bedoeling is.",
-        "addIndividualStaffNote": "Hoofden en docenten moeten zelf via de workshoplijst workshops joinen - zij worden hier niet vermeld.",
-        "addIndividualSuccess": "Lid toegevoegd",
-        "addIndividualSuccessMessage": "{{name}} is aan de workshop toegevoegd.",
-        "addIndividualTitle": "Individu toevoegen aan workshop",
         "addToWorkshop": "Aan workshop toevoegen",
         "aiQualityTierHint": "Kwaliteitsniveau voor AI-antwoorden. Hogere niveaus kosten meer maar kunnen betere kwaliteit hebben. Leeg gebruikt serverstandaard.",
         "allowGameSharing": "Delen van games toestaan",
         "allowGameSharingHint": "Wanneer ingeschakeld, kunnen deelnemers deellinks voor hun games maken met gebruik van de API-sleutel van de workshop",
-        "anonymousParticipant": "Anonieme deelnemer",
         "create": "Workshop aanmaken",
-        "createFirst": "Maak je eerste workshop",
         "createInviteLink": "Uitnodigingslink maken",
         "createTitle": "Workshop aanmaken",
         "deactivate": "Deactiveren",
@@ -1528,10 +1372,8 @@
         "inviteByEmailSuccessMessage": "Er is een uitnodiging aangemaakt. De gebruiker ziet deze bij zijn of haar openstaande uitnodigingen.",
         "inviteByEmailTitle": "Gebruiker uitnodigen voor workshop",
         "inviteCreatedAt": "Aangemaakt",
-        "inviteDescription": "Genereer een uitnodigingslink waarmee deelnemers deze workshop kunnen joinen.",
         "inviteExpiresAt": "Verloopt",
         "inviteLink": "Uitnodigingslink",
-        "inviteLinkDescription": "Deel deze link met deelnemers zodat ze de workshop kunnen joinen.",
         "inviteLinkTitle": "Uitnodigingslink voor deelnemers – {{name}}",
         "inviteUsage": "Gebruik",
         "isPaused": "Workshop pauzeren",
@@ -1547,14 +1389,11 @@
         "noDefaultModel": "Platformstandaard gebruiken",
         "noGuestToken": "Dit lid heeft geen link om opnieuw aan te melden. Alleen gasten hebben zo’n link.",
         "noIndividuals": "Geen individuele gebruikers in deze organisatie.",
-        "noParticipantToken": "Deze deelnemer heeft geen uitnodigingslink. Alleen anonieme deelnemers (gasten) hebben herbruikbare uitnodigingslinks.",
         "noParticipants": "Nog geen deelnemers",
         "noResults": "Geen workshops komen overeen met je zoekopdracht of filter.",
         "notAuthorized": "Je hebt geen toestemming om workshops te beheren. Alleen hoofden en docenten hebben toegang.",
         "participantGames": "{{count}} games",
         "participantJoined": "Toegetreden {{date}}",
-        "participantLinkTitle": "Link om opnieuw in te loggen",
-        "participantLinkTitleNamed": "Link om opnieuw in te loggen voor {{name}}",
         "participantName": "Deelnemersnaam",
         "participants": "Deelnemers",
         "promptConstraintsFallbackOrg": "De jeugd­beschermingsregel van de organisatie wordt als standaard gebruikt: {{constraint}}",
@@ -1578,7 +1417,6 @@
         "selectApiKey": "Selecteer een API-sleutel",
         "settings": "Instellingen",
         "shareGuestLink": "Link om opnieuw aan te melden weergeven",
-        "shareParticipantLink": "Link om opnieuw in te loggen tonen",
         "showOtherParticipantsGames": "Games van andere deelnemers tonen",
         "showOtherParticipantsGamesHint": "Hoofd en staf kunnen altijd alle games van deelnemers zien voor moderatie",
         "showPublicGames": "Openbare games tonen aan deelnemers",
@@ -1612,7 +1450,6 @@
       "decline": "Afwijzen",
       "declineConfirm": "Weet je zeker dat je deze uitnodiging wilt afwijzen?",
       "declineTitle": "Uitnodiging afwijzen",
-      "empty": "Geen nieuwe meldingen.",
       "inviteDescription": "Je bent uitgenodigd om mee te doen als {{role}}.",
       "inviteToJoin": "Organisatie-uitnodiging",
       "nothingNew": "Niets nieuws",
@@ -1761,6 +1598,7 @@
           "educatorInfoUrl": "Informatie voor docenten",
           "gameTipsUrl": "Tips voor het maken van spellen",
           "helpUrl": "Help",
+          "operatorLegalName": "Juridische naam van de exploitant (voor juridische teksten)",
           "operatorName": "Beheerder",
           "operatorUrl": "Website van de beheerder",
           "privacyUrl": "Privacybeleid",
@@ -1787,13 +1625,10 @@
         "title": "Jeugd­beschermingsregels per leeftijdsgroep",
         "u13Hint": "Toegevoegd aan elke AI-prompt voor aangemelde gebruikers van 13-17 jaar zonder geregistreerde ouderlijke toestemming.",
         "u13Label": "Jeugd­beschermingsregel voor gebruikers van 13–17 jaar, zonder ouderlijke toestemming (U13)",
-        "u13Placeholder": "bijv. Zorg dat alle inhoud strikt geschikt blijft voor tieners. Geen geweld, geen romantische inhoud, geen horrorthema’s.",
         "u13pHint": "Toegevoegd aan elke AI-prompt voor aangemelde gebruikers van 13-17 jaar met geregistreerde ouderlijke toestemming.",
         "u13pLabel": "Jeugd­beschermingsregel voor gebruikers van 13–17 jaar, met ouderlijke toestemming (U13p)",
-        "u13pPlaceholder": "bijv. Leeftijdsgeschikte inhoud voor tieners waarvan de ouders toestemming hebben gegeven. Sommige volwassen thema's toegestaan, geen expliciete inhoud.",
         "u18Hint": "Geïnjecteerd in elke AI-prompt voor ingelogde gebruikers van 18 jaar en ouder.",
-        "u18Label": "Jeugd­beschermingsregel voor gebruikers van 18 jaar en ouder (U18)",
-        "u18Placeholder": "bijv. Houd de inhoud gepast. Vermijd expliciet geweld of seksuele inhoud."
+        "u18Label": "Jeugd­beschermingsregel voor gebruikers van 18 jaar en ouder (U18)"
       },
       "defaultTier": {
         "description": "Serverbrede terugvaloptie wanneer geen specifiek niveau is ingesteld op workshop-, instituut- of gebruikersniveau. Hogere niveaus kosten meer maar kunnen betere kwaliteit hebben.",
@@ -1814,6 +1649,26 @@
       "freeUseTier": {
         "description": "Kwaliteitsniveau wanneer de gratis API-sleutel actief is. Hogere niveaus kosten meer maar kunnen betere kwaliteit hebben. Laat leeg om het standaardniveau te gebruiken.",
         "title": "Gratis AI-kwaliteitsniveau"
+      },
+      "mail": {
+        "clearPassword": "Wachtwoord verwijderen",
+        "consentCopy": "Kopieën van instemmingen naar",
+        "consentCopyHint": "Ontvangt een kopie van de instemming van elke organisatie. Leeg: het e-mailadres voor ondersteuning.",
+        "description": "De server waarlangs {{siteName}} e-mails verstuurt, zoals de bevestiging van de instemming van een organisatie. Zonder server worden e-mails alleen in het logboek geschreven.",
+        "from": "Afzender",
+        "fromHint": "Leeg: de gebruikersnaam is de afzender.",
+        "fromPlaceholder": "Naam \u003cnoreply@example.org\u003e",
+        "host": "Server",
+        "hostHint": "Alleen de hostnaam, zonder poort. Leeg: e-mails worden alleen gelogd.",
+        "password": "Wachtwoord",
+        "passwordNone": "Geen wachtwoord ingesteld.",
+        "passwordSet": "Er is een wachtwoord ingesteld. Laat leeg om het te behouden.",
+        "port": "Poort",
+        "portHint": "587 met STARTTLS, 465 met TLS.",
+        "save": "Opslaan",
+        "saveFailed": "Opslaan is niet gelukt. Controleer de velden.",
+        "title": "Mailserver",
+        "user": "Gebruikersnaam"
       },
       "models": {
         "assign": {
@@ -1929,6 +1784,7 @@
         "ai": "AI en sleutels",
         "branding": "Vormgeving",
         "general": "Algemeen",
+        "mail": "E-mail",
         "models": "AI-modellen",
         "youthProtection": "Jeugdbescherming"
       },
@@ -1994,49 +1850,6 @@
     }
   },
   "dashboard": {
-    "cards": {
-      "externalLinks": {
-        "edu": {
-          "description": "Mediapedagogisch werk met ChatGameLab",
-          "title": "Over ChatGameLab"
-        },
-        "jff": {
-          "description": "Projectcoördinator en leidende organisatie.",
-          "title": "JFF – Institut für Medienpädagogik"
-        },
-        "mainSite": {
-          "description": "Lees meer over het onderwijsproject achter dit platform.",
-          "title": "ChatGameLab-project"
-        },
-        "title": "Over ChatGameLab"
-      },
-      "lastPlayed": {
-        "empty": "Nog geen speelgeschiedenis. Begin met het spelen van een spel!",
-        "title": "Laatst gespeeld",
-        "viewAll": "Alle spellen"
-      },
-      "myGames": {
-        "empty": "Nog geen games. Maak je eerste game!",
-        "title": "Mijn games",
-        "viewAll": "Alle creaties"
-      },
-      "myWorkshops": {
-        "empty": "Geen actieve workshops. Maak een workshop in je organisatie!",
-        "title": "Mijn workshops",
-        "viewAll": "Alle workshops"
-      },
-      "newGames": {
-        "empty": "Nog geen games beschikbaar.",
-        "title": "Nieuwe games",
-        "viewAll": "Alle games"
-      },
-      "popularGames": {
-        "empty": "Nog geen games beschikbaar.",
-        "plays": "{{count}} keer gespeeld",
-        "title": "Populaire games",
-        "viewAll": "Alle games"
-      }
-    },
     "continue": {
       "go": "Doorgaan",
       "hint": "ga verder waar je gebleven was",
@@ -2045,15 +1858,14 @@
       "title": "Spel hervatten"
     },
     "fresh": {
-      "by": "door {{name}}",
       "empty": "Nog geen nieuwe spellen.",
       "title": "Nieuwe spellen",
       "viewAll": "Galerij bekijken"
     },
     "hero": {
       "create": "Maken",
-      "greeting": "Hoi {{name}}. Wat zullen we vandaag \u0003cmark\u0003bouwen\u0003c/mark\u0003?",
-      "greetingNoName": "Hoi. Wat zullen we vandaag \u0003cmark\u0003bouwen\u0003c/mark\u0003?",
+      "greeting": "Hoi {{name}}. Wat zullen we vandaag \u003cmark\u003ebouwen\u003c/mark\u003e?",
+      "greetingNoName": "Hoi. Wat zullen we vandaag \u003cmark\u003ebouwen\u003c/mark\u003e?",
       "journal": "Labjournaal · {{date}}",
       "promptLabel": "Beschrijf een spelidee",
       "promptPlaceholder": "Beschrijf een spelidee… de AI helpt je het uit te werken"
@@ -2066,8 +1878,7 @@
     },
     "links": {
       "about": "Over {{siteName}}",
-      "educators": "Voor onderwijzers",
-      "jff": "JFF – Institut für Medienpädagogik"
+      "educators": "Voor onderwijzers"
     },
     "ownGames": {
       "empty": "Nog geen spellen. Beschrijf hierboven een idee en maak je eerste spel!",
@@ -2080,15 +1891,6 @@
       "plays_other": "{{count}} keer gespeeld",
       "title": "Populairst"
     },
-    "quickActions": {
-      "createNewGame": "Nieuwe game maken",
-      "createWorkshop": "Workshop maken",
-      "importGame": "Game importeren",
-      "inviteMembers": "Leden uitnodigen",
-      "startNewGame": "Nieuwe game starten",
-      "title": "Snelle acties"
-    },
-    "someone": "iemand",
     "untitled": "Naamloos",
     "untitledGame": "Naamloos spel",
     "version": {
@@ -2190,10 +1992,8 @@
     "filters": {
       "all": "Alle games",
       "mine": "Mijn games",
-      "public": "Openbare games",
-      "workshop": "Workshopgames"
+      "public": "Openbare games"
     },
-    "gameType": "Game",
     "infoModal": {
       "body": "Je bent de workshopmodus binnengegaan. In deze modus is alles wat je doet gekoppeld aan deze workshop - games die je maakt, speelsessies en deellinks.\n\nJe kunt op elk moment vertrekken. Weggaan beëindigt de workshop niet en verwijdert niets wat je hebt gemaakt.",
       "dontShowAgain": "Niet opnieuw tonen",
@@ -2218,8 +2018,7 @@
     },
     "showInviteLink": "Uitnodigingslink tonen",
     "showPublicPageLink": "Link naar openbare pagina tonen",
-    "title": "Mijn workshop",
-    "you": "Jij"
+    "title": "Mijn workshop"
   },
   "navigation": {
     "adminPanel": "Beheerpaneel",
@@ -2268,8 +2067,6 @@
       "observer": "Regie",
       "opening-brief": "Hoe het begint",
       "outline": "Scène plannen",
-      "portrait": "Portret tekenen",
-      "portrait-prompt": "Portret beschrijven",
       "props-store": "Spelstatus",
       "rephrase": "Actie herformuleren",
       "rephrase-audio": "Spraak begrijpen",
@@ -2491,53 +2288,50 @@
       "recording": "Luisteren… loslaten om te verzenden"
     },
     "wires": {
-      "adapted-style\u0003eimage-prompt": "stijl",
-      "adapted-style\u0003eimage-style": "verzoek",
-      "adapted-style\u0003estart-game": "klaar",
-      "cast\u0003live-a:voiceA": "stem",
-      "cast\u0003live-b:voiceB": "stem",
-      "cast\u0003start-game": "klaar",
-      "cast-brief\u0003cast": "personages",
-      "condense-scenario\u0003econdensed-scenario": "antwoord",
-      "condensed-scenario\u0003econdense-scenario": "verzoek",
-      "condensed-scenario\u0003eimage-prompt": "scenario",
-      "condensed-scenario\u0003estart-game": "klaar",
-      "director\u0003live-a": "inworp",
-      "director\u0003live-b": "inworp",
-      "gallery-image\u00003estart-game": "klaar",
-      "greeting\u00003elive-session": "eerste woorden",
-      "greeting\u00003estart-game": "klaar",
-      "greeting\u0003live-a": "eerste woorden",
-      "image-prompt\u0003eimage": "prompt",
-      "image-style\u0003eadapted-style": "antwoord",
-      "live-a\u0003director": "transcript",
-      "live-b\u0003director": "transcript",
-      "live-session\u0003eobserver": "transcript",
-      "observer\u00003elive-session": "invoeging",
-      "observer\u0003elive-session": "hint",
-      "opening-brief\u00003egreeting": "instructie",
-      "outline\u0003eexpand": "plan",
-      "outline\u0003eimage-prompt": "scène",
-      "outline\u0003eprops-store": "wijzigingen",
-      "player-input-audio\u0003elive-session": "spraak",
-      "player-input-audio\u0003erephrase-audio": "spraak",
-      "player-input-audio\u0003live-a": "spraak",
-      "player-input-audio\u0003live-b": "spraak",
-      "player-input-text\u0003erephrase": "actie",
-      "portrait\u0003estart-game": "klaar",
-      "portrait-prompt\u0003eportrait": "prompt",
-      "props-store\u0003eoutline": "status",
-      "rephrase\u0003eoutline": "actie",
-      "rephrase-audio\u0003eoutline": "actie",
-      "start-game\u0003elive-session": "aanwijzing",
-      "start-game\u0003eoutline": "prompt",
-      "start-game\u0003live-a": "startsein",
-      "start-game\u0003live-b": "startsein",
-      "voice\u00003elive-session:secondary": "stemstijl",
-      "voice\u00003elive-session:voice": "stem",
-      "voice\u00003estart-game": "klaar",
-      "voice-brief\u00003evoice:description": "beschrijving",
-      "voice-brief\u00003evoice:voice": "reserve-stem"
+      "adapted-style\u003eimage-prompt": "stijl",
+      "adapted-style\u003eimage-style": "verzoek",
+      "adapted-style\u003estart-game": "klaar",
+      "cast-brief\u003ecast": "personages",
+      "cast\u003elive-a:voiceA": "stem",
+      "cast\u003elive-b:voiceB": "stem",
+      "cast\u003estart-game": "klaar",
+      "condense-scenario\u003econdensed-scenario": "antwoord",
+      "condensed-scenario\u003econdense-scenario": "verzoek",
+      "condensed-scenario\u003eimage-prompt": "scenario",
+      "condensed-scenario\u003estart-game": "klaar",
+      "director\u003elive-a": "injectie",
+      "director\u003elive-b": "injectie",
+      "gallery-image\u003estart-game": "klaar",
+      "greeting\u003elive-a": "eerste woorden",
+      "greeting\u003elive-session": "eerste woorden",
+      "greeting\u003estart-game": "klaar",
+      "image-prompt\u003eimage": "prompt",
+      "image-style\u003eadapted-style": "antwoord",
+      "live-a\u003edirector": "transcript",
+      "live-b\u003edirector": "transcript",
+      "live-session\u003eobserver": "transcript",
+      "observer\u003elive-session": "injectie",
+      "opening-brief\u003egreeting": "opdracht",
+      "outline\u003eexpand": "plan",
+      "outline\u003eimage-prompt": "scène",
+      "outline\u003eprops-store": "wijzigingen",
+      "player-input-audio\u003elive-a": "spraak",
+      "player-input-audio\u003elive-b": "spraak",
+      "player-input-audio\u003elive-session": "spraak",
+      "player-input-audio\u003erephrase-audio": "spraak",
+      "player-input-text\u003erephrase": "actie",
+      "props-store\u003eoutline": "stand",
+      "rephrase-audio\u003eoutline": "actie",
+      "rephrase\u003eoutline": "actie",
+      "start-game\u003elive-a": "startsein",
+      "start-game\u003elive-b": "startsein",
+      "start-game\u003elive-session": "startsein",
+      "start-game\u003eoutline": "prompt",
+      "voice-brief\u003evoice:description": "beschrijving",
+      "voice-brief\u003evoice:voice": "reservestem",
+      "voice\u003elive-session:secondary": "stembeschrijving",
+      "voice\u003elive-session:voice": "stem",
+      "voice\u003estart-game": "klaar"
     }
   }
 }

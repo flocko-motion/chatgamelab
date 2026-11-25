@@ -983,22 +983,23 @@ type BlockPrompt struct {
 
 // Branding defines model for Branding.
 type Branding struct {
-	AiInsightsUrl   string `json:"aiInsightsUrl"`
-	ApiKeyFaqUrl    string `json:"apiKeyFaqUrl"`
-	ContactUrl      string `json:"contactUrl"`
-	CreditName      string `json:"creditName"`
-	CreditUrl       string `json:"creditUrl"`
-	EducatorInfoUrl string `json:"educatorInfoUrl"`
-	GameTipsUrl     string `json:"gameTipsUrl"`
-	HelpUrl         string `json:"helpUrl"`
-	OperatorName    string `json:"operatorName"`
-	OperatorUrl     string `json:"operatorUrl"`
-	PrivacyUrl      string `json:"privacyUrl"`
-	ReportGameUrl   string `json:"reportGameUrl"`
-	SiteName        string `json:"siteName"`
-	SupportEmail    string `json:"supportEmail"`
-	TermsUrl        string `json:"termsUrl"`
-	WebsiteUrl      string `json:"websiteUrl"`
+	AiInsightsUrl     string `json:"aiInsightsUrl"`
+	ApiKeyFaqUrl      string `json:"apiKeyFaqUrl"`
+	ContactUrl        string `json:"contactUrl"`
+	CreditName        string `json:"creditName"`
+	CreditUrl         string `json:"creditUrl"`
+	EducatorInfoUrl   string `json:"educatorInfoUrl"`
+	GameTipsUrl       string `json:"gameTipsUrl"`
+	HelpUrl           string `json:"helpUrl"`
+	OperatorLegalName string `json:"operatorLegalName"`
+	OperatorName      string `json:"operatorName"`
+	OperatorUrl       string `json:"operatorUrl"`
+	PrivacyUrl        string `json:"privacyUrl"`
+	ReportGameUrl     string `json:"reportGameUrl"`
+	SiteName          string `json:"siteName"`
+	SupportEmail      string `json:"supportEmail"`
+	TermsUrl          string `json:"termsUrl"`
+	WebsiteUrl        string `json:"websiteUrl"`
 }
 
 // CheckNameResp defines model for CheckNameResp.
@@ -1640,6 +1641,26 @@ type Language struct {
 
 // Level defines model for Level.
 type Level string
+
+// MailSettings defines model for MailSettings.
+type MailSettings struct {
+	ConsentCopyEmail string `json:"consentCopyEmail"`
+	From             string `json:"from"`
+	Host             string `json:"host"`
+	PasswordSet      bool   `json:"passwordSet"`
+	Port             int    `json:"port"`
+	User             string `json:"user"`
+}
+
+// MailSettingsReq defines model for MailSettingsReq.
+type MailSettingsReq struct {
+	ConsentCopyEmail string  `json:"consentCopyEmail"`
+	From             string  `json:"from"`
+	Host             string  `json:"host"`
+	Password         *string `json:"password,omitempty"`
+	Port             int     `json:"port"`
+	User             string  `json:"user"`
+}
 
 // MakeGameCoverReq defines model for MakeGameCoverReq.
 type MakeGameCoverReq struct {
@@ -2372,6 +2393,7 @@ type SystemSettings struct {
 	FreeUseApiKeyPlatform    *string             `json:"freeUseApiKeyPlatform,omitempty"`
 	FreeUseApiKeyWorking     *bool               `json:"freeUseApiKeyWorking,omitempty"`
 	Id                       openapi_types.UUID  `json:"id"`
+	Mail                     MailSettings        `json:"mail"`
 	ModifiedAt               *time.Time          `json:"modifiedAt,omitempty"`
 	PromptConstraintDefaults SiteRuleTexts       `json:"promptConstraintDefaults"`
 	PromptConstraintU13      *string             `json:"promptConstraintU13,omitempty"`
@@ -2528,12 +2550,13 @@ type UpdateSiteBrandingReq struct {
 
 // UpdateSystemSettingsReq defines model for UpdateSystemSettingsReq.
 type UpdateSystemSettingsReq struct {
-	DefaultAiQualityTier  *string `json:"defaultAiQualityTier,omitempty"`
-	FreeUseAiQualityTier  *string `json:"freeUseAiQualityTier,omitempty"`
-	PromptConstraintU13   *string `json:"promptConstraintU13,omitempty"`
-	PromptConstraintU13p  *string `json:"promptConstraintU13p,omitempty"`
-	PromptConstraintU18   *string `json:"promptConstraintU18,omitempty"`
-	SessionRetentionHours *int    `json:"sessionRetentionHours,omitempty"`
+	DefaultAiQualityTier  *string          `json:"defaultAiQualityTier,omitempty"`
+	FreeUseAiQualityTier  *string          `json:"freeUseAiQualityTier,omitempty"`
+	Mail                  *MailSettingsReq `json:"mail,omitempty"`
+	PromptConstraintU13   *string          `json:"promptConstraintU13,omitempty"`
+	PromptConstraintU13p  *string          `json:"promptConstraintU13p,omitempty"`
+	PromptConstraintU18   *string          `json:"promptConstraintU18,omitempty"`
+	SessionRetentionHours *int             `json:"sessionRetentionHours,omitempty"`
 }
 
 // UpdateUserReq defines model for UpdateUserReq.
@@ -4899,7 +4922,9 @@ type ClientInterface interface {
 	// Only the fields sent change. The default AI quality tier cannot be empty;
 	// an empty free-use tier clears it; a constraint emptied, or set to its
 	// default, is the default again. The session retention is whole hours, 0 or
-	// more. Answers with the settings as they apply.
+	// more. The mail server changes as a whole, but for its password: absent, it
+	// stays; empty, it is cleared. Answers with the settings as they apply; the
+	// password never.
 	//
 	// Takes any type of body and a specified content type.
 	//
@@ -4911,7 +4936,9 @@ type ClientInterface interface {
 	// Only the fields sent change. The default AI quality tier cannot be empty;
 	// an empty free-use tier clears it; a constraint emptied, or set to its
 	// default, is the default again. The session retention is whole hours, 0 or
-	// more. Answers with the settings as they apply.
+	// more. The mail server changes as a whole, but for its password: absent, it
+	// stays; empty, it is cleared. Answers with the settings as they apply; the
+	// password never.
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -8807,7 +8834,9 @@ func (c *Client) GetApiSystemSettings(ctx context.Context, reqEditors ...Request
 // Only the fields sent change. The default AI quality tier cannot be empty;
 // an empty free-use tier clears it; a constraint emptied, or set to its
 // default, is the default again. The session retention is whole hours, 0 or
-// more. Answers with the settings as they apply.
+// more. The mail server changes as a whole, but for its password: absent, it
+// stays; empty, it is cleared. Answers with the settings as they apply; the
+// password never.
 //
 // Takes any type of body and a specified content type.
 //
@@ -8829,7 +8858,9 @@ func (c *Client) PatchApiSystemSettingsWithBody(ctx context.Context, contentType
 // Only the fields sent change. The default AI quality tier cannot be empty;
 // an empty free-use tier clears it; a constraint emptied, or set to its
 // default, is the default again. The session retention is whole hours, 0 or
-// more. Answers with the settings as they apply.
+// more. The mail server changes as a whole, but for its password: absent, it
+// stays; empty, it is cleared. Answers with the settings as they apply; the
+// password never.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -18991,7 +19022,9 @@ type ClientWithResponsesInterface interface {
 	// Only the fields sent change. The default AI quality tier cannot be empty;
 	// an empty free-use tier clears it; a constraint emptied, or set to its
 	// default, is the default again. The session retention is whole hours, 0 or
-	// more. Answers with the settings as they apply.
+	// more. The mail server changes as a whole, but for its password: absent, it
+	// stays; empty, it is cleared. Answers with the settings as they apply; the
+	// password never.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -19003,7 +19036,9 @@ type ClientWithResponsesInterface interface {
 	// Only the fields sent change. The default AI quality tier cannot be empty;
 	// an empty free-use tier clears it; a constraint emptied, or set to its
 	// default, is the default again. The session retention is whole hours, 0 or
-	// more. Answers with the settings as they apply.
+	// more. The mail server changes as a whole, but for its password: absent, it
+	// stays; empty, it is cleared. Answers with the settings as they apply; the
+	// password never.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -30363,7 +30398,9 @@ func (c *ClientWithResponses) GetApiSystemSettingsWithResponse(ctx context.Conte
 // Only the fields sent change. The default AI quality tier cannot be empty;
 // an empty free-use tier clears it; a constraint emptied, or set to its
 // default, is the default again. The session retention is whole hours, 0 or
-// more. Answers with the settings as they apply.
+// more. The mail server changes as a whole, but for its password: absent, it
+// stays; empty, it is cleared. Answers with the settings as they apply; the
+// password never.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -30381,7 +30418,9 @@ func (c *ClientWithResponses) PatchApiSystemSettingsWithBodyWithResponse(ctx con
 // Only the fields sent change. The default AI quality tier cannot be empty;
 // an empty free-use tier clears it; a constraint emptied, or set to its
 // default, is the default again. The session retention is whole hours, 0 or
-// more. Answers with the settings as they apply.
+// more. The mail server changes as a whole, but for its password: absent, it
+// stays; empty, it is cleared. Answers with the settings as they apply; the
+// password never.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //

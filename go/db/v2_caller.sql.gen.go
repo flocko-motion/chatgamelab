@@ -29,7 +29,7 @@ SELECT
   COALESCE(cw.allow_game_sharing, false)::bool                  AS workshop_allows_sharing,
   (so.suspended_at IS NOT NULL)::bool                           AS suspended_by_admin,
   (so.id IS NOT NULL
-   AND institution_consent_missing(so.id, $1::text, $2::text))::bool AS consent_missing
+   AND institution_consent_lacking(so.id))::bool AS consent_lacking
 FROM app_user u
 LEFT JOIN user_role r ON r.id = (
   SELECT ur.id
@@ -42,14 +42,8 @@ LEFT JOIN workshop pw ON pw.id = r.workshop_id AND r.role = 'guest'
 LEFT JOIN workshop cw ON cw.id = CASE WHEN r.role = 'guest' THEN r.workshop_id ELSE r.active_workshop_id END
 LEFT JOIN institution so ON so.id = COALESCE(r.institution_id, pw.institution_id)
                         AND r.role IN ('head', 'staff', 'guest')
-WHERE u.id = $3
+WHERE u.id = $1
 `
-
-type V2ReadCallerParams struct {
-	DeclarationVersion string    `json:"declaration_version"`
-	DeclarationHash    string    `json:"declaration_hash"`
-	ID                 uuid.UUID `json:"id"`
-}
 
 type V2ReadCallerRow struct {
 	ID                    uuid.UUID      `json:"id"`
@@ -65,7 +59,7 @@ type V2ReadCallerRow struct {
 	WorkshopShowsOthers   bool           `json:"workshop_shows_others"`
 	WorkshopAllowsSharing bool           `json:"workshop_allows_sharing"`
 	SuspendedByAdmin      bool           `json:"suspended_by_admin"`
-	ConsentMissing        bool           `json:"consent_missing"`
+	ConsentLacking        bool           `json:"consent_lacking"`
 }
 
 // v2: the secure core's caller (#344).
@@ -78,9 +72,9 @@ type V2ReadCallerRow struct {
 // the organisation that may be suspended for the caller: a head's or staff's
 // own, a guest's through their workshop. An individual taking part in a
 // workshop is in no organisation and keeps working. It is suspended by an admin, or while its newest entry in the
-// consent log is no consent to the current declaration (@declaration_*).
-func (q *Queries) V2ReadCaller(ctx context.Context, arg V2ReadCallerParams) (V2ReadCallerRow, error) {
-	row := q.db.QueryRowContext(ctx, v2ReadCaller, arg.DeclarationVersion, arg.DeclarationHash, arg.ID)
+// consent log is no consent (none yet, or a withdrawal).
+func (q *Queries) V2ReadCaller(ctx context.Context, id uuid.UUID) (V2ReadCallerRow, error) {
+	row := q.db.QueryRowContext(ctx, v2ReadCaller, id)
 	var i V2ReadCallerRow
 	err := row.Scan(
 		&i.ID,
@@ -96,7 +90,7 @@ func (q *Queries) V2ReadCaller(ctx context.Context, arg V2ReadCallerParams) (V2R
 		&i.WorkshopShowsOthers,
 		&i.WorkshopAllowsSharing,
 		&i.SuspendedByAdmin,
-		&i.ConsentMissing,
+		&i.ConsentLacking,
 	)
 	return i, err
 }

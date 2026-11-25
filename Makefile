@@ -1,4 +1,4 @@
-.PHONY: help tools rebase pr release prerelease sync check-clean-tree check-on-feature docs translate translate-check roadmap roadmap-local homepage-local embed-kit
+.PHONY: help tools rebase pr release prerelease sync check-clean-tree check-on-feature docs translate translate-claude translate-apply translate-accept translate-check roadmap roadmap-local homepage-local embed-kit
 
 # The release line this copy of the file belongs to. Each major version keeps
 # its own copy, so these two lines are what differs from one line to the next:
@@ -15,7 +15,10 @@ help:
 	@echo "make sync             merge $(MAIN) back into $(DEV) through a pull request"
 	@echo "make tools            build the hand-run dev tools (probe, models, seedcovers, debug-relay) into bin/"
 	@echo "make docs             render the spec in docs/ to PDF in docs/build/"
-	@echo "make translate        translate changed UI texts into every language (before pushing)"
+	@echo "make translate        translate changed UI texts into every language with OpenAI (before pushing)"
+	@echo "make translate-claude the same with your local Claude Code login; also proposes improvements"
+	@echo "make translate-apply  apply the improvements ticked in translation/proposals.md"
+	@echo "make translate-accept check texts translated by hand (or by an agent) and record them"
 	@echo "make translate-check  fail if any UI text still needs translating (what CI runs)"
 	@echo "make roadmap          rebuild the interactive roadmap from the issues now"
 	@echo "make roadmap-local    the interactive roadmap on http://localhost:8765, from the live issues or the last ones read"
@@ -52,9 +55,24 @@ translate:
 		echo "                  security add-generic-password -U -a \"\$$USER\" -s openai-api-key -w \"\$$(pbpaste)\"" >&2; \
 		echo "  pass:           pass insert openai/api-key" >&2; \
 		echo "  or export OPENAI_API_KEY for this shell." >&2; \
+		if command -v claude >/dev/null; then echo "Or translate with your Claude Code login: make translate-claude" >&2; fi; \
 		exit 1; \
 	fi; \
 	OPENAI_API_KEY="$$key" go run ./translation
+
+# The same with the local Claude Code CLI, on its user's login: no key. Claude
+# may also propose improvements to existing texts, each with its reason, into
+# translation/proposals.md; tick the ones to take, then make translate-apply.
+translate-claude:
+	go run ./translation --engine claude
+
+translate-apply:
+	go run ./translation --apply
+
+# For texts translated in the files directly (CLAUDE.md, "Translations"):
+# checks them and records them as translated.
+translate-accept:
+	go run ./translation --accept
 
 translate-check:
 	go run ./translation --check

@@ -28,9 +28,40 @@ SELECT
   prompt_constraint_u18,
   free_use_api_key_id,
   branding,
-  session_retention_hours
+  session_retention_hours,
+  smtp_host,
+  smtp_port,
+  smtp_user,
+  smtp_from,
+  consent_copy_email,
+  (smtp_password <> '')::bool AS smtp_password_set
 FROM system_settings
 LIMIT 1;
+
+-- name: V2MailServer :one
+-- The mail server a mail goes through, its password included: for sending
+-- only, never shown (#621).
+SELECT smtp_host, smtp_port, smtp_user, smtp_password, smtp_from, consent_copy_email
+FROM system_settings
+LIMIT 1;
+
+-- name: V2UpdateMailSettings :exec
+-- The mail server, all but its password (#621).
+UPDATE system_settings
+SET
+  smtp_host = @host,
+  smtp_port = @port,
+  smtp_user = @username,
+  smtp_from = @sender,
+  consent_copy_email = @consent_copy_email,
+  modified_at = now();
+
+-- name: V2UpdateMailPassword :exec
+-- The mail server's password; empty clears it (#621).
+UPDATE system_settings
+SET
+  smtp_password = @password,
+  modified_at = now();
 
 -- name: V2UpdateSiteBranding :exec
 -- Stores what the admin changed of the site's branding (#573).

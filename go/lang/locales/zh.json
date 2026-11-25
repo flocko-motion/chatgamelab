@@ -1,5 +1,4 @@
 {
-  "_sourceHash": "511c1a97217e633a",
   "auth": {
     "ageGroup": {
       "description": "这有助于我们为你的账户应用正确的保护和内容指南。",
@@ -39,12 +38,6 @@
         "message": "请稍候，我们正在将你重定向到登录页面。",
         "title": "正在重定向到 Auth0..."
       },
-      "role": {
-        "admin": "以管理员身份登录",
-        "guest": "以访客身份登录",
-        "student": "以学生身份登录",
-        "teacher": "以教师身份登录"
-      },
       "unavailable": {
         "message": "此实例未提供登录功能。工作坊中的访客可以改为输入自己的代码。",
         "title": "登录不可用"
@@ -61,6 +54,7 @@
         "introExisting": "你的组织“{{name}}”现在有一份已在线确认的声明。它取代了你之前签署的用户协议。请阅读声明，并代表你的机构同意。",
         "introNewVersion": "声明已更新（版本 {{version}}）。请阅读新版本，并代表你的组织“{{name}}”同意。",
         "introWithdrawn": "你们的组织“{{name}}”对该同意声明的同意已被撤回，因此组织目前已被暂停。请阅读该声明，并代表你们的机构同意，以便再次使用 {{siteName}}。",
+        "later": "稍后",
         "logout": "退出登录",
         "oneHeadIsEnough": "只要一位组织负责人同意即可。在此之前，你们的组织将处于暂停状态：其成员无法使用 {{siteName}}。",
         "submit": "同意",
@@ -123,23 +117,8 @@
         "tooLong": "最多 {{max}} 个字符。请缩短内容或选择一条建议。"
       }
     },
-    "participant": {
-      "leaveConfirm": {
-        "confirm": "退出工作坊",
-        "message": "确定要离开这个工作坊吗？你需要新的邀请链接才能重新加入。",
-        "title": "退出工作坊？"
-      },
-      "leaveWorkshop": "退出工作坊",
-      "organization": "组织",
-      "role": "工作坊参与者",
-      "workshop": "工作坊"
-    },
     "profile": {
-      "ageGroup": "年龄组",
-      "ageGroupDescription": "决定适用于你游戏的内容指南。你可随时更改。",
       "ageGroupSection": "年龄与保护分组",
-      "ageGroupU13": "13-17 岁",
-      "ageGroupU18": "18 岁及以上",
       "gamesCreated": "已创建的游戏",
       "gamesPlayed": "已游玩游戏",
       "guestCode": {
@@ -154,19 +133,12 @@
       "noRole": "未分配角色",
       "organization": "组织",
       "organizationSection": "组织与角色",
-      "participantCode": {
-        "error": "无法加载您的访问码。",
-        "hint": "请拍下此代码或记下来，并妥善保管。您可以随时在任何设备上使用它重新登录您的账户：在主页“输入代码”下方输入这些单词，或扫描二维码。",
-        "longTokenHint": "请拍下二维码或保存链接，并妥善保管。您可以随时使用它重新登录您的账户。您的工作坊负责人可以通过重置访问权限，为您提供一个由四个单词组成的短代码。",
-        "title": "您的访问码"
-      },
       "role": "角色",
       "roles": {
         "admin": "管理员",
         "guest": "访客",
         "head": "组织负责人",
         "individual": "个人用户",
-        "participant": "参与者",
         "staff": "工作坊负责人"
       },
       "statisticsSection": "统计",
@@ -175,12 +147,6 @@
       "workshopSection": "工作坊与组织"
     },
     "register": {
-      "ageGroupLabel": "年龄组",
-      "ageGroupRequired": "请选择你的年龄组",
-      "ageGroupU13": "13-17 岁",
-      "ageGroupU18": "18 岁或以上",
-      "ageGroupUnder13": "13 岁以下",
-      "ageGroupUnder13Error": "你必须年满 13 岁才能使用 ChatGameLab。",
       "cancelButton": "取消",
       "emailDescription": "可选。我们会使用此邮箱发送重要通知。",
       "emailLabel": "电子邮箱地址",
@@ -211,25 +177,6 @@
       "continueButton": "继续注册",
       "description": "我们使用 Auth0 作为认证提供商来管理用户账号。你将被重定向至 Auth0 创建账号，然后返回此处完成个人资料。",
       "educatorDescription": "在工作坊、课堂或你的组织中使用 {{siteName}}",
-      "educatorModal": {
-        "closeButton": "关闭",
-        "copied": "已复制！",
-        "copyEmail": "复制邮箱",
-        "eduInfo": "了解更多将 ChatGameLab 用于教育目的的信息：",
-        "intro": "若要在你的组织（学校、大学、机构）中使用 ChatGameLab，请按以下步骤操作：",
-        "registerButton": "创建个人账号",
-        "step1": "创建个人账号",
-        "step1Description": "先创建你的个人账号。这将是你登录平台所用的账号。",
-        "step2": "2. 给我们发送电子邮件",
-        "step2Description": "发送邮件至",
-        "step2Item1": "你注册的邮箱地址",
-        "step2Item2": "你的组织名称（学校、机构等）",
-        "step2WithInfo": "内容包括：",
-        "step3": "3. 我们将为你的组织完成设置",
-        "step3Description": "我们会创建你的组织并将你设为负责人。之后你即可邀请同事并设置工作坊。",
-        "title": "教育者与专业访问"
-      },
-      "educatorTitle": "教育者 / 专业人士",
       "individualDescription": "创建并游玩由 AI 驱动的文字冒险",
       "individualTitle": "个人账号",
       "loginLink": "登录",
@@ -245,11 +192,6 @@
     },
     "settings": {
       "accountSection": "账户",
-      "ageGroupDescription": "决定适用于你游戏的内容指南。",
-      "ageGroupLabel": "年龄组",
-      "ageGroupU13": "13-17 岁",
-      "ageGroupU18": "18 岁或以上",
-      "emailChangeNote": "如需修改邮箱地址，请联系站点管理员。",
       "emailDescription": "可选。组织可通过此邮箱邀请你；其他账户不得使用该邮箱。",
       "emailLabel": "邮箱",
       "emailPlaceholder": "you@example.org",
@@ -288,9 +230,7 @@
           "title": "删除邀请"
         },
         "role": "角色",
-        "searchPlaceholder": "按邮箱、角色、状态或组织搜索...",
         "sort": {
-          "label": "排序方式",
           "modifiedAt-asc": "修改时间（最早）",
           "modifiedAt-desc": "修改时间（最新）",
           "organization-asc": "组织（A-Z）",
@@ -347,7 +287,6 @@
         "postalCode": "邮政编码",
         "removeMember": "移除成员",
         "removeMemberConfirm": "确定要将 {{name}} 移出该组织吗？",
-        "searchPlaceholder": "搜索组织...",
         "sendInvite": "发送邀请",
         "status": "状态和同意情况",
         "statusActive": "活跃",
@@ -364,16 +303,6 @@
         "title": "管理组织"
       },
       "registrations": {
-        "bell": {
-          "empty": "过去两周没有组织注册。",
-          "intro_one": "该组织在过去两周内注册，且已经激活。",
-          "intro_other": "这 {{count}} 个组织在过去两周内注册，且已经激活。",
-          "label": "新组织",
-          "later": "稍后",
-          "open": "前往概览",
-          "suspendHint": "目前不会验证电子邮箱地址。请快速查看新组织，如果发现问题，可在概览中暂停它们。",
-          "title": "新组织"
-        },
         "date": "注册时间",
         "description": "过去两周内自行注册的组织。它们无需确认电子邮箱地址即可立即激活；请查看这些组织，如果发现问题，可暂停相应组织。",
         "empty": "过去两周没有组织自行注册。",
@@ -396,8 +325,6 @@
           "all": "所有用户",
           "noGuests": "不含访客"
         },
-        "hideGuests": "隐藏访客（{{count}}）",
-        "hideGuestsShort": "访客（{{count}}）",
         "joined": "加入时间",
         "loadError": "加载用户失败",
         "makeAdmin": "设为管理员",
@@ -415,8 +342,6 @@
         "removeAdminTitle": "移除管理员角色",
         "removeAdminWarning": "该用户将失去所有管理权限。",
         "role": "角色",
-        "searchPlaceholder": "按姓名、邮箱、角色或组织搜索...",
-        "showing": "显示 {{count}} / {{total}} 位用户",
         "signUpInProgress": "注册进行中",
         "signingUp": "正在注册",
         "sort": {
@@ -424,7 +349,6 @@
           "email-desc": "邮箱（Z-A）",
           "joined-asc": "加入时间（最早）",
           "joined-desc": "加入时间（最新）",
-          "label": "排序方式",
           "name-asc": "姓名（A-Z）",
           "name-desc": "姓名（Z-A）",
           "organization-asc": "组织（A-Z）",
@@ -458,7 +382,6 @@
       "high": "高质量",
       "label": "AI 质量等级",
       "low": "经济",
-      "max": "最高（高级＋音频）",
       "medium": "均衡",
       "newSessionsOnly": "此等级仅适用于新会话，已有会话会保留其开始时的等级。",
       "serverDefault": "服务器默认"
@@ -470,7 +393,6 @@
         "message": "这会在你的游戏中创建“{{name}}”的副本。",
         "title": "复制游戏"
       },
-      "copyGame": "复制游戏",
       "empty": {
         "conditions": {
           "favorites": "你的收藏",
@@ -581,8 +503,6 @@
         "toggle": "共享与赞助",
         "unknownGame": "未知游戏",
         "unknownOrg": "未知组织",
-        "unknownUser": "未知用户",
-        "unknownWorkshop": "未知工作坊",
         "unlimited": "无限次使用"
       },
       "sort": {
@@ -639,24 +559,9 @@
     },
     "error": "错误",
     "footer": {
-      "copyright": "JFF - Institut für Medienpädagogik",
-      "jffTitle": "JFF - 教育研究与创新研究所",
       "programmedBy": "程序开发"
     },
-    "gamePlayer": {
-      "rebuilding": {
-        "description": "很快就可以在这里重新游玩了。",
-        "title": "游戏播放器正在重建"
-      }
-    },
     "games": {
-      "actions": {
-        "delete": "删除",
-        "edit": "编辑",
-        "export": "导出",
-        "play": "游玩",
-        "view": "查看"
-      },
       "badges": {
         "myGame": "我的游戏",
         "public": "公开",
@@ -686,7 +591,6 @@
         "namePlaceholder": "例如：太空冒险",
         "publicDescription": "公开游戏在此平台上对所有用户可见且可游玩。",
         "publicLabel": "将此游戏设为公开",
-        "publicOwnerOnly": "只有游戏创建者可以将游戏设为公开。",
         "submit": "创建游戏",
         "title": "创建新游戏"
       },
@@ -915,8 +819,7 @@
           "status": {
             "builtIn": "还没有描述：在你描述声音之前，游戏会使用内置声音。",
             "cast": "游戏开始时，会从你选择的类型中挑选最适合故事的内置声音。描述会决定它说话的方式。",
-            "ownVoice": "根据此描述、使用你的 AI 密钥创建的专属声音。",
-            "steered": "内置声音会按照描述朗读故事。"
+            "ownVoice": "根据此描述、使用你的 AI 密钥创建的专属声音。"
           },
           "stop": "停止播放示例"
         },
@@ -957,10 +860,6 @@
         "titleView": "游戏",
         "untitled": "无标题游戏"
       },
-      "empty": {
-        "description": "创建你的第一个游戏，开启由 AI 驱动的互动冒险。",
-        "title": "尚无游戏"
-      },
       "errors": {
         "loadFailed": "加载游戏失败，请重试。",
         "nameRequired": "游戏名称是必填项",
@@ -975,7 +874,6 @@
       "fields": {
         "created": "创建时间",
         "creator": "创建者",
-        "me": "我",
         "modified": "修改时间",
         "name": "名称",
         "playCount": "游玩次数",
@@ -984,9 +882,7 @@
       "genres": {
         "adventure": "冒险",
         "discussion": "讨论",
-        "npc": "角色",
-        "npc-duo": "讨论",
-        "npc-live": "人物"
+        "npc": "角色"
       },
       "importExport": {
         "coverFailed": "游戏已导入，但无法检查其封面。你可以在编辑器中绘制一张新的封面。",
@@ -1002,7 +898,6 @@
         "importButton": "导入游戏"
       },
       "newGame": "新游戏",
-      "playNow": "立即游玩",
       "privacyHint": "游戏名称和描述可能会公开显示。请不要使用真实姓名。",
       "privacyHintShort": "可能会公开显示——请勿使用真实姓名。",
       "privateShare": {
@@ -1050,12 +945,10 @@
         "active": "启用",
         "privateShareLink": "私人分享链接",
         "privateShareLinkDescription": "私人分享链接可以分享给他人。持有该链接的任何人都能在无账号的情况下匿名游玩。必须选择一个 API 密钥来承担费用。",
-        "publicGameWorkshopHint": "这是一个公共游戏，并不属于你的工作坊。在工作坊模式下，公共游戏不提供分享选项。",
         "publicSponsoring": "公共赞助",
         "publicSponsoringDescription": "平台上的所有用户都可以免费游玩此游戏——你指定的 API 密钥将承担费用。",
         "sectionTitle": "分享选项",
-        "sectionTitleShareOnly": "分享选项",
-        "workshopShareRequiresPublic": "此游戏必须先设为公开，才能在工作坊中分享。"
+        "sectionTitleShareOnly": "分享选项"
       },
       "sort": {
         "createdAt-asc": "创建时间（最早）",
@@ -1165,7 +1058,6 @@
           "zombie": "僵尸"
         }
       },
-      "title": "我创建的游戏",
       "viewModal": {
         "readOnlyNotice": "该游戏由其他用户创建，你只能查看详情。如需编辑，请使用“复制”创建一份可编辑版本。",
         "title": "游戏详情"
@@ -1193,25 +1085,6 @@
     "help": "帮助",
     "home": {
       "codeCta": "输入代码",
-      "features": {
-        "create": {
-          "description": "设计由 AI 驱动的互动文本冒险",
-          "title": "创造冒险"
-        },
-        "learn": {
-          "description": "完美适用于教育工作坊与课堂活动",
-          "title": "学习与教学"
-        },
-        "play": {
-          "description": "与好友一起进行协作式故事创作",
-          "title": "一起玩"
-        },
-        "title": "为什么选择 ChatGameLab？",
-        "understand": {
-          "description": "探索 AI 如何创作故事并了解其工作原理",
-          "title": "理解 AI"
-        }
-      },
       "loginCta": "登录并探索",
       "splashDescription": "一个用于创建和游玩 AI 文本冒险的教育平台，适合教师、学生与创意故事作者。"
     },
@@ -1248,19 +1121,9 @@
       "guest": {
         "loggingIn": "正在登录……"
       },
-      "participant": {
-        "loggingIn": "正在为你登录..."
-      },
       "success": {
         "message": "你已成功加入工作坊，正在跳转...",
         "title": "欢迎！"
-      },
-      "switchWorkshop": {
-        "message": "你在当前工作坊的游戏与进度会被保留，但在重新加入之前无法访问。",
-        "stayButton": "留在当前工作坊",
-        "switchButton": "切换工作坊",
-        "title": "切换工作坊？",
-        "warning": "你目前在工作坊“{{currentWorkshop}}”，加入“{{newWorkshop}}”将使你离开现有工作坊。"
       }
     },
     "labels": {
@@ -1295,31 +1158,25 @@
     "logout": "登出",
     "me": "我",
     "myGames": {
-      "continue": "游玩",
       "copyConfirm": {
         "confirm": "复制游戏",
         "message": "这会在你的游戏中创建“{{name}}”的副本。",
         "title": "复制游戏"
       },
-      "copyGame": "复制游戏",
       "empty": {
         "description": "创建你的第一个游戏，开始由 AI 驱动的互动冒险。",
         "title": "尚无游戏"
       },
-      "favorite": "加入收藏",
       "filters": {
         "all": "全部",
         "favorites": "收藏"
       },
-      "play": "游玩",
-      "restart": "重新开始",
       "restartConfirm": {
         "confirm": "重新开始",
         "message": "确定要重新开始“{{game}}”吗？你当前的进度将会丢失。",
         "title": "重新开始游戏"
       },
-      "title": "我的游戏",
-      "unfavorite": "移出收藏"
+      "title": "我的游戏"
     },
     "myOrganization": {
       "actions": "操作",
@@ -1331,7 +1188,6 @@
         "allPlatforms": "所有平台",
         "allowPublicSponsoring": "允许公开赞助",
         "allowPublicSponsoringDesc": "该密钥可用于为所有用户赞助游戏。",
-        "filterByPlatform": "按平台筛选",
         "freeUseKey": {
           "description": "设置一个免费使用密钥，让组织内所有成员无需自有 API 密钥即可游玩。",
           "remove": "移除",
@@ -1351,13 +1207,10 @@
         "platform": "平台",
         "publicSponsoring": "公开赞助",
         "removeShare": "从组织中移除",
-        "searchPlaceholder": "按名称或拥有者搜索...",
         "selectKey": "选择 API 密钥",
         "selectKeyPlaceholder": "选择要共享的密钥...",
         "share": "分享",
-        "shareKey": "分享密钥",
         "shareKeyTitle": "向组织添加 API 密钥",
-        "showDetails": "显示详情",
         "title": "组织 API 密钥"
       },
       "autoShare": {
@@ -1367,7 +1220,10 @@
         "personalKeyGroup": "个人密钥"
       },
       "declaration": {
+        "agree": "阅读并同意",
         "consented": "你的组织于 {{date}} 同意了版本 {{version}}。",
+        "goAgree": "前往你们的组织",
+        "newVersion": "同意声明有了新版本 {{version}}。你们的组织保持有效；请阅读并代表组织同意。",
         "title": "同意声明",
         "withdraw": "撤回同意",
         "withdrawConfirm": "没有同意，你们的组织将处于暂停状态：在一位负责人再次同意之前，任何成员都无法使用 {{siteName}}。组织数据会被保留。",
@@ -1385,9 +1241,6 @@
       "inviteTeacher": "邀请教师",
       "inviteTeacherDescription": "邀请教师加入你的组织。",
       "inviteTeacherTitle": "邀请教师",
-      "inviteUser": "邀请用户",
-      "inviteUserDescription": "邀请用户在无特定角色的情况下加入你的组织。",
-      "inviteUserTitle": "邀请用户",
       "lastHeadError": "你是该组织最后一位负责人。如需离开，请联系站点管理员。",
       "leaveConfirm": "确定要离开“{{name}}”吗？",
       "leaveError": "离开组织失败，请重试。",
@@ -1454,7 +1307,6 @@
       "removeTitle": "移除成员",
       "removeWarning": "该用户将失去对组织的访问权限。",
       "role": "角色",
-      "searchPlaceholder": "搜索成员...",
       "showing": "共 {{count}} 名成员",
       "sort": {
         "label": "排序方式",
@@ -1492,20 +1344,12 @@
         "active": "启用",
         "activeDescription": "启用的工作坊允许参与者加入并创建游戏。",
         "activeLabel": "启用",
-        "addIndividual": "添加组织成员",
         "addIndividualError": "无法将成员添加到工作坊。",
-        "addIndividualHint": "添加用户后会自动将其置于工作坊模式。他们将看到工作坊视图，而不是常规仪表盘。仅在确有需要时执行此操作。",
-        "addIndividualStaffNote": "负责人和教师应自行通过工作坊列表加入，这里不会列出他们。",
-        "addIndividualSuccess": "已添加成员",
-        "addIndividualSuccessMessage": "{{name}} 已被添加到该工作坊。",
-        "addIndividualTitle": "将个人添加到工作坊",
         "addToWorkshop": "添加到工作坊",
         "aiQualityTierHint": "AI 响应的质量等级。等级越高成本越高，但质量可能更好。留空则使用服务器默认。",
         "allowGameSharing": "允许游戏分享",
         "allowGameSharingHint": "启用后，参与者可以使用工作坊的 API 密钥为他们的游戏创建分享链接",
-        "anonymousParticipant": "匿名参与者",
         "create": "创建工作坊",
-        "createFirst": "创建你的第一个工作坊",
         "createInviteLink": "生成邀请链接",
         "createTitle": "创建工作坊",
         "deactivate": "停用",
@@ -1528,10 +1372,8 @@
         "inviteByEmailSuccessMessage": "邀请已创建。该用户会在待处理邀请中看到它。",
         "inviteByEmailTitle": "邀请用户加入工作坊",
         "inviteCreatedAt": "创建时间",
-        "inviteDescription": "生成邀请链接，供参与者加入该工作坊。",
         "inviteExpiresAt": "过期时间",
         "inviteLink": "邀请链接",
-        "inviteLinkDescription": "将此链接分享给参与者，让他们加入工作坊。",
         "inviteLinkTitle": "参与者邀请链接——{{name}}",
         "inviteUsage": "使用次数",
         "isPaused": "暂停工作坊",
@@ -1547,14 +1389,11 @@
         "noDefaultModel": "使用平台默认",
         "noGuestToken": "该成员没有重新登录链接。只有访客拥有此链接。",
         "noIndividuals": "此组织中没有个人用户。",
-        "noParticipantToken": "此参与者没有邀请链接。只有匿名参与者（访客）拥有可重复使用的邀请链接。",
         "noParticipants": "暂无参与者",
         "noResults": "没有符合搜索或筛选条件的工作坊。",
         "notAuthorized": "你无权管理工作坊，只有负责人和教师可以访问此页面。",
         "participantGames": "{{count}} 个游戏",
         "participantJoined": "加入于 {{date}}",
-        "participantLinkTitle": "重新登录链接",
-        "participantLinkTitleNamed": "{{name}} 的重新登录链接",
         "participantName": "参与者姓名",
         "participants": "参与者",
         "promptConstraintsFallbackOrg": "使用组织的青少年保护规则作为默认规则：{{constraint}}",
@@ -1578,7 +1417,6 @@
         "selectApiKey": "选择一把 API 密钥",
         "settings": "设置",
         "shareGuestLink": "显示重新登录链接",
-        "shareParticipantLink": "显示重新登录链接",
         "showOtherParticipantsGames": "向参与者展示他人的游戏",
         "showOtherParticipantsGamesHint": "负责人和职员始终可以查看所有参与者的游戏以便审核",
         "showPublicGames": "向参与者展示公开游戏",
@@ -1612,7 +1450,6 @@
       "decline": "拒绝",
       "declineConfirm": "确定要拒绝这条邀请吗？",
       "declineTitle": "拒绝邀请",
-      "empty": "暂无新通知。",
       "inviteDescription": "你被邀请以 {{role}} 身份加入。",
       "inviteToJoin": "组织邀请",
       "nothingNew": "没有新内容",
@@ -1761,6 +1598,7 @@
           "educatorInfoUrl": "教育工作者信息",
           "gameTipsUrl": "游戏制作技巧",
           "helpUrl": "帮助",
+          "operatorLegalName": "运营方的法定名称（用于法律文本）",
           "operatorName": "运营方",
           "operatorUrl": "运营方网站",
           "privacyUrl": "隐私政策",
@@ -1787,13 +1625,10 @@
         "title": "按年龄组设置的青少年保护规则",
         "u13Hint": "会注入到所有登录且未有家长同意记录的 13–17 岁用户的 AI 提示中。",
         "u13Label": "适用于 13–17 岁用户且无家长同意的青少年保护规则（U13）",
-        "u13Placeholder": "例如：确保所有内容严格适合青少年。不允许暴力、浪漫内容或恐怖主题。",
         "u13pHint": "会注入到所有登录且已有家长同意记录的 13–17 岁用户的 AI 提示中。",
         "u13pLabel": "适用于 13–17 岁用户且有家长同意的青少年保护规则（U13p）",
-        "u13pPlaceholder": "例如：适合父母已同意的青少年内容。允许部分成熟主题，但不含露骨内容。",
         "u18Hint": "注入到所有 18 岁及以上登录用户的每个 AI 提示中。",
-        "u18Label": "适用于 18 岁及以上用户的青少年保护规则（U18）",
-        "u18Placeholder": "例如：保持内容适当。避免明显的暴力或色情内容。"
+        "u18Label": "适用于 18 岁及以上用户的青少年保护规则（U18）"
       },
       "defaultTier": {
         "description": "当工作坊、机构或用户未设置 AI 质量等级时，服务器使用的全局默认等级。等级越高成本越高，但质量可能更好。",
@@ -1814,6 +1649,26 @@
       "freeUseTier": {
         "description": "当使用免费 API 密钥时采用的质量等级。等级越高成本越高，但质量可能更好。留空则使用默认等级。",
         "title": "免费使用 AI 质量等级"
+      },
+      "mail": {
+        "clearPassword": "移除密码",
+        "consentCopy": "同意副本发送至",
+        "consentCopyHint": "接收每个组织同意的副本。留空：使用支持邮箱。",
+        "description": "{{siteName}} 发送邮件所用的服务器，例如组织同意的确认邮件。没有服务器时，邮件只会写入日志。",
+        "from": "发件人",
+        "fromHint": "留空：以登录名作为发件人。",
+        "fromPlaceholder": "名称 \u003cnoreply@example.org\u003e",
+        "host": "服务器",
+        "hostHint": "仅填主机名，不含端口。留空：邮件只记录到日志。",
+        "password": "密码",
+        "passwordNone": "未设置密码。",
+        "passwordSet": "已设置密码。留空则保留。",
+        "port": "端口",
+        "portHint": "STARTTLS 用 587，TLS 用 465。",
+        "save": "保存",
+        "saveFailed": "保存失败。请检查各字段。",
+        "title": "邮件服务器",
+        "user": "登录名"
       },
       "models": {
         "assign": {
@@ -1929,6 +1784,7 @@
         "ai": "AI 和密钥",
         "branding": "品牌设置",
         "general": "常规",
+        "mail": "邮件",
         "models": "AI 模型",
         "youthProtection": "青少年保护"
       },
@@ -1994,49 +1850,6 @@
     }
   },
   "dashboard": {
-    "cards": {
-      "externalLinks": {
-        "edu": {
-          "description": "使用 ChatGameLab 进行媒介教育工作",
-          "title": "关于 ChatGameLab"
-        },
-        "jff": {
-          "description": "项目协调方与牵头组织。",
-          "title": "JFF – Institut für Medienpädagogik"
-        },
-        "mainSite": {
-          "description": "了解这个平台背后的教育项目。",
-          "title": "ChatGameLab 项目"
-        },
-        "title": "关于 ChatGameLab"
-      },
-      "lastPlayed": {
-        "empty": "还没有游戏记录。开始游玩吧！",
-        "title": "最近游玩",
-        "viewAll": "所有游戏"
-      },
-      "myGames": {
-        "empty": "还没有游戏，创建你的第一个吧！",
-        "title": "我的游戏",
-        "viewAll": "查看全部创作"
-      },
-      "myWorkshops": {
-        "empty": "暂无启用的工作坊。请在组织中创建一个！",
-        "title": "我的工作坊",
-        "viewAll": "查看所有工作坊"
-      },
-      "newGames": {
-        "empty": "暂无可用游戏。",
-        "title": "新游戏",
-        "viewAll": "查看所有游戏"
-      },
-      "popularGames": {
-        "empty": "暂无可用游戏。",
-        "plays": "{{count}} 次游玩",
-        "title": "热门游戏",
-        "viewAll": "查看所有游戏"
-      }
-    },
     "continue": {
       "go": "继续",
       "hint": "从上次离开的地方继续",
@@ -2045,15 +1858,14 @@
       "title": "继续游戏"
     },
     "fresh": {
-      "by": "作者：{{name}}",
       "empty": "还没有新游戏。",
       "title": "新游戏",
       "viewAll": "查看画廊"
     },
     "hero": {
       "create": "创建",
-      "greeting": "嗨，{{name}}。今天我们要\u0003cmark\u0003构建\u0003c/mark\u0003什么？",
-      "greetingNoName": "嗨。今天我们要\u0003cmark\u0003构建\u0003c/mark\u0003什么？",
+      "greeting": "嗨，{{name}}。今天我们要\u003cmark\u003e构建\u003c/mark\u003e什么？",
+      "greetingNoName": "嗨。今天我们要\u003cmark\u003e构建\u003c/mark\u003e什么？",
       "journal": "实验室日志 · {{date}}",
       "promptLabel": "描述一个游戏创意",
       "promptPlaceholder": "描述一个游戏创意……AI 会帮助你完善它"
@@ -2066,8 +1878,7 @@
     },
     "links": {
       "about": "关于 {{siteName}}",
-      "educators": "面向教育工作者",
-      "jff": "JFF – 媒体教育研究所"
+      "educators": "面向教育工作者"
     },
     "ownGames": {
       "empty": "还没有游戏。在上方描述一个创意，创建你的第一个游戏吧！",
@@ -2080,15 +1891,6 @@
       "plays_other": "游玩 {{count}} 次",
       "title": "最受欢迎"
     },
-    "quickActions": {
-      "createNewGame": "创建新游戏",
-      "createWorkshop": "创建工作坊",
-      "importGame": "导入游戏",
-      "inviteMembers": "邀请成员",
-      "startNewGame": "开始新游戏",
-      "title": "快捷操作"
-    },
-    "someone": "某人",
     "untitled": "未命名",
     "untitledGame": "未命名游戏",
     "version": {
@@ -2190,10 +1992,8 @@
     "filters": {
       "all": "全部游戏",
       "mine": "我的游戏",
-      "public": "公开游戏",
-      "workshop": "工作坊游戏"
+      "public": "公开游戏"
     },
-    "gameType": "游戏",
     "infoModal": {
       "body": "你已进入工作坊模式。在该模式下，你的所有操作——创建的游戏、游玩会话以及分享链接——都将关联到此工作坊。\n\n你可随时离开。离开不会结束工作坊，或删除你创建的任何内容。",
       "dontShowAgain": "不再显示",
@@ -2218,8 +2018,7 @@
     },
     "showInviteLink": "显示邀请链接",
     "showPublicPageLink": "显示公开页面链接",
-    "title": "我的工作坊",
-    "you": "你"
+    "title": "我的工作坊"
   },
   "navigation": {
     "adminPanel": "管理面板",
@@ -2268,8 +2067,6 @@
       "observer": "导演",
       "opening-brief": "开场方式",
       "outline": "规划场景",
-      "portrait": "绘制肖像",
-      "portrait-prompt": "描述肖像",
       "props-store": "游戏状态",
       "rephrase": "重述行动",
       "rephrase-audio": "理解语音",
@@ -2491,53 +2288,50 @@
       "recording": "正在聆听…松开即可发送"
     },
     "wires": {
-      "adapted-style\u001eimage-prompt": "风格",
-      "adapted-style\u001eimage-style": "请求",
-      "adapted-style\u001estart-game": "就绪",
-      "cast\u0003live-a:voiceA": "声音",
-      "cast\u0003live-b:voiceB": "声音",
-      "cast\u0003start-game": "准备就绪",
-      "cast-brief\u0003cast": "人物",
-      "condense-scenario\u001econdensed-scenario": "回答",
-      "condensed-scenario\u001econdense-scenario": "请求",
-      "condensed-scenario\u001eimage-prompt": "场景",
-      "condensed-scenario\u001estart-game": "就绪",
-      "director\u0003live-a": "插话",
-      "director\u0003live-b": "插话",
-      "gallery-image\u0003estart-game": "就绪",
-      "greeting\u0003elive-session": "开场白",
-      "greeting\u0003estart-game": "就绪",
-      "greeting\u0003live-a": "第一句话",
-      "image-prompt\u001eimage": "提示",
-      "image-style\u001eadapted-style": "回答",
-      "live-a\u0003director": "文字记录",
-      "live-b\u0003director": "文字记录",
-      "live-session\u001eobserver": "文字记录",
-      "observer\u0003elive-session": "注入",
-      "observer\u001elive-session": "提示",
-      "opening-brief\u0003egreeting": "提示",
-      "outline\u001eexpand": "计划",
-      "outline\u001eimage-prompt": "场景",
-      "outline\u001eprops-store": "变更",
-      "player-input-audio\u0003live-a": "语音",
-      "player-input-audio\u0003live-b": "语音",
-      "player-input-audio\u001elive-session": "语音",
-      "player-input-audio\u001erephrase-audio": "语音",
-      "player-input-text\u001erephrase": "行动",
-      "portrait\u001estart-game": "就绪",
-      "portrait-prompt\u001eportrait": "提示",
-      "props-store\u001eoutline": "状态",
-      "rephrase\u001eoutline": "行动",
-      "rephrase-audio\u001eoutline": "行动",
-      "start-game\u0003live-a": "提示信号",
-      "start-game\u0003live-b": "提示信号",
-      "start-game\u001elive-session": "引导",
-      "start-game\u001eoutline": "提示",
-      "voice\u0003elive-session:secondary": "声音风格",
-      "voice\u0003elive-session:voice": "声音",
-      "voice\u0003estart-game": "就绪",
-      "voice-brief\u0003evoice:description": "描述",
-      "voice-brief\u0003evoice:voice": "备用声音"
+      "adapted-style\u003eimage-prompt": "风格",
+      "adapted-style\u003eimage-style": "请求",
+      "adapted-style\u003estart-game": "就绪",
+      "cast-brief\u003ecast": "人物",
+      "cast\u003elive-a:voiceA": "声音",
+      "cast\u003elive-b:voiceB": "声音",
+      "cast\u003estart-game": "就绪",
+      "condense-scenario\u003econdensed-scenario": "回复",
+      "condensed-scenario\u003econdense-scenario": "请求",
+      "condensed-scenario\u003eimage-prompt": "场景",
+      "condensed-scenario\u003estart-game": "就绪",
+      "director\u003elive-a": "插入",
+      "director\u003elive-b": "插入",
+      "gallery-image\u003estart-game": "就绪",
+      "greeting\u003elive-a": "开场白",
+      "greeting\u003elive-session": "开场白",
+      "greeting\u003estart-game": "就绪",
+      "image-prompt\u003eimage": "提示词",
+      "image-style\u003eadapted-style": "回复",
+      "live-a\u003edirector": "文字记录",
+      "live-b\u003edirector": "文字记录",
+      "live-session\u003eobserver": "文字记录",
+      "observer\u003elive-session": "插入",
+      "opening-brief\u003egreeting": "说明",
+      "outline\u003eexpand": "计划",
+      "outline\u003eimage-prompt": "场景",
+      "outline\u003eprops-store": "变更",
+      "player-input-audio\u003elive-a": "语音",
+      "player-input-audio\u003elive-b": "语音",
+      "player-input-audio\u003elive-session": "语音",
+      "player-input-audio\u003erephrase-audio": "语音",
+      "player-input-text\u003erephrase": "行动",
+      "props-store\u003eoutline": "状态",
+      "rephrase-audio\u003eoutline": "行动",
+      "rephrase\u003eoutline": "行动",
+      "start-game\u003elive-a": "起始信号",
+      "start-game\u003elive-b": "起始信号",
+      "start-game\u003elive-session": "起始信号",
+      "start-game\u003eoutline": "提示词",
+      "voice-brief\u003evoice:description": "描述",
+      "voice-brief\u003evoice:voice": "备用声音",
+      "voice\u003elive-session:secondary": "声音风格",
+      "voice\u003elive-session:voice": "声音",
+      "voice\u003estart-game": "就绪"
     }
   }
 }

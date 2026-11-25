@@ -585,21 +585,15 @@ SELECT s.id, s.user_id, s.game_id, s.workshop_id, s.game_share_id,
   (g.id IS NULL OR g.deleted_at IS NOT NULL)::bool       AS game_gone,
   COALESCE(w.is_paused, false)::bool                     AS workshop_paused,
   (o.id IS NOT NULL AND (o.suspended_at IS NOT NULL
-           OR institution_consent_missing(o.id, $1::text, $2::text)))::bool AS organisation_suspended
+           OR institution_consent_lacking(o.id)))::bool AS organisation_suspended
 FROM game_session s
 JOIN app_user u        ON u.id = s.user_id
 LEFT JOIN game g       ON g.id = s.game_id
 LEFT JOIN workshop w   ON w.id = s.workshop_id
 LEFT JOIN game_share gs ON gs.id = s.game_share_id
 LEFT JOIN institution o ON o.id = COALESCE(w.institution_id, gs.institution_id)
-WHERE s.id = $3
+WHERE s.id = $1
 `
-
-type V2SessionFactsParams struct {
-	DeclarationVersion string    `json:"declaration_version"`
-	DeclarationHash    string    `json:"declaration_hash"`
-	ID                 uuid.UUID `json:"id"`
-}
 
 type V2SessionFactsRow struct {
 	ID                    uuid.UUID     `json:"id"`
@@ -619,8 +613,8 @@ type V2SessionFactsRow struct {
 // through a share link plays it by its id), its game, and the state of the
 // workshop and the organisation it belongs to: its workshop's, or its share
 // link's.
-func (q *Queries) V2SessionFacts(ctx context.Context, arg V2SessionFactsParams) (V2SessionFactsRow, error) {
-	row := q.db.QueryRowContext(ctx, v2SessionFacts, arg.DeclarationVersion, arg.DeclarationHash, arg.ID)
+func (q *Queries) V2SessionFacts(ctx context.Context, id uuid.UUID) (V2SessionFactsRow, error) {
+	row := q.db.QueryRowContext(ctx, v2SessionFacts, id)
 	var i V2SessionFactsRow
 	err := row.Scan(
 		&i.ID,
@@ -653,20 +647,18 @@ SELECT gs.id, gs.game_id, gs.workshop_id, gs.institution_id, gs.remaining, gs.ai
   gs.embed, gs.enabled, gs.embed_mode, gs.verified_page_id, vp.page_id AS verified_page_key, vp.callback_url,
   (vp.approved_at IS NOT NULL)::bool AS verified_page_approved,
   (o.id IS NOT NULL AND (o.suspended_at IS NOT NULL
-     OR institution_consent_missing(o.id, $1::text, $2::text)))::bool AS organisation_suspended
+     OR institution_consent_lacking(o.id)))::bool AS organisation_suspended
 FROM game_share gs
 LEFT JOIN workshop w    ON w.id = gs.workshop_id
 LEFT JOIN institution o ON o.id = COALESCE(gs.institution_id, w.institution_id)
 LEFT JOIN verified_page vp ON vp.id = gs.verified_page_id
-WHERE ($3::text IS NULL OR gs.token = $3::text)
-  AND ($4::uuid IS NULL OR gs.id = $4::uuid)
+WHERE ($1::text IS NULL OR gs.token = $1::text)
+  AND ($2::uuid IS NULL OR gs.id = $2::uuid)
 `
 
 type V2ShareLinkPlayParams struct {
-	DeclarationVersion string         `json:"declaration_version"`
-	DeclarationHash    string         `json:"declaration_hash"`
-	Token              sql.NullString `json:"token"`
-	ID                 uuid.NullUUID  `json:"id"`
+	Token sql.NullString `json:"token"`
+	ID    uuid.NullUUID  `json:"id"`
 }
 
 type V2ShareLinkPlayRow struct {
@@ -694,12 +686,7 @@ type V2ShareLinkPlayRow struct {
 // organisation (its own, or its workshop's) is suspended; for an embed
 // link, whether it is on, its mode, and its verified page's ID and callback.
 func (q *Queries) V2ShareLinkPlay(ctx context.Context, arg V2ShareLinkPlayParams) ([]V2ShareLinkPlayRow, error) {
-	rows, err := q.db.QueryContext(ctx, v2ShareLinkPlay,
-		arg.DeclarationVersion,
-		arg.DeclarationHash,
-		arg.Token,
-		arg.ID,
-	)
+	rows, err := q.db.QueryContext(ctx, v2ShareLinkPlay, arg.Token, arg.ID)
 	if err != nil {
 		return nil, err
 	}

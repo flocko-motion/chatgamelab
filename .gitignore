@@ -42,3 +42,4 @@ docs/build/
 
 # Python bytecode (scripts/review.py and roadmap/)
 __pycache__/
+translation/proposals.md

@@ -114,14 +114,8 @@ JOIN institution i ON i.id = w.institution_id
 LEFT JOIN api_key_share ks ON ks.id = w.default_api_key_share_id
 WHERE w.public_slug = $1 AND w.deleted_at IS NULL AND w.public
   AND i.suspended_at IS NULL
-  AND NOT institution_consent_missing(i.id, $2::text, $3::text)
+  AND NOT institution_consent_lacking(i.id)
 `
-
-type V2PublicWorkshopParams struct {
-	Slug               sql.NullString `json:"slug"`
-	DeclarationVersion string         `json:"declaration_version"`
-	DeclarationHash    string         `json:"declaration_hash"`
-}
 
 type V2PublicWorkshopRow struct {
 	ID                   uuid.UUID             `json:"id"`
@@ -135,10 +129,10 @@ type V2PublicWorkshopRow struct {
 }
 
 // The workshop behind a public page's slug, while its page is switched on
-// and its organisation is not suspended (by an admin, or for want of a
-// consent to @declaration_*).
-func (q *Queries) V2PublicWorkshop(ctx context.Context, arg V2PublicWorkshopParams) ([]V2PublicWorkshopRow, error) {
-	rows, err := q.db.QueryContext(ctx, v2PublicWorkshop, arg.Slug, arg.DeclarationVersion, arg.DeclarationHash)
+// and its organisation is not suspended (by an admin, or for want of any
+// consent).
+func (q *Queries) V2PublicWorkshop(ctx context.Context, slug sql.NullString) ([]V2PublicWorkshopRow, error) {
+	rows, err := q.db.QueryContext(ctx, v2PublicWorkshop, slug)
 	if err != nil {
 		return nil, err
 	}

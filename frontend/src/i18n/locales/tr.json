@@ -1,6 +1,4 @@
 {
-  "...": "...",
-  "_sourceHash": "511c1a97217e633a",
   "auth": {
     "ageGroup": {
       "description": "Bu, hesabınıza doğru koruma ve içerik yönergelerini uygulamamıza yardımcı olur.",
@@ -40,12 +38,6 @@
         "message": "Sizi giriş sayfasına yönlendirirken lütfen bekleyin.",
         "title": "Auth0'ya yönlendiriliyor..."
       },
-      "role": {
-        "admin": "Yönetici olarak giriş yap",
-        "guest": "Misafir olarak giriş yap",
-        "student": "Öğrenci olarak giriş yap",
-        "teacher": "Öğretmen olarak giriş yap"
-      },
       "unavailable": {
         "message": "Bu örnekte giriş yapılandırılmamış. Bir atölyedeki misafirler bunun yerine kodlarını girebilir.",
         "title": "Oturum açma kullanılamıyor"
@@ -62,6 +54,7 @@
         "introExisting": "Kuruluşunuz “{{name}}” için artık çevrim içi olarak onaylanan bir beyan bulunmaktadır. Bu beyan, daha önce imzaladığınız kullanıcı sözleşmesinin yerine geçer. Lütfen okuyun ve kurumunuz adına onaylayın.",
         "introNewVersion": "Beyan güncellendi (sürüm {{version}}). Lütfen yeni sürümü okuyun ve kuruluşunuz “{{name}}” adına onaylayın.",
         "introWithdrawn": "“{{name}}” adlı kuruluşunuzun beyannameye verdiği onay geri çekildiği için kuruluşunuz askıya alındı. {{siteName}}'i yeniden kullanmak için lütfen beyannameyi okuyun ve kurumunuz adına onaylayın.",
+        "later": "Daha sonra",
         "logout": "Çıkış yap",
         "oneHeadIsEnough": "Kuruluş yöneticilerinden birinin onay vermesi yeterlidir. O zamana kadar kuruluşunuz askıya alınır: üyeleri {{siteName}}'i kullanamaz.",
         "submit": "Onayla",
@@ -124,23 +117,8 @@
         "tooLong": "En fazla {{max}} karakter. Lütfen kısaltın veya bir öneri seçin."
       }
     },
-    "participant": {
-      "leaveConfirm": {
-        "confirm": "Atölyeden ayrıl",
-        "message": "Bu atölyeden ayrılmak istediğinizden emin misiniz? Yeniden katılmak için yeni bir davet bağlantısına ihtiyacınız olacak.",
-        "title": "Atölyeden ayrılsın mı?"
-      },
-      "leaveWorkshop": "Atölyeden ayrıl",
-      "organization": "Organizasyon",
-      "role": "Atölye Katılımcısı",
-      "workshop": "Atölye"
-    },
     "profile": {
-      "ageGroup": "Yaş Grubu",
-      "ageGroupDescription": "Oyunlarınız için hangi içerik kurallarının geçerli olacağını belirler. Bunu istediğiniz zaman değiştirebilirsiniz.",
       "ageGroupSection": "Yaş ve Koruma Grubu",
-      "ageGroupU13": "13-17 yaş",
-      "ageGroupU18": "18+",
       "gamesCreated": "Oluşturulan Oyunlar",
       "gamesPlayed": "Oynanan Oyunlar",
       "guestCode": {
@@ -155,19 +133,12 @@
       "noRole": "Rol atanmamış",
       "organization": "Organizasyon",
       "organizationSection": "Organizasyon \u0026 Rol",
-      "participantCode": {
-        "error": "Erişim kodunuz yüklenemedi.",
-        "hint": "Bu kodun fotoğrafını çekin veya bir yere not edin ve kimseyle paylaşmayın. Bu kod, istediğiniz zaman ve herhangi bir cihazdan hesabınıza yeniden erişmenizi sağlar: ana sayfadaki “Kodu girin” bölümünün altına bu kelimeleri girin veya QR kodunu tarayın.",
-        "longTokenHint": "QR kodunun fotoğrafını çekin veya bağlantıyı kaydedin ve kimseyle paylaşmayın. Bu, istediğiniz zaman hesabınıza yeniden erişmenizi sağlar. Atölye yöneticiniz, erişiminizi sıfırlayarak size dört kelimelik kısa bir kod verebilir.",
-        "title": "Erişim kodunuz"
-      },
       "role": "Rol",
       "roles": {
         "admin": "Yönetici",
         "guest": "Misafir",
         "head": "Organizasyon Başkanı",
         "individual": "Bireysel",
-        "participant": "Katılımcı",
         "staff": "Atölye Lideri"
       },
       "statisticsSection": "İstatistikler",
@@ -176,12 +147,6 @@
       "workshopSection": "Atölye ve Kuruluş"
     },
     "register": {
-      "ageGroupLabel": "Yaş Grubu",
-      "ageGroupRequired": "Lütfen yaş grubunuzu seçin",
-      "ageGroupU13": "13-17 yaş arası",
-      "ageGroupU18": "18 veya daha büyük",
-      "ageGroupUnder13": "13 yaş altı",
-      "ageGroupUnder13Error": "ChatGameLab'i kullanmak için en az 13 yaşında olmalısınız.",
       "cancelButton": "İptal",
       "emailDescription": "İsteğe bağlıdır. Bunu önemli bildirimler için kullanacağız.",
       "emailLabel": "E-posta Adresi",
@@ -212,25 +177,6 @@
       "continueButton": "Kayda Devam Et",
       "description": "Kullanıcı hesaplarını yönetmek için kimlik doğrulama sağlayıcısı olarak Auth0 kullanıyoruz. Hesabınızı oluşturmak için Auth0'ya yönlendirilecek, ardından profilinizi tamamlamak üzere buraya geri döneceksiniz.",
       "educatorDescription": "{{siteName}}'i atölyelerde, sınıflarda veya kuruluşunda kullan",
-      "educatorModal": {
-        "closeButton": "Kapat",
-        "copied": "Kopyalandı!",
-        "copyEmail": "E-postayı kopyala",
-        "eduInfo": "ChatGameLab'i eğitim amaçlı kullanma hakkında daha fazla bilgi edinin:",
-        "intro": "ChatGameLab'i kuruluşunuzla (okul, üniversite, kurum) kullanmak için lütfen şu adımları izleyin:",
-        "registerButton": "Kişisel Hesap Oluştur",
-        "step1": "1. Kişisel hesap oluşturun",
-        "step1Description": "Önce kişisel hesabınızı oluşturun. Bu, platforma girişiniz olacak.",
-        "step2": "2. Bize e-posta gönderin",
-        "step2Description": "Şuraya bir e-posta yazın",
-        "step2Item1": "Kayıtlı e-posta adresiniz",
-        "step2Item2": "Kuruluşunuzun adı (okul, kurum vb.)",
-        "step2WithInfo": "şunlarla birlikte:",
-        "step3": "3. Kuruluşunuzu ayarlayacağız",
-        "step3Description": "Kuruluşunuzu oluşturup sizi yönetici olarak atayacağız. Ardından meslektaşlarınızı davet edebilir ve atölyeler ayarlayabilirsiniz.",
-        "title": "Eğitmen \u0026 Profesyonel Erişimi"
-      },
-      "educatorTitle": "Eğitmen / Profesyonel",
       "individualDescription": "Yapay zekâ destekli metin maceraları oluşturup oynayın",
       "individualTitle": "Kişisel Hesap",
       "loginLink": "Giriş yap",
@@ -246,11 +192,6 @@
     },
     "settings": {
       "accountSection": "Hesap",
-      "ageGroupDescription": "Oyunlarınız için hangi içerik kurallarının geçerli olacağını belirler.",
-      "ageGroupLabel": "Yaş Grubu",
-      "ageGroupU13": "13-17 yaş",
-      "ageGroupU18": "18 veya daha büyük",
-      "emailChangeNote": "E-posta adresinizi değiştirmek için lütfen site yöneticisiyle iletişime geçin.",
       "emailDescription": "İsteğe bağlı. Kuruluşlar sizi bu adres üzerinden davet eder; başka hiçbir hesap bunu kullanamaz.",
       "emailLabel": "E-posta",
       "emailPlaceholder": "siz@ornek.org",
@@ -273,7 +214,6 @@
     }
   },
   "common": {
-    "...": "...",
     "actions": "Eylemler",
     "admin": {
       "invites": {
@@ -290,9 +230,7 @@
           "title": "Daveti Sil"
         },
         "role": "Rol",
-        "searchPlaceholder": "E-posta, rol, durum veya organizasyona göre ara...",
         "sort": {
-          "label": "Sırala",
           "modifiedAt-asc": "Güncellendi (En eski)",
           "modifiedAt-desc": "Güncellendi (En yeni)",
           "organization-asc": "Organizasyon (A-Z)",
@@ -349,7 +287,6 @@
         "postalCode": "Posta kodu",
         "removeMember": "Üyeyi kaldır",
         "removeMemberConfirm": "{{name}} kişisini bu organizasyondan kaldırmak istediğinizden emin misiniz?",
-        "searchPlaceholder": "Organizasyon ara...",
         "sendInvite": "Davet Gönder",
         "status": "Durum ve onay",
         "statusActive": "Etkin",
@@ -366,16 +303,6 @@
         "title": "Organizasyonları Yönet"
       },
       "registrations": {
-        "bell": {
-          "empty": "Son iki hafta içinde hiçbir kuruluş kaydolmadı.",
-          "intro_one": "Bu kuruluş son iki hafta içinde kaydoldu ve zaten etkinleştirildi.",
-          "intro_other": "Bu {{count}} kuruluş son iki hafta içinde kaydoldu ve zaten etkinleştirildi.",
-          "label": "Yeni kuruluşlar",
-          "later": "Daha sonra",
-          "open": "Genel görünüme git",
-          "suspendHint": "E-posta adresleri şu anda doğrulanmıyor. Yeni kuruluşlara kısaca göz atın ve bir sorun varsa genel görünümden askıya alın.",
-          "title": "Yeni kuruluşlar"
-        },
         "date": "Kayıt tarihi",
         "description": "Son iki hafta içinde kendi kendine kaydolan kuruluşlar. E-posta adresini doğrulamadan hemen etkinleşirler; göz atın ve bir sorun varsa kuruluşu askıya alın.",
         "empty": "Son iki hafta içinde hiçbir kuruluş kendi kendine kaydolmadı.",
@@ -398,8 +325,6 @@
           "all": "Tüm kullanıcılar",
           "noGuests": "Misafirler olmadan"
         },
-        "hideGuests": "Misafirleri gizle ({{count}})",
-        "hideGuestsShort": "Misafirler ({{count}})",
         "joined": "Katıldı",
         "loadError": "Kullanıcılar yüklenemedi",
         "makeAdmin": "Yönetici yap",
@@ -417,8 +342,6 @@
         "removeAdminTitle": "Yönetici Rolünü Kaldır",
         "removeAdminWarning": "Bu kullanıcı tüm yönetici ayrıcalıklarını kaybedecek.",
         "role": "Rol",
-        "searchPlaceholder": "İsim, e-posta, rol veya organizasyona göre ara...",
-        "showing": "{{total}} kullanıcıdan {{count}} gösteriliyor",
         "signUpInProgress": "Kayıt olma işlemi devam ediyor",
         "signingUp": "Kayıt oluyor",
         "sort": {
@@ -426,7 +349,6 @@
           "email-desc": "E-posta (Z-A)",
           "joined-asc": "Katıldı (En eski)",
           "joined-desc": "Katıldı (En yeni)",
-          "label": "Sırala",
           "name-asc": "İsim (A-Z)",
           "name-desc": "İsim (Z-A)",
           "organization-asc": "Organizasyon (A-Z)",
@@ -460,7 +382,6 @@
       "high": "Yüksek",
       "label": "Yapay Zekâ Kalite Seviyesi",
       "low": "Ekonomik",
-      "max": "Maks (Premium + Ses)",
       "medium": "Dengeli",
       "newSessionsOnly": "Bu katman yalnızca yeni oturumlar için geçerlidir. Mevcut oturumlar başladıkları katmanı korur.",
       "serverDefault": "Sunucu Varsayılanı"
@@ -472,7 +393,6 @@
         "message": "\"{{name}}\" oyununun bir kopyası oyunlarınıza eklenecek.",
         "title": "Oyunu Kopyala"
       },
-      "copyGame": "Oyunu Kopyala",
       "empty": {
         "conditions": {
           "favorites": "favorilerinizden biri",
@@ -580,11 +500,9 @@
         "revokeGameShare": "Paylaşım bağlantısını iptal et",
         "revokePrivateShare": "Paylaşım bağlantısını iptal et",
         "sponsorships": "Oyun Sponsorlukları",
-        "toggle": "Paylaşımlar \u0006 Sponsorluklar",
+        "toggle": "Paylaşımlar \u0026 Sponsorluklar",
         "unknownGame": "Bilinmeyen oyun",
         "unknownOrg": "Bilinmeyen organizasyon",
-        "unknownUser": "Bilinmeyen kullanıcı",
-        "unknownWorkshop": "Bilinmeyen atölye",
         "unlimited": "Sınırsız kullanım"
       },
       "sort": {
@@ -641,24 +559,9 @@
     },
     "error": "Hata",
     "footer": {
-      "copyright": "JFF - Medya Pedagojisi Enstitüsü",
-      "jffTitle": "JFF - Eğitim Araştırmaları ve İnovasyon Enstitüsü",
       "programmedBy": "Programlayan"
     },
-    "gamePlayer": {
-      "rebuilding": {
-        "description": "Yakında burada tekrar oyun oynayabileceksiniz.",
-        "title": "Oyun oynatıcı yeniden oluşturuluyor"
-      }
-    },
     "games": {
-      "actions": {
-        "delete": "Sil",
-        "edit": "Düzenle",
-        "export": "Dışa aktar",
-        "play": "Oyna",
-        "view": "Görüntüle"
-      },
       "badges": {
         "myGame": "Oyunum",
         "public": "Herkese Açık",
@@ -688,7 +591,6 @@
         "namePlaceholder": "örn. Uzay Macerası",
         "publicDescription": "Genel oyunlar bu platformdaki tüm kullanıcılar tarafından görülebilir ve oynanabilir.",
         "publicLabel": "Bu oyunu herkese açık yap",
-        "publicOwnerOnly": "Bir oyunu yalnızca oyunun oluşturucusu herkese açık hâle getirebilir.",
         "submit": "Oyun Oluştur",
         "title": "Yeni Oyun Oluştur"
       },
@@ -713,7 +615,7 @@
         "imageStyleHint": "Örneğin: çizgi film, gerçekçi, piksel art, suluboya...",
         "name": "Oyun Adı",
         "scenario": "Oyun ne hakkında?",
-        "scenarioHint": "Kısaca açıklayın: Oyun nasıl işliyor? Dünya nasıl bir yer? Dil \u00026 Üslup (ör. altıncı sınıf öğrencileri için İspanyolca)?\nOyuncunun rolü nedir? \"Oyuncu ...\" diye yazın.\nYapay zekânın belirli bir kişinin rolünü üstlenmesini istiyorsanız \"Sen ...\" diye yazın.\nAmaç nedir? Oyuncu kazandığını nasıl anlıyor?",
+        "scenarioHint": "Kısaca açıklayın: Oyun nasıl işliyor? Dünya nasıl bir yer? Dil \u0026 Üslup (ör. altıncı sınıf öğrencileri için İspanyolca)?\nOyuncunun rolü nedir? \"Oyuncu ...\" diye yazın.\nYapay zekânın belirli bir kişinin rolünü üstlenmesini istiyorsanız \"Sen ...\" diye yazın.\nAmaç nedir? Oyuncu kazandığını nasıl anlıyor?",
         "scenarioPlaceholder": "Sen gizemli bir ormanda keşif yapan bir kaşifsin. Amacın saklı hazinenin yerini bulmak...",
         "statusFields": "Oyun değerleri",
         "statusFieldsHint": "Oyun hangi değerleri takip etmeli? Örneğin can, puan veya cephane. Oyun bu değerleri hatırlar ve oynarken günceller.",
@@ -917,8 +819,7 @@
           "status": {
             "builtIn": "Henüz açıklama yok: Sesi açıklayana kadar oyun yerleşik bir sesle konuşur.",
             "cast": "Oyun başladığında, seçtiğin türde hikâyeye en uygun yerleşik sesi seçer. Açıklama, sesin nasıl konuşacağını yönlendirir.",
-            "ownVoice": "Bu açıklama için kendi yapay zekâ anahtarında oluşturulmuş özel bir ses.",
-            "steered": "Hikâyeyi, açıklamanın belirttiği özelliklere göre yerleşik bir ses okur."
+            "ownVoice": "Bu açıklama için kendi yapay zekâ anahtarında oluşturulmuş özel bir ses."
           },
           "stop": "Örneği durdur"
         },
@@ -959,10 +860,6 @@
         "titleView": "Oyun",
         "untitled": "Başlıksız oyun"
       },
-      "empty": {
-        "description": "Etkileşimli yapay zekâ destekli maceralara başlamak için ilk oyununuzu oluşturun.",
-        "title": "Henüz oyun yok"
-      },
       "errors": {
         "loadFailed": "Oyunlar yüklenemedi. Lütfen tekrar deneyin.",
         "nameRequired": "Oyun adı zorunludur",
@@ -977,7 +874,6 @@
       "fields": {
         "created": "Oluşturuldu",
         "creator": "Oluşturan",
-        "me": "Ben",
         "modified": "Güncellendi",
         "name": "İsim",
         "playCount": "Oynanma",
@@ -986,9 +882,7 @@
       "genres": {
         "adventure": "Macera",
         "discussion": "Tartışma",
-        "npc": "Karakter",
-        "npc-duo": "Tartışma",
-        "npc-live": "Karakter"
+        "npc": "Karakter"
       },
       "importExport": {
         "coverFailed": "Oyun içe aktarıldı, ancak kapak görseli kontrol edilemedi. Düzenleyicide yeni bir tane çizdirebilirsin.",
@@ -1004,7 +898,6 @@
         "importButton": "Oyunu İçe Aktar"
       },
       "newGame": "Yeni oyun",
-      "playNow": "Hemen Oyna",
       "privacyHint": "Bir oyunun adı ve açıklaması herkese açık şekilde görünür olabilir. Lütfen gerçek isimler kullanmayın.",
       "privacyHintShort": "Herkese açık şekilde görünebilir – lütfen gerçek isim kullanmayın.",
       "privateShare": {
@@ -1052,12 +945,10 @@
         "active": "Aktif",
         "privateShareLink": "Özel Paylaşım Bağlantısı",
         "privateShareLinkDescription": "Özel paylaşım bağlantıları başkalarıyla paylaşılabilir. Bağlantıya sahip herkes hesabı olmadan oyunu anonim olarak oynayabilir. Masrafları karşılamak için bir API anahtarı seçilmelidir.",
-        "publicGameWorkshopHint": "Bu, atölyenizin parçası olmayan genel bir oyun. Atölye modunda genel oyunlar için paylaşım seçenekleri mevcut değildir.",
         "publicSponsoring": "Genel Sponsorlu",
         "publicSponsoringDescription": "Platformdaki tüm kullanıcılar bu oyunu ücretsiz oynayabilir - atanan API anahtarınız maliyeti karşılar.",
         "sectionTitle": "Paylaşım Seçenekleri",
-        "sectionTitleShareOnly": "Paylaşım Seçenekleri",
-        "workshopShareRequiresPublic": "Bu oyun, atölyede paylaşılabilmesi için herkese açık olmalıdır."
+        "sectionTitleShareOnly": "Paylaşım Seçenekleri"
       },
       "sort": {
         "createdAt-asc": "Oluşturma (En eski)",
@@ -1113,7 +1004,7 @@
         "basicInfo": "Oyuna dair genel bilgiler. Sadece size gösterilir ve oyunu etkilemez.",
         "importExport": "İçe/Dışa Aktar",
         "quickStart": "Hızlı Başlangıç",
-        "story": "Hikâye \u0006 Yapay Zekâ",
+        "story": "Hikâye \u0026 Yapay Zekâ",
         "storyInfo": "Buradaki her şey yapay zekâya gönderilir ve oyun dünyanızı şekillendirir.",
         "style": "Tasarım",
         "styleInfo": "Oyun oynanırken görünümü için isteğe bağlı ayarlar."
@@ -1167,7 +1058,6 @@
           "zombie": "Zombi"
         }
       },
-      "title": "Oluşturduğum Oyunlar",
       "viewModal": {
         "readOnlyNotice": "Bu oyun başka bir kullanıcı tarafından oluşturuldu. Ayrıntıları görebilirsiniz ancak düzenleyemezsiniz. Düzenleyebileceğiniz bir sürüm oluşturmak için \"Kopyala\"yı kullanın.",
         "title": "Oyun Ayrıntıları"
@@ -1195,25 +1085,6 @@
     "help": "Yardım",
     "home": {
       "codeCta": "Kodu girin",
-      "features": {
-        "create": {
-          "description": "Yapay zekâ destekli etkileşimli metin maceraları tasarlayın",
-          "title": "Maceralar Oluşturun"
-        },
-        "learn": {
-          "description": "Eğitim atölyeleri ve sınıf etkinlikleri için mükemmel",
-          "title": "Öğrenin \u0006 Öğretin"
-        },
-        "play": {
-          "description": "Arkadaşlarınızla birlikte hikâye anlatımına katılın",
-          "title": "Birlikte Oynayın"
-        },
-        "title": "Neden ChatGameLab?",
-        "understand": {
-          "description": "Yapay zekâ modellerinin hikâyeleri nasıl oluşturduğunu keşfedin ve çalışma prensiplerini öğrenin",
-          "title": "Yapay Zekâyı Anlayın"
-        }
-      },
       "loginCta": "Giriş yap ve keşfet",
       "splashDescription": "Yapay zekâ destekli metin macera oyunları oluşturmak ve oynamak için eğitim platformu. Öğretmenler, öğrenciler ve yaratıcı hikâye anlatıcıları için mükemmel."
     },
@@ -1250,19 +1121,9 @@
       "guest": {
         "loggingIn": "Giriş yapılıyor..."
       },
-      "participant": {
-        "loggingIn": "Giriş yapılıyor..."
-      },
       "success": {
         "message": "Atölyeye başarıyla katıldınız. Yönlendiriliyorsunuz...",
         "title": "Hoş geldiniz!"
-      },
-      "switchWorkshop": {
-        "message": "Mevcut atölyedeki oyunlarınız ve ilerlemeniz korunacak ancak yeniden katılana kadar erişemeyeceksiniz.",
-        "stayButton": "Mevcut Atölyede Kal",
-        "switchButton": "Atölye Değiştir",
-        "title": "Atölye değiştirilsin mi?",
-        "warning": "Şu anda \"{{currentWorkshop}}\" atölyesindesiniz. \"{{newWorkshop}}\" atölyesine katılmak mevcut atölyeden çıkmanıza neden olur."
       }
     },
     "labels": {
@@ -1297,31 +1158,25 @@
     "logout": "Çıkış Yap",
     "me": "Ben",
     "myGames": {
-      "continue": "Oyna",
       "copyConfirm": {
         "confirm": "Oyunu Kopyala",
         "message": "\"{{name}}\" oyununun bir kopyası oyunlarınıza eklenecek.",
         "title": "Oyunu Kopyala"
       },
-      "copyGame": "Oyunu Kopyala",
       "empty": {
         "description": "Etkileşimli yapay zekâ maceralarına başlamak için ilk oyununuzu oluşturun.",
         "title": "Henüz oyun yok"
       },
-      "favorite": "Favorilere ekle",
       "filters": {
         "all": "Tümü",
         "favorites": "Favoriler"
       },
-      "play": "Oyna",
-      "restart": "Yeniden Başlat",
       "restartConfirm": {
         "confirm": "Yeniden Başlat",
         "message": "\"{{game}}\" oyununu yeniden başlatmak istediğinizden emin misiniz? Mevcut ilerlemeniz kaybolacak.",
         "title": "Oyunu Yeniden Başlat"
       },
-      "title": "Oyunlarım",
-      "unfavorite": "Favorilerden çıkar"
+      "title": "Oyunlarım"
     },
     "myOrganization": {
       "actions": "Eylemler",
@@ -1333,7 +1188,6 @@
         "allPlatforms": "Tüm platformlar",
         "allowPublicSponsoring": "Herkese açık sponsorluğa izin ver",
         "allowPublicSponsoringDesc": "Bu anahtar tüm kullanıcılar için oyun sponsorluğunda kullanılabilir.",
-        "filterByPlatform": "Platforma göre filtrele",
         "freeUseKey": {
           "description": "Tüm kuruluş üyelerinin kendi API anahtarlarına ihtiyaç duymadan oyun oynamasına izin vermek için ücretsiz kullanım anahtarı ayarlayın.",
           "remove": "Kaldır",
@@ -1353,13 +1207,10 @@
         "platform": "Platform",
         "publicSponsoring": "Herkese Açık Sponsor",
         "removeShare": "Kuruluştan kaldır",
-        "searchPlaceholder": "İsme veya sahibine göre ara...",
         "selectKey": "API Anahtarı Seç",
         "selectKeyPlaceholder": "Paylaşmak için bir anahtar seçin...",
         "share": "Paylaş",
-        "shareKey": "Anahtarı Paylaş",
         "shareKeyTitle": "Kuruluşa API anahtarı ekle",
-        "showDetails": "Ayrıntıları göster",
         "title": "Organizasyon API Anahtarları"
       },
       "autoShare": {
@@ -1369,7 +1220,10 @@
         "personalKeyGroup": "Kişisel Anahtarlar"
       },
       "declaration": {
+        "agree": "Oku ve onayla",
         "consented": "Kuruluşunuz {{date}} tarihinde {{version}} sürümünü onayladı.",
+        "goAgree": "Kuruluşunuza git",
+        "newVersion": "Onay beyanının yeni bir {{version}} sürümü var. Kuruluşunuz etkin kalır; lütfen okuyun ve kuruluşunuz adına onaylayın.",
         "title": "Onay beyanı",
         "withdraw": "Onayı geri çek",
         "withdrawConfirm": "Onay olmadan kuruluşunuz askıya alınır: bir yönetici yeniden onay verene kadar hiçbir üye {{siteName}}'i kullanamaz. Verileriniz saklanır.",
@@ -1387,9 +1241,6 @@
       "inviteTeacher": "Öğretmen Davet Et",
       "inviteTeacherDescription": "Bir öğretmeni organizasyonunuza katılması için davet edin.",
       "inviteTeacherTitle": "Öğretmen Davet Et",
-      "inviteUser": "Kullanıcı Davet Et",
-      "inviteUserDescription": "Belirli rol olmadan organizasyonunuza katılması için bir kullanıcıyı davet edin.",
-      "inviteUserTitle": "Kullanıcı Davet Et",
       "lastHeadError": "Bu organizasyonun son başkanısınız. Ayrılmanız gerekiyorsa lütfen site yöneticileriyle iletişime geçin.",
       "leaveConfirm": "\"{{name}}\" organizasyonundan ayrılmak istediğinizden emin misiniz?",
       "leaveError": "Organizasyondan ayrılamadınız. Lütfen tekrar deneyin.",
@@ -1456,7 +1307,6 @@
       "removeTitle": "Üyeyi Kaldır",
       "removeWarning": "Bu kullanıcı organizasyon erişimini kaybedecek.",
       "role": "Rol",
-      "searchPlaceholder": "Üyelerde ara...",
       "showing": "{{count}} üye",
       "sort": {
         "label": "Sırala",
@@ -1494,20 +1344,12 @@
         "active": "Aktif",
         "activeDescription": "Aktif atölyeler katılımcıların katılmasına ve oyun oluşturmasına izin verir.",
         "activeLabel": "Aktif",
-        "addIndividual": "Kuruluş Üyesi Ekle",
         "addIndividualError": "Üye atölyeye eklenemedi.",
-        "addIndividualHint": "Bir kullanıcı eklemek onları otomatik olarak atölye moduna alır. Normal panoları yerine atölye görünümünü görürler. Yalnızca amaçlandıysa yapın.",
-        "addIndividualStaffNote": "Yöneticiler ve öğretmenler atölyelere kendi atölye listelerinden katılmalıdır - burada listelenmezler.",
-        "addIndividualSuccess": "Üye Eklendi",
-        "addIndividualSuccessMessage": "{{name}} atölyeye eklendi.",
-        "addIndividualTitle": "Atölyeye Birey Ekle",
         "addToWorkshop": "Atölyeye ekle",
         "aiQualityTierHint": "Yapay zekâ yanıtlarının kalite seviyesi. Daha yüksek seviyeler daha pahalıdır ancak kaliteyi artırabilir. Boş bırakılırsa sunucu varsayılanı kullanılır.",
         "allowGameSharing": "Oyun paylaşımına izin ver",
         "allowGameSharingHint": "Etkinleştirildiğinde, katılımcılar atölyenin API anahtarını kullanarak oyunları için paylaşım bağlantıları oluşturabilir",
-        "anonymousParticipant": "Anonim katılımcı",
         "create": "Atölye Oluştur",
-        "createFirst": "İlk Atölyeni Oluştur",
         "createInviteLink": "Davet Bağlantısı Oluştur",
         "createTitle": "Atölye Oluştur",
         "deactivate": "Devre dışı bırak",
@@ -1530,10 +1372,8 @@
         "inviteByEmailSuccessMessage": "Bir davet oluşturuldu. Kullanıcı bunu bekleyen davetlerinde görecek.",
         "inviteByEmailTitle": "Kullanıcıyı Atölyeye Davet Et",
         "inviteCreatedAt": "Oluşturuldu",
-        "inviteDescription": "Katılımcıların bu atölyeye katılmak için kullanabileceği bir davet bağlantısı oluşturun.",
         "inviteExpiresAt": "Bitiş",
         "inviteLink": "Davet Bağlantısı",
-        "inviteLinkDescription": "Katılımcıları davet etmek için bu bağlantıyı paylaşın.",
         "inviteLinkTitle": "Katılımcılar için davet bağlantısı – {{name}}",
         "inviteUsage": "Kullanım",
         "isPaused": "Atölyeyi duraklat",
@@ -1549,14 +1389,11 @@
         "noDefaultModel": "Platform varsayılanını kullan",
         "noGuestToken": "Bu üyenin yeniden giriş bağlantısı yok. Yalnızca misafirlerin bağlantısı vardır.",
         "noIndividuals": "Bu kuruluşta bireysel kullanıcı yok.",
-        "noParticipantToken": "Bu katılımcının davet bağlantısı yok. Yalnızca anonim katılımcıların (misafirlerin) yeniden kullanılabilir davet bağlantıları vardır.",
         "noParticipants": "Henüz katılımcı yok",
         "noResults": "Aramanız veya filtrenizle eşleşen atölye yok.",
         "notAuthorized": "Atölyeleri yönetme izniniz yok. Bu sayfaya yalnızca başkanlar ve öğretmenler erişebilir.",
         "participantGames": "{{count}} oyun",
         "participantJoined": "{{date}} tarihinde katıldı",
-        "participantLinkTitle": "Yeniden giriş bağlantısı",
-        "participantLinkTitleNamed": "{{name}} için yeniden giriş bağlantısı",
         "participantName": "Katılımcı adı",
         "participants": "Katılımcılar",
         "promptConstraintsFallbackOrg": "Kuruluşun çocuk ve genç koruma kuralı varsayılan olarak kullanılıyor: {{constraint}}",
@@ -1580,7 +1417,6 @@
         "selectApiKey": "Bir API anahtarı seçin",
         "settings": "Ayarlar",
         "shareGuestLink": "Yeniden giriş bağlantısını göster",
-        "shareParticipantLink": "Yeniden giriş bağlantısını göster",
         "showOtherParticipantsGames": "Diğer katılımcıların oyunlarını göster",
         "showOtherParticipantsGamesHint": "Yönetici ve personel moderasyon için her zaman tüm katılımcıların oyunlarını görebilir",
         "showPublicGames": "Katılımcılara herkese açık oyunları göster",
@@ -1614,7 +1450,6 @@
       "decline": "Reddet",
       "declineConfirm": "Bu daveti reddetmek istediğinizden emin misiniz?",
       "declineTitle": "Daveti Reddet",
-      "empty": "Yeni bildirim yok.",
       "inviteDescription": "{{role}} olarak katılmaya davet edildiniz.",
       "inviteToJoin": "Organizasyon Daveti",
       "nothingNew": "Yeni bir şey yok",
@@ -1763,6 +1598,7 @@
           "educatorInfoUrl": "Eğitimciler için bilgiler",
           "gameTipsUrl": "Oyun oluşturma ipuçları",
           "helpUrl": "Yardım",
+          "operatorLegalName": "İşletmecinin yasal adı (hukuki metinler için)",
           "operatorName": "İşletmeci",
           "operatorUrl": "İşletmecinin web sitesi",
           "privacyUrl": "Gizlilik politikası",
@@ -1789,13 +1625,10 @@
         "title": "Yaş grubuna göre çocuk ve genç koruma kuralları",
         "u13Hint": "13-17 yaş arasındaki, dosyada ebeveyn izni bulunmayan oturum açmış kullanıcıların her bir yapay zeka istemine eklenir.",
         "u13Label": "13-17 yaş arası, ebeveyn izni olmayan kullanıcılar için çocuk ve genç koruma kuralı (U13)",
-        "u13Placeholder": "ör. Tüm içeriği gençler için kesinlikle yaşa uygun tutun. Şiddet, romantik içerik veya korku teması yok.",
         "u13pHint": "13-17 yaş arasındaki, dosyada ebeveyn izni bulunan oturum açmış kullanıcıların her bir yapay zeka istemine eklenir.",
         "u13pLabel": "13-17 yaş arası, ebeveyn izni olan kullanıcılar için çocuk ve genç koruma kuralı (U13p)",
-        "u13pPlaceholder": "örn. Ebeveynleri izin vermiş ergenler için yaşa uygun içerik. Bazı olgun temalara izin verilir, açık içerik yok.",
         "u18Hint": "18 yaş ve üzeri giriş yapmış kullanıcılar için her yapay zekâ istemine eklenir.",
-        "u18Label": "18 yaş ve üzeri kullanıcılar için çocuk ve genç koruma kuralı (U18)",
-        "u18Placeholder": "ör. İçeriği uygun tutun. Açık şiddet veya cinsel içerikten kaçının."
+        "u18Label": "18 yaş ve üzeri kullanıcılar için çocuk ve genç koruma kuralı (U18)"
       },
       "defaultTier": {
         "description": "Atölye, kurum veya kullanıcı seviyesinde belirli bir seviye ayarlanmadığında kullanılan sunucu genelindeki yedek seviye. Daha yüksek seviyeler daha pahalıdır ancak kaliteyi artırabilir.",
@@ -1816,6 +1649,26 @@
       "freeUseTier": {
         "description": "Ücretsiz kullanım API anahtarı etkin olduğunda kullanılacak kalite seviyesi. Daha yüksek seviyeler daha pahalıdır ancak kaliteyi artırabilir. Varsayılan seviye için boş bırakın.",
         "title": "Ücretsiz Kullanım Yapay Zekâ Kalite Seviyesi"
+      },
+      "mail": {
+        "clearPassword": "Parolayı kaldır",
+        "consentCopy": "Onayların kopyası şuraya",
+        "consentCopyHint": "Her kuruluşun onayının bir kopyasını alır. Boş: destek e-postası.",
+        "description": "{{siteName}}'in e-postalarını göndereceği sunucu, örneğin bir kuruluşun onay teyidi. Sunucu yoksa e-postalar yalnızca günlüğe yazılır.",
+        "from": "Gönderen",
+        "fromHint": "Boş: gönderen kullanıcı adıdır.",
+        "fromPlaceholder": "Ad \u003cnoreply@example.org\u003e",
+        "host": "Sunucu",
+        "hostHint": "Yalnızca ana bilgisayar adı, bağlantı noktası olmadan. Boş: e-postalar yalnızca günlüğe yazılır.",
+        "password": "Parola",
+        "passwordNone": "Parola ayarlı değil.",
+        "passwordSet": "Bir parola ayarlı. Korumak için boş bırakın.",
+        "port": "Bağlantı noktası",
+        "portHint": "STARTTLS ile 587, TLS ile 465.",
+        "save": "Kaydet",
+        "saveFailed": "Kaydedilemedi. Lütfen alanları kontrol edin.",
+        "title": "E-posta sunucusu",
+        "user": "Kullanıcı adı"
       },
       "models": {
         "assign": {
@@ -1931,6 +1784,7 @@
         "ai": "Yapay zekâ ve anahtarlar",
         "branding": "Marka görünümü",
         "general": "Genel",
+        "mail": "E-posta",
         "models": "Yapay zekâ modelleri",
         "youthProtection": "Gençlerin korunması"
       },
@@ -1996,49 +1850,6 @@
     }
   },
   "dashboard": {
-    "cards": {
-      "externalLinks": {
-        "edu": {
-          "description": "ChatGameLab ile medya pedagojisi çalışması",
-          "title": "ChatGameLab Hakkında"
-        },
-        "jff": {
-          "description": "Proje koordinatörü ve lider organizasyon.",
-          "title": "JFF – Medya Pedagojisi Enstitüsü"
-        },
-        "mainSite": {
-          "description": "Bu platformun arkasındaki eğitim projesi hakkında daha fazla bilgi edinin.",
-          "title": "ChatGameLab Projesi"
-        },
-        "title": "ChatGameLab Hakkında"
-      },
-      "lastPlayed": {
-        "empty": "Henüz oyun geçmişi yok. Bir oyun oynamaya başlayın!",
-        "title": "Son Oynanan",
-        "viewAll": "Tüm Oyunlar"
-      },
-      "myGames": {
-        "empty": "Henüz oyun yok. İlk oyununuzu oluşturun!",
-        "title": "Oyunlarım",
-        "viewAll": "Tüm Oluşturduklarım"
-      },
-      "myWorkshops": {
-        "empty": "Aktif atölye yok. Organizasyonunuzda bir atölye oluşturun!",
-        "title": "Atölyelerim",
-        "viewAll": "Tüm Atölyeler"
-      },
-      "newGames": {
-        "empty": "Henüz oyun mevcut değil.",
-        "title": "Yeni Oyunlar",
-        "viewAll": "Tüm Oyunlar"
-      },
-      "popularGames": {
-        "empty": "Henüz oyun mevcut değil.",
-        "plays": "{{count}} oynanma",
-        "title": "Popüler Oyunlar",
-        "viewAll": "Tüm Oyunlar"
-      }
-    },
     "continue": {
       "go": "Devam et",
       "hint": "kaldığın yerden devam et",
@@ -2047,15 +1858,14 @@
       "title": "Oyuna devam et"
     },
     "fresh": {
-      "by": "{{name}} tarafından",
       "empty": "Henüz yeni oyun yok.",
       "title": "Yeni oyunlar",
       "viewAll": "Galeriyi gör"
     },
     "hero": {
       "create": "Oluştur",
-      "greeting": "Merhaba {{name}}. Bugün ne \u001b[mark\u001bbuilde\u001b[/mark\u001b edelim?",
-      "greetingNoName": "Merhaba. Bugün ne \u001b[mark\u001bbuilde\u001b[/mark\u001b edelim?",
+      "greeting": "Merhaba {{name}}. Bugün ne \u003cmark\u003einşa\u003c/mark\u003e edelim?",
+      "greetingNoName": "Merhaba. Bugün ne \u003cmark\u003einşa\u003c/mark\u003e edelim?",
       "journal": "Laboratuvar günlüğü · {{date}}",
       "promptLabel": "Bir oyun fikri anlatın",
       "promptPlaceholder": "Bir oyun fikri anlatın… yapay zekâ onu şekillendirmenize yardımcı olur"
@@ -2068,8 +1878,7 @@
     },
     "links": {
       "about": "{{siteName}} hakkında",
-      "educators": "Eğitimciler için",
-      "jff": "JFF – Medya Eğitimi Enstitüsü"
+      "educators": "Eğitimciler için"
     },
     "ownGames": {
       "empty": "Henüz oyun yok. Yukarıda bir fikir anlatın ve ilk oyununuzu oluşturun!",
@@ -2082,20 +1891,11 @@
       "plays_other": "{{count}} oynanma",
       "title": "En popüler"
     },
-    "quickActions": {
-      "createNewGame": "Yeni Oyun Oluştur",
-      "createWorkshop": "Atölye Oluştur",
-      "importGame": "Oyun İçe Aktar",
-      "inviteMembers": "Üyeleri Davet Et",
-      "startNewGame": "Yeni Oyun Başlat",
-      "title": "Hızlı Eylemler"
-    },
-    "someone": "birisi",
     "untitled": "Adsız",
     "untitledGame": "Adsız Oyun",
     "version": {
       "mismatch": {
-        "message": "Ön uç sürümü \u0003frontendVersion\u0003{{frontendVersion}}\u0003/frontendVersion\u0003 arka uç sürümü \u0003backendVersion\u0003{{backendVersion}}\u0003/backendVersion\u0003 ile eşleşmiyor. Bu beklenmeyen davranışlara yol açabilir. Sorun devam ederse destekle iletişime geçin.",
+        "message": "Ön uç sürümü \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e arka uç sürümü \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e ile eşleşmiyor. Bu beklenmeyen davranışlara yol açabilir. Sorun devam ederse destekle iletişime geçin.",
         "title": "Sürüm Uyumsuzluğu Tespit Edildi"
       }
     },
@@ -2192,10 +1992,8 @@
     "filters": {
       "all": "Tüm Oyunlar",
       "mine": "Oyunlarım",
-      "public": "Herkese Açık Oyunlar",
-      "workshop": "Atölye Oyunları"
+      "public": "Herkese Açık Oyunlar"
     },
-    "gameType": "Oyun",
     "infoModal": {
       "body": "Atölye moduna girdiniz. Bu moddayken yaptığınız her şey bu atölyeye bağlıdır - oluşturduğunuz oyunlar, oyun oturumları ve paylaşım bağlantıları.\n\nİstediğiniz zaman ayrılabilirsiniz. Ayrılmak atölyeyi sonlandırmaz veya oluşturduğunuz hiçbir şeyi silmez.",
       "dontShowAgain": "Bunu tekrar gösterme",
@@ -2220,8 +2018,7 @@
     },
     "showInviteLink": "Davet bağlantısını göster",
     "showPublicPageLink": "Herkese açık sayfa bağlantısını göster",
-    "title": "Atölyem",
-    "you": "Sen"
+    "title": "Atölyem"
   },
   "navigation": {
     "adminPanel": "Yönetici Paneli",
@@ -2270,8 +2067,6 @@
       "observer": "Yönetmen",
       "opening-brief": "Nasıl başlar",
       "outline": "Sahneyi planla",
-      "portrait": "Portre çiz",
-      "portrait-prompt": "Portreyi tarif et",
       "props-store": "Oyun durumu",
       "rephrase": "Eylemi yeniden anlat",
       "rephrase-audio": "Konuşmayı anla",
@@ -2493,52 +2288,50 @@
       "recording": "Dinliyorum… göndermek için bırak"
     },
     "wires": {
-      "adapted-style\u0003eimage-prompt": "stil",
-      "adapted-style\u0003eimage-style": "istek",
-      "adapted-style\u0003estart-game": "hazır",
-      "cast\u001blive-a:voiceA": "ses",
-      "cast\u001blive-b:voiceB": "ses",
-      "cast\u001bstart-game": "hazır",
-      "cast-brief\u001bcast": "karakterler",
-      "condense-scenario\u0003econdensed-scenario": "yanıt",
-      "condensed-scenario\u0003econdense-scenario": "istek",
-      "condensed-scenario\u0003eimage-prompt": "senaryo",
-      "condensed-scenario\u0003estart-game": "hazır",
-      "director\u001blive-a": "müdahale",
-      "director\u001blive-b": "müdahale",
-      "gallery-image\u0003estart-game": "hazır",
-      "greeting\u0003elive-session": "ilk sözler",
-      "greeting\u0003estart-game": "hazır",
-      "greeting\u001blive-a": "ilk sözler",
-      "image-prompt\u0003eimage": "istem",
-      "image-style\u0003eadapted-style": "yanıt",
-      "live-a\u001bdirector": "döküm",
-      "live-b\u001bdirector": "döküm",
-      "live-session\u0003eobserver": "döküm",
-      "observer\u0003elive-session": "ekleme",
-      "opening-brief\u0003egreeting": "özet",
-      "outline\u0003eexpand": "plan",
-      "outline\u0003eimage-prompt": "sahne",
-      "outline\u0003eprops-store": "değişiklikler",
-      "player-input-audio\u0003elive-session": "konuşma",
-      "player-input-audio\u0003erephrase-audio": "konuşma",
-      "player-input-audio\u001blive-a": "konuşma",
-      "player-input-audio\u001blive-b": "konuşma",
-      "player-input-text\u0003erephrase": "eylem",
-      "portrait\u0003estart-game": "hazır",
-      "portrait-prompt\u0003eportrait": "istem",
-      "props-store\u0003eoutline": "durum",
-      "rephrase\u0003eoutline": "eylem",
-      "rephrase-audio\u0003eoutline": "eylem",
-      "start-game\u0003elive-session": "ipucu",
-      "start-game\u0003eoutline": "istem",
-      "start-game\u001blive-a": "işaret",
-      "start-game\u001blive-b": "işaret",
-      "voice\u0003elive-session:secondary": "ses tarzı",
-      "voice\u0003elive-session:voice": "ses",
-      "voice\u0003estart-game": "hazır",
-      "voice-brief\u0003evoice:description": "açıklama",
-      "voice-brief\u0003evoice:voice": "yedek ses"
+      "adapted-style\u003eimage-prompt": "stil",
+      "adapted-style\u003eimage-style": "istek",
+      "adapted-style\u003estart-game": "hazır",
+      "cast-brief\u003ecast": "karakterler",
+      "cast\u003elive-a:voiceA": "ses",
+      "cast\u003elive-b:voiceB": "ses",
+      "cast\u003estart-game": "hazır",
+      "condense-scenario\u003econdensed-scenario": "yanıt",
+      "condensed-scenario\u003econdense-scenario": "istek",
+      "condensed-scenario\u003eimage-prompt": "senaryo",
+      "condensed-scenario\u003estart-game": "hazır",
+      "director\u003elive-a": "müdahale",
+      "director\u003elive-b": "müdahale",
+      "gallery-image\u003estart-game": "hazır",
+      "greeting\u003elive-a": "ilk sözler",
+      "greeting\u003elive-session": "ilk sözler",
+      "greeting\u003estart-game": "hazır",
+      "image-prompt\u003eimage": "istem",
+      "image-style\u003eadapted-style": "yanıt",
+      "live-a\u003edirector": "döküm",
+      "live-b\u003edirector": "döküm",
+      "live-session\u003eobserver": "döküm",
+      "observer\u003elive-session": "müdahale",
+      "opening-brief\u003egreeting": "yönerge",
+      "outline\u003eexpand": "plan",
+      "outline\u003eimage-prompt": "sahne",
+      "outline\u003eprops-store": "değişiklikler",
+      "player-input-audio\u003elive-a": "konuşma",
+      "player-input-audio\u003elive-b": "konuşma",
+      "player-input-audio\u003elive-session": "konuşma",
+      "player-input-audio\u003erephrase-audio": "konuşma",
+      "player-input-text\u003erephrase": "eylem",
+      "props-store\u003eoutline": "durum",
+      "rephrase-audio\u003eoutline": "eylem",
+      "rephrase\u003eoutline": "eylem",
+      "start-game\u003elive-a": "başlangıç işareti",
+      "start-game\u003elive-b": "başlangıç işareti",
+      "start-game\u003elive-session": "başlangıç işareti",
+      "start-game\u003eoutline": "istem",
+      "voice-brief\u003evoice:description": "tanım",
+      "voice-brief\u003evoice:voice": "yedek ses",
+      "voice\u003elive-session:secondary": "ses stili",
+      "voice\u003elive-session:voice": "ses",
+      "voice\u003estart-game": "hazır"
     }
   }
 }
