@@ -15,7 +15,7 @@ For developers, designers and everyone working on ChatGameLab or running it.
 
 ## Guides
 
-- [Styling an embedded game](embed-styling.md): for websites that embed a game
+- [Embedding a game](embedding.md): for websites that show a game, from approval to styling
 - [Running an instance](../deploy/README.md): setting up a server for ChatGameLab
 - [Releasing](workflows/releasing.md), [reviewing](workflows/review.md), [opening the seal](workflows/opening-the-seal.md): the maintainers' workflows
 - [Rules](rules/): conventions beyond the spec, each for the files it names

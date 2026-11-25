@@ -103,8 +103,9 @@
   /* The details of what was clicked, at the top of the side pane. */
   #details { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px;
              margin-bottom: 18px; position: relative; }
-  #details[hidden], #overview[hidden] { display: none; }
-  #details .close { position: absolute; top: 8px; right: 8px; border: 0; background: none; font-size: 20px;
+  #details[hidden], #overview[hidden], aside[hidden] { display: none; }
+  #overview { position: relative; }
+  #details .close, #overview .close { position: absolute; top: 8px; right: 8px; border: 0; background: none; font-size: 20px;
                     line-height: 1; padding: 2px 6px; color: var(--muted); }
   #details .kind { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
   #details h3 { font-size: 20px; line-height: 1.3; margin: 4px 24px 10px 0; }
@@ -151,15 +152,18 @@
     <label><input type="checkbox" id="showDone"> show done</label>
     <button id="relayout" title="Put every card back where the layout wants it">Re-layout</button>
     <button id="fit">Fit</button>
+    <button id="toClose" hidden title="Epics still open whose every issue is closed: ready to close"></button>
+    <button id="help" title="How to read the roadmap">?</button>
     <button id="update" title="Opens the roadmap workflow on GitHub: click Run workflow there (needs write access). This page reloads by itself once the update is out.">Update ↻</button>
   </div>
 </header>
 <main>
   <div id="graphs"><div id="graph"></div><div id="feet"><div class="world"></div></div><div id="covers"><div class="world"></div></div></div>
-  <aside>
+  <!-- The side pane shows only on demand: an item's details, or the legend. -->
+  <aside hidden>
     <section id="details" hidden></section>
-    <div id="overview">
-    <h2>Next up</h2><ul id="next"></ul>
+    <div id="overview" hidden>
+    <button class="close" title="Close (Esc)" aria-label="Close">×</button>
     <h2>How to read it</h2>
     <div class="legend">
       <div><span style="background:var(--ready);border-color:var(--ready-line)"></span>ready: nothing it waits for is open</div>
@@ -199,10 +203,6 @@ const layout = { name: "elk", fit: true, padding: 30, nodeDimensionsIncludeLabel
 const PER_ROW = 2;
 const EPICS_PER_ROW = 3;
 
-function li(item) {
-  const who = item.assignees.length ? ` — ${item.assignees.join(", ")}` : "";
-  return `<li><a href="${item.url}" target="_blank" rel="noopener" data-show="issue:${item.number}">#${item.number}</a> ${escapeHtml(item.title)}${who}</li>`;
-}
 function escapeHtml(s) { return s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 
 fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
@@ -251,11 +251,12 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   });
   document.getElementById("generated").textContent =
     `${data.repo} · updated ${new Date(data.generated).toLocaleString()}`;
-  const byNumber = Object.fromEntries(data.issues.map(i => [i.number, i]));
-  document.getElementById("next").innerHTML = data.next.map(n => li(byNumber[n])).join("");
   // Epics still open whose every issue is closed: the list to purge from.
   const doneEpics = data.epics.filter(e => e.state === "done");
   document.getElementById("doneEpicsSection").hidden = !doneEpics.length;
+  const toClose = document.getElementById("toClose");
+  toClose.hidden = !doneEpics.length;
+  toClose.textContent = `${doneEpics.length} to close`;
   document.getElementById("doneEpicsTitle").textContent = `Epics with every issue done (${doneEpics.length})`;
   document.getElementById("doneEpics").innerHTML = doneEpics.map(e =>
     `<li><a href="${e.url}" target="_blank" rel="noopener" data-show="epic:${e.number}">#${e.number}</a> ${escapeHtml(e.title)}</li>`).join("");
@@ -923,16 +924,38 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       (local && kind !== "milestone" ? `<button class="reload" title="Read this ${kind} fresh from GitHub">Update ↻</button>` : "") + `</div>`;
     details.hidden = false;
     overview.hidden = true;
-    aside.scrollTop = 0;
+    showPane();
     mark(kind, n, focus);
   }
-  function hideDetails() { details.hidden = true; overview.hidden = false; selected = null; mark(null); }
+  // The pane opens for a selection or the legend and closes with it; the
+  // graph takes its room.
+  function showPane() {
+    const was = aside.hidden;
+    aside.hidden = false;
+    aside.scrollTop = 0;
+    if (was) cy.resize();
+  }
+  function hidePane() { aside.hidden = true; details.hidden = true; overview.hidden = true; cy.resize(); }
+  function hideDetails() { selected = null; mark(null); hidePane(); }
+  function showOverview(focusDone) {
+    if (selected) { selected = null; mark(null); }
+    details.hidden = true;
+    overview.hidden = false;
+    showPane();
+    if (focusDone) document.getElementById("doneEpicsSection").scrollIntoView();
+  }
+  document.getElementById("help").addEventListener("click", () => overview.hidden ? showOverview(false) : hidePane());
+  toClose.addEventListener("click", () => showOverview(true));
+  overview.addEventListener("click", ev => { if (ev.target.closest(".close")) hidePane(); });
   details.addEventListener("click", ev => {
     if (ev.target.closest(".close")) hideDetails();
     const b = ev.target.closest(".reload");
     if (b && selected) reloadData(selected.n, b, "Updating…");
   });
-  document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !details.hidden) hideDetails(); });
+  document.addEventListener("keydown", ev => {
+    if (ev.key !== "Escape") return;
+    if (!details.hidden) hideDetails(); else if (!overview.hidden) hidePane();
+  });
   // Links marked data-show (in the side pane) show details on a plain click and
   // open GitHub on cmd-, ctrl- or middle click, as links do.
   document.addEventListener("click", ev => {
