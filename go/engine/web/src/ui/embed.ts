@@ -5,7 +5,7 @@
  * which lands after the page's own styles; the page's
  * Content-Security-Policy keeps what that CSS loads to the platform, the
  * stylesheet's site and a verified page's. The contract a host styles
- * against is docs/embed-styling.md.
+ * against is docs/embedding.md.
  */
 import { handedCSS, stylesheetURL } from "../embed.js";
 

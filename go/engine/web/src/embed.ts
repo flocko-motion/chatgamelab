@@ -2,7 +2,7 @@
  * The playback-engine embedded on another website (#340): the host's own
  * CSS, handed over by the loader script or named in the address. Headless;
  * ui/embed.ts applies it to the page. The styling contract is
- * docs/embed-styling.md.
+ * docs/embedding.md.
  */
 
 /** What the session's own address carries over from the page's, so a reload looks the same. */

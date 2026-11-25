@@ -23,7 +23,7 @@ approved it:
    copy the snippet.
 5. Run `make embed-kit`, open http://localhost:8000, paste the snippet, fill
    in a player ID and press **Run**. The kit hands its CSS box over as the
-   host's CSS (`docs/embed-styling.md`).
+   host's CSS (`docs/embedding.md`).
 6. Resize the stage: a small frame shows only the controls, a medium one the
    conversation, a large one the whole game.
 

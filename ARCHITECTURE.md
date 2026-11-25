@@ -64,7 +64,7 @@ That floor is enforced automatically.
 - **One frame for every host.** An embedded game is the playback-engine in an
   iframe on the host page; the host page never reaches into it, so it never
   reads a player's conversation. A host styles it through the handed-over
-  CSS contract (`docs/embed-styling.md`).
+  CSS contract (`docs/embedding.md`).
 - **The core decides who may frame it.** The playback-engine page's
   `Content-Security-Policy` comes from `core.EmbedFraming`: `frame-ancestors`
   is `'self'`, or the site of the embed link's verified page on any port

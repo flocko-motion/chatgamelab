@@ -6,7 +6,7 @@
    - medium: the conversation and its controls;
    - large: the game with its pictures and status values.
 
-   The host's CSS styles it through the contract in docs/embed-styling.md:
+   The host's CSS styles it through the contract in docs/embedding.md:
    the data-part names and the --cgl-* variables. */
 
 /* The --cgl-* variables a host sets on :root, with the page's own looks as

@@ -942,7 +942,7 @@ wants to own when things render.
   the game with pictures and values). A host's CSS arrives as a `cgl-css`
   message from the parent frame or as an `https` stylesheet in `css=`, and
   lands after the page's own styles; it styles against the `data-part` names
-  and `--cgl-*` variables of `docs/embed-styling.md`, which are a contract.
+  and `--cgl-*` variables of `docs/embedding.md`, which are a contract.
   The loader (`src/loader.ts`, served as `embed.js`) builds the frame and
   hands the host's `<style data-cgl>` blocks over; the serving side's
   Content-Security-Policy says who may frame the page and where CSS may load

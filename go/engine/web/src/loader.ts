@@ -9,7 +9,7 @@
  * It turns each [data-cgl-embed] into the playback-engine's iframe, filling
  * the element, and hands every <style data-cgl> block of the page over to
  * it. The game lays itself out by the room it gets. It stays in its frame:
- * the host page never reads the conversation. docs/embed-styling.md is the
+ * the host page never reads the conversation. docs/embedding.md is the
  * contract.
  */
 
