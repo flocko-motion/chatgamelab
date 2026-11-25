@@ -112,7 +112,7 @@
   .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 13px; border: 1px solid; }
   .badge.ready { background: var(--ready); border-color: var(--ready-line); }
   .badge.blocked { background: var(--blocked); border-color: var(--blocked-line); }
-  .badge.done, .badge.backlog { background: var(--done); border-color: var(--done-line); }
+  .badge.done { background: var(--done); border-color: var(--done-line); }
   .progress { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; margin: 2px 0 10px; }
   .progress i { display: block; height: 100%; background: var(--ready-line); }
   #tip { position: fixed; pointer-events: none; background: var(--bg); color: var(--fg);
@@ -156,10 +156,15 @@
       <div><span style="background:var(--done);border-color:var(--done-line)"></span>done</div>
       <div><span style="background:var(--milestone);border-color:var(--milestone-line)"></span>milestone: its epics' issues follow below the bar, down to the next; ordered by due date</div>
       <div>Boxes are epics, one per milestone they have issues in; a broad band joins the pieces of one epic. Arrows run from a blocker to what waits for it. Top to bottom is the order, without a time scale.</div>
+      <div><b>Without epic</b>: open issues under no epic, in their milestone, in a box right of the epics.</div>
       <div><b>Epics only</b>: the same roadmap with the issues hidden; each box shows its epic and how much of it is done in that milestone.</div>
       <div>Drag cards and boxes to explore; nothing is saved. Scroll to zoom, drag the background to move, Fit to see it all; click an issue, epic or milestone for its details (cmd-click opens it on GitHub).</div>
     </div>
-    <h2 id="backlogTitle">Backlog</h2><ul id="backlog"></ul>
+    <section id="doneEpicsSection" hidden>
+      <h2 id="doneEpicsTitle">Epics with every issue done</h2>
+      <p class="meta">Still open on GitHub: ready to close.</p>
+      <ul id="doneEpics"></ul>
+    </section>
     </div>
   </aside>
 </main>
@@ -237,10 +242,15 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     `${data.repo} · updated ${new Date(data.generated).toLocaleString()}`;
   const byNumber = Object.fromEntries(data.issues.map(i => [i.number, i]));
   document.getElementById("next").innerHTML = data.next.map(n => li(byNumber[n])).join("");
-  document.getElementById("backlogTitle").textContent = `Backlog (${data.backlog.length})`;
-  document.getElementById("backlog").innerHTML = data.backlog.map(li).join("");
+  // Epics still open whose every issue is closed: the list to purge from.
+  const doneEpics = data.epics.filter(e => e.state === "done");
+  document.getElementById("doneEpicsSection").hidden = !doneEpics.length;
+  document.getElementById("doneEpicsTitle").textContent = `Epics with every issue done (${doneEpics.length})`;
+  document.getElementById("doneEpics").innerHTML = doneEpics.map(e =>
+    `<li><a href="${e.url}" target="_blank" rel="noopener" data-show="epic:${e.number}">#${e.number}</a> ${escapeHtml(e.title)}</li>`).join("");
   const select = document.getElementById("epic");
   for (const e of data.epics) select.add(new Option(`#${e.number} ${e.title}`, e.number));
+  if (data.unfiled.length) select.add(new Option("Without epic", 0));
 
   const elements = [];
   // An epic gets a box per milestone it has issues in (a piece); the pieces of
@@ -252,9 +262,16 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   const msRank = new Map(milestones.map((m, k) => [m.number, k]));
   const rank = ms => ms == null || !msRank.has(ms) ? milestones.length : msRank.get(ms);
   const epicOf = Object.fromEntries(data.epics.map(e => [e.number, e]));
+  // Issues under no epic: a box of their own in each milestone they are in,
+  // right of the epics. It stands in for an epic, numbered 0.
+  const UNFILED = 0;
+  epicOf[UNFILED] = { number: UNFILED, title: "Without epic", url: null, waitsOn: [],
+                      description: "Open issues that are under no epic." };
+  const epicName = e => e.number === UNFILED ? e.title : `#${e.number} ${e.title}`;
+  const allIssues = [...data.issues, ...data.unfiled.map(i => ({ ...i, epic: UNFILED }))];
   const pieceId = (epic, ms) => `p${epic}-${ms == null || !msRank.has(ms) ? "none" : ms}`;
   const pieces = new Map();
-  for (const i of data.issues) {
+  for (const i of allIssues) {
     const id = pieceId(i.epic, i.milestone);
     if (!pieces.has(id)) pieces.set(id, { id, epic: i.epic, rank: rank(i.milestone), issues: [] });
     pieces.get(id).issues.push(i);
@@ -267,11 +284,11 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   for (const p of pieces.values()) {
     const e = epicOf[p.epic];
     const done = p.issues.filter(i => i.state === "done").length;
-    elements.push({ data: { id: p.id, label: `#${e.number} ${e.title} — ${done}/${p.issues.length}`,
+    elements.push({ data: { id: p.id, label: `${epicName(e)} — ${done}/${p.issues.length}`,
                             url: e.url, kind: "epic", epic: e.number, rank: p.rank, pstate: pieceState(p),
                             done, total: p.issues.length } });
   }
-  for (const i of data.issues) {
+  for (const i of allIssues) {
     const meta = [i.assignees.length ? "👤 " + i.assignees.join(", ") : "", i.labels.length ? "🏷 " + i.labels.join(", ") : ""]
       .filter(Boolean).join("\n");
     elements.push({ data: { id: `i${i.number}`, parent: pieceId(i.epic, i.milestone), label: `#${i.number} ${i.title}`,
@@ -431,7 +448,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     // to the first of the lower), never across a bar.
     const epicOrder = new Map(data.epics.map((e, k) => [e.number, k]));
     const bands = new Map();
-    cy.nodes("[kind='epic']").filter(n => n.visible()).forEach(p => {
+    cy.nodes("[kind='epic']").filter(n => n.visible() && n.data("epic") !== UNFILED).forEach(p => {
       const r = p.data("rank");
       (bands.get(r) || bands.set(r, []).get(r)).push(p);
     });
@@ -471,8 +488,10 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   function arrangeBands() {
     const boxes = cy.nodes("[kind='epic']").filter(n => n.visible());
     const epicOrder = new Map(data.epics.map((e, k) => [e.number, k]));
+    // The boxes without epic go last, into a slot of their own on the right.
+    const filed = boxes.filter(b => b.data("epic") !== UNFILED);
     const byEpic = new Map();
-    boxes.forEach(b => { const e = b.data("epic"); (byEpic.get(e) || byEpic.set(e, []).get(e)).push(b); });
+    filed.forEach(b => { const e = b.data("epic"); (byEpic.get(e) || byEpic.set(e, []).get(e)).push(b); });
     // Split epics (pieces in several bands) each keep one slot for their whole
     // span, from first band to last; split epics with disjoint spans may share
     // a slot. The slot is taken only where the band joining two pieces runs,
@@ -518,7 +537,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       const next = new Map();
       for (let s = 0; s < slots; s++) { const row = startRow(r, s); if (row !== null) next.set(s, row); }
       if (!next.size) next.set(slots, 0);  // every slot blocked: an extra one on the right
-      const singles = boxes.filter(b => rankOf(b) === r && !placed.has(b.id()))
+      const singles = filed.filter(b => rankOf(b) === r && !placed.has(b.id()))
         .sort((a, b) => order(a.data("epic"), b.data("epic")));
       // Fill the shallowest slot first, so the band stays wide and short.
       for (const b of singles) {
@@ -527,6 +546,8 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
         next.set(s, row + 1);
       }
     }
+    const right = Math.max(slots - 1, ...[...placed.values()].map(p => p.slot)) + 1;
+    boxes.filter(b => b.data("epic") === UNFILED).forEach(b => placed.set(b.id(), { slot: right, sub: 0 }));
     const slotOf = b => placed.get(b.id()).slot;
     const subOf = b => placed.get(b.id()).sub;
     const size = new Map();
@@ -610,7 +631,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     const d = box.data(), e = epicOf[d.epic];
     const el = document.createElement("div");
     el.className = `cover ${d.pstate}`;
-    el.innerHTML = `<h3>#${e.number} ${escapeHtml(e.title)}</h3>` +
+    el.innerHTML = `<h3>${escapeHtml(epicName(e))}</h3>` +
       `<div class="prog">${d.done} / ${d.total} done<div class="bar"><i style="width:${Math.round(100 * d.done / d.total)}%"></i></div></div>` +
       (e.description ? `<p>${escapeHtml(e.description)}</p>` : "");
     world.appendChild(el);
@@ -672,7 +693,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
 
   // A click (not a drag) shows the details in the side pane; cmd- or
   // ctrl-click opens the issue, epic or milestone on GitHub right away.
-  const issueBy = Object.fromEntries([...data.issues, ...data.backlog].map(i => [i.number, i]));
+  const issueBy = Object.fromEntries([...data.issues, ...data.unfiled].map(i => [i.number, i]));
   const msBy = Object.fromEntries(milestones.map(m => [m.number, m]));
   const details = document.getElementById("details");
   const aside = document.querySelector("aside");
@@ -692,11 +713,11 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     if (kind === "issue") {
       const i = issueBy[n];
       if (!i) return null;
-      const blocks = data.issues.filter(o => o.blockedBy.includes(n));
+      const blocks = Object.values(issueBy).filter(o => o.blockedBy.includes(n));
       const rows = [
         ["State", badge(i.state)],
-        ["Epic", i.epic ? show("epic", i.epic, `#${i.epic} ${escapeHtml(epicOf[i.epic].title)}`) : "none (backlog)"],
-        ["Milestone", i.epic ? msTitle(i.milestone) : ""],
+        ["Epic", i.epic ? show("epic", i.epic, `#${i.epic} ${escapeHtml(epicOf[i.epic].title)}`) : "none"],
+        ["Milestone", msTitle(i.milestone)],
         ["Assignees", escapeHtml(i.assignees.join(", "))],
         ["Labels", escapeHtml(i.labels.join(", "))],
         ["Priority", i.priority ? `P${i.priority}` : ""],
@@ -817,7 +838,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     showDetails(kind, Number(n), true);
   });
   // The search: every word of the query must appear in the title (or be the
-  // number) of an issue, backlog issue, epic or milestone. The issues it finds
+  // number) of an issue, epic or milestone. The issues it finds
   // are marked in the graph; one hit is shown right away, several open a list
   // of at most MAX_RESULTS to pick from (arrows and Enter, or a click).
   const MAX_RESULTS = 10;
@@ -905,7 +926,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     const d = ev.target.data(), o = ev.originalEvent || {};
     if (o.metaKey || o.ctrlKey) { if (d.url) window.open(d.url, "_blank", "noopener"); return; }
     if (d.kind === "issue") showDetails("issue", Number(d.id.slice(1)));
-    else if (d.kind === "epic") showDetails("epic", d.epic);
+    else if (d.kind === "epic" && d.epic !== UNFILED) showDetails("epic", d.epic);
     else if (d.kind === "milestone" && d.number != null) showDetails("milestone", d.number);
   });
 

@@ -317,11 +317,24 @@ def past_milestone(n):
     due = (issues[n].get("milestone") or {}).get("due_on")
     return bool(due) and due[:10] < date.today().isoformat()
 
-# Backlog: open issues outside every open epic, the epics themselves aside.
-backlog = [i for i in OPEN if i["number"] not in issues and i["number"] not in EPICS]
-backlog.sort(key=lambda i: (priority(i), i["number"]))
-for i in backlog:
+# Without epic: open issues outside every open epic, the epics themselves aside.
+unfiled = [i for i in OPEN if i["number"] not in issues and i["number"] not in EPICS]
+unfiled.sort(key=lambda i: (priority(i), i["number"]))
+for i in unfiled:
     issues[i["number"]] = i
+# The roadmap shows them too, in their milestone beside the epics, so their
+# blocked-by counts like an epic issue's, in both directions.
+prefetch([f"issues/{i['number']}/dependencies/blocked_by" for i in unfiled])
+for n in issues:
+    for b in deps(n):
+        if b["number"] in issues:
+            blockers[n].add(b["number"])
+
+
+def unfiled_state(n):
+    if not is_open(n):
+        return "done"
+    return "blocked" if open_blockers(n) else "ready"
 
 # The roadmap as data, for the interactive page.
 import re
@@ -348,14 +361,14 @@ def item(n):
         "number": n,
         "title": i["title"],
         "url": i["html_url"],
-        "state": state(n) if n in phase_of else ("done" if i["state"] != "open" else "backlog"),
+        "state": state(n) if n in phase_of else unfiled_state(n),
         "epic": phase_of.get(n),
         "assignees": people(n),
         "labels": tags(n),
         "priority": priority(i) if priority(i) < 4 else None,
         "closedAt": i.get("closed_at"),
-        "blockedBy": sorted(open_blockers(n)) if n in phase_of and is_open(n) else [],
-        "milestone": milestone_of(n) if n in phase_of else None,
+        "blockedBy": sorted(open_blockers(n)) if is_open(n) else [],
+        "milestone": milestone_of(n),
     }
 
 data = {
@@ -383,7 +396,7 @@ data = {
     } for k, m in enumerate(MILESTONES)],
     "order": order,
     "next": [n for n in ready if not past_milestone(n)][:5],
-    "backlog": [item(i["number"]) for i in backlog],
+    "unfiled": [item(i["number"]) for i in unfiled],
 }
 json.dump(data, sys.stdout, indent=1)
 print()
