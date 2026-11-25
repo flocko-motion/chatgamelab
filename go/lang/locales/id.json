@@ -1919,6 +1919,12 @@
         "unpriced": "Model ini tidak memiliki entri dalam tabel model: biayanya tidak dihitung, dan cerita yang menggunakannya tidak akan pernah dipersingkat."
       },
       "notAuthorized": "Anda tidak memiliki izin untuk mengakses pengaturan server. Diperlukan akses admin.",
+      "sessionRetention": {
+        "description": "Sesi yang tidak dimainkan selama jangka waktu ini akan dihapus. 0 menyimpan semua sesi.",
+        "hint": "Berlaku dalam waktu satu jam.",
+        "label": "Jam",
+        "title": "Retensi sesi"
+      },
       "tabs": {
         "ai": "AI dan kunci",
         "branding": "Tampilan",

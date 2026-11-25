@@ -76,9 +76,10 @@ A session runs in the player's preferred language: the game is translated into
 it when the session is created.
 
 Each session has its own ID. A player can leave a session at any time and
-continue it later under that ID, for as long as the session is kept.
-#todo[How long a session is kept.] A finished session can be read back as it
-was played.
+continue it later under that ID, for as long as the session is kept: a
+session not played for the site's retention window is deleted. The admin sets
+the window, in hours; 0 keeps every session. A finished session can be read
+back as it was played.
 
 A session meets *problems*, such as a lost connection; it resolves them by
 itself where it can. A session can also be *over*, for instance when the AI
@@ -227,7 +228,8 @@ run workshops and play.
 == Roles
 
 - *Admin* — runs the site: sets the site-wide youth-protection rules per age
-  group, the AI quality tiers and the site's free-use key, sets how the site
+  group, the AI quality tiers, the site's free-use key and how long sessions
+  are kept, sets how the site
   presents itself (its name, its operator, its support address and the links
   it shows; everyone sees these, also before signing in), chooses the AI model
   for each task and tier of a configurable platform and sets each model's

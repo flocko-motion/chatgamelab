@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"math"
 	"strings"
 	"time"
 
@@ -17,9 +18,10 @@ import (
 )
 
 // The site is run by the admin: its youth-protection rules per age group,
-// its AI quality tiers and its free-use key, which pays last for whoever
-// has no other key. The free-use key is one of the admin's own: no admin
-// spends someone else's key on the whole site. The site's rules are
+// its AI quality tiers, its free-use key, which pays last for whoever has no
+// other key, and how long it keeps a session not played. The free-use key is
+// one of the admin's own: no admin spends someone else's key on the whole
+// site. The site's rules are
 // readable to everyone signed in, as the fallback below an organisation's.
 
 // SiteRules are the site's youth-protection rules per age group.
@@ -73,10 +75,13 @@ type SiteSettings struct {
 	ID          uuid.UUID
 	CreatedAt   time.Time
 	ModifiedAt  time.Time
-	DefaultTier string  // the tier wherever nothing else sets one
-	FreeUseTier *string // the free-use key's tier; nil: the default
+	DefaultTier string    // the tier wherever nothing else sets one
+	FreeUseTier *string   // the free-use key's tier; nil: the default
 	Rules       SiteRules // as they apply
 	FreeUseKey  *FreeUseKey
+	// SessionRetentionHours is how long a session not played is kept; 0
+	// keeps every session.
+	SessionRetentionHours int
 }
 
 // FreeUseKey is the key that pays last, and whether it worked when last used.
@@ -105,7 +110,8 @@ func siteSettings(ctx context.Context) (*SiteSettings, error) {
 	settings := &SiteSettings{
 		ID: s.ID, CreatedAt: s.CreatedAt, ModifiedAt: s.ModifiedAt,
 		DefaultTier: s.DefaultAiQualityTier, FreeUseTier: nullString(s.FreeUseAiQualityTier),
-		Rules: siteRulesOf(s),
+		Rules:                 siteRulesOf(s),
+		SessionRetentionHours: int(s.SessionRetentionHours),
 	}
 	if s.FreeUseApiKeyID.Valid {
 		key := &FreeUseKey{ID: s.FreeUseApiKeyID.UUID}
@@ -122,13 +128,16 @@ func siteSettings(ctx context.Context) (*SiteSettings, error) {
 
 // SiteSettingsChange is what changes in the site's settings: a nil field
 // stays, an empty one clears it. The default tier cannot be cleared; a rule
-// cleared, or set to its default, is the default again.
+// cleared, or set to its default, is the default again. The session
+// retention is whole hours, 0 or more.
 type SiteSettingsChange struct {
 	DefaultTier *string
 	FreeUseTier *string
 	U13         *string
 	U13p        *string
 	U18         *string
+
+	SessionRetentionHours *int
 }
 
 // EditSiteSettings changes the site's settings, all or none: {Edit,
@@ -140,9 +149,17 @@ func EditSiteSettings(ctx context.Context, c SiteSettingsChange) (*SiteSettings,
 	if c.DefaultTier != nil && *c.DefaultTier == "" {
 		return nil, refuse("the default AI quality tier cannot be empty")
 	}
+	if h := c.SessionRetentionHours; h != nil && (*h < 0 || *h > math.MaxInt32) {
+		return nil, refuse("the session retention is whole hours, 0 or more")
+	}
 	err := store.InTx(ctx, func(q *db.Queries) error {
 		if c.DefaultTier != nil {
 			if err := q.V2UpdateDefaultAiQualityTier(ctx, *c.DefaultTier); err != nil {
+				return err
+			}
+		}
+		if c.SessionRetentionHours != nil {
+			if err := q.V2UpdateSessionRetentionHours(ctx, int32(*c.SessionRetentionHours)); err != nil {
 				return err
 			}
 		}

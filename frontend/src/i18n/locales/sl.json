@@ -1919,6 +1919,12 @@
         "unpriced": "Ta model nima vnosa v tabeli modelov: njegovi stroški se ne izračunavajo, zgodba, ustvarjena z njim, pa se nikoli ne skrajša."
       },
       "notAuthorized": "Nimate dovoljenja za dostop do strežniških nastavitev. Potreben je adminsitratorski dostop.",
+      "sessionRetention": {
+        "description": "Seje, ki se toliko časa ne igrajo, se izbrišejo. 0 ohrani vse seje.",
+        "hint": "Sprememba začne veljati v eni uri.",
+        "label": "Ure",
+        "title": "Hramba sej"
+      },
       "tabs": {
         "ai": "Umetna inteligenca in ključi",
         "branding": "Podoba",

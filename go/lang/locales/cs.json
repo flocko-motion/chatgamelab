@@ -1919,6 +1919,12 @@
         "unpriced": "Tento model nemá záznam v tabulce modelů: jeho náklady se nevypočítávají a příběh vytvořený pomocí tohoto modelu se nikdy nezkrátí."
       },
       "notAuthorized": "Nemáte oprávnění k přístupu do nastavení serveru. Je vyžadován přístup administrátora.",
+      "sessionRetention": {
+        "description": "Relace, které se po tuto dobu nehrají, budou smazány. 0 zachová všechny relace.",
+        "hint": "Projeví se do hodiny.",
+        "label": "Hodiny",
+        "title": "Uchovávání relací"
+      },
       "tabs": {
         "ai": "Umělá inteligence a klíče",
         "branding": "Vzhled",

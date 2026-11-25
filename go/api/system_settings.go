@@ -63,7 +63,8 @@ type SystemSettingsReq struct{}
 //
 // Only the fields sent change. The default AI quality tier cannot be empty;
 // an empty free-use tier clears it; a constraint emptied, or set to its
-// default, is the default again. Answers with the settings as they apply.
+// default, is the default again. The session retention is whole hours, 0 or
+// more. Answers with the settings as they apply.
 type UpdateSystemSettingsEndpoint struct{}
 
 func (UpdateSystemSettingsEndpoint) Method() string { return "PATCH" }
@@ -75,6 +76,7 @@ func (UpdateSystemSettingsEndpoint) Handle(ctx context.Context, req UpdateSystem
 	return siteSettingsView(core.EditSiteSettings(ctx, core.SiteSettingsChange{
 		DefaultTier: req.DefaultAiQualityTier, FreeUseTier: req.FreeUseAiQualityTier,
 		U13: req.PromptConstraintU13, U13p: req.PromptConstraintU13p, U18: req.PromptConstraintU18,
+		SessionRetentionHours: req.SessionRetentionHours,
 	}))
 }
 
@@ -96,6 +98,9 @@ type UpdateSystemSettingsReq struct {
 	PromptConstraintU13p *string `json:"promptConstraintU13p"`
 	// PromptConstraintU18 applies to players aged 18 and over.
 	PromptConstraintU18 *string `json:"promptConstraintU18"`
+	// SessionRetentionHours is how long a session not played is kept, in
+	// hours; 0 keeps every session.
+	SessionRetentionHours *int `json:"sessionRetentionHours"`
 }
 
 // SetSystemFreeUseApiKeyEndpoint sets or clears the site-wide free-use API

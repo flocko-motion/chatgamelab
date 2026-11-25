@@ -1924,6 +1924,12 @@
         "unpriced": "Ky model nuk ka hyrje në tabelën e modeleve: kostot e tij nuk llogariten dhe një tregim me të nuk shkurtohet kurrë."
       },
       "notAuthorized": "Nuk keni leje të hyni në cilësimet e serverit. Kërkohet akses administratori.",
+      "sessionRetention": {
+        "description": "Sesionet që nuk janë luajtur për kaq gjatë fshihen. 0 i ruan të gjitha sesionet.",
+        "hint": "Hyn në fuqi brenda një ore.",
+        "label": "Orë",
+        "title": "Ruajtja e sesioneve"
+      },
       "tabs": {
         "ai": "AI dhe çelësat",
         "branding": "Markimi",

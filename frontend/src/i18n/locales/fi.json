@@ -1924,6 +1924,12 @@
         "unpriced": "Tätä mallia ei ole mallitaulukossa: sen kustannuksia ei lasketa, eikä sillä tuotettua tarinaa koskaan lyhennetä."
       },
       "notAuthorized": "Sinulla ei ole oikeutta käyttää palvelinasetuksia. Ylläpitäjätaso vaaditaan.",
+      "sessionRetention": {
+        "description": "Istunnot, joita ei ole pelattu näin pitkään, poistetaan. 0 säilyttää kaikki istunnot.",
+        "hint": "Tulee voimaan tunnin kuluessa.",
+        "label": "Tuntia",
+        "title": "Istuntojen säilytysaika"
+      },
       "tabs": {
         "ai": "Tekoäly ja avaimet",
         "branding": "Brändäys",

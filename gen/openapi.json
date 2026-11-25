@@ -4481,12 +4481,16 @@
           },
           "promptConstraintU18": {
             "type": "string"
+          },
+          "sessionRetentionHours": {
+            "type": "integer"
           }
         },
         "required": [
           "id",
           "defaultAiQualityTier",
-          "promptConstraintDefaults"
+          "promptConstraintDefaults",
+          "sessionRetentionHours"
         ],
         "type": "object"
       },
@@ -4926,6 +4930,9 @@
           },
           "promptConstraintU18": {
             "type": "string"
+          },
+          "sessionRetentionHours": {
+            "type": "integer"
           }
         },
         "type": "object"
@@ -12292,7 +12299,7 @@
         "summary": "Returns the site-wide settings to an admin."
       },
       "patch": {
-        "description": "Only the fields sent change. The default AI quality tier cannot be empty;\nan empty free-use tier clears it; a constraint emptied, or set to its\ndefault, is the default again. Answers with the settings as they apply.",
+        "description": "Only the fields sent change. The default AI quality tier cannot be empty;\nan empty free-use tier clears it; a constraint emptied, or set to its\ndefault, is the default again. The session retention is whole hours, 0 or\nmore. Answers with the settings as they apply.",
         "operationId": "patchApiSystemSettings",
         "requestBody": {
           "content": {

@@ -43,12 +43,8 @@ func (s *SignUpTestSuite) TestRegistrationEndsTheSignUp() {
 }
 
 func (s *SignUpTestSuite) TestTheJanitorRemovesSignUpsLeftForADay() {
-	backdate := func(id string) {
-		s.DatabaseAccepts(fmt.Sprintf("UPDATE app_user SET created_at = now() - interval '25 hours' WHERE id = '%s'", id))
-	}
-	exists := func(id string) bool {
-		return s.DatabaseCount(fmt.Sprintf("SELECT count(*) FROM app_user WHERE id = '%s'", id)) == 1
-	}
+	backdate := func(id string) { s.SignUpStartedHoursAgo(id, 25) }
+	exists := s.AccountStored
 
 	stale := s.CreateRegisteringUser()
 	backdate(stale.ID)

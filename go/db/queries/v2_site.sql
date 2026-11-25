@@ -27,7 +27,8 @@ SELECT
   prompt_constraint_u13p,
   prompt_constraint_u18,
   free_use_api_key_id,
-  branding
+  branding,
+  session_retention_hours
 FROM system_settings
 LIMIT 1;
 
@@ -37,6 +38,17 @@ UPDATE system_settings
 SET
   branding = @branding,
   modified_at = now();
+
+-- name: V2UpdateSessionRetentionHours :exec
+-- How long a session not played is kept, in hours (#556).
+UPDATE system_settings
+SET
+  session_retention_hours = @hours,
+  modified_at = now();
+
+-- name: V2SessionRetentionHours :one
+-- The janitor's window, read on every pass (#556).
+SELECT session_retention_hours FROM system_settings LIMIT 1;
 
 -- name: V2UpdateDefaultAiQualityTier :exec
 UPDATE system_settings

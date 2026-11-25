@@ -1924,6 +1924,12 @@
         "unpriced": "Des Modell hat koan Eintrag in da Modelltabelle: Seine Kosten werdn ned berechnet, und a Gschicht damit wird nia gekürzt."
       },
       "notAuthorized": "Du host koa Berechtigung fia Server-Einstellungen. Admin-Zugriff nötig.",
+      "sessionRetention": {
+        "description": "Sessions, de so lang nimma gspuit worn san, wern glöscht. Bei 0 bleibn olle Sessions.",
+        "hint": "Greift innerhalb vo ana Stund.",
+        "label": "Stundn",
+        "title": "Sessions aufbewahrn"
+      },
       "tabs": {
         "ai": "KI und Schlüssel",
         "branding": "Erscheinungsbild",

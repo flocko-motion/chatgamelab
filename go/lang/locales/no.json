@@ -1919,6 +1919,12 @@
         "unpriced": "Denne modellen har ingen oppføring i modelltabellen: kostnadene beregnes ikke, og en historie på den blir aldri forkortet."
       },
       "notAuthorized": "Du har ikke tillatelse til å få tilgang til serverinnstillinger. Krever admin-tilgang.",
+      "sessionRetention": {
+        "description": "Økter som ikke har vært spilt på så lenge, slettes. 0 beholder alle økter.",
+        "hint": "Trer i kraft innen en time.",
+        "label": "Timer",
+        "title": "Oppbevaring av økter"
+      },
       "tabs": {
         "ai": "KI og nøkler",
         "branding": "Profilering",

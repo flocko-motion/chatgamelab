@@ -1919,6 +1919,12 @@
         "unpriced": "Tento model nemá záznam v tabuľke modelov: jeho náklady sa nepočítajú a príbeh na ňom sa nikdy neskráti."
       },
       "notAuthorized": "Nemáte oprávnenie pristupovať k nastaveniam servera. Vyžaduje sa prístup administrátora.",
+      "sessionRetention": {
+        "description": "Relácie, ktoré sa tak dlho nehrali, sa odstránia. Hodnota 0 zachová všetky relácie.",
+        "hint": "Zmena sa prejaví do jednej hodiny.",
+        "label": "Hodiny",
+        "title": "Uchovávanie relácií"
+      },
       "tabs": {
         "ai": "AI a kľúče",
         "branding": "Vzhľad",

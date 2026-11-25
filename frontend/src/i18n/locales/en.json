@@ -1567,6 +1567,12 @@
         "untested": "Untested",
         "working": "Working"
       },
+      "sessionRetention": {
+        "title": "Session retention",
+        "description": "Sessions not played for this long are deleted. 0 keeps every session.",
+        "label": "Hours",
+        "hint": "Takes effect within the hour."
+      },
       "freeUseTier": {
         "description": "Quality tier used when the free-use API key is active. Higher tiers cost more but may have higher quality. Leave empty to use the default tier.",
         "title": "Free-Use AI Quality Tier"

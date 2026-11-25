@@ -11,6 +11,7 @@ func SiteSettingsOf(s *core.SiteSettings) obj.SystemSettings {
 		ID: s.ID, CreatedAt: &s.CreatedAt, ModifiedAt: &s.ModifiedAt,
 		DefaultAiQualityTier: s.DefaultTier, FreeUseAiQualityTier: s.FreeUseTier,
 		PromptConstraintU13: s.Rules.U13, PromptConstraintU13p: s.Rules.U13p, PromptConstraintU18: s.Rules.U18,
+		SessionRetentionHours: s.SessionRetentionHours,
 	}
 	d := core.DefaultSiteRules()
 	v.PromptConstraintDefaults = obj.SiteRuleTexts{U13: *d.U13, U13p: *d.U13p, U18: *d.U18}

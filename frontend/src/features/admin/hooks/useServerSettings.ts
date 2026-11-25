@@ -16,9 +16,9 @@ const RULE_FIELD = {
 } as const;
 
 /**
- * The site's settings for the admin: AI tiers, the free-use key and the
- * youth-protection rules, with the admin's own keys to choose the free-use
- * key from.
+ * The site's settings for the admin: AI tiers, the free-use key, the
+ * youth-protection rules and how long sessions are kept, with the admin's own
+ * keys to choose the free-use key from.
  */
 export function useServerSettings() {
   const { data: settings, isLoading: settingsLoading } = useSystemSettings();

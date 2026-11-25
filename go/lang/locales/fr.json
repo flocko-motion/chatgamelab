@@ -1919,6 +1919,12 @@
         "unpriced": "Ce modèle n'a aucune entrée dans la table des modèles : ses coûts ne sont pas calculés et une histoire générée avec lui ne sera jamais raccourcie."
       },
       "notAuthorized": "Vous n’avez pas l’autorisation d’accéder aux paramètres du serveur. Accès administrateur requis.",
+      "sessionRetention": {
+        "description": "Les sessions qui n'ont pas été jouées depuis aussi longtemps sont supprimées. 0 conserve toutes les sessions.",
+        "hint": "Prend effet dans l'heure.",
+        "label": "Heures",
+        "title": "Conservation des sessions"
+      },
       "tabs": {
         "ai": "IA et clés",
         "branding": "Apparence",

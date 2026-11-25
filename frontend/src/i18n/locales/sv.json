@@ -1924,6 +1924,12 @@
         "unpriced": "Den här modellen saknar en post i modelltabellen: kostnaderna beräknas inte, och en berättelse med den förkortas aldrig."
       },
       "notAuthorized": "Du har inte behörighet att öppna serverinställningarna. Adminåtkomst krävs.",
+      "sessionRetention": {
+        "description": "Sessioner som inte har spelats under så här lång tid tas bort. 0 behåller alla sessioner.",
+        "hint": "Ändringen träder i kraft inom en timme.",
+        "label": "Timmar",
+        "title": "Lagringstid för sessioner"
+      },
       "tabs": {
         "ai": "AI och nycklar",
         "branding": "Profilering",

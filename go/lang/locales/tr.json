@@ -1921,6 +1921,12 @@
         "unpriced": "Bu modelin model tablosunda bir kaydı yok: maliyetleri hesaplanmaz ve bu modeldeki bir hikâye asla kısaltılmaz."
       },
       "notAuthorized": "Sunucu ayarlarına erişim izniniz yok. Yönetici erişimi gerekir.",
+      "sessionRetention": {
+        "description": "Bu süre boyunca oynanmayan oturumlar silinir. 0 tüm oturumları saklar.",
+        "hint": "Bir saat içinde etkili olur.",
+        "label": "Saat",
+        "title": "Oturum saklama süresi"
+      },
       "tabs": {
         "ai": "Yapay zekâ ve anahtarlar",
         "branding": "Marka görünümü",

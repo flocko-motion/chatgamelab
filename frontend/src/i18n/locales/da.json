@@ -1919,6 +1919,12 @@
         "unpriced": "Denne model har ingen post i modeltabellen: dens omkostninger beregnes ikke, og en historie på den bliver aldrig forkortet."
       },
       "notAuthorized": "Du har ikke tilladelse til at få adgang til serverindstillinger. Adminadgang påkrævet.",
+      "sessionRetention": {
+        "description": "Sessioner, der ikke er blevet spillet i så lang tid, slettes. 0 bevarer alle sessioner.",
+        "hint": "Træder i kraft inden for en time.",
+        "label": "Timer",
+        "title": "Opbevaring af sessioner"
+      },
       "tabs": {
         "ai": "AI og nøgler",
         "branding": "Branding",

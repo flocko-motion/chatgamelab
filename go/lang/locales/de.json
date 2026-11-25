@@ -1567,6 +1567,12 @@
         "untested": "Ungetestet",
         "working": "Funktioniert"
       },
+      "sessionRetention": {
+        "title": "Aufbewahrung von Sitzungen",
+        "description": "Sitzungen, die so lange nicht gespielt wurden, werden gelöscht. 0 behält alle Sitzungen.",
+        "label": "Stunden",
+        "hint": "Wirkt innerhalb einer Stunde."
+      },
       "freeUseTier": {
         "description": "Qualitätsstufe bei Verwendung des freien API-Schlüssels. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben. Leer lassen für die Standardstufe.",
         "title": "Freie KI-Qualitätsstufe"
