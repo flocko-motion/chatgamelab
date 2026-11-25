@@ -21,7 +21,7 @@
     --ready: #dafbe1; --ready-line: #1a7f37; --blocked: #ffebe9; --blocked-line: #d1242f;
     --done: #f6f8fa; --done-line: #d1d9e0; --done-fg: #8250df;
     --epic: #f6f8fa; --unfiled: #ffffff; --unfiled-line: #b7bfc8; --who: #0969da; --tag: #59636e;
-    --milestone: #fff8c5; --milestone-line: #d4a72c; --accent: #0969da;
+    --milestone: #fff8c5; --milestone-line: #d4a72c; --progress: #c6f2d0; --accent: #0969da;
     --nobody: #ffffff;
     --shadow: 0 1px 3px rgba(31,35,40,.12), 0 8px 24px rgba(66,74,83,.12);
   }
@@ -176,7 +176,7 @@
       <div><span style="background:var(--nobody);border-color:var(--line)"></span>ready: nothing it waits for is open</div>
       <div><span style="background:var(--nobody);border-color:var(--blocked-line);border-width:2px"></span>blocked (red outline): waits for an open issue or epic</div>
       <div><span style="background:var(--done);border-color:var(--done-line)"></span>done: faded</div>
-      <div><span style="background:var(--milestone);border-color:var(--milestone-line)"></span>milestone: its epics' issues follow below the bar, down to the next; ordered by due date</div>
+      <div><span style="background:linear-gradient(to right,var(--progress) 50%,var(--milestone) 50%);border-color:var(--milestone-line)"></span>milestone: its epics' issues follow below the bar, down to the next; ordered by due date; filled green as far as its issues are done</div>
       <div>Boxes are epics, one per milestone they have issues in; a broad band joins the pieces of one epic. Arrows run from a blocker to what waits for it. Top to bottom is the order, without a time scale.</div>
       <div><b>Without epic</b>: open issues under no epic, in their milestone, in a box right of the epics.</div>
       <div><b>Everyone</b>: pick a person (or <i>Unassigned</i>) to see only their issues and the boxes holding them; linkable as <code>?who=login</code>.</div>
@@ -379,17 +379,18 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   const ranks = [...new Set([...milestones.keys(), ...[...pieces.values()].map(p => p.rank)])].sort((a, b) => a - b);
   const bars = ranks.map(r => {
     const m = milestones[r];
-    if (!m) return { id: "m-none", rank: r, url: null, done: false, label: "No milestone" };
+    if (!m) return { id: "m-none", rank: r, url: null, done: false, pct: 0, label: "No milestone" };
     const due = m.due ? `due ${new Date(m.due).toLocaleDateString()}` : "no due date";
     // Done once its issues are closed; an empty milestone is not done yet.
     return { id: `m${m.number}`, number: m.number, rank: r, url: m.url, done: m.open === 0 && m.closed > 0,
+             pct: m.open + m.closed ? Math.round(100 * m.closed / (m.open + m.closed)) : 0,
              label: `${m.title} · ${due} · ${m.closed}/${m.open + m.closed} done` };
   });
   // The helper edges attach to the issues, not to the epic boxes: ELK holds a
   // leaf to its level, a box it only places around its children.
   if (bars.length > 1 || (bars.length === 1 && bars[0].id !== "m-none")) bars.forEach((bar, k) => {
     elements.push({ data: { id: bar.id, number: bar.number, label: bar.label, url: bar.url, kind: "milestone", rank: bar.rank,
-                            state: bar.done ? "ready" : "open" } });
+                            pct: bar.pct, state: bar.done ? "ready" : "open" } });
     const members = [...pieces.values()].filter(p => p.rank === bar.rank).flatMap(p => p.issues);
     for (const i of members)
       elements.push({ data: { id: `pe-${bar.id}-${i.number}`, source: bar.id, target: `i${i.number}`, kind: "phaseEdge" } });
@@ -437,7 +438,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       // The band joining the pieces of one epic across milestones.
       { selector: "edge[kind='epicLink']", style: { width: 22, "line-color": css("--line"), opacity: 0.55,
           "target-arrow-shape": "none", "curve-style": "straight", "z-index": 0 } },
-      { selector: "node[kind='milestone'][state='ready']", style: { "background-color": css("--done"), "border-color": css("--line"), color: css("--muted") } },
+      { selector: "node[kind='milestone'][state='ready']", style: { "border-color": css("--line"), color: css("--muted") } },
       { selector: "edge[kind='row']", style: { opacity: 0, events: "no", "target-arrow-shape": "none" } },
       { selector: ".hit", style: { "border-width": 3, "border-color": css("--milestone-line") } },
       { selector: ".sel", style: { "border-width": 4, "border-color": css("--accent") } },
@@ -455,6 +456,15 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     if (who.length === 1) n.style("background-color", personFill(who[0]));
     else if (who.length > 1) n.style({ "background-fill": "linear-gradient", "background-gradient-direction": "to-right",
                                        "background-gradient-stop-colors": who.map(personFill).join(" ") });
+  });
+
+  // A milestone bar is its progress bar too: the share of its issues done
+  // filled green from the left, the rest the milestone's own yellow.
+  cy.nodes("[kind='milestone']").forEach(n => {
+    const p = n.data("pct"), done = css("--progress"), rest = css("--milestone");
+    n.style({ "background-fill": "linear-gradient", "background-gradient-direction": "to-right",
+              "background-gradient-stop-colors": `${done} ${done} ${rest} ${rest}`,
+              "background-gradient-stop-positions": `0% ${p}% ${p}% 100%` });
   });
 
   // Done issues start hidden; the checkbox brings them back. An epic whose
