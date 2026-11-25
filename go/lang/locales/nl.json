@@ -554,7 +554,7 @@
       "placeholder": "bijv. apfel otter turm",
       "submit": "Doorgaan",
       "title": "Code invoeren",
-      "unknown": "Zo kom je er niet in. Controleer eerst de spelling – woord voor woord. Koppeltekens of spaties maken niet uit. Als de code klopt, is deze misschien niet meer geldig: codes kunnen worden vervangen en na de workshop vervalt de toegang. Vraag dan je workshopbegeleider om een nieuwe code.",
+      "unknown": "Zo kom je er niet in. Controleer eerst de spelling – woord voor woord. Koppeltekens of spaties maken niet uit. Als de code klopt, is deze misschien niet meer geldig: codes kunnen worden vervangen of je workshopbegeleider heeft de workshop beëindigd (dat kan op elk moment na de workshop gebeuren). Vraag dan je workshopbegeleider om een nieuwe code.",
       "wrongLength": "Een code bestaat uit drie of vier woorden."
     },
     "error": "Fout",
@@ -1547,7 +1547,7 @@
         "less": "Minder",
         "link": "Meer over {{siteName}}",
         "more": "Meer informatie",
-        "oneLiner": "Deze tekstavonturen zijn gemaakt met {{siteName}}: met de hand gebouwd, zonder programmeren, live verteld door een AI."
+        "oneLiner": "Deze tekstavonturen zijn gemaakt met {{siteName}}: door de makers zelf gebouwd, zonder programmeren, live verteld door een AI."
       },
       "copy": "Kopiëren",
       "copyLogin": "Log in om te kopiëren",

@@ -554,7 +554,7 @@
       "placeholder": "p. ex. pomme loutre tour",
       "submit": "Continuer",
       "title": "Saisir le code",
-      "unknown": "Cela ne vous permet pas d’accéder à l’atelier. Vérifiez d’abord l’orthographe, mot par mot. Les tirets et les espaces n’ont pas d’importance. Si le code est correct, il n’est peut-être plus valide : les codes peuvent être remplacés et l’accès prend fin après l’atelier. Demandez alors un nouveau code à la personne responsable de votre atelier.",
+      "unknown": "Cela ne vous permet pas d’accéder à l’atelier. Vérifiez d’abord l’orthographe, mot par mot. Les tirets et les espaces n’ont pas d’importance. Si le code est correct, il n’est peut-être plus valide : les codes peuvent être remplacés, ou la personne responsable de l’atelier l’a peut-être clôturé (cela peut arriver à tout moment après l’atelier). Demandez alors un nouveau code à la personne responsable de votre atelier.",
       "wrongLength": "Un code comporte trois ou quatre mots."
     },
     "error": "Erreur",
@@ -1547,7 +1547,7 @@
         "less": "Moins",
         "link": "En savoir plus sur {{siteName}}",
         "more": "En savoir plus",
-        "oneLiner": "Ces aventures textuelles ont été créées avec {{siteName}} : conçues à la main, sans programmation, et racontées en direct par une IA."
+        "oneLiner": "Ces aventures textuelles ont été créées avec {{siteName}} : conçues par leurs créateurs, sans programmation, et racontées en direct par une IA."
       },
       "copy": "Copier",
       "copyLogin": "Connectez-vous pour copier",

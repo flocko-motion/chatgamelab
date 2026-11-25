@@ -554,7 +554,7 @@
       "placeholder": "pl. alma vidra torony",
       "submit": "Folytatás",
       "title": "Kód megadása",
-      "unknown": "Ezzel most nem sikerült belépni. Először ellenőrizd a helyesírást, szóról szóra. A kötőjelek és a szóközök nem számítanak. Ha a kód helyes, lehet, hogy már nem érvényes: a kódokat lecserélhetik, és a hozzáférés a workshop után megszűnik. Kérj ezután új kódot a workshop vezetőjétől.",
+      "unknown": "Ezzel most nem sikerült belépni. Először ellenőrizd a helyesírást, szóról szóra. A kötőjelek és a szóközök nem számítanak. Ha a kód helyes, lehet, hogy már nem érvényes: a kódokat lecserélhetik, vagy a workshop vezetője lezárhatta a workshopot (ez a workshop után bármikor megtörténhet). Kérj ezután új kódot a workshop vezetőjétől.",
       "wrongLength": "A kód három- vagy négyszavas."
     },
     "error": "Hiba",
@@ -1547,7 +1547,7 @@
         "less": "Kevesebb",
         "link": "További információ a(z) {{siteName}} oldalról",
         "more": "Tudj meg többet",
-        "oneLiner": "Ezek a szöveges kalandok a(z) {{siteName}} segítségével készültek: kézzel építve, programozás nélkül, egy MI által élőben elmesélve."
+        "oneLiner": "Ezek a szöveges kalandok a(z) {{siteName}} segítségével készültek: alkotóik által készítve, programozás nélkül, egy MI által élőben elmesélve."
       },
       "copy": "Másolás",
       "copyLogin": "Jelentkezz be a másoláshoz",

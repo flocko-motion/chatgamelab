@@ -554,7 +554,7 @@
       "placeholder": "z. B. apfel otter turm",
       "submit": "Weiter",
       "title": "Code eingeben",
-      "unknown": "Damit kummst grad ned nei. Schau zuerst d Schreibweis nach – Wort für Wort. Bindestriche oder Leerzeichen san wurscht. Wenn da Code stimmt, gilt er vielleicht nimmer: Codes können ersetzt werdn, und nachm Workshop endet da Zugang. Frag dann dei Workshop-Leitung nach am neuen Code.",
+      "unknown": "Damit kummst grad ned nei. Schau zuerst d Schreibweis nach – Wort für Wort. Bindestriche oder Leerzeichen san wurscht. Wenn da Code stimmt, gilt er vielleicht nimmer: Codes können ersetzt werdn, oder de Workshop-Leitung hod den Workshop beendet (des ko jederzeit nachm Workshop passiern). Frag dann dei Workshop-Leitung nach am neuen Code.",
       "wrongLength": "A Code hod drei oder vier Wörter."
     },
     "error": "Fehler",
@@ -1547,7 +1547,7 @@
         "less": "Weniger",
         "link": "Mehr über {{siteName}}",
         "more": "Mehr erfahren",
-        "oneLiner": "Diese Textabenteuer san mit {{siteName}} entstanden: selber baut, ohne Programmieren, live von einer KI erzählt."
+        "oneLiner": "Diese Textabenteuer san mit {{siteName}} entstanden: von de Ersteller selber baut, ohne Programmieren, live von einer KI erzählt."
       },
       "copy": "Kopieren",
       "copyLogin": "Zum Kopieren anmelden",

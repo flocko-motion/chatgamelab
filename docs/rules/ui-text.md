@@ -31,8 +31,9 @@ const { t } = useTranslation('common');
 - **Dynamic values are interpolated**, never concatenated: word order differs
   between languages.
 - **`en.json` and `de.json` are written by hand**; every other language is
-  generated from them (`make translate`) and never edited by hand. That every
-  key is present and translated is checked by CI (`make translate-check`).
+  translated from them in the same change (CLAUDE.md, "Translations"). That
+  every key is present, translated and keeps its placeholders and tags is
+  checked by CI (`make translate-check`).
 
 Not user-facing, so not translated: log messages, test ids, CSS classes, keys
 and values of API requests.

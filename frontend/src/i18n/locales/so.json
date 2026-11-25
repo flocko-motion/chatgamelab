@@ -554,7 +554,7 @@
       "placeholder": "tusaale, apfel otter turm",
       "submit": "Sii wad",
       "title": "Geli koodhka",
-      "unknown": "Taasi kuma gelin. Marka hore hubi higgaadda, eray eray. Jiitinno ama meelo bannaan muhiim ma aha. Haddii koodhku sax yahay, waxaa laga yaabaa inuusan mar dambe shaqaynayn: koodhadhka waa la beddeli karaa, gelitaankuna wuxuu dhammaanayaa marka aqoon-is-weydaarsigu dhammaado. Markaas hoggaamiyaha aqoon-is-weydaarsiga ka codso koodh cusub.",
+      "unknown": "Taasi kuma gelin. Marka hore hubi higgaadda, eray eray. Jiitinno ama meelo bannaan muhiim ma aha. Haddii koodhku sax yahay, waxaa laga yaabaa inuusan mar dambe shaqaynayn: koodhadhka waa la beddeli karaa, ama hoggaamiyaha aqoon-is-weydaarsigu wuxuu laga yaabaa inuu aqoon-is-weydaarsiga soo gabagabeeyey (tani waxay dhici kartaa waqti kasta kadib aqoon-is-weydaarsiga). Markaas hoggaamiyaha aqoon-is-weydaarsiga ka codso koodh cusub.",
       "wrongLength": "Koodhku wuxuu ka kooban yahay saddex ama afar eray."
     },
     "error": "Khalad",
@@ -1547,7 +1547,7 @@
         "less": "Ka yar",
         "link": "Wax badan oo ku saabsan {{siteName}}",
         "more": "Wax badan baro",
-        "oneLiner": "Tacaburradan qoraalka ah waxaa lagu sameeyey {{siteName}}: gacanta ayaa loo dhisay, barnaamij-qoris la'aan, waxaana si toos ah u tebisa sirdoon macmal ah."
+        "oneLiner": "Tacaburradan qoraalka ah waxaa lagu sameeyey {{siteName}}: waxaa dhisay abuurayaasheeda, barnaamij-qoris la'aan, waxaana si toos ah u tebisa sirdoon macmal ah."
       },
       "copy": "Koobiye",
       "copyLogin": "Gal si aad u koobiyeato",

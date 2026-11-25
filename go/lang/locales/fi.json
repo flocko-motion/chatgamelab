@@ -554,7 +554,7 @@
       "placeholder": "esim. omena saukko torni",
       "submit": "Jatka",
       "title": "Syötä koodi",
-      "unknown": "Tällä et päässyt sisään. Tarkista ensin kirjoitusasu sana sanalta. Tavuviivoilla tai välilyönneillä ei ole väliä. Jos koodi on oikein, se ei ehkä ole enää voimassa: koodeja voidaan vaihtaa, ja työpajan jälkeen pääsy päättyy. Pyydä sitten työpajan vetäjältä uusi koodi.",
+      "unknown": "Tällä et päässyt sisään. Tarkista ensin kirjoitusasu sana sanalta. Tavuviivoilla tai välilyönneillä ei ole väliä. Jos koodi on oikein, se ei ehkä ole enää voimassa: koodeja voidaan vaihtaa, tai työpajan vetäjä on voinut päättää työpajan (se voi tapahtua milloin tahansa työpajan jälkeen). Pyydä sitten työpajan vetäjältä uusi koodi.",
       "wrongLength": "Koodissa on kolme tai neljä sanaa."
     },
     "error": "Virhe",
@@ -1547,7 +1547,7 @@
         "less": "Vähemmän",
         "link": "Lisätietoja palvelusta {{siteName}}",
         "more": "Lue lisää",
-        "oneLiner": "Nämä tekstiseikkailut on tehty palvelulla {{siteName}}: rakennettu käsin ilman ohjelmointia ja tekoälyn kertomina reaaliaikaisesti."
+        "oneLiner": "Nämä tekstiseikkailut on tehty palvelulla {{siteName}}: tekijöidensä tekemiä ilman ohjelmointia ja tekoälyn kertomina reaaliaikaisesti."
       },
       "copy": "Kopioi",
       "copyLogin": "Kirjaudu sisään kopioidaksesi",

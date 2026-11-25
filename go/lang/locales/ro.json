@@ -554,7 +554,7 @@
       "placeholder": "de ex. măr vidră turn",
       "submit": "Continuă",
       "title": "Introdu codul",
-      "unknown": "Codul nu ți-a permis accesul. Verifică mai întâi ortografia, cuvânt cu cuvânt. Nu contează dacă există cratime sau spații. Dacă acel cod este corect, este posibil să nu mai fie valabil: codurile pot fi înlocuite, iar accesul se încheie după atelier. Cere apoi coordonatorului atelierului un cod nou.",
+      "unknown": "Codul nu ți-a permis accesul. Verifică mai întâi ortografia, cuvânt cu cuvânt. Nu contează dacă există cratime sau spații. Dacă acel cod este corect, este posibil să nu mai fie valabil: codurile pot fi înlocuite, sau coordonatorul atelierului poate să fi încheiat atelierul (se poate întâmpla oricând după atelier). Cere apoi coordonatorului atelierului un cod nou.",
       "wrongLength": "Un cod are trei sau patru cuvinte."
     },
     "error": "Eroare",
@@ -1547,7 +1547,7 @@
         "less": "Mai puțin",
         "link": "Mai multe despre {{siteName}}",
         "more": "Află mai multe",
-        "oneLiner": "Aceste aventuri text au fost create cu {{siteName}}: construite manual, fără programare, povestite live de un AI."
+        "oneLiner": "Aceste aventuri text au fost create cu {{siteName}}: construite de creatorii lor, fără programare, povestite live de un AI."
       },
       "copy": "Copiază",
       "copyLogin": "Autentifică-te pentru a copia",

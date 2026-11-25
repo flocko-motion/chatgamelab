@@ -554,7 +554,7 @@
       "placeholder": "např. jablko vydra věž",
       "submit": "Pokračovat",
       "title": "Zadat kód",
-      "unknown": "Takto se dovnitř nedostanete. Nejprve zkontrolujte pravopis – slovo po slovu. Na pomlčkách ani mezerách nezáleží. Pokud je kód správně, možná už není platný: kódy lze změnit a po skončení workshopu přístup končí. Požádejte pak vedoucího workshopu o nový kód.",
+      "unknown": "Takto se dovnitř nedostanete. Nejprve zkontrolujte pravopis – slovo po slovu. Na pomlčkách ani mezerách nezáleží. Pokud je kód správně, možná už není platný: kódy lze změnit nebo vedoucí workshop mohl ukončit (to se může stát kdykoli po workshopu). Požádejte pak vedoucího workshopu o nový kód.",
       "wrongLength": "Kód se skládá ze tří nebo čtyř slov."
     },
     "error": "Chyba",
@@ -1547,7 +1547,7 @@
         "less": "Méně",
         "link": "Více o {{siteName}}",
         "more": "Zjistit více",
-        "oneLiner": "Tato textová dobrodružství vznikla v {{siteName}}: ručně vytvořená bez programování a živě vyprávěná umělou inteligencí."
+        "oneLiner": "Tato textová dobrodružství vznikla v {{siteName}}: vytvořená svými tvůrci bez programování a živě vyprávěná umělou inteligencí."
       },
       "copy": "Kopírovat",
       "copyLogin": "Pro kopírování se přihlaste",
