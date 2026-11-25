@@ -7,8 +7,9 @@ on:
 
 jobs:
   # Whether the pull request touches anything the app is built from. Changes
-  # to the tooling list alone (the roadmap tool, documentation) skip the
-  # checks below; "Run Tests" still reports, so the required check passes.
+  # to the tooling list alone (the roadmap tool, the homepage, documentation)
+  # skip the checks below; "Run Tests" still reports, so the required check
+  # passes.
   changes:
     name: Changes
     runs-on: ubuntu-latest
@@ -23,7 +24,7 @@ jobs:
           BASE: ${{ github.event.pull_request.base.sha }}
           HEAD: ${{ github.event.pull_request.head.sha }}
         run: |
-          tooling='^(roadmap/.*|\.github/workflows/roadmap\.yml|docs/.*|.*\.md)$'
+          tooling='^(roadmap/.*|homepage/.*|\.github/workflows/roadmap\.yml|docs/.*|.*\.md)$'
           rest=$(git diff --name-only "$BASE...$HEAD" | grep -Ev "$tooling" || true)
           if [ -n "$rest" ]; then
             echo "code=true" >> "$GITHUB_OUTPUT"
