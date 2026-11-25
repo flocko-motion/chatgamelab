@@ -554,7 +554,7 @@
       "placeholder": "t.ex. äpple utter torn",
       "submit": "Fortsätt",
       "title": "Ange kod",
-      "unknown": "Du kom inte in den här gången. Kontrollera först stavningen, ord för ord. Bindestreck eller mellanslag spelar ingen roll. Om koden stämmer kanske den inte längre är giltig: koder kan bytas ut, och åtkomsten upphör efter workshopen. Fråga då din workshopledare efter en ny kod.",
+      "unknown": "Du kom inte in den här gången. Kontrollera först stavningen, ord för ord. Bindestreck eller mellanslag spelar ingen roll. Om koden stämmer kanske den inte längre är giltig: koder kan bytas ut, eller så har workshopledaren avslutat workshopen (det kan hända när som helst efter workshopen). Fråga då din workshopledare efter en ny kod.",
       "wrongLength": "En kod består av tre eller fyra ord."
     },
     "error": "Fel",
@@ -1547,7 +1547,7 @@
         "less": "Mindre",
         "link": "Mer om {{siteName}}",
         "more": "Läs mer",
-        "oneLiner": "De här textäventyren skapades med {{siteName}}: byggda för hand utan programmering och berättade live av en AI."
+        "oneLiner": "De här textäventyren skapades med {{siteName}}: byggda av sina skapare utan programmering och berättade live av en AI."
       },
       "copy": "Kopiera",
       "copyLogin": "Logga in för att kopiera",

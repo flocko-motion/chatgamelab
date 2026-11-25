@@ -554,7 +554,7 @@
       "placeholder": "npr. apfel otter turm",
       "submit": "Nastavi",
       "title": "Unesite kod",
-      "unknown": "Ovako trenutno ne možete ući. Prvo provjerite pravopis – riječ po riječ. Crtice i razmaci nisu važni. Ako je kôd ispravan, možda više ne važi: kôdovi se mogu zamijeniti, a pristup prestaje nakon radionice. Zatim zatražite novi kôd od voditelja radionice.",
+      "unknown": "Ovako trenutno ne možete ući. Prvo provjerite pravopis – riječ po riječ. Crtice i razmaci nisu važni. Ako je kôd ispravan, možda više ne važi: kôdovi se mogu zamijeniti, ili je voditelj radionice možda završio radionicu (to se može dogoditi bilo kada nakon radionice). Zatim zatražite novi kôd od voditelja radionice.",
       "wrongLength": "Kod se sastoji od tri ili četiri riječi."
     },
     "error": "Greška",
@@ -1547,7 +1547,7 @@
         "less": "Manje",
         "link": "Više o {{siteName}}",
         "more": "Saznajte više",
-        "oneLiner": "Ove tekstualne avanture napravljene su uz {{siteName}}: ručno izrađene, bez programiranja, a uživo ih pripovijeda vještačka inteligencija."
+        "oneLiner": "Ove tekstualne avanture napravljene su uz {{siteName}}: koje su napravili njihovi autori, bez programiranja, a uživo ih pripovijeda vještačka inteligencija."
       },
       "copy": "Kopiraj",
       "copyLogin": "Prijavite se da biste kopirali",

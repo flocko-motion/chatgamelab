@@ -554,7 +554,7 @@
       "placeholder": "örn. apfel otter turm",
       "submit": "Devam et",
       "title": "Kodu girin",
-      "unknown": "Bu kodla giriş yapılamadı. Önce yazımı kelime kelime kontrol edin. Tireler veya boşluklar önemli değildir. Kod doğruysa artık geçerli olmayabilir: kodlar değiştirilebilir ve atölye sona erdiğinde erişim sonlandırılır. Bu durumda atölye yürütücünüzden yeni bir kod isteyin.",
+      "unknown": "Bu kodla giriş yapılamadı. Önce yazımı kelime kelime kontrol edin. Tireler veya boşluklar önemli değildir. Kod doğruysa artık geçerli olmayabilir: kodlar değiştirilebilir veya atölye yürütücüsü atölyeyi sonlandırmış olabilir (bu, atölyeden sonra her an olabilir). Bu durumda atölye yürütücünüzden yeni bir kod isteyin.",
       "wrongLength": "Kodlar üç veya dört kelimeden oluşur."
     },
     "error": "Hata",
@@ -1547,7 +1547,7 @@
         "less": "Daha az",
         "link": "{{siteName}} hakkında daha fazla bilgi",
         "more": "Daha fazla bilgi edin",
-        "oneLiner": "Bu metin maceraları {{siteName}} ile oluşturuldu: programlama olmadan elle hazırlandı ve bir yapay zekâ tarafından canlı anlatılıyor."
+        "oneLiner": "Bu metin maceraları {{siteName}} ile oluşturuldu: programlama olmadan yaratıcıları tarafından hazırlandı ve bir yapay zekâ tarafından canlı anlatılıyor."
       },
       "copy": "Kopyala",
       "copyLogin": "Kopyalamak için giriş yapın",

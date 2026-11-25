@@ -554,7 +554,7 @@
       "placeholder": "ex.: apfel otter turm",
       "submit": "Continuar",
       "title": "Inserir código",
-      "unknown": "Isso não permitiu sua entrada. Primeiro, verifique a grafia, palavra por palavra. Hífens ou espaços não fazem diferença. Se o código estiver correto, talvez ele não seja mais válido: os códigos podem ser substituídos, e o acesso termina após a oficina. Nesse caso, peça um novo código ao responsável pela oficina.",
+      "unknown": "Isso não permitiu sua entrada. Primeiro, verifique a grafia, palavra por palavra. Hífens ou espaços não fazem diferença. Se o código estiver correto, talvez ele não seja mais válido: os códigos podem ser substituídos, ou o responsável pela oficina pode ter encerrado a oficina (isso pode acontecer a qualquer momento depois da oficina). Nesse caso, peça um novo código ao responsável pela oficina.",
       "wrongLength": "Um código tem três ou quatro palavras."
     },
     "error": "Erro",
@@ -1547,7 +1547,7 @@
         "less": "Menos",
         "link": "Mais sobre {{siteName}}",
         "more": "Saiba mais",
-        "oneLiner": "Estas aventuras de texto foram criadas com {{siteName}}: feitas à mão, sem programação, narradas ao vivo por uma IA."
+        "oneLiner": "Estas aventuras de texto foram criadas com {{siteName}}: feitas por seus criadores, sem programação, narradas ao vivo por uma IA."
       },
       "copy": "Copiar",
       "copyLogin": "Faça login para copiar",

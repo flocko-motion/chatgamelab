@@ -554,7 +554,7 @@
       "placeholder": "es. apfel otter turm",
       "submit": "Continua",
       "title": "Inserisci il codice",
-      "unknown": "Non puoi accedere. Controlla prima l'ortografia, parola per parola. I trattini e gli spazi non contano. Se il codice è corretto, potrebbe non essere più valido: i codici possono essere sostituiti e l'accesso termina dopo il workshop. Chiedi quindi alla persona che conduce il workshop un nuovo codice.",
+      "unknown": "Non puoi accedere. Controlla prima l'ortografia, parola per parola. I trattini e gli spazi non contano. Se il codice è corretto, potrebbe non essere più valido: i codici possono essere sostituiti, oppure la persona che conduce il workshop potrebbe averlo concluso (può succedere in qualsiasi momento dopo il workshop). Chiedi quindi alla persona che conduce il workshop un nuovo codice.",
       "wrongLength": "Un codice è composto da tre o quattro parole."
     },
     "error": "Errore",
@@ -1547,7 +1547,7 @@
         "less": "Meno",
         "link": "Scopri di più su {{siteName}}",
         "more": "Scopri di più",
-        "oneLiner": "Queste avventure testuali sono state create con {{siteName}}: costruite a mano, senza programmazione, raccontate dal vivo da un'IA."
+        "oneLiner": "Queste avventure testuali sono state create con {{siteName}}: costruite dai loro autori, senza programmazione, raccontate dal vivo da un'IA."
       },
       "copy": "Copia",
       "copyLogin": "Accedi per copiare",

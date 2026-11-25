@@ -554,7 +554,7 @@
       "placeholder": "p.sh. apfel otter turm",
       "submit": "Vazhdo",
       "title": "Fut kodin",
-      "unknown": "Kjo nuk të lejoi të hysh. Së pari kontrollo drejtshkrimin, fjalë për fjalë. Vizat lidhëse ose hapësirat nuk kanë rëndësi. Nëse kodi është i saktë, mund të mos jetë më i vlefshëm: kodet mund të zëvendësohen dhe qasja përfundon pas workshop-it. Pastaj kërko një kod të ri nga drejtuesi i workshop-it.",
+      "unknown": "Kjo nuk të lejoi të hysh. Së pari kontrollo drejtshkrimin, fjalë për fjalë. Vizat lidhëse ose hapësirat nuk kanë rëndësi. Nëse kodi është i saktë, mund të mos jetë më i vlefshëm: kodet mund të zëvendësohen, ose drejtuesi i workshop-it mund ta ketë mbyllur workshop-in (kjo mund të ndodhë në çdo kohë pas workshop-it). Pastaj kërko një kod të ri nga drejtuesi i workshop-it.",
       "wrongLength": "Një kod ka tre ose katër fjalë."
     },
     "error": "Gabim",
@@ -1547,7 +1547,7 @@
         "less": "Më pak",
         "link": "Më shumë për {{siteName}}",
         "more": "Mëso më shumë",
-        "oneLiner": "Këto aventura me tekst u krijuan me {{siteName}}: të ndërtuara me dorë, pa programim, dhe të rrëfyera drejtpërdrejt nga një AI."
+        "oneLiner": "Këto aventura me tekst u krijuan me {{siteName}}: të ndërtuara nga krijuesit e tyre, pa programim, dhe të rrëfyera drejtpërdrejt nga një AI."
       },
       "copy": "Kopjo",
       "copyLogin": "Hyr për ta kopjuar",

@@ -554,7 +554,7 @@
       "placeholder": "napr. apfel otter turm",
       "submit": "Pokračovať",
       "title": "Zadať kód",
-      "unknown": "Takto sa dovnútra nedostanete. Najprv skontrolujte správnosť zápisu – slovo po slove. Pomlčky ani medzery neprekážajú. Ak je kód správny, možno už nie je platný: kódy sa dajú nahradiť a po skončení workshopu prístup zaniká. Potom požiadajte vedúceho workshopu o nový kód.",
+      "unknown": "Takto sa dovnútra nedostanete. Najprv skontrolujte správnosť zápisu – slovo po slove. Pomlčky ani medzery neprekážajú. Ak je kód správny, možno už nie je platný: kódy sa dajú nahradiť alebo vedúci workshop mohol ukončiť (môže sa to stať kedykoľvek po workshope). Potom požiadajte vedúceho workshopu o nový kód.",
       "wrongLength": "Kód má tri alebo štyri slová."
     },
     "error": "Chyba",
@@ -1547,7 +1547,7 @@
         "less": "Menej",
         "link": "Viac o {{siteName}}",
         "more": "Zistiť viac",
-        "oneLiner": "Tieto textové dobrodružstvá vznikli pomocou {{siteName}}: vytvorené ručne, bez programovania, naživo rozprávané umelou inteligenciou."
+        "oneLiner": "Tieto textové dobrodružstvá vznikli pomocou {{siteName}}: vytvorené svojimi tvorcami, bez programovania, naživo rozprávané umelou inteligenciou."
       },
       "copy": "Kopírovať",
       "copyLogin": "Prihláste sa a skopírujte",

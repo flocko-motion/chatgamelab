@@ -29,7 +29,11 @@ var client = &http.Client{Timeout: 10 * time.Minute}
 func translate(ctx context.Context, apiKey string, inputs []string, language string) (string, usage, error) {
 	prompt := fmt.Sprintf("Translate this JSON to %s:\n\n", language)
 	for i, in := range inputs {
-		prompt += fmt.Sprintf("Original #%d: \n%s\n\n", i+1, in)
+		plain, err := plainJSON(in)
+		if err != nil {
+			return "", usage{}, err
+		}
+		prompt += fmt.Sprintf("Original #%d: \n%s\n\n", i+1, plain)
 	}
 
 	body, _ := json.Marshal(map[string]any{

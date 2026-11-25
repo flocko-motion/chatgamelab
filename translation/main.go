@@ -249,10 +249,11 @@ func prune(en string, check bool) bool {
 
 type job struct {
 	lang     string
-	existing string          // the language's current file, empty for a new language
-	changed  int             // how many fields to translate
-	inputs   []string        // the changed fields, once per source language
-	paths    map[string]bool // the changed fields' paths
+	existing string            // the language's current file, empty for a new language
+	changed  int               // how many fields to translate
+	inputs   []string          // the changed fields, once per source language
+	paths    map[string]bool   // the changed fields' paths
+	hashes   map[string]string // the language's hashes so far
 }
 
 // pending lists the languages with fields whose source text changed since they
@@ -287,7 +288,7 @@ func pending(src []string, hashes map[string]string) []job {
 			continue
 		}
 
-		j := job{lang: code, existing: existing, changed: len(changed), paths: changed}
+		j := job{lang: code, existing: existing, changed: len(changed), paths: changed, hashes: old}
 		for _, s := range src {
 			part, err := extractPaths(s, changed)
 			if err != nil {
@@ -437,6 +438,10 @@ func translateAll(tr translator, jobs []job, hashes map[string]string) {
 			total = total.add(u)
 			proposals = append(proposals, ps...)
 			mu.Unlock()
+			var written map[string]string
+			if err == nil {
+				written, err = translatedHashes(j, out, hashes)
+			}
 			if err == nil && j.existing != "" {
 				out, err = mergeJSON(j.existing, out)
 			}
@@ -452,7 +457,7 @@ func translateAll(tr translator, jobs []job, hashes map[string]string) {
 			}
 
 			writeFile(filepath.Join(localesDir, j.lang+".json"), out)
-			writeFile(filepath.Join(localesDir, j.lang+".hash.json"), mustIndent(hashes))
+			writeFile(filepath.Join(localesDir, j.lang+".hash.json"), mustIndent(written))
 			log("✓ %s (%s): %d fields", name, j.lang, j.changed)
 		}(j)
 	}
@@ -626,4 +631,26 @@ func acceptAll(en string, jobs []job, hashes map[string]string) {
 	if len(jobs) == 0 {
 		fmt.Println("✓ Every language is up to date")
 	}
+}
+
+// translatedHashes are the hashes a language keeps after a run whose answer
+// is out: the current hash for every field the answer translated, the old one
+// for a field it left out, so the next run asks for that field again (v1
+// 20561b45, #464).
+func translatedHashes(j job, out string, hashes map[string]string) (map[string]string, error) {
+	got, err := leaves(out)
+	if err != nil {
+		return nil, err
+	}
+	written := map[string]string{}
+	for path, h := range hashes {
+		_, translated := got[path]
+		switch {
+		case !j.paths[path] || translated:
+			written[path] = h
+		case j.hashes[path] != "":
+			written[path] = j.hashes[path]
+		}
+	}
+	return written, nil
 }

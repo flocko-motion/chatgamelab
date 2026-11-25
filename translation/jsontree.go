@@ -4,6 +4,7 @@ package main
 // named by its dotted path, such as "auth.ageGroup.label".
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -25,6 +26,24 @@ func mustIndent(v any) string {
 		panic(err)
 	}
 	return string(b) + "\n"
+}
+
+// plainJSON is s as a model reads it: indented, with &, < and > as
+// themselves. The locale files keep Go's \u0026-style escapes, which models
+// garble into control characters (v1 d378e4ff, #464).
+func plainJSON(s string) (string, error) {
+	v, err := parse(s)
+	if err != nil {
+		return "", err
+	}
+	var b bytes.Buffer
+	enc := json.NewEncoder(&b)
+	enc.SetEscapeHTML(false)
+	enc.SetIndent("", "  ")
+	if err := enc.Encode(v); err != nil {
+		return "", err
+	}
+	return b.String(), nil
 }
 
 func indentJSON(s string) (string, error) {
