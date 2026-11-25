@@ -1,7 +1,7 @@
 # Roadmap
 
 The project's roadmap, generated from the GitHub issues and never edited by hand:
-**https://flocko-motion.github.io/chatgamelab/roadmap/** (zoom, drag, filter by epic, search the titles (several hits open a list), click for details (they replace the side pane until closed); *Epics only* for the overview: the same layout with the issues hidden, each epic box labelled, linkable as `#epics`).
+**https://flocko-motion.github.io/chatgamelab/roadmap/** (zoom, drag, filter by epic, search the titles (several hits open a list), click for details (in the side pane, until closed); *Epics only* for the overview: the same layout with the issues hidden, each epic box labelled, linkable as `#epics`).
 
 Open issues under no epic show too, in their milestone, in a *Without epic* box right of the epics. The side pane opens only on demand: for what is clicked, or the legend under *?*. When epics are still open whose every issue is closed, a button in the top bar (*N to close*) lists them.
 
