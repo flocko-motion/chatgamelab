@@ -2,6 +2,7 @@ package main
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -76,5 +77,40 @@ func TestCheckTextsRefusesControlCharacters(t *testing.T) {
 	}
 	if p := checkTexts(map[string]string{"a": "x\ny"}, map[string]string{"a": "x\ny"}); len(p) != 0 {
 		t.Errorf("a line break fails: %q", p)
+	}
+}
+
+// A model reads &, < and > as themselves, not as the files' \u0026 escapes.
+func TestPlainJSONKeepsMarkupReadable(t *testing.T) {
+	in := mustIndent(map[string]any{"a": "Story & AI", "b": "Let's <mark>build</mark>"})
+	if !strings.Contains(in, `\u0026`) {
+		t.Fatalf("the files' form escapes &: %s", in)
+	}
+	got, err := plainJSON(in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"Story & AI", "Let's <mark>build</mark>"} {
+		if !strings.Contains(got, want) {
+			t.Errorf("plainJSON lost %q:\n%s", want, got)
+		}
+	}
+}
+
+// A field the answer left out keeps its old hash, so the next run asks again;
+// a field never translated gets none.
+func TestTranslatedHashesKeepWhatTheAnswerLeftOut(t *testing.T) {
+	j := job{
+		paths:  map[string]bool{"a": true, "b": true, "c": true},
+		hashes: map[string]string{"a": "old-a", "b": "old-b", "d": "d1"},
+	}
+	hashes := map[string]string{"a": "new-a", "b": "new-b", "c": "new-c", "d": "d1"}
+	got, err := translatedHashes(j, `{"a":"A"}`, hashes)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]string{"a": "new-a", "b": "old-b", "d": "d1"}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("hashes = %v, want %v", got, want)
 	}
 }

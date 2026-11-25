@@ -554,7 +554,7 @@
       "placeholder": "mis. apfel otter turm",
       "submit": "Lanjutkan",
       "title": "Masukkan kode",
-      "unknown": "Anda belum bisa masuk. Periksa terlebih dahulu penulisannya, kata demi kata. Tanda hubung atau spasi tidak berpengaruh. Jika kodenya benar, mungkin kode tersebut sudah tidak berlaku: kode dapat diganti, dan akses berakhir setelah workshop. Jika demikian, mintalah kode baru kepada pemimpin workshop Anda.",
+      "unknown": "Anda belum bisa masuk. Periksa terlebih dahulu penulisannya, kata demi kata. Tanda hubung atau spasi tidak berpengaruh. Jika kodenya benar, mungkin kode tersebut sudah tidak berlaku: kode dapat diganti, atau pemimpin workshop mungkin sudah mengakhiri workshop (hal ini bisa terjadi kapan saja setelah workshop). Jika demikian, mintalah kode baru kepada pemimpin workshop Anda.",
       "wrongLength": "Kode terdiri dari tiga atau empat kata."
     },
     "error": "Kesalahan",
@@ -1547,7 +1547,7 @@
         "less": "Lebih sedikit",
         "link": "Selengkapnya tentang {{siteName}}",
         "more": "Pelajari selengkapnya",
-        "oneLiner": "Petualangan teks ini dibuat dengan {{siteName}}: dirancang sendiri tanpa pemrograman dan diceritakan secara langsung oleh AI."
+        "oneLiner": "Petualangan teks ini dibuat dengan {{siteName}}: dibuat oleh para pembuatnya tanpa pemrograman dan diceritakan secara langsung oleh AI."
       },
       "copy": "Salin",
       "copyLogin": "Login untuk menyalin",

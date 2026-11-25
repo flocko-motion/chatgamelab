@@ -554,7 +554,7 @@
       "placeholder": "npr. jabolko vidra stolp",
       "submit": "Nadaljuj",
       "title": "Vnesite kodo",
-      "unknown": "Tako se trenutno ne morete prijaviti. Najprej preverite zapis – besedo za besedo. Vezaji in presledki niso pomembni. Če je koda pravilna, morda ni več veljavna: kode je mogoče zamenjati, dostop pa se po delavnici konča. Nato prosite vodjo delavnice za novo kodo.",
+      "unknown": "Tako se trenutno ne morete prijaviti. Najprej preverite zapis – besedo za besedo. Vezaji in presledki niso pomembni. Če je koda pravilna, morda ni več veljavna: kode je mogoče zamenjati, ali pa je vodja delavnice delavnico morda zaključil (to se lahko zgodi kadar koli po delavnici). Nato prosite vodjo delavnice za novo kodo.",
       "wrongLength": "Koda ima tri ali štiri besede."
     },
     "error": "Napaka",
@@ -1547,7 +1547,7 @@
         "less": "Manj",
         "link": "Več o {{siteName}}",
         "more": "Izvedi več",
-        "oneLiner": "Te besedilne pustolovščine so bile ustvarjene z {{siteName}}: ročno, brez programiranja, v živo pa jih pripoveduje umetna inteligenca."
+        "oneLiner": "Te besedilne pustolovščine so bile ustvarjene z {{siteName}}: delo njihovih ustvarjalcev, brez programiranja, v živo pa jih pripoveduje umetna inteligenca."
       },
       "copy": "Kopiraj",
       "copyLogin": "Za kopiranje se prijavite",

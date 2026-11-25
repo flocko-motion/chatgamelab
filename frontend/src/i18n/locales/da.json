@@ -554,7 +554,7 @@
       "placeholder": "f.eks. æble odder tårn",
       "submit": "Fortsæt",
       "title": "Indtast kode",
-      "unknown": "Du kom ikke ind denne gang. Tjek først stavningen – ord for ord. Bindestreger eller mellemrum er ligegyldige. Hvis koden er korrekt, er den måske ikke længere gyldig: Koder kan blive udskiftet, og adgangen ophører efter workshoppen. Spørg derefter din workshopleder efter en ny kode.",
+      "unknown": "Du kom ikke ind denne gang. Tjek først stavningen – ord for ord. Bindestreger eller mellemrum er ligegyldige. Hvis koden er korrekt, er den måske ikke længere gyldig: Koder kan blive udskiftet, eller workshoplederen har måske afsluttet workshoppen (det kan ske når som helst efter workshoppen). Spørg derefter din workshopleder efter en ny kode.",
       "wrongLength": "En kode består af tre eller fire ord."
     },
     "error": "Fejl",
@@ -1547,7 +1547,7 @@
         "less": "Mindre",
         "link": "Mere om {{siteName}}",
         "more": "Læs mere",
-        "oneLiner": "Disse teksteventyr er lavet med {{siteName}}: bygget i hånden uden programmering og fortalt live af en AI."
+        "oneLiner": "Disse teksteventyr er lavet med {{siteName}}: lavet af deres skabere uden programmering og fortalt live af en AI."
       },
       "copy": "Kopiér",
       "copyLogin": "Log ind for at kopiere",

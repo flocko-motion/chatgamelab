@@ -554,7 +554,7 @@
       "placeholder": "np. apfel otter turm",
       "submit": "Dalej",
       "title": "Wpisz kod",
-      "unknown": "Nie udało się uzyskać dostępu. Najpierw sprawdź pisownię — słowo po słowie. Łączniki i spacje nie mają znaczenia. Jeśli kod jest poprawny, być może nie jest już ważny: kody można zmieniać, a dostęp kończy się po warsztatach. Poproś wtedy osobę prowadzącą warsztaty o nowy kod.",
+      "unknown": "Nie udało się uzyskać dostępu. Najpierw sprawdź pisownię — słowo po słowie. Łączniki i spacje nie mają znaczenia. Jeśli kod jest poprawny, być może nie jest już ważny: kody można zmieniać, albo osoba prowadząca warsztaty mogła je zakończyć (może to się zdarzyć w dowolnym momencie po warsztatach). Poproś wtedy osobę prowadzącą warsztaty o nowy kod.",
       "wrongLength": "Kod składa się z trzech lub czterech słów."
     },
     "error": "Błąd",
@@ -1547,7 +1547,7 @@
         "less": "Mniej",
         "link": "Więcej informacji o {{siteName}}",
         "more": "Dowiedz się więcej",
-        "oneLiner": "Te tekstowe przygody powstały w {{siteName}}: stworzone własnoręcznie, bez programowania, opowiadane na żywo przez AI."
+        "oneLiner": "Te tekstowe przygody powstały w {{siteName}}: stworzone przez ich twórców, bez programowania, opowiadane na żywo przez AI."
       },
       "copy": "Kopiuj",
       "copyLogin": "Zaloguj się, aby skopiować",

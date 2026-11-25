@@ -554,7 +554,7 @@
       "placeholder": "npr. jabuka vidra toranj",
       "submit": "Nastavi",
       "title": "Unesite kôd",
-      "unknown": "Ovaj vas kod nije pustio unutra. Najprije provjerite pravopis, riječ po riječ. Crtice i razmaci nisu važni. Ako je kod ispravan, možda više ne vrijedi: kodovi se mogu zamijeniti, a pristup završava nakon radionice. Zatim zatražite novi kod od voditelja radionice.",
+      "unknown": "Ovaj vas kod nije pustio unutra. Najprije provjerite pravopis, riječ po riječ. Crtice i razmaci nisu važni. Ako je kod ispravan, možda više ne vrijedi: kodovi se mogu zamijeniti, ili je voditelj radionice možda završio radionicu (to se može dogoditi bilo kada nakon radionice). Zatim zatražite novi kod od voditelja radionice.",
       "wrongLength": "Kôd se sastoji od tri ili četiri riječi."
     },
     "error": "Pogreška",
@@ -1547,7 +1547,7 @@
         "less": "Manje",
         "link": "Više o usluzi {{siteName}}",
         "more": "Saznajte više",
-        "oneLiner": "Ove tekstualne pustolovine izrađene su uz pomoć usluge {{siteName}}: ručno, bez programiranja, a uživo ih pripovijeda umjetna inteligencija."
+        "oneLiner": "Ove tekstualne pustolovine izrađene su uz pomoć usluge {{siteName}}: djelo njihovih autora, bez programiranja, a uživo ih pripovijeda umjetna inteligencija."
       },
       "copy": "Kopiraj",
       "copyLogin": "Prijavite se za kopiranje",

@@ -554,7 +554,7 @@
       "placeholder": "нпр. јабука видра кула",
       "submit": "Настави",
       "title": "Унесите код",
-      "unknown": "Tako trenutno ne možete da pristupite. Prvo proverite pravopis — reč po reč. Crtice i razmaci nisu važni. Ako je kôd ispravan, možda više ne važi: kôdovi mogu biti zamenjeni, a pristup se završava nakon radionice. Zatim pitajte voditelja radionice za novi kôd.",
+      "unknown": "Tako trenutno ne možete da pristupite. Prvo proverite pravopis — reč po reč. Crtice i razmaci nisu važni. Ako je kôd ispravan, možda više ne važi: kôdovi mogu biti zamenjeni, ili je voditelj radionice možda završio radionicu (to se može dogoditi bilo kada nakon radionice). Zatim pitajte voditelja radionice za novi kôd.",
       "wrongLength": "Код има три или четири речи."
     },
     "error": "Грешка",
@@ -1547,7 +1547,7 @@
         "less": "Manje",
         "link": "Више о {{siteName}}",
         "more": "Saznajte više",
-        "oneLiner": "Ове текстуалне авантуре направљене су уз {{siteName}}: ручно, без програмирања, а уживо их приповеда вештачка интелигенција."
+        "oneLiner": "Ове текстуалне авантуре направљене су уз {{siteName}}: дело њихових аутора, без програмирања, а уживо их приповеда вештачка интелигенција."
       },
       "copy": "Копирај",
       "copyLogin": "Пријавите се да бисте копирали",

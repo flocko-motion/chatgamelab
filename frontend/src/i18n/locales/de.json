@@ -554,7 +554,7 @@
       "placeholder": "z. B. apfel otter turm",
       "submit": "Weiter",
       "title": "Code eingeben",
-      "unknown": "So kommst du gerade nicht rein. Prüfe zuerst die Schreibweise – Wort für Wort. Bindestriche oder Leerzeichen sind egal. Wenn der Code stimmt, gilt er vielleicht nicht mehr: Codes können neu gesetzt werden, und nach dem Workshop wird der Zugang beendet. Frag dann deine Workshop-Leitung nach einem neuen Code.",
+      "unknown": "So kommst du gerade nicht rein. Prüfe zuerst die Schreibweise – Wort für Wort. Bindestriche oder Leerzeichen sind egal. Wenn der Code stimmt, gilt er vielleicht nicht mehr: Codes können neu gesetzt werden, oder die Workshop-Leitung hat den Workshop beendet (das kann jederzeit nach dem Workshop passieren). Frag dann deine Workshop-Leitung nach einem neuen Code.",
       "wrongLength": "Ein Code besteht aus drei oder vier Wörtern."
     },
     "error": "Fehler",
