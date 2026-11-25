@@ -562,7 +562,7 @@ function show(element: HTMLElement, visible: boolean): void {
 }
 
 /**
- * Names node as a part of the styling contract (docs/embed-styling.md): a
+ * Names node as a part of the styling contract (docs/embedding.md): a
  * host's CSS selects it as [data-part="…"], so its classes stay free to
  * change.
  */

@@ -1,6 +1,6 @@
-/** Where the styling contract for embedded games is documented (#340's docs/embed-styling.md). */
+/** Where the styling contract for embedded games is documented: the Styling part of docs/embedding.md. */
 export const EMBED_STYLING_DOCS_URL =
-  "https://github.com/flocko-motion/chatgamelab/blob/v2/development/docs/embed-styling.md";
+  "https://github.com/flocko-motion/chatgamelab/blob/v2/development/docs/embedding.md#4-styling";
 
 import type { Mode } from "@/api/types";
 
