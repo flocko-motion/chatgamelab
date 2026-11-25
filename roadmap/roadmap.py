@@ -20,6 +20,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 
@@ -33,11 +34,21 @@ REPO = ARGS.repo
 CACHE = ARGS.cache
 
 
-def fetch(path):
-    out = subprocess.run(["gh", "api", "--paginate", f"repos/{REPO}/{path}"],
-                         check=True, capture_output=True, text=True).stdout
-    # --paginate concatenates JSON arrays; normalise.
-    return json.loads(out.replace("][", ","))
+def fetch(path, tries=4):
+    """GitHub's answer for path. GitHub answers a burst of calls now and then
+    with a 5xx or a rate limit; such a call is asked again, after 2, 4 and 8
+    seconds. Any other refusal stops the run at once, with GitHub's words."""
+    for attempt in range(tries):
+        run = subprocess.run(["gh", "api", "--paginate", f"repos/{REPO}/{path}"],
+                             capture_output=True, text=True)
+        if run.returncode == 0:
+            # --paginate concatenates JSON arrays; normalise.
+            return json.loads(run.stdout.replace("][", ","))
+        transient = re.search(r"HTTP (5\d\d|429)|rate limit|timeout|Something went wrong",
+                              run.stderr, re.I)
+        if not transient or attempt == tries - 1:
+            sys.exit(f"gh api {path}: {run.stderr.strip()}")
+        time.sleep(2 ** (attempt + 1))
 
 
 def cached(path):
