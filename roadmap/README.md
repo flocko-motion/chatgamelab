@@ -1,7 +1,7 @@
 # Roadmap
 
 The project's roadmap, generated from the GitHub issues and never edited by hand:
-**https://flocko-motion.github.io/chatgamelab/roadmap/** (zoom, drag, filter by epic, show only one person's issues or the unassigned ones (linkable as `?who=login`, `?who=-`), search the titles (several hits open a list), click for details (in the side pane, until closed); *Epics only* for the overview: the same layout with the issues hidden, each epic box labelled, linkable as `#epics`).
+**https://flocko-motion.github.io/chatgamelab/roadmap/** (zoom, drag, show only one person's issues or the unassigned ones (linkable as `?who=login`, `?who=-`), search the titles (several hits open a list), click for details (in the side pane, until closed); *Epics only* for the overview: the same layout with the issues hidden, each epic box labelled, linkable as `#epics`).
 
 An issue's card is filled in its assignees' colours (one per person, a gradient for several, white for none); a red outline means blocked. The page is always light, in GitHub's style.
 

@@ -55,15 +55,17 @@
   main { flex: 1; display: flex; min-height: 0; }
   #graphs { flex: 1; min-width: 0; position: relative; }
   #graph, #covers, #feet { position: absolute; inset: 0; }
-  /* A card's foot, its assignees and labels, in HTML over the canvas, which
-     draws a label in one colour only; moved with the graph's zoom and pan. */
+  /* A card's number at its top, and its foot (assignees and labels), in HTML
+     over the canvas, which draws a label in one colour and weight only; moved
+     with the graph's zoom and pan. */
   #feet { pointer-events: none; overflow: hidden; }
   body.epics-only #feet { display: none; }
   #feet .world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
   .foot { position: absolute; width: 264px; text-align: center; font-size: 15px; line-height: 19px;
-          overflow-wrap: anywhere; }
+          overflow-wrap: anywhere; display: flex; flex-direction: column; justify-content: space-between; }
+  .foot .num { font-size: 16px; font-weight: 600; }
   .foot .who { font-weight: 600; } .foot .tag { color: var(--tag); }
-  .foot.done { opacity: .6; } .foot.faded { opacity: .15; }
+  .foot.done { opacity: .6; }
   /* Epics only: the same graph with the issues hidden; each epic box carries
      its title, description and progress, laid over the canvas in HTML and
      moved with its zoom and pan. The text is cut where the box ends. */
@@ -85,7 +87,6 @@
   .cover p { margin: 0; flex: 1 1 0; min-height: 0; overflow: hidden; font-size: 24px;
              line-height: 1.4; color: var(--muted);
              mask-image: linear-gradient(to bottom, #000 calc(100% - 1.4em), transparent); }
-  .cover.faded { opacity: .15; }
   .cover.hit { outline: 5px solid var(--milestone-line); }
   .cover.sel { outline: 5px solid var(--accent); }
   /* A segmented control, as GitHub's. */
@@ -155,11 +156,8 @@
              role="combobox" aria-expanded="false" aria-controls="results">
       <ul id="results" role="listbox" hidden></ul>
     </div>
-    <select id="epic"><option value="">All epics</option></select>
     <select id="who" title="Only the issues assigned to someone, or to no one"><option value="">Everyone</option></select>
     <label><input type="checkbox" id="showDone"> show done</label>
-    <button id="relayout" title="Put every card back where the layout wants it">Re-layout</button>
-    <button id="fit">Fit</button>
     <button id="toClose" hidden title="Epics still open whose every issue is closed: ready to close"></button>
     <button id="help" title="How to read the roadmap">?</button>
     <button id="update" title="Opens the roadmap workflow on GitHub: click Run workflow there (needs write access). This page reloads by itself once the update is out.">Update ↻</button>
@@ -183,7 +181,7 @@
       <div><b>Without epic</b>: open issues under no epic, in their milestone, in a box right of the epics.</div>
       <div><b>Everyone</b>: pick a person (or <i>Unassigned</i>) to see only their issues and the boxes holding them; linkable as <code>?who=login</code>.</div>
       <div><b>Epics only</b>: the same roadmap with the issues hidden; each box shows its epic and how much of it is done in that milestone.</div>
-      <div>Drag cards and boxes to explore; nothing is saved. Scroll to zoom, drag the background to move, Fit to see it all; click an issue, epic or milestone for its details (cmd-click opens it on GitHub).</div>
+      <div>Drag cards and boxes to explore; nothing is saved. Scroll to zoom, drag the background to move; click an issue, epic or milestone for its details (cmd-click opens it on GitHub).</div>
     </div>
     <section id="doneEpicsSection" hidden>
       <h2 id="doneEpicsTitle">Epics with every issue done</h2>
@@ -286,9 +284,6 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   document.getElementById("doneEpicsTitle").textContent = `Epics with every issue done (${doneEpics.length})`;
   document.getElementById("doneEpics").innerHTML = doneEpics.map(e =>
     `<li><a href="${e.url}" target="_blank" rel="noopener" data-show="epic:${e.number}">#${e.number}</a> ${escapeHtml(e.title)}</li>`).join("");
-  const select = document.getElementById("epic");
-  for (const e of data.epics) select.add(new Option(`#${e.number} ${e.title}`, e.number));
-  if (data.unfiled.length) select.add(new Option("Without epic", 0));
 
   const elements = [];
   // An epic gets a box per milestone it has issues in (a piece); the pieces of
@@ -347,18 +342,19 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
                             url: e.url, kind: "epic", epic: e.number, rank: p.rank, pstate: pieceState(p),
                             done, total: p.issues.length, empty: !p.issues.length } });
   }
-  const FOOT_CHARS = 32;
+  const FOOT_CHARS = 32, HEAD_H = 20;
   for (const i of allIssues) {
     const meta = [i.assignees.length ? "Assignees: " + i.assignees.join(", ") : "", i.labels.length ? "Labels: " + i.labels.join(", ") : ""]
       .filter(Boolean).join("\n");
-    // At the card's foot the assignees and the labels, each on lines of their
-    // own (about FOOT_CHARS to a line); the card grows by them, its title moves
-    // up by half. A label keeps its spaces unbroken.
+    // At the card's top its number, in bold (HEAD_H); at its foot the
+    // assignees and the labels, each on lines of their own (about FOOT_CHARS
+    // to a line). The card grows by them; its title stays centred between.
+    // A label keeps its spaces unbroken.
     const who = i.assignees.map(a => "@" + a).join(" ");
     const tags = i.labels.map(l => "#" + l.replace(/ /g, "\u00a0")).join(" ");
     const footH = [who, tags].reduce((h, t) => h + Math.ceil(t.length / FOOT_CHARS) * 19, 0);
     elements.push({ data: { id: `i${i.number}`, parent: pieceId(i.epic, i.milestone), title: `#${i.number} ${i.title}`,
-                            label: `#${i.number} ${i.title}`, h: 84 + footH, ty: -footH / 2, footH,
+                            label: i.title, num: i.number, h: 84 + HEAD_H + footH, ty: (HEAD_H - footH) / 2, footH,
                             who: i.assignees, tags: i.labels,
                             url: i.url, kind: "issue", state: i.state, epic: i.epic, meta,
                             search: `#${i.number} ${i.title} ${i.assignees.join(" ")} ${i.labels.join(" ")}`.toLowerCase() } });
@@ -443,7 +439,6 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
           "target-arrow-shape": "none", "curve-style": "straight", "z-index": 0 } },
       { selector: "node[kind='milestone'][state='ready']", style: { "background-color": css("--done"), "border-color": css("--line"), color: css("--muted") } },
       { selector: "edge[kind='row']", style: { opacity: 0, events: "no", "target-arrow-shape": "none" } },
-      { selector: ".faded", style: { opacity: 0.15 } },
       { selector: ".hit", style: { "border-width": 3, "border-color": css("--milestone-line") } },
       { selector: ".sel", style: { "border-width": 4, "border-color": css("--accent") } },
       // Epics only: the issues stay in place, unseen and untouchable; the box
@@ -565,8 +560,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   // one vertical across the bars.
   const GAP_X = 70, GAP_Y = 90, BAR_GAP = 80;
   // The start view: the roadmap's top, as wide as fits, but never smaller than
-  // READABLE, so the text stays legible; Fit shows everything, Epics only is
-  // the overview.
+  // READABLE, so the text stays legible; Epics only is the overview.
   const READABLE = 0.8;
   function home() {
     const shown = cy.elements().filter(e => e.visible());
@@ -785,7 +779,6 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       if (!box.visible()) { el.style.display = "none"; return; }
       const bb = box.boundingBox({ includeLabels: false });
       Object.assign(el.style, { display: "", left: bb.x1 + "px", top: bb.y1 + "px", width: bb.w + "px", height: bb.h + "px" });
-      el.classList.toggle("faded", box.hasClass("faded"));
       el.classList.toggle("hit", box.children().some(c => c.hasClass("hit")));
       el.classList.toggle("sel", box.hasClass("sel") || box.children().some(c => c.hasClass("sel")));
     });
@@ -797,18 +790,18 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   }
   cy.on("viewport", () => { if (epicsOnly()) followViewport(); });
 
-  // The cards' feet: one per card with assignees or labels, at the card's
+  // The cards' HTML: the number at the top, assignees and labels at the
   // bottom; placed again whenever the graph is drawn after a change.
   const feetWorld = document.querySelector("#feet .world");
   const feet = new Map();
-  cy.nodes("[kind='issue']").filter(n => n.data("footH") > 0).forEach(n => {
+  cy.nodes("[kind='issue']").forEach(n => {
     const el = document.createElement("div");
     el.className = "foot";
     const d = n.data();
-    el.innerHTML = [
-      d.who.length ? `<div class="who">${d.who.map(a => `<span style="color:${personInk(a)}">@${escapeHtml(a)}</span>`).join(" ")}</div>` : "",
+    el.innerHTML = `<div class="num">#${d.num}</div>` + [
+      "<div>", d.who.length ? `<div class="who">${d.who.map(a => `<span style="color:${personInk(a)}">@${escapeHtml(a)}</span>`).join(" ")}</div>` : "",
       d.tags.length ? `<div class="tag">${d.tags.map(t => "#" + escapeHtml(t).replace(/ /g, "&nbsp;")).join(" ")}</div>` : "",
-    ].join("");
+    ].join("") + "</div>";
     feetWorld.appendChild(el);
     feet.set(n.id(), { n, el });
   });
@@ -822,9 +815,8 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     for (const { n, el } of feet.values()) {
       if (!n.visible() || n.hasClass("ghost")) { el.style.display = "none"; continue; }
       const bb = n.boundingBox({ includeLabels: false });
-      Object.assign(el.style, { display: "", left: bb.x1 + 8 + "px", top: bb.y2 - n.data("footH") - 9 + "px" });
+      Object.assign(el.style, { display: "", left: bb.x1 + 8 + "px", top: bb.y1 + 8 + "px", height: bb.h - 17 + "px" });
       el.classList.toggle("done", n.data("state") === "done");
-      el.classList.toggle("faded", n.hasClass("faded"));
     }
   });
   let placing = 0;
@@ -849,19 +841,6 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
 
   showDone.addEventListener("change", () => { applyVisibility(); run(); });
   whoSelect.addEventListener("change", () => { setWho(whoSelect.value); applyVisibility(); run(); });
-  document.getElementById("relayout").addEventListener("click", run);
-  document.getElementById("fit").addEventListener("click", () => cy.fit(undefined, 30));
-
-  function applyFilter() {
-    cy.elements().removeClass("faded");
-    if (!select.value) { placeCovers(); return home(); }
-    const epic = cy.nodes(`[kind='epic'][epic = ${Number(select.value)}]`);
-    const keep = epic.union(epic.descendants()).union(epic.connectedEdges("[kind='epicLink']"));
-    cy.elements().not(keep).not(keep.connectedEdges()).addClass("faded");
-    placeCovers();
-    cy.fit(keep, 40);
-  }
-  select.addEventListener("change", applyFilter);
 
   // A click (not a drag) shows the details in the side pane; cmd- or
   // ctrl-click opens the issue, epic or milestone on GitHub right away.
@@ -877,7 +856,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   const ghLink = (url, text) => `<a href="${url}" target="_blank" rel="noopener">${escapeHtml(text)}</a>`;
   const badge = st => `<span class="badge ${st}">${st}</span>`;
   const show = (kind, n, text) => `<a href="#" data-show="${kind}:${n}">${text}</a>`;
-  const issueLine = i => `<li>${badge(i.state)} ${show("issue", i.number, `#${i.number}`)} ${escapeHtml(i.title)}</li>`;
+  const issueLine = i => `<li>${badge(i.state)} ${show("issue", i.number, `<b>#${i.number}</b>`)} ${escapeHtml(i.title)}</li>`;
   const issueRef = n => issueBy[n] ? issueLine(issueBy[n]) : `<li>#${n}</li>`;
   const epicRef = n => epicOf[n] ? `<li>${badge(epicOf[n].state)} ${show("epic", n, `#${n}`)} ${escapeHtml(epicOf[n].title)}</li>` : `<li>#${n}</li>`;
   const progress = (done, total) => `<div class="progress"><i style="width:${total ? Math.round(100 * done / total) : 0}%"></i></div>`;
@@ -896,7 +875,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
         ["Priority", i.priority ? `P${i.priority}` : ""],
         ["Closed", i.closedAt ? new Date(i.closedAt).toLocaleDateString() : ""],
       ].filter(([, v]) => v);
-      return { url: i.url, html: `<div class="kind">Issue</div><h3>${gh(i.url, `#${i.number} ${escapeHtml(i.title)}`)}</h3>` +
+      return { url: i.url, html: `<div class="kind">Issue</div><h3>${gh(i.url, `<b>#${i.number}</b> ${escapeHtml(i.title)}`)}</h3>` +
         `<dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>` +
         (i.blockedBy.length ? `<h4>Waits for</h4><ul>${i.blockedBy.map(issueRef).join("")}</ul>` : "") +
         (blocks.length ? `<h4>Blocks</h4><ul>${blocks.map(issueLine).join("")}</ul>` : "") };
@@ -1093,7 +1072,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     const label = { issue: "Issue", epic: "Epic", milestone: "Milestone" };
     results.innerHTML = found.slice(0, MAX_RESULTS).map((e, k) =>
       `<li role="option" data-k="${k}" aria-selected="false"><span class="k">${label[e.kind]}</span>` +
-      `<span class="t">${e.kind === "milestone" ? "" : "#" + e.n + " "}${highlight(e.title, q)}</span>` +
+      `<span class="t">${e.kind === "milestone" ? "" : `<b>#${e.n}</b> `}${highlight(e.title, q)}</span>` +
       (e.state ? badge(e.state) : "") + `</li>`).join("") +
       (found.length > MAX_RESULTS ? `<li class="more">${found.length - MAX_RESULTS} more — type more words</li>` : "");
     results.hidden = false;
