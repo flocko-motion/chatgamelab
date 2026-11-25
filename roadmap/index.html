@@ -292,7 +292,13 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   for (const i of allIssues) {
     const meta = [i.assignees.length ? "👤 " + i.assignees.join(", ") : "", i.labels.length ? "🏷 " + i.labels.join(", ") : ""]
       .filter(Boolean).join("\n");
-    elements.push({ data: { id: `i${i.number}`, parent: pieceId(i.epic, i.milestone), label: `#${i.number} ${i.title}`,
+    // At the card's foot the assignees and the labels, each on a line of its
+    // own; each line makes the card taller. A label keeps its spaces unbroken.
+    const who = i.assignees.map(a => "@" + a).join(" ");
+    const tags = i.labels.map(l => "#" + l.replace(/ /g, "\u00a0")).join(" ");
+    const foot = [who, tags].filter(Boolean);
+    elements.push({ data: { id: `i${i.number}`, parent: pieceId(i.epic, i.milestone), title: `#${i.number} ${i.title}`,
+                            label: [`#${i.number} ${i.title}`, ...foot].join("\n"), h: 84 + 20 * foot.length,
                             url: i.url, kind: "issue", state: i.state, epic: i.epic, meta,
                             search: `#${i.number} ${i.title} ${i.assignees.join(" ")} ${i.labels.join(" ")}`.toLowerCase() } });
     for (const b of i.blockedBy)
@@ -353,7 +359,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       { selector: "node[kind='epic'][epic = 0]", style: {
           "background-color": css("--unfiled"), "border-color": css("--unfiled-line"), "border-width": 2, "border-style": "dashed" } },
       { selector: "node[kind='issue']", style: {
-          width: 280, height: 84, shape: "round-rectangle", label: "data(label)",
+          width: 280, height: "data(h)", shape: "round-rectangle", label: "data(label)",
           "text-wrap": "wrap", "text-max-width": 256, "font-size": 16, color: css("--fg"),
           "text-valign": "center", "text-halign": "center", "border-width": 1.5 } },
       ...Object.entries(COLORS).map(([s, [fill, line]]) => ({
@@ -755,6 +761,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   let selected = null;
   // The title in the side pane is the link to GitHub.
   const gh = (url, text) => `<a class="gh" href="${url}" target="_blank" rel="noopener" title="Open on GitHub">${text} ↗</a>`;
+  const ghLink = (url, text) => `<a href="${url}" target="_blank" rel="noopener">${escapeHtml(text)}</a>`;
   const badge = st => `<span class="badge ${st}">${st}</span>`;
   const show = (kind, n, text) => `<a href="#" data-show="${kind}:${n}">${text}</a>`;
   const issueLine = i => `<li>${badge(i.state)} ${show("issue", i.number, `#${i.number}`)} ${escapeHtml(i.title)}</li>`;
@@ -771,8 +778,8 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
         ["State", badge(i.state)],
         ["Epic", i.epic ? show("epic", i.epic, `#${i.epic} ${escapeHtml(epicOf[i.epic].title)}`) : "none"],
         ["Milestone", msTitle(i.milestone)],
-        ["Assignees", escapeHtml(i.assignees.join(", "))],
-        ["Labels", escapeHtml(i.labels.join(", "))],
+        ["Assignees", i.assignees.map(a => ghLink(`https://github.com/${encodeURIComponent(a)}`, `@${a}`)).join(" ")],
+        ["Labels", i.labels.map(l => ghLink(`https://github.com/${data.repo}/labels/${encodeURIComponent(l)}`, `#${l}`)).join(" ")],
         ["Priority", i.priority ? `P${i.priority}` : ""],
         ["Closed", i.closedAt ? new Date(i.closedAt).toLocaleDateString() : ""],
       ].filter(([, v]) => v);
@@ -986,7 +993,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   const tip = document.getElementById("tip");
   cy.on("mouseover", "node[kind='issue']", ev => {
     const d = ev.target.data();
-    tip.innerHTML = `<b>${escapeHtml(d.label)}</b><br>${d.state}` + (d.meta ? `<br>${escapeHtml(d.meta).replace(/\n/g, "<br>")}` : "");
+    tip.innerHTML = `<b>${escapeHtml(d.title)}</b><br>${d.state}` + (d.meta ? `<br>${escapeHtml(d.meta).replace(/\n/g, "<br>")}` : "");
     tip.style.display = "block";
   });
   cy.on("mouseout", "node", () => { tip.style.display = "none"; });
