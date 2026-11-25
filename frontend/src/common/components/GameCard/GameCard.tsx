@@ -230,7 +230,7 @@ export function GameCard({
       <div className={classes.foot}>
         {play && (
           <span className={classes.playText} aria-hidden>
-            {playText} →
+            {playText}
           </span>
         )}
         <span className={classes.edit} onClick={(e) => e.stopPropagation()}>
