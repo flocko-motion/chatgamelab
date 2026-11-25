@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="frontend/public/og-image.png" alt="ChatGameLab" width="520">
+  <a href="https://flocko-motion.github.io/chatgamelab/"><img src="frontend/public/og-image.png" alt="ChatGameLab: to the homepage" width="520"></a>
 </p>
 
 <p align="center">
@@ -8,7 +8,8 @@
 </p>
 
 <p align="center">
-  <a href="https://flocko-motion.github.io/chatgamelab/"><img src="https://img.shields.io/badge/Discover_ChatGameLab-%E2%86%92-ff00e6?style=for-the-badge" alt="Discover ChatGameLab" height="44"></a>
+  <a href="https://flocko-motion.github.io/chatgamelab/"><img src="docs/images/homepage-button.svg" alt="Visit the ChatGameLab homepage" width="640"></a><br>
+  or open <a href="https://flocko-motion.github.io/chatgamelab/"><b>flocko-motion.github.io/chatgamelab</b></a>
 </p>
 
 <p align="center">
