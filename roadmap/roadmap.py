@@ -308,14 +308,6 @@ while pending:
 
 people = lambda n: [u["login"] for u in issues[n].get("assignees") or []]
 tags = lambda n: [l["name"] for l in issues[n].get("labels") or []]
-ready = sorted((n for n in open_nums if state(n) == "ready"), key=tiebreak)
-
-
-def past_milestone(n):
-    """Whether issue n's milestone was due before today: such issues stay on
-    the roadmap but leave "next up"."""
-    due = (issues[n].get("milestone") or {}).get("due_on")
-    return bool(due) and due[:10] < date.today().isoformat()
 
 # Without epic: open issues outside every open epic, the epics themselves aside.
 unfiled = [i for i in OPEN if i["number"] not in issues and i["number"] not in EPICS]
@@ -395,7 +387,6 @@ data = {
         "closed": m["closed_issues"],
     } for k, m in enumerate(MILESTONES)],
     "order": order,
-    "next": [n for n in ready if not past_milestone(n)][:5],
     "unfiled": [item(i["number"]) for i in unfiled],
 }
 json.dump(data, sys.stdout, indent=1)
