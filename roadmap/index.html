@@ -285,6 +285,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     const e = epicOf[p.epic];
     const done = p.issues.filter(i => i.state === "done").length;
     elements.push({ data: { id: p.id, label: `${epicName(e)} — ${done}/${p.issues.length}`,
+                            short: e.title.replace(/^epic:\s*/i, ""),
                             url: e.url, kind: "epic", epic: e.number, rank: p.rank, pstate: pieceState(p),
                             done, total: p.issues.length } });
   }
@@ -595,6 +596,27 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       m.position({ x: (bb.x1 + bb.x2) / 2, y: m.position("y") });
     });
   }
+  // Titles stay readable when zoomed out: epic and milestone titles grow as
+  // the view shrinks, to MIN_TITLE px on screen, at most MAX_GROW times their
+  // size. A grown epic title takes one line, its bare name cut at its box's
+  // width, so it never needs more room than its two lines at the normal size.
+  const EPIC_FONT = 28, BAR_FONT = 30, MIN_TITLE = 18, MAX_GROW = 2.2;
+  const growth = (font, px) => Math.min(MAX_GROW, Math.max(1, px / (font * cy.zoom())));
+  function readableTitles() {
+    const eg = growth(EPIC_FONT, MIN_TITLE), bf = BAR_FONT * growth(BAR_FONT, MIN_TITLE + 2);
+    cy.batch(() => {
+      cy.nodes("[kind='epic']").forEach(b => b.style(eg > 1
+        ? { label: b.data("short"), "font-size": EPIC_FONT * eg, "text-wrap": "ellipsis",
+            "text-max-width": Math.max(200, b.boundingBox({ includeLabels: false }).w) }
+        : { label: b.data("label"), "font-size": EPIC_FONT, "text-wrap": "wrap", "text-max-width": 600 }));
+      // The label at the bar's left end, where the view starts; a character
+      // is about 0.28 of the font size wide.
+      cy.nodes("[kind='milestone']").forEach(bar => bar.style({ "font-size": bf, height: Math.max(60, bf + 20),
+        "text-margin-x": Math.min(0, -bar.width() / 2 + bar.data("label").length * bf * 0.28 + 30) }));
+    });
+  }
+  let titling = 0;
+  cy.on("zoom", () => { if (!titling) titling = requestAnimationFrame(() => { titling = 0; readableTitles(); }); });
   // An arrow from a later band back to an earlier one is drawn but left out
   // of the layout: it would form a cycle with the bars, and the bars keep
   // the milestones in order.
@@ -616,6 +638,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     l.one("layoutstop", () => {
       arrangeBands();
       if (restore && restore.zoom) { cy.zoom(restore.zoom); cy.pan(restore.pan); } else home();
+      readableTitles();
       placeCovers();
       if (restore && restore.sel) showDetails(restore.sel.kind, restore.sel.n);
       restore = null;
