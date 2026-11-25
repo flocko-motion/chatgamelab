@@ -42,6 +42,8 @@ export interface ListQueryControls<
   togglePick(pick: O): void;
   /** Unpicks every multi-filter option. */
   clearPicks(): void;
+  /** Picks exactly these multi-filter options; none is the same as clearPicks. */
+  setPicks(picks: readonly O[]): void;
   setSort: (by: S, dir: SortDir) => void;
   /** Sorts by a column, or flips the direction if it is sorted by it already. */
   toggleSort: (by: S) => void;
@@ -160,6 +162,11 @@ export function useListQuery<F extends string, S extends string, O extends strin
     () => update({ pick: undefined, page: undefined }),
     [update],
   );
+  const setPicks = useCallback(
+    (picks: readonly O[]) =>
+      update({ pick: picks.length > 0 ? picks.join(",") : undefined, page: undefined }),
+    [update],
+  );
   const setSort = useCallback(
     (by: S, dir: SortDir) => {
       const isDefault = by === defaultSort.by && dir === defaultSort.dir;
@@ -196,6 +203,7 @@ export function useListQuery<F extends string, S extends string, O extends strin
     toggleOnly,
     togglePick,
     clearPicks,
+    setPicks,
     setSort,
     toggleSort,
     setPage,

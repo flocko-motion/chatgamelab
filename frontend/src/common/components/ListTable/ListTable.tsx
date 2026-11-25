@@ -137,6 +137,16 @@ export function ListTable<T, F extends string, S extends string>({
   const toggles = (preset.toggles ?? []).map((o) => ({ value: o.value, label: label(o) }));
   const multi = preset.multiFilter;
   const multiOptions = (multi?.options ?? []).map((o) => ({ value: o.value, label: label(o) }));
+  // The bar shows the multi-filter by what it lets through: none picked lets
+  // all through, so all are on. Switching off the last one that is on does
+  // nothing (it would show no game); all on again is no pick.
+  const allPicks = multiOptions.map((o) => o.value);
+  const shownPicks: readonly string[] = list.query.picked.length > 0 ? list.query.picked : allPicks;
+  const toggleShown = (v: string) => {
+    const next = shownPicks.includes(v) ? shownPicks.filter((x) => x !== v) : [...shownPicks, v];
+    if (next.length === 0) return;
+    list.setPicks((next.length === allPicks.length ? [] : next) as never);
+  };
   const sorts = preset.sorts
     .filter((s) => s.label)
     .map((s) => ({ by: s.by, dir: s.dir, label: label(s) }));
@@ -222,13 +232,20 @@ export function ListTable<T, F extends string, S extends string>({
             <FilterBar
               label={t("list.filter")}
               clearLabel={t("list.clearFilters")}
+              changed={query.only.length > 0 || query.picked.length > 0}
               onClear={() => {
                 query.only.forEach((o) => list.toggleOnly(o));
                 list.clearPicks();
               }}
               groups={[
                 { options: toggles.map(look), active: query.only, onToggle: (v) => list.toggleOnly(v as never) },
-                { options: multiOptions.map(look), active: query.picked, onToggle: (v) => list.togglePick(v as never) },
+                // Shown as what is shown: none picked shows every option, so
+                // every option is on; switching one off picks the others.
+                {
+                  options: multiOptions.map(look),
+                  active: shownPicks,
+                  onToggle: (v) => toggleShown(v),
+                },
               ]}
             />
           )}
