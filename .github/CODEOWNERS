@@ -21,3 +21,9 @@
 /.github/workflows/                    @flocko-motion
 /.claude/settings.json                 @flocko-motion
 /scripts/seal.sh                       @flocko-motion
+
+# Outside the seal: who looks after a path. These merge as before, with no
+# approval needed.
+
+# the project's homepage, deployed to GitHub Pages
+/homepage/                             @flocko-motion @tausendmedien
