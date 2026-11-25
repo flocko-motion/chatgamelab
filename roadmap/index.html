@@ -11,45 +11,47 @@
 <script src="https://cdn.jsdelivr.net/npm/elkjs@0.9.3/lib/elk.bundled.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/cytoscape-elk@2.2.0/dist/cytoscape-elk.js"></script>
 <style>
+  /* GitHub's look (Primer, light), always light: the issue fills are pastel
+     per person. Fixed text takes one of four sizes (--fs-*); text in the
+     graph and over it zooms with it and is sized in graph units. */
   :root {
-    --bg: #ffffff; --fg: #1f2328; --muted: #656d76; --line: #d0d7de; --panel: #f6f8fa;
-    --ready: #d8f5d8; --ready-line: #4caf50; --blocked: #fbe3e3; --blocked-line: #d98c8c;
-    --done: #ececec; --done-line: #c8c8c8; --epic: #fafbfc; --unfiled: #e8edf7; --unfiled-line: #8c9bb5; --who: #0969da; --tag: #8250df;
-    --milestone: #fff3cd; --milestone-line: #d29922; --accent: #0969da;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0d1117; --fg: #e6edf3; --muted: #8d96a0; --line: #30363d; --panel: #161b22;
-      --ready: #1f3d24; --ready-line: #3fb950; --blocked: #4a2526; --blocked-line: #c96a6a;
-      --done: #262b31; --done-line: #3d444d; --epic: #11161d; --unfiled: #1b2335; --unfiled-line: #5b6b8a; --who: #58a6ff; --tag: #b08cf5;
-      --milestone: #3d2e00; --milestone-line: #d29922; --accent: #4493f8;
-    }
+    color-scheme: light;
+    --fs-s: 12px; --fs-m: 14px; --fs-l: 16px; --fs-xl: 20px;
+    --bg: #ffffff; --fg: #1f2328; --muted: #59636e; --line: #d1d9e0; --panel: #f6f8fa; --hover: #eff2f5;
+    --ready: #dafbe1; --ready-line: #1a7f37; --blocked: #ffebe9; --blocked-line: #d1242f;
+    --done: #f6f8fa; --done-line: #d1d9e0; --done-fg: #8250df;
+    --epic: #f6f8fa; --unfiled: #ffffff; --unfiled-line: #b7bfc8; --who: #0969da; --tag: #59636e;
+    --milestone: #fff8c5; --milestone-line: #d4a72c; --accent: #0969da;
+    --nobody: #ffffff;
+    --shadow: 0 1px 3px rgba(31,35,40,.12), 0 8px 24px rgba(66,74,83,.12);
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  body { margin: 0; font: var(--fs-m)/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
          background: var(--bg); color: var(--fg); display: flex; flex-direction: column; height: 100vh; }
-  header { padding: 10px 16px; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap;
-           gap: 8px 16px; align-items: center; }
-  header h1 { font-size: 18px; margin: 0; }
-  header .meta { color: var(--muted); font-size: 12px; }
+  header { padding: 12px 16px; background: var(--panel); border-bottom: 1px solid var(--line); display: flex;
+           flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+  header h1 { font-size: var(--fs-l); font-weight: 600; margin: 0; }
+  header .meta { color: var(--muted); font-size: var(--fs-s); }
   .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-left: auto; }
-  input[type=search] { padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px;
-                       background: var(--bg); color: var(--fg); width: 240px; }
+  button, select, input[type=search] { height: 32px; padding: 0 12px; border: 1px solid var(--line); border-radius: 6px;
+                   background: var(--panel); color: var(--fg); font: inherit; font-weight: 500; }
+  button, select { cursor: pointer; box-shadow: 0 1px 0 rgba(31,35,40,.04); }
+  button:hover, select:hover { background: var(--hover); }
+  select { max-width: 260px; padding-right: 8px; }
+  input[type=search] { background: var(--bg); font-weight: 400; width: 240px; }
+  :is(button, select, input):focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; }
   /* The search: every word of the query in a title; several hits open a list. */
   .search { position: relative; }
   #results { position: absolute; top: calc(100% + 4px); right: 0; width: 420px; max-width: 90vw; z-index: 20;
-             margin: 0; padding: 4px 0; list-style: none; background: var(--bg); border: 1px solid var(--line);
-             border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.18); }
+             margin: 0; padding: 8px 0; list-style: none; background: var(--bg); border-radius: 12px; box-shadow: var(--shadow); }
   #results[hidden] { display: none; }
-  #results li { padding: 6px 12px; cursor: pointer; display: flex; gap: 8px; align-items: baseline; }
-  #results li[aria-selected=true] { background: var(--panel); }
-  #results .k { color: var(--muted); font-size: 12px; text-transform: uppercase; flex: none; width: 58px; }
+  #results li { padding: 6px 16px; cursor: pointer; display: flex; gap: 8px; align-items: baseline; }
+  #results li[aria-selected=true] { background: var(--hover); }
+  #results .k { color: var(--muted); font-size: var(--fs-s); flex: none; width: 64px; }
   #results .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   #results mark { background: var(--milestone); color: inherit; border-radius: 2px; }
-  #results .more { color: var(--muted); font-size: 13px; cursor: default; }
-  button, select { padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px;
-                   background: var(--panel); color: var(--fg); cursor: pointer; font: inherit; }
-  label { color: var(--muted); font-size: 14px; }
+  #results .more { color: var(--muted); font-size: var(--fs-s); cursor: default; }
+  label { color: var(--fg); display: inline-flex; gap: 6px; align-items: center; }
   main { flex: 1; display: flex; min-height: 0; }
   #graphs { flex: 1; min-width: 0; position: relative; }
   #graph, #covers, #feet { position: absolute; inset: 0; }
@@ -60,7 +62,7 @@
   #feet .world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
   .foot { position: absolute; width: 264px; text-align: center; font-size: 15px; line-height: 19px;
           overflow-wrap: anywhere; }
-  .foot .who { color: var(--who); } .foot .tag { color: var(--tag); }
+  .foot .who { font-weight: 600; } .foot .tag { color: var(--tag); }
   .foot.done { opacity: .6; } .foot.faded { opacity: .15; }
   /* Epics only: the same graph with the issues hidden; each epic box carries
      its title, description and progress, laid over the canvas in HTML and
@@ -69,67 +71,72 @@
   body.epics-only #covers { display: block; }
   #covers .world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
   .cover { position: absolute; padding: 16px 22px; display: flex; flex-direction: column; gap: 8px;
-           overflow: hidden; border-radius: 10px; }
+           overflow: hidden; border-radius: 6px; }
   /* One size for every box; what does not fit is cut. A title takes at most
      two lines. */
-  .cover h3 { margin: 0; font-size: 36px; line-height: 1.12; flex: none; overflow: hidden;
+  .cover h3 { margin: 0; font-size: 36px; font-weight: 600; line-height: 1.12; flex: none; overflow: hidden;
               display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-  .cover .prog { flex: none; font-size: 20px; font-weight: 600; }
-  .cover .prog .bar { height: 10px; border-radius: 5px; background: var(--line); margin-top: 6px; overflow: hidden; }
+  .cover .prog { flex: none; font-size: 24px; color: var(--muted); }
+  .cover .prog .bar { height: 8px; border-radius: 4px; background: var(--line); margin-top: 6px; overflow: hidden; }
   .cover .prog .bar i { display: block; height: 100%; }
   .cover.ready .bar i { background: var(--ready-line); }
   .cover.blocked .bar i { background: var(--blocked-line); }
-  .cover.done { color: var(--muted); } .cover.done .bar i { background: var(--done-line); }
+  .cover.done { color: var(--muted); } .cover.done .bar i { background: var(--done-fg); }
   .cover p { margin: 0; flex: 1 1 0; min-height: 0; overflow: hidden; font-size: 24px;
              line-height: 1.4; color: var(--muted);
              mask-image: linear-gradient(to bottom, #000 calc(100% - 1.4em), transparent); }
   .cover.faded { opacity: .15; }
-  .cover.hit { outline: 5px solid #d29922; }
+  .cover.hit { outline: 5px solid var(--milestone-line); }
   .cover.sel { outline: 5px solid var(--accent); }
-  .toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
-  .toggle button { border: 0; border-radius: 0; background: var(--bg); color: var(--muted); }
-  .toggle button[aria-pressed=true] { background: var(--panel); color: var(--fg); font-weight: 600; }
-  aside { width: 340px; border-left: 1px solid var(--line); background: var(--panel); overflow: auto;
-          padding: 14px 16px; font-size: 15px; }
-  aside h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted);
-             margin: 14px 0 6px; }
+  /* A segmented control, as GitHub's. */
+  .toggle { display: inline-flex; padding: 2px; gap: 2px; background: var(--hover); border: 1px solid var(--line); border-radius: 6px; height: 32px; }
+  .toggle button { height: 26px; border: 1px solid transparent; border-radius: 5px; background: none; box-shadow: none; color: var(--muted); padding: 0 10px; }
+  .toggle button[aria-pressed=true] { background: var(--bg); border-color: var(--line); color: var(--fg); font-weight: 600; }
+  aside { width: 360px; border-left: 1px solid var(--line); background: var(--bg); overflow: auto; padding: 16px; }
+  aside h2 { font-size: var(--fs-s); font-weight: 600; color: var(--muted); margin: 16px 0 8px; }
   aside h2:first-child { margin-top: 0; }
   aside ul { margin: 0; padding-left: 18px; }
-  aside li { margin: 3px 0; }
-  a { color: inherit; }
+  aside li { margin: 4px 0; }
+  aside .meta { color: var(--muted); }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
   .legend span { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px;
-                 margin-right: 4px; border: 1px solid; }
-  .legend div { margin: 3px 0; }
+                 margin-right: 6px; border: 1px solid; }
+  .legend div { margin: 6px 0; }
+  .legend code { font-size: var(--fs-s); background: var(--hover); padding: 1px 4px; border-radius: 4px; }
   /* The details of what was clicked, at the top of the side pane. */
-  #details { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px;
-             margin-bottom: 18px; position: relative; }
+  #details { position: relative; }
   #details[hidden], #overview[hidden], aside[hidden] { display: none; }
   #overview { position: relative; }
-  #details .close, #overview .close { position: absolute; top: 8px; right: 8px; border: 0; background: none; font-size: 20px;
-                    line-height: 1; padding: 2px 6px; color: var(--muted); }
-  #details .kind { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
-  #details h3 { font-size: 20px; line-height: 1.3; margin: 4px 24px 10px 0; }
-  #details h3 a.gh { text-decoration: none; }
-  #details h3 a.gh:hover { text-decoration: underline; color: var(--accent); }
-  #details dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0 0 12px; }
-  #details dt { color: var(--muted); }
+  #details .close, #overview .close { position: absolute; top: -4px; right: -4px; width: 32px; padding: 0; border: 0;
+                    background: none; box-shadow: none; font-size: var(--fs-xl); line-height: 1; color: var(--muted); }
+  #details .close:hover, #overview .close:hover { background: var(--hover); }
+  #details .kind { color: var(--muted); font-size: var(--fs-s); }
+  #details h3 { font-size: var(--fs-xl); font-weight: 400; line-height: 1.3; margin: 4px 28px 12px 0; }
+  #details h3 a.gh { color: var(--fg); }
+  #details h3 a.gh:hover { color: var(--accent); text-decoration: none; }
+  #details dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin: 0 0 16px;
+                padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+  #details dt { color: var(--muted); font-size: var(--fs-s); font-weight: 600; line-height: 21px; }
   #details dd { margin: 0; }
-  #details h4 { font-size: 14px; margin: 12px 0 4px; color: var(--muted); }
+  #details h4 { font-size: var(--fs-s); font-weight: 600; margin: 16px 0 6px; color: var(--muted); }
   #details ul { padding-left: 0; list-style: none; }
-  #details li { margin: 4px 0; }
-  #details .actions { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
-  #details .reload { padding: 6px 12px; font-weight: 600; }
-  #details .open { display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: 600;
-                   background: var(--accent); color: #fff; text-decoration: none; }
-  .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 13px; border: 1px solid; }
-  .badge.ready { background: var(--ready); border-color: var(--ready-line); }
-  .badge.blocked { background: var(--blocked); border-color: var(--blocked-line); }
-  .badge.done { background: var(--done); border-color: var(--done-line); }
-  .progress { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; margin: 2px 0 10px; }
+  #details li { margin: 6px 0; }
+  #details .actions { display: flex; gap: 8px; align-items: center; margin-top: 16px; }
+  #details .open { display: inline-flex; align-items: center; height: 32px; padding: 0 12px; border-radius: 6px; font-weight: 500;
+                   background: #1f883d; border: 1px solid rgba(31,35,40,.15); color: #fff; text-decoration: none; }
+  #details .open:hover { background: #1c8139; }
+  /* State labels, as GitHub's issue labels: a pill in the state's colour. */
+  .badge { display: inline-block; padding: 0 7px; border-radius: 2em; font-size: var(--fs-s); font-weight: 500;
+           line-height: 18px; border: 1px solid; }
+  .badge.ready { color: var(--ready-line); border-color: var(--ready-line); }
+  .badge.blocked { color: var(--blocked-line); border-color: var(--blocked-line); }
+  .badge.done { color: var(--done-fg); border-color: var(--done-fg); }
+  .progress { height: 8px; border-radius: 4px; background: var(--hover); overflow: hidden; margin: -8px 0 16px; }
   .progress i { display: block; height: 100%; background: var(--ready-line); }
-  #tip { position: fixed; pointer-events: none; background: var(--bg); color: var(--fg);
-         border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 14px;
-         max-width: 420px; display: none; box-shadow: 0 2px 8px rgba(0,0,0,.15); z-index: 10; }
+  /* GitHub's tooltip: dark, small. */
+  #tip { position: fixed; pointer-events: none; background: #25292e; color: #fff; border-radius: 6px;
+         padding: 6px 10px; font-size: var(--fs-s); max-width: 360px; display: none; z-index: 10; }
   @media (max-width: 720px) { main { flex-direction: column; } aside { width: auto; border-left: 0;
     border-top: 1px solid var(--line); max-height: 40vh; } }
 </style>
@@ -149,6 +156,7 @@
       <ul id="results" role="listbox" hidden></ul>
     </div>
     <select id="epic"><option value="">All epics</option></select>
+    <select id="who" title="Only the issues assigned to someone, or to no one"><option value="">Everyone</option></select>
     <label><input type="checkbox" id="showDone"> show done</label>
     <button id="relayout" title="Put every card back where the layout wants it">Re-layout</button>
     <button id="fit">Fit</button>
@@ -166,12 +174,14 @@
     <button class="close" title="Close (Esc)" aria-label="Close">×</button>
     <h2>How to read it</h2>
     <div class="legend">
-      <div><span style="background:var(--ready);border-color:var(--ready-line)"></span>ready: nothing it waits for is open</div>
-      <div><span style="background:var(--blocked);border-color:var(--blocked-line)"></span>blocked: waits for an open issue or epic</div>
-      <div><span style="background:var(--done);border-color:var(--done-line)"></span>done</div>
+      <div>An issue's colour is its assignee's, a blend for several, white for none; its outline is its state:</div>
+      <div><span style="background:var(--nobody);border-color:var(--line)"></span>ready: nothing it waits for is open</div>
+      <div><span style="background:var(--nobody);border-color:var(--blocked-line);border-width:2px"></span>blocked (red outline): waits for an open issue or epic</div>
+      <div><span style="background:var(--done);border-color:var(--done-line)"></span>done: faded</div>
       <div><span style="background:var(--milestone);border-color:var(--milestone-line)"></span>milestone: its epics' issues follow below the bar, down to the next; ordered by due date</div>
       <div>Boxes are epics, one per milestone they have issues in; a broad band joins the pieces of one epic. Arrows run from a blocker to what waits for it. Top to bottom is the order, without a time scale.</div>
       <div><b>Without epic</b>: open issues under no epic, in their milestone, in a box right of the epics.</div>
+      <div><b>Everyone</b>: pick a person (or <i>Unassigned</i>) to see only their issues and the boxes holding them; linkable as <code>?who=login</code>.</div>
       <div><b>Epics only</b>: the same roadmap with the issues hidden; each box shows its epic and how much of it is done in that milestone.</div>
       <div>Drag cards and boxes to explore; nothing is saved. Scroll to zoom, drag the background to move, Fit to see it all; click an issue, epic or milestone for its details (cmd-click opens it on GitHub).</div>
     </div>
@@ -202,6 +212,22 @@ const layout = { name: "elk", fit: true, padding: 30, nodeDimensionsIncludeLabel
 // of one level into a single row.
 const PER_ROW = 2;
 const EPICS_PER_ROW = 3;
+
+// Each person a colour of their own, the same on every load: a hash of the
+// login picks one of GitHub's (Primer) hues, soft for the card's fill, dark
+// for the name. An issue is filled with its assignees' colours, a gradient
+// for several, white for none; its outline tells its state.
+const PEOPLE = [  // [fill, ink]
+  ["#cae8ff", "#0969da"], ["#fbe7a0", "#9a6700"], ["#ffe2c7", "#bc4c00"], ["#c8f3ec", "#1b7c83"],
+  ["#eadffe", "#8250df"], ["#c6f2d0", "#1a7f37"], ["#ffdeef", "#bf3989"], ["#def7bb", "#527a00"],
+];
+function person(login) {
+  let h = 2166136261;
+  for (const c of login.toLowerCase()) h = Math.imul(h ^ c.codePointAt(0), 16777619);
+  return PEOPLE[(h >>> 0) % PEOPLE.length];
+}
+const personFill = login => person(login)[0];
+const personInk = login => person(login)[1];
 
 function escapeHtml(s) { return s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 
@@ -281,6 +307,20 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
                       description: "Open issues that are under no epic." };
   const epicName = e => e.number === UNFILED ? e.title : `#${e.number} ${e.title}`;
   const allIssues = [...data.issues, ...data.unfiled.map(i => ({ ...i, epic: UNFILED }))];
+  // The assignee filter: everyone assigned to an issue, by name; "-" stands for
+  // no one (a GitHub login never is a bare hyphen). It lives in the URL (?who=).
+  const NOBODY = "-";
+  const whoSelect = document.getElementById("who");
+  whoSelect.add(new Option("Unassigned", NOBODY));
+  for (const a of [...new Set(allIssues.flatMap(i => i.assignees))].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })))
+    whoSelect.add(new Option(`@${a}`, a));
+  function setWho(w) {
+    whoSelect.value = [...whoSelect.options].some(o => o.value === w) ? w : "";
+    const u = new URL(location.href);
+    whoSelect.value ? u.searchParams.set("who", whoSelect.value) : u.searchParams.delete("who");
+    history.replaceState(null, "", u);
+  }
+  setWho(new URLSearchParams(location.search).get("who") || "");
   const pieceId = (epic, ms) => `p${epic}-${ms == null || !msRank.has(ms) ? "none" : ms}`;
   const pieces = new Map();
   for (const i of allIssues) {
@@ -302,14 +342,14 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   for (const p of pieces.values()) {
     const e = epicOf[p.epic];
     const done = p.issues.filter(i => i.state === "done").length;
-    elements.push({ data: { id: p.id, label: `${epicName(e)} — ${done}/${p.issues.length}`,
-                            short: `${epicName(e).replace(/epic:\s*/i, "")} — ${done}/${p.issues.length}`,
+    elements.push({ data: { id: p.id, label: `${epicName(e)} · ${done}/${p.issues.length}`,
+                            short: `${epicName(e).replace(/epic:\s*/i, "")} · ${done}/${p.issues.length}`,
                             url: e.url, kind: "epic", epic: e.number, rank: p.rank, pstate: pieceState(p),
                             done, total: p.issues.length, empty: !p.issues.length } });
   }
   const FOOT_CHARS = 32;
   for (const i of allIssues) {
-    const meta = [i.assignees.length ? "👤 " + i.assignees.join(", ") : "", i.labels.length ? "🏷 " + i.labels.join(", ") : ""]
+    const meta = [i.assignees.length ? "Assignees: " + i.assignees.join(", ") : "", i.labels.length ? "Labels: " + i.labels.join(", ") : ""]
       .filter(Boolean).join("\n");
     // At the card's foot the assignees and the labels, each on lines of their
     // own (about FOOT_CHARS to a line); the card grows by them, its title moves
@@ -347,7 +387,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     const due = m.due ? `due ${new Date(m.due).toLocaleDateString()}` : "no due date";
     // Done once its issues are closed; an empty milestone is not done yet.
     return { id: `m${m.number}`, number: m.number, rank: r, url: m.url, done: m.open === 0 && m.closed > 0,
-             label: `◆ ${m.title} — ${due} — ${m.closed}/${m.open + m.closed} done` };
+             label: `${m.title} · ${due} · ${m.closed}/${m.open + m.closed} done` };
   });
   // The helper edges attach to the issues, not to the epic boxes: ELK holds a
   // leaf to its level, a box it only places around its children.
@@ -375,35 +415,36 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
           label: "data(label)", "text-valign": "top", "text-halign": "center", "text-margin-y": -10,
           "text-background-color": css("--bg"), "text-background-opacity": 1, "text-background-padding": 3,
           "font-size": 28, "font-weight": 600, color: css("--fg"), "text-wrap": "wrap", "text-max-width": 600,
-          shape: "round-rectangle", padding: 24 } },
+          shape: "round-rectangle", "corner-radius": 6, padding: 24 } },
       // An epic without issues has no inside to wrap: a box of an issue's size.
       { selector: "node[kind='epic'][?empty]", style: { width: 280, height: 84 } },
       // The box of issues without an epic is no epic: its own colour, a dashed border.
       { selector: "node[kind='epic'][epic = 0]", style: {
-          "background-color": css("--unfiled"), "border-color": css("--unfiled-line"), "border-width": 2, "border-style": "dashed" } },
+          "background-color": css("--unfiled"), "border-color": css("--unfiled-line"), "border-width": 1.5, "border-style": "dashed" } },
       { selector: "node[kind='issue']", style: {
           width: 280, height: "data(h)", shape: "round-rectangle", label: "data(label)", "text-margin-y": "data(ty)",
           "text-wrap": "wrap", "text-max-width": 256, "font-size": 16, color: css("--fg"),
-          "text-valign": "center", "text-halign": "center", "border-width": 1.5 } },
-      ...Object.entries(COLORS).map(([s, [fill, line]]) => ({
-        selector: `node[state='${s}']`, style: { "background-color": fill, "border-color": line } })),
-      { selector: "node[state='done']", style: { color: css("--muted") } },
+          "text-valign": "center", "text-halign": "center", "border-width": 1, "corner-radius": 6 } },
+      { selector: "node[kind='issue']", style: { "background-color": css("--nobody") } },
+      { selector: "node[kind='issue'][state='ready']", style: { "border-color": css("--line") } },
+      { selector: "node[kind='issue'][state='blocked']", style: { "border-color": css("--blocked-line"), "border-width": 3 } },
+      { selector: "node[kind='issue'][state='done']", style: { "border-color": css("--done-line"), "background-opacity": 0.45, color: css("--muted") } },
       { selector: "edge", style: { width: 1.5, "line-color": css("--muted"), "target-arrow-color": css("--muted"),
                                    "target-arrow-shape": "triangle", "curve-style": "bezier", "arrow-scale": 0.9 } },
       { selector: "edge[kind='epicEdge']", style: { width: 3, "line-style": "dashed" } },
       { selector: "node[kind='milestone']", style: {
           shape: "round-rectangle", width: 320, height: 60, label: "data(label)", "font-size": 30,
-          "font-weight": 600, color: css("--fg"), "text-valign": "center", "text-halign": "center",
-          "background-color": css("--milestone"), "border-color": css("--milestone-line"), "border-width": 2 } },
+          "font-weight": 600, color: css("--fg"), "text-valign": "center", "text-halign": "center", "corner-radius": 6,
+          "background-color": css("--milestone"), "border-color": css("--milestone-line"), "border-width": 1 } },
       // The bar itself shows the phase boundary; the edges to and from it only steer the layout.
       { selector: "edge[kind='phaseEdge']", style: { opacity: 0, events: "no" } },
       // The band joining the pieces of one epic across milestones.
       { selector: "edge[kind='epicLink']", style: { width: 22, "line-color": css("--line"), opacity: 0.55,
           "target-arrow-shape": "none", "curve-style": "straight", "z-index": 0 } },
-      { selector: "node[kind='milestone'][state='ready']", style: { "background-color": css("--ready"), "border-color": css("--ready-line") } },
+      { selector: "node[kind='milestone'][state='ready']", style: { "background-color": css("--done"), "border-color": css("--line"), color: css("--muted") } },
       { selector: "edge[kind='row']", style: { opacity: 0, events: "no", "target-arrow-shape": "none" } },
       { selector: ".faded", style: { opacity: 0.15 } },
-      { selector: ".hit", style: { "border-width": 3, "border-color": "#d29922" } },
+      { selector: ".hit", style: { "border-width": 3, "border-color": css("--milestone-line") } },
       { selector: ".sel", style: { "border-width": 4, "border-color": css("--accent") } },
       // Epics only: the issues stay in place, unseen and untouchable; the box
       // label moves inside, into the cover.
@@ -414,14 +455,30 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     ],
   });
 
+  cy.nodes("[kind='issue']").forEach(n => {
+    const who = n.data("who");
+    if (who.length === 1) n.style("background-color", personFill(who[0]));
+    else if (who.length > 1) n.style({ "background-fill": "linear-gradient", "background-gradient-direction": "to-right",
+                                       "background-gradient-stop-colors": who.map(personFill).join(" ") });
+  });
+
   // Done issues start hidden; the checkbox brings them back. An epic whose
-  // issues are all done goes with them.
+  // issues are all done goes with them. The assignee filter hides the issues
+  // of everyone else, and every box left without an issue, empty epics too.
   const done = cy.nodes("[state='done']").union(
     cy.nodes("[kind='epic']").filter(e => e.children().length && e.children().every(c => c.data("state") === "done")));
   const showDone = document.getElementById("showDone");
-  // A bar shows only while its band holds a visible epic box.
-  function applyDone() {
-    showDone.checked ? done.style("display", "element") : done.style("display", "none");
+  const assigned = n => !whoSelect.value || (whoSelect.value === NOBODY ? !n.data("who").length : n.data("who").includes(whoSelect.value));
+  function applyVisibility() {
+    cy.batch(() => {
+      cy.nodes("[kind='issue']").forEach(n =>
+        n.style("display", (showDone.checked || !done.contains(n)) && assigned(n) ? "element" : "none"));
+      cy.nodes("[kind='epic']").forEach(p => {
+        const kids = p.children();
+        const shown = kids.length ? kids.some(c => c.style("display") !== "none") : !whoSelect.value;
+        p.style("display", shown ? "element" : "none");
+      });
+    });
     // A bar always shows, but "No milestone" only while it holds a visible box.
     cy.nodes("[kind='milestone']").forEach(bar => {
       const rank = bar.data("rank");
@@ -429,7 +486,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       bar.style("display", shown ? "element" : "none");
     });
   }
-  applyDone();
+  applyVisibility();
 
   // Invisible helper edges cap the rows: at most PER_ROW issues side by side in
   // an epic, at most EPICS_PER_ROW epics side by side. A node's level is its
@@ -749,7 +806,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     el.className = "foot";
     const d = n.data();
     el.innerHTML = [
-      d.who.length ? `<div class="who">${d.who.map(a => "@" + escapeHtml(a)).join(" ")}</div>` : "",
+      d.who.length ? `<div class="who">${d.who.map(a => `<span style="color:${personInk(a)}">@${escapeHtml(a)}</span>`).join(" ")}</div>` : "",
       d.tags.length ? `<div class="tag">${d.tags.map(t => "#" + escapeHtml(t).replace(/ /g, "&nbsp;")).join(" ")}</div>` : "",
     ].join("");
     feetWorld.appendChild(el);
@@ -790,7 +847,8 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   document.getElementById("viewIssues").addEventListener("click", () => setView(false));
   document.getElementById("viewEpics").addEventListener("click", () => setView(true));
 
-  showDone.addEventListener("change", () => { applyDone(); run(); });
+  showDone.addEventListener("change", () => { applyVisibility(); run(); });
+  whoSelect.addEventListener("change", () => { setWho(whoSelect.value); applyVisibility(); run(); });
   document.getElementById("relayout").addEventListener("click", run);
   document.getElementById("fit").addEventListener("click", () => cy.fit(undefined, 30));
 
@@ -823,7 +881,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   const issueRef = n => issueBy[n] ? issueLine(issueBy[n]) : `<li>#${n}</li>`;
   const epicRef = n => epicOf[n] ? `<li>${badge(epicOf[n].state)} ${show("epic", n, `#${n}`)} ${escapeHtml(epicOf[n].title)}</li>` : `<li>#${n}</li>`;
   const progress = (done, total) => `<div class="progress"><i style="width:${total ? Math.round(100 * done / total) : 0}%"></i></div>`;
-  const msTitle = n => msBy[n] ? show("milestone", n, `◆ ${escapeHtml(msBy[n].title)}`) : "none";
+  const msTitle = n => msBy[n] ? show("milestone", n, escapeHtml(msBy[n].title)) : "none";
   function detailsHtml(kind, n) {
     if (kind === "issue") {
       const i = issueBy[n];
@@ -862,7 +920,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       if (!m) return null;
       const rank = msRank.get(n);
       const inIt = data.epics.filter(e => piecesOf(e.number).some(p => p.rank === rank)).map(e => e.number);
-      return { url: m.url, html: `<div class="kind">Milestone</div><h3>${gh(m.url, `◆ ${escapeHtml(m.title)}`)}</h3>` +
+      return { url: m.url, html: `<div class="kind">Milestone</div><h3>${gh(m.url, escapeHtml(m.title))}</h3>` +
         `<dl><dt>Due</dt><dd>${m.due ? new Date(m.due).toLocaleDateString() : "no due date"}</dd>` +
         `<dt>Done</dt><dd>${m.closed} / ${m.open + m.closed}</dd></dl>${progress(m.closed, m.open + m.closed)}` +
         (inIt.length ? `<h4>Epics</h4><ul>${inIt.map(epicRef).join("")}</ul>` : "") };
@@ -877,11 +935,13 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       const nodes = kind === "issue" ? cy.getElementById(`i${n}`)
         : kind === "epic" ? cy.nodes(`[kind='epic'][epic = ${n}]`) : cy.getElementById(`m${n}`);
       nodes.addClass("sel");
-      if (focus && nodes.length && !nodes.visible() && !showDone.checked && nodes.some(n => done.contains(n))) {
-        showDone.checked = true;
-        applyDone();
-        pendingFocus = [kind, n];
-        run();
+      // A target hidden by "show done" or the assignee filter brings itself
+      // into view: done issues are shown, else the filter goes back to everyone.
+      if (focus && nodes.length && !nodes.visible()) {
+        if (nodes.some(n => done.contains(n))) showDone.checked = true;
+        applyVisibility();
+        if (!nodes.visible() && whoSelect.value) { setWho(""); applyVisibility(); }
+        if (nodes.visible()) { pendingFocus = [kind, n]; run(); }
       } else if (focus && nodes.length && nodes.visible()) flyTo(fitsReadably(nodes) ? nodes : firstOpenPiece(nodes));
     }
     placeCovers();
@@ -1033,7 +1093,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     const label = { issue: "Issue", epic: "Epic", milestone: "Milestone" };
     results.innerHTML = found.slice(0, MAX_RESULTS).map((e, k) =>
       `<li role="option" data-k="${k}" aria-selected="false"><span class="k">${label[e.kind]}</span>` +
-      `<span class="t">${e.kind === "milestone" ? "◆" : "#" + e.n} ${highlight(e.title, q)}</span>` +
+      `<span class="t">${e.kind === "milestone" ? "" : "#" + e.n + " "}${highlight(e.title, q)}</span>` +
       (e.state ? badge(e.state) : "") + `</li>`).join("") +
       (found.length > MAX_RESULTS ? `<li class="more">${found.length - MAX_RESULTS} more — type more words</li>` : "");
     results.hidden = false;
