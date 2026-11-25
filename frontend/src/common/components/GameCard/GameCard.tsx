@@ -7,7 +7,6 @@ import {
   IconHeartFilled,
   IconPlayerPlay,
   IconPlayerPlayFilled,
-  IconPencil,
   IconEdit,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -80,7 +79,7 @@ export interface GameCardProps {
   /**
    * The smaller tile, for a few games among other things (the dashboard):
    * the same parts and actions, tighter: no description, no "my game"
-   * badge, Edit as a round pencil.
+   * badge.
    */
   compact?: boolean;
 }
@@ -234,21 +233,9 @@ export function GameCard({
           </span>
         )}
         <span className={classes.edit} onClick={(e) => e.stopPropagation()}>
-          {compact ? (
-            <Tooltip label={editLabel} withArrow>
-              <span className={classes.editRound}>
-                <GenericIconButton
-                  icon={<IconPencil size={16} />}
-                  color="ink"
-                  size="sm"
-                  onClick={onEdit}
-                  aria-label={`${editLabel}: ${game.name}`}
-                />
-              </span>
-            </Tooltip>
-          ) : (
-            <EditButtonWithText onClick={onEdit}>{editLabel}</EditButtonWithText>
-          )}
+          <EditButtonWithText onClick={onEdit} aria-label={`${editLabel}: ${game.name}`}>
+            {editLabel}
+          </EditButtonWithText>
         </span>
       </div>
     </Card>

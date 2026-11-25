@@ -304,14 +304,6 @@
   font-size: 16px;
 }
 
-/* Edit as a round pencil, like the star. */
-.editRound {
-  display: inline-flex;
-  border-radius: 50%;
-  border: 2px solid var(--mantine-color-ink-5);
-  background: var(--mantine-color-white);
-}
-
 .card[data-compact] .playText {
   white-space: nowrap;
 }
