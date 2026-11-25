@@ -1,4 +1,4 @@
-import { Badge, Card, Tooltip, VisuallyHidden } from "@mantine/core";
+import { Badge, Card, Tooltip, VisuallyHidden, useMantineTheme } from "@mantine/core";
 import {
   IconLock,
   IconStar,
@@ -14,7 +14,7 @@ import { blocksContinue, unplayable } from "@/common/lib/playability";
 import { UnplayableNote } from "@components/UnplayableNote";
 import { GenericIconButton } from "@components/buttons";
 import type { GameView } from "@/api/types";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { GameCover } from "@components/GameCover";
 import { GenreChip } from "@components/GenreChip";
 import { Critter } from "@components/Critter";
@@ -112,6 +112,9 @@ export function GameCard({
   compact = false,
 }: GameCardProps) {
   const { t } = useTranslation("common");
+  const theme = useMantineTheme();
+  // On hover the shadow takes the genre's colour, as its chip on the cover.
+  const genreColor: string | undefined = theme.other.genreColors[game.genre];
   const sponsored = !!game.publicSponsoredApiKeyShareId;
   const favoriteText = isFavorite ? unfavoriteLabel : favoriteLabel;
   const continues = hasSession;
@@ -124,6 +127,7 @@ export function GameCard({
   return (
     <Card
       className={classes.card}
+      style={genreColor ? ({ "--genre-color": genreColor } as CSSProperties) : undefined}
       data-sponsored={sponsored || undefined}
       padding={0}
       onClick={play}
