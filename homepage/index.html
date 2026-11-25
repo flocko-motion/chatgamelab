@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ChatGameLab</title>
+<meta name="description" content="A place where young people play games run by AI, invent their own, and find out how AI works.">
+<meta property="og:title" content="ChatGameLab">
+<meta property="og:description" content="Games that show how AI works.">
+<meta property="og:image" content="og-image.png">
+<link rel="icon" href="favicon.png">
+<script>
+  // The roadmap used to live here; its old links (…/chatgamelab/#epics) go on to it.
+  if (location.hash === "#epics") location.replace("roadmap/#epics");
+</script>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #15171a; --muted: #5b626b; --line: #e3e6ea; --panel: #f6f7f9;
+    --cyan: #00e5f0; --magenta: #ff00e6; --link: #0969da;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0d1117; --fg: #e6edf3; --muted: #9aa4ae; --line: #2a3038; --panel: #161b22; --link: #58a6ff; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 17px/1.6 var(--sans); }
+  a { color: var(--link); }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+
+  header { padding: 18px 0; }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .brand { font: 700 20px/1 var(--mono); color: var(--fg); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+  .brand img { width: 34px; height: 34px; }
+  nav { display: flex; gap: 18px; flex-wrap: wrap; }
+  nav a { color: var(--muted); text-decoration: none; font-weight: 500; }
+  nav a:hover { color: var(--fg); }
+
+  .hero { padding: 56px 0 64px; text-align: center; }
+  .wordmark { display: inline-block; background: #fff; border-radius: 18px; padding: 14px 22px; max-width: 100%; }
+  .wordmark img { display: block; width: 520px; max-width: 100%; height: auto; }
+  .hero h1 { font: 700 clamp(28px, 5vw, 46px)/1.15 var(--mono); margin: 36px auto 16px; max-width: 18ch; }
+  .hero h1 mark { background: none; color: inherit; box-shadow: inset 0 -0.38em 0 color-mix(in srgb, var(--magenta) 35%, transparent); }
+  .hero p { font-size: 20px; color: var(--muted); max-width: 40ch; margin: 0 auto 30px; }
+  .buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .button { display: inline-block; padding: 12px 22px; border-radius: 999px; font-weight: 600; text-decoration: none;
+            border: 2px solid var(--fg); color: var(--fg); }
+  .button.primary { background: var(--fg); color: var(--bg); }
+  .button:hover { border-color: var(--magenta); }
+
+  section { padding: 56px 0; border-top: 1px solid var(--line); }
+  h2 { font: 700 28px/1.2 var(--mono); margin: 0 0 8px; }
+  .lead { color: var(--muted); margin: 0 0 28px; max-width: 60ch; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
+  .card h3 { margin: 10px 0 6px; font-size: 19px; }
+  .card p { margin: 0; color: var(--muted); }
+  .icon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-size: 22px;
+          background: color-mix(in srgb, var(--cyan) 22%, transparent); }
+  .card:nth-child(2n) .icon { background: color-mix(in srgb, var(--magenta) 18%, transparent); }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+  @media (max-width: 760px) { .split { grid-template-columns: 1fr; } }
+  ul.ticks { list-style: none; padding: 0; margin: 0; }
+  ul.ticks li { padding-left: 30px; position: relative; margin: 10px 0; }
+  ul.ticks li::before { content: "✓"; position: absolute; left: 0; top: 0; font-weight: 700; color: var(--fg);
+                        width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 13px;
+                        background: color-mix(in srgb, var(--cyan) 30%, transparent); }
+
+  footer { padding: 32px 0 48px; border-top: 1px solid var(--line); color: var(--muted); font-size: 15px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <a class="brand" href="./"><img src="favicon.png" alt="">ChatGameLab</a>
+    <nav aria-label="Main">
+      <a href="#what">About</a>
+      <a href="#workshops">Workshops</a>
+      <a href="#open">Take part</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero wrap">
+    <div class="wordmark"><img src="og-image.png" alt="ChatGameLab" width="1200" height="352"></div>
+    <h1>Games that show how <mark>AI works</mark></h1>
+    <p>A place where young people play games run by AI, invent their own, and find out along the way what AI can do and how it does it.</p>
+    <div class="buttons">
+      <a class="button primary" href="#what">Find out more</a>
+      <a class="button" href="roadmap/">See what's coming</a>
+    </div>
+  </div>
+
+  <section id="what">
+    <div class="wrap">
+      <h2>Play, invent, understand</h2>
+      <p class="lead">AI is part of young people's everyday lives. ChatGameLab turns it into something to explore and question, not just to use.</p>
+      <div class="cards">
+        <div class="card">
+          <div class="icon" aria-hidden="true">🎮</div>
+          <h3>Play</h3>
+          <p>Step into a story, decide what your character does, and see how the world answers. With pictures and voices, if you like.</p>
+        </div>
+        <div class="card">
+          <div class="icon" aria-hidden="true">✏️</div>
+          <h3>Invent</h3>
+          <p>Make up your own game: a world, a story, a look of its own. Then share it with friends.</p>
+        </div>
+        <div class="card">
+          <div class="icon" aria-hidden="true">🔍</div>
+          <h3>Understand</h3>
+          <p>Every game lets you look behind the scenes: what the AI is asked, what it answers, and why the story turns out the way it does.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="workshops">
+    <div class="wrap split">
+      <div>
+        <h2>For groups and workshops</h2>
+        <p class="lead">Schools, youth centres, libraries and other organisations use ChatGameLab in their workshops, to talk about AI by playing with it.</p>
+      </div>
+      <ul class="ticks">
+        <li><strong>Easy to join.</strong> Players join a workshop with a link. They need no account.</li>
+        <li><strong>Safe for young players.</strong> Every game follows rules for the players' age group.</li>
+        <li><strong>Made for learning.</strong> Seeing how a game works is part of every game, so it is easy to start a conversation about AI.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="open">
+    <div class="wrap">
+      <h2>An open project</h2>
+      <p class="lead">ChatGameLab is open source. Organisations use it with their own groups, anyone can follow how it grows, and everyone is welcome to take part.</p>
+      <div class="cards">
+        <a class="card" href="roadmap/" style="text-decoration:none;color:inherit">
+          <div class="icon" aria-hidden="true">🗺️</div>
+          <h3>What's coming</h3>
+          <p>The plans for ChatGameLab, and what is being worked on now.</p>
+        </a>
+        <a class="card" href="https://github.com/flocko-motion/chatgamelab" style="text-decoration:none;color:inherit">
+          <div class="icon" aria-hidden="true">🤝</div>
+          <h3>Take part</h3>
+          <p>Ideas, feedback and help are welcome, on the project's GitHub page.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>ChatGameLab, an open-source project</span>
+    <span><a href="roadmap/">What's coming</a> · <a href="https://github.com/flocko-motion/chatgamelab">GitHub</a></span>
+  </div>
+</footer>
+</body>
+</html>
