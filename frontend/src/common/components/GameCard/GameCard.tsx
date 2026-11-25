@@ -2,7 +2,6 @@ import { Badge, Card, Tooltip, VisuallyHidden, useMantineTheme } from "@mantine/
 import {
   IconLock,
   IconStar,
-  IconStarFilled,
   IconSchool,
   IconHeartFilled,
   IconPlayerPlay,
@@ -165,8 +164,15 @@ export function GameCard({
             <div className={classes.star} onClick={(e) => e.stopPropagation()}>
               <Tooltip label={favoriteText} withArrow>
                 <GenericIconButton
-                  icon={isFavorite ? <IconStarFilled size={18} /> : <IconStar size={18} />}
-                  color={isFavorite ? "orange" : "ink"}
+                  icon={
+                    <IconStar
+                      size={28}
+                      stroke={2}
+                      className={isFavorite ? classes.starIconOn : classes.starIcon}
+                    />
+                  }
+                  color="ink"
+                  size="lg"
                   onClick={onToggleFavorite}
                   aria-label={favoriteText ?? ""}
                 />

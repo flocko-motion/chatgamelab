@@ -176,9 +176,21 @@
 /* Pushed right, also when there is no tag on its left. */
 .star {
   margin-left: auto;
-  border-radius: 50%;
-  background: var(--mantine-color-white);
-  border: 2px solid var(--mantine-color-ink-5);
+}
+
+/* The favourite star alone, no circle: ink outline, white inside; a
+   favourite fills yellow, its outline stays ink. */
+.star button,
+.star button:hover {
+  background: transparent;
+}
+
+.starIcon {
+  fill: var(--mantine-color-white);
+}
+
+.starIconOn {
+  fill: var(--mantine-color-orange-4);
 }
 
 /* Takes the free height, so the foot sits at the bottom. */
