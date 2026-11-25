@@ -5,7 +5,7 @@ The project's roadmap, generated from the GitHub issues and never edited by hand
 
 Open issues under no epic show too, in their milestone, in a *Without epic* box right of the epics. The side pane opens only on demand: for what is clicked, or the legend under *?*. When epics are still open whose every issue is closed, a button in the top bar (*N to close*) lists them.
 
-To change the roadmap, change the issues: put them under an epic (sub-issues), give them a milestone (the phases, ordered by due date), set *blocked by* relations, priority labels `P1`–`P3`, assignees.
+To change the roadmap, change the issues: an epic is an issue titled `Epic: …`, shown even before it has issues (then in its own milestone); put issues under an epic (sub-issues), give them a milestone (the phases, ordered by due date), set *blocked by* relations, priority labels `P1`–`P3`, assignees.
 
 ## How it runs
 
