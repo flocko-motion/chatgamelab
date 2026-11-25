@@ -288,7 +288,13 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     if (!pieces.has(id)) pieces.set(id, { id, epic: i.epic, rank: rank(i.milestone), issues: [] });
     pieces.get(id).issues.push(i);
   }
+  // An epic without issues yet: one empty box, in the epic's own milestone.
+  for (const e of data.epics) if (!e.issues.length) {
+    const id = pieceId(e.number, e.milestone);
+    pieces.set(id, { id, epic: e.number, rank: rank(e.milestone), issues: [] });
+  }
   function pieceState(p) {
+    if (!p.issues.length) return epicOf[p.epic].state;
     if (p.issues.every(i => i.state === "done")) return "done";
     return p.issues.some(i => i.state === "ready") ? "ready" : "blocked";
   }
@@ -299,7 +305,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     elements.push({ data: { id: p.id, label: `${epicName(e)} — ${done}/${p.issues.length}`,
                             short: `${epicName(e).replace(/epic:\s*/i, "")} — ${done}/${p.issues.length}`,
                             url: e.url, kind: "epic", epic: e.number, rank: p.rank, pstate: pieceState(p),
-                            done, total: p.issues.length } });
+                            done, total: p.issues.length, empty: !p.issues.length } });
   }
   const FOOT_CHARS = 32;
   for (const i of allIssues) {
@@ -370,6 +376,8 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
           "text-background-color": css("--bg"), "text-background-opacity": 1, "text-background-padding": 3,
           "font-size": 28, "font-weight": 600, color: css("--fg"), "text-wrap": "wrap", "text-max-width": 600,
           shape: "round-rectangle", padding: 24 } },
+      // An epic without issues has no inside to wrap: a box of an issue's size.
+      { selector: "node[kind='epic'][?empty]", style: { width: 280, height: 84 } },
       // The box of issues without an epic is no epic: its own colour, a dashed border.
       { selector: "node[kind='epic'][epic = 0]", style: {
           "background-color": css("--unfiled"), "border-color": css("--unfiled-line"), "border-width": 2, "border-style": "dashed" } },
@@ -604,7 +612,8 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
         row.forEach(b => {
           const bb = b.boundingBox(), w = size.get(b.id()).w;
           const dx = slotX[slotOf(b)] + (slotWidth[slotOf(b)] - w) / 2 - bb.x1, dy = y - bb.y1;
-          b.children().forEach(c => c.position({ x: c.position("x") + dx, y: c.position("y") + dy }));
+          const moved = b.isParent() ? b.children() : b;
+          moved.forEach(c => c.position({ x: c.position("x") + dx, y: c.position("y") + dy }));
         });
         y += h + GAP_Y;
       }
@@ -706,7 +715,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     const el = document.createElement("div");
     el.className = `cover ${d.pstate}`;
     el.innerHTML = `<h3>${escapeHtml(epicName(e))}</h3>` +
-      `<div class="prog">${d.done} / ${d.total} done<div class="bar"><i style="width:${Math.round(100 * d.done / d.total)}%"></i></div></div>` +
+      `<div class="prog">${d.done} / ${d.total} done<div class="bar"><i style="width:${d.total ? Math.round(100 * d.done / d.total) : 0}%"></i></div></div>` +
       (e.description ? `<p>${escapeHtml(e.description)}</p>` : "");
     world.appendChild(el);
     covers.set(box.id(), el);

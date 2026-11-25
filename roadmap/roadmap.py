@@ -2,7 +2,8 @@
 """Reads the repo's roadmap from the issues and prints it as JSON, for the
 interactive page (roadmap/index.html).
 
-Epics are issues with sub-issues; milestones (GitHub's field) group them into
+Epics are the issues titled "Epic: …", their sub-issues the work in them; an
+epic may still be empty. Milestones (GitHub's field) group them into
 phases; the order comes from "blocked by" relations, priority from the labels
 P1/P2/P3. Everything is read live through gh.
 
@@ -136,10 +137,10 @@ def priority(issue):
     return 4
 
 
-# Every open issue; the epics among them are those with sub-issues, oldest first.
+# Every open issue; the epics among them are those titled "Epic: …", oldest first.
 prefetch(["issues?state=open&per_page=100", "milestones?state=open&per_page=100"])
 OPEN = [i for i in gh("issues?state=open&per_page=100") if "pull_request" not in i]
-EPICS = sorted(i["number"] for i in OPEN if (i.get("sub_issues_summary") or {}).get("total", 0) > 0)
+EPICS = sorted(i["number"] for i in OPEN if i["title"].startswith("Epic:"))
 
 _deps = {}
 
@@ -170,10 +171,18 @@ prefetch([f"issues/{n}/dependencies/blocked_by" for n in issues])
 MILESTONES = sorted(gh("milestones?state=open&per_page=100"),
                     key=lambda m: (m.get("due_on") or "9999", m["title"]))
 ms_order = {m["number"]: k for k, m in enumerate(MILESTONES)}
+
+
+def own_milestone(e):
+    """The milestone set on epic e itself; it places an epic without issues."""
+    m = _open_by_number[e].get("milestone")
+    return m["number"] if m and m["number"] in ms_order else None
+
+
 epic_ms = {}  # epic -> the earliest phase it has issues in, for ordering
 for e in EPICS:
     ks = [ms_order.get((x.get("milestone") or {}).get("number"), len(MILESTONES)) for x in subs_of[e]]
-    epic_ms[e] = min(ks) if ks else len(MILESTONES)
+    epic_ms[e] = min(ks) if ks else ms_order.get(own_milestone(e), len(MILESTONES))
 
 
 def milestone_of(n):
@@ -276,8 +285,9 @@ def state(n):
 
 def gate_state(g):
     """An epic is done when all its issues are, blocked while something it
-    waits for is open, else ready."""
-    if all(not is_open(m) for m in issues if phase_of.get(m) == g):
+    waits for is open, else ready. An epic without issues is not done yet."""
+    mine = [m for m in issues if phase_of.get(m) == g]
+    if mine and all(not is_open(m) for m in mine):
         return "done"
     return "blocked" if gate_work(g) else "ready"
 
@@ -376,6 +386,7 @@ data = {
         "waitsOn": sorted(waits_on[epic["number"]]),
         "state": gate_state(epic["number"]),
         "issues": nums,
+        "milestone": own_milestone(epic["number"]),
     } for epic, nums in phases],
     "issues": [item(n) for n in phase_of],
     "milestones": [{
