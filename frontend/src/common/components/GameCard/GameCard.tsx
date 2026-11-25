@@ -12,10 +12,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { blocksContinue, unplayable } from "@/common/lib/playability";
 import { UnplayableNote } from "@components/UnplayableNote";
-import {
-  EditButtonWithText,
-  GenericIconButton,
-} from "@components/buttons";
+import { GenericIconButton } from "@components/buttons";
 import type { GameView } from "@/api/types";
 import type { ReactNode } from "react";
 import { GameCover } from "@components/GameCover";
@@ -233,9 +230,15 @@ export function GameCard({
           </span>
         )}
         <span className={classes.edit} onClick={(e) => e.stopPropagation()}>
-          <EditButtonWithText onClick={onEdit} aria-label={`${editLabel}: ${game.name}`}>
+          {/* Plain text, as Play is; the pencil shows on the cover. */}
+          <button
+            type="button"
+            className={classes.editText}
+            onClick={onEdit}
+            aria-label={`${editLabel}: ${game.name}`}
+          >
             {editLabel}
-          </EditButtonWithText>
+          </button>
         </span>
       </div>
     </Card>

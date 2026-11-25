@@ -276,6 +276,31 @@
   color: var(--mantine-color-highlight-7);
 }
 
+/* Edit, worded as Play is: no border, no icon. Its pencil shows on the
+   cover while the pointer is on it; then Play stays plain. */
+.editText {
+  all: unset;
+  cursor: pointer;
+  font-family: var(--mantine-font-family-monospace);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.editText:hover {
+  color: var(--mantine-color-highlight-7);
+}
+
+.card:has(.edit:hover) .playText {
+  color: inherit;
+}
+
+.editText:focus-visible {
+  outline: 2px solid var(--mantine-color-accent-5);
+  outline-offset: 2px;
+}
+
 /* The compact tile: the same parts, tighter; the name may take two lines. */
 .card[data-compact] .overlayTop,
 .card[data-compact] .overlayBottom {
