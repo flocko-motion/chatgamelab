@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <a href="https://flocko-motion.github.io/chatgamelab/"><img src="docs/images/homepage-button.svg" alt="Visit the ChatGameLab homepage" width="640"></a><br>
+  <a href="https://flocko-motion.github.io/chatgamelab/"><img src="docs/images/homepage-button.svg" alt="Visit the ChatGameLab homepage" width="440"></a><br>
   or open <a href="https://flocko-motion.github.io/chatgamelab/"><b>flocko-motion.github.io/chatgamelab</b></a>
 </p>
 
