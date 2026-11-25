@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ChatGameLab Roadmap</title>
+<!-- The flask in amber: the homepage has it in cyan, the app in magenta. -->
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <!-- Generated data: roadmap.json, written by roadmap/roadmap.py in .github/workflows/roadmap.yml. -->
 <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.30.2/dist/cytoscape.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/elkjs@0.9.3/lib/elk.bundled.js"></script>
@@ -12,14 +14,14 @@
   :root {
     --bg: #ffffff; --fg: #1f2328; --muted: #656d76; --line: #d0d7de; --panel: #f6f8fa;
     --ready: #d8f5d8; --ready-line: #4caf50; --blocked: #fbe3e3; --blocked-line: #d98c8c;
-    --done: #ececec; --done-line: #c8c8c8; --epic: #fafbfc;
+    --done: #ececec; --done-line: #c8c8c8; --epic: #fafbfc; --unfiled: #e8edf7; --unfiled-line: #8c9bb5; --who: #0969da; --tag: #8250df;
     --milestone: #fff3cd; --milestone-line: #d29922; --accent: #0969da;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #0d1117; --fg: #e6edf3; --muted: #8d96a0; --line: #30363d; --panel: #161b22;
       --ready: #1f3d24; --ready-line: #3fb950; --blocked: #4a2526; --blocked-line: #c96a6a;
-      --done: #262b31; --done-line: #3d444d; --epic: #11161d;
+      --done: #262b31; --done-line: #3d444d; --epic: #11161d; --unfiled: #1b2335; --unfiled-line: #5b6b8a; --who: #58a6ff; --tag: #b08cf5;
       --milestone: #3d2e00; --milestone-line: #d29922; --accent: #4493f8;
     }
   }
@@ -50,7 +52,16 @@
   label { color: var(--muted); font-size: 14px; }
   main { flex: 1; display: flex; min-height: 0; }
   #graphs { flex: 1; min-width: 0; position: relative; }
-  #graph, #covers { position: absolute; inset: 0; }
+  #graph, #covers, #feet { position: absolute; inset: 0; }
+  /* A card's foot, its assignees and labels, in HTML over the canvas, which
+     draws a label in one colour only; moved with the graph's zoom and pan. */
+  #feet { pointer-events: none; overflow: hidden; }
+  body.epics-only #feet { display: none; }
+  #feet .world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+  .foot { position: absolute; width: 264px; text-align: center; font-size: 15px; line-height: 19px;
+          overflow-wrap: anywhere; }
+  .foot .who { color: var(--who); } .foot .tag { color: var(--tag); }
+  .foot.done { opacity: .6; } .foot.faded { opacity: .15; }
   /* Epics only: the same graph with the issues hidden; each epic box carries
      its title, description and progress, laid over the canvas in HTML and
      moved with its zoom and pan. The text is cut where the box ends. */
@@ -112,7 +123,7 @@
   .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 13px; border: 1px solid; }
   .badge.ready { background: var(--ready); border-color: var(--ready-line); }
   .badge.blocked { background: var(--blocked); border-color: var(--blocked-line); }
-  .badge.done, .badge.backlog { background: var(--done); border-color: var(--done-line); }
+  .badge.done { background: var(--done); border-color: var(--done-line); }
   .progress { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; margin: 2px 0 10px; }
   .progress i { display: block; height: 100%; background: var(--ready-line); }
   #tip { position: fixed; pointer-events: none; background: var(--bg); color: var(--fg);
@@ -144,7 +155,7 @@
   </div>
 </header>
 <main>
-  <div id="graphs"><div id="graph"></div><div id="covers"><div class="world"></div></div></div>
+  <div id="graphs"><div id="graph"></div><div id="feet"><div class="world"></div></div><div id="covers"><div class="world"></div></div></div>
   <aside>
     <section id="details" hidden></section>
     <div id="overview">
@@ -156,10 +167,15 @@
       <div><span style="background:var(--done);border-color:var(--done-line)"></span>done</div>
       <div><span style="background:var(--milestone);border-color:var(--milestone-line)"></span>milestone: its epics' issues follow below the bar, down to the next; ordered by due date</div>
       <div>Boxes are epics, one per milestone they have issues in; a broad band joins the pieces of one epic. Arrows run from a blocker to what waits for it. Top to bottom is the order, without a time scale.</div>
+      <div><b>Without epic</b>: open issues under no epic, in their milestone, in a box right of the epics.</div>
       <div><b>Epics only</b>: the same roadmap with the issues hidden; each box shows its epic and how much of it is done in that milestone.</div>
       <div>Drag cards and boxes to explore; nothing is saved. Scroll to zoom, drag the background to move, Fit to see it all; click an issue, epic or milestone for its details (cmd-click opens it on GitHub).</div>
     </div>
-    <h2 id="backlogTitle">Backlog</h2><ul id="backlog"></ul>
+    <section id="doneEpicsSection" hidden>
+      <h2 id="doneEpicsTitle">Epics with every issue done</h2>
+      <p class="meta">Still open on GitHub: ready to close.</p>
+      <ul id="doneEpics"></ul>
+    </section>
     </div>
   </aside>
 </main>
@@ -237,10 +253,15 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     `${data.repo} · updated ${new Date(data.generated).toLocaleString()}`;
   const byNumber = Object.fromEntries(data.issues.map(i => [i.number, i]));
   document.getElementById("next").innerHTML = data.next.map(n => li(byNumber[n])).join("");
-  document.getElementById("backlogTitle").textContent = `Backlog (${data.backlog.length})`;
-  document.getElementById("backlog").innerHTML = data.backlog.map(li).join("");
+  // Epics still open whose every issue is closed: the list to purge from.
+  const doneEpics = data.epics.filter(e => e.state === "done");
+  document.getElementById("doneEpicsSection").hidden = !doneEpics.length;
+  document.getElementById("doneEpicsTitle").textContent = `Epics with every issue done (${doneEpics.length})`;
+  document.getElementById("doneEpics").innerHTML = doneEpics.map(e =>
+    `<li><a href="${e.url}" target="_blank" rel="noopener" data-show="epic:${e.number}">#${e.number}</a> ${escapeHtml(e.title)}</li>`).join("");
   const select = document.getElementById("epic");
   for (const e of data.epics) select.add(new Option(`#${e.number} ${e.title}`, e.number));
+  if (data.unfiled.length) select.add(new Option("Without epic", 0));
 
   const elements = [];
   // An epic gets a box per milestone it has issues in (a piece); the pieces of
@@ -252,9 +273,16 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   const msRank = new Map(milestones.map((m, k) => [m.number, k]));
   const rank = ms => ms == null || !msRank.has(ms) ? milestones.length : msRank.get(ms);
   const epicOf = Object.fromEntries(data.epics.map(e => [e.number, e]));
+  // Issues under no epic: a box of their own in each milestone they are in,
+  // right of the epics. It stands in for an epic, numbered 0.
+  const UNFILED = 0;
+  epicOf[UNFILED] = { number: UNFILED, title: "Without epic", url: null, waitsOn: [],
+                      description: "Open issues that are under no epic." };
+  const epicName = e => e.number === UNFILED ? e.title : `#${e.number} ${e.title}`;
+  const allIssues = [...data.issues, ...data.unfiled.map(i => ({ ...i, epic: UNFILED }))];
   const pieceId = (epic, ms) => `p${epic}-${ms == null || !msRank.has(ms) ? "none" : ms}`;
   const pieces = new Map();
-  for (const i of data.issues) {
+  for (const i of allIssues) {
     const id = pieceId(i.epic, i.milestone);
     if (!pieces.has(id)) pieces.set(id, { id, epic: i.epic, rank: rank(i.milestone), issues: [] });
     pieces.get(id).issues.push(i);
@@ -267,14 +295,24 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   for (const p of pieces.values()) {
     const e = epicOf[p.epic];
     const done = p.issues.filter(i => i.state === "done").length;
-    elements.push({ data: { id: p.id, label: `#${e.number} ${e.title} — ${done}/${p.issues.length}`,
+    elements.push({ data: { id: p.id, label: `${epicName(e)} — ${done}/${p.issues.length}`,
+                            short: `${epicName(e).replace(/epic:\s*/i, "")} — ${done}/${p.issues.length}`,
                             url: e.url, kind: "epic", epic: e.number, rank: p.rank, pstate: pieceState(p),
                             done, total: p.issues.length } });
   }
-  for (const i of data.issues) {
+  const FOOT_CHARS = 32;
+  for (const i of allIssues) {
     const meta = [i.assignees.length ? "👤 " + i.assignees.join(", ") : "", i.labels.length ? "🏷 " + i.labels.join(", ") : ""]
       .filter(Boolean).join("\n");
-    elements.push({ data: { id: `i${i.number}`, parent: pieceId(i.epic, i.milestone), label: `#${i.number} ${i.title}`,
+    // At the card's foot the assignees and the labels, each on lines of their
+    // own (about FOOT_CHARS to a line); the card grows by them, its title moves
+    // up by half. A label keeps its spaces unbroken.
+    const who = i.assignees.map(a => "@" + a).join(" ");
+    const tags = i.labels.map(l => "#" + l.replace(/ /g, "\u00a0")).join(" ");
+    const footH = [who, tags].reduce((h, t) => h + Math.ceil(t.length / FOOT_CHARS) * 19, 0);
+    elements.push({ data: { id: `i${i.number}`, parent: pieceId(i.epic, i.milestone), title: `#${i.number} ${i.title}`,
+                            label: `#${i.number} ${i.title}`, h: 84 + footH, ty: -footH / 2, footH,
+                            who: i.assignees, tags: i.labels,
                             url: i.url, kind: "issue", state: i.state, epic: i.epic, meta,
                             search: `#${i.number} ${i.title} ${i.assignees.join(" ")} ${i.labels.join(" ")}`.toLowerCase() } });
     for (const b of i.blockedBy)
@@ -323,14 +361,19 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     container: document.getElementById("graph"),
     elements, wheelSensitivity: 0.3, minZoom: 0.1, maxZoom: 3,
     style: [
+      // The page's font, so a title can be semibold rather than bold.
+      { selector: "node", style: { "font-family": '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' } },
       { selector: "node[kind='epic']", style: {
           "background-color": css("--epic"), "border-color": css("--line"), "border-width": 1,
           label: "data(label)", "text-valign": "top", "text-halign": "center", "text-margin-y": -10,
           "text-background-color": css("--bg"), "text-background-opacity": 1, "text-background-padding": 3,
-          "font-size": 28, "font-weight": "bold", color: css("--fg"), "text-wrap": "wrap", "text-max-width": 600,
+          "font-size": 28, "font-weight": 600, color: css("--fg"), "text-wrap": "wrap", "text-max-width": 600,
           shape: "round-rectangle", padding: 24 } },
+      // The box of issues without an epic is no epic: its own colour, a dashed border.
+      { selector: "node[kind='epic'][epic = 0]", style: {
+          "background-color": css("--unfiled"), "border-color": css("--unfiled-line"), "border-width": 2, "border-style": "dashed" } },
       { selector: "node[kind='issue']", style: {
-          width: 280, height: 84, shape: "round-rectangle", label: "data(label)",
+          width: 280, height: "data(h)", shape: "round-rectangle", label: "data(label)", "text-margin-y": "data(ty)",
           "text-wrap": "wrap", "text-max-width": 256, "font-size": 16, color: css("--fg"),
           "text-valign": "center", "text-halign": "center", "border-width": 1.5 } },
       ...Object.entries(COLORS).map(([s, [fill, line]]) => ({
@@ -341,7 +384,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       { selector: "edge[kind='epicEdge']", style: { width: 3, "line-style": "dashed" } },
       { selector: "node[kind='milestone']", style: {
           shape: "round-rectangle", width: 320, height: 60, label: "data(label)", "font-size": 30,
-          "font-weight": "bold", color: css("--fg"), "text-valign": "center", "text-halign": "center",
+          "font-weight": 600, color: css("--fg"), "text-valign": "center", "text-halign": "center",
           "background-color": css("--milestone"), "border-color": css("--milestone-line"), "border-width": 2 } },
       // The bar itself shows the phase boundary; the edges to and from it only steer the layout.
       { selector: "edge[kind='phaseEdge']", style: { opacity: 0, events: "no" } },
@@ -431,7 +474,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     // to the first of the lower), never across a bar.
     const epicOrder = new Map(data.epics.map((e, k) => [e.number, k]));
     const bands = new Map();
-    cy.nodes("[kind='epic']").filter(n => n.visible()).forEach(p => {
+    cy.nodes("[kind='epic']").filter(n => n.visible() && n.data("epic") !== UNFILED).forEach(p => {
       const r = p.data("rank");
       (bands.get(r) || bands.set(r, []).get(r)).push(p);
     });
@@ -471,8 +514,10 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   function arrangeBands() {
     const boxes = cy.nodes("[kind='epic']").filter(n => n.visible());
     const epicOrder = new Map(data.epics.map((e, k) => [e.number, k]));
+    // The boxes without epic go last, into a slot of their own on the right.
+    const filed = boxes.filter(b => b.data("epic") !== UNFILED);
     const byEpic = new Map();
-    boxes.forEach(b => { const e = b.data("epic"); (byEpic.get(e) || byEpic.set(e, []).get(e)).push(b); });
+    filed.forEach(b => { const e = b.data("epic"); (byEpic.get(e) || byEpic.set(e, []).get(e)).push(b); });
     // Split epics (pieces in several bands) each keep one slot for their whole
     // span, from first band to last; split epics with disjoint spans may share
     // a slot. The slot is taken only where the band joining two pieces runs,
@@ -518,7 +563,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       const next = new Map();
       for (let s = 0; s < slots; s++) { const row = startRow(r, s); if (row !== null) next.set(s, row); }
       if (!next.size) next.set(slots, 0);  // every slot blocked: an extra one on the right
-      const singles = boxes.filter(b => rankOf(b) === r && !placed.has(b.id()))
+      const singles = filed.filter(b => rankOf(b) === r && !placed.has(b.id()))
         .sort((a, b) => order(a.data("epic"), b.data("epic")));
       // Fill the shallowest slot first, so the band stays wide and short.
       for (const b of singles) {
@@ -527,6 +572,8 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
         next.set(s, row + 1);
       }
     }
+    const right = Math.max(slots - 1, ...[...placed.values()].map(p => p.slot)) + 1;
+    boxes.filter(b => b.data("epic") === UNFILED).forEach(b => placed.set(b.id(), { slot: right, sub: 0 }));
     const slotOf = b => placed.get(b.id()).slot;
     const subOf = b => placed.get(b.id()).sub;
     const size = new Map();
@@ -571,6 +618,51 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       m.position({ x: (bb.x1 + bb.x2) / 2, y: m.position("y") });
     });
   }
+  // Titles stay readable when zoomed out: epic and milestone titles grow as
+  // the view shrinks, to MIN_TITLE px on screen, at most MAX_GROW times their
+  // size. A grown epic title wraps at its box's width (at least TITLE_WIDTH),
+  // without the "Epic:" prefix; once the zoom settles, the boxes are placed
+  // anew around the titles' new size, the view held on the issue at its centre.
+  const EPIC_FONT = 28, BAR_FONT = 30, MIN_TITLE = 15, MAX_GROW = 1.8, TITLE_WIDTH = 600;
+  const growth = (font, px) => Math.min(MAX_GROW, Math.max(1, px / (font * cy.zoom())));
+  function readableTitles() {
+    const eg = growth(EPIC_FONT, MIN_TITLE), bf = BAR_FONT * growth(BAR_FONT, MIN_TITLE + 2);
+    cy.batch(() => {
+      cy.nodes("[kind='epic']").forEach(b => b.style(eg > 1
+        ? { label: b.data("short"), "font-size": EPIC_FONT * eg,
+            "text-max-width": Math.max(TITLE_WIDTH, b.boundingBox({ includeLabels: false }).w) }
+        : { label: b.data("label"), "font-size": EPIC_FONT, "text-max-width": 600 }));
+      // The label at the bar's left end, where the view starts; a character
+      // is about 0.28 of the font size wide.
+      cy.nodes("[kind='milestone']").forEach(bar => bar.style({ "font-size": bf, height: Math.max(60, bf + 20),
+        "text-margin-x": Math.min(0, -bar.width() / 2 + bar.data("label").length * bf * 0.28 + 30) }));
+    });
+  }
+  // Runs fn, then pans so the visible issue nearest the view's centre stays
+  // where it was on screen.
+  function holdView(fn) {
+    const ext = cy.extent(), cx = (ext.x1 + ext.x2) / 2, cyy = (ext.y1 + ext.y2) / 2;
+    let anchor = null, best = Infinity;
+    cy.nodes("[kind='issue']").filter(n => n.visible()).forEach(n => {
+      const p = n.position(), d = (p.x - cx) ** 2 + (p.y - cyy) ** 2;
+      if (d < best) { best = d; anchor = n; }
+    });
+    const before = anchor && { ...anchor.position() };
+    fn();
+    if (anchor) { const p = anchor.position(), z = cy.zoom(); cy.panBy({ x: (before.x - p.x) * z, y: (before.y - p.y) * z }); }
+  }
+  let titling = 0, settling = 0, placedAt = null;
+  cy.on("zoom", () => {
+    if (!titling) titling = requestAnimationFrame(() => { titling = 0; readableTitles(); });
+    clearTimeout(settling);
+    settling = setTimeout(() => {
+      const g = growth(EPIC_FONT, MIN_TITLE);
+      if (placedAt !== null && Math.abs(g - placedAt) < 0.05) return;
+      placedAt = g;
+      holdView(() => { readableTitles(); arrangeBands(); readableTitles(); });
+      placeCovers();
+    }, 200);
+  });
   // An arrow from a later band back to an earlier one is drawn but left out
   // of the layout: it would form a cycle with the bars, and the bars keep
   // the milestones in order.
@@ -592,6 +684,8 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     l.one("layoutstop", () => {
       arrangeBands();
       if (restore && restore.zoom) { cy.zoom(restore.zoom); cy.pan(restore.pan); } else home();
+      readableTitles();
+      placedAt = null;
       placeCovers();
       if (restore && restore.sel) showDetails(restore.sel.kind, restore.sel.n);
       restore = null;
@@ -610,7 +704,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     const d = box.data(), e = epicOf[d.epic];
     const el = document.createElement("div");
     el.className = `cover ${d.pstate}`;
-    el.innerHTML = `<h3>#${e.number} ${escapeHtml(e.title)}</h3>` +
+    el.innerHTML = `<h3>${escapeHtml(epicName(e))}</h3>` +
       `<div class="prog">${d.done} / ${d.total} done<div class="bar"><i style="width:${Math.round(100 * d.done / d.total)}%"></i></div></div>` +
       (e.description ? `<p>${escapeHtml(e.description)}</p>` : "");
     world.appendChild(el);
@@ -635,6 +729,37 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     world.style.transform = `translate(${x}px, ${y}px) scale(${cy.zoom()})`;
   }
   cy.on("viewport", () => { if (epicsOnly()) followViewport(); });
+
+  // The cards' feet: one per card with assignees or labels, at the card's
+  // bottom; placed again whenever the graph is drawn after a change.
+  const feetWorld = document.querySelector("#feet .world");
+  const feet = new Map();
+  cy.nodes("[kind='issue']").filter(n => n.data("footH") > 0).forEach(n => {
+    const el = document.createElement("div");
+    el.className = "foot";
+    const d = n.data();
+    el.innerHTML = [
+      d.who.length ? `<div class="who">${d.who.map(a => "@" + escapeHtml(a)).join(" ")}</div>` : "",
+      d.tags.length ? `<div class="tag">${d.tags.map(t => "#" + escapeHtml(t).replace(/ /g, "&nbsp;")).join(" ")}</div>` : "",
+    ].join("");
+    feetWorld.appendChild(el);
+    feet.set(n.id(), { n, el });
+  });
+  let feetDirty = true;
+  cy.on("position style add remove", () => { feetDirty = true; });
+  cy.on("render", () => {
+    const { x, y } = cy.pan();
+    feetWorld.style.transform = `translate(${x}px, ${y}px) scale(${cy.zoom()})`;
+    if (!feetDirty) return;
+    feetDirty = false;
+    for (const { n, el } of feet.values()) {
+      if (!n.visible() || n.hasClass("ghost")) { el.style.display = "none"; continue; }
+      const bb = n.boundingBox({ includeLabels: false });
+      Object.assign(el.style, { display: "", left: bb.x1 + 8 + "px", top: bb.y2 - n.data("footH") - 9 + "px" });
+      el.classList.toggle("done", n.data("state") === "done");
+      el.classList.toggle("faded", n.hasClass("faded"));
+    }
+  });
   let placing = 0;
   cy.on("position", "node", () => {
     if (epicsOnly() && !placing) placing = requestAnimationFrame(() => { placing = 0; placeCovers(); });
@@ -672,7 +797,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
 
   // A click (not a drag) shows the details in the side pane; cmd- or
   // ctrl-click opens the issue, epic or milestone on GitHub right away.
-  const issueBy = Object.fromEntries([...data.issues, ...data.backlog].map(i => [i.number, i]));
+  const issueBy = Object.fromEntries([...data.issues, ...data.unfiled].map(i => [i.number, i]));
   const msBy = Object.fromEntries(milestones.map(m => [m.number, m]));
   const details = document.getElementById("details");
   const aside = document.querySelector("aside");
@@ -681,6 +806,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
   let selected = null;
   // The title in the side pane is the link to GitHub.
   const gh = (url, text) => `<a class="gh" href="${url}" target="_blank" rel="noopener" title="Open on GitHub">${text} ↗</a>`;
+  const ghLink = (url, text) => `<a href="${url}" target="_blank" rel="noopener">${escapeHtml(text)}</a>`;
   const badge = st => `<span class="badge ${st}">${st}</span>`;
   const show = (kind, n, text) => `<a href="#" data-show="${kind}:${n}">${text}</a>`;
   const issueLine = i => `<li>${badge(i.state)} ${show("issue", i.number, `#${i.number}`)} ${escapeHtml(i.title)}</li>`;
@@ -692,13 +818,13 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     if (kind === "issue") {
       const i = issueBy[n];
       if (!i) return null;
-      const blocks = data.issues.filter(o => o.blockedBy.includes(n));
+      const blocks = Object.values(issueBy).filter(o => o.blockedBy.includes(n));
       const rows = [
         ["State", badge(i.state)],
-        ["Epic", i.epic ? show("epic", i.epic, `#${i.epic} ${escapeHtml(epicOf[i.epic].title)}`) : "none (backlog)"],
-        ["Milestone", i.epic ? msTitle(i.milestone) : ""],
-        ["Assignees", escapeHtml(i.assignees.join(", "))],
-        ["Labels", escapeHtml(i.labels.join(", "))],
+        ["Epic", i.epic ? show("epic", i.epic, `#${i.epic} ${escapeHtml(epicOf[i.epic].title)}`) : "none"],
+        ["Milestone", msTitle(i.milestone)],
+        ["Assignees", i.assignees.map(a => ghLink(`https://github.com/${encodeURIComponent(a)}`, `@${a}`)).join(" ")],
+        ["Labels", i.labels.map(l => ghLink(`https://github.com/${data.repo}/labels/${encodeURIComponent(l)}`, `#${l}`)).join(" ")],
         ["Priority", i.priority ? `P${i.priority}` : ""],
         ["Closed", i.closedAt ? new Date(i.closedAt).toLocaleDateString() : ""],
       ].filter(([, v]) => v);
@@ -817,7 +943,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     showDetails(kind, Number(n), true);
   });
   // The search: every word of the query must appear in the title (or be the
-  // number) of an issue, backlog issue, epic or milestone. The issues it finds
+  // number) of an issue, epic or milestone. The issues it finds
   // are marked in the graph; one hit is shown right away, several open a list
   // of at most MAX_RESULTS to pick from (arrows and Enter, or a click).
   const MAX_RESULTS = 10;
@@ -905,14 +1031,14 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     const d = ev.target.data(), o = ev.originalEvent || {};
     if (o.metaKey || o.ctrlKey) { if (d.url) window.open(d.url, "_blank", "noopener"); return; }
     if (d.kind === "issue") showDetails("issue", Number(d.id.slice(1)));
-    else if (d.kind === "epic") showDetails("epic", d.epic);
+    else if (d.kind === "epic" && d.epic !== UNFILED) showDetails("epic", d.epic);
     else if (d.kind === "milestone" && d.number != null) showDetails("milestone", d.number);
   });
 
   const tip = document.getElementById("tip");
   cy.on("mouseover", "node[kind='issue']", ev => {
     const d = ev.target.data();
-    tip.innerHTML = `<b>${escapeHtml(d.label)}</b><br>${d.state}` + (d.meta ? `<br>${escapeHtml(d.meta).replace(/\n/g, "<br>")}` : "");
+    tip.innerHTML = `<b>${escapeHtml(d.title)}</b><br>${d.state}` + (d.meta ? `<br>${escapeHtml(d.meta).replace(/\n/g, "<br>")}` : "");
     tip.style.display = "block";
   });
   cy.on("mouseout", "node", () => { tip.style.display = "none"; });
