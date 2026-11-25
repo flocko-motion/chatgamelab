@@ -12,14 +12,14 @@
   :root {
     --bg: #ffffff; --fg: #1f2328; --muted: #656d76; --line: #d0d7de; --panel: #f6f8fa;
     --ready: #d8f5d8; --ready-line: #4caf50; --blocked: #fbe3e3; --blocked-line: #d98c8c;
-    --done: #ececec; --done-line: #c8c8c8; --epic: #fafbfc; --unfiled: #e8edf7; --unfiled-line: #8c9bb5;
+    --done: #ececec; --done-line: #c8c8c8; --epic: #fafbfc; --unfiled: #e8edf7; --unfiled-line: #8c9bb5; --who: #0969da; --tag: #8250df;
     --milestone: #fff3cd; --milestone-line: #d29922; --accent: #0969da;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #0d1117; --fg: #e6edf3; --muted: #8d96a0; --line: #30363d; --panel: #161b22;
       --ready: #1f3d24; --ready-line: #3fb950; --blocked: #4a2526; --blocked-line: #c96a6a;
-      --done: #262b31; --done-line: #3d444d; --epic: #11161d; --unfiled: #1b2335; --unfiled-line: #5b6b8a;
+      --done: #262b31; --done-line: #3d444d; --epic: #11161d; --unfiled: #1b2335; --unfiled-line: #5b6b8a; --who: #58a6ff; --tag: #b08cf5;
       --milestone: #3d2e00; --milestone-line: #d29922; --accent: #4493f8;
     }
   }
@@ -50,7 +50,16 @@
   label { color: var(--muted); font-size: 14px; }
   main { flex: 1; display: flex; min-height: 0; }
   #graphs { flex: 1; min-width: 0; position: relative; }
-  #graph, #covers { position: absolute; inset: 0; }
+  #graph, #covers, #feet { position: absolute; inset: 0; }
+  /* A card's foot, its assignees and labels, in HTML over the canvas, which
+     draws a label in one colour only; moved with the graph's zoom and pan. */
+  #feet { pointer-events: none; overflow: hidden; }
+  body.epics-only #feet { display: none; }
+  #feet .world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+  .foot { position: absolute; width: 264px; text-align: center; font-size: 15px; line-height: 19px;
+          overflow-wrap: anywhere; }
+  .foot .who { color: var(--who); } .foot .tag { color: var(--tag); }
+  .foot.done { opacity: .6; } .foot.faded { opacity: .15; }
   /* Epics only: the same graph with the issues hidden; each epic box carries
      its title, description and progress, laid over the canvas in HTML and
      moved with its zoom and pan. The text is cut where the box ends. */
@@ -144,7 +153,7 @@
   </div>
 </header>
 <main>
-  <div id="graphs"><div id="graph"></div><div id="covers"><div class="world"></div></div></div>
+  <div id="graphs"><div id="graph"></div><div id="feet"><div class="world"></div></div><div id="covers"><div class="world"></div></div></div>
   <aside>
     <section id="details" hidden></section>
     <div id="overview">
@@ -289,16 +298,19 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
                             url: e.url, kind: "epic", epic: e.number, rank: p.rank, pstate: pieceState(p),
                             done, total: p.issues.length } });
   }
+  const FOOT_CHARS = 32;
   for (const i of allIssues) {
     const meta = [i.assignees.length ? "👤 " + i.assignees.join(", ") : "", i.labels.length ? "🏷 " + i.labels.join(", ") : ""]
       .filter(Boolean).join("\n");
-    // At the card's foot the assignees and the labels, each on a line of its
-    // own; each line makes the card taller. A label keeps its spaces unbroken.
+    // At the card's foot the assignees and the labels, each on lines of their
+    // own (about FOOT_CHARS to a line); the card grows by them, its title moves
+    // up by half. A label keeps its spaces unbroken.
     const who = i.assignees.map(a => "@" + a).join(" ");
     const tags = i.labels.map(l => "#" + l.replace(/ /g, "\u00a0")).join(" ");
-    const foot = [who, tags].filter(Boolean);
+    const footH = [who, tags].reduce((h, t) => h + Math.ceil(t.length / FOOT_CHARS) * 19, 0);
     elements.push({ data: { id: `i${i.number}`, parent: pieceId(i.epic, i.milestone), title: `#${i.number} ${i.title}`,
-                            label: [`#${i.number} ${i.title}`, ...foot].join("\n"), h: 84 + 20 * foot.length,
+                            label: `#${i.number} ${i.title}`, h: 84 + footH, ty: -footH / 2, footH,
+                            who: i.assignees, tags: i.labels,
                             url: i.url, kind: "issue", state: i.state, epic: i.epic, meta,
                             search: `#${i.number} ${i.title} ${i.assignees.join(" ")} ${i.labels.join(" ")}`.toLowerCase() } });
     for (const b of i.blockedBy)
@@ -359,7 +371,7 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
       { selector: "node[kind='epic'][epic = 0]", style: {
           "background-color": css("--unfiled"), "border-color": css("--unfiled-line"), "border-width": 2, "border-style": "dashed" } },
       { selector: "node[kind='issue']", style: {
-          width: 280, height: "data(h)", shape: "round-rectangle", label: "data(label)",
+          width: 280, height: "data(h)", shape: "round-rectangle", label: "data(label)", "text-margin-y": "data(ty)",
           "text-wrap": "wrap", "text-max-width": 256, "font-size": 16, color: css("--fg"),
           "text-valign": "center", "text-halign": "center", "border-width": 1.5 } },
       ...Object.entries(COLORS).map(([s, [fill, line]]) => ({
@@ -715,6 +727,37 @@ fetch("roadmap.json", { cache: "no-cache" }).then(r => r.json()).then(data => {
     world.style.transform = `translate(${x}px, ${y}px) scale(${cy.zoom()})`;
   }
   cy.on("viewport", () => { if (epicsOnly()) followViewport(); });
+
+  // The cards' feet: one per card with assignees or labels, at the card's
+  // bottom; placed again whenever the graph is drawn after a change.
+  const feetWorld = document.querySelector("#feet .world");
+  const feet = new Map();
+  cy.nodes("[kind='issue']").filter(n => n.data("footH") > 0).forEach(n => {
+    const el = document.createElement("div");
+    el.className = "foot";
+    const d = n.data();
+    el.innerHTML = [
+      d.who.length ? `<div class="who">${d.who.map(a => "@" + escapeHtml(a)).join(" ")}</div>` : "",
+      d.tags.length ? `<div class="tag">${d.tags.map(t => "#" + escapeHtml(t).replace(/ /g, "&nbsp;")).join(" ")}</div>` : "",
+    ].join("");
+    feetWorld.appendChild(el);
+    feet.set(n.id(), { n, el });
+  });
+  let feetDirty = true;
+  cy.on("position style add remove", () => { feetDirty = true; });
+  cy.on("render", () => {
+    const { x, y } = cy.pan();
+    feetWorld.style.transform = `translate(${x}px, ${y}px) scale(${cy.zoom()})`;
+    if (!feetDirty) return;
+    feetDirty = false;
+    for (const { n, el } of feet.values()) {
+      if (!n.visible() || n.hasClass("ghost")) { el.style.display = "none"; continue; }
+      const bb = n.boundingBox({ includeLabels: false });
+      Object.assign(el.style, { display: "", left: bb.x1 + 8 + "px", top: bb.y2 - n.data("footH") - 9 + "px" });
+      el.classList.toggle("done", n.data("state") === "done");
+      el.classList.toggle("faded", n.hasClass("faded"));
+    }
+  });
   let placing = 0;
   cy.on("position", "node", () => {
     if (epicsOnly() && !placing) placing = requestAnimationFrame(() => { placing = 0; placeCovers(); });
