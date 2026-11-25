@@ -46,6 +46,15 @@
   .button { display: inline-block; padding: 12px 22px; border-radius: 999px; font-weight: 600; text-decoration: none;
             border: 2px solid var(--fg); color: var(--fg); }
   .button.primary { background: var(--fg); color: var(--bg); }
+  .button.play { background: var(--magenta); border-color: var(--magenta); color: #fff; }
+  .button.play:hover { border-color: var(--fg); }
+
+  /* The instance to play on, and the thanks to the organisation that runs it. */
+  .instance { background: color-mix(in srgb, var(--cyan) 12%, var(--bg)); }
+  .instance .wrap { display: flex; gap: 32px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .instance h2 { margin-bottom: 10px; }
+  .instance p { margin: 0 0 8px; max-width: 58ch; }
+  .instance .thanks { color: var(--muted); }
   .button:hover { border-color: var(--magenta); }
 
   section { padding: 56px 0; border-top: 1px solid var(--line); }
@@ -78,7 +87,7 @@
     <nav aria-label="Main">
       <a href="#what">About</a>
       <a href="#workshops">Workshops</a>
-      <a href="#open">Take part</a>
+      <a href="#open">Open source</a>
     </nav>
   </div>
 </header>
@@ -89,10 +98,22 @@
     <h1>Games that show how <mark>AI works</mark></h1>
     <p>A place where young people play games run by AI, invent their own, and find out along the way what AI can do and how it does it.</p>
     <div class="buttons">
+      <a class="button play" href="https://chatgamelab.eu">Play at JFF ChatGameLab</a>
       <a class="button primary" href="#what">Find out more</a>
-      <a class="button" href="roadmap/">See what's coming</a>
+      <a class="button" href="https://github.com/flocko-motion/chatgamelab">Open source on GitHub</a>
     </div>
   </div>
+
+  <section id="play" class="instance">
+    <div class="wrap">
+      <div>
+        <h2>Play now at JFF ChatGameLab</h2>
+        <p>JFF runs ChatGameLab for everyone at <a href="https://chatgamelab.eu"><b>chatgamelab.eu</b></a>: play games, make your own, or run a workshop there.</p>
+        <p class="thanks">A big thank you to <a href="https://www.jff.de">JFF</a> for their great support of ChatGameLab.</p>
+      </div>
+      <a class="button play" href="https://chatgamelab.eu">Go to chatgamelab.eu</a>
+    </div>
+  </section>
 
   <section id="what">
     <div class="wrap">
@@ -135,17 +156,17 @@
   <section id="open">
     <div class="wrap">
       <h2>An open project</h2>
-      <p class="lead">ChatGameLab is open source. Organisations use it with their own groups, anyone can follow how it grows, and everyone is welcome to take part.</p>
+      <p class="lead">ChatGameLab is open source. Any organisation can run it for its own groups, and everyone is welcome to help build it.</p>
       <div class="cards">
-        <a class="card" href="roadmap/" style="text-decoration:none;color:inherit">
-          <div class="icon" aria-hidden="true">🗺️</div>
-          <h3>What's coming</h3>
-          <p>The plans for ChatGameLab, and what is being worked on now.</p>
+        <a class="card" href="https://github.com/flocko-motion/chatgamelab/blob/v2/development/deploy/README.md" style="text-decoration:none;color:inherit">
+          <div class="icon" aria-hidden="true">🏠</div>
+          <h3>Run your own</h3>
+          <p>Set up ChatGameLab on your own server, for your school, centre or organisation.</p>
         </a>
-        <a class="card" href="https://github.com/flocko-motion/chatgamelab" style="text-decoration:none;color:inherit">
-          <div class="icon" aria-hidden="true">🤝</div>
-          <h3>Take part</h3>
-          <p>Ideas, feedback and help are welcome, on the project's GitHub page.</p>
+        <a class="card" href="https://github.com/flocko-motion/chatgamelab/blob/v2/development/docs/README.md" style="text-decoration:none;color:inherit">
+          <div class="icon" aria-hidden="true">🛠️</div>
+          <h3>Help build it</h3>
+          <p>Code, design or texts: everything you need to get started is on GitHub.</p>
         </a>
       </div>
     </div>
@@ -155,7 +176,7 @@
 <footer>
   <div class="wrap">
     <span>ChatGameLab, an open-source project</span>
-    <span><a href="roadmap/">What's coming</a> · <a href="https://github.com/flocko-motion/chatgamelab">GitHub</a></span>
+    <span><a href="https://github.com/flocko-motion/chatgamelab">ChatGameLab on GitHub</a></span>
   </div>
 </footer>
 </body>
