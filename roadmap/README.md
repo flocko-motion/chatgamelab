@@ -1,7 +1,7 @@
 # Roadmap
 
 The project's roadmap, generated from the GitHub issues and never edited by hand:
-**https://flocko-motion.github.io/chatgamelab/** (zoom, drag, filter by epic, search the titles (several hits open a list), click for details (they replace the side pane until closed); *Epics only* for the overview: the same layout with the issues hidden, each epic box labelled, linkable as `#epics`).
+**https://flocko-motion.github.io/chatgamelab/roadmap/** (zoom, drag, filter by epic, search the titles (several hits open a list), click for details (they replace the side pane until closed); *Epics only* for the overview: the same layout with the issues hidden, each epic box labelled, linkable as `#epics`).
 
 Open issues under no epic show too, in their milestone, in a *Without epic* box right of the epics. The side pane lists the epics still open whose every issue is closed, ready to close.
 
@@ -12,7 +12,7 @@ To change the roadmap, change the issues: put them under an epic (sub-issues), g
 - `roadmap.py` reads the issues through `gh` and prints the roadmap as JSON.
 - `serve.py` serves the page on this machine (`make roadmap-local`) and reloads its data from the page: *Update* in the top bar reads every issue fresh, *Update* in the side pane only what concerns that issue, in seconds. GitHub's answers are cached between reloads (`roadmap.py --cache`).
 - `index.html` is the page: static, Cytoscape.js with the ELK layout, renders `roadmap.json` next to it.
-- `.github/workflows/roadmap.yml` builds both on issue changes, daily and by hand, and deploys them to Pages. It runs from the default branch, where GitHub sends issue events.
+- `.github/workflows/roadmap.yml` builds both on issue changes, daily, by hand and on pushes that change them, and deploys them to Pages under `/roadmap/`, beside the homepage (`homepage/`) at the root. It runs from the default branch, where GitHub sends issue events.
 
 ## Commands
 

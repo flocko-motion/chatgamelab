@@ -1,7 +1,9 @@
-# Rebuilds the interactive roadmap from the issues (roadmap/) and deploys it to Pages.
-# Issue events only run workflows from the default branch, so this lives on
-# v2/development. GitHub sends no event when a "blocked by" relation changes; the
-# daily run and `make roadmap` cover that.
+# Builds the project's Pages site and deploys it: the homepage (homepage/) at
+# the root, the interactive roadmap (roadmap/), rebuilt from the issues, under
+# /roadmap/. A push that changes either deploys it too. Issue events only run
+# workflows from the default branch, so this lives on v2/development. GitHub
+# sends no event when a "blocked by" relation changes; the daily run and
+# `make roadmap` cover that.
 name: Roadmap
 
 on:
@@ -11,11 +13,14 @@ on:
   schedule:
     - cron: "17 4 * * *"
   workflow_dispatch:
+  push:
+    branches: [v2/development]
+    paths: [homepage/**, roadmap/**, .github/workflows/roadmap.yml]
 
 permissions:
   contents: read
   issues: read
-  pages: write      # the interactive page is deployed to GitHub Pages
+  pages: write      # the site is deployed to GitHub Pages
   id-token: write
 
 # A running build finishes; a newer one waits behind it (GitHub keeps the
@@ -30,20 +35,21 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Build the page
+      - name: Build the site
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          mkdir -p site
-          python3 roadmap/roadmap.py "${{ github.repository }}" > site/roadmap.json
-          cp roadmap/index.html site/
+          mkdir -p site/roadmap
+          cp homepage/* frontend/public/og-image.png frontend/public/favicon.png site/
+          python3 roadmap/roadmap.py "${{ github.repository }}" > site/roadmap/roadmap.json
+          cp roadmap/index.html site/roadmap/
 
-      - name: Hand the interactive page to Pages
+      - name: Hand the site to Pages
         uses: actions/upload-pages-artifact@v3
         with:
           path: site
 
-  # The interactive page: roadmap/index.html with roadmap.json.
+  # The homepage, and the roadmap page with its roadmap.json.
   pages:
     needs: roadmap
     runs-on: ubuntu-latest

@@ -11,7 +11,7 @@ Create your own text adventure games and play them with your friends.
 
 For a detailed explanation of how the AI game engine works, see [TECHNOLOGY.md](TECHNOLOGY.md).
 
-**[Roadmap](https://flocko-motion.github.io/chatgamelab/):** what's next and in which order, generated from the issues; [epics only](https://flocko-motion.github.io/chatgamelab/#epics) for the overview.
+**[Homepage](https://flocko-motion.github.io/chatgamelab/)** for visitors (`homepage/`, preview with `make homepage-local`). **[Roadmap](https://flocko-motion.github.io/chatgamelab/roadmap/):** what's next and in which order, generated from the issues; [epics only](https://flocko-motion.github.io/chatgamelab/roadmap/#epics) for the overview.
 
 ## Contributing
 
