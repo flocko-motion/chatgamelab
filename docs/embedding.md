@@ -8,13 +8,14 @@ says yes, no game starts. Styling the game with your own CSS is optional.
 Your page never sees the conversation: it stays inside the frame. The
 microphone prompt names ChatGameLab.
 
-This guide is for the operator of the page. An embed needs three things:
+This guide is for the operator of the page. An embed needs four things:
 
 1. the page registered and approved (part 1),
 2. the snippet on the page, with your IDs filled in (part 2),
-3. the callback on your server, answering yes (part 3).
+3. the callback on your server, answering yes (part 3),
+4. the notices on your page (part 4).
 
-Styling (part 4) comes on top.
+Styling (part 5) comes on top.
 
 ## 1. Before the first start
 
@@ -67,7 +68,7 @@ Put it where the game should appear, then fill in what is yours:
   callback gets both back and decides on them (part 3).
 - **The height**: give the element the height you want.
 
-The `<style data-cgl>` block stays empty unless you style the game (part 4).
+The `<style data-cgl>` block stays empty unless you style the game (part 5).
 
 The loader script turns each `[data-cgl-embed]` element into the game's frame,
 filling the element, and hands your `<style data-cgl>` blocks over to it.
@@ -220,7 +221,42 @@ The signed pattern needs only `hmac.compare_digest` against
 `hmac.new(SECRET, f"{player}.{time}".encode(), "sha256").hexdigest()` and a
 check that `time` lies within the last two minutes.
 
-## 4. Styling
+## 4. Notices on your page
+
+Your visitors meet the game on your page, so your page tells them what they
+need to know before they play.
+
+### Privacy
+
+Your privacy policy names ChatGameLab as a service your page uses and says
+what reaches it:
+
+- **The game runs on ChatGameLab.** The frame and its script load from the
+  ChatGameLab instance in the snippet, which sees the visitor's IP address
+  like any web server.
+- **The visitor ID you send.** ChatGameLab stores it hashed with the game's
+  token, as the guest the visitor plays as, and passes it to your callback.
+  An ID with no meaning outside your page, such as a random one, keeps the
+  visitor anonymous to ChatGameLab.
+- **What the visitor types or says.** The conversation is stored on
+  ChatGameLab as the visitor's game and goes to the AI provider of the key
+  that pays for the plays, such as OpenAI or Mistral. Spoken input reaches
+  the provider as audio. The organisation that picked the key knows which
+  provider it is.
+
+### Youth protection
+
+- **The game talks with an AI.** Your page says so before the game starts:
+  the story, the characters and any images are generated as the visitor plays.
+- **Who the game is for.** Every embedded game plays under the youth-protection
+  rule of its workshop or organisation, or, when neither sets one, the rule
+  of the account that first turned embedding on. ChatGameLab knows nothing
+  about your visitors' ages, so your page states the age the game is meant
+  for, and any age check belongs in your callback.
+- **Where to turn.** Your page names a contact for visitors who meet content
+  they find harmful.
+
+## 5. Styling
 
 The game lays itself out by the room the frame gives it. You style it with
 your own CSS, against the names below. These names are the contract: the
