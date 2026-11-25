@@ -343,7 +343,7 @@ roadmap:
 ROADMAP_LOCAL := $(or $(TMPDIR),/tmp)/cgl-roadmap
 roadmap-local:
 	@mkdir -p "$(ROADMAP_LOCAL)"
-	cp roadmap/index.html "$(ROADMAP_LOCAL)/"
+	cp roadmap/index.html roadmap/favicon.svg "$(ROADMAP_LOCAL)/"
 	@json="$(ROADMAP_LOCAL)/roadmap.json"; fresh=; \
 	if [ -s "$$json" ]; then \
 		age=$$(( ($$(date +%s) - $$(date -r "$$json" +%s)) / 60 )); \
@@ -355,15 +355,15 @@ roadmap-local:
 	python3 roadmap/serve.py "$(ROADMAP_LOCAL)" 8765 $$fresh
 
 # The homepage on this machine, laid out as Pages serves it: homepage/ at the
-# root with the logo and favicon, the roadmap under /roadmap/ (with the issues
+# root with the wordmark, the roadmap under /roadmap/ (with the issues
 # of the last make roadmap-local, if any). The files are linked, not copied, so
 # an edit shows on reload. Ctrl-C stops it.
 HOMEPAGE_LOCAL := $(or $(TMPDIR),/tmp)/cgl-homepage
 homepage-local:
 	@rm -rf "$(HOMEPAGE_LOCAL)" && mkdir -p "$(HOMEPAGE_LOCAL)/roadmap"
-	@for f in homepage/* frontend/public/og-image.png frontend/public/favicon.png; do \
+	@for f in homepage/* frontend/public/og-image.png; do \
 		ln -s "$(CURDIR)/$$f" "$(HOMEPAGE_LOCAL)/"; done
-	@ln -s "$(CURDIR)/roadmap/index.html" "$(HOMEPAGE_LOCAL)/roadmap/"
+	@ln -s "$(CURDIR)/roadmap/index.html" "$(CURDIR)/roadmap/favicon.svg" "$(HOMEPAGE_LOCAL)/roadmap/"
 	@[ -s "$(ROADMAP_LOCAL)/roadmap.json" ] && ln -s "$(ROADMAP_LOCAL)/roadmap.json" "$(HOMEPAGE_LOCAL)/roadmap/" \
 		|| echo "No issues read yet: run make roadmap-local once for the roadmap's data."
 	@(sleep 1 && open http://localhost:8766 2>/dev/null || xdg-open http://localhost:8766 2>/dev/null || true) &

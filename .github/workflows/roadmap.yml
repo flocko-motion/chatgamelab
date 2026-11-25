@@ -40,9 +40,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p site/roadmap
-          cp homepage/* frontend/public/og-image.png frontend/public/favicon.png site/
+          cp homepage/* frontend/public/og-image.png site/
           python3 roadmap/roadmap.py "${{ github.repository }}" > site/roadmap/roadmap.json
-          cp roadmap/index.html site/roadmap/
+          cp roadmap/index.html roadmap/favicon.svg site/roadmap/
 
       - name: Hand the site to Pages
         uses: actions/upload-pages-artifact@v3
