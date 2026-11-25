@@ -1,13 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="640" height="132" viewBox="0 0 640 132" role="img" aria-label="Visit the ChatGameLab homepage: more about ChatGameLab, what it is and where to play">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#e000cc"/>
-      <stop offset="1" stop-color="#b8009f"/>
-    </linearGradient>
-  </defs>
-  <rect x="2" y="2" width="636" height="128" rx="24" fill="url(#bg)" stroke="#00e5f0" stroke-width="4"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="88" viewBox="0 0 440 88" role="img" aria-label="Visit the ChatGameLab homepage: what it is and where to play">
+  <rect width="440" height="88" rx="16" fill="#c800b3"/>
   <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" fill="#ffffff" text-anchor="middle">
-    <text x="320" y="62" font-size="32" font-weight="700">Visit the ChatGameLab homepage  →</text>
-    <text x="320" y="98" font-size="18" fill-opacity="0.92">Click here for more about ChatGameLab: what it is and where to play</text>
+    <text x="220" y="40" font-size="22" font-weight="600">Visit the ChatGameLab homepage →</text>
+    <text x="220" y="66" font-size="14" fill-opacity="0.9">What it is, and where to play</text>
   </g>
 </svg>
