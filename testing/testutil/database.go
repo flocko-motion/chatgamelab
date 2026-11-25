@@ -45,3 +45,29 @@ func (s *BaseSuite) DatabaseCount(query string) int {
 	}
 	return n
 }
+
+// SessionIdleFor makes a session look not played for that many hours, past
+// the core: the janitor goes by a session's last change.
+func (s *BaseSuite) SessionIdleFor(sessionID string, hours int) {
+	s.T().Helper()
+	s.DatabaseAccepts(fmt.Sprintf("UPDATE game_session SET modified_at = now() - interval '%d hours' WHERE id = '%s'", hours, sessionID))
+}
+
+// SessionStored is whether the session is still in the database.
+func (s *BaseSuite) SessionStored(sessionID string) bool {
+	s.T().Helper()
+	return s.DatabaseCount(fmt.Sprintf("SELECT count(*) FROM game_session WHERE id = '%s'", sessionID)) == 1
+}
+
+// AccountStored is whether the account is still in the database.
+func (s *BaseSuite) AccountStored(userID string) bool {
+	s.T().Helper()
+	return s.DatabaseCount(fmt.Sprintf("SELECT count(*) FROM app_user WHERE id = '%s'", userID)) == 1
+}
+
+// SignUpStartedHoursAgo makes an account in sign-up look started that many
+// hours ago, past the core.
+func (s *BaseSuite) SignUpStartedHoursAgo(userID string, hours int) {
+	s.T().Helper()
+	s.DatabaseAccepts(fmt.Sprintf("UPDATE app_user SET created_at = now() - interval '%d hours' WHERE id = '%s'", hours, userID))
+}

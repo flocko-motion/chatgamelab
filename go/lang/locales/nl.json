@@ -1919,6 +1919,12 @@
         "unpriced": "Dit model heeft geen vermelding in de modellijst: de kosten worden niet berekend en een verhaal dat dit model gebruikt, wordt nooit ingekort."
       },
       "notAuthorized": "Je hebt geen toegang tot serverinstellingen. Admin-toegang vereist.",
+      "sessionRetention": {
+        "description": "Sessies die zo lang niet zijn gespeeld, worden verwijderd. 0 bewaart alle sessies.",
+        "hint": "Wordt binnen een uur van kracht.",
+        "label": "Uren",
+        "title": "Bewaartermijn van sessies"
+      },
       "tabs": {
         "ai": "AI en sleutels",
         "branding": "Vormgeving",

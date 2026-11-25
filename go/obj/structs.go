@@ -93,17 +93,20 @@ type BackupLog struct {
 
 // SystemSettings holds server-wide configuration such as default AI tiers and prompt constraints.
 type SystemSettings struct {
-	ID                    uuid.UUID  `json:"id"`
-	CreatedAt             *time.Time `json:"createdAt"`
-	ModifiedAt            *time.Time `json:"modifiedAt"`
-	DefaultAiQualityTier  string     `json:"defaultAiQualityTier"`           // ultimate server-wide fallback (e.g. "medium")
-	FreeUseAiQualityTier  *string    `json:"freeUseAiQualityTier,omitempty"` // tier for system free-use key, nil = use default
-	PromptConstraintU13   *string    `json:"promptConstraintU13,omitempty"`  // constraint for users aged 13-17 without parental consent (u13)
-	PromptConstraintU13p  *string    `json:"promptConstraintU13p,omitempty"` // constraint for users aged 13-17 with parental consent (u13p)
-	PromptConstraintU18   *string    `json:"promptConstraintU18,omitempty"`  // constraint for users aged 18+ (u18)
+	ID                   uuid.UUID  `json:"id"`
+	CreatedAt            *time.Time `json:"createdAt"`
+	ModifiedAt           *time.Time `json:"modifiedAt"`
+	DefaultAiQualityTier string     `json:"defaultAiQualityTier"`           // ultimate server-wide fallback (e.g. "medium")
+	FreeUseAiQualityTier *string    `json:"freeUseAiQualityTier,omitempty"` // tier for system free-use key, nil = use default
+	PromptConstraintU13  *string    `json:"promptConstraintU13,omitempty"`  // constraint for users aged 13-17 without parental consent (u13)
+	PromptConstraintU13p *string    `json:"promptConstraintU13p,omitempty"` // constraint for users aged 13-17 with parental consent (u13p)
+	PromptConstraintU18  *string    `json:"promptConstraintU18,omitempty"`  // constraint for users aged 18+ (u18)
 	// PromptConstraintDefaults are the site's default rules, what a level the
 	// admin never set, or cleared, plays under.
 	PromptConstraintDefaults SiteRuleTexts `json:"promptConstraintDefaults"`
+	// SessionRetentionHours is how long a session not played is kept, in
+	// hours; 0 keeps every session.
+	SessionRetentionHours int        `json:"sessionRetentionHours"`
 	FreeUseApiKeyID       *uuid.UUID `json:"freeUseApiKeyId,omitempty"`
 	FreeUseApiKeyName     string     `json:"freeUseApiKeyName,omitempty"`
 	FreeUseApiKeyPlatform string     `json:"freeUseApiKeyPlatform,omitempty"`

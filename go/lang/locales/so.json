@@ -2604,6 +2604,12 @@
         },
         "unpriced": "Noocani kuma jiro jadwalka noocyada: kharashkiisa lama xisaabiyo, sheeko lagu sameeyana marnaba lama soo gaabiyo."
       },
+      "sessionRetention": {
+        "description": "Fadhiyada aan la ciyaarin muddadan dheer waa la tirtiraa. 0 wuxuu hayaa dhammaan fadhiyada.",
+        "hint": "Waxay dhaqan gelaysaa saacad gudaheed.",
+        "label": "Saacadood",
+        "title": "Muddada haynta fadhiyada"
+      },
       "tabs": {
         "ai": "AI iyo furayaal",
         "branding": "Muuqaalka degelka",

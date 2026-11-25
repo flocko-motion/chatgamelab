@@ -34,10 +34,6 @@ func Bootstrap(ctx context.Context) {
 }
 
 const (
-	// defaultSessionRetentionHours is how long a session survives its last
-	// activity: only the session of the game a player is playing is
-	// reachable, so anything idle beyond it is dead weight.
-	defaultSessionRetentionHours = 48
 	// sessionPurgeInterval is how often the purge runs after the first pass.
 	sessionPurgeInterval = time.Hour
 	// purgeBatchSize is how many sessions one purge statement deletes.
@@ -48,23 +44,19 @@ const (
 )
 
 // Janitor is the service that cleans up at start and then hourly: it purges
-// sessions idle beyond their retention window (forget drops a purged session
-// the engine still holds) and removes accounts left in sign-up beyond theirs.
-// SESSION_RETENTION_HOURS and SIGNUP_RETENTION_HOURS set the windows; 0
-// switches that purge off.
+// sessions idle beyond the site's retention window (forget drops a purged
+// session the engine still holds) and removes accounts left in sign-up
+// beyond theirs. The admin sets the session window in the site's settings,
+// read on every pass, so a change applies within the hour;
+// SIGNUP_RETENTION_HOURS sets the sign-up window. 0 switches that purge off.
 func Janitor(forget func(sessionID string)) func(context.Context) {
 	return func(ctx context.Context) {
-		sessions := retentionHours("SESSION_RETENTION_HOURS", defaultSessionRetentionHours)
 		signUps := retentionHours("SIGNUP_RETENTION_HOURS", defaultSignUpRetentionHours)
-		if sessions <= 0 && signUps <= 0 {
-			log.Info("janitor disabled", "env", "SESSION_RETENTION_HOURS=0, SIGNUP_RETENTION_HOURS=0")
-			return
-		}
-		log.Info("janitor enabled", "session_retention", sessions, "signup_retention", signUps, "interval", sessionPurgeInterval)
+		log.Info("janitor enabled", "signup_retention", signUps, "interval", sessionPurgeInterval)
 		ticker := time.NewTicker(sessionPurgeInterval)
 		defer ticker.Stop()
 		for {
-			if sessions > 0 {
+			if sessions := sessionRetention(ctx); sessions > 0 {
 				purgeExpiredSessions(ctx, sessions, forget)
 			}
 			if signUps > 0 {
@@ -102,6 +94,17 @@ func purgeExpiredSessions(ctx context.Context, retention time.Duration, forget f
 		return
 	}
 	log.Info("session purge completed", "purged", total, "cutoff", cutoff)
+}
+
+// sessionRetention is the site's session window as the admin set it; 0 when
+// it cannot be read, so no session goes on a failed read.
+func sessionRetention(ctx context.Context) time.Duration {
+	hours, err := store.Queries().V2SessionRetentionHours(ctx)
+	if err != nil {
+		log.Error("reading the session retention failed, no sessions purged", "error", err)
+		return 0
+	}
+	return time.Duration(hours) * time.Hour
 }
 
 // retentionHours reads a retention window from the environment; an

@@ -1919,6 +1919,12 @@
         "unpriced": "Ovaj model nema unos u tablici modela: njegovi se troškovi ne računaju, a priča na njemu nikad se ne skraćuje."
       },
       "notAuthorized": "Nemaš dopuštenje za pristup postavkama poslužitelja. Potreban je administratorski pristup.",
+      "sessionRetention": {
+        "description": "Sesije koje nisu igrane toliko dugo brišu se. 0 zadržava sve sesije.",
+        "hint": "Promjena stupa na snagu u roku od jednog sata.",
+        "label": "Sati",
+        "title": "Zadržavanje sesija"
+      },
       "tabs": {
         "ai": "Umjetna inteligencija i ključevi",
         "branding": "Izgled",

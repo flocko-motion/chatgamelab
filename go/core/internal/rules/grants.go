@@ -138,7 +138,8 @@ const (
 	Membership Entity = "membership"
 	// Site is the running platform itself, such as restarting the server.
 	Site Entity = "site"
-	// SiteSettings are the site's settings: its rules, tiers and free-use key.
+	// SiteSettings are the site's settings: its rules, tiers, free-use key and
+	// session retention.
 	SiteSettings Entity = "site settings"
 	// SiteRules are the site's youth-protection rules per age group.
 	SiteRules Entity = "site rules"

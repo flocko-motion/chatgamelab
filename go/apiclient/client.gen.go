@@ -2377,6 +2377,7 @@ type SystemSettings struct {
 	PromptConstraintU13      *string             `json:"promptConstraintU13,omitempty"`
 	PromptConstraintU13p     *string             `json:"promptConstraintU13p,omitempty"`
 	PromptConstraintU18      *string             `json:"promptConstraintU18,omitempty"`
+	SessionRetentionHours    int                 `json:"sessionRetentionHours"`
 }
 
 // ThemeInfo defines model for ThemeInfo.
@@ -2527,11 +2528,12 @@ type UpdateSiteBrandingReq struct {
 
 // UpdateSystemSettingsReq defines model for UpdateSystemSettingsReq.
 type UpdateSystemSettingsReq struct {
-	DefaultAiQualityTier *string `json:"defaultAiQualityTier,omitempty"`
-	FreeUseAiQualityTier *string `json:"freeUseAiQualityTier,omitempty"`
-	PromptConstraintU13  *string `json:"promptConstraintU13,omitempty"`
-	PromptConstraintU13p *string `json:"promptConstraintU13p,omitempty"`
-	PromptConstraintU18  *string `json:"promptConstraintU18,omitempty"`
+	DefaultAiQualityTier  *string `json:"defaultAiQualityTier,omitempty"`
+	FreeUseAiQualityTier  *string `json:"freeUseAiQualityTier,omitempty"`
+	PromptConstraintU13   *string `json:"promptConstraintU13,omitempty"`
+	PromptConstraintU13p  *string `json:"promptConstraintU13p,omitempty"`
+	PromptConstraintU18   *string `json:"promptConstraintU18,omitempty"`
+	SessionRetentionHours *int    `json:"sessionRetentionHours,omitempty"`
 }
 
 // UpdateUserReq defines model for UpdateUserReq.
@@ -4896,7 +4898,8 @@ type ClientInterface interface {
 	//
 	// Only the fields sent change. The default AI quality tier cannot be empty;
 	// an empty free-use tier clears it; a constraint emptied, or set to its
-	// default, is the default again. Answers with the settings as they apply.
+	// default, is the default again. The session retention is whole hours, 0 or
+	// more. Answers with the settings as they apply.
 	//
 	// Takes any type of body and a specified content type.
 	//
@@ -4907,7 +4910,8 @@ type ClientInterface interface {
 	//
 	// Only the fields sent change. The default AI quality tier cannot be empty;
 	// an empty free-use tier clears it; a constraint emptied, or set to its
-	// default, is the default again. Answers with the settings as they apply.
+	// default, is the default again. The session retention is whole hours, 0 or
+	// more. Answers with the settings as they apply.
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -8802,7 +8806,8 @@ func (c *Client) GetApiSystemSettings(ctx context.Context, reqEditors ...Request
 //
 // Only the fields sent change. The default AI quality tier cannot be empty;
 // an empty free-use tier clears it; a constraint emptied, or set to its
-// default, is the default again. Answers with the settings as they apply.
+// default, is the default again. The session retention is whole hours, 0 or
+// more. Answers with the settings as they apply.
 //
 // Takes any type of body and a specified content type.
 //
@@ -8823,7 +8828,8 @@ func (c *Client) PatchApiSystemSettingsWithBody(ctx context.Context, contentType
 //
 // Only the fields sent change. The default AI quality tier cannot be empty;
 // an empty free-use tier clears it; a constraint emptied, or set to its
-// default, is the default again. Answers with the settings as they apply.
+// default, is the default again. The session retention is whole hours, 0 or
+// more. Answers with the settings as they apply.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -18984,7 +18990,8 @@ type ClientWithResponsesInterface interface {
 	//
 	// Only the fields sent change. The default AI quality tier cannot be empty;
 	// an empty free-use tier clears it; a constraint emptied, or set to its
-	// default, is the default again. Answers with the settings as they apply.
+	// default, is the default again. The session retention is whole hours, 0 or
+	// more. Answers with the settings as they apply.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -18995,7 +19002,8 @@ type ClientWithResponsesInterface interface {
 	//
 	// Only the fields sent change. The default AI quality tier cannot be empty;
 	// an empty free-use tier clears it; a constraint emptied, or set to its
-	// default, is the default again. Answers with the settings as they apply.
+	// default, is the default again. The session retention is whole hours, 0 or
+	// more. Answers with the settings as they apply.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -30354,7 +30362,8 @@ func (c *ClientWithResponses) GetApiSystemSettingsWithResponse(ctx context.Conte
 //
 // Only the fields sent change. The default AI quality tier cannot be empty;
 // an empty free-use tier clears it; a constraint emptied, or set to its
-// default, is the default again. Answers with the settings as they apply.
+// default, is the default again. The session retention is whole hours, 0 or
+// more. Answers with the settings as they apply.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -30371,7 +30380,8 @@ func (c *ClientWithResponses) PatchApiSystemSettingsWithBodyWithResponse(ctx con
 //
 // Only the fields sent change. The default AI quality tier cannot be empty;
 // an empty free-use tier clears it; a constraint emptied, or set to its
-// default, is the default again. Answers with the settings as they apply.
+// default, is the default again. The session retention is whole hours, 0 or
+// more. Answers with the settings as they apply.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //

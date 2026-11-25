@@ -1514,6 +1514,7 @@ export interface SystemSettings {
   promptConstraintU13?: string;
   promptConstraintU13p?: string;
   promptConstraintU18?: string;
+  sessionRetentionHours: number;
 }
 
 export interface ThemeInfo {
@@ -1648,6 +1649,7 @@ export interface UpdateSystemSettingsReq {
   promptConstraintU13?: string;
   promptConstraintU13p?: string;
   promptConstraintU18?: string;
+  sessionRetentionHours?: number;
 }
 
 export interface UpdateUserReq {
@@ -4731,7 +4733,7 @@ export class Api<
       }),
 
     /**
-     * @description Only the fields sent change. The default AI quality tier cannot be empty; an empty free-use tier clears it; a constraint emptied, or set to its default, is the default again. Answers with the settings as they apply.
+     * @description Only the fields sent change. The default AI quality tier cannot be empty; an empty free-use tier clears it; a constraint emptied, or set to its default, is the default again. The session retention is whole hours, 0 or more. Answers with the settings as they apply.
      *
      * @name PatchApiSystemSettings
      * @summary Updates the site-wide settings; admins only.

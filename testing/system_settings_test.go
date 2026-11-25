@@ -2,6 +2,7 @@ package testing
 
 import (
 	"testing"
+	"time"
 
 	"cgl/testing/testutil"
 
@@ -251,4 +252,86 @@ func (s *SystemSettingsTestSuite) TestSiteRulesStartAsTheDefaultAndGoBack() {
 	s.Equal(def, *settings.PromptConstraintU18)
 	s.Equal(0, s.DatabaseCount("SELECT count(*) FROM system_settings WHERE prompt_constraint_u18 IS NOT NULL"),
 		"the default's text stores nothing, so the default keeps applying")
+}
+
+// --- Session retention ---
+
+// retention sets the site's session retention, in hours.
+func (s *SystemSettingsTestSuite) retention(hours int) {
+	s.T().Helper()
+	settings := Must(s.DevUser().UpdateSystemSettings(testutil.SettingsUpdate{SessionRetentionHours: &hours}))
+	s.Require().Equal(hours, settings.SessionRetentionHours)
+}
+
+// session is a session of a fresh player.
+func (s *SystemSettingsTestSuite) session() string {
+	s.T().Helper()
+	player := s.CreateUser(testutil.Unique("idle"))
+	Must(player.AddApiKey("mock-"+testutil.Unique("k"), testutil.Unique("Key"), "mock"))
+	game := Must(player.UploadGame("alien-first-contact"))
+	return Must(player.CreateSession(testutil.ForGame(game.Id.String())))
+}
+
+// idleFor makes the sessions look not played for those many hours. The
+// backend restarts first: the engine stores a session it plays as it goes,
+// and after a restart it holds none.
+func (s *SystemSettingsTestSuite) idleFor(hours map[string]int) {
+	s.T().Helper()
+	s.RestartBackend()
+	for id, h := range hours {
+		s.SessionIdleFor(id, h)
+	}
+}
+
+// janitorPass restarts the backend, whose janitor makes its first pass at
+// start, and waits until done answers true.
+func (s *SystemSettingsTestSuite) janitorPass(done func() bool) {
+	s.T().Helper()
+	s.RestartBackend()
+	deadline := time.Now().Add(15 * time.Second)
+	for !done() && time.Now().Before(deadline) {
+		time.Sleep(200 * time.Millisecond)
+	}
+	s.Require().True(done(), "the janitor's pass is done")
+}
+
+// A site keeps sessions not played for 48 hours until the admin sets another
+// window.
+func (s *SystemSettingsTestSuite) TestSessionRetentionIs48HoursByDefault() {
+	s.Equal(48, Must(s.DevUser().GetSystemSettings()).SessionRetentionHours)
+}
+
+// The retention is whole hours, 0 or more.
+func (s *SystemSettingsTestSuite) TestSessionRetentionIsNeverNegative() {
+	hours := -1
+	_, err := s.DevUser().UpdateSystemSettings(testutil.SettingsUpdate{SessionRetentionHours: &hours})
+	s.Refused(err, testutil.CodeValidation)
+	s.Equal(48, Must(s.DevUser().GetSystemSettings()).SessionRetentionHours)
+}
+
+// The janitor deletes the sessions not played for the window the admin set.
+func (s *SystemSettingsTestSuite) TestTheJanitorDeletesSessionsByTheStoredWindow() {
+	defer s.retention(48)
+	s.retention(2)
+	stale, recent := s.session(), s.session()
+	s.idleFor(map[string]int{stale: 3, recent: 1})
+
+	s.janitorPass(func() bool { return !s.SessionStored(stale) })
+
+	s.True(s.SessionStored(recent), "a session played within the window stays")
+}
+
+// A window of 0 keeps every session.
+func (s *SystemSettingsTestSuite) TestRetentionZeroKeepsEverySession() {
+	defer s.retention(48)
+	s.retention(0)
+	old := s.session()
+	s.idleFor(map[string]int{old: 1000})
+	// the same pass removes sign-ups left for a day, after the sessions
+	signUp := s.CreateRegisteringUser()
+	s.SignUpStartedHoursAgo(signUp.ID, 25)
+
+	s.janitorPass(func() bool { return !s.AccountStored(signUp.ID) })
+
+	s.True(s.SessionStored(old), "with retention 0 the janitor deletes no session")
 }

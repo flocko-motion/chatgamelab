@@ -1919,6 +1919,12 @@
         "unpriced": "Este modelo no tiene ninguna entrada en la tabla de modelos: sus costes no se calculan y una historia basada en él nunca se acorta."
       },
       "notAuthorized": "No tienes permiso para acceder a la configuración del servidor. Se requiere acceso de administrador.",
+      "sessionRetention": {
+        "description": "Las sesiones que no se hayan jugado durante este tiempo se eliminarán. 0 conserva todas las sesiones.",
+        "hint": "Se aplica en el plazo de una hora.",
+        "label": "Horas",
+        "title": "Retención de sesiones"
+      },
       "tabs": {
         "ai": "IA y claves",
         "branding": "Identidad visual",

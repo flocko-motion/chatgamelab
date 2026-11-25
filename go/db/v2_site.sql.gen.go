@@ -70,7 +70,8 @@ SELECT
   prompt_constraint_u13p,
   prompt_constraint_u18,
   free_use_api_key_id,
-  branding
+  branding,
+  session_retention_hours
 FROM system_settings
 LIMIT 1
 `
@@ -89,8 +90,21 @@ func (q *Queries) V2GetSystemSettings(ctx context.Context) (SystemSetting, error
 		&i.PromptConstraintU18,
 		&i.FreeUseApiKeyID,
 		&i.Branding,
+		&i.SessionRetentionHours,
 	)
 	return i, err
+}
+
+const v2SessionRetentionHours = `-- name: V2SessionRetentionHours :one
+SELECT session_retention_hours FROM system_settings LIMIT 1
+`
+
+// The janitor's window, read on every pass (#556).
+func (q *Queries) V2SessionRetentionHours(ctx context.Context) (int32, error) {
+	row := q.db.QueryRowContext(ctx, v2SessionRetentionHours)
+	var session_retention_hours int32
+	err := row.Scan(&session_retention_hours)
+	return session_retention_hours, err
 }
 
 const v2UpdateDefaultAiQualityTier = `-- name: V2UpdateDefaultAiQualityTier :exec
@@ -152,6 +166,19 @@ SET
 
 func (q *Queries) V2UpdatePromptConstraintU18(ctx context.Context, promptConstraintU18 sql.NullString) error {
 	_, err := q.db.ExecContext(ctx, v2UpdatePromptConstraintU18, promptConstraintU18)
+	return err
+}
+
+const v2UpdateSessionRetentionHours = `-- name: V2UpdateSessionRetentionHours :exec
+UPDATE system_settings
+SET
+  session_retention_hours = $1,
+  modified_at = now()
+`
+
+// How long a session not played is kept, in hours (#556).
+func (q *Queries) V2UpdateSessionRetentionHours(ctx context.Context, hours int32) error {
+	_, err := q.db.ExecContext(ctx, v2UpdateSessionRetentionHours, hours)
 	return err
 }
 

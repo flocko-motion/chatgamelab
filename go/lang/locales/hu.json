@@ -1919,6 +1919,12 @@
         "unpriced": "Ennek a modellnek nincs bejegyzése a modelltáblázatban: a költségei nem kerülnek kiszámításra, és a rajta futó történet soha nem lesz lerövidítve."
       },
       "notAuthorized": "Nincs jogosultságod a szerverbeállításokhoz. Admin jogosultság szükséges.",
+      "sessionRetention": {
+        "description": "Azok a munkamenetek törlődnek, amelyeket ennyi ideje nem játszottak. A 0 az összes munkamenetet megőrzi.",
+        "hint": "Egy órán belül érvénybe lép.",
+        "label": "Óra",
+        "title": "Munkamenetek megőrzése"
+      },
       "tabs": {
         "ai": "MI és kulcsok",
         "branding": "Megjelenés",

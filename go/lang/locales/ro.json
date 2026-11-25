@@ -1922,6 +1922,12 @@
         "unpriced": "Acest model nu are o înregistrare în tabelul de modele: costurile sale nu sunt calculate, iar o poveste generată cu acesta nu va fi niciodată scurtată."
       },
       "notAuthorized": "Nu ai permisiunea de a accesa setările serverului. Este necesar acces de administrator.",
+      "sessionRetention": {
+        "description": "Sesiunile care nu au fost jucate de atât timp sunt șterse. 0 păstrează toate sesiunile.",
+        "hint": "Modificarea se aplică în decurs de o oră.",
+        "label": "Ore",
+        "title": "Păstrarea sesiunilor"
+      },
       "tabs": {
         "ai": "AI și chei",
         "branding": "Aspect",

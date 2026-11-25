@@ -1919,6 +1919,12 @@
         "unpriced": "Questo modello non ha una voce nella tabella dei modelli: i suoi costi non vengono calcolati e una storia che lo utilizza non viene mai abbreviata."
       },
       "notAuthorized": "Non hai il permesso di accedere alle impostazioni del server. È richiesto l'accesso amministratore.",
+      "sessionRetention": {
+        "description": "Le sessioni a cui non si gioca per questo periodo vengono eliminate. 0 mantiene tutte le sessioni.",
+        "hint": "La modifica ha effetto entro un'ora.",
+        "label": "Ore",
+        "title": "Conservazione delle sessioni"
+      },
       "tabs": {
         "ai": "IA e chiavi",
         "branding": "Aspetto",

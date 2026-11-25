@@ -368,6 +368,12 @@ func (s *PermissionMatrixTestSuite) TestInvitesAndSite() {
 		// the site's settings are the admin's
 		{"read the site's settings", []string{"admin"},
 			func(c *testutil.UserClient) error { _, err := c.GetSystemSettings(); return err }},
+		{"change how long the site keeps sessions", []string{"admin"},
+			func(c *testutil.UserClient) error {
+				hours := 48
+				_, err := c.UpdateSystemSettings(testutil.SettingsUpdate{SessionRetentionHours: &hours})
+				return err
+			}},
 		// so are its updates: the versions it may upgrade to, and the upgrade
 		{"see the site's updates", []string{"admin"},
 			func(c *testutil.UserClient) error { _, err := c.GetUpdates(); return err }},

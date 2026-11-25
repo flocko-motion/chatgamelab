@@ -7,6 +7,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { isAdmin } from "@/common/lib/roles";
 import { useServerSettings } from "../hooks/useServerSettings";
 import { SiteUpdates } from "./SiteUpdates";
+import { SessionRetentionSettings } from "./SessionRetentionSettings";
 import { SiteBranding } from "./SiteBranding";
 import { AiSettings } from "./AiSettings";
 import { YouthProtectionSettings } from "./YouthProtectionSettings";
@@ -54,7 +55,10 @@ export function ServerSettings() {
           </Tabs.List>
 
           <Tabs.Panel value="general" pt="lg">
-            <SiteUpdates />
+            <Stack gap="lg">
+              <SiteUpdates />
+              {state.loading ? <Centered /> : <SessionRetentionSettings state={state} />}
+            </Stack>
           </Tabs.Panel>
           <Tabs.Panel value="branding" pt="lg">
             <SiteBranding />
