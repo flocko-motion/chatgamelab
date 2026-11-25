@@ -1,5 +1,4 @@
 {
-  "_sourceHash": "511c1a97217e633a",
   "auth": {
     "ageGroup": {
       "description": "Esto nos ayuda a aplicar la protección y las directrices de contenido adecuadas a tu cuenta.",
@@ -39,12 +38,6 @@
         "message": "Espera mientras te redirigimos a la página de inicio de sesión.",
         "title": "Redirigiendo a Auth0..."
       },
-      "role": {
-        "admin": "Iniciar sesión como administrador",
-        "guest": "Iniciar sesión como invitado",
-        "student": "Iniciar sesión como estudiante",
-        "teacher": "Iniciar sesión como docente"
-      },
       "unavailable": {
         "message": "Esta instancia no ofrece inicio de sesión. Los invitados de un taller pueden introducir su código.",
         "title": "Inicio de sesión no disponible"
@@ -61,6 +54,7 @@
         "introExisting": "Vuestra organización «{{name}}» tiene ahora una declaración confirmada en línea. Esta sustituye al acuerdo de uso que firmasteis anteriormente. Léela y acéptala en nombre de vuestra institución.",
         "introNewVersion": "La declaración se ha actualizado (versión {{version}}). Lee la nueva versión y acéptala en nombre de vuestra organización «{{name}}».",
         "introWithdrawn": "Se retiró el consentimiento de tu organización «{{name}}» a la declaración, por lo que está suspendida. Lee la declaración y acepta en nombre de tu institución para volver a usar {{siteName}}.",
+        "later": "Más tarde",
         "logout": "Cerrar sesión",
         "oneHeadIsEnough": "Es suficiente con que una persona responsable de la organización acepte. Hasta entonces, tu organización estará suspendida: sus miembros no podrán usar {{siteName}}.",
         "submit": "Aceptar",
@@ -123,23 +117,8 @@
         "tooLong": "Máximo {{max}} caracteres. Acorta el texto o elige una sugerencia."
       }
     },
-    "participant": {
-      "leaveConfirm": {
-        "confirm": "Salir del taller",
-        "message": "¿Seguro que quieres salir de este taller? Necesitarás un nuevo enlace de invitación para volver a unirte.",
-        "title": "¿Salir del taller?"
-      },
-      "leaveWorkshop": "Salir del taller",
-      "organization": "Organización",
-      "role": "Participante del taller",
-      "workshop": "Taller"
-    },
     "profile": {
-      "ageGroup": "Grupo de edad",
-      "ageGroupDescription": "Determina qué directrices de contenido se aplican a tus juegos. Puedes cambiarlo en cualquier momento.",
       "ageGroupSection": "Grupo de edad y protección",
-      "ageGroupU13": "13-17 años",
-      "ageGroupU18": "18+",
       "gamesCreated": "Juegos creados",
       "gamesPlayed": "Partidas jugadas",
       "guestCode": {
@@ -154,19 +133,12 @@
       "noRole": "Sin rol asignado",
       "organization": "Organización",
       "organizationSection": "Organización y rol",
-      "participantCode": {
-        "error": "No se pudo cargar tu código de acceso.",
-        "hint": "Haz una foto de este código o anótalo, y no se lo muestres a nadie. Te permite volver a entrar en tu cuenta en cualquier momento y desde cualquier dispositivo: introduce las palabras en «Introducir código» en la página de inicio o escanea el código QR.",
-        "longTokenHint": "Haz una foto del código QR o guarda el enlace, y no se lo muestres a nadie. Te permite volver a entrar en tu cuenta en cualquier momento. La persona responsable del taller puede darte un código corto de cuatro palabras restableciendo tu acceso.",
-        "title": "Tu código de acceso"
-      },
       "role": "Rol",
       "roles": {
         "admin": "Administrador",
         "guest": "Invitado",
         "head": "Responsable de la organización",
         "individual": "Individual",
-        "participant": "Participante",
         "staff": "Líder de taller"
       },
       "statisticsSection": "Estadísticas",
@@ -175,12 +147,6 @@
       "workshopSection": "Taller y organización"
     },
     "register": {
-      "ageGroupLabel": "Grupo de edad",
-      "ageGroupRequired": "Por favor, selecciona tu grupo de edad",
-      "ageGroupU13": "13-17 años",
-      "ageGroupU18": "18 o más",
-      "ageGroupUnder13": "Menos de 13",
-      "ageGroupUnder13Error": "Debes tener al menos 13 años para usar ChatGameLab.",
       "cancelButton": "Cancelar",
       "emailDescription": "Opcional. Usaremos este correo para notificaciones importantes.",
       "emailLabel": "Correo electrónico",
@@ -211,25 +177,6 @@
       "continueButton": "Continuar con el registro",
       "description": "Usamos Auth0 como nuestro proveedor de autenticación para administrar cuentas de usuario. Serás redirigido a Auth0 para crear tu cuenta y luego volverás aquí para completar tu perfil.",
       "educatorDescription": "Usa {{siteName}} en talleres, aulas o en tu organización",
-      "educatorModal": {
-        "closeButton": "Cerrar",
-        "copied": "¡Copiado!",
-        "copyEmail": "Copiar correo electrónico",
-        "eduInfo": "Más información sobre el uso de ChatGameLab con fines educativos:",
-        "intro": "Para usar ChatGameLab con tu organización (escuela, universidad, institución), sigue estos pasos:",
-        "registerButton": "Crear cuenta personal",
-        "step1": "1. Crea una cuenta personal",
-        "step1Description": "Crea primero tu cuenta personal. Será tu acceso a la plataforma.",
-        "step2": "2. Envíanos un correo electrónico",
-        "step2Description": "Escribe un correo a",
-        "step2Item1": "Tu dirección de correo registrada",
-        "step2Item2": "El nombre de tu organización (escuela, institución, etc.)",
-        "step2WithInfo": "con:",
-        "step3": "3. Configuraremos tu organización",
-        "step3Description": "Crearemos tu organización y te asignaremos como responsable. Podrás invitar a colegas y organizar talleres.",
-        "title": "Acceso para educadores y profesionales"
-      },
-      "educatorTitle": "Educador / Profesional",
       "individualDescription": "Crea y juega aventuras de texto impulsadas por IA",
       "individualTitle": "Cuenta personal",
       "loginLink": "Iniciar sesión",
@@ -245,11 +192,6 @@
     },
     "settings": {
       "accountSection": "Cuenta",
-      "ageGroupDescription": "Determina qué directrices de contenido se aplican a tus juegos.",
-      "ageGroupLabel": "Grupo de edad",
-      "ageGroupU13": "13-17 años",
-      "ageGroupU18": "18 o más",
-      "emailChangeNote": "Para cambiar tu dirección de correo, contacta al administrador del sitio.",
       "emailDescription": "Opcional. Las organizaciones te invitan a través de ella; ninguna otra cuenta puede usarla.",
       "emailLabel": "Correo electrónico",
       "emailPlaceholder": "tu@ejemplo.org",
@@ -288,9 +230,7 @@
           "title": "Eliminar invitación"
         },
         "role": "Rol",
-        "searchPlaceholder": "Busca por correo, rol, estado u organización...",
         "sort": {
-          "label": "Ordenar por",
           "modifiedAt-asc": "Modificado (más antiguo)",
           "modifiedAt-desc": "Modificado (más reciente)",
           "organization-asc": "Organización (A-Z)",
@@ -347,7 +287,6 @@
         "postalCode": "Código postal",
         "removeMember": "Eliminar miembro",
         "removeMemberConfirm": "¿Seguro que quieres eliminar a {{name}} de esta organización?",
-        "searchPlaceholder": "Buscar organizaciones...",
         "sendInvite": "Enviar invitación",
         "status": "Estado y consentimiento",
         "statusActive": "Activa",
@@ -364,16 +303,6 @@
         "title": "Administrar organizaciones"
       },
       "registrations": {
-        "bell": {
-          "empty": "Ninguna organización se ha registrado en las últimas dos semanas.",
-          "intro_one": "Esta organización se ha registrado en las últimas dos semanas y ya está activada.",
-          "intro_other": "Estas {{count}} organizaciones se han registrado en las últimas dos semanas y ya están activadas.",
-          "label": "Organizaciones nuevas",
-          "later": "Más tarde",
-          "open": "Ir al resumen",
-          "suspendHint": "Actualmente no se confirman las direcciones de correo electrónico. Revisa brevemente las organizaciones nuevas y suspéndelas desde el resumen si algo no está bien.",
-          "title": "Organizaciones nuevas"
-        },
         "date": "Registrada",
         "description": "Organizaciones que se han registrado por sí mismas en las últimas dos semanas. Se activan de inmediato, sin confirmar la dirección de correo electrónico; revísalas y suspende alguna si algo no está bien.",
         "empty": "Ninguna organización se ha registrado por sí misma en las últimas dos semanas.",
@@ -396,8 +325,6 @@
           "all": "Todos los usuarios",
           "noGuests": "Sin invitados"
         },
-        "hideGuests": "Ocultar invitados ({{count}})",
-        "hideGuestsShort": "Invitados ({{count}})",
         "joined": "Se unió",
         "loadError": "No se pudieron cargar los usuarios",
         "makeAdmin": "Hacer administrador",
@@ -415,8 +342,6 @@
         "removeAdminTitle": "Quitar rol de administrador",
         "removeAdminWarning": "Este usuario perderá todos los privilegios administrativos.",
         "role": "Rol",
-        "searchPlaceholder": "Buscar por nombre, correo, rol u organización...",
-        "showing": "Mostrando {{count}} de {{total}} usuarios",
         "signUpInProgress": "Registro en curso",
         "signingUp": "Registrándose",
         "sort": {
@@ -424,7 +349,6 @@
           "email-desc": "Correo (Z-A)",
           "joined-asc": "Fecha de ingreso (más antiguo)",
           "joined-desc": "Fecha de ingreso (más reciente)",
-          "label": "Ordenar por",
           "name-asc": "Nombre (A-Z)",
           "name-desc": "Nombre (Z-A)",
           "organization-asc": "Organización (A-Z)",
@@ -458,7 +382,6 @@
       "high": "Alta",
       "label": "Nivel de calidad de IA",
       "low": "Económica",
-      "max": "Máxima (Premium + Audio)",
       "medium": "Equilibrada",
       "newSessionsOnly": "Este nivel se aplica solo a las sesiones nuevas. Las sesiones existentes conservan el nivel con el que comenzaron.",
       "serverDefault": "Predeterminado del servidor"
@@ -470,7 +393,6 @@
         "message": "Esto creará una copia de «{{name}}» en tus juegos.",
         "title": "Copiar juego"
       },
-      "copyGame": "Copiar juego",
       "empty": {
         "conditions": {
           "favorites": "uno de tus favoritos",
@@ -581,8 +503,6 @@
         "toggle": "Compartir y patrocinar",
         "unknownGame": "Juego desconocido",
         "unknownOrg": "Organización desconocida",
-        "unknownUser": "Usuario desconocido",
-        "unknownWorkshop": "Taller desconocido",
         "unlimited": "Usos ilimitados"
       },
       "sort": {
@@ -639,24 +559,9 @@
     },
     "error": "Error",
     "footer": {
-      "copyright": "JFF - Institut für Medienpädagogik",
-      "jffTitle": "JFF - Institute for Educational Research and Innovation",
       "programmedBy": "Programado por"
     },
-    "gamePlayer": {
-      "rebuilding": {
-        "description": "Aquí podrás volver a jugar pronto.",
-        "title": "La vista del juego se está reconstruyendo"
-      }
-    },
     "games": {
-      "actions": {
-        "delete": "Eliminar",
-        "edit": "Editar",
-        "export": "Exportar",
-        "play": "Jugar",
-        "view": "Ver"
-      },
       "badges": {
         "myGame": "Mi juego",
         "public": "Público",
@@ -686,7 +591,6 @@
         "namePlaceholder": "p. ej., Aventura espacial",
         "publicDescription": "Los juegos públicos son visibles y jugables por todos los usuarios de esta plataforma.",
         "publicLabel": "Hacer público este juego",
-        "publicOwnerOnly": "Solo la persona creadora del juego puede hacerlo público.",
         "submit": "Crear juego",
         "title": "Crear juego nuevo"
       },
@@ -915,8 +819,7 @@
           "status": {
             "builtIn": "Aún no hay descripción: el juego habla con una voz integrada hasta que describas la voz.",
             "cast": "Al comenzar el juego, se elige la voz integrada del tipo seleccionado que mejor encaje con la historia. La descripción determina cómo habla.",
-            "ownVoice": "Una voz propia para esta descripción, creada con tu clave de IA.",
-            "steered": "Una voz integrada lee la historia siguiendo lo que indica la descripción."
+            "ownVoice": "Una voz propia para esta descripción, creada con tu clave de IA."
           },
           "stop": "Detener la muestra"
         },
@@ -957,10 +860,6 @@
         "titleView": "Juego",
         "untitled": "Juego sin título"
       },
-      "empty": {
-        "description": "Crea tu primer juego para empezar con aventuras interactivas impulsadas por IA.",
-        "title": "Aún no hay juegos"
-      },
       "errors": {
         "loadFailed": "No se pudieron cargar los juegos. Inténtalo de nuevo.",
         "nameRequired": "El nombre del juego es obligatorio",
@@ -975,7 +874,6 @@
       "fields": {
         "created": "Creado",
         "creator": "Creador",
-        "me": "Yo",
         "modified": "Modificado",
         "name": "Nombre",
         "playCount": "Partidas",
@@ -984,9 +882,7 @@
       "genres": {
         "adventure": "Aventura",
         "discussion": "Debate",
-        "npc": "Personaje",
-        "npc-duo": "Debate",
-        "npc-live": "Personaje"
+        "npc": "Personaje"
       },
       "importExport": {
         "coverFailed": "El juego se ha importado, pero no se ha podido comprobar su portada. Puedes hacer que se genere una nueva en el editor.",
@@ -1002,7 +898,6 @@
         "importButton": "Importar juego"
       },
       "newGame": "Juego nuevo",
-      "playNow": "Jugar ahora",
       "privacyHint": "El nombre y la descripción de un juego pueden hacerse públicos. No uses nombres reales.",
       "privacyHintShort": "Puede hacerse público; no uses nombres reales.",
       "privateShare": {
@@ -1050,12 +945,10 @@
         "active": "Activo",
         "privateShareLink": "Enlace privado para compartir",
         "privateShareLinkDescription": "Los enlaces privados pueden compartirse con otras personas. Cualquiera con el enlace puede jugar el juego de forma anónima sin una cuenta. Debe seleccionarse una clave API para cubrir los costos.",
-        "publicGameWorkshopHint": "Este es un juego público y no forma parte de tu taller. Las opciones para compartir no están disponibles para juegos públicos en modo taller.",
         "publicSponsoring": "Patrocinio público",
         "publicSponsoringDescription": "Todos los usuarios de la plataforma pueden jugar este juego gratis: tu clave API asignada cubre el costo.",
         "sectionTitle": "Opciones para compartir",
-        "sectionTitleShareOnly": "Opciones para compartir",
-        "workshopShareRequiresPublic": "Este juego debe ser público antes de poder compartirlo en el taller."
+        "sectionTitleShareOnly": "Opciones para compartir"
       },
       "sort": {
         "createdAt-asc": "Creado (más antiguo)",
@@ -1165,7 +1058,6 @@
           "zombie": "Zombi"
         }
       },
-      "title": "Mis juegos creados",
       "viewModal": {
         "readOnlyNotice": "Este juego fue creado por otro usuario. Puedes ver los detalles, pero no editarlos. Usa «Copiar» para crear tu propia versión editable.",
         "title": "Detalles del juego"
@@ -1193,25 +1085,6 @@
     "help": "Ayuda",
     "home": {
       "codeCta": "Introducir código",
-      "features": {
-        "create": {
-          "description": "Diseña aventuras de texto interactivas impulsadas por IA",
-          "title": "Crea aventuras"
-        },
-        "learn": {
-          "description": "Perfecto para talleres educativos y actividades en el aula",
-          "title": "Aprende y enseña"
-        },
-        "play": {
-          "description": "Únete a amigos en sesiones de narración colaborativa",
-          "title": "Jueguen juntos"
-        },
-        "title": "¿Por qué elegir ChatGameLab?",
-        "understand": {
-          "description": "Explora cómo los modelos de IA crean historias y aprende cómo funcionan",
-          "title": "Comprende la IA"
-        }
-      },
       "loginCta": "Iniciar sesión y explorar",
       "splashDescription": "Una plataforma educativa para crear y jugar juegos de aventuras de texto con IA. Perfecta para docentes, estudiantes y narradores creativos."
     },
@@ -1248,19 +1121,9 @@
       "guest": {
         "loggingIn": "Iniciando sesión..."
       },
-      "participant": {
-        "loggingIn": "Iniciando sesión..."
-      },
       "success": {
         "message": "Te has unido al taller correctamente. Redirigiendo...",
         "title": "¡Bienvenido!"
-      },
-      "switchWorkshop": {
-        "message": "Tus juegos y progreso del taller actual permanecerán, pero no podrás acceder a ellos hasta que te reincorpores.",
-        "stayButton": "Permanecer en el taller actual",
-        "switchButton": "Cambiar de taller",
-        "title": "¿Cambiar de taller?",
-        "warning": "Actualmente estás en el taller «{{currentWorkshop}}». Unirte a «{{newWorkshop}}» te sacará del taller actual."
       }
     },
     "labels": {
@@ -1295,31 +1158,25 @@
     "logout": "Cerrar sesión",
     "me": "Yo",
     "myGames": {
-      "continue": "Jugar",
       "copyConfirm": {
         "confirm": "Copiar juego",
         "message": "Esto creará una copia de «{{name}}» en tus juegos.",
         "title": "Copiar juego"
       },
-      "copyGame": "Copiar juego",
       "empty": {
         "description": "Crea tu primer juego para empezar con aventuras interactivas con IA.",
         "title": "Aún no hay juegos"
       },
-      "favorite": "Añadir a favoritos",
       "filters": {
         "all": "Todos",
         "favorites": "Favoritos"
       },
-      "play": "Jugar",
-      "restart": "Reiniciar",
       "restartConfirm": {
         "confirm": "Reiniciar",
         "message": "¿Seguro que quieres reiniciar \"{{game}}\"? Perderás tu progreso actual.",
         "title": "Reiniciar juego"
       },
-      "title": "Mis juegos",
-      "unfavorite": "Quitar de favoritos"
+      "title": "Mis juegos"
     },
     "myOrganization": {
       "actions": "Acciones",
@@ -1331,7 +1188,6 @@
         "allPlatforms": "Todas las plataformas",
         "allowPublicSponsoring": "Permitir patrocinio público",
         "allowPublicSponsoringDesc": "Esta clave puede usarse para patrocinar juegos para todos los usuarios.",
-        "filterByPlatform": "Filtrar por plataforma",
         "freeUseKey": {
           "description": "Configura una clave de uso gratuito para permitir que todos los miembros de la organización jueguen sin necesitar su propia clave API.",
           "remove": "Quitar",
@@ -1351,13 +1207,10 @@
         "platform": "Plataforma",
         "publicSponsoring": "Patrocinio público",
         "removeShare": "Eliminar de la organización",
-        "searchPlaceholder": "Buscar por nombre o propietario...",
         "selectKey": "Seleccionar clave API",
         "selectKeyPlaceholder": "Elige una clave para compartir...",
         "share": "Compartir",
-        "shareKey": "Compartir clave",
         "shareKeyTitle": "Añadir una clave API a la organización",
-        "showDetails": "Mostrar detalles",
         "title": "Claves API de la organización"
       },
       "autoShare": {
@@ -1367,7 +1220,10 @@
         "personalKeyGroup": "Claves personales"
       },
       "declaration": {
+        "agree": "Leer y aceptar",
         "consented": "Vuestra organización aceptó la versión {{version}} el {{date}}.",
+        "goAgree": "Ir a la organización",
+        "newVersion": "Hay una nueva versión {{version}} de la declaración de consentimiento. Vuestra organización sigue activa; leedla y aceptadla en su nombre.",
         "title": "Declaración de consentimiento",
         "withdraw": "Retirar consentimiento",
         "withdrawConfirm": "Sin el consentimiento, tu organización queda suspendida: ningún miembro podrá usar {{siteName}} hasta que una persona responsable vuelva a aceptar. Sus datos se conservarán.",
@@ -1385,9 +1241,6 @@
       "inviteTeacher": "Invitar docente",
       "inviteTeacherDescription": "Envía una invitación a un docente para unirse a tu organización.",
       "inviteTeacherTitle": "Invitar docente",
-      "inviteUser": "Invitar usuario",
-      "inviteUserDescription": "Envía una invitación a un usuario para unirse a tu organización sin un rol específico.",
-      "inviteUserTitle": "Invitar usuario",
       "lastHeadError": "Eres el último responsable de esta organización. Contacta con los administradores del sitio si necesitas salir.",
       "leaveConfirm": "¿Seguro que quieres salir de «{{name}}»?",
       "leaveError": "No se pudo salir de la organización. Inténtalo de nuevo.",
@@ -1454,7 +1307,6 @@
       "removeTitle": "Eliminar miembro",
       "removeWarning": "Este usuario perderá acceso a la organización.",
       "role": "Rol",
-      "searchPlaceholder": "Buscar miembros...",
       "showing": "{{count}} miembros",
       "sort": {
         "label": "Ordenar por",
@@ -1492,20 +1344,12 @@
         "active": "Activo",
         "activeDescription": "Los talleres activos permiten que los participantes se unan y creen juegos.",
         "activeLabel": "Activo",
-        "addIndividual": "Añadir miembro de la organización",
         "addIndividualError": "No se pudo añadir al miembro al taller.",
-        "addIndividualHint": "Añadir un usuario lo colocará automáticamente en modo taller. Verá la vista del taller en lugar de su panel habitual. Hazlo solo si es lo previsto.",
-        "addIndividualStaffNote": "Los responsables y docentes deben unirse a los talleres por su cuenta desde la lista de talleres; no aparecen aquí.",
-        "addIndividualSuccess": "Miembro añadido",
-        "addIndividualSuccessMessage": "Se ha añadido a {{name}} al taller.",
-        "addIndividualTitle": "Añadir persona al taller",
         "addToWorkshop": "Añadir al taller",
         "aiQualityTierHint": "Nivel de calidad para las respuestas de IA. Los niveles más altos cuestan más pero pueden tener mayor calidad. Vacío usa el valor predeterminado del servidor.",
         "allowGameSharing": "Permitir compartir juegos",
         "allowGameSharingHint": "Cuando está habilitado, los participantes pueden crear enlaces compartidos para sus juegos usando la clave API del taller.",
-        "anonymousParticipant": "Participante anónimo",
         "create": "Crear taller",
-        "createFirst": "Crea tu primer taller",
         "createInviteLink": "Crear enlace de invitación",
         "createTitle": "Crear taller",
         "deactivate": "Desactivar",
@@ -1528,10 +1372,8 @@
         "inviteByEmailSuccessMessage": "Se ha creado una invitación. El usuario la verá en sus invitaciones pendientes.",
         "inviteByEmailTitle": "Invitar a un usuario al taller",
         "inviteCreatedAt": "Creado",
-        "inviteDescription": "Genera un enlace de invitación para que los participantes se unan a este taller.",
         "inviteExpiresAt": "Expira",
         "inviteLink": "Enlace de invitación",
-        "inviteLinkDescription": "Comparte este enlace con los participantes para que se unan al taller.",
         "inviteLinkTitle": "Enlace de invitación para participantes; {{name}}",
         "inviteUsage": "Uso",
         "isPaused": "Pausar taller",
@@ -1547,14 +1389,11 @@
         "noDefaultModel": "Usar predeterminado de la plataforma",
         "noGuestToken": "Este miembro no tiene un enlace para volver a iniciar sesión. Solo los invitados tienen uno.",
         "noIndividuals": "No hay usuarios individuales en esta organización.",
-        "noParticipantToken": "Este participante no tiene enlace de invitación. Solo los participantes anónimos (invitados) tienen enlaces reutilizables.",
         "noParticipants": "Sin participantes aún",
         "noResults": "Ningún taller coincide con tu búsqueda o filtro.",
         "notAuthorized": "No tienes permiso para gestionar talleres. Solo responsables y docentes pueden acceder a esta página.",
         "participantGames": "{{count}} juegos",
         "participantJoined": "Se unió el {{date}}",
-        "participantLinkTitle": "Enlace para volver a iniciar sesión",
-        "participantLinkTitleNamed": "Enlace para volver a iniciar sesión para {{name}}",
         "participantName": "Nombre del participante",
         "participants": "Participantes",
         "promptConstraintsFallbackOrg": "Se utiliza como configuración predeterminada la norma de protección de menores de la organización: {{constraint}}",
@@ -1578,7 +1417,6 @@
         "selectApiKey": "Selecciona una clave API",
         "settings": "Configuración",
         "shareGuestLink": "Mostrar enlace para volver a iniciar sesión",
-        "shareParticipantLink": "Mostrar enlace para volver a iniciar sesión",
         "showOtherParticipantsGames": "Mostrar los juegos de otros participantes",
         "showOtherParticipantsGamesHint": "La dirección y el personal siempre pueden ver todos los juegos de los participantes para moderarlos",
         "showPublicGames": "Mostrar juegos públicos a los participantes",
@@ -1612,7 +1450,6 @@
       "decline": "Rechazar",
       "declineConfirm": "¿Seguro que quieres rechazar esta invitación?",
       "declineTitle": "Rechazar invitación",
-      "empty": "No hay notificaciones nuevas.",
       "inviteDescription": "Te han invitado a unirte como {{role}}.",
       "inviteToJoin": "Invitación a la organización",
       "nothingNew": "Nada nuevo",
@@ -1761,6 +1598,7 @@
           "educatorInfoUrl": "Información para educadores",
           "gameTipsUrl": "Consejos para crear juegos",
           "helpUrl": "Ayuda",
+          "operatorLegalName": "Nombre legal del operador (para textos legales)",
           "operatorName": "Operador",
           "operatorUrl": "Sitio web del operador",
           "privacyUrl": "Política de privacidad",
@@ -1787,13 +1625,10 @@
         "title": "Normas de protección de menores por grupo de edad",
         "u13Hint": "Se inyecta en cada solicitud de IA para los usuarios con sesión iniciada de 13 a 17 años sin consentimiento parental registrado.",
         "u13Label": "Norma de protección de menores para usuarios de 13 a 17 años, sin consentimiento parental (U13)",
-        "u13Placeholder": "p. ej. Mantén todo el contenido estrictamente adecuado para adolescentes. Sin violencia, sin contenido romántico, sin temas de terror.",
         "u13pHint": "Se inyecta en cada solicitud de IA para los usuarios con sesión iniciada de 13 a 17 años con consentimiento parental registrado.",
         "u13pLabel": "Norma de protección de menores para usuarios de 13 a 17 años, con consentimiento parental (U13p)",
-        "u13pPlaceholder": "p. ej. Contenido adecuado para la edad de adolescentes cuyos padres han dado su consentimiento. Se permiten algunos temas maduros, sin contenido explícito.",
         "u18Hint": "Se inyecta en cada solicitud a la IA para usuarios conectados de 18 años o más.",
-        "u18Label": "Norma de protección de menores para usuarios mayores de 18 años (U18)",
-        "u18Placeholder": "p. ej. Mantén el contenido apropiado. Evita la violencia explícita o el contenido sexual."
+        "u18Label": "Norma de protección de menores para usuarios mayores de 18 años (U18)"
       },
       "defaultTier": {
         "description": "Nivel de calidad predeterminado del servidor cuando no se configura uno específico en el taller, institución o usuario. Los niveles más altos cuestan más pero pueden tener mejor calidad.",
@@ -1814,6 +1649,26 @@
       "freeUseTier": {
         "description": "Nivel de calidad usado cuando está activa la clave API de uso gratuito. Los niveles más altos cuestan más pero pueden ofrecer mejor calidad. Déjalo vacío para usar el nivel predeterminado.",
         "title": "Nivel de calidad de IA para clave de uso gratuito"
+      },
+      "mail": {
+        "clearPassword": "Quitar contraseña",
+        "consentCopy": "Copias de los consentimientos a",
+        "consentCopyHint": "Recibe una copia del consentimiento de cada organización. Vacío: el correo de soporte.",
+        "description": "El servidor a través del cual {{siteName}} envía correos, por ejemplo la confirmación del consentimiento de una organización. Sin servidor, los correos solo se escriben en el registro.",
+        "from": "Remitente",
+        "fromHint": "Vacío: el usuario es el remitente.",
+        "fromPlaceholder": "Nombre \u003cnoreply@example.org\u003e",
+        "host": "Servidor",
+        "hostHint": "Solo el nombre del host, sin puerto. Vacío: los correos solo se registran.",
+        "password": "Contraseña",
+        "passwordNone": "No hay ninguna contraseña guardada.",
+        "passwordSet": "Hay una contraseña guardada. Déjalo vacío para conservarla.",
+        "port": "Puerto",
+        "portHint": "587 con STARTTLS, 465 con TLS.",
+        "save": "Guardar",
+        "saveFailed": "No se ha podido guardar. Revisa los campos.",
+        "title": "Servidor de correo",
+        "user": "Usuario"
       },
       "models": {
         "assign": {
@@ -1929,6 +1784,7 @@
         "ai": "IA y claves",
         "branding": "Identidad visual",
         "general": "General",
+        "mail": "Correo",
         "models": "Modelos de IA",
         "youthProtection": "Protección de menores"
       },
@@ -1994,49 +1850,6 @@
     }
   },
   "dashboard": {
-    "cards": {
-      "externalLinks": {
-        "edu": {
-          "description": "Trabajo de pedagogía mediática con ChatGameLab",
-          "title": "Acerca de ChatGameLab"
-        },
-        "jff": {
-          "description": "Coordinador del proyecto y organización líder.",
-          "title": "JFF – Institut für Medienpädagogik"
-        },
-        "mainSite": {
-          "description": "Conoce más sobre el proyecto educativo detrás de esta plataforma.",
-          "title": "Proyecto ChatGameLab"
-        },
-        "title": "Acerca de ChatGameLab"
-      },
-      "lastPlayed": {
-        "empty": "Aún no hay historial de partidas. ¡Empieza a jugar!",
-        "title": "Jugado recientemente",
-        "viewAll": "Todos los juegos"
-      },
-      "myGames": {
-        "empty": "Sin juegos aún. ¡Crea tu primer juego!",
-        "title": "Mis juegos",
-        "viewAll": "Todas las creaciones"
-      },
-      "myWorkshops": {
-        "empty": "No hay talleres activos. ¡Crea uno en tu organización!",
-        "title": "Mis talleres",
-        "viewAll": "Todos los talleres"
-      },
-      "newGames": {
-        "empty": "No hay juegos disponibles todavía.",
-        "title": "Juegos nuevos",
-        "viewAll": "Todos los juegos"
-      },
-      "popularGames": {
-        "empty": "No hay juegos disponibles todavía.",
-        "plays": "{{count}} partidas",
-        "title": "Juegos populares",
-        "viewAll": "Todos los juegos"
-      }
-    },
     "continue": {
       "go": "Continuar",
       "hint": "retoma la partida donde la dejaste",
@@ -2045,15 +1858,14 @@
       "title": "Continuar el juego"
     },
     "fresh": {
-      "by": "por {{name}}",
       "empty": "Todavía no hay juegos nuevos.",
       "title": "Juegos nuevos",
       "viewAll": "Ver la galería"
     },
     "hero": {
       "create": "Crear",
-      "greeting": "Hola, {{name}}. ¿Qué vamos a \u0003cmark\u0003construir\u0003c/mark\u0003 hoy?",
-      "greetingNoName": "Hola. ¿Qué vamos a \u0003cmark\u0003construir\u0003c/mark\u0003 hoy?",
+      "greeting": "Hola, {{name}}. ¿Qué vamos a \u003cmark\u003econstruir\u003c/mark\u003e hoy?",
+      "greetingNoName": "Hola. ¿Qué vamos a \u003cmark\u003econstruir\u003c/mark\u003e hoy?",
       "journal": "Diario del laboratorio · {{date}}",
       "promptLabel": "Describe una idea para un juego",
       "promptPlaceholder": "Describe una idea para un juego… la IA te ayudará a desarrollarla"
@@ -2066,8 +1878,7 @@
     },
     "links": {
       "about": "Sobre {{siteName}}",
-      "educators": "Para educadores",
-      "jff": "JFF – Instituto de Pedagogía de los Medios"
+      "educators": "Para educadores"
     },
     "ownGames": {
       "empty": "Todavía no hay juegos. ¡Describe una idea arriba y crea el primero!",
@@ -2080,15 +1891,6 @@
       "plays_other": "{{count}} partidas",
       "title": "Más populares"
     },
-    "quickActions": {
-      "createNewGame": "Crear juego nuevo",
-      "createWorkshop": "Crear taller",
-      "importGame": "Importar juego",
-      "inviteMembers": "Invitar miembros",
-      "startNewGame": "Iniciar juego nuevo",
-      "title": "Acciones rápidas"
-    },
-    "someone": "alguien",
     "untitled": "Sin título",
     "untitledGame": "Juego sin título",
     "version": {
@@ -2190,10 +1992,8 @@
     "filters": {
       "all": "Todos los juegos",
       "mine": "Mis juegos",
-      "public": "Juegos públicos",
-      "workshop": "Juegos del taller"
+      "public": "Juegos públicos"
     },
-    "gameType": "Juego",
     "infoModal": {
       "body": "Has entrado en el modo taller. Mientras estés en este modo, todo lo que hagas estará vinculado a este taller: los juegos que crees, las sesiones de juego y los enlaces compartidos.\n\nPuedes salir en cualquier momento. Salir no finalizará el taller ni eliminará nada de lo que hayas creado.",
       "dontShowAgain": "No volver a mostrar esto",
@@ -2218,8 +2018,7 @@
     },
     "showInviteLink": "Mostrar enlace de invitación",
     "showPublicPageLink": "Mostrar enlace de la página pública",
-    "title": "Mi taller",
-    "you": "Tú"
+    "title": "Mi taller"
   },
   "navigation": {
     "adminPanel": "Panel de administración",
@@ -2268,8 +2067,6 @@
       "observer": "Dirección",
       "opening-brief": "Cómo empieza",
       "outline": "Planificar escena",
-      "portrait": "Dibujar retrato",
-      "portrait-prompt": "Describir retrato",
       "props-store": "Estado del juego",
       "rephrase": "Reformular acción",
       "rephrase-audio": "Entender el habla",
@@ -2491,52 +2288,50 @@
       "recording": "Escuchando… suelta para enviar"
     },
     "wires": {
-      "adapted-style\u0003eimage-prompt": "estilo",
-      "adapted-style\u0003eimage-style": "solicitud",
-      "adapted-style\u0003estart-game": "listo",
-      "cast\u0003live-a:voiceA": "voz",
-      "cast\u0003live-b:voiceB": "voz",
-      "cast\u0003start-game": "listo",
-      "cast-brief\u0003cast": "personajes",
-      "condense-scenario\u0003econdensed-scenario": "respuesta",
-      "condensed-scenario\u0003econdense-scenario": "solicitud",
-      "condensed-scenario\u0003eimage-prompt": "escenario",
-      "condensed-scenario\u0003estart-game": "listo",
-      "director\u0003live-a": "intervención",
-      "director\u0003live-b": "intervención",
-      "gallery-image\u0003estart-game": "listo",
-      "greeting\u0003elive-session": "primeras palabras",
-      "greeting\u0003estart-game": "listo",
-      "greeting\u0003live-a": "primeras palabras",
-      "image-prompt\u0003eimage": "indicación",
-      "image-style\u0003eadapted-style": "respuesta",
-      "live-a\u0003director": "transcripción",
-      "live-b\u0003director": "transcripción",
-      "live-session\u0003eobserver": "transcripción",
-      "observer\u0003elive-session": "inyección",
-      "opening-brief\u0003egreeting": "indicación",
-      "outline\u0003eexpand": "plan",
-      "outline\u0003eimage-prompt": "escena",
-      "outline\u0003eprops-store": "cambios",
-      "player-input-audio\u0003elive-session": "voz",
-      "player-input-audio\u0003erephrase-audio": "voz",
-      "player-input-audio\u0003live-a": "habla",
-      "player-input-audio\u0003live-b": "habla",
-      "player-input-text\u0003erephrase": "acción",
-      "portrait\u0003estart-game": "listo",
-      "portrait-prompt\u0003eportrait": "indicación",
-      "props-store\u0003eoutline": "estado",
-      "rephrase\u0003eoutline": "acción",
-      "rephrase-audio\u0003eoutline": "acción",
-      "start-game\u0003elive-session": "entrada",
-      "start-game\u0003eoutline": "indicación",
-      "start-game\u0003live-a": "señal de inicio",
-      "start-game\u0003live-b": "señal de inicio",
-      "voice\u0003elive-session:secondary": "estilo de voz",
-      "voice\u0003elive-session:voice": "voz",
-      "voice\u0003estart-game": "listo",
-      "voice-brief\u0003evoice:description": "descripción",
-      "voice-brief\u0003evoice:voice": "voz alternativa"
+      "adapted-style\u003eimage-prompt": "estilo",
+      "adapted-style\u003eimage-style": "solicitud",
+      "adapted-style\u003estart-game": "listo",
+      "cast-brief\u003ecast": "personajes",
+      "cast\u003elive-a:voiceA": "voz",
+      "cast\u003elive-b:voiceB": "voz",
+      "cast\u003estart-game": "listo",
+      "condense-scenario\u003econdensed-scenario": "respuesta",
+      "condensed-scenario\u003econdense-scenario": "solicitud",
+      "condensed-scenario\u003eimage-prompt": "escenario",
+      "condensed-scenario\u003estart-game": "listo",
+      "director\u003elive-a": "inyección",
+      "director\u003elive-b": "inyección",
+      "gallery-image\u003estart-game": "listo",
+      "greeting\u003elive-a": "primeras palabras",
+      "greeting\u003elive-session": "primeras palabras",
+      "greeting\u003estart-game": "listo",
+      "image-prompt\u003eimage": "prompt",
+      "image-style\u003eadapted-style": "respuesta",
+      "live-a\u003edirector": "transcripción",
+      "live-b\u003edirector": "transcripción",
+      "live-session\u003eobserver": "transcripción",
+      "observer\u003elive-session": "inyección",
+      "opening-brief\u003egreeting": "encargo",
+      "outline\u003eexpand": "plan",
+      "outline\u003eimage-prompt": "escena",
+      "outline\u003eprops-store": "cambios",
+      "player-input-audio\u003elive-a": "voz",
+      "player-input-audio\u003elive-b": "voz",
+      "player-input-audio\u003elive-session": "voz",
+      "player-input-audio\u003erephrase-audio": "voz",
+      "player-input-text\u003erephrase": "acción",
+      "props-store\u003eoutline": "estado",
+      "rephrase-audio\u003eoutline": "acción",
+      "rephrase\u003eoutline": "acción",
+      "start-game\u003elive-a": "señal",
+      "start-game\u003elive-b": "señal",
+      "start-game\u003elive-session": "señal",
+      "start-game\u003eoutline": "prompt",
+      "voice-brief\u003evoice:description": "descripción",
+      "voice-brief\u003evoice:voice": "voz de reserva",
+      "voice\u003elive-session:secondary": "estilo de voz",
+      "voice\u003elive-session:voice": "voz",
+      "voice\u003estart-game": "listo"
     }
   }
 }

@@ -1,5 +1,4 @@
 {
-  "_sourceHash": "98425c3aa434b7f9",
   "auth": {
     "ageGroup": {
       "description": "Detta hjälper oss att tillämpa rätt skydds- och innehållsriktlinjer för ditt konto.",
@@ -39,12 +38,6 @@
         "message": "Vänta medan vi omdirigerar dig till inloggningssidan.",
         "title": "Omdirigerar till Auth0..."
       },
-      "role": {
-        "admin": "Logga in som administratör",
-        "guest": "Logga in som gäst",
-        "student": "Logga in som elev",
-        "teacher": "Logga in som lärare"
-      },
       "unavailable": {
         "message": "Den här instansen erbjuder ingen inloggning. Gäster i en workshop kan ange sin kod i stället.",
         "title": "Inloggning är inte tillgänglig"
@@ -61,6 +54,7 @@
         "introExisting": "Er organisation ”{{name}}” har nu en förklaring som bekräftas online. Den ersätter användaravtalet som ni undertecknade tidigare. Läs den och godkänn den för er organisations räkning.",
         "introNewVersion": "Förklaringen har uppdaterats (version {{version}}). Läs den nya versionen och godkänn den för organisationen ”{{name}}”.",
         "introWithdrawn": "Din organisation ”{{name}}” har återkallat sitt samtycke till förklaringen, och därför är den avstängd. Läs förklaringen och samtyck för din institutions räkning för att använda {{siteName}} igen.",
+        "later": "Senare",
         "logout": "Logga ut",
         "oneHeadIsEnough": "Det räcker att en organisationsansvarig samtycker. Fram till dess är organisationen avstängd: dess medlemmar kan inte använda {{siteName}}.",
         "submit": "Godkänn",
@@ -123,23 +117,8 @@
         "tooLong": "Högst {{max}} tecken. Korta ner texten eller välj ett förslag."
       }
     },
-    "participant": {
-      "leaveConfirm": {
-        "confirm": "Lämna workshop",
-        "message": "Är du säker på att du vill lämna den här workshopen? Du behöver en ny inbjudningslänk för att gå med igen.",
-        "title": "Lämna workshop?"
-      },
-      "leaveWorkshop": "Lämna workshop",
-      "organization": "Organisation",
-      "role": "Workshopdeltagare",
-      "workshop": "Workshop"
-    },
     "profile": {
-      "ageGroup": "Åldersgrupp",
-      "ageGroupDescription": "Avgör vilka innehållsriktlinjer som gäller för dina spel. Du kan ändra detta när som helst.",
       "ageGroupSection": "Ålders- och skyddsgrupp",
-      "ageGroupU13": "13–17 år",
-      "ageGroupU18": "18+",
       "gamesCreated": "Skapade spel",
       "gamesPlayed": "Spelade spel",
       "guestCode": {
@@ -153,20 +132,13 @@
       "noOrganization": "Ingen organisation",
       "noRole": "Ingen roll tilldelad",
       "organization": "Organisation",
-      "organizationSection": "Organisation \u000026 roll",
-      "participantCode": {
-        "error": "Din åtkomstkod kunde inte läsas in.",
-        "hint": "Fotografera den här koden eller skriv ner den och håll den för dig själv. Den ger dig tillgång till ditt konto igen när som helst, på vilken enhet som helst: skriv in orden under ”Ange kod” på startsidan eller skanna QR-koden.",
-        "longTokenHint": "Fotografera QR-koden eller spara länken och håll den för dig själv. Den ger dig tillgång till ditt konto igen när som helst. Din workshopledare kan ge dig en kort kod med fyra ord genom att återställa din åtkomst.",
-        "title": "Din åtkomstkod"
-      },
+      "organizationSection": "Organisation \u0026 roll",
       "role": "Roll",
       "roles": {
         "admin": "Administratör",
         "guest": "Gäst",
         "head": "Organisationschef",
         "individual": "Individ",
-        "participant": "Deltagare",
         "staff": "Workshopledare"
       },
       "statisticsSection": "Statistik",
@@ -175,12 +147,6 @@
       "workshopSection": "Workshop och organisation"
     },
     "register": {
-      "ageGroupLabel": "Åldersgrupp",
-      "ageGroupRequired": "Välj din åldersgrupp",
-      "ageGroupU13": "13–17 år",
-      "ageGroupU18": "18 år eller äldre",
-      "ageGroupUnder13": "Under 13",
-      "ageGroupUnder13Error": "Du måste vara minst 13 år gammal för att använda ChatGameLab.",
       "cancelButton": "Avbryt",
       "emailDescription": "Valfritt. Vi använder den för viktiga aviseringar.",
       "emailLabel": "E-postadress",
@@ -211,25 +177,6 @@
       "continueButton": "Fortsätt till registrering",
       "description": "Vi använder Auth0 som autentiseringsleverantör för att hantera användarkonton. Du kommer att omdirigeras till Auth0 för att skapa ditt konto och sedan tillbaka hit för att slutföra din profil.",
       "educatorDescription": "Använd {{siteName}} i workshops, klassrum eller din organisation",
-      "educatorModal": {
-        "closeButton": "Stäng",
-        "copied": "Kopierat!",
-        "copyEmail": "Kopiera e-post",
-        "eduInfo": "Lär dig mer om att använda ChatGameLab i utbildningssyfte:",
-        "intro": "För att använda ChatGameLab med din organisation (skola, universitet, institution) följer du dessa steg:",
-        "registerButton": "Skapa personligt konto",
-        "step1": "Skapa ett personligt konto",
-        "step1Description": "Skapa ditt personliga konto först. Detta blir din inloggning till plattformen.",
-        "step2": "2. Skicka oss ett e-postmeddelande",
-        "step2Description": "Skriv ett e-postmeddelande till",
-        "step2Item1": "Din registrerade e-postadress",
-        "step2Item2": "Namnet på din organisation (skola, institution etc.)",
-        "step2WithInfo": "med:",
-        "step3": "3. Vi sätter upp din organisation",
-        "step3Description": "Vi skapar din organisation och anger dig som ansvarig. Du kan sedan bjuda in kollegor och planera workshops.",
-        "title": "Pedagog- och proffsåtkomst"
-      },
-      "educatorTitle": "Pedagog / Professionell",
       "individualDescription": "Skapa och spela AI-drivna textäventyr",
       "individualTitle": "Personligt konto",
       "loginLink": "Logga in",
@@ -245,11 +192,6 @@
     },
     "settings": {
       "accountSection": "Konto",
-      "ageGroupDescription": "Avgör vilka innehållsriktlinjer som gäller för dina spel.",
-      "ageGroupLabel": "Åldersgrupp",
-      "ageGroupU13": "13–17 år",
-      "ageGroupU18": "18 år eller äldre",
-      "emailChangeNote": "Kontakta webbplatsadministratören om du vill ändra din e-postadress.",
       "emailDescription": "Valfritt. Organisationer kan bjuda in dig via den; inget annat konto får använda den.",
       "emailLabel": "E-post",
       "emailPlaceholder": "du@exempel.se",
@@ -288,9 +230,7 @@
           "title": "Ta bort inbjudan"
         },
         "role": "Roll",
-        "searchPlaceholder": "Sök efter e-post, roll, status eller organisation...",
         "sort": {
-          "label": "Sortera efter",
           "modifiedAt-asc": "Ändrad (äldst)",
           "modifiedAt-desc": "Ändrad (nyast)",
           "organization-asc": "Organisation (A-Ö)",
@@ -347,7 +287,6 @@
         "postalCode": "Postnummer",
         "removeMember": "Ta bort medlem",
         "removeMemberConfirm": "Är du säker på att du vill ta bort {{name}} från den här organisationen?",
-        "searchPlaceholder": "Sök organisationer...",
         "sendInvite": "Skicka inbjudan",
         "status": "Status och samtycke",
         "statusActive": "Aktiv",
@@ -364,16 +303,6 @@
         "title": "Hantera organisationer"
       },
       "registrations": {
-        "bell": {
-          "empty": "Ingen organisation har registrerat sig under de senaste två veckorna.",
-          "intro_one": "Den här organisationen registrerade sig under de senaste två veckorna och är redan aktiverad.",
-          "intro_other": "Dessa {{count}} organisationer registrerade sig under de senaste två veckorna och är redan aktiverade.",
-          "label": "Nya organisationer",
-          "later": "Senare",
-          "open": "Gå till översikten",
-          "suspendHint": "E-postadresser bekräftas inte för närvarande. Ta en snabb titt på nya organisationer och stäng av dem i översikten om något är fel.",
-          "title": "Nya organisationer"
-        },
         "date": "Registrerad",
         "description": "Organisationer som själva registrerat sig under de senaste två veckorna. De är aktiva direkt, utan att e-postadressen bekräftas; ta en titt och stäng av dem om något är fel.",
         "empty": "Ingen organisation har själv registrerat sig under de senaste två veckorna.",
@@ -396,8 +325,6 @@
           "all": "Alla användare",
           "noGuests": "Utan gäster"
         },
-        "hideGuests": "Dölj gäster ({{count}})",
-        "hideGuestsShort": "Gäster ({{count}})",
         "joined": "Gick med",
         "loadError": "Det gick inte att ladda användare",
         "makeAdmin": "Gör till admin",
@@ -415,8 +342,6 @@
         "removeAdminTitle": "Ta bort adminroll",
         "removeAdminWarning": "Denna användare förlorar alla administrativa rättigheter.",
         "role": "Roll",
-        "searchPlaceholder": "Sök efter namn, e-post, roll eller organisation...",
-        "showing": "Visar {{count}} av {{total}} användare",
         "signUpInProgress": "Registrering pågår",
         "signingUp": "Registrerar sig",
         "sort": {
@@ -424,7 +349,6 @@
           "email-desc": "E-post (Ö-A)",
           "joined-asc": "Gick med (äldst)",
           "joined-desc": "Gick med (nyast)",
-          "label": "Sortera efter",
           "name-asc": "Namn (A-Ö)",
           "name-desc": "Namn (Ö-A)",
           "organization-asc": "Organisation (A-Ö)",
@@ -458,7 +382,6 @@
       "high": "Hög",
       "label": "AI-kvalitetsnivå",
       "low": "Sparsam",
-      "max": "Max (Premium + ljud)",
       "medium": "Balanserad",
       "newSessionsOnly": "Denna nivå gäller endast nya sessioner. Befintliga sessioner behåller nivån de startade med.",
       "serverDefault": "Serverstandard"
@@ -470,7 +393,6 @@
         "message": "Detta skapar en kopia av \"{{name}}\" i dina spel.",
         "title": "Kopiera spel"
       },
-      "copyGame": "Kopiera spel",
       "empty": {
         "conditions": {
           "favorites": "en av dina favoriter",
@@ -578,11 +500,9 @@
         "revokeGameShare": "Återkalla delningslänk",
         "revokePrivateShare": "Återkalla delningslänk",
         "sponsorships": "Spelsponsringar",
-        "toggle": "Delningar \u000026 sponsringar",
+        "toggle": "Delningar \u0026 sponsringar",
         "unknownGame": "Okänt spel",
         "unknownOrg": "Okänd organisation",
-        "unknownUser": "Okänd användare",
-        "unknownWorkshop": "Okänd workshop",
         "unlimited": "Obegränsade användningar"
       },
       "sort": {
@@ -639,24 +559,9 @@
     },
     "error": "Fel",
     "footer": {
-      "copyright": "JFF - Institut für Medienpädagogik",
-      "jffTitle": "JFF - Institut för pedagogisk forskning och innovation",
       "programmedBy": "Programmerad av"
     },
-    "gamePlayer": {
-      "rebuilding": {
-        "description": "Du kan snart spela här igen.",
-        "title": "Spelvyn byggs om"
-      }
-    },
     "games": {
-      "actions": {
-        "delete": "Ta bort",
-        "edit": "Redigera",
-        "export": "Exportera",
-        "play": "Spela",
-        "view": "Visa"
-      },
       "badges": {
         "myGame": "Mitt spel",
         "public": "Publikt",
@@ -686,7 +591,6 @@
         "namePlaceholder": "t.ex. Rymdäventyr",
         "publicDescription": "Offentliga spel är synliga och spelbara för alla användare på denna plattform.",
         "publicLabel": "Gör det här spelet publikt",
-        "publicOwnerOnly": "Det är bara den som skapade spelet som kan göra det offentligt.",
         "submit": "Skapa spel",
         "title": "Skapa nytt spel"
       },
@@ -711,7 +615,7 @@
         "imageStyleHint": "Till exempel: tecknad, realistisk, pixelart, akvarell...",
         "name": "Spelnamn",
         "scenario": "Vad handlar spelet om?",
-        "scenarioHint": "Beskriv kort: Hur fungerar spelet? Hur ser spelvärlden ut? Språk \u0006 Ton (t.ex. spanska för elever i årskurs 6)?\nVilken roll har spelaren? Skriv \"Spelaren ...\".\nOm du vill att AI:n ska spela rollen som en viss person, skriv \"Du är ...\".\nVad är målet? Hur vet spelaren att hen har vunnit?",
+        "scenarioHint": "Beskriv kort: Hur fungerar spelet? Hur ser spelvärlden ut? Språk \u0026 Ton (t.ex. spanska för elever i årskurs 6)?\nVilken roll har spelaren? Skriv \"Spelaren ...\".\nOm du vill att AI:n ska spela rollen som en viss person, skriv \"Du är ...\".\nVad är målet? Hur vet spelaren att hen har vunnit?",
         "scenarioPlaceholder": "Du är en upptäcktsresande i en mystisk skog. Ditt mål är att hitta den gömda skatten...",
         "statusFields": "Spelvärden",
         "statusFieldsHint": "Vad ska spelet hålla reda på? Till exempel hälsa, poäng eller ammunition. Spelet minns dessa värden och uppdaterar dem under spelets gång.",
@@ -915,8 +819,7 @@
           "status": {
             "builtIn": "Ingen beskrivning än: spelet talar med en inbyggd röst tills du beskriver rösten.",
             "cast": "När spelet startar väljer det den inbyggda rösten av den valda typen som passar berättelsen bäst. Beskrivningen styr hur rösten talar.",
-            "ownVoice": "En egen röst för den här beskrivningen, skapad med din AI-nyckel.",
-            "steered": "En inbyggd röst läser berättelsen enligt beskrivningen."
+            "ownVoice": "En egen röst för den här beskrivningen, skapad med din AI-nyckel."
           },
           "stop": "Stoppa provet"
         },
@@ -957,10 +860,6 @@
         "titleView": "Spel",
         "untitled": "Spel utan titel"
       },
-      "empty": {
-        "description": "Skapa ditt första spel för att komma igång med interaktiva AI-drivna äventyr.",
-        "title": "Inga spel ännu"
-      },
       "errors": {
         "loadFailed": "Det gick inte att ladda spel. Försök igen.",
         "nameRequired": "Spelnamn krävs",
@@ -975,7 +874,6 @@
       "fields": {
         "created": "Skapad",
         "creator": "Skapare",
-        "me": "Jag",
         "modified": "Ändrad",
         "name": "Namn",
         "playCount": "Spelningar",
@@ -984,9 +882,7 @@
       "genres": {
         "adventure": "Äventyr",
         "discussion": "Diskussion",
-        "npc": "Karaktär",
-        "npc-duo": "Diskussion",
-        "npc-live": "Karaktär"
+        "npc": "Karaktär"
       },
       "importExport": {
         "coverFailed": "Spelet importerades, men omslagsbilden kunde inte kontrolleras. Du kan skapa en ny i redigeraren.",
@@ -1002,7 +898,6 @@
         "importButton": "Importera spel"
       },
       "newGame": "Nytt spel",
-      "playNow": "Spela nu",
       "privacyHint": "Ett spels namn och beskrivning kan bli offentligt synliga. Använd inte riktiga namn.",
       "privacyHintShort": "Kan bli offentligt synligt – använd inga riktiga namn.",
       "privateShare": {
@@ -1050,12 +945,10 @@
         "active": "Aktiv",
         "privateShareLink": "Privat delningslänk",
         "privateShareLinkDescription": "Privata delningslänkar kan delas med andra. Alla med länken kan spela spelet anonymt utan konto. En API-nyckel måste väljas för att täcka kostnaderna.",
-        "publicGameWorkshopHint": "Detta är ett offentligt spel och inte en del av din workshop. Delningsalternativ är inte tillgängliga för offentliga spel i workshopläge.",
         "publicSponsoring": "Offentlig sponsring",
         "publicSponsoringDescription": "Alla användare på plattformen kan spela det här spelet gratis – din tilldelade API-nyckel står för kostnaden.",
         "sectionTitle": "Delningsalternativ",
-        "sectionTitleShareOnly": "Delningsalternativ",
-        "workshopShareRequiresPublic": "Det här spelet måste vara offentligt innan det kan delas i workshopen."
+        "sectionTitleShareOnly": "Delningsalternativ"
       },
       "sort": {
         "createdAt-asc": "Skapad (äldst)",
@@ -1111,7 +1004,7 @@
         "basicInfo": "Allmän info om spelet. Detta är bara för dig och påverkar inte spelandet.",
         "importExport": "Importera/exportera",
         "quickStart": "Snabbstart",
-        "story": "Berättelse \u000026 AI",
+        "story": "Berättelse \u0026 AI",
         "storyInfo": "Allt här skickas till AI:n för att forma din spelvärld och berättelse.",
         "style": "Design",
         "styleInfo": "Valfria inställningar för spelets utseende under spelandet."
@@ -1165,7 +1058,6 @@
           "zombie": "Zombie"
         }
       },
-      "title": "Mina skapade spel",
       "viewModal": {
         "readOnlyNotice": "Detta spel skapades av en annan användare. Du kan visa detaljer men inte redigera. Använd \"Kopiera\" för att skapa en egen redigerbar version.",
         "title": "Speldetaljer"
@@ -1193,25 +1085,6 @@
     "help": "Hjälp",
     "home": {
       "codeCta": "Ange kod",
-      "features": {
-        "create": {
-          "description": "Designa interaktiva textäventyr drivna av AI",
-          "title": "Skapa äventyr"
-        },
-        "learn": {
-          "description": "Perfekt för utbildningsworkshops och klassrumsaktiviteter",
-          "title": "Lär \u000026 undervisa"
-        },
-        "play": {
-          "description": "Gå med vänner i samarbetande berättelsestunder",
-          "title": "Spela tillsammans"
-        },
-        "title": "Varför välja ChatGameLab?",
-        "understand": {
-          "description": "Utforska hur AI-modeller skapar berättelser och lär dig hur de fungerar",
-          "title": "Förstå AI"
-        }
-      },
       "loginCta": "Logga in och utforska",
       "splashDescription": "En pedagogisk plattform för att skapa och spela AI-drivna textäventyr. Perfekt för lärare, elever och kreativa berättare."
     },
@@ -1248,19 +1121,9 @@
       "guest": {
         "loggingIn": "Loggar in..."
       },
-      "participant": {
-        "loggingIn": "Loggar in dig..."
-      },
       "success": {
         "message": "Du har gått med i workshopen. Omdirigerar...",
         "title": "Välkommen!"
-      },
-      "switchWorkshop": {
-        "message": "Dina spel och framsteg i nuvarande workshop finns kvar, men du kan inte nå dem förrän du går med igen.",
-        "stayButton": "Stanna i nuvarande workshop",
-        "switchButton": "Byt workshop",
-        "title": "Byta workshop?",
-        "warning": "Du är för närvarande i workshop \"{{currentWorkshop}}\". Om du går med i \"{{newWorkshop}}\" lämnar du din nuvarande workshop."
       }
     },
     "labels": {
@@ -1295,31 +1158,25 @@
     "logout": "Logga ut",
     "me": "Jag",
     "myGames": {
-      "continue": "Spela",
       "copyConfirm": {
         "confirm": "Kopiera spel",
         "message": "Detta skapar en kopia av \"{{name}}\" i dina spel.",
         "title": "Kopiera spel"
       },
-      "copyGame": "Kopiera spel",
       "empty": {
         "description": "Skapa ditt första spel för att komma igång med interaktiva AI-drivna äventyr.",
         "title": "Inga spel ännu"
       },
-      "favorite": "Lägg till i favoriter",
       "filters": {
         "all": "Alla",
         "favorites": "Favoriter"
       },
-      "play": "Spela",
-      "restart": "Starta om",
       "restartConfirm": {
         "confirm": "Starta om",
         "message": "Är du säker på att du vill starta om \"{{game}}\"? Dina nuvarande framsteg går förlorade.",
         "title": "Starta om spel"
       },
-      "title": "Mina spel",
-      "unfavorite": "Ta bort från favoriter"
+      "title": "Mina spel"
     },
     "myOrganization": {
       "actions": "Åtgärder",
@@ -1331,7 +1188,6 @@
         "allPlatforms": "Alla plattformar",
         "allowPublicSponsoring": "Tillåt offentlig sponsring",
         "allowPublicSponsoringDesc": "Denna nyckel kan användas för att sponsra spel för alla användare.",
-        "filterByPlatform": "Filtrera efter plattform",
         "freeUseKey": {
           "description": "Ställ in en nyckel för kostnadsfri användning så att alla organisationsmedlemmar kan spela spel utan att behöva en egen API-nyckel.",
           "remove": "Ta bort",
@@ -1351,13 +1207,10 @@
         "platform": "Plattform",
         "publicSponsoring": "Offentlig sponsring",
         "removeShare": "Ta bort från organisationen",
-        "searchPlaceholder": "Sök efter namn eller ägare...",
         "selectKey": "Välj API-nyckel",
         "selectKeyPlaceholder": "Välj en nyckel att dela...",
         "share": "Dela",
-        "shareKey": "Dela nyckel",
         "shareKeyTitle": "Lägg till en API-nyckel i organisationen",
-        "showDetails": "Visa detaljer",
         "title": "Organisationens API-nycklar"
       },
       "autoShare": {
@@ -1367,7 +1220,10 @@
         "personalKeyGroup": "Personliga nycklar"
       },
       "declaration": {
+        "agree": "Läs och godkänn",
         "consented": "Er organisation godkände version {{version}} den {{date}}.",
+        "goAgree": "Till er organisation",
+        "newVersion": "Det finns en ny version {{version}} av samtyckesförklaringen. Er organisation förblir aktiv; läs den och godkänn den å dess vägnar.",
         "title": "Samtyckesförklaring",
         "withdraw": "Återkalla samtycke",
         "withdrawConfirm": "Utan samtycke är organisationen avstängd: ingen medlem kan använda {{siteName}} förrän en ansvarig samtycker igen. Organisationens data sparas.",
@@ -1385,9 +1241,6 @@
       "inviteTeacher": "Bjud in lärare",
       "inviteTeacherDescription": "Skicka en inbjudan till en lärare att gå med i din organisation.",
       "inviteTeacherTitle": "Bjud in lärare",
-      "inviteUser": "Bjud in användare",
-      "inviteUserDescription": "Skicka en inbjudan till en användare att gå med i din organisation utan specifik roll.",
-      "inviteUserTitle": "Bjud in användare",
       "lastHeadError": "Du är den sista chefen i denna organisation. Kontakta webbplatsadministratörerna om du behöver lämna.",
       "leaveConfirm": "Är du säker på att du vill lämna \"{{name}}\"?",
       "leaveError": "Det gick inte att lämna organisationen. Försök igen.",
@@ -1454,7 +1307,6 @@
       "removeTitle": "Ta bort medlem",
       "removeWarning": "Denna användare förlorar åtkomst till organisationen.",
       "role": "Roll",
-      "searchPlaceholder": "Sök medlemmar...",
       "showing": "{{count}} medlemmar",
       "sort": {
         "label": "Sortera efter",
@@ -1492,24 +1344,12 @@
         "active": "Aktiv",
         "activeDescription": "Aktiva workshops låter deltagare gå med och skapa spel.",
         "activeLabel": "Aktiv",
-        "addIndividual": "Lägg till organisationsmedlem",
         "addIndividualError": "Det gick inte att lägga till medlem i workshopen.",
-        "addIndividualHint": "Att lägga till en användare sätter dem automatiskt i workshopläge. De kommer att se workshopvyn i stället för sin vanliga instrumentpanel. Gör bara detta om det är avsett.",
-        "addIndividualStaffNote": "Ansvariga och lärare ska gå med i workshops via workshoplistan själva – de visas inte här.",
-        "addIndividualSuccess": "Medlem tillagd",
-        "addIndividualSuccessMessage": "{{name}} har lagts till i workshopen.",
-        "addIndividualTitle": "Lägg till person i workshop",
         "addToWorkshop": "Lägg till i workshop",
-        "aiQualityHigh": "High (Premium)",
-        "aiQualityLow": "Low (Economy)",
-        "aiQualityMedium": "Medium (Balanced)",
-        "aiQualityTier": "AI Quality Tier",
         "aiQualityTierHint": "Kvalitetsnivå för AI-svar. Högre nivåer kostar mer men kan ge bättre kvalitet. Tomt använder serverstandard.",
         "allowGameSharing": "Tillåt delning av spel",
         "allowGameSharingHint": "När det är aktiverat kan deltagare skapa delningslänkar för sina spel med workshopens API-nyckel",
-        "anonymousParticipant": "Anonym deltagare",
         "create": "Skapa workshop",
-        "createFirst": "Skapa din första workshop",
         "createInviteLink": "Skapa inbjudningslänk",
         "createTitle": "Skapa workshop",
         "deactivate": "Inaktivera",
@@ -1532,10 +1372,8 @@
         "inviteByEmailSuccessMessage": "En inbjudan har skapats. Användaren kommer att se den i sina väntande inbjudningar.",
         "inviteByEmailTitle": "Bjud in användare till workshop",
         "inviteCreatedAt": "Skapad",
-        "inviteDescription": "Generera en inbjudningslänk som deltagare kan använda för att gå med i denna workshop.",
         "inviteExpiresAt": "Går ut",
         "inviteLink": "Inbjudningslänk",
-        "inviteLinkDescription": "Dela denna länk med deltagare för att låta dem gå med i workshopen.",
         "inviteLinkTitle": "Inbjudningslänk för deltagare – {{name}}",
         "inviteUsage": "Användning",
         "isPaused": "Pausa workshop",
@@ -1551,14 +1389,11 @@
         "noDefaultModel": "Använd plattformens standard",
         "noGuestToken": "Den här medlemmen har ingen länk för att logga in igen. Endast gäster har en sådan.",
         "noIndividuals": "Inga individuella användare i den här organisationen.",
-        "noParticipantToken": "Denna deltagare har ingen inbjudningslänk. Endast anonyma deltagare (gäster) har återanvändbara inbjudningslänkar.",
         "noParticipants": "Inga deltagare ännu",
         "noResults": "Inga workshops matchar din sökning eller ditt filter.",
         "notAuthorized": "Du har inte behörighet att hantera workshops. Endast chefer och lärare har tillgång hit.",
         "participantGames": "{{count}} spel",
         "participantJoined": "Gick med {{date}}",
-        "participantLinkTitle": "Länk för återinloggning",
-        "participantLinkTitleNamed": "Länk för återinloggning för {{name}}",
         "participantName": "Deltagarnamn",
         "participants": "Deltagare",
         "promptConstraintsFallbackOrg": "Organisationens ungdomsskyddsregel används som standard: {{constraint}}",
@@ -1580,10 +1415,8 @@
         "resetAccessWarning": "Den tidigare länken och koden slutar fungera – även på enheter där gästen för närvarande är inloggad.",
         "revokeInvite": "Återkalla inbjudningslänk",
         "selectApiKey": "Välj en API-nyckel",
-        "serverDefault": "Server Default",
         "settings": "Inställningar",
         "shareGuestLink": "Visa länk för att logga in igen",
-        "shareParticipantLink": "Visa länk för återinloggning",
         "showOtherParticipantsGames": "Visa andra deltagares spel",
         "showOtherParticipantsGamesHint": "Ansvariga och personal kan alltid se alla deltagares spel för moderering",
         "showPublicGames": "Visa publika spel för deltagare",
@@ -1617,7 +1450,6 @@
       "decline": "Avböj",
       "declineConfirm": "Är du säker på att du vill avböja denna inbjudan?",
       "declineTitle": "Avböj inbjudan",
-      "empty": "Inga nya aviseringar.",
       "inviteDescription": "Du har blivit inbjuden att gå med som {{role}}.",
       "inviteToJoin": "Organisationsinbjudan",
       "nothingNew": "Inget nytt",
@@ -1766,6 +1598,7 @@
           "educatorInfoUrl": "Information för pedagoger",
           "gameTipsUrl": "Tips för att skapa spel",
           "helpUrl": "Hjälp",
+          "operatorLegalName": "Operatörens juridiska namn (för juridiska texter)",
           "operatorName": "Operatör",
           "operatorUrl": "Operatörens webbplats",
           "privacyUrl": "Integritetspolicy",
@@ -1792,13 +1625,10 @@
         "title": "Ungdomsskyddsregler efter åldersgrupp",
         "u13Hint": "Infogas i varje AI-prompt för inloggade användare i åldern 13–17 utan registrerat föräldrasamtycke.",
         "u13Label": "Ungdomsskyddsregel för användare i åldern 13–17 år utan föräldrasamtycke (U13)",
-        "u13Placeholder": "t.ex. Håll allt innehåll strikt åldersanpassat för tonåringar. Ingen våldsskildring, ingen romantik, inga inslag av skräck.",
         "u13pHint": "Infogas i varje AI-prompt för inloggade användare i åldern 13–17 med registrerat föräldrasamtycke.",
         "u13pLabel": "Ungdomsskyddsregel för användare i åldern 13–17 år med föräldrasamtycke (U13p)",
-        "u13pPlaceholder": "t.ex. åldersanpassat innehåll för tonåringar vars föräldrar har samtyckt. Vissa mogna teman tillåtna, inget explicit innehåll.",
         "u18Hint": "Infogas i varje AI-prompt för inloggade användare som är 18 år och äldre.",
-        "u18Label": "Ungdomsskyddsregel för användare från 18 år (U18)",
-        "u18Placeholder": "t.ex. Håll innehållet lämpligt. Undvik explicit våld eller sexuellt innehåll."
+        "u18Label": "Ungdomsskyddsregel för användare från 18 år (U18)"
       },
       "defaultTier": {
         "description": "Serverns fallback-nivå som används när ingen specifik nivå är konfigurerad på workshop-, institutions- eller användarnivå. Högre nivåer kostar mer men kan ge bättre kvalitet.",
@@ -1819,6 +1649,26 @@
       "freeUseTier": {
         "description": "Kvalitetsnivå som används när den fria API-nyckeln är aktiv. Högre nivåer kostar mer men kan ge bättre kvalitet. Lämna tomt för att använda standardnivån.",
         "title": "AI-kvalitetsnivå för fri nyckel"
+      },
+      "mail": {
+        "clearPassword": "Ta bort lösenord",
+        "consentCopy": "Kopior av samtycken till",
+        "consentCopyHint": "Får en kopia av varje organisations samtycke. Tomt: supportadressen.",
+        "description": "Servern som {{siteName}} skickar e-post via, till exempel bekräftelsen av en organisations samtycke. Utan server skrivs e-post bara till loggen.",
+        "from": "Avsändare",
+        "fromHint": "Tomt: användarnamnet är avsändaren.",
+        "fromPlaceholder": "Namn \u003cnoreply@example.org\u003e",
+        "host": "Server",
+        "hostHint": "Bara värdnamnet, utan port. Tomt: e-post loggas bara.",
+        "password": "Lösenord",
+        "passwordNone": "Inget lösenord angivet.",
+        "passwordSet": "Ett lösenord är angivet. Lämna tomt för att behålla det.",
+        "port": "Port",
+        "portHint": "587 med STARTTLS, 465 med TLS.",
+        "save": "Spara",
+        "saveFailed": "Det gick inte att spara. Kontrollera fälten.",
+        "title": "E-postserver",
+        "user": "Användarnamn"
       },
       "models": {
         "assign": {
@@ -1934,6 +1784,7 @@
         "ai": "AI och nycklar",
         "branding": "Profilering",
         "general": "Allmänt",
+        "mail": "E-post",
         "models": "AI-modeller",
         "youthProtection": "Skydd för unga"
       },
@@ -1999,49 +1850,6 @@
     }
   },
   "dashboard": {
-    "cards": {
-      "externalLinks": {
-        "edu": {
-          "description": "Mediapedagogiskt arbete med ChatGameLab",
-          "title": "Om ChatGameLab"
-        },
-        "jff": {
-          "description": "Projektkoordinator och ledande organisation.",
-          "title": "JFF – Institut für Medienpädagogik"
-        },
-        "mainSite": {
-          "description": "Lär dig mer om utbildningsprojektet bakom denna plattform.",
-          "title": "ChatGameLab-projektet"
-        },
-        "title": "Om ChatGameLab"
-      },
-      "lastPlayed": {
-        "empty": "Ingen spelhistorik ännu. Börja spela ett spel!",
-        "title": "Senast spelade",
-        "viewAll": "Alla spel"
-      },
-      "myGames": {
-        "empty": "Inga spel ännu. Skapa ditt första spel!",
-        "title": "Mina spel",
-        "viewAll": "Alla skapelser"
-      },
-      "myWorkshops": {
-        "empty": "Inga aktiva workshops. Skapa en workshop i din organisation!",
-        "title": "Mina workshops",
-        "viewAll": "Alla workshops"
-      },
-      "newGames": {
-        "empty": "Inga spel tillgängliga ännu.",
-        "title": "Nya spel",
-        "viewAll": "Alla spel"
-      },
-      "popularGames": {
-        "empty": "Inga spel tillgängliga ännu.",
-        "plays": "{{count}} spelningar",
-        "title": "Populära spel",
-        "viewAll": "Alla spel"
-      }
-    },
     "continue": {
       "go": "Fortsätt",
       "hint": "fortsätt där du slutade",
@@ -2050,15 +1858,14 @@
       "title": "Fortsätt spela"
     },
     "fresh": {
-      "by": "av {{name}}",
       "empty": "Inga nya spel ännu.",
       "title": "Nya spel",
       "viewAll": "Visa galleriet"
     },
     "hero": {
       "create": "Skapa",
-      "greeting": "Hej {{name}}. Vad ska vi \u0003cmark\u0003bygga\u0003c/mark\u0003 idag?",
-      "greetingNoName": "Hej. Vad ska vi \u0003cmark\u0003bygga\u0003c/mark\u0003 idag?",
+      "greeting": "Hej {{name}}. Vad ska vi \u003cmark\u003ebygga\u003c/mark\u003e idag?",
+      "greetingNoName": "Hej. Vad ska vi \u003cmark\u003ebygga\u003c/mark\u003e idag?",
       "journal": "Labblogg · {{date}}",
       "promptLabel": "Beskriv en spelidé",
       "promptPlaceholder": "Beskriv en spelidé … AI hjälper dig att utveckla den"
@@ -2071,8 +1878,7 @@
     },
     "links": {
       "about": "Om {{siteName}}",
-      "educators": "För pedagoger",
-      "jff": "JFF – Institut für Medienpädagogik"
+      "educators": "För pedagoger"
     },
     "ownGames": {
       "empty": "Inga spel ännu. Beskriv en idé ovan och skapa ditt första!",
@@ -2085,21 +1891,11 @@
       "plays_other": "{{count}} spelningar",
       "title": "Mest populära"
     },
-    "quickActions": {
-      "createNewGame": "Skapa nytt spel",
-      "createRoom": "Skapa rum",
-      "createWorkshop": "Skapa workshop",
-      "importGame": "Importera spel",
-      "inviteMembers": "Bjud in medlemmar",
-      "startNewGame": "Starta nytt spel",
-      "title": "Snabbåtgärder"
-    },
-    "someone": "någon",
     "untitled": "Namnlös",
     "untitledGame": "Namnlöst spel",
     "version": {
       "mismatch": {
-        "message": "Frontend-version \u00003cfrontendVersion\u00003e{{frontendVersion}}\u00003c/frontendVersion\u00003e matchar inte backend-version \u00003cbackendVersion\u00003e{{backendVersion}}\u00003c/backendVersion\u00003e. Detta kan orsaka oväntat beteende. Kontakta support om problemet kvarstår.",
+        "message": "Frontend-version \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e matchar inte backend-version \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. Detta kan orsaka oväntat beteende. Kontakta support om problemet kvarstår.",
         "title": "Version avvikelse upptäckt"
       }
     },
@@ -2196,10 +1992,8 @@
     "filters": {
       "all": "Alla spel",
       "mine": "Mina spel",
-      "public": "Publika spel",
-      "workshop": "Workshopspel"
+      "public": "Publika spel"
     },
-    "gameType": "Spel",
     "infoModal": {
       "body": "Du har gått in i workshopläge. I detta läge kopplas allt du gör till denna workshop – spel du skapar, spelomgångar och delningslänkar.\n\nDu kan lämna när som helst. Att lämna avslutar inte workshopen och tar inte bort något du har skapat.",
       "dontShowAgain": "Visa inte detta igen",
@@ -2224,8 +2018,7 @@
     },
     "showInviteLink": "Visa inbjudningslänk",
     "showPublicPageLink": "Visa länk till offentlig sida",
-    "title": "Min workshop",
-    "you": "Du"
+    "title": "Min workshop"
   },
   "navigation": {
     "adminPanel": "Adminpanel",
@@ -2274,8 +2067,6 @@
       "observer": "Regi",
       "opening-brief": "Så börjar det",
       "outline": "Planera scen",
-      "portrait": "Skapa porträtt",
-      "portrait-prompt": "Beskriv porträtt",
       "props-store": "Spelstatus",
       "rephrase": "Återberätta handling",
       "rephrase-audio": "Förstå tal",
@@ -2497,52 +2288,50 @@
       "recording": "Lyssnar… släpp för att skicka"
     },
     "wires": {
-      "adapted-style\u0003eimage-prompt": "stil",
-      "adapted-style\u0003eimage-style": "förfrågan",
-      "adapted-style\u0003estart-game": "klar",
-      "cast\u0003elive-a:voiceA": "röst",
-      "cast\u0003elive-b:voiceB": "röst",
-      "cast\u0003estart-game": "redo",
-      "cast-brief\u0003ccast": "karaktärer",
-      "condense-scenario\u0003econdensed-scenario": "svar",
-      "condensed-scenario\u0003econdense-scenario": "förfrågan",
-      "condensed-scenario\u0003eimage-prompt": "scenario",
-      "condensed-scenario\u0003estart-game": "klar",
-      "director\u0003elive-a": "injektion",
-      "director\u0003elive-b": "injektion",
-      "gallery-image\u0003estart-game": "klar",
-      "greeting\u0003elive-a": "första ord",
-      "greeting\u0003elive-session": "första orden",
-      "greeting\u0003estart-game": "klar",
-      "image-prompt\u0003eimage": "prompt",
-      "image-style\u0003eadapted-style": "svar",
-      "live-a\u0003edirector": "transkript",
-      "live-b\u0003edirector": "transkript",
-      "live-session\u0003eobserver": "utskrift",
-      "observer\u0003elive-session": "inskickning",
-      "opening-brief\u0003egreeting": "instruktion",
-      "outline\u0003eexpand": "plan",
-      "outline\u0003eimage-prompt": "scen",
-      "outline\u0003eprops-store": "ändringar",
-      "player-input-audio\u0003elive-a": "tal",
-      "player-input-audio\u0003elive-b": "tal",
-      "player-input-audio\u0003elive-session": "tal",
-      "player-input-audio\u0003erephrase-audio": "tal",
-      "player-input-text\u0003erephrase": "handling",
-      "portrait\u0003estart-game": "klar",
-      "portrait-prompt\u0003eportrait": "prompt",
-      "props-store\u0003eoutline": "status",
-      "rephrase\u0003eoutline": "handling",
-      "rephrase-audio\u0003eoutline": "handling",
-      "start-game\u0003elive-a": "signal",
-      "start-game\u0003elive-b": "signal",
-      "start-game\u0003elive-session": "signal",
-      "start-game\u0003eoutline": "prompt",
-      "voice\u0003elive-session:secondary": "röststil",
-      "voice\u0003elive-session:voice": "röst",
-      "voice\u0003estart-game": "klar",
-      "voice-brief\u0003evoice:description": "beskrivning",
-      "voice-brief\u0003evoice:voice": "reservröst"
+      "adapted-style\u003eimage-prompt": "stil",
+      "adapted-style\u003eimage-style": "förfrågan",
+      "adapted-style\u003estart-game": "klart",
+      "cast-brief\u003ecast": "karaktärer",
+      "cast\u003elive-a:voiceA": "röst",
+      "cast\u003elive-b:voiceB": "röst",
+      "cast\u003estart-game": "klart",
+      "condense-scenario\u003econdensed-scenario": "svar",
+      "condensed-scenario\u003econdense-scenario": "förfrågan",
+      "condensed-scenario\u003eimage-prompt": "scenario",
+      "condensed-scenario\u003estart-game": "klart",
+      "director\u003elive-a": "inskjutning",
+      "director\u003elive-b": "inskjutning",
+      "gallery-image\u003estart-game": "klart",
+      "greeting\u003elive-a": "första orden",
+      "greeting\u003elive-session": "första orden",
+      "greeting\u003estart-game": "klart",
+      "image-prompt\u003eimage": "prompt",
+      "image-style\u003eadapted-style": "svar",
+      "live-a\u003edirector": "utskrift",
+      "live-b\u003edirector": "utskrift",
+      "live-session\u003eobserver": "utskrift",
+      "observer\u003elive-session": "inskjutning",
+      "opening-brief\u003egreeting": "underlag",
+      "outline\u003eexpand": "plan",
+      "outline\u003eimage-prompt": "scen",
+      "outline\u003eprops-store": "ändringar",
+      "player-input-audio\u003elive-a": "tal",
+      "player-input-audio\u003elive-b": "tal",
+      "player-input-audio\u003elive-session": "tal",
+      "player-input-audio\u003erephrase-audio": "tal",
+      "player-input-text\u003erephrase": "handling",
+      "props-store\u003eoutline": "status",
+      "rephrase-audio\u003eoutline": "handling",
+      "rephrase\u003eoutline": "handling",
+      "start-game\u003elive-a": "startsignal",
+      "start-game\u003elive-b": "startsignal",
+      "start-game\u003elive-session": "startsignal",
+      "start-game\u003eoutline": "prompt",
+      "voice-brief\u003evoice:description": "beskrivning",
+      "voice-brief\u003evoice:voice": "reservröst",
+      "voice\u003elive-session:secondary": "röststil",
+      "voice\u003elive-session:voice": "röst",
+      "voice\u003estart-game": "klart"
     }
   }
 }

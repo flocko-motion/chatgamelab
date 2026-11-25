@@ -9,6 +9,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -71,14 +72,40 @@ SELECT
   prompt_constraint_u18,
   free_use_api_key_id,
   branding,
-  session_retention_hours
+  session_retention_hours,
+  smtp_host,
+  smtp_port,
+  smtp_user,
+  smtp_from,
+  consent_copy_email,
+  (smtp_password <> '')::bool AS smtp_password_set
 FROM system_settings
 LIMIT 1
 `
 
-func (q *Queries) V2GetSystemSettings(ctx context.Context) (SystemSetting, error) {
+type V2GetSystemSettingsRow struct {
+	ID                    uuid.UUID       `json:"id"`
+	CreatedAt             time.Time       `json:"created_at"`
+	ModifiedAt            time.Time       `json:"modified_at"`
+	DefaultAiQualityTier  string          `json:"default_ai_quality_tier"`
+	FreeUseAiQualityTier  sql.NullString  `json:"free_use_ai_quality_tier"`
+	PromptConstraintU13   sql.NullString  `json:"prompt_constraint_u13"`
+	PromptConstraintU13p  sql.NullString  `json:"prompt_constraint_u13p"`
+	PromptConstraintU18   sql.NullString  `json:"prompt_constraint_u18"`
+	FreeUseApiKeyID       uuid.NullUUID   `json:"free_use_api_key_id"`
+	Branding              json.RawMessage `json:"branding"`
+	SessionRetentionHours int32           `json:"session_retention_hours"`
+	SmtpHost              string          `json:"smtp_host"`
+	SmtpPort              int32           `json:"smtp_port"`
+	SmtpUser              string          `json:"smtp_user"`
+	SmtpFrom              string          `json:"smtp_from"`
+	ConsentCopyEmail      string          `json:"consent_copy_email"`
+	SmtpPasswordSet       bool            `json:"smtp_password_set"`
+}
+
+func (q *Queries) V2GetSystemSettings(ctx context.Context) (V2GetSystemSettingsRow, error) {
 	row := q.db.QueryRowContext(ctx, v2GetSystemSettings)
-	var i SystemSetting
+	var i V2GetSystemSettingsRow
 	err := row.Scan(
 		&i.ID,
 		&i.CreatedAt,
@@ -91,6 +118,43 @@ func (q *Queries) V2GetSystemSettings(ctx context.Context) (SystemSetting, error
 		&i.FreeUseApiKeyID,
 		&i.Branding,
 		&i.SessionRetentionHours,
+		&i.SmtpHost,
+		&i.SmtpPort,
+		&i.SmtpUser,
+		&i.SmtpFrom,
+		&i.ConsentCopyEmail,
+		&i.SmtpPasswordSet,
+	)
+	return i, err
+}
+
+const v2MailServer = `-- name: V2MailServer :one
+SELECT smtp_host, smtp_port, smtp_user, smtp_password, smtp_from, consent_copy_email
+FROM system_settings
+LIMIT 1
+`
+
+type V2MailServerRow struct {
+	SmtpHost         string `json:"smtp_host"`
+	SmtpPort         int32  `json:"smtp_port"`
+	SmtpUser         string `json:"smtp_user"`
+	SmtpPassword     string `json:"smtp_password"`
+	SmtpFrom         string `json:"smtp_from"`
+	ConsentCopyEmail string `json:"consent_copy_email"`
+}
+
+// The mail server a mail goes through, its password included: for sending
+// only, never shown (#621).
+func (q *Queries) V2MailServer(ctx context.Context) (V2MailServerRow, error) {
+	row := q.db.QueryRowContext(ctx, v2MailServer)
+	var i V2MailServerRow
+	err := row.Scan(
+		&i.SmtpHost,
+		&i.SmtpPort,
+		&i.SmtpUser,
+		&i.SmtpPassword,
+		&i.SmtpFrom,
+		&i.ConsentCopyEmail,
 	)
 	return i, err
 }
@@ -130,6 +194,50 @@ SET
 // Carried over from v1 for the core's system jobs and settings (#344).
 func (q *Queries) V2UpdateFreeUseAiQualityTier(ctx context.Context, freeUseAiQualityTier sql.NullString) error {
 	_, err := q.db.ExecContext(ctx, v2UpdateFreeUseAiQualityTier, freeUseAiQualityTier)
+	return err
+}
+
+const v2UpdateMailPassword = `-- name: V2UpdateMailPassword :exec
+UPDATE system_settings
+SET
+  smtp_password = $1,
+  modified_at = now()
+`
+
+// The mail server's password; empty clears it (#621).
+func (q *Queries) V2UpdateMailPassword(ctx context.Context, password string) error {
+	_, err := q.db.ExecContext(ctx, v2UpdateMailPassword, password)
+	return err
+}
+
+const v2UpdateMailSettings = `-- name: V2UpdateMailSettings :exec
+UPDATE system_settings
+SET
+  smtp_host = $1,
+  smtp_port = $2,
+  smtp_user = $3,
+  smtp_from = $4,
+  consent_copy_email = $5,
+  modified_at = now()
+`
+
+type V2UpdateMailSettingsParams struct {
+	Host             string `json:"host"`
+	Port             int32  `json:"port"`
+	Username         string `json:"username"`
+	Sender           string `json:"sender"`
+	ConsentCopyEmail string `json:"consent_copy_email"`
+}
+
+// The mail server, all but its password (#621).
+func (q *Queries) V2UpdateMailSettings(ctx context.Context, arg V2UpdateMailSettingsParams) error {
+	_, err := q.db.ExecContext(ctx, v2UpdateMailSettings,
+		arg.Host,
+		arg.Port,
+		arg.Username,
+		arg.Sender,
+		arg.ConsentCopyEmail,
+	)
 	return err
 }
 

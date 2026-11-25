@@ -100,6 +100,8 @@ func (s *OrganisationRegistrationTestSuite) mailsTo(address, organisation string
 // once, they are its head, its consent is recorded and confirmed by mail,
 // with a copy to the operator, and they can run it right away.
 func (s *OrganisationRegistrationTestSuite) TestRegisteringAsAnOrganisation() {
+	Must(s.DevUser().SetSiteBranding(map[string]string{"supportEmail": "betrieb@example.org"}))
+	Must(s.DevUser().UpdateSystemSettings(testutil.SettingsUpdate{Mail: &testutil.MailSettingsReq{}}))
 	head, signUp, institutionID := s.registerOrganisation("leitung-neu@jz-test.de")
 
 	me := Must(head.WhoAmI())
@@ -126,7 +128,7 @@ func (s *OrganisationRegistrationTestSuite) TestRegisteringAsAnOrganisation() {
 	s.Require().Len(toPerson, 1, "the consent is confirmed to the person")
 	s.Contains(toPerson[0].Body, "10. Ich nehme zustimmend zur Kenntnis", "with the whole declaration")
 	s.Contains(toPerson[0].Body, "Du bist Organisationsleitung", "in the person's language")
-	s.Len(s.mailsTo("chatgamelab@jff.de", signUp.InstitutionName), 1, "a copy goes to the operator")
+	s.Len(s.mailsTo("betrieb@example.org", signUp.InstitutionName), 1, "a copy goes to the operator's support address")
 
 	workshop := Must(head.CreateWorkshop(institutionID, "Erster Workshop"))
 	s.Equal("Erster Workshop", workshop.Name)
@@ -210,6 +212,7 @@ func (s *OrganisationRegistrationTestSuite) suspension(member *testutil.UserClie
 // give the consent; that consent covers the organisation and stores its
 // details.
 func (s *OrganisationRegistrationTestSuite) TestAnExistingOrganisationIsSuspendedUntilAHeadConsents() {
+	copyTo := s.copyAddress()
 	institution := Must(s.DevUser().CreateSuspendedInstitution(fmt.Sprintf("Altbestand %d", s.unique())))
 	institutionID := institution.Id.String()
 	head1 := s.memberOf(institutionID, "head")
@@ -269,25 +272,41 @@ func (s *OrganisationRegistrationTestSuite) TestAnExistingOrganisationIsSuspende
 	s.Require().Len(confirmations, 1)
 	s.Contains(confirmations[0].Subject, "confirmed (version "+given.Declaration.CurrentVersion+")", "worded for a consent to an existing organisation, in the head's language")
 	s.NotContains(confirmations[0].Body, "**")
-	s.Len(s.mailsTo("chatgamelab@jff.de", institution.Name), 1)
+	s.Len(s.mailsTo(copyTo, institution.Name), 1, "a copy goes to the address of the mail settings")
 }
 
-// A new version of the declaration suspends an organisation whose consent
-// is to an older one, until a head consents to the new.
-func (s *OrganisationRegistrationTestSuite) TestANewDeclarationSuspends() {
+// copyAddress has copies of consents go to an address of the mail settings,
+// and names it.
+func (s *OrganisationRegistrationTestSuite) copyAddress() string {
+	address := fmt.Sprintf("kopie-%d@example.org", s.unique())
+	Must(s.DevUser().UpdateSystemSettings(testutil.SettingsUpdate{Mail: &testutil.MailSettingsReq{ConsentCopyEmail: address}}))
+	return address
+}
+
+// A new version of the declaration leaves an organisation whose consent is
+// to an older one active: its heads are asked to consent to the new one, and
+// the admin sees it behind, to talk to it or suspend it.
+func (s *OrganisationRegistrationTestSuite) TestANewDeclarationLeavesTheOrganisationActive() {
 	institution := Must(s.DevUser().CreateSuspendedInstitution(fmt.Sprintf("Alte Fassung %d", s.unique())))
 	institutionID := institution.Id.String()
 	head := s.memberOf(institutionID, "head")
+	staff := s.memberOf(institutionID, "staff")
 	s.ConsentedToAnOlderDeclaration(institutionID, institution.Name)
 
-	s.Equal(testutil.SuspendedNoConsent, s.suspension(head))
+	s.Empty(s.suspension(head), "an older consent suspends no one")
+	s.Empty(s.suspension(staff))
 	status := Must(head.ReadOrganisationConsent(institutionID)).Declaration
-	s.True(status.Pending)
+	s.True(status.Pending, "its heads are asked to consent to the new version")
 	s.Require().NotNil(status.ConsentedVersion)
 	s.Equal("0.9", *status.ConsentedVersion)
 
+	seen := Must(s.DevUser().GetInstitution(institutionID))
+	s.False(seen.Suspended, "the admin sees it active")
+	s.Require().NotNil(seen.Declaration)
+	s.True(seen.Declaration.Pending, "and behind")
+
 	Must(head.ConsentToDeclaration(institutionID, s.consent(fmt.Sprintf("neu-%d@altbestand.test", s.unique()))))
-	s.Empty(s.suspension(head))
+	s.False(Must(head.ReadOrganisationConsent(institutionID)).Declaration.Pending)
 }
 
 // A head withdraws the organisation's consent, which suspends it until a head

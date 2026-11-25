@@ -1,16 +1,15 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { Stack, Center, Image, Container, Group, Box } from "@mantine/core";
+import { Stack, Center, Container, Group, Box } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { ActionButton } from "@components/buttons";
 import { BodyText } from "@components/typography";
 import { LanguageSwitcher } from "@components/LanguageSwitcher";
 import { IconRocket, IconLogin, IconKeyboard } from "@tabler/icons-react";
-import logo from "@/assets/logos/colorful/ChatGameLab-Logo-2025-Square-Colorful2-Black-Text.png-Black-Text-Transparent.png";
+import { SiteLogo } from "@components/SiteLogo";
 import { ROUTES } from "@/common/routes/routes";
 import { hasExternalHomepage, getHomepageUrl } from "@/common/lib/url";
 import { useAuth } from "@/providers/AuthProvider";
-import { useBranding } from "@/providers/branding";
 
 export const Route = createFileRoute("/landing")({
   component: LandingPage,
@@ -18,7 +17,6 @@ export const Route = createFileRoute("/landing")({
 
 function LandingPage() {
   const { t } = useTranslation("common");
-  const branding = useBranding();
   const router = useRouter();
   const { user } = useAuth();
 
@@ -48,13 +46,7 @@ function LandingPage() {
 
           <Center>
             <Stack gap="xl" align="center" ta="center" maw={800}>
-              <Image
-                src={logo}
-                alt={branding.siteName}
-                w={{ base: 200, sm: 280, lg: 350 }}
-                h={{ base: 200, sm: 280, lg: 350 }}
-                fit="contain"
-              />
+              <SiteLogo layout="stacked" size={{ base: 110, sm: 150, lg: 190 }} />
 
               <BodyText size="xl">
                 {t(

@@ -208,7 +208,8 @@
         "emailDescription": "We send the confirmation with the text of the declaration to this address.",
         "submit": "Agree",
         "introWithdrawn": "The consent of your organisation “{{name}}” to the declaration was withdrawn, so it is suspended. Please read the declaration and agree on behalf of your institution to use {{siteName}} again.",
-        "logout": "Log out"
+        "logout": "Log out",
+        "later": "Later"
       }
     }
   },
@@ -1431,7 +1432,10 @@
         "withdraw": "Withdraw consent",
         "withdrawTitle": "Withdraw the consent?",
         "withdrawConfirm": "Without the consent your organisation is suspended: no member can use {{siteName}} until a head agrees again. Its data is kept.",
-        "withdrawFailed": "That did not work. Please try again."
+        "withdrawFailed": "That did not work. Please try again.",
+        "newVersion": "There is a new version {{version}} of the declaration of consent. Your organisation stays active; please read it and agree on its behalf.",
+        "agree": "Read and agree",
+        "goAgree": "Go to your organisation"
       }
     },
     "name": "Name",
@@ -1635,7 +1639,8 @@
           "aiInsightsUrl": "About the AI insights",
           "reportGameUrl": "Report a game",
           "creditName": "Programmed by",
-          "creditUrl": "Their website"
+          "creditUrl": "Their website",
+          "operatorLegalName": "Operator's legal name (for legal texts)"
         },
         "changed": "Changed",
         "resetTo": "Back to the default: {{value}}",
@@ -1650,7 +1655,8 @@
         "branding": "Branding",
         "ai": "AI and keys",
         "youthProtection": "Youth protection",
-        "models": "AI models"
+        "models": "AI models",
+        "mail": "Mail"
       },
       "models": {
         "fixed": "This platform's models are set by the engine and cannot be changed here.",
@@ -1754,6 +1760,26 @@
             "message": "Every model of the engine gets the engine's own figures back, and models you added that no tier uses are removed. Added models a tier uses keep their entries."
           }
         }
+      },
+      "mail": {
+        "title": "Mail server",
+        "description": "The server {{siteName}} sends its mails through, such as the confirmation of an organisation's consent. Without a server, mails are only written to the log.",
+        "host": "Server",
+        "hostHint": "Host name only, without port. Empty: mails are only logged.",
+        "port": "Port",
+        "portHint": "587 with STARTTLS, 465 with TLS.",
+        "user": "Login",
+        "password": "Password",
+        "passwordSet": "A password is set. Leave empty to keep it.",
+        "passwordNone": "No password set.",
+        "from": "Sender",
+        "fromHint": "Empty: the login is the sender.",
+        "fromPlaceholder": "Name \u003cnoreply@example.org\u003e",
+        "consentCopy": "Copies of consents to",
+        "consentCopyHint": "Receives a copy of every organisation's consent. Empty: the support email.",
+        "save": "Save",
+        "clearPassword": "Remove password",
+        "saveFailed": "Could not save. Please check the fields."
       }
     },
     "settings": "Settings",

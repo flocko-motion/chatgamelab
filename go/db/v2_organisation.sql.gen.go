@@ -378,42 +378,40 @@ SELECT o.id, o.name, o.created_by, o.created_at, o.modified_at,
   -- record
   o.suspended_at, o.suspended_reason,
   (o.suspended_at IS NOT NULL
-   OR institution_consent_missing(o.id, $1::text, $2::text))::bool AS suspended,
+   OR institution_consent_lacking(o.id))::bool AS suspended,
   -- the sections: NULL (no caller, no organisation) is false
   COALESCE(
-     ($3::bool AND o.id = $4::uuid)
-  OR  $5::bool, false)::bool                       AS may_read_settings,
+     ($1::bool AND o.id = $2::uuid)
+  OR  $3::bool, false)::bool                       AS may_read_settings,
   COALESCE(
-     ($6::bool  AND o.id = $4::uuid)
-  OR  $7::bool, false)::bool                        AS may_read_details,
+     ($4::bool  AND o.id = $2::uuid)
+  OR  $5::bool, false)::bool                        AS may_read_details,
   COALESCE(
-     ($8::bool   AND o.id = $4::uuid)
-  OR  $9::bool, false)::bool                         AS may_read_record,
+     ($6::bool   AND o.id = $2::uuid)
+  OR  $7::bool, false)::bool                         AS may_read_record,
   -- the actions
   COALESCE(
-     ($10::bool     AND o.id = $4::uuid)
-  OR  $11::bool, false)::bool                      AS may_edit_card,
+     ($8::bool     AND o.id = $2::uuid)
+  OR  $9::bool, false)::bool                      AS may_edit_card,
   COALESCE(
-     ($12::bool AND o.id = $4::uuid)
-  OR  $13::bool, false)::bool                  AS may_edit_settings,
+     ($10::bool AND o.id = $2::uuid)
+  OR  $11::bool, false)::bool                  AS may_edit_settings,
   COALESCE(
-     ($14::bool  AND o.id = $4::uuid), false)::bool AS may_edit_details,
-  $15::bool                                           AS may_delete,
-  $16::bool                                          AS may_suspend
+     ($12::bool  AND o.id = $2::uuid), false)::bool AS may_edit_details,
+  $13::bool                                           AS may_delete,
+  $14::bool                                          AS may_suspend
 FROM institution o
 WHERE o.deleted_at IS NULL
-  AND ($17::uuid IS NULL OR o.id = $17::uuid)
+  AND ($15::uuid IS NULL OR o.id = $15::uuid)
   -- gate
-  AND (  ($18::bool AND o.id = $4::uuid)
+  AND (  ($16::bool AND o.id = $2::uuid)
       -- the organisation of the workshop the caller takes part in
-      OR ($19::bool AND o.id = (SELECT w.institution_id FROM workshop w WHERE w.id = $20::uuid))
-      OR  $21::bool )
+      OR ($17::bool AND o.id = (SELECT w.institution_id FROM workshop w WHERE w.id = $18::uuid))
+      OR  $19::bool )
 ORDER BY o.name, o.id
 `
 
 type V2OrganisationsParams struct {
-	DeclarationVersion       string        `json:"declaration_version"`
-	DeclarationHash          string        `json:"declaration_hash"`
 	SettingsOrganisation     bool          `json:"settings_organisation"`
 	OwnOrganisation          uuid.NullUUID `json:"own_organisation"`
 	SettingsEverywhere       bool          `json:"settings_everywhere"`
@@ -467,8 +465,6 @@ type V2OrganisationsRow struct {
 // V2LatestConsent and V2FirstConsent.
 func (q *Queries) V2Organisations(ctx context.Context, arg V2OrganisationsParams) ([]V2OrganisationsRow, error) {
 	rows, err := q.db.QueryContext(ctx, v2Organisations,
-		arg.DeclarationVersion,
-		arg.DeclarationHash,
 		arg.SettingsOrganisation,
 		arg.OwnOrganisation,
 		arg.SettingsEverywhere,

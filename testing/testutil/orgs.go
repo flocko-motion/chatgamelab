@@ -7,6 +7,7 @@ package testutil
 import (
 	"cgl/apiclient"
 	"cgl/legal"
+	"encoding/json"
 
 	"github.com/google/uuid"
 )
@@ -341,4 +342,14 @@ func RoleOf(user User) string {
 		return ""
 	}
 	return user.Role.Role
+}
+
+// AsSent is an answer as the API sent it, as JSON text: for checking that
+// something appears nowhere in it.
+func AsSent(answer any) string {
+	raw, err := json.Marshal(answer)
+	if err != nil {
+		panic(err)
+	}
+	return string(raw)
 }

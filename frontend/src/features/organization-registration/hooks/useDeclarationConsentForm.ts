@@ -16,11 +16,12 @@ export interface ConsentForm {
 }
 
 /**
- * A head's consent to the current declaration for their organisation, which
- * lifts its suspension for want of a consent. The form starts with what the
- * organisation has: its details and its restriction (or the 13+ default).
+ * A head's consent to the current declaration for their organisation: it
+ * lifts a suspension for want of a consent, or brings an older consent up to
+ * date. The form starts with what the organisation has: its details and its
+ * restriction (or the 13+ default). onConsented runs once it is given.
  */
-export function useDeclarationConsentForm() {
+export function useDeclarationConsentForm(onConsented?: () => void) {
   const { t } = useTranslation("auth");
   const { backendUser, refreshCaller } = useAuth();
   const institutionId = backendUser?.role?.institution?.id;
@@ -84,6 +85,7 @@ export function useDeclarationConsentForm() {
         },
       });
       await refreshCaller();
+      onConsented?.();
     } catch (e) {
       setError(organizationErrorMessage(e, t));
     }

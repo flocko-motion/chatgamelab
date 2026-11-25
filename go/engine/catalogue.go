@@ -52,15 +52,15 @@ const (
 // what each model is: what it takes and makes, and its price, dated, with its
 // source.
 type PlatformInfo struct {
-	ID       Platform     `json:"id"`
-	Name     string       `json:"name"`
-	UserKeys bool         `json:"userKeys"`
+	ID       Platform `json:"id"`
+	Name     string   `json:"name"`
+	UserKeys bool     `json:"userKeys"`
 	// Configurable says an admin may replace its models and set their prices.
-	Configurable bool `json:"configurable"`
-	Toggles  Toggles      `json:"toggles"`
-	Genres   []Genre      `json:"genres"`
-	Tiers    []TierModels `json:"tiers"`
-	Models   ModelTable   `json:"models"`
+	Configurable bool         `json:"configurable"`
+	Toggles      Toggles      `json:"toggles"`
+	Genres       []Genre      `json:"genres"`
+	Tiers        []TierModels `json:"tiers"`
+	Models       ModelTable   `json:"models"`
 }
 
 // defaultEntries is every platform the engine runs as its code sets it, the

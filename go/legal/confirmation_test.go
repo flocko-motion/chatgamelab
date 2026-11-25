@@ -15,7 +15,7 @@ func TestConfirmations(t *testing.T) {
 		At: time.Date(2026, 11, 20, 9, 30, 0, 0, time.UTC), Version: CurrentDeclaration().Version,
 		NewOrganisation: true,
 	}
-	msgs := Confirmations(c, Site{Name: "ChatGameLab", Operator: "JFF"}, "en", "copy@example.org")
+	msgs := Confirmations(c, Site{Name: "ChatGameLab", Operator: "Muster", OperatorLegal: "Verein Muster e.V."}, "en", "copy@example.org")
 	if len(msgs) != 2 {
 		t.Fatalf("want 2 mails, got %d", len(msgs))
 	}
@@ -36,12 +36,15 @@ func TestConfirmations(t *testing.T) {
 		if !strings.Contains(m.Body, CurrentDeclaration().Hash) {
 			t.Errorf("%s: no checksum", m.To)
 		}
+		if !strings.Contains(m.Body, "Datenschutzerklärung von Verein Muster e.V. (Anbieter)") {
+			t.Errorf("%s: the declaration does not name the operator", m.To)
+		}
 	}
 	if !strings.Contains(operator.Body, "20.11.2026, 10:30 Uhr") {
 		t.Error("the date is Berlin's")
 	}
 
-	renewed := Confirmations(Consent{Organisation: "JZ Nord", Version: "1.0"}, Site{Name: "ChatGameLab", Operator: "JFF"}, "de", "")
+	renewed := Confirmations(Consent{Organisation: "JZ Nord", Version: "1.0"}, Site{Name: "ChatGameLab", Operator: "Muster"}, "de", "")
 	if len(renewed) != 1 || !strings.Contains(renewed[0].Subject, "Einverständniserklärung für „JZ Nord“ bestätigt (Version 1.0)") {
 		t.Errorf("renewed consent without a copy: %+v", renewed)
 	}

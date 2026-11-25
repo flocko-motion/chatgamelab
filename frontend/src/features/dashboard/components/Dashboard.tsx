@@ -6,6 +6,7 @@ import { useDashboard } from "../hooks/useDashboard";
 import { Hero } from "./Hero";
 import { ContinueGames, FreshGames, OwnGames, PopularGames } from "./GameSections";
 import { LabPanel } from "./LabPanel";
+import { DeclarationReminder } from "@/features/my-organization";
 import classes from "./Dashboard.module.css";
 
 /**
@@ -21,6 +22,8 @@ export function DashboardContent() {
 
   return (
     <div className={classes.page}>
+      <DeclarationReminder />
+
       <Hero name={data.firstName} onCreate={go.createAbout} />
 
       <ContinueGames sessions={data.sessions} onOpen={go.session} />

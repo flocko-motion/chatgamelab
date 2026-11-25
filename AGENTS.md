@@ -105,6 +105,27 @@ wait for confirmation**, e.g. "I'll create `.worktrees/349-web-app/` on branch
 - Only the owner, or an agent the owner asks, removes a worktree after its
   branch is merged.
 
+## Translations
+
+A change to the UI texts ships translated, by the agent who makes it, so the
+pull request passes `make translate-check` without anyone running a
+translator:
+
+1. Write the new or changed fields in `frontend/src/i18n/locales/en.json` and
+   `de.json` by hand.
+2. Translate exactly those fields into every other locale file in that
+   directory yourself, in each language's existing terms and tone, keeping
+   every `{{placeholder}}`. Subagents can share out the languages.
+3. Run `make translate-accept`: it checks each pending field and records it as
+   translated. Fix what it names and run it again until it is green; it also
+   copies the locales to `go/lang/locales`.
+
+An existing translation you find wrong (meaning, term, grammar, wrong
+language, English left over, broken markup) gets fixed in the same change, by
+you: the owner does not judge the languages. List each fix in the pull
+request with the old text, the new one and why the new one is better.
+`translation/README.md` has the tool's other ways (OpenAI, Claude Code).
+
 ## Go version
 
 When schemaf (its codegen, or a dependency it pulls in) needs a newer Go,

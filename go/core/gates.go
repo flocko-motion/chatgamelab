@@ -15,7 +15,6 @@ import (
 	"cgl/core/internal/rules"
 	"cgl/core/internal/store"
 	"cgl/db"
-	"cgl/legal"
 
 	"github.com/google/uuid"
 )
@@ -178,12 +177,9 @@ func readOrganisationGates(ctx context.Context, id uuid.UUID) db.V2Organisations
 // organisationGates opens what list and read share: an organisation's
 // sections and the actions on it.
 func organisationGates(ctx context.Context) db.V2OrganisationsParams {
-	declaration := legal.CurrentDeclaration()
 	return db.V2OrganisationsParams{
-		DeclarationVersion: declaration.Version,
-		DeclarationHash:    declaration.Hash,
-		OwnOrganisation:    ownOrganisation(ctx),
-		CurrentWorkshop:    nullUUID(from(ctx).CurrentWorkshop()),
+		OwnOrganisation: ownOrganisation(ctx),
+		CurrentWorkshop: nullUUID(from(ctx).CurrentWorkshop()),
 
 		SettingsOrganisation: granted(ctx, rules.Read, rules.OrganisationSettings, rules.OfOwnOrganisation),
 		SettingsEverywhere:   granted(ctx, rules.Read, rules.OrganisationSettings, rules.Everywhere),

@@ -230,8 +230,10 @@ run workshops and play.
 - *Admin* — runs the site: sets the site-wide youth-protection rules per age
   group, the AI quality tiers, the site's free-use key and how long sessions
   are kept, sets how the site
-  presents itself (its name, its operator, its support address and the links
-  it shows; everyone sees these, also before signing in), chooses the AI model
+  presents itself (its name, its operator and the operator's legal name, its
+  support address and the links it shows; everyone sees these, also before
+  signing in; a fresh site names no operator), sets the mail server the
+  site's mails go through, chooses the AI model
   for each task and tier of a configurable platform and sets each model's
   price, and upgrades the site to new releases
 - *Head* — is a user who *is* part of an organisation, leads it, manages its staff, workshops and rules, runs workshops.
@@ -388,8 +390,14 @@ and ends up as the head of the newly founded organisation.
 - He give the *organisations* name, its Träger and its address, and sets its
   youth-protection rule.
 - *The Einverständniserklärung* binds the organisation, in German, in a
-  numbered version. The person agrees to it in the organisation's name; the
-  consent is kept as proof.
+  numbered version, and names the site's operator by their legal name. The
+  person agrees to it in the organisation's name; the consent is kept as
+  proof.
+
+An organisation without a consent (none yet, or withdrawn) is suspended until
+a head agrees. A new version of the declaration suspends no one: the heads of
+an organisation that agreed to an older version are asked to agree to the new
+one, and the admin sees it behind, to talk to it or suspend it.
 
 == Paying
 

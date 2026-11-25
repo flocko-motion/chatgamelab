@@ -338,6 +338,9 @@
           "helpUrl": {
             "type": "string"
           },
+          "operatorLegalName": {
+            "type": "string"
+          },
           "operatorName": {
             "type": "string"
           },
@@ -366,6 +369,7 @@
         "required": [
           "siteName",
           "operatorName",
+          "operatorLegalName",
           "operatorUrl",
           "supportEmail",
           "websiteUrl",
@@ -2288,6 +2292,67 @@
           "error"
         ],
         "type": "string"
+      },
+      "MailSettings": {
+        "properties": {
+          "consentCopyEmail": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string"
+          },
+          "host": {
+            "type": "string"
+          },
+          "passwordSet": {
+            "type": "boolean"
+          },
+          "port": {
+            "type": "integer"
+          },
+          "user": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "host",
+          "port",
+          "user",
+          "from",
+          "passwordSet",
+          "consentCopyEmail"
+        ],
+        "type": "object"
+      },
+      "MailSettingsReq": {
+        "properties": {
+          "consentCopyEmail": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string"
+          },
+          "host": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "port": {
+            "type": "integer"
+          },
+          "user": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "host",
+          "port",
+          "user",
+          "from",
+          "consentCopyEmail"
+        ],
+        "type": "object"
       },
       "MakeGameCoverReq": {
         "properties": {
@@ -4466,6 +4531,9 @@
             "format": "uuid",
             "type": "string"
           },
+          "mail": {
+            "$ref": "#/components/schemas/MailSettings"
+          },
           "modifiedAt": {
             "format": "date-time",
             "type": "string"
@@ -4490,7 +4558,8 @@
           "id",
           "defaultAiQualityTier",
           "promptConstraintDefaults",
-          "sessionRetentionHours"
+          "sessionRetentionHours",
+          "mail"
         ],
         "type": "object"
       },
@@ -4921,6 +4990,9 @@
           },
           "freeUseAiQualityTier": {
             "type": "string"
+          },
+          "mail": {
+            "$ref": "#/components/schemas/MailSettingsReq"
           },
           "promptConstraintU13": {
             "type": "string"
@@ -12299,7 +12371,7 @@
         "summary": "Returns the site-wide settings to an admin."
       },
       "patch": {
-        "description": "Only the fields sent change. The default AI quality tier cannot be empty;\nan empty free-use tier clears it; a constraint emptied, or set to its\ndefault, is the default again. The session retention is whole hours, 0 or\nmore. Answers with the settings as they apply.",
+        "description": "Only the fields sent change. The default AI quality tier cannot be empty;\nan empty free-use tier clears it; a constraint emptied, or set to its\ndefault, is the default again. The session retention is whole hours, 0 or\nmore. The mail server changes as a whole, but for its password: absent, it\nstays; empty, it is cleared. Answers with the settings as they apply; the\npassword never.",
         "operationId": "patchApiSystemSettings",
         "requestBody": {
           "content": {

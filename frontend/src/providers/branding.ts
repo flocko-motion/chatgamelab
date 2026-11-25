@@ -16,6 +16,7 @@ export function useBranding(): Branding {
 const EMPTY: Branding = {
   siteName: "",
   operatorName: "",
+  operatorLegalName: "",
   operatorUrl: "",
   supportEmail: "",
   websiteUrl: "",

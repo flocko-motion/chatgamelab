@@ -39,7 +39,7 @@ SELECT o.id, o.name, o.created_by, o.created_at, o.modified_at,
   -- record
   o.suspended_at, o.suspended_reason,
   (o.suspended_at IS NOT NULL
-   OR institution_consent_missing(o.id, @declaration_version::text, @declaration_hash::text))::bool AS suspended,
+   OR institution_consent_lacking(o.id))::bool AS suspended,
   -- the sections: NULL (no caller, no organisation) is false
   COALESCE(
      (@settings_organisation::bool AND o.id = sqlc.narg(own_organisation)::uuid)

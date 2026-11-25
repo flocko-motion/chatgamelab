@@ -9,7 +9,6 @@ import {
   Title,
   Text,
   Group,
-  Image,
 } from "@mantine/core";
 import {
   IconAlertCircle,
@@ -23,13 +22,12 @@ import { TextButton } from "@/common/components/buttons/TextButton";
 import { LanguageSwitcher } from "@/common/components/LanguageSwitcher";
 import { acceptInvite, fetchInvite } from "@/api/hooks";
 import { useAuth, rememberGuestCode } from "@/providers/AuthProvider";
-import { useBranding } from "@/providers/branding";
 import { ROUTES } from "@/common/routes/routes";
 import { ErrorCodes } from "@/common/types/errorCodes";
 import { buildShareUrl } from "@/common/lib/url";
 import type { AcceptInviteResp, InviteCardView } from "@/api/types";
 import { markWorkshopModeEntered } from "@/features/my-workshop/lib/infoModal";
-import logo from "@/assets/logos/colorful/ChatGameLab-Logo-2025-Square-Colorful2-Black-Text.png-Black-Text-Transparent.png";
+import { SiteLogo } from "@components/SiteLogo";
 
 export const Route = createFileRoute("/invites/$token/accept")({
   component: AcceptInvitePage,
@@ -45,7 +43,6 @@ function InvitePageLayout({
   showLanguageSwitcher?: boolean;
 }) {
   const { t } = useTranslation("common");
-  const branding = useBranding();
   return (
     <Container size="sm" py="xl">
       <Stack gap="xl" align="center">
@@ -57,13 +54,7 @@ function InvitePageLayout({
         {children}
         {showBranding && (
           <Stack gap="sm" align="center" ta="center" mt="md">
-            <Image
-              src={logo}
-              alt={branding.siteName}
-              w={{ base: 200, sm: 280, lg: 350 }}
-              h={{ base: 200, sm: 280, lg: 350 }}
-              fit="contain"
-            />
+            <SiteLogo layout="stacked" size={{ base: 110, sm: 150, lg: 190 }} />
             <Text size="sm" c="dimmed" maw={400}>
               {t("home.splashDescription")}
             </Text>

@@ -15,7 +15,6 @@ import (
 	"cgl/db"
 	"cgl/functional"
 	"cgl/functional/wordtoken"
-	"cgl/legal"
 	"cgl/log"
 	"cgl/obj"
 
@@ -244,11 +243,7 @@ func PublicWorkshopGame(ctx context.Context, slug string, game uuid.UUID) (*Game
 
 // publicWorkshop is the workshop behind a public page's slug.
 func publicWorkshop(ctx context.Context, slug string) (*db.V2PublicWorkshopRow, error) {
-	declaration := legal.CurrentDeclaration()
-	rows, err := store.Queries().V2PublicWorkshop(ctx, db.V2PublicWorkshopParams{
-		Slug:               sql.NullString{String: normalizePublicSlug(slug), Valid: true},
-		DeclarationVersion: declaration.Version, DeclarationHash: declaration.Hash,
-	})
+	rows, err := store.Queries().V2PublicWorkshop(ctx, sql.NullString{String: normalizePublicSlug(slug), Valid: true})
 	if err != nil {
 		return nil, err
 	}

@@ -1,5 +1,4 @@
 {
-  "_sourceHash": "98425c3aa434b7f9",
   "auth": {
     "ageGroup": {
       "description": "يساعدنا هذا على تطبيق إرشادات الحماية والمحتوى المناسبة على حسابك.",
@@ -39,12 +38,6 @@
         "message": "يُرجى الانتظار ريثما نعيد توجيهك إلى صفحة تسجيل الدخول.",
         "title": "جارٍ إعادة التوجيه إلى Auth0..."
       },
-      "role": {
-        "admin": "تسجيل الدخول كمشرف",
-        "guest": "تسجيل الدخول كضيف",
-        "student": "تسجيل الدخول كطالب",
-        "teacher": "تسجيل الدخول كمعلم"
-      },
       "unavailable": {
         "message": "لا يوفّر هذا الموقع تسجيل الدخول. يمكن للضيوف في ورشة عمل إدخال رمزهم بدلاً من ذلك.",
         "title": "تسجيل الدخول غير متاح"
@@ -61,6 +54,7 @@
         "introExisting": "لدى منظمتكم «{{name}}» الآن إقرار موافقة تم تأكيده عبر الإنترنت. وهو يحل محل اتفاقية المستخدم التي وقّعتموها سابقًا. يُرجى قراءته والموافقة عليه نيابةً عن مؤسستكم.",
         "introNewVersion": "تم تحديث الإقرار (الإصدار {{version}}). يُرجى قراءة الإصدار الجديد والموافقة عليه نيابةً عن منظمتكم «{{name}}».",
         "introWithdrawn": "تم سحب موافقة مؤسستكم «{{name}}» على الإقرار، ولذلك تم تعليقها. يُرجى قراءة الإقرار والموافقة نيابةً عن مؤسستكم لاستخدام {{siteName}} مجددًا.",
+        "later": "لاحقًا",
         "logout": "تسجيل الخروج",
         "oneHeadIsEnough": "تكفي موافقة مسؤول واحد عن المؤسسة. وحتى ذلك الحين، تكون مؤسستكم معلّقة: ولا يمكن لأعضائها استخدام {{siteName}}.",
         "submit": "موافقة",
@@ -123,23 +117,8 @@
         "tooLong": "بحد أقصى {{max}} حرفًا. يُرجى اختصار النص أو اختيار اقتراح."
       }
     },
-    "participant": {
-      "leaveConfirm": {
-        "confirm": "مغادرة الورشة",
-        "message": "هل أنت متأكد أنك تريد مغادرة هذه الورشة؟ ستحتاج إلى رابط دعوة جديد للانضمام مجددًا.",
-        "title": "مغادرة الورشة؟"
-      },
-      "leaveWorkshop": "مغادرة الورشة",
-      "organization": "الجهة",
-      "role": "مشارك في الورشة",
-      "workshop": "الورشة"
-    },
     "profile": {
-      "ageGroup": "الفئة العمرية",
-      "ageGroupDescription": "يحدد أي إرشادات محتوى تنطبق على ألعابك. يمكنك تغيير ذلك في أي وقت.",
       "ageGroupSection": "فئة العمر والحماية",
-      "ageGroupU13": "١٣-١٧ عامًا",
-      "ageGroupU18": "١٨+",
       "gamesCreated": "الألعاب التي تم إنشاؤها",
       "gamesPlayed": "الألعاب التي تم لعبها",
       "guestCode": {
@@ -154,19 +133,12 @@
       "noRole": "لا يوجد دور معيّن",
       "organization": "الجهة",
       "organizationSection": "الجهة والدور",
-      "participantCode": {
-        "error": "تعذّر تحميل رمز الوصول الخاص بك.",
-        "hint": "التقط صورة لهذا الرمز أو دوّنه واحتفظ به لنفسك. يتيح لك العودة إلى حسابك في أي وقت ومن أي جهاز: أدخل الكلمات في قسم «إدخال الرمز» في الصفحة الرئيسية أو امسح رمز QR.",
-        "longTokenHint": "التقط صورة لرمز QR أو احفظ الرابط واحتفظ به لنفسك. يتيح لك العودة إلى حسابك في أي وقت. يمكن لقائد ورشة العمل تزويدك برمز قصير مكوّن من أربع كلمات من خلال إعادة ضبط وصولك.",
-        "title": "رمز الوصول الخاص بك"
-      },
       "role": "الدور",
       "roles": {
         "admin": "مسؤول",
         "guest": "ضيف",
         "head": "رئيس الجهة",
         "individual": "فرد",
-        "participant": "مشارك",
         "staff": "قائد الورشة"
       },
       "statisticsSection": "الإحصاءات",
@@ -175,12 +147,6 @@
       "workshopSection": "الورشة والمؤسسة"
     },
     "register": {
-      "ageGroupLabel": "الفئة العمرية",
-      "ageGroupRequired": "يرجى اختيار فئتك العمرية",
-      "ageGroupU13": "١٣-١٧ عامًا",
-      "ageGroupU18": "١٨ أو أكثر",
-      "ageGroupUnder13": "أصغر من ١٣",
-      "ageGroupUnder13Error": "يجب أن يكون عمرك ١٣ عامًا على الأقل لاستخدام ChatGameLab.",
       "cancelButton": "إلغاء",
       "emailDescription": "اختياري. سنستخدمه لإرسال الإشعارات المهمة.",
       "emailLabel": "عنوان البريد الإلكتروني",
@@ -211,25 +177,6 @@
       "continueButton": "متابعة إلى التسجيل",
       "description": "نستخدم Auth0 كمزوّد مصادقة لإدارة حسابات المستخدمين. ستتم إعادة توجيهك إلى Auth0 لإنشاء حسابك، ثم ستعود إلى هنا لإكمال ملفك الشخصي.",
       "educatorDescription": "استخدم {{siteName}} في ورش العمل أو الفصول الدراسية أو مؤسستك",
-      "educatorModal": {
-        "closeButton": "إغلاق",
-        "copied": "تم النسخ!",
-        "copyEmail": "نسخ البريد الإلكتروني",
-        "eduInfo": "تعرّف أكثر على استخدام ChatGameLab للأغراض التعليمية:",
-        "intro": "لاستخدام ChatGameLab مع منظمتك (مدرسة، جامعة، مؤسسة)، يرجى اتباع الخطوات التالية:",
-        "registerButton": "إنشاء حساب شخصي",
-        "step1": "١. أنشئ حسابًا شخصيًا",
-        "step1Description": "أنشئ حسابك الشخصي أولًا. سيكون هذا تسجيل دخولك إلى المنصة.",
-        "step2": "٢. أرسل لنا بريدًا إلكترونيًا",
-        "step2Description": "اكتب بريدًا إلكترونيًا إلى",
-        "step2Item1": "عنوان بريدك الإلكتروني المسجّل",
-        "step2Item2": "اسم منظمتك (مدرسة، مؤسسة، إلخ)",
-        "step2WithInfo": "بما يلي:",
-        "step3": "٣. سنُعد منظمتك",
-        "step3Description": "سننشئ منظمتك ونعينك كمسؤول رئيسي. بعدها يمكنك دعوة الزملاء وإعداد ورش العمل.",
-        "title": "وصول المربين والمهنيين"
-      },
-      "educatorTitle": "مربٍ / مهني",
       "individualDescription": "أنشئ ولعب مغامرات نصية مدفوعة بالذكاء الاصطناعي",
       "individualTitle": "حساب شخصي",
       "loginLink": "تسجيل الدخول",
@@ -245,11 +192,6 @@
     },
     "settings": {
       "accountSection": "الحساب",
-      "ageGroupDescription": "يحدد أي إرشادات محتوى تنطبق على ألعابك.",
-      "ageGroupLabel": "الفئة العمرية",
-      "ageGroupU13": "١٣-١٧ عامًا",
-      "ageGroupU18": "١٨ أو أكثر",
-      "emailChangeNote": "لتغيير بريدك الإلكتروني يُرجى التواصل مع مدير الموقع.",
       "emailDescription": "اختياري. تدعوك المؤسسات من خلاله؛ ولا يُسمح لأي حساب آخر باستخدامه.",
       "emailLabel": "البريد الإلكتروني",
       "emailPlaceholder": "you@example.org",
@@ -288,9 +230,7 @@
           "title": "حذف الدعوة"
         },
         "role": "الدور",
-        "searchPlaceholder": "ابحث عبر البريد، الدور، الحالة أو الجهة...",
         "sort": {
-          "label": "الترتيب حسب",
           "modifiedAt-asc": "تاريخ التعديل (الأقدم)",
           "modifiedAt-desc": "تاريخ التعديل (الأحدث)",
           "organization-asc": "الجهة (أ-ي)",
@@ -347,7 +287,6 @@
         "postalCode": "الرمز البريدي",
         "removeMember": "إزالة عضو",
         "removeMemberConfirm": "هل أنت متأكد أنك تريد إزالة {{name}} من هذه الجهة؟",
-        "searchPlaceholder": "ابحث عن جهات...",
         "sendInvite": "إرسال دعوة",
         "status": "الحالة والموافقة",
         "statusActive": "نشطة",
@@ -364,16 +303,6 @@
         "title": "إدارة الجهات"
       },
       "registrations": {
-        "bell": {
-          "empty": "لم تسجّل أي منظمة خلال الأسبوعين الماضيين.",
-          "intro_one": "سجّلت هذه المنظمة خلال الأسبوعين الماضيين وتم تفعيلها بالفعل.",
-          "intro_other": "سجّلت هذه المنظمات وعددها {{count}} خلال الأسبوعين الماضيين وتم تفعيلها بالفعل.",
-          "label": "المنظمات الجديدة",
-          "later": "لاحقًا",
-          "open": "الانتقال إلى overview",
-          "suspendHint": "لا يتم حاليًا تأكيد عناوين البريد الإلكتروني. ألقِ نظرة سريعة على المنظمات الجديدة وعلّقها من صفحة overview إذا كان هناك خطب ما.",
-          "title": "المنظمات الجديدة"
-        },
         "date": "تاريخ التسجيل",
         "description": "المنظمات التي سجّلت نفسها خلال الأسبوعين الماضيين. تُفعّل فورًا دون تأكيد عنوان البريد الإلكتروني؛ ألقِ نظرة عليها وعلّق أي منظمة إذا كان هناك خطب ما.",
         "empty": "لم تسجّل أي منظمة نفسها خلال الأسبوعين الماضيين.",
@@ -396,8 +325,6 @@
           "all": "جميع المستخدمين",
           "noGuests": "بدون ضيوف"
         },
-        "hideGuests": "إخفاء الضيوف ({{count}})",
-        "hideGuestsShort": "الضيوف ({{count}})",
         "joined": "تاريخ الانضمام",
         "loadError": "فشل تحميل المستخدمين",
         "makeAdmin": "منح دور المشرف",
@@ -415,8 +342,6 @@
         "removeAdminTitle": "إزالة دور المشرف",
         "removeAdminWarning": "سيفقد هذا المستخدم كل الامتيازات الإدارية.",
         "role": "الدور",
-        "searchPlaceholder": "ابحث حسب الاسم أو البريد أو الدور أو الجهة...",
-        "showing": "عرض {{count}} من {{total}} مستخدم",
         "signUpInProgress": "جارٍ التسجيل",
         "signingUp": "يتم التسجيل",
         "sort": {
@@ -424,7 +349,6 @@
           "email-desc": "البريد الإلكتروني (ي-أ)",
           "joined-asc": "تاريخ الانضمام (الأقدم)",
           "joined-desc": "تاريخ الانضمام (الأحدث)",
-          "label": "الترتيب حسب",
           "name-asc": "الاسم (أ-ي)",
           "name-desc": "الاسم (ي-أ)",
           "organization-asc": "الجهة (أ-ي)",
@@ -458,7 +382,6 @@
       "high": "عالٍ",
       "label": "مستوى جودة الذكاء الاصطناعي",
       "low": "اقتصادي",
-      "max": "أقصى (متميز + صوت)",
       "medium": "متوازن",
       "newSessionsOnly": "تنطبق هذه الفئة على الجلسات الجديدة فقط. تحتفظ الجلسات الحالية بالفئة التي بدأت بها.",
       "serverDefault": "إعداد الخادم الافتراضي"
@@ -470,7 +393,6 @@
         "message": "سيتم إنشاء نسخة من \"{{name}}\" ضمن ألعابك.",
         "title": "نسخ اللعبة"
       },
-      "copyGame": "نسخ اللعبة",
       "empty": {
         "conditions": {
           "favorites": "من مفضلاتك",
@@ -581,8 +503,6 @@
         "toggle": "المشاركات والرعايات",
         "unknownGame": "لعبة غير معروفة",
         "unknownOrg": "جهة غير معروفة",
-        "unknownUser": "مستخدم غير معروف",
-        "unknownWorkshop": "ورشة غير معروفة",
         "unlimited": "استخدامات غير محدودة"
       },
       "sort": {
@@ -639,24 +559,9 @@
     },
     "error": "خطأ",
     "footer": {
-      "copyright": "JFF - Institut für Medienpädagogik",
-      "jffTitle": "JFF - معهد بحوث وابتكار التعليم",
       "programmedBy": "برمجة بواسطة"
     },
-    "gamePlayer": {
-      "rebuilding": {
-        "description": "يمكنك العودة إلى اللعب هنا قريبًا.",
-        "title": "تجري إعادة بناء مشغّل اللعبة"
-      }
-    },
     "games": {
-      "actions": {
-        "delete": "حذف",
-        "edit": "تحرير",
-        "export": "تصدير",
-        "play": "اللعب",
-        "view": "عرض"
-      },
       "badges": {
         "myGame": "لعبتي",
         "public": "عام",
@@ -686,7 +591,6 @@
         "namePlaceholder": "مثلاً: مغامرة في الفضاء",
         "publicDescription": "الألعاب العامة مرئية وقابلة للعب من قبل جميع المستخدمين على هذه المنصة.",
         "publicLabel": "اجعل هذه اللعبة عامة",
-        "publicOwnerOnly": "يمكن لمنشئ اللعبة فقط جعلها عامة.",
         "submit": "إنشاء اللعبة",
         "title": "إنشاء لعبة جديدة"
       },
@@ -915,8 +819,7 @@
           "status": {
             "builtIn": "لا يوجد وصف بعد: تتحدث اللعبة بصوت مدمج إلى أن تصف الصوت.",
             "cast": "عند بدء اللعبة، تختار الصوت المدمج من النوع الذي اخترته والذي يناسب القصة بأفضل شكل. ويحدد الوصف طريقة تحدثه.",
-            "ownVoice": "صوت خاص بهذا الوصف، أُنشئ باستخدام مفتاح الذكاء الاصطناعي الخاص بك.",
-            "steered": "يقرأ صوت مدمج القصة وفقًا لما يحدده الوصف."
+            "ownVoice": "صوت خاص بهذا الوصف، أُنشئ باستخدام مفتاح الذكاء الاصطناعي الخاص بك."
           },
           "stop": "إيقاف العينة"
         },
@@ -957,10 +860,6 @@
         "titleView": "اللعبة",
         "untitled": "لعبة بلا عنوان"
       },
-      "empty": {
-        "description": "أنشئ لعبتك الأولى للبدء في مغامرات تفاعلية مدعومة بالذكاء الاصطناعي.",
-        "title": "لا توجد ألعاب بعد"
-      },
       "errors": {
         "loadFailed": "فشل تحميل الألعاب. يُرجى المحاولة مجددًا.",
         "nameRequired": "اسم اللعبة مطلوب",
@@ -975,7 +874,6 @@
       "fields": {
         "created": "تاريخ الإنشاء",
         "creator": "المنشئ",
-        "me": "أنا",
         "modified": "تاريخ التعديل",
         "name": "الاسم",
         "playCount": "مرات اللعب",
@@ -984,9 +882,7 @@
       "genres": {
         "adventure": "مغامرة",
         "discussion": "نقاش",
-        "npc": "شخصية",
-        "npc-duo": "نقاش",
-        "npc-live": "شخصية"
+        "npc": "شخصية"
       },
       "importExport": {
         "coverFailed": "تم استيراد اللعبة، لكن تعذّر التحقق من غلافها. يمكنك رسم غلاف جديد في المحرّر.",
@@ -1002,7 +898,6 @@
         "importButton": "استيراد لعبة"
       },
       "newGame": "لعبة جديدة",
-      "playNow": "العب الآن",
       "privacyHint": "قد يصبح اسم اللعبة ووصفها ظاهرين للعامة. يُرجى عدم استخدام أسماء حقيقية.",
       "privacyHintShort": "قد يصبح ظاهرًا للعامة – يُرجى عدم استخدام أسماء حقيقية.",
       "privateShare": {
@@ -1050,12 +945,10 @@
         "active": "نشط",
         "privateShareLink": "رابط مشاركة خاص",
         "privateShareLinkDescription": "يمكن مشاركة روابط المشاركة الخاصة مع الآخرين. يمكن لأي شخص لديه الرابط لعب اللعبة بشكل مجهول بدون حساب. يجب اختيار مفتاح API لتغطية التكاليف.",
-        "publicGameWorkshopHint": "هذه لعبة عامة وليست جزءًا من ورشتك. خيارات المشاركة غير متاحة للألعاب العامة في وضع الورشة.",
         "publicSponsoring": "رعاية عامة",
         "publicSponsoringDescription": "يمكن لجميع المستخدمين على المنصة لعب هذه اللعبة مجانًا - يتحمل مفتاح API المخصص لك التكلفة.",
         "sectionTitle": "خيارات المشاركة",
-        "sectionTitleShareOnly": "خيارات المشاركة",
-        "workshopShareRequiresPublic": "يجب أن تكون هذه اللعبة عامة قبل مشاركتها في ورشة العمل."
+        "sectionTitleShareOnly": "خيارات المشاركة"
       },
       "sort": {
         "createdAt-asc": "تاريخ الإنشاء (الأقدم)",
@@ -1165,7 +1058,6 @@
           "zombie": "زومبي"
         }
       },
-      "title": "الألعاب التي أنشأتها",
       "viewModal": {
         "readOnlyNotice": "تم إنشاء هذه اللعبة بواسطة مستخدم آخر. يمكنك عرض التفاصيل دون تحريرها. استخدم \"نسخ\" لإنشاء نسخة قابلة للتحرير.",
         "title": "تفاصيل اللعبة"
@@ -1193,25 +1085,6 @@
     "help": "مساعدة",
     "home": {
       "codeCta": "إدخال الرمز",
-      "features": {
-        "create": {
-          "description": "صمّم مغامرات نصية تفاعلية مدعومة بالذكاء الاصطناعي",
-          "title": "أنشئ مغامرات"
-        },
-        "learn": {
-          "description": "مثالي لورش التعليم والأنشطة الصفّية",
-          "title": "تعلم ودرّس"
-        },
-        "play": {
-          "description": "انضم إلى أصدقائك في جلسات سرد قصصي تعاونية",
-          "title": "اللعب معًا"
-        },
-        "title": "لماذا تختار ChatGameLab؟",
-        "understand": {
-          "description": "استكشف كيف تنشئ نماذج الذكاء الاصطناعي القصص وتعلّم طريقة عملها",
-          "title": "فهم الذكاء الاصطناعي"
-        }
-      },
       "loginCta": "سجّل الدخول واستكشف",
       "splashDescription": "منصة تعليمية لإنشاء ولعب ألعاب مغامرات نصية مدعومة بالذكاء الاصطناعي. مثالية للمعلمين والطلاب ورواة القصص المبدعين."
     },
@@ -1248,19 +1121,9 @@
       "guest": {
         "loggingIn": "جارٍ تسجيل دخولك..."
       },
-      "participant": {
-        "loggingIn": "جارٍ تسجيل دخولك..."
-      },
       "success": {
         "message": "انضممت إلى الورشة بنجاح. جارٍ إعادة التوجيه...",
         "title": "مرحبًا!"
-      },
-      "switchWorkshop": {
-        "message": "ستظل ألعابك وتقدمك في الورشة الحالية محفوظة، لكنك لن تتمكن من الوصول إليها حتى تعود إليها.",
-        "stayButton": "البقاء في الورشة الحالية",
-        "switchButton": "تبديل الورشة",
-        "title": "تبديل الورشة؟",
-        "warning": "أنت حاليًا في ورشة \"{{currentWorkshop}}\". الانضمام إلى \"{{newWorkshop}}\" سيزيلك من ورشتك الحالية."
       }
     },
     "labels": {
@@ -1295,31 +1158,25 @@
     "logout": "تسجيل الخروج",
     "me": "أنا",
     "myGames": {
-      "continue": "العب",
       "copyConfirm": {
         "confirm": "نسخ اللعبة",
         "message": "سيتم إنشاء نسخة من \"{{name}}\" ضمن ألعابك.",
         "title": "نسخ اللعبة"
       },
-      "copyGame": "نسخ اللعبة",
       "empty": {
         "description": "أنشئ لعبتك الأولى للبدء في مغامرات تفاعلية مدعومة بالذكاء الاصطناعي.",
         "title": "لا توجد ألعاب بعد"
       },
-      "favorite": "إضافة إلى المفضلة",
       "filters": {
         "all": "الكل",
         "favorites": "المفضلة"
       },
-      "play": "العب",
-      "restart": "إعادة التشغيل",
       "restartConfirm": {
         "confirm": "إعادة التشغيل",
         "message": "هل أنت متأكد من رغبتك في إعادة تشغيل \"{{game}}\"؟ سيُفقد تقدمك الحالي.",
         "title": "إعادة تشغيل اللعبة"
       },
-      "title": "ألعابي",
-      "unfavorite": "إزالة من المفضلة"
+      "title": "ألعابي"
     },
     "myOrganization": {
       "actions": "الإجراءات",
@@ -1331,7 +1188,6 @@
         "allPlatforms": "جميع المنصات",
         "allowPublicSponsoring": "السماح بالرعاية العامة",
         "allowPublicSponsoringDesc": "يمكن استخدام هذا المفتاح لرعاية الألعاب لجميع المستخدمين.",
-        "filterByPlatform": "تصفية حسب المنصة",
         "freeUseKey": {
           "description": "عيّن مفتاح استخدام مجاني للسماح لجميع أعضاء المنظمة بلعب الألعاب دون الحاجة إلى مفتاح API خاص بهم.",
           "remove": "إزالة",
@@ -1351,13 +1207,10 @@
         "platform": "المنصة",
         "publicSponsoring": "الرعاية العامة",
         "removeShare": "إزالة من المنظمة",
-        "searchPlaceholder": "ابحث حسب الاسم أو المالك...",
         "selectKey": "اختر مفتاح API",
         "selectKeyPlaceholder": "اختر مفتاحًا للمشاركة...",
         "share": "مشاركة",
-        "shareKey": "مشاركة المفتاح",
         "shareKeyTitle": "إضافة مفتاح API إلى المؤسسة",
-        "showDetails": "عرض التفاصيل",
         "title": "مفاتيح API للجهة"
       },
       "autoShare": {
@@ -1367,7 +1220,10 @@
         "personalKeyGroup": "مفاتيح شخصية"
       },
       "declaration": {
+        "agree": "القراءة والموافقة",
         "consented": "وافقت منظمتك على الإصدار {{version}} بتاريخ {{date}}.",
+        "goAgree": "إلى مؤسستكم",
+        "newVersion": "يوجد إصدار جديد {{version}} من إقرار الموافقة. تبقى مؤسستكم نشطة؛ يُرجى قراءته والموافقة عليه نيابةً عنها.",
         "title": "إقرار الموافقة",
         "withdraw": "سحب الموافقة",
         "withdrawConfirm": "من دون الموافقة، تكون مؤسستكم معلّقة: لا يمكن لأي عضو استخدام {{siteName}} حتى يوافق أحد المسؤولين مجددًا. وتبقى بياناتها محفوظة.",
@@ -1385,9 +1241,6 @@
       "inviteTeacher": "دعوة معلم",
       "inviteTeacherDescription": "أرسل دعوة لمعلم للانضمام إلى جهتك.",
       "inviteTeacherTitle": "دعوة معلم",
-      "inviteUser": "دعوة مستخدم",
-      "inviteUserDescription": "أرسل دعوة لمستخدم للانضمام إلى جهتك بدون دور محدد.",
-      "inviteUserTitle": "دعوة مستخدم",
       "lastHeadError": "أنت آخر رئيس لهذه الجهة. يُرجى التواصل مع مديري الموقع إذا احتجت للمغادرة.",
       "leaveConfirm": "هل أنت متأكد أنك تريد مغادرة \"{{name}}\"؟",
       "leaveError": "فشل مغادرة الجهة. يُرجى المحاولة مجددًا.",
@@ -1454,7 +1307,6 @@
       "removeTitle": "إزالة العضو",
       "removeWarning": "سيفقد هذا المستخدم الوصول إلى الجهة.",
       "role": "الدور",
-      "searchPlaceholder": "ابحث عن الأعضاء...",
       "showing": "{{count}} عضو",
       "sort": {
         "label": "الترتيب حسب",
@@ -1492,24 +1344,12 @@
         "active": "نشط",
         "activeDescription": "الورش النشطة تسمح للمشاركين بالانضمام وإنشاء الألعاب.",
         "activeLabel": "نشط",
-        "addIndividual": "إضافة عضو في المنظمة",
         "addIndividualError": "فشل في إضافة العضو إلى الورشة.",
-        "addIndividualHint": "سيؤدي إضافة مستخدم إلى وضعه في وضع الورشة تلقائيًا. سيرى عرض الورشة بدلًا من لوحة التحكم المعتادة. لا تفعل ذلك إلا إذا كان مقصودًا.",
-        "addIndividualStaffNote": "يجب على الرؤساء والمعلمين الانضمام إلى الورش عبر قائمة الورش الخاصة بهم بأنفسهم - فهم غير مدرجين هنا.",
-        "addIndividualSuccess": "تمت إضافة العضو",
-        "addIndividualSuccessMessage": "تمت إضافة {{name}} إلى الورشة.",
-        "addIndividualTitle": "إضافة فرد إلى الورشة",
         "addToWorkshop": "إضافة إلى الورشة",
-        "aiQualityHigh": "High (Premium)",
-        "aiQualityLow": "Low (Economy)",
-        "aiQualityMedium": "Medium (Balanced)",
-        "aiQualityTier": "AI Quality Tier",
         "aiQualityTierHint": "مستوى جودة استجابات الذكاء الاصطناعي. كلما ارتفع المستوى زادت التكلفة وربما الجودة. تركه فارغًا يعني استخدام إعداد الخادم.",
         "allowGameSharing": "السماح بمشاركة الألعاب",
         "allowGameSharingHint": "عند التفعيل، يمكن للمشاركين إنشاء روابط مشاركة لألعابهم باستخدام مفتاح API الخاص بالورشة",
-        "anonymousParticipant": "مشارك مجهول",
         "create": "إنشاء ورشة",
-        "createFirst": "أنشئ ورشتك الأولى",
         "createInviteLink": "إنشاء رابط دعوة",
         "createTitle": "إنشاء ورشة",
         "deactivate": "إلغاء التفعيل",
@@ -1532,10 +1372,8 @@
         "inviteByEmailSuccessMessage": "تم إنشاء دعوة. سيرى المستخدم ذلك في الدعوات المعلقة لديه.",
         "inviteByEmailTitle": "دعوة مستخدم إلى الورشة",
         "inviteCreatedAt": "تاريخ الإنشاء",
-        "inviteDescription": "أنشئ رابط دعوة يمكن للمشاركين استخدامه للانضمام إلى هذه الورشة.",
         "inviteExpiresAt": "تاريخ الانتهاء",
         "inviteLink": "رابط الدعوة",
-        "inviteLinkDescription": "شارك هذا الرابط مع المشاركين لتمكينهم من الانضمام.",
         "inviteLinkTitle": "رابط دعوة للمشاركين – {{name}}",
         "inviteUsage": "عدد الاستخدامات",
         "isPaused": "إيقاف الورشة مؤقتًا",
@@ -1551,14 +1389,11 @@
         "noDefaultModel": "استخدم افتراضي المنصة",
         "noGuestToken": "لا يملك هذا العضو رابطًا لإعادة تسجيل الدخول. يملك الضيوف فقط هذا الرابط.",
         "noIndividuals": "لا يوجد مستخدمون أفراد في هذه المنظمة.",
-        "noParticipantToken": "هذا المشارك ليس لديه رابط دعوة. فقط المشاركون المجهولون يملكون روابط قابلة لإعادة الاستخدام.",
         "noParticipants": "لا يوجد مشاركون بعد",
         "noResults": "لا توجد ورش عمل تطابق بحثك أو عامل التصفية.",
         "notAuthorized": "لا تملك صلاحية إدارة الورش. يمكن للرؤساء والمعلمين فقط الوصول.",
         "participantGames": "{{count}} لعبة",
         "participantJoined": "انضم في {{date}}",
-        "participantLinkTitle": "رابط تسجيل الدخول مجددًا",
-        "participantLinkTitleNamed": "رابط تسجيل الدخول مجددًا لـ {{name}}",
         "participantName": "اسم المشارك",
         "participants": "المشاركون",
         "promptConstraintsFallbackOrg": "استخدام قاعدة حماية اليافعين الخاصة بالمؤسسة كإعداد افتراضي: {{constraint}}",
@@ -1580,10 +1415,8 @@
         "resetAccessWarning": "سيتوقف الرابط والرمز السابقان عن العمل، بما في ذلك على الأجهزة التي سجّل عليها الضيف الدخول حاليًا.",
         "revokeInvite": "إلغاء رابط الدعوة",
         "selectApiKey": "اختر مفتاح API",
-        "serverDefault": "Server Default",
         "settings": "الإعدادات",
         "shareGuestLink": "إظهار رابط إعادة تسجيل الدخول",
-        "shareParticipantLink": "إظهار رابط تسجيل الدخول مجددًا",
         "showOtherParticipantsGames": "عرض ألعاب المشاركين الآخرين",
         "showOtherParticipantsGamesHint": "يمكن للرؤساء والموظفين دائمًا رؤية جميع ألعاب المشاركين بغرض الإشراف",
         "showPublicGames": "عرض الألعاب العامة للمشاركين",
@@ -1617,7 +1450,6 @@
       "decline": "رفض",
       "declineConfirm": "هل أنت متأكد أنك تريد رفض هذه الدعوة؟",
       "declineTitle": "رفض الدعوة",
-      "empty": "لا توجد إشعارات جديدة.",
       "inviteDescription": "تمت دعوتك للانضمام كـ {{role}}.",
       "inviteToJoin": "دعوة جهة",
       "nothingNew": "لا جديد",
@@ -1766,6 +1598,7 @@
           "educatorInfoUrl": "معلومات للمعلمين",
           "gameTipsUrl": "نصائح لإنشاء الألعاب",
           "helpUrl": "المساعدة",
+          "operatorLegalName": "الاسم القانوني للمشغّل (للنصوص القانونية)",
           "operatorName": "المشغّل",
           "operatorUrl": "موقع المشغّل الإلكتروني",
           "privacyUrl": "سياسة الخصوصية",
@@ -1792,13 +1625,10 @@
         "title": "قواعد حماية اليافعين حسب الفئة العمرية",
         "u13Hint": "يُدرَج في كل مطالبة ذكاء اصطناعي للمستخدمين المسجل دخولهم من عمر 13 إلى 17 عامًا دون موافقة والدية مسجَّلة.",
         "u13Label": "قاعدة حماية اليافعين للمستخدمين الذين تتراوح أعمارهم بين 13 و17 عامًا، دون موافقة الوالدين (U13)",
-        "u13Placeholder": "مثال: اجعل كل المحتوى مناسبًا تمامًا للمراهقين. بدون عنف، بدون محتوى رومانسي، بدون مواضيع رعب.",
         "u13pHint": "يُدرَج في كل مطالبة ذكاء اصطناعي للمستخدمين المسجل دخولهم من عمر 13 إلى 17 عامًا مع موافقة والدية مسجَّلة.",
         "u13pLabel": "قاعدة حماية اليافعين للمستخدمين الذين تتراوح أعمارهم بين 13 و17 عامًا، بموافقة الوالدين (U13p)",
-        "u13pPlaceholder": "مثال: محتوى مناسب للعمر للمراهقين الذين وافق آباؤهم. يُسمح ببعض المواضيع الناضجة، ولا يُسمح بالمحتوى الصريح.",
         "u18Hint": "يتم حقنها في كل مطالبة ذكاء اصطناعي للمستخدمين المسجلين الذين يبلغون ١٨ عامًا فما فوق.",
-        "u18Label": "قاعدة حماية اليافعين للمستخدمين الذين تبلغ أعمارهم 18 عامًا فأكثر (U18)",
-        "u18Placeholder": "مثال: اجعل المحتوى مناسبًا. تجنب العنف الصريح أو المحتوى الجنسي."
+        "u18Label": "قاعدة حماية اليافعين للمستخدمين الذين تبلغ أعمارهم 18 عامًا فأكثر (U18)"
       },
       "defaultTier": {
         "description": "المستوى الافتراضي على مستوى الخادم عندما لا يتم تحديد مستوى خاص للورشة أو المؤسسة أو المستخدم. المستويات الأعلى تكلف أكثر وقد توفر جودة أعلى.",
@@ -1819,6 +1649,26 @@
       "freeUseTier": {
         "description": "مستوى الجودة المستخدم عند تفعيل مفتاح الاستخدام المجاني. المستويات الأعلى تكلف أكثر وقد تكون بجودة أعلى. اتركه فارغًا لاستخدام المستوى الافتراضي.",
         "title": "مستوى جودة الذكاء الاصطناعي للاستخدام المجاني"
+      },
+      "mail": {
+        "clearPassword": "إزالة كلمة المرور",
+        "consentCopy": "نسخ من الموافقات إلى",
+        "consentCopyHint": "يتلقى نسخة من موافقة كل مؤسسة. فارغ: البريد الإلكتروني للدعم.",
+        "description": "الخادم الذي يرسل {{siteName}} رسائله البريدية عبره، مثل تأكيد موافقة مؤسسة. من دون خادم، تُكتب الرسائل في السجل فقط.",
+        "from": "المرسِل",
+        "fromHint": "فارغ: اسم المستخدم هو المرسِل.",
+        "fromPlaceholder": "الاسم \u003cnoreply@example.org\u003e",
+        "host": "الخادم",
+        "hostHint": "اسم المضيف فقط، من دون المنفذ. فارغ: تُسجَّل الرسائل فقط.",
+        "password": "كلمة المرور",
+        "passwordNone": "لم تُعيَّن كلمة مرور.",
+        "passwordSet": "تم تعيين كلمة مرور. اتركه فارغًا للاحتفاظ بها.",
+        "port": "المنفذ",
+        "portHint": "587 مع STARTTLS، و465 مع TLS.",
+        "save": "حفظ",
+        "saveFailed": "تعذّر الحفظ. يُرجى التحقق من الحقول.",
+        "title": "خادم البريد",
+        "user": "اسم المستخدم"
       },
       "models": {
         "assign": {
@@ -1934,6 +1784,7 @@
         "ai": "الذكاء الاصطناعي والمفاتيح",
         "branding": "الهوية البصرية",
         "general": "عام",
+        "mail": "البريد",
         "models": "نماذج الذكاء الاصطناعي",
         "youthProtection": "حماية الشباب"
       },
@@ -1999,49 +1850,6 @@
     }
   },
   "dashboard": {
-    "cards": {
-      "externalLinks": {
-        "edu": {
-          "description": "عمل الإعلام التربوي مع ChatGameLab",
-          "title": "حول ChatGameLab"
-        },
-        "jff": {
-          "description": "منسق المشروع والجهة القائدة.",
-          "title": "JFF – Institut für Medienpädagogik"
-        },
-        "mainSite": {
-          "description": "تعرّف على المزيد حول المشروع التعليمي وراء هذه المنصة.",
-          "title": "مشروع ChatGameLab"
-        },
-        "title": "حول ChatGameLab"
-      },
-      "lastPlayed": {
-        "empty": "لا يوجد سجل لعب بعد. ابدأ بلعب لعبة!",
-        "title": "آخر الألعاب التي تم لعبها",
-        "viewAll": "جميع الألعاب"
-      },
-      "myGames": {
-        "empty": "لا توجد ألعاب بعد. أنشئ لعبتك الأولى!",
-        "title": "ألعابي",
-        "viewAll": "كل الإبداعات"
-      },
-      "myWorkshops": {
-        "empty": "لا توجد ورش نشطة. أنشئ ورشة ضمن جهتك!",
-        "title": "ورشتي",
-        "viewAll": "كل الورش"
-      },
-      "newGames": {
-        "empty": "لا توجد ألعاب متاحة بعد.",
-        "title": "ألعاب جديدة",
-        "viewAll": "كل الألعاب"
-      },
-      "popularGames": {
-        "empty": "لا توجد ألعاب متاحة بعد.",
-        "plays": "{{count}} مرة لعب",
-        "title": "ألعاب شائعة",
-        "viewAll": "كل الألعاب"
-      }
-    },
     "continue": {
       "go": "متابعة",
       "hint": "تابع من حيث توقفت",
@@ -2050,15 +1858,14 @@
       "title": "متابعة اللعبة"
     },
     "fresh": {
-      "by": "بواسطة {{name}}",
       "empty": "لا توجد ألعاب جديدة بعد.",
       "title": "ألعاب جديدة",
       "viewAll": "عرض المعرض"
     },
     "hero": {
       "create": "إنشاء",
-      "greeting": "مرحبًا {{name}}. ماذا سنقوم \u0003cmark\u0003 ببنائه \u0003c/mark\u0003 اليوم؟",
-      "greetingNoName": "مرحبًا. ماذا سنقوم \u0003cmark\u0003 ببنائه \u0003c/mark\u0003 اليوم؟",
+      "greeting": "مرحبًا {{name}}. ماذا سنقوم \u003cmark\u003eببنائه\u003c/mark\u003e اليوم؟",
+      "greetingNoName": "مرحبًا. ماذا سنقوم \u003cmark\u003eببنائه\u003c/mark\u003e اليوم؟",
       "journal": "دفتر المختبر · {{date}}",
       "promptLabel": "صِف فكرة لعبة",
       "promptPlaceholder": "صِف فكرة لعبة… سيساعدك الذكاء الاصطناعي على تطويرها"
@@ -2071,8 +1878,7 @@
     },
     "links": {
       "about": "حول {{siteName}}",
-      "educators": "للمربين",
-      "jff": "JFF – معهد التربية الإعلامية"
+      "educators": "للمربين"
     },
     "ownGames": {
       "empty": "لا توجد ألعاب بعد. صِف فكرة أعلاه وأنشئ لعبتك الأولى!",
@@ -2085,21 +1891,11 @@
       "plays_other": "لُعبت {{count}} مرات",
       "title": "الأكثر شعبية"
     },
-    "quickActions": {
-      "createNewGame": "إنشاء لعبة جديدة",
-      "createRoom": "إنشاء غرفة",
-      "createWorkshop": "إنشاء ورشة",
-      "importGame": "استيراد لعبة",
-      "inviteMembers": "دعوة أعضاء",
-      "startNewGame": "بدء لعبة جديدة",
-      "title": "إجراءات سريعة"
-    },
-    "someone": "شخص ما",
     "untitled": "بلا عنوان",
     "untitledGame": "لعبة بلا عنوان",
     "version": {
       "mismatch": {
-        "message": "إصدار الواجهة الأمامية \u0003frontendVersion\u0003{{frontendVersion}}\u0003/frontendVersion\u0003 لا يطابق إصدار الواجهة الخلفية \u0003backendVersion\u0003{{backendVersion}}\u0003/backendVersion\u0003. قد يسبب ذلك سلوكًا غير متوقع. تواصل مع الدعم إذا استمرت المشكلات.",
+        "message": "إصدار الواجهة الأمامية \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e لا يطابق إصدار الواجهة الخلفية \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. قد يسبب ذلك سلوكًا غير متوقع. تواصل مع الدعم إذا استمرت المشكلات.",
         "title": "تم اكتشاف تعارض في الإصدارات"
       }
     },
@@ -2196,10 +1992,8 @@
     "filters": {
       "all": "كل الألعاب",
       "mine": "ألعابي",
-      "public": "الألعاب العامة",
-      "workshop": "ألعاب الورشة"
+      "public": "الألعاب العامة"
     },
-    "gameType": "اللعبة",
     "infoModal": {
       "body": "لقد دخلت وضع الورشة. أثناء وجودك في هذا الوضع، يتم ربط كل ما تفعله بهذه الورشة - الألعاب التي تنشئها، جلسات اللعب، وروابط المشاركة.\n\nيمكنك المغادرة في أي وقت. لن تؤدي المغادرة إلى إنهاء الورشة أو إزالة أي شيء أنشأته.",
       "dontShowAgain": "لا تُظهر هذا مرة أخرى",
@@ -2224,8 +2018,7 @@
     },
     "showInviteLink": "إظهار رابط الدعوة",
     "showPublicPageLink": "إظهار رابط الصفحة العامة",
-    "title": "ورشتي",
-    "you": "أنت"
+    "title": "ورشتي"
   },
   "navigation": {
     "adminPanel": "لوحة الإدارة",
@@ -2274,8 +2067,6 @@
       "observer": "الإخراج",
       "opening-brief": "كيف تبدأ",
       "outline": "تخطيط المشهد",
-      "portrait": "رسم صورة شخصية",
-      "portrait-prompt": "وصف الصورة الشخصية",
       "props-store": "حالة اللعبة",
       "rephrase": "إعادة صياغة الفعل",
       "rephrase-audio": "فهم الكلام",
@@ -2497,52 +2288,50 @@
       "recording": "جارٍ الاستماع… حرّر الزر للإرسال"
     },
     "wires": {
-      "adapted-style\u0003eimage-prompt": "النمط",
-      "adapted-style\u0003eimage-style": "الطلب",
-      "adapted-style\u0003estart-game": "جاهز",
-      "cast\u0003live-a:voiceA": "الصوت",
-      "cast\u0003live-b:voiceB": "الصوت",
-      "cast\u0003start-game": "جاهز",
-      "cast-brief\u0003cast": "الشخصيات",
-      "condense-scenario\u0003econdensed-scenario": "الإجابة",
-      "condensed-scenario\u0003econdense-scenario": "الطلب",
-      "condensed-scenario\u0003eimage-prompt": "السيناريو",
-      "condensed-scenario\u0003estart-game": "جاهز",
-      "director\u0003live-a": "إدخال",
-      "director\u0003live-b": "إدخال",
-      "gallery-image\u0003estart-game": "جاهز",
-      "greeting\u0003elive-session": "الكلمات الأولى",
-      "greeting\u0003estart-game": "جاهز",
-      "greeting\u0003live-a": "الكلمات الأولى",
-      "image-prompt\u0003eimage": "المطالبة",
-      "image-style\u0003eadapted-style": "الإجابة",
-      "live-a\u0003director": "النص المفرغ",
-      "live-b\u0003director": "النص المفرغ",
-      "live-session\u0003eobserver": "النص المكتوب",
-      "observer\u0003elive-session": "إدخال",
-      "opening-brief\u0003egreeting": "موجز",
-      "outline\u0003eexpand": "الخطة",
-      "outline\u0003eimage-prompt": "المشهد",
-      "outline\u0003eprops-store": "التغييرات",
-      "player-input-audio\u0003elive-session": "الكلام",
-      "player-input-audio\u0003erephrase-audio": "الكلام",
-      "player-input-audio\u0003live-a": "الكلام",
-      "player-input-audio\u0003live-b": "الكلام",
-      "player-input-text\u0003erephrase": "الفعل",
-      "portrait\u0003estart-game": "جاهز",
-      "portrait-prompt\u0003eportrait": "المطالبة",
-      "props-store\u0003eoutline": "الحالة",
-      "rephrase\u0003eoutline": "الفعل",
-      "rephrase-audio\u0003eoutline": "الفعل",
-      "start-game\u0003elive-session": "الإشارة",
-      "start-game\u0003eoutline": "المطالبة",
-      "start-game\u0003live-a": "إشارة البدء",
-      "start-game\u0003live-b": "إشارة البدء",
-      "voice\u0003elive-session:secondary": "أسلوب الصوت",
-      "voice\u0003elive-session:voice": "الصوت",
-      "voice\u0003estart-game": "جاهز",
-      "voice-brief\u0003evoice:description": "الوصف",
-      "voice-brief\u0003evoice:voice": "الصوت الاحتياطي"
+      "adapted-style\u003eimage-prompt": "الأسلوب",
+      "adapted-style\u003eimage-style": "طلب",
+      "adapted-style\u003estart-game": "جاهز",
+      "cast-brief\u003ecast": "الشخصيات",
+      "cast\u003elive-a:voiceA": "الصوت",
+      "cast\u003elive-b:voiceB": "الصوت",
+      "cast\u003estart-game": "جاهز",
+      "condense-scenario\u003econdensed-scenario": "رد",
+      "condensed-scenario\u003econdense-scenario": "طلب",
+      "condensed-scenario\u003eimage-prompt": "السيناريو",
+      "condensed-scenario\u003estart-game": "جاهز",
+      "director\u003elive-a": "الإدخال",
+      "director\u003elive-b": "الإدخال",
+      "gallery-image\u003estart-game": "جاهز",
+      "greeting\u003elive-a": "الكلمات الأولى",
+      "greeting\u003elive-session": "الكلمات الأولى",
+      "greeting\u003estart-game": "جاهز",
+      "image-prompt\u003eimage": "الموجِّه",
+      "image-style\u003eadapted-style": "رد",
+      "live-a\u003edirector": "النص المفرَّغ",
+      "live-b\u003edirector": "النص المفرَّغ",
+      "live-session\u003eobserver": "النص المفرَّغ",
+      "observer\u003elive-session": "الإدخال",
+      "opening-brief\u003egreeting": "التوجيه",
+      "outline\u003eexpand": "الخطة",
+      "outline\u003eimage-prompt": "المشهد",
+      "outline\u003eprops-store": "التغييرات",
+      "player-input-audio\u003elive-a": "الكلام",
+      "player-input-audio\u003elive-b": "الكلام",
+      "player-input-audio\u003elive-session": "الكلام",
+      "player-input-audio\u003erephrase-audio": "الكلام",
+      "player-input-text\u003erephrase": "الإجراء",
+      "props-store\u003eoutline": "الحالة",
+      "rephrase-audio\u003eoutline": "الإجراء",
+      "rephrase\u003eoutline": "الإجراء",
+      "start-game\u003elive-a": "إشارة البدء",
+      "start-game\u003elive-b": "إشارة البدء",
+      "start-game\u003elive-session": "إشارة البدء",
+      "start-game\u003eoutline": "الموجِّه",
+      "voice-brief\u003evoice:description": "الوصف",
+      "voice-brief\u003evoice:voice": "صوت بديل",
+      "voice\u003elive-session:secondary": "أسلوب الصوت",
+      "voice\u003elive-session:voice": "الصوت",
+      "voice\u003estart-game": "جاهز"
     }
   }
 }

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"math"
+	netmail "net/mail"
 	"strings"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	"cgl/core/internal/store"
 	"cgl/db"
 	"cgl/log"
+	"cgl/mail"
 	"cgl/obj"
 
 	"github.com/google/uuid"
@@ -19,7 +21,8 @@ import (
 
 // The site is run by the admin: its youth-protection rules per age group,
 // its AI quality tiers, its free-use key, which pays last for whoever has no
-// other key, and how long it keeps a session not played. The free-use key is
+// other key, how long it keeps a session not played, and the mail server
+// mails go through, whose password no one reads back. The free-use key is
 // one of the admin's own: no admin spends someone else's key on the whole
 // site. The site's rules are
 // readable to everyone signed in, as the fallback below an organisation's.
@@ -47,7 +50,7 @@ func DefaultSiteRules() SiteRules {
 
 // siteRulesOf are the site's rules as they apply: what the admin set, else
 // the default.
-func siteRulesOf(s db.SystemSetting) SiteRules {
+func siteRulesOf(s db.V2GetSystemSettingsRow) SiteRules {
 	d := DefaultSiteRules()
 	or := func(stored sql.NullString, def *string) *string {
 		if stored.Valid && stored.String != "" {
@@ -82,6 +85,20 @@ type SiteSettings struct {
 	// SessionRetentionHours is how long a session not played is kept; 0
 	// keeps every session.
 	SessionRetentionHours int
+	Mail                  MailSettings
+}
+
+// MailSettings are the mail server mails go through, as the admin sees
+// them: its password only as whether one is set.
+type MailSettings struct {
+	Host        string // empty: mails are only logged
+	Port        int
+	User        string
+	From        string // the sender; empty: the user
+	PasswordSet bool
+	// ConsentCopyEmail receives a copy of every organisation's consent;
+	// empty: the site's support address.
+	ConsentCopyEmail string
 }
 
 // FreeUseKey is the key that pays last, and whether it worked when last used.
@@ -112,6 +129,10 @@ func siteSettings(ctx context.Context) (*SiteSettings, error) {
 		DefaultTier: s.DefaultAiQualityTier, FreeUseTier: nullString(s.FreeUseAiQualityTier),
 		Rules:                 siteRulesOf(s),
 		SessionRetentionHours: int(s.SessionRetentionHours),
+		Mail: MailSettings{
+			Host: s.SmtpHost, Port: int(s.SmtpPort), User: s.SmtpUser, From: s.SmtpFrom,
+			PasswordSet: s.SmtpPasswordSet, ConsentCopyEmail: s.ConsentCopyEmail,
+		},
 	}
 	if s.FreeUseApiKeyID.Valid {
 		key := &FreeUseKey{ID: s.FreeUseApiKeyID.UUID}
@@ -138,6 +159,46 @@ type SiteSettingsChange struct {
 	U18         *string
 
 	SessionRetentionHours *int
+
+	Mail *MailChange
+}
+
+// MailChange is the mail server as it is to be, all its fields at once but
+// the password: a nil password stays, an empty one clears it.
+type MailChange struct {
+	Host             string
+	Port             int // 0: the submission port, 587
+	User             string
+	From             string
+	ConsentCopyEmail string
+	Password         *string
+}
+
+// validate refuses a mail server no one can send through, and returns it
+// trimmed.
+func (m MailChange) validate() (MailChange, error) {
+	m.Host, m.User = strings.TrimSpace(m.Host), strings.TrimSpace(m.User)
+	m.From, m.ConsentCopyEmail = strings.TrimSpace(m.From), strings.TrimSpace(m.ConsentCopyEmail)
+	if m.Port == 0 {
+		m.Port = 587
+	}
+	if m.Port < 1 || m.Port > 65535 {
+		return m, refuse("the mail server's port is 1 to 65535")
+	}
+	if strings.ContainsAny(m.Host, " /:") {
+		return m, refuse("the mail server is a host name, without port or scheme")
+	}
+	if m.From != "" {
+		if _, err := netmail.ParseAddress(m.From); err != nil {
+			return m, refuse("the sender is an email address, with a name if you like")
+		}
+	}
+	if m.ConsentCopyEmail != "" {
+		if a, err := netmail.ParseAddress(m.ConsentCopyEmail); err != nil || a.Address != m.ConsentCopyEmail {
+			return m, refuse("the address for copies of consents is an email address")
+		}
+	}
+	return m, nil
 }
 
 // EditSiteSettings changes the site's settings, all or none: {Edit,
@@ -152,6 +213,13 @@ func EditSiteSettings(ctx context.Context, c SiteSettingsChange) (*SiteSettings,
 	if h := c.SessionRetentionHours; h != nil && (*h < 0 || *h > math.MaxInt32) {
 		return nil, refuse("the session retention is whole hours, 0 or more")
 	}
+	if c.Mail != nil {
+		m, err := c.Mail.validate()
+		if err != nil {
+			return nil, err
+		}
+		c.Mail = &m
+	}
 	err := store.InTx(ctx, func(q *db.Queries) error {
 		if c.DefaultTier != nil {
 			if err := q.V2UpdateDefaultAiQualityTier(ctx, *c.DefaultTier); err != nil {
@@ -161,6 +229,18 @@ func EditSiteSettings(ctx context.Context, c SiteSettingsChange) (*SiteSettings,
 		if c.SessionRetentionHours != nil {
 			if err := q.V2UpdateSessionRetentionHours(ctx, int32(*c.SessionRetentionHours)); err != nil {
 				return err
+			}
+		}
+		if m := c.Mail; m != nil {
+			if err := q.V2UpdateMailSettings(ctx, db.V2UpdateMailSettingsParams{
+				Host: m.Host, Port: int32(m.Port), Username: m.User, Sender: m.From, ConsentCopyEmail: m.ConsentCopyEmail,
+			}); err != nil {
+				return err
+			}
+			if m.Password != nil {
+				if err := q.V2UpdateMailPassword(ctx, *m.Password); err != nil {
+					return err
+				}
 			}
 		}
 		d := DefaultSiteRules()
@@ -246,4 +326,17 @@ func LatestBackup(ctx context.Context) (*obj.BackupLog, error) {
 		return nil, err
 	}
 	return &obj.BackupLog{ID: row.ID, StartedAt: row.StartedAt, FinishedAt: row.FinishedAt, Success: row.Success}, nil
+}
+
+// mailServer is the mail server mails go through, password included, and the
+// address that receives copies of consents (empty: the support address's).
+// Never shown to anyone: for sending only.
+func mailServer(ctx context.Context) (mail.Server, string, error) {
+	m, err := store.Queries().V2MailServer(ctx)
+	if err != nil {
+		return mail.Server{}, "", err
+	}
+	return mail.Server{
+		Host: m.SmtpHost, Port: int(m.SmtpPort), User: m.SmtpUser, Password: m.SmtpPassword, From: m.SmtpFrom,
+	}, m.ConsentCopyEmail, nil
 }
