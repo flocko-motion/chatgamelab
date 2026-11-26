@@ -1,6 +1,7 @@
 .row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
   min-width: 0;
 }
@@ -19,12 +20,9 @@
 
 .group {
   display: flex;
+  flex-shrink: 0;
 }
 
-/* Between groups: a stronger line than between segments. */
-.group + .group {
-  border-left: 2px solid var(--mantine-color-ink-5);
-}
 
 .segment {
   display: inline-flex;
@@ -46,9 +44,11 @@
   background: var(--mantine-color-gray-1);
 }
 
+/* On: filled with colour (cyan, or the option's own, set inline); the text
+   stays ink. */
 .segment[data-on] {
-  background: var(--mantine-color-ink-5);
-  color: var(--mantine-color-white);
+  background: var(--mantine-color-accent-5);
+  color: var(--mantine-color-ink-5);
 }
 
 .segment:focus-visible {
@@ -57,19 +57,7 @@
 }
 
 .segment[data-on]:focus-visible {
-  outline-color: var(--mantine-color-accent-4);
-}
-
-.dot {
-  width: 9px;
-  height: 9px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  border: 1.5px solid var(--mantine-color-ink-5);
-}
-
-.segment[data-on] .dot {
-  border-color: var(--mantine-color-white);
+  outline-color: var(--mantine-color-white);
 }
 
 .clear {
@@ -94,6 +82,7 @@
 /* A phone: the bar scrolls sideways as a whole. */
 @media (max-width: 48em) {
   .row {
+    flex-wrap: nowrap;
     overflow-x: auto;
     scrollbar-width: none;
     margin: 0 calc(var(--mantine-spacing-sm) * -1);

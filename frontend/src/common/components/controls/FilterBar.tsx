@@ -1,15 +1,15 @@
 import type { ReactNode } from "react";
 import { UnstyledButton } from "@mantine/core";
-import { IconX } from "@tabler/icons-react";
+import { IconCheck, IconX } from "@tabler/icons-react";
 import classes from "./FilterBar.module.css";
 
 export interface FilterBarOption {
   value: string;
   label: string;
-  /** An icon before the label. */
+  /** An icon before the label; while the filter is on, a tick takes its place. */
   icon?: ReactNode;
-  /** A small colour dot before the label (e.g. a genre's colour). */
-  dot?: string;
+  /** The colour the segment takes while on (e.g. a genre's); cyan without. */
+  color?: string;
 }
 
 export interface FilterBarGroup {
@@ -20,10 +20,12 @@ export interface FilterBarGroup {
 }
 
 export interface FilterBarProps {
-  /** Groups of filters, set apart by a stronger line (e.g. who/where, genres). */
+  /** Groups of filters, each its own bar (e.g. who/where, genres). */
   groups: FilterBarGroup[];
-  /** Turns every filter off; shown while one is on. */
+  /** Brings every filter back to how the list starts; shown while one differs. */
   onClear: () => void;
+  /** Whether a filter differs from how the list starts (default: one is on). */
+  changed?: boolean;
   clearLabel: string;
   /** The bar's accessible name. */
   label: string;
@@ -36,17 +38,21 @@ export interface FilterBarProps {
  * - A list can be narrowed by several independent filters at once
  *   (Favorites + Adventure): no tabs, since these are no subpages
  *
- * One outlined bar, the filters its segments; every active one looks the
- * same (ink, white text). On a phone the bar scrolls sideways.
+ * Each group is an outlined bar; the filters are its segments. A filter
+ * that is on is filled with colour (its own, else cyan) and its icon turns
+ * into a tick; one that is off stays white with its icon. The tick tells on
+ * from off where the colour alone is too faint (the fills reach less than
+ * 3:1 against white). On a phone the row
+ * scrolls sideways.
  */
-export function FilterBar({ groups, onClear, clearLabel, label }: FilterBarProps) {
-  const anyOn = groups.some((g) => g.active.length > 0);
+export function FilterBar({ groups, onClear, changed, clearLabel, label }: FilterBarProps) {
+  const anyOn = changed ?? groups.some((g) => g.active.length > 0);
   const shown = groups.filter((g) => g.options.length > 0);
   return (
-    <div className={classes.row}>
-      <div className={classes.bar} role="group" aria-label={label}>
-        {shown.map((group, gi) => (
-          <div key={gi} className={classes.group}>
+    <div className={classes.row} role="group" aria-label={label}>
+      {shown.map((group, gi) => (
+        <div key={gi} className={classes.group}>
+          <div className={classes.bar}>
             {group.options.map((option) => {
               const on = group.active.includes(option.value);
               return (
@@ -56,16 +62,16 @@ export function FilterBar({ groups, onClear, clearLabel, label }: FilterBarProps
                   data-on={on || undefined}
                   aria-pressed={on}
                   onClick={() => group.onToggle(option.value)}
+                  style={on && option.color ? { background: option.color } : undefined}
                 >
-                  {option.dot && <span className={classes.dot} style={{ background: option.dot }} aria-hidden />}
-                  {option.icon}
+                  {on ? <IconCheck size={14} stroke={3} aria-hidden /> : option.icon}
                   {option.label}
                 </UnstyledButton>
               );
             })}
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
       {anyOn && (
         <UnstyledButton className={classes.clear} onClick={onClear}>
           <IconX size={14} aria-hidden />
