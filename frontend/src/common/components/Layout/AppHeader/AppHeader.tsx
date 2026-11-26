@@ -37,6 +37,7 @@ export function AppHeader({
   isInWorkshopMode = false,
   workshopName,
   onExitWorkshopMode,
+  withoutTabBar = false,
 }: AppHeaderProps) {
   const [mobileNavOpened, { open: openMobileNav, close: closeMobileNav }] =
     useDisclosure(false);
@@ -203,8 +204,11 @@ export function AppHeader({
       </AppShell.Header>
 
       {/* Phone: the main menu as a tab bar at the bottom, for signed-in
-          members (guests and workshop mode keep their own menus) */}
-      {forceMobile && !isSignedOut && !isGuest && !isInWorkshopMode && <MobileTabBar />}
+          members (guests and workshop mode keep their own menus), except
+          over a game, which fills the screen */}
+      {forceMobile && !withoutTabBar && !isSignedOut && !isGuest && !isInWorkshopMode && (
+        <MobileTabBar />
+      )}
 
       {/* Mobile Navigation Drawer */}
       <Drawer
