@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
 import { UnstyledButton } from "@mantine/core";
-import { IconX } from "@tabler/icons-react";
+import { IconCheck, IconX } from "@tabler/icons-react";
 import classes from "./FilterBar.module.css";
 
 export interface FilterBarOption {
   value: string;
   label: string;
-  /** An icon before the label. */
+  /** An icon before the label; while the filter is on, a tick takes its place. */
   icon?: ReactNode;
   /** The colour the segment takes while on (e.g. a genre's); cyan without. */
   color?: string;
@@ -39,8 +39,10 @@ export interface FilterBarProps {
  *   (Favorites + Adventure): no tabs, since these are no subpages
  *
  * Each group is an outlined bar; the filters are its segments. A filter
- * that is on is filled with colour (its own, else cyan), one that is off
- * stays white, so on and off tell apart at a glance. On a phone the row
+ * that is on is filled with colour (its own, else cyan) and its icon turns
+ * into a tick; one that is off stays white with its icon. The tick tells on
+ * from off where the colour alone is too faint (the fills reach less than
+ * 3:1 against white). On a phone the row
  * scrolls sideways.
  */
 export function FilterBar({ groups, onClear, changed, clearLabel, label }: FilterBarProps) {
@@ -62,7 +64,7 @@ export function FilterBar({ groups, onClear, changed, clearLabel, label }: Filte
                   onClick={() => group.onToggle(option.value)}
                   style={on && option.color ? { background: option.color } : undefined}
                 >
-                  {option.icon}
+                  {on ? <IconCheck size={14} stroke={3} aria-hidden /> : option.icon}
                   {option.label}
                 </UnstyledButton>
               );
