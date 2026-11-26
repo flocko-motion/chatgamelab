@@ -24,4 +24,10 @@ export interface AppHeaderProps {
   workshopName?: string | null;
   /** Callback to exit workshop mode */
   onExitWorkshopMode?: () => void;
+  /**
+   * If true, never shows the phone's tab bar: a game fills the screen and
+   * keeps no room for it, so the bar would cover its controls. The header's
+   * burger keeps the full menu.
+   */
+  withoutTabBar?: boolean;
 }

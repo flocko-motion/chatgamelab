@@ -282,7 +282,8 @@ function RootComponent() {
   // Play routes: one layout and one host for all of them, which comes to a
   // session on the platform's launch panel before the frame mounts. Guests
   // get the header with logo, Contact and Language. Checked before auth
-  // loading; the host waits for it before launching.
+  // loading; the host waits for it before launching. The game fills the
+  // screen, so the phone's tab bar stays away: it would cover the controls.
   if (playback && !shouldRedirect && !shouldRedirectGuest) {
     return (
       <AppLayout
@@ -291,7 +292,11 @@ function RootComponent() {
         darkMode={true}
         withContainer={false}
         navItems={isFullyAuthenticated ? navItems : []}
-        headerProps={isFullyAuthenticated ? headerProps : { isSignedOut: true }}
+        headerProps={
+          isFullyAuthenticated
+            ? { ...headerProps, withoutTabBar: true }
+            : { isSignedOut: true }
+        }
       >
         <PlaybackHost target={playback} />
       </AppLayout>
