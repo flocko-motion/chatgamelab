@@ -13,10 +13,11 @@
     box-shadow 250ms ease;
 }
 
-/* The springy wobble: lift, tilt a hair, the shadow turns cyan. */
+/* The springy wobble: lift, tilt a hair, the shadow takes the genre's
+   colour (--genre-color, set by the card; cyan for an unknown genre). */
 .card:hover {
   transform: translate(-2px, -6px) rotate(-0.9deg) scale(1.01);
-  box-shadow: 6px 8px 0 var(--mantine-color-accent-5);
+  box-shadow: 6px 8px 0 var(--genre-color, var(--mantine-color-accent-5));
 }
 
 /* A game the caller cannot start: nothing to press, no play hint. */
@@ -47,7 +48,8 @@
 }
 
 /* Over the cover, on hover (and for the keyboard on focus): a big round
-   button with a gamepad, as a video shows its play button. */
+   button with a play triangle, as a video shows its play button; while the
+   pointer is on Edit, a pencil instead. */
 .playHint {
   all: unset;
   position: absolute;
@@ -96,6 +98,27 @@
   width: 45%;
   height: 45%;
   margin-left: 6%;
+}
+
+/* The pencil: hidden until the pointer is on Edit, then it takes the
+   triangle's place. A game that cannot start shows it too, as Edit works. */
+.editIcon {
+  display: none;
+  width: 45%;
+  height: 45%;
+}
+
+.card:has(.edit:hover) .playIcon {
+  display: none;
+}
+
+.card:has(.edit:hover) .editIcon {
+  display: block;
+}
+
+.card[data-unplayable]:has(.edit:hover) .playHint {
+  display: flex;
+  opacity: 1;
 }
 
 .overlayTop,
@@ -153,9 +176,21 @@
 /* Pushed right, also when there is no tag on its left. */
 .star {
   margin-left: auto;
-  border-radius: 50%;
-  background: var(--mantine-color-white);
-  border: 2px solid var(--mantine-color-ink-5);
+}
+
+/* The favourite star alone, no circle: ink outline, white inside; a
+   favourite fills yellow, its outline stays ink. */
+.star button,
+.star button:hover {
+  background: transparent;
+}
+
+.starIcon {
+  fill: var(--mantine-color-white);
+}
+
+.starIconOn {
+  fill: var(--mantine-color-orange-4);
 }
 
 /* Takes the free height, so the foot sits at the bottom. */
@@ -240,10 +275,12 @@
 }
 
 .edit {
+  display: flex;
   margin-left: auto;
 }
 
 .playText {
+  line-height: 1;
   font-family: var(--mantine-font-family-monospace);
   font-size: var(--mantine-font-size-xs);
   font-weight: 700;
@@ -252,6 +289,32 @@
 
 .card:hover .playText {
   color: var(--mantine-color-highlight-7);
+}
+
+/* Edit, worded as Play is: no border, no icon. Its pencil shows on the
+   cover while the pointer is on it; then Play stays plain. */
+.editText {
+  all: unset;
+  line-height: 1;
+  cursor: pointer;
+  font-family: var(--mantine-font-family-monospace);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.editText:hover {
+  color: var(--mantine-color-highlight-7);
+}
+
+.card:has(.edit:hover) .playText {
+  color: inherit;
+}
+
+.editText:focus-visible {
+  outline: 2px solid var(--mantine-color-accent-5);
+  outline-offset: 2px;
 }
 
 /* The compact tile: the same parts, tighter; the name may take two lines. */
@@ -280,14 +343,6 @@
 
 .card[data-compact] .body h3 {
   font-size: 16px;
-}
-
-/* Edit as a round pencil, like the star. */
-.editRound {
-  display: inline-flex;
-  border-radius: 50%;
-  border: 2px solid var(--mantine-color-ink-5);
-  background: var(--mantine-color-white);
 }
 
 .card[data-compact] .playText {

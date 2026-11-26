@@ -1,23 +1,19 @@
-import { Badge, Card, Tooltip, VisuallyHidden } from "@mantine/core";
+import { Badge, Card, Tooltip, VisuallyHidden, useMantineTheme } from "@mantine/core";
 import {
   IconLock,
   IconStar,
-  IconStarFilled,
   IconSchool,
   IconHeartFilled,
   IconPlayerPlay,
   IconPlayerPlayFilled,
-  IconPencil,
+  IconEdit,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { blocksContinue, unplayable } from "@/common/lib/playability";
 import { UnplayableNote } from "@components/UnplayableNote";
-import {
-  EditButtonWithText,
-  GenericIconButton,
-} from "@components/buttons";
+import { GenericIconButton } from "@components/buttons";
 import type { GameView } from "@/api/types";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { GameCover } from "@components/GameCover";
 import { GenreChip } from "@components/GenreChip";
 import { Critter } from "@components/Critter";
@@ -79,7 +75,7 @@ export interface GameCardProps {
   /**
    * The smaller tile, for a few games among other things (the dashboard):
    * the same parts and actions, tighter: no description, no "my game"
-   * badge, Edit as a round pencil.
+   * badge.
    */
   compact?: boolean;
 }
@@ -115,6 +111,9 @@ export function GameCard({
   compact = false,
 }: GameCardProps) {
   const { t } = useTranslation("common");
+  const theme = useMantineTheme();
+  // On hover the shadow takes the genre's colour, as its chip on the cover.
+  const genreColor: string | undefined = theme.other.genreColors[game.genre];
   const sponsored = !!game.publicSponsoredApiKeyShareId;
   const favoriteText = isFavorite ? unfavoriteLabel : favoriteLabel;
   const continues = hasSession;
@@ -127,6 +126,7 @@ export function GameCard({
   return (
     <Card
       className={classes.card}
+      style={genreColor ? ({ "--genre-color": genreColor } as CSSProperties) : undefined}
       data-sponsored={sponsored || undefined}
       padding={0}
       onClick={play}
@@ -148,6 +148,8 @@ export function GameCard({
         >
           <span className={classes.playCircle}>
             <IconPlayerPlayFilled className={classes.playIcon} aria-hidden />
+            {/* Shown instead while the pointer is on Edit: what that click does. */}
+            <IconEdit className={classes.editIcon} aria-hidden />
           </span>
         </button>
         <div className={classes.overlayTop}>
@@ -162,8 +164,15 @@ export function GameCard({
             <div className={classes.star} onClick={(e) => e.stopPropagation()}>
               <Tooltip label={favoriteText} withArrow>
                 <GenericIconButton
-                  icon={isFavorite ? <IconStarFilled size={18} /> : <IconStar size={18} />}
-                  color={isFavorite ? "orange" : "ink"}
+                  icon={
+                    <IconStar
+                      size={28}
+                      stroke={2}
+                      className={isFavorite ? classes.starIconOn : classes.starIcon}
+                    />
+                  }
+                  color="ink"
+                  size="lg"
                   onClick={onToggleFavorite}
                   aria-label={favoriteText ?? ""}
                 />
@@ -227,25 +236,19 @@ export function GameCard({
       <div className={classes.foot}>
         {play && (
           <span className={classes.playText} aria-hidden>
-            {playText} →
+            {playText}
           </span>
         )}
         <span className={classes.edit} onClick={(e) => e.stopPropagation()}>
-          {compact ? (
-            <Tooltip label={editLabel} withArrow>
-              <span className={classes.editRound}>
-                <GenericIconButton
-                  icon={<IconPencil size={16} />}
-                  color="ink"
-                  size="sm"
-                  onClick={onEdit}
-                  aria-label={`${editLabel}: ${game.name}`}
-                />
-              </span>
-            </Tooltip>
-          ) : (
-            <EditButtonWithText onClick={onEdit}>{editLabel}</EditButtonWithText>
-          )}
+          {/* Plain text, as Play is; the pencil shows on the cover. */}
+          <button
+            type="button"
+            className={classes.editText}
+            onClick={onEdit}
+            aria-label={`${editLabel}: ${game.name}`}
+          >
+            {editLabel}
+          </button>
         </span>
       </div>
     </Card>
