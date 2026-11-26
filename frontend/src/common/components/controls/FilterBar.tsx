@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { UnstyledButton } from "@mantine/core";
-import { IconCheck, IconX } from "@tabler/icons-react";
+import { IconX } from "@tabler/icons-react";
 import classes from "./FilterBar.module.css";
 
 export interface FilterBarOption {
@@ -8,9 +8,8 @@ export interface FilterBarOption {
   label: string;
   /** An icon before the label. */
   icon?: ReactNode;
-  /** A small colour dot before the label (e.g. a genre's colour); switched
-   *  on, the segment takes this colour. */
-  dot?: string;
+  /** The colour the segment takes while on (e.g. a genre's); cyan without. */
+  color?: string;
 }
 
 export interface FilterBarGroup {
@@ -39,8 +38,9 @@ export interface FilterBarProps {
  * - A list can be narrowed by several independent filters at once
  *   (Favorites + Adventure): no tabs, since these are no subpages
  *
- * Each group is an outlined bar; the filters are its segments. A filter that is on is coloured (its dot's colour, else cyan)
- * and ticked, so on and off tell apart at a glance. On a phone the row
+ * Each group is an outlined bar; the filters are its segments. A filter
+ * that is on is filled with colour (its own, else cyan), one that is off
+ * stays white, so on and off tell apart at a glance. On a phone the row
  * scrolls sideways.
  */
 export function FilterBar({ groups, onClear, changed, clearLabel, label }: FilterBarProps) {
@@ -60,12 +60,8 @@ export function FilterBar({ groups, onClear, changed, clearLabel, label }: Filte
                   data-on={on || undefined}
                   aria-pressed={on}
                   onClick={() => group.onToggle(option.value)}
-                  style={on && option.dot ? { background: option.dot } : undefined}
+                  style={on && option.color ? { background: option.color } : undefined}
                 >
-                  {on && <IconCheck size={14} stroke={3} aria-hidden />}
-                  {option.dot && !on && (
-                    <span className={classes.dot} style={{ background: option.dot }} aria-hidden />
-                  )}
                   {option.icon}
                   {option.label}
                 </UnstyledButton>

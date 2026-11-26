@@ -1,14 +1,7 @@
 import { useMantineTheme } from "@mantine/core";
-import { IconCompass, IconDeviceGamepad2, IconMessages, IconRobot, IconUsersGroup } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { GENRE_FALLBACK_ICON, GENRE_ICONS } from "./genreIcons";
 import classes from "./GenreChip.module.css";
-
-const ICONS: Record<string, typeof IconCompass> = {
-  adventure: IconCompass,
-  npc: IconMessages,
-  discussion: IconUsersGroup,
-  chatbot: IconRobot,
-};
 
 export interface GenreChipProps {
   /** The game's genre key (e.g. "adventure", "npc"). */
@@ -31,7 +24,7 @@ export interface GenreChipProps {
 export function GenreChip({ genre, size = "md" }: GenreChipProps) {
   const { t } = useTranslation("common");
   const theme = useMantineTheme();
-  const Icon = ICONS[genre] ?? IconDeviceGamepad2;
+  const Icon = GENRE_ICONS[genre] ?? GENRE_FALLBACK_ICON;
   const fill = theme.other.genreColors[genre] ?? theme.other.genreFallbackColor;
   return (
     <span className={classes.chip} data-size={size} style={{ background: fill }}>

@@ -103,10 +103,10 @@ export interface ListTableProps<T, F extends string, S extends string> {
    */
   compact?: boolean;
   /**
-   * How a filter option looks in the grid's filter bar: an icon, or a colour
-   * dot (e.g. a genre's). Its label stays the preset's.
+   * How a filter option looks in the grid's filter bar: an icon, and the
+   * colour it takes while on (e.g. a genre's). Its label stays the preset's.
    */
-  optionLook?: (value: string) => { icon?: ReactNode; dot?: string } | undefined;
+  optionLook?: (value: string) => { icon?: ReactNode; color?: string } | undefined;
 }
 
 /**
