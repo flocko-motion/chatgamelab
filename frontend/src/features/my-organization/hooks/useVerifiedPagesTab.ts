@@ -4,12 +4,15 @@ import {
   useDeleteVerifiedPage,
   useUpdateVerifiedPage,
   useVerifiedPages,
+  verifiedPageFieldError,
+  type VerifiedPageField,
 } from "@/api/hooks";
 import type { VerifiedPageView } from "@/api/types";
+import { translateErrorCode } from "@/common/lib/errorHelpers";
 
 /**
- * A full web address. Which ones it takes is the server's: https, and in
- * development plain http to the own machine.
+ * A full web address. Which ones it takes is the server's: https, and on a
+ * development server plain http as well.
  */
 function isWebURL(value: string): boolean {
   try {
@@ -49,6 +52,8 @@ export function useVerifiedPagesTab(institutionId: string | undefined) {
   const [editing, setEditing] = useState<VerifiedPageView | null>(null);
   // The page asked to be removed, waiting for the confirmation.
   const [removing, setRemoving] = useState<VerifiedPageView | null>(null);
+  // The server's refusal of one address, shown at its field until that field changes.
+  const [refusal, setRefusal] = useState<{ field: VerifiedPageField; code: string } | null>(null);
 
   const draftValid = isWebURL(pageUrl.trim()) && isWebURL(callbackUrl.trim());
 
@@ -56,13 +61,29 @@ export function useVerifiedPagesTab(institutionId: string | undefined) {
     setEditing(null);
     setPageUrl("");
     setCallbackUrl("");
+    setRefusal(null);
   };
 
   const startEdit = (page: VerifiedPageView) => {
     setEditing(page);
     setPageUrl(page.pageUrl);
     setCallbackUrl(page.callbackUrl);
+    setRefusal(null);
   };
+
+  /** A field's change clears the refusal shown at it. */
+  const changePageUrl = (value: string) => {
+    setPageUrl(value);
+    setRefusal((r) => (r?.field === "pageUrl" ? null : r));
+  };
+  const changeCallbackUrl = (value: string) => {
+    setCallbackUrl(value);
+    setRefusal((r) => (r?.field === "callbackUrl" ? null : r));
+  };
+
+  /** The translated refusal at a field, or undefined. */
+  const errorAt = (field: VerifiedPageField) =>
+    refusal?.field === field ? translateErrorCode(refusal.code).message : undefined;
 
   /** Registers the page in the form, or saves the one being changed. */
   const submit = async () => {
@@ -75,8 +96,9 @@ export function useVerifiedPagesTab(institutionId: string | undefined) {
         await create.mutateAsync({ institutionId, ...page });
       }
       clearForm();
-    } catch {
-      // handled by the mutation
+    } catch (error) {
+      // A refusal of an address shows at its field; the mutation shows any other.
+      setRefusal(verifiedPageFieldError(error));
     }
   };
 
@@ -96,7 +118,15 @@ export function useVerifiedPagesTab(institutionId: string | undefined) {
     pages: pages.data ?? [],
     /** An organisation has one verified page: registering is for one without. */
     mayRegister: (pages.data ?? []).length === 0,
-    draft: { pageUrl, setPageUrl, callbackUrl, setCallbackUrl, valid: draftValid },
+    draft: {
+      pageUrl,
+      setPageUrl: changePageUrl,
+      callbackUrl,
+      setCallbackUrl: changeCallbackUrl,
+      valid: draftValid,
+      pageUrlError: errorAt("pageUrl"),
+      callbackUrlError: errorAt("callbackUrl"),
+    },
     /** The page the form changes; null while it registers a new one. */
     editing,
     /** The changed address is on another site than the page's: its approval would go. */

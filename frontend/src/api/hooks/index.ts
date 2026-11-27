@@ -217,6 +217,8 @@ export {
   useApproveVerifiedPage,
   type VerifiedPageListFilter,
   type VerifiedPageListSort,
+  verifiedPageFieldError,
+  type VerifiedPageField,
 } from "./useVerifiedPages";
 
 // A game's embed link on another website

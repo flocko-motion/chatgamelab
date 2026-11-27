@@ -54,6 +54,13 @@ const (
 	ErrCodeCoverUnsigned = "cover_unsigned" // the picture carries no ChatGameLab signature
 	ErrCodeNotAPicture   = "not_a_picture"  // the upload is no PNG or JPEG
 	ErrCodeFileTooLarge  = "file_too_large"
+
+	// A verified page's addresses (core: checkPageURLs)
+	ErrCodePageURLInvalid      = "page_url_invalid"       // the page's address is no full web address
+	ErrCodePageURLNotHTTPS     = "page_url_not_https"     // the page's address is plain http outside development
+	ErrCodeCallbackURLInvalid  = "callback_url_invalid"   // the callback is no full web address
+	ErrCodeCallbackURLNotHTTPS = "callback_url_not_https" // the callback is plain http outside development
+	ErrCodeCallbackOffSite     = "callback_off_site"      // the callback is not on the page's site
 )
 
 // Error type constructors

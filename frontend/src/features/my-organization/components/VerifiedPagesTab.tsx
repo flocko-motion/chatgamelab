@@ -61,11 +61,13 @@ export function VerifiedPagesTab({ state }: { state: VerifiedPagesTabState }) {
             {state.editing?.approvedAt && state.leavesSite && (
               <HelperText c="orange.8">{t("myOrganization.verifiedPages.editReapproval")}</HelperText>
             )}
+            {state.editing && <HelperText>{t("myOrganization.verifiedPages.pageIdStays")}</HelperText>}
             <TextInput
               label={t("myOrganization.verifiedPages.pageUrl")}
               description={t("myOrganization.verifiedPages.pageUrlHint")}
               placeholder="https://example.org/play"
               value={draft.pageUrl}
+              error={draft.pageUrlError}
               onChange={(e) => draft.setPageUrl(e.currentTarget.value)}
             />
             <TextInput
@@ -73,6 +75,7 @@ export function VerifiedPagesTab({ state }: { state: VerifiedPagesTabState }) {
               description={t("myOrganization.verifiedPages.callbackUrlHint")}
               placeholder="https://example.org/chatgamelab-callback"
               value={draft.callbackUrl}
+              error={draft.callbackUrlError}
               onChange={(e) => draft.setCallbackUrl(e.currentTarget.value)}
             />
             <Group justify="flex-end">

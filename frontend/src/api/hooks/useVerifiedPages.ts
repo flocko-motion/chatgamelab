@@ -12,6 +12,31 @@ import type {
   VerifiedPageView,
 } from "../generated/api.gen";
 import { useEntityList, type List, type ListPreset } from "../lists";
+import { ErrorCodes, extractRawErrorCode } from "@/common/types/errorCodes";
+
+/** A form field of a verified page: its address or its callback. */
+export type VerifiedPageField = "pageUrl" | "callbackUrl";
+
+/** The field each refusal of a page's addresses is about; the form shows it there. */
+const FIELD_OF_CODE: Record<string, VerifiedPageField> = {
+  [ErrorCodes.PAGE_URL_INVALID]: "pageUrl",
+  [ErrorCodes.PAGE_URL_NOT_HTTPS]: "pageUrl",
+  [ErrorCodes.CALLBACK_URL_INVALID]: "callbackUrl",
+  [ErrorCodes.CALLBACK_URL_NOT_HTTPS]: "callbackUrl",
+  [ErrorCodes.CALLBACK_OFF_SITE]: "callbackUrl",
+};
+
+/** The field and code of a refusal about one of a page's addresses; null for any other error. */
+export function verifiedPageFieldError(error: unknown): { field: VerifiedPageField; code: string } | null {
+  const code = extractRawErrorCode(error);
+  const field = code ? FIELD_OF_CODE[code] : undefined;
+  return code && field ? { field, code } : null;
+}
+
+/** A refusal about an address shows at its field; any other error as usual. */
+function handleSaveError(error: ApiError) {
+  if (!verifiedPageFieldError(error)) handleApiError(error);
+}
 
 /** A filter of the verified page list (the server's enum): waiting or approved. */
 export type VerifiedPageListFilter = VerifiedPageFilter;
@@ -43,7 +68,7 @@ export function useCreateVerifiedPage() {
       api.postApiInstitutionsIdVerifiedPages(institutionId, page).then((r) => r.data),
     onSuccess: (_, { institutionId }) =>
       queryClient.invalidateQueries({ queryKey: queryKeys.verifiedPages(institutionId) }),
-    onError: handleApiError,
+    onError: handleSaveError,
   });
 }
 
@@ -57,7 +82,7 @@ export function useUpdateVerifiedPage() {
       queryClient.invalidateQueries({ queryKey: queryKeys.verifiedPages(institutionId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.allVerifiedPages });
     },
-    onError: handleApiError,
+    onError: handleSaveError,
   });
 }
 

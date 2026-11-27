@@ -63,6 +63,13 @@ const (
 	CodeHostRefused = "host_refused"
 	// CodeVerifiedPageExists: the organisation has its one verified page already.
 	CodeVerifiedPageExists = "verified_page_exists"
+	// A verified page's addresses: no full web address, plain http outside
+	// development, a callback on another site.
+	CodePageURLInvalid      = "page_url_invalid"
+	CodePageURLNotHTTPS     = "page_url_not_https"
+	CodeCallbackURLInvalid  = "callback_url_invalid"
+	CodeCallbackURLNotHTTPS = "callback_url_not_https"
+	CodeCallbackOffSite     = "callback_off_site"
 )
 
 // Playable is a game's playability when the caller can start it; otherwise
