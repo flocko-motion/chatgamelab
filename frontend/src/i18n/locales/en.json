@@ -1192,6 +1192,7 @@
         "add": "Register page",
         "editTitle": "Change the page",
         "editReapproval": "This address is on another site, which waits for an admin's approval again; until then, games stop starting there. Another port or path on the same site stays approved.",
+        "pageIdStays": "The page ID stays when you change the addresses, so your page's code needs no change.",
         "edit": "Change page",
         "save": "Save page",
         "pageId": "Page ID",
@@ -1960,7 +1961,12 @@
     "versionNotAvailable": "This version cannot be installed on this server.",
     "installRunning": "An upgrade is already running.",
     "checkRunning": "A check for new versions is already running.",
-    "checkTooSoon": "The last check was less than a minute ago. Try again shortly."
+    "checkTooSoon": "The last check was less than a minute ago. Try again shortly.",
+    "pageUrlInvalid": "Enter the page's full address, such as https://example.org/play.",
+    "pageUrlNotHttps": "The page's address must start with https://. Plain http works only on a development server.",
+    "callbackUrlInvalid": "Enter the callback's full address, such as https://example.org/chatgamelab-callback.",
+    "callbackUrlNotHttps": "The callback address must start with https://. Plain http works only on a development server.",
+    "callbackOffSite": "The callback must be on the page's site: the same scheme and host, such as https://example.org for both."
   },
   "myWorkshop": {
     "empty": {

@@ -30,13 +30,16 @@ approved it.
      as `https://example.org/cgl/callback`. Your server answers there; part 3
      says what it receives and answers.
 
-   Both are `https` and on the same site (scheme and host). An organisation
-   has one verified page. Registering gives the page its **page ID**, 16 hex
-   characters, which ChatGameLab sends with every callback.
+   Both are `https` and on the same site (scheme and host); on a development
+   server, plain `http` as well. An organisation has one verified page.
+   Registering gives the page its **page ID**, 16 hex characters, which
+   ChatGameLab sends with every callback. The page ID stays when the
+   addresses change, so the page's code keeps working.
 2. **Approval.** An admin approves the page's site. The approval holds for the
    scheme and host: any port and path on that site may show the game and
-   answer the callback. A change of host needs approving again;
-   `www.example.org` and `example.org` are two hosts.
+   answer the callback. A change of scheme or host needs approving again;
+   `http://example.org` and `https://example.org` are two sites, as are
+   `www.example.org` and `example.org`.
 3. **Turn embedding on.** On the game's Sharing page, turn on embedding, pick
    the verified page and the key that pays for the plays, and copy the
    snippet. The snippet holds the game's **embed token**. The token stays

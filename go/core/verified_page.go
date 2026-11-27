@@ -10,7 +10,6 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"errors"
-	"net"
 	"net/url"
 	"strings"
 	"time"
@@ -18,6 +17,7 @@ import (
 	"cgl/core/internal/store"
 	"cgl/db"
 	"cgl/log"
+	"cgl/obj"
 
 	schemafapi "github.com/flocko-motion/schemaf/api"
 	"github.com/google/uuid"
@@ -224,23 +224,37 @@ func DeleteVerifiedPage(ctx context.Context, id uuid.UUID) error {
 
 // checkPageURLs checks a page's address and callback and answers the
 // page's site. Both are https: TLS proves who answers the callback. In
-// development, a page on the own machine may use plain http. The callback
-// is on the page's site, which the admin approves for both.
+// development, plain http as well, on any host. Either way the admin
+// approves the site, scheme and host. The callback is on the page's site,
+// which the admin approves for both. Each refusal has a code of its own,
+// naming the field.
 func checkPageURLs(d VerifiedPageDraft) (string, error) {
-	page, err := pageURL(d.PageURL, "pageUrl")
+	page, err := pageURL(d.PageURL, pageField)
 	if err != nil {
 		return "", err
 	}
-	callback, err := pageURL(d.CallbackURL, "callbackUrl")
+	callback, err := pageURL(d.CallbackURL, callbackField)
 	if err != nil {
 		return "", err
 	}
 	site := siteOf(page)
 	if siteOf(callback) != site {
-		return "", refuse("callbackUrl must be on the page's site, %s", site)
+		return "", badRequest(obj.ErrCodeCallbackOffSite, "callbackUrl must be on the page's site, %s", site)
 	}
 	return site, nil
 }
+
+// urlField is one of a page's addresses, with the codes of its refusals.
+type urlField struct {
+	name     string // as the request names it
+	invalid  string // no full web address
+	notHTTPS string // plain http outside development
+}
+
+var (
+	pageField     = urlField{"pageUrl", obj.ErrCodePageURLInvalid, obj.ErrCodePageURLNotHTTPS}
+	callbackField = urlField{"callbackUrl", obj.ErrCodeCallbackURLInvalid, obj.ErrCodeCallbackURLNotHTTPS}
+)
 
 // siteOf is an address's site: its scheme and host, without port or path,
 // the host in lower case (an IPv6 address in brackets).
@@ -255,29 +269,20 @@ func siteOf(u *url.URL) string {
 // maxPageURL caps the length of a page's address and callback.
 const maxPageURL = 2000
 
-func pageURL(raw, field string) (*url.URL, error) {
+// pageURL reads one of a page's addresses: a full web address, https, or in
+// development plain http as well.
+func pageURL(raw string, f urlField) (*url.URL, error) {
 	if raw == "" || len(raw) > maxPageURL {
-		return nil, refuse("%s must be an address of at most %d characters", field, maxPageURL)
+		return nil, badRequest(f.invalid, "%s must be an address of at most %d characters", f.name, maxPageURL)
 	}
 	u, err := url.Parse(raw)
-	if err != nil || u.Host == "" || u.User != nil || u.Fragment != "" {
-		return nil, refuse("%s must be a full address, such as https://example.org/play", field)
+	if err != nil || u.Host == "" || u.User != nil || u.Fragment != "" || (u.Scheme != "https" && u.Scheme != "http") {
+		return nil, badRequest(f.invalid, "%s must be a full address, such as https://example.org/play", f.name)
 	}
-	switch {
-	case u.Scheme == "https":
-	case u.Scheme == "http" && schemafapi.DevMode() && isLoopback(u.Hostname()):
-	default:
-		return nil, refuse("%s must start with https://", field)
+	if u.Scheme == "http" && !schemafapi.DevMode() {
+		return nil, badRequest(f.notHTTPS, "%s must start with https://", f.name)
 	}
 	return u, nil
-}
-
-func isLoopback(host string) bool {
-	if strings.EqualFold(host, "localhost") {
-		return true
-	}
-	ip := net.ParseIP(host)
-	return ip != nil && ip.IsLoopback()
 }
 
 func newPageID() (string, error) {

@@ -1192,6 +1192,7 @@
         "add": "Seite registrieren",
         "editTitle": "Seite ändern",
         "editReapproval": "Diese Adresse liegt auf einer anderen Website und wartet erneut auf die Freigabe durch einen Admin; bis dahin starten dort keine Spiele. Ein anderer Port oder Pfad auf derselben Website bleibt freigegeben.",
+        "pageIdStays": "Die Seiten-ID bleibt, wenn du die Adressen änderst, der Code eurer Seite braucht also keine Änderung.",
         "edit": "Seite ändern",
         "save": "Seite speichern",
         "pageId": "Seiten-ID",
@@ -1960,7 +1961,12 @@
     "versionNotAvailable": "Diese Version kann auf diesem Server nicht installiert werden.",
     "installRunning": "Es läuft bereits ein Upgrade.",
     "checkRunning": "Es läuft bereits eine Suche nach neuen Versionen.",
-    "checkTooSoon": "Die letzte Suche ist keine Minute her. Versuch es gleich noch einmal."
+    "checkTooSoon": "Die letzte Suche ist keine Minute her. Versuch es gleich noch einmal.",
+    "pageUrlInvalid": "Gib die vollständige Adresse der Seite ein, zum Beispiel https://example.org/play.",
+    "pageUrlNotHttps": "Die Adresse der Seite muss mit https:// beginnen. Einfaches http geht nur auf einem Entwicklungsserver.",
+    "callbackUrlInvalid": "Gib die vollständige Callback-Adresse ein, zum Beispiel https://example.org/chatgamelab-callback.",
+    "callbackUrlNotHttps": "Die Callback-Adresse muss mit https:// beginnen. Einfaches http geht nur auf einem Entwicklungsserver.",
+    "callbackOffSite": "Der Callback muss auf der Website der Seite liegen: gleiches Schema und gleicher Host, zum Beispiel beide auf https://example.org."
   },
   "myWorkshop": {
     "empty": {

@@ -89,12 +89,14 @@ func (s *EmbedTestSuite) TestAVerifiedPagePlaysOnlyOnceApproved() {
 	// The admin approved the site: another path or port on it keeps the approval.
 	moved := Must(w.head.UpdateVerifiedPage(page.Id.String(), h.OnAnotherPort()+"/elsewhere", h.URL+"/callback"))
 	s.NotNil(moved.ApprovedAt, "a new path and port on the same site stay approved")
+	s.Equal(page.PageId, moved.PageId, "the page ID the host checks stays across an edit")
 	MustSucceed(start("c"))
 
 	// Another host is another site, and waits for approval again.
 	elsewhere := strings.Replace(h.URL, "127.0.0.1", "localhost", 1)
 	changed := Must(w.head.UpdateVerifiedPage(page.Id.String(), elsewhere+"/play", elsewhere+"/callback"))
 	s.Nil(changed.ApprovedAt, "a page on another site waits for approval again")
+	s.Equal(page.PageId, changed.PageId, "the page ID stays on another site too")
 	s.Refused(start("d"), testutil.CodeHostRefused, "changed")
 }
 
@@ -106,7 +108,7 @@ func (s *EmbedTestSuite) TestAVerifiedPagesCallbackIsOnItsSite() {
 	elsewhere := strings.Replace(h.URL, "127.0.0.1", "localhost", 1)
 
 	_, err := w.head.CreateVerifiedPage(w.org, h.URL+"/play", elsewhere+"/callback")
-	s.Invalid(err, "a callback on another host")
+	s.Refused(err, testutil.CodeCallbackOffSite, "a callback on another host")
 	page := Must(w.head.CreateVerifiedPage(w.org, h.OnAnotherPort()+"/play", h.URL+"/hooks/start"))
 	s.Equal("http://127.0.0.1", page.Site, "the site has no port")
 }
@@ -279,9 +281,24 @@ func (s *EmbedTestSuite) TestAGameEmbedsOnlyForItsOrganisationsPages() {
 	s.Invalid(err)
 }
 
-// A verified page's address and callback are https.
-func (s *EmbedTestSuite) TestAVerifiedPageIsHTTPS() {
+// In development a verified page may be plain http on any host; the admin
+// approves its site, scheme and host, as for https. Outside development both
+// addresses are https, which the core's own tests pin down: a test instance
+// always runs in development.
+func (s *EmbedTestSuite) TestAVerifiedPageInDevelopmentMayBePlainHTTP() {
 	w := s.world()
-	_, err := w.head.CreateVerifiedPage(w.org, "http://example.org/play", "https://example.org/callback")
-	s.Invalid(err)
+	page := Must(w.head.CreateVerifiedPage(w.org, "http://example.org/play", "http://example.org/callback"))
+	s.Equal("http://example.org", page.Site)
+	s.Nil(page.ApprovedAt, "plain http waits for the admin as https does")
+}
+
+// Each address that is no full web address is refused with a code naming it.
+func (s *EmbedTestSuite) TestAVerifiedPagesAddressesAreFullAddresses() {
+	w := s.world()
+	_, err := w.head.CreateVerifiedPage(w.org, "example.org/play", "https://example.org/callback")
+	s.Refused(err, testutil.CodePageURLInvalid, "a page address without scheme")
+	_, err = w.head.CreateVerifiedPage(w.org, "https://example.org/play", "ftp://example.org/callback")
+	s.Refused(err, testutil.CodeCallbackURLInvalid, "a callback on another scheme")
+	_, err = w.head.CreateVerifiedPage(w.org, "https://example.org/play#start", "https://example.org/callback")
+	s.Refused(err, testutil.CodePageURLInvalid, "a page address with a fragment")
 }

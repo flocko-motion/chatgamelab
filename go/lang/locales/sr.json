@@ -168,27 +168,27 @@
       "title": "Довршите свој профил"
     },
     "registerPage": {
-      "agreePrefix": "Slažem se sa",
-      "agreeSuffix": "i",
+      "agreePrefix": "Слажем се са",
+      "agreeSuffix": "и",
       "agreeSuffix2": "",
-      "alreadyHaveAccount": "Već imate nalog?",
-      "backButton": "Nazad",
+      "alreadyHaveAccount": "Већ имате налог?",
+      "backButton": "Назад",
       "chooseType": "Како желиш да користиш {{siteName}}?",
-      "continueButton": "Nastavi na registraciju",
-      "description": "Koristimo Auth0 kao provajdera autentifikacije za upravljanje korisničkim nalozima. Bićete preusmereni na Auth0 da kreirate nalog, a zatim vraćeni ovde da dovršite svoj profil.",
+      "continueButton": "Настави на регистрацију",
+      "description": "Користимо Auth0 као провајдера аутентификације за управљање корисничким налозима. Бићете преусмерени на Auth0 да креирате налог, а затим враћени овде да довршите свој профил.",
       "educatorDescription": "Користи {{siteName}} на радионицама, часовима или у својој организацији",
-      "individualDescription": "Kreirajte i igrajte avanture zasnovane na veštačkoj inteligenciji",
-      "individualTitle": "Lični nalog",
-      "loginLink": "Prijavi se",
+      "individualDescription": "Креирајте и играјте авантуре засноване на вештачкој интелигенцији",
+      "individualTitle": "Лични налог",
+      "loginLink": "Пријави се",
       "organizationExistingAccount": "Организације се региструју новом пријавом. Већ имате налог?",
       "organizationIntro": "За омладинске центре, школе и друге установе које желе да користе {{siteName}} на радионицама.",
       "organizationStep1": "Креирате пријаву преко Auth0-а (имејл и лозинка).",
       "organizationStep2": "Уносите податке о себи и својој установи, утврђујете правило заштите деце и младих и прихватате изјаву о сагласности.",
       "organizationStep3": "Након слања обрасца, организација се одмах активира и можете да креирате радионице.",
       "organizationTitle": "Региструј се као организација",
-      "privacyPolicy": "Politika privatnosti",
-      "termsOfService": "Uslovi korišćenja",
-      "title": "Kreirajte svoj nalog"
+      "privacyPolicy": "Политика приватности",
+      "termsOfService": "Услови коришћења",
+      "title": "Креирајте свој налог"
     },
     "settings": {
       "accountSection": "Налог",
@@ -379,11 +379,11 @@
       }
     },
     "aiQualityTier": {
-      "high": "Visok",
+      "high": "Висок",
       "label": "Ниво квалитета АИ",
-      "low": "Ekonomičan",
-      "medium": "Uravnotežen",
-      "newSessionsOnly": "Ovaj nivo važi samo za nove sesije. Postojeće sesije zadržavaju nivo sa kojim su započete.",
+      "low": "Економичан",
+      "medium": "Уравнотежен",
+      "newSessionsOnly": "Овај ниво важи само за нове сесије. Постојеће сесије задржавају ниво са којим су започете.",
       "serverDefault": "Подразумевано на серверу"
     },
     "allGames": {
@@ -419,7 +419,7 @@
       },
       "onlyFavorites": "Прикажи само омиљене",
       "play": "Играј",
-      "reportGame": "Prijavi igru",
+      "reportGame": "Пријави игру",
       "restart": "Поново покрени",
       "resumeChoice": {
         "advanced": "Напредна подешавања",
@@ -435,7 +435,7 @@
       },
       "title": "Игре",
       "unfavorite": "Уклони из фаворита",
-      "workshop": "Radionica / Org"
+      "workshop": "Радионица / Орг"
     },
     "apiKeys": {
       "aboutSection": {
@@ -485,25 +485,25 @@
       "setDefault": "Постави као подразумеван",
       "shares": {
         "context": {
-          "organization": "Organizacija",
-          "personal": "Lični",
-          "workshop": "Radionica"
+          "organization": "Организација",
+          "personal": "Лични",
+          "workshop": "Радионица"
         },
-        "gameShares": "Linkovi za deljenje igre",
+        "gameShares": "Линкови за дељење игре",
         "goToOrg": "Управљај",
         "noOrgShares": "Није подељено ни са једном организацијом",
         "noSponsorships": "Нема спонзорстава игара",
         "orgShares": "Дељења са организацијама",
         "privateShares": "Приватни линкови за дељење",
-        "remaining": "Preostalo korišćenja: {{count}}",
+        "remaining": "Преостало коришћења: {{count}}",
         "removeSponsor": "Уклони спонзорство",
-        "revokeGameShare": "Poništi link za deljenje",
+        "revokeGameShare": "Поништи линк за дељење",
         "revokePrivateShare": "Опозови линк",
         "sponsorships": "Спонзорства игара",
         "toggle": "Дељења \u0026 спонзорства",
         "unknownGame": "Непозната игра",
         "unknownOrg": "Непозната организација",
-        "unlimited": "Neograničena korišćenja"
+        "unlimited": "Неограничена коришћења"
       },
       "sort": {
         "createdAt-asc": "Најстарији прво",
@@ -530,8 +530,8 @@
       "title": "Управљање API кључевима",
       "unnamed": "Неименовани кључ",
       "unsupportedPlatform": {
-        "badge": "još nije podržano",
-        "hint": "Ova platforma još nije podržana. Njeni ključevi ostaju sačuvani, ali se ne koriste. Možete ih ukloniti."
+        "badge": "још није подржано",
+        "hint": "Ова платформа још није подржана. Њени кључеви остају сачувани, али се не користе. Можете их уклонити."
       }
     },
     "back": "Назад",
@@ -554,7 +554,7 @@
       "placeholder": "нпр. јабука видра кула",
       "submit": "Настави",
       "title": "Унесите код",
-      "unknown": "Tako trenutno ne možete da pristupite. Prvo proverite pravopis — reč po reč. Crtice i razmaci nisu važni. Ako je kôd ispravan, možda više ne važi: kôdovi mogu biti zamenjeni, ili je voditelj radionice možda završio radionicu (to se može dogoditi bilo kada nakon radionice). Zatim pitajte voditelja radionice za novi kôd.",
+      "unknown": "Тако тренутно не можете да приступите. Прво проверите правопис — реч по реч. Цртице и размаци нису важни. Ако је ко̂д исправан, можда више не важи: ко̂дови могу бити замењени, или је водитељ радионице можда завршио радионицу (то се може догодити било када након радионице). Затим питајте водитеља радионице за нови ко̂д.",
       "wrongLength": "Код има три или четири речи."
     },
     "error": "Грешка",
@@ -565,7 +565,7 @@
       "badges": {
         "myGame": "Моја игра",
         "public": "Јавна",
-        "workshop": "Radionička igra"
+        "workshop": "Радионичка игра"
       },
       "byCreator": "аутор: {{name}}",
       "cover": {
@@ -589,24 +589,24 @@
       "createModal": {
         "descriptionPlaceholder": "О чему је ваша игра?",
         "namePlaceholder": "нпр. Свемирска авантура",
-        "publicDescription": "Javne igre su vidljive i igrive svim korisnicima na ovoj platformi.",
+        "publicDescription": "Јавне игре су видљиве и игриве свим корисницима на овој платформи.",
         "publicLabel": "Учини ову игру јавном",
         "submit": "Креирај игру",
         "title": "Креирај нову игру"
       },
       "deleteModal": {
-        "adminActionTitle": "Administratorska radnja",
-        "adminActionWarning": "Spremate se da obrišete igru koja vam ne pripada. Ovo je administrativna radnja i treba je koristiti samo u svrhe moderacije.",
+        "adminActionTitle": "Администраторска радња",
+        "adminActionWarning": "Спремате се да обришете игру која вам не припада. Ово је административна радња и треба је користити само у сврхе модерације.",
         "message": "Да ли сте сигурни да желите да обришете „{{name}}“?",
-        "moderatorActionTitle": "Brisanje igre učesnika",
-        "moderatorActionWarning": "Ova igra pripada učesniku vaše radionice. Brisanje će je trajno ukloniti za njega. Ovo se ne može opozvati.",
+        "moderatorActionTitle": "Брисање игре учесника",
+        "moderatorActionWarning": "Ова игра припада учеснику ваше радионице. Брисање ће је трајно уклонити за њега. Ово се не може опозвати.",
         "title": "Обриши игру",
         "warning": "Ова радња је неповратна. Сви подаци игре биће трајно обрисани."
       },
       "editFields": {
         "description": "Дајте кратак опис игре. Само за вас, не утиче на игру.",
         "gameStart": "Како игра почиње?",
-        "gameStartHint": "Šta se dešava na početku? Opišite prvu scenu koju igrač vidi. Kako se igrač dočekuje? Kako igrač zna šta treba da uradi?",
+        "gameStartHint": "Шта се дешава на почетку? Опишите прву сцену коју играч види. Како се играч дочекује? Како играч зна шта треба да уради?",
         "gameStartPlaceholder": "Будите се на ивици мрачне шуме. Уска стаза води дубље у дрвеће...",
         "genre": "Жанр",
         "genreHint": "Начин на који се игра игра.",
@@ -615,7 +615,7 @@
         "imageStyleHint": "На пример: цртани, реалистичан, пиксел арт, акварел...",
         "name": "Назив игре",
         "scenario": "О чему је игра?",
-        "scenarioHint": "Ukratko opišite: Kako igra funkcioniše? Kakav je svet? Jezik \u0026 ton (npr. španski za učenike šestog razreda)?\nKoju ulogu ima igrač? Napišite „Igrač ...“.\nAko želite da AI preuzme ulogu određene osobe, napišite „Vi ste ...“.\nKoji je cilj? Kako igrač zna da je pobedio?",
+        "scenarioHint": "Укратко опишите: Како игра функционише? Какав је свет? Језик \u0026 тон (нпр. шпански за ученике шестог разреда)?\nКоју улогу има играч? Напишите „Играч ...“.\nАко желите да AI преузме улогу одређене особе, напишите „Ви сте ...“.\nКоји је циљ? Како играч зна да је победио?",
         "scenarioPlaceholder": "Ви сте истраживач у мистериозној шуми. Циљ је да пронађете скривено благо...",
         "statusFields": "Играчке вредности",
         "statusFieldsHint": "Шта игра треба да прати? На пример здравље, поене или муницију. Игра памти ове вредности и ажурира их током играња.",
@@ -627,9 +627,9 @@
         "voiceStylePlaceholder": "нпр. дубок, спор и помало промукао, глас старца"
       },
       "editModal": {
-        "adminActionTitle": "Administratorska radnja",
-        "adminActionWarning": "Uređujete igru koja vam ne pripada. Ovo je administrativna radnja i treba je koristiti samo u svrhe moderacije.",
-        "gameDesignSection": "Dizajn igre",
+        "adminActionTitle": "Администраторска радња",
+        "adminActionWarning": "Уређујете игру која вам не припада. Ово је административна радња и треба је користити само у сврхе модерације.",
+        "gameDesignSection": "Дизајн игре",
         "othersGameNotice": "Ова игра је туђа. Можеш да промениш било шта: чувањем постаје твоја игра, а оригинал остаје непромењен.",
         "saveAsOwn": "Сачувај као моју игру",
         "savedAsOwn": "Сачувано као твоја игра",
@@ -642,121 +642,121 @@
         }
       },
       "editor": {
-        "allSet": "Sve je spremno: napravite igru.",
-        "backToOverview": "Nazad na pregled",
+        "allSet": "Све је спремно: направите игру.",
+        "backToOverview": "Назад на преглед",
         "card": {
           "adventure": {
-            "descriptionPlaceholder": "Pronađite skriveno blago pre nego što vas šuma proguta.",
-            "titlePlaceholder": "Blago mračne šume"
+            "descriptionPlaceholder": "Пронађите скривено благо пре него што вас шума прогута.",
+            "titlePlaceholder": "Благо мрачне шуме"
           },
-          "description": "Opis",
-          "descriptionHint": "Jedna ili dve rečenice za galeriju, da igrači znaju šta da očekuju.",
+          "description": "Опис",
+          "descriptionHint": "Једна или две реченице за галерију, да играчи знају шта да очекују.",
           "duo": {
             "descriptionPlaceholder": "Грета, намргођена чуварка светионика, и превише весели порески инспектор свађају се током олујне ноћи. Слушајте их или станите на једну страну.",
             "titlePlaceholder": "Олујна ноћ на светионику"
           },
           "encounter": {
-            "descriptionPlaceholder": "Posetite Gretu, namrgođenu čuvarku svetionika, i saznajte šta je videla te noći.",
-            "titlePlaceholder": "Greta na svetioniku"
+            "descriptionPlaceholder": "Посетите Грету, намргођену чуварку светионика, и сазнајте шта је видела те ноћи.",
+            "titlePlaceholder": "Грета на светионику"
           },
-          "title": "Naslov",
-          "titleHint": "{{length}}/{{max}} · Može postati javno vidljivo – molimo vas, bez pravih imena."
+          "title": "Наслов",
+          "titleHint": "{{length}}/{{max}} · Може постати јавно видљиво – молимо вас, без правих имена."
         },
         "delete": {
-          "confirm": "Trajno obriši",
-          "intro": "Trajno uklonite igru, uz prethodno preuzimanje.",
-          "keep": "Zadrži je",
-          "keepFile": "Zadržite datoteku i kasnije ponovo uvezite igru, ovde ili na drugom ChatGameLab serveru.",
-          "label": "Obriši igru",
-          "whatGoes": "„{{name}}“ će biti trajno uklonjena: njena kartica, priča, slike i linkovi za deljenje. Igrači više neće moći da je pokrenu. Ovo se ne može opozvati."
+          "confirm": "Трајно обриши",
+          "intro": "Трајно уклоните игру, уз претходно преузимање.",
+          "keep": "Задржи је",
+          "keepFile": "Задржите датотеку и касније поново увезите игру, овде или на другом ChatGameLab серверу.",
+          "label": "Обриши игру",
+          "whatGoes": "„{{name}}“ ће бити трајно уклоњена: њена картица, прича, слике и линкови за дељење. Играчи више неће моћи да је покрену. Ово се не може опозвати."
         },
-        "done": "završeno",
-        "doneButton": "Završi",
+        "done": "завршено",
+        "doneButton": "Заврши",
         "download": {
-          "button": "Preuzmi",
-          "description": "Igra kao datoteka, za čuvanje ili uvoz na drugi ChatGameLab server.",
-          "title": "Preuzimanje"
+          "button": "Преузми",
+          "description": "Игра као датотека, за чување или увоз на други ChatGameLab сервер.",
+          "title": "Преузимање"
         },
         "embed": {
-          "copy": "Kopiraj isečak koda",
+          "copy": "Копирај исечак кода",
           "incomplete": "Изаберите шта се плаћа да бисте добили исечак кода.",
           "mode": "Како се игра игра",
           "modeChoose": "Играч бира",
           "modeHint": "Ова игра може да се игра уживо или наизменично. Унапред изабери једну опцију да прескочиш питање; ако кључ подржава само једну опцију, она ће бити изабрана.",
-          "noKeys": "Nemate nijedan ispravan AI ključ kojim možete da platite. Dodajte ga ili zatražite od svoje organizacije.",
+          "noKeys": "Немате ниједан исправан AI кључ којим можете да платите. Додајте га или затражите од своје организације.",
           "noOrganisation": "Уграђивање је намењено играма неке организације: играма написаним на њеним радионицама или од стране њеног руководства и запослених. Ова игра не припада ниједној организацији.",
           "noPages": "Прво региструјте веб-сајт своје организације: страницу на којој ће се ваше игре покретати. Администратор ће је одобрити, након чега игра може да се покреће на њој.",
-          "offNote": "Kada je isključena, ova komponenta ne prikazuje ništa. Kada je ponovo uključite, isti isečak koda će raditi.",
-          "page": "Verifikovana stranica",
-          "pageHint": "Igra radi samo tamo i samo nakon što stranica odobri svako pokretanje.",
-          "paidBy": "Plaća",
-          "paidByPlaceholder": "Izaberite ključ",
-          "payingNow": "Trenutno plaća",
+          "offNote": "Када је искључена, ова компонента не приказује ништа. Када је поново укључите, исти исечак кода ће радити.",
+          "page": "Верификована страница",
+          "pageHint": "Игра ради само тамо и само након што страница одобри свако покретање.",
+          "paidBy": "Плаћа",
+          "paidByPlaceholder": "Изаберите кључ",
+          "payingNow": "Тренутно плаћа",
           "registerPage": "Региструјте веб-сајт у одељку Моја организација → Веб-сајтови",
-          "snippet": "Isečak koda za vaš veb-sajt",
-          "snippetCss": "vaš CSS",
-          "snippetHint": "Postavite ga tamo gde igra treba da se pojavi i zadajte elementu željenu visinu.",
+          "snippet": "Исечак кода за ваш веб-сајт",
+          "snippetCss": "ваш CSS",
+          "snippetHint": "Поставите га тамо где игра треба да се појави и задајте елементу жељену висину.",
           "snippetPlayer": "ID-VAŠEG-POSetioca",
           "snippetRequest": "ID-VAŠEG-ZAHTEVA",
-          "snippetVerifiedHint": "Vaš server unosi ID posetioca i ID ovog prikaza stranice; povratni poziv vaše stranice dobija oba.",
-          "styleLink": "Uredite izgled sopstvenim CSS-om →",
-          "toggle": "Ugradi na veb-sajt",
+          "snippetVerifiedHint": "Ваш сервер уноси ID посетиоца и ID овог приказа странице; повратни позив ваше странице добија оба.",
+          "styleLink": "Уредите изглед сопственим CSS-ом →",
+          "toggle": "Угради на веб-сајт",
           "toggleHint": "Приказује ову игру на верификованој страници твоје организације, без икаквих елемената сајта {{siteName}} око ње. Посетиоци играју као гости; трошак сноси изабрани кључ.",
           "waitingForApproval": "Страница организације чека одобрење администратора. До тада игра не може да се покреће на њој."
         },
-        "fillIn": "Popunjavajte odeljke dok svi ne postanu zeleni.",
+        "fillIn": "Попуњавајте одељке док сви не постану зелени.",
         "genre": {
           "pitch": {
-            "adventure": "Igrač istražuje svet. Igra pripoveda šta se dešava, stvara slike i vodi rezultat.",
+            "adventure": "Играч истражује свет. Игра приповеда шта се дешава, ствара слике и води резултат.",
             "duo": "Два лика разговарају гласом. Играч слуша или се укључује у разговор.",
-            "encounter": "Igrač razgovara sa jednim likom glasom. Lik ostaje u svojoj ulozi i odgovara uživo."
+            "encounter": "Играч разговара са једним ликом гласом. Лик остаје у својој улози и одговара уживо."
           },
-          "question": "Šta želite da napravite?"
+          "question": "Шта желите да направите?"
         },
         "look": {
-          "imageStyle": "Stil slika",
-          "imageStyleHint": "Kako slike izgledaju, uključujući naslovnu sliku: crtani stil, akvarel, piksel-art…",
-          "imageStylePlaceholder": "nežan akvarel, prigušene boje"
+          "imageStyle": "Стил слика",
+          "imageStyleHint": "Како слике изгледају, укључујући насловну слику: цртани стил, акварел, пиксел-арт…",
+          "imageStylePlaceholder": "нежан акварел, пригушене боје"
         },
-        "makeCopy": "Napravi moju kopiju",
-        "next": "sledeće",
-        "notDone": "još nije završeno",
-        "open": "Otvori",
-        "othersGame": "Ova igra pripada nekom drugom. Možete sve da pogledate i napravite sopstvenu kopiju kako biste je izmenili.",
+        "makeCopy": "Направи моју копију",
+        "next": "следеће",
+        "notDone": "још није завршено",
+        "open": "Отвори",
+        "othersGame": "Ова игра припада неком другом. Можете све да погледате и направите сопствену копију како бисте је изменили.",
         "pages": {
           "card": {
-            "intro": "Ono što igrači vide u galeriji: naslov i kratak opis.",
-            "label": "Kartica"
+            "intro": "Оно што играчи виде у галерији: наслов и кратак опис.",
+            "label": "Картица"
           },
           "look": {
-            "intro": "Kako izgledaju slike igre i njena stranica.",
-            "label": "Izgled"
+            "intro": "Како изгледају слике игре и њена страница.",
+            "label": "Изглед"
           },
           "sharing": {
-            "intro": "Ko može da pronađe i igra igru.",
-            "label": "Deljenje"
+            "intro": "Ко може да пронађе и игра игру.",
+            "label": "Дељење"
           },
           "sound": {
-            "intro": "Kako zvuči glas igre.",
-            "label": "Zvuk"
+            "intro": "Како звучи глас игре.",
+            "label": "Звук"
           },
           "story": {
-            "intro": "Šta se dešava u igri i kako ona počinje.",
-            "label": "Priča"
+            "intro": "Шта се дешава у игри и како она почиње.",
+            "label": "Прича"
           }
         },
         "review": {
-          "button": "Proveri",
-          "failed": "Igra sada nije mogla da bude proverena. Ipak možete da je sačuvate.",
-          "goTo": "Idi na {{page}}",
-          "later": "Kasnije",
-          "looksGood": "Izgleda dobro. Odigrajte je jednom i proverite kakav je osećaj.",
+          "button": "Провери",
+          "failed": "Игра сада није могла да буде проверена. Ипак можете да је сачувате.",
+          "goTo": "Иди на {{page}}",
+          "later": "Касније",
+          "looksGood": "Изгледа добро. Одиграјте је једном и проверите какав је осећај.",
           "missing": {
             "adventure": {
-              "imageStyle": "Izaberite stil slika da bi slike bile ujednačene.",
-              "name": "Vaša igra još nema naslov.",
-              "systemMessageGameStart": "Opišite kako igra počinje.",
-              "systemMessageScenario": "Opišite o čemu je igra."
+              "imageStyle": "Изаберите стил слика да би слике биле уједначене.",
+              "name": "Ваша игра још нема наслов.",
+              "systemMessageGameStart": "Опишите како игра почиње.",
+              "systemMessageScenario": "Опишите о чему је игра."
             },
             "duo": {
               "imageStyle": "Изаберите стил слике како би слике биле уједначене.",
@@ -765,19 +765,19 @@
               "systemMessageScenario": "Наведите ко су та два лика."
             },
             "encounter": {
-              "imageStyle": "Izaberite stil slika da bi slike bile ujednačene.",
-              "name": "Vaša igra još nema naslov.",
-              "systemMessageGameStart": "Opišite kako lik pozdravlja igrača.",
-              "systemMessageScenario": "Opišite ko je lik."
+              "imageStyle": "Изаберите стил слика да би слике биле уједначене.",
+              "name": "Ваша игра још нема наслов.",
+              "systemMessageGameStart": "Опишите како лик поздравља играча.",
+              "systemMessageScenario": "Опишите ко је лик."
             }
           }
         },
         "sound": {
           "adventure": {
-            "voiceStyle": "Glas pripovedača",
-            "voiceStyleHint": "Kako priča zvuči kada se čita naglas."
+            "voiceStyle": "Глас приповедача",
+            "voiceStyleHint": "Како прича звучи када се чита наглас."
           },
-          "builtInVoice": "Ugrađeni glas",
+          "builtInVoice": "Уграђени глас",
           "choices": {
             "any": "Било који",
             "custom": "Прилагођени",
@@ -791,24 +791,24 @@
             "voiceStyleHint": "Сваки лик добија сопствени глас."
           },
           "encounter": {
-            "voiceStyle": "Glas lika",
-            "voiceStyleHint": "Kako lik zvuči."
+            "voiceStyle": "Глас лика",
+            "voiceStyleHint": "Како лик звучи."
           },
           "errors": {
-            "failed": "Glas nije mogao da se reprodukuje. Pokušajte ponovo.",
-            "keyRejected": "AI provajder je odbio ključ. Glas nije mogao da se reprodukuje.",
-            "noKey": "Nijedan AI ključ koji možete da koristite ne govori glasom uživo, pa za sada nema ničega što biste mogli da čujete."
+            "failed": "Глас није могао да се репродукује. Покушајте поново.",
+            "keyRejected": "AI провајдер је одбио кључ. Глас није могао да се репродукује.",
+            "noKey": "Ниједан AI кључ који можете да користите не говори гласом уживо, па за сада нема ничега што бисте могли да чујете."
           },
-          "keepVoice": "Zadrži ovaj glas",
-          "listen": "Slušaj",
-          "newVoice": "Napravi novi glas",
-          "newVoiceConfirm": "Trenutni glas će biti obrisan, a novi će biti napravljen na osnovu istog opisa. Igre sa potpuno istim opisom na ovom AI ključu takođe će dobiti novi glas.",
-          "noteDescription": "Promenom opisa ionako nastaje drugačiji glas.",
-          "noteKeys": "Iz tehničkih razloga ne možemo da obećamo da će svaka sesija koristiti baš ovaj glas: glas se pravi i čuva na AI ključu koji plaća, pa sesija koju plaća drugi ključ dobija sopstveni glas na osnovu istog opisa.",
-          "play": "Reprodukuj uzorak glasa",
+          "keepVoice": "Задржи овај глас",
+          "listen": "Слушај",
+          "newVoice": "Направи нови глас",
+          "newVoiceConfirm": "Тренутни глас ће бити обрисан, а нови ће бити направљен на основу истог описа. Игре са потпуно истим описом на овом AI кључу такође ће добити нови глас.",
+          "noteDescription": "Променом описа ионако настаје другачији глас.",
+          "noteKeys": "Из техничких разлога не можемо да обећамо да ће свака сесија користити баш овај глас: глас се прави и чува на AI кључу који плаћа, па сесија коју плаћа други кључ добија сопствени глас на основу истог описа.",
+          "play": "Репродукуј узорак гласа",
           "sampleLine": {
-            "greeting": "Zdravo! Uđite, sedite i recite mi šta vas dovodi ovamo.",
-            "narration": "Priča počinje jednog tihog jutra, dok uzana staza vodi u nepoznato."
+            "greeting": "Здраво! Уђите, седите и реците ми шта вас доводи овамо.",
+            "narration": "Прича почиње једног тихог јутра, док узана стаза води у непознато."
           },
           "slots": {
             "a": "Први лик",
@@ -817,20 +817,20 @@
             "narrator": "Наратор"
           },
           "status": {
-            "builtIn": "Još nema opisa: igra govori ugrađenim glasom dok ne opišete glas.",
+            "builtIn": "Још нема описа: игра говори уграђеним гласом док не опишете глас.",
             "cast": "Када игра почне, бира уграђени глас изабране врсте који најбоље одговара причи. Опис усмерава начин на који глас говори.",
-            "ownVoice": "Sopstveni glas za ovaj opis, napravljen pomoću vašeg AI ključa."
+            "ownVoice": "Сопствени глас за овај опис, направљен помоћу вашег AI кључа."
           },
-          "stop": "Zaustavi uzorak"
+          "stop": "Заустави узорак"
         },
         "story": {
           "adventure": {
-            "gameStart": "Kako počinje?",
-            "gameStartHint": "Prva scena koju igrač vidi i način na koji saznaje šta treba da uradi.",
-            "gameStartPlaceholder": "Igrač se budi na ivici mračne šume. Uzana staza vodi među drveće…",
-            "scenario": "O čemu je igra?",
-            "scenarioHint": "Svet, uloga igrača, cilj i način na koji igrač zna da je pobedio.",
-            "scenarioPlaceholder": "Igrač je istraživač u tajanstvenoj šumi i traži skriveno blago…"
+            "gameStart": "Како почиње?",
+            "gameStartHint": "Прва сцена коју играч види и начин на који сазнаје шта треба да уради.",
+            "gameStartPlaceholder": "Играч се буди на ивици мрачне шуме. Узана стаза води међу дрвеће…",
+            "scenario": "О чему је игра?",
+            "scenarioHint": "Свет, улога играча, циљ и начин на који играч зна да је победио.",
+            "scenarioPlaceholder": "Играч је истраживач у тајанственој шуми и тражи скривено благо…"
           },
           "duo": {
             "firstCharacter": "Први лик",
@@ -847,18 +847,18 @@
             "secondCharacterPlaceholder": "Ото, превише весели порески инспектор који је дошао да преброји сваку свећу…"
           },
           "encounter": {
-            "gameStart": "Kako pozdravlja igrača?",
-            "gameStartHint": "Situacija u trenutku kada razgovor počinje; prve reči se pišu na osnovu nje.",
-            "gameStartPlaceholder": "Usred oluje, neznanac kuca na vrata svetionika…",
-            "scenario": "Ko je lik?",
-            "scenarioHint": "Njegova ličnost, ono što zna, način na koji govori i ono oko čega nikada neće popustiti.",
-            "scenarioPlaceholder": "Vi ste Greta, namrgođena čuvarka svetionika koja poznaje svaki brod na obali…"
+            "gameStart": "Како поздравља играча?",
+            "gameStartHint": "Ситуација у тренутку када разговор почиње; прве речи се пишу на основу ње.",
+            "gameStartPlaceholder": "Усред олује, незнанац куца на врата светионика…",
+            "scenario": "Ко је лик?",
+            "scenarioHint": "Његова личност, оно што зна, начин на који говори и оно око чега никада неће попустити.",
+            "scenarioPlaceholder": "Ви сте Грета, намргођена чуварка светионика која познаје сваки брод на обали…"
           }
         },
-        "titleEdit": "Uredi igru",
-        "titleNew": "Nova igra",
-        "titleView": "Igra",
-        "untitled": "Igra bez naslova"
+        "titleEdit": "Уреди игру",
+        "titleNew": "Нова игра",
+        "titleView": "Игра",
+        "untitled": "Игра без наслова"
       },
       "errors": {
         "loadFailed": "Учитавање игара није успело. Покушајте поново.",
@@ -902,13 +902,13 @@
       "privacyHintShort": "Може постати јавно видљиво – немојте користити права имена.",
       "privateShare": {
         "active": "Приватно дељење је активно. Сви који имају линк могу анонимно играти ову игру.",
-        "aiQualityTier": "Kvalitet AI",
-        "aiQualityTierDescription": "Izaberite kvalitet AI modela za goste koji koriste ovaj link za deljenje.",
+        "aiQualityTier": "Квалитет AI",
+        "aiQualityTierDescription": "Изаберите квалитет AI модела за госте који користе овај линк за дељење.",
         "copyLink": "Копирај линк",
-        "createModalTitle": "Kreiraj privatni link za deljenje",
+        "createModalTitle": "Креирај приватни линк за дељење",
         "description": "Креирајте приватни линк за дељење како би свако са линком могао анонимно да игра ову игру. Ви бирате који API кључ плаћа сесије.",
         "edit": "Уреди подешавања",
-        "editModalTitle": "Uredi privatni link za deljenje",
+        "editModalTitle": "Уреди приватни линк за дељење",
         "editSettings": "Уреди подешавања дељења",
         "enable": "Направи линк за дељење",
         "loading": "Учитавање статуса дељења...",
@@ -916,39 +916,39 @@
         "maxSessions": "Максимално сесија",
         "maxSessionsDescription": "Оставите празно за неограничено.",
         "noEligibleKeys": "Нема доступног функционалног API кључа. Прво додајте API кључ у подешавањима API кључева.",
-        "noPersonalShare": "Ne postoji lični ili organizacioni link za deljenje. Možete ga kreirati van radionice.",
-        "orgKey": "Organizacija",
-        "orgShareDescription": "Link za deljenje organizacije – gosti igraju koristeći API ključ organizacije.",
-        "personalCreateHint": "Kreirajte privatni link kako bi svako ko ga ima mogao anonimno da igra ovu igru. Vi birate koji API ključ plaća sesije.",
-        "personalOrgSubsection": "Lični / organizacioni link za deljenje",
-        "personalShare": "Vaš privatni link za deljenje",
-        "personalShareDescription": "Vaš lični link za deljenje – gosti igraju koristeći vaš izabrani API ključ.",
+        "noPersonalShare": "Не постоји лични или организациони линк за дељење. Можете га креирати ван радионице.",
+        "orgKey": "Организација",
+        "orgShareDescription": "Линк за дељење организације – гости играју користећи API кључ организације.",
+        "personalCreateHint": "Креирајте приватни линк како би свако ко га има могао анонимно да игра ову игру. Ви бирате који API кључ плаћа сесије.",
+        "personalOrgSubsection": "Лични / организациони линк за дељење",
+        "personalShare": "Ваш приватни линк за дељење",
+        "personalShareDescription": "Ваш лични линк за дељење – гости играју користећи ваш изабрани API кључ.",
         "remainingSessions": "Преостало {{count}} сесија",
         "revoke": "Опозови линк",
         "selectKey": "Изаберите API кључ",
         "selectKeyPlaceholder": "Изаберите кључ који плаћа сесије гостију...",
         "shareLink": "Линк за дељење",
-        "sourceOrg": "Organizacija",
-        "sourcePersonal": "Lično",
-        "sourceWorkshop": "Radionica",
+        "sourceOrg": "Организација",
+        "sourcePersonal": "Лично",
+        "sourceWorkshop": "Радионица",
         "title": "Приватни линк",
         "unlimited": "Неограничено",
-        "unlimitedSessions": "Neograničene sesije",
+        "unlimitedSessions": "Неограничене сесије",
         "update": "Ажурирај линк",
-        "workshopCreateHint": "Kreirajte link za deljenje ove igre. API ključ radionice se automatski bira i pokriva troškove.",
+        "workshopCreateHint": "Креирајте линк за дељење ове игре. API кључ радионице се аутоматски бира и покрива трошкове.",
         "workshopDescription": "Овај линк је направљен у оквиру радионице „{{name}}“ – гости играју уз API кључ и правило заштите деце и младих те радионице.",
-        "workshopShare": "Radioničko deljenje",
-        "workshopShareDescription": "Ovaj link je kreiran u radionici „{{name}}“ – gosti igraju koristeći API ključ radionice.",
-        "workshopSubsection": "Link za deljenje radionice"
+        "workshopShare": "Радионичко дељење",
+        "workshopShareDescription": "Овај линк је креиран у радионици „{{name}}“ – гости играју користећи API кључ радионице.",
+        "workshopSubsection": "Линк за дељење радионице"
       },
       "sharing": {
         "active": "Активно",
-        "privateShareLink": "Privatni link za deljenje",
-        "privateShareLinkDescription": "Privatni linkovi za deljenje mogu se proslediti drugima. Svako ko ima link može anonimno igrati igru bez naloga. Potrebno je izabrati API ključ koji pokriva troškove.",
-        "publicSponsoring": "Javno sponzorisanje",
-        "publicSponsoringDescription": "Svi korisnici na platformi mogu igrati ovu igru besplatno – dodeljeni API ključ pokriva troškove.",
-        "sectionTitle": "Opcije deljenja",
-        "sectionTitleShareOnly": "Opcije deljenja"
+        "privateShareLink": "Приватни линк за дељење",
+        "privateShareLinkDescription": "Приватни линкови за дељење могу се проследити другима. Свако ко има линк може анонимно играти игру без налога. Потребно је изабрати API кључ који покрива трошкове.",
+        "publicSponsoring": "Јавно спонзорисање",
+        "publicSponsoringDescription": "Сви корисници на платформи могу играти ову игру бесплатно – додељени API кључ покрива трошкове.",
+        "sectionTitle": "Опције дељења",
+        "sectionTitleShareOnly": "Опције дељења"
       },
       "sort": {
         "createdAt-asc": "Креирано (најстарије)",
@@ -980,13 +980,13 @@
         "loadingKeys": "Учитавање API кључева...",
         "manageSponsor": "Управљај спонзорством",
         "next": "Даље",
-        "noEligibleKeys": "Nemate dostupnih API ključeva za sponzorisanje. Prvo dodajte API ključ u svojim podešavanjima.",
+        "noEligibleKeys": "Немате доступних API кључева за спонзорисање. Прво додајте API кључ у својим подешавањима.",
         "privateWarning": "Пребацивањем игре у приватну уклонићете јавно спонзорство.",
         "removeSponsor": "Уклони спонзорство",
         "selectKey": "Изаберите API кључ",
         "selectKeyPlaceholder": "Изаберите кључ за спонзорство...",
-        "sourceOrg": "Organizacija",
-        "sourcePersonal": "Lično",
+        "sourceOrg": "Организација",
+        "sourcePersonal": "Лично",
         "sponsorGame": "Спонзориши игру",
         "sponsored": "Спонзорисано",
         "sponsoredTooltip": "Ова игра је спонзорисана – можете је играти бесплатно! Аутор или донатор покрива АИ трошкове.",
@@ -994,7 +994,7 @@
       },
       "statusFieldsEditor": {
         "addField": "Додај нову вредност",
-        "maxHint": "Najviše pet vrednosti: nekoliko vrednosti koje igrač može da prati bolje je od mnogo njih.",
+        "maxHint": "Највише пет вредности: неколико вредности које играч може да прати боље је од много њих.",
         "namePlaceholder": "Назив (нпр. Здравље)",
         "noFields": "Још нема вредности. Кликните + да додате нову.",
         "valuePlaceholder": "Почетна вредност (нпр. 100)"
@@ -1046,7 +1046,7 @@
           "scifi": "Научна фантастика",
           "snowy": "Снежно",
           "space": "Свемир",
-          "spielfieber": "Spielfieber",
+          "spielfieber": "Спиелфиебер",
           "steampunk": "Стимпанк",
           "storybook": "Бајковито",
           "sunshine": "Сунчева светлост",
@@ -1082,7 +1082,7 @@
       "profile": "Профил",
       "workshop": "Радионица"
     },
-    "help": "Pomoć",
+    "help": "Помоћ",
     "home": {
       "codeCta": "Унесите код",
       "loginCta": "Пријави се и истражи",
@@ -1181,7 +1181,7 @@
     "myOrganization": {
       "actions": "Акције",
       "apiKeys": {
-        "aboutDescription": "API ključevi podeljeni ovde dostupni su svim članovima vaše organizacije za igranje igara.",
+        "aboutDescription": "API кључеви подељени овде доступни су свим члановима ваше организације за играње игара.",
         "aboutTitle": "API кључеви организације",
         "addAndShare": "Додај и подели",
         "addKey": "Додај кључ",
@@ -1189,9 +1189,9 @@
         "allowPublicSponsoring": "Дозволи јавно спонзорство",
         "allowPublicSponsoringDesc": "Овај кључ може бити коришћен за спонзорисање игара свим корисницима.",
         "freeUseKey": {
-          "description": "Postavite ključ za besplatno korišćenje kako biste omogućili svim članovima organizacije da igraju igre bez sopstvenog API ključa.",
+          "description": "Поставите кључ за бесплатно коришћење како бисте омогућили свим члановима организације да играју игре без сопственог API кључа.",
           "remove": "Уклони",
-          "selectPlaceholder": "Izaberite ključ...",
+          "selectPlaceholder": "Изаберите кључ...",
           "title": "Кључ за бесплатно коришћење",
           "unknownKey": "Непознат кључ"
         },
@@ -1214,10 +1214,10 @@
         "title": "API кључеви организације"
       },
       "autoShare": {
-        "confirmMessage": "Ovaj ključ biće podeljen sa {{orgName}} i tada ga mogu koristiti drugi rukovodioci i osoblje za radionice. Deljenje možete kasnije ukloniti u upravljanju ličnim ili organizacionim API ključevima.",
-        "confirmTitle": "Podeli ključ sa organizacijom",
-        "orgKeyGroup": "Ključevi organizacije",
-        "personalKeyGroup": "Lični ključevi"
+        "confirmMessage": "Овај кључ биће подељен са {{orgName}} и тада га могу користити други руководиоци и особље за радионице. Дељење можете касније уклонити у управљању личним или организационим API кључевима.",
+        "confirmTitle": "Подели кључ са организацијом",
+        "orgKeyGroup": "Кључеви организације",
+        "personalKeyGroup": "Лични кључеви"
       },
       "declaration": {
         "agree": "Прочитај и сагласи се",
@@ -1267,7 +1267,7 @@
       "promptConstraintsFallbackU18": "18 и старији",
       "promptConstraintsHint": "Додатна упутства за вештачку интелигенцију за све сесије у овој организацији. Примењује се када радионица није поставила правило заштите деце и младих, као и на игре дељене путем линка.",
       "promptConstraintsLabel": "Правило заштите деце и младих организације",
-      "promptConstraintsPlaceholder": "npr. Održavajte priču primerenom uzrastu i izbegavajte nasilan sadržaj.",
+      "promptConstraintsPlaceholder": "нпр. Одржавајте причу примереном узрасту и избегавајте насилан садржај.",
       "publicPage": {
         "changeLinkMessage": "Страница ће се убудуће налазити на адреси {{url}}.",
         "changeLinkTitle": "Променити везу?",
@@ -1279,17 +1279,17 @@
         "link": "Веза",
         "linkHint": "Користите a–z, 0–9 и појединачне цртице, од 3 до 60 знакова.",
         "links": {
-          "add": "Dodaj link",
-          "down": "Pomeri nadole",
-          "error": "Linkovi nisu mogli da budu sačuvani. Svaki link mora imati naslov, a svaka adresa mora početi sa http:// ili https://.",
-          "hint": "Prikazuju se na stranici ispod igara. Najviše deset.",
-          "linkDescription": "Opis (opciono)",
-          "linkTitle": "Naslov",
-          "remove": "Ukloni",
-          "save": "Sačuvaj linkove",
-          "title": "Dodatni materijali",
-          "up": "Pomeri nagore",
-          "url": "Adresa"
+          "add": "Додај линк",
+          "down": "Помери надоле",
+          "error": "Линкови нису могли да буду сачувани. Сваки линк мора имати наслов, а свака адреса мора почети са хттп:// или https://.",
+          "hint": "Приказују се на страници испод игара. Највише десет.",
+          "linkDescription": "Опис (опционо)",
+          "linkTitle": "Наслов",
+          "remove": "Уклони",
+          "save": "Сачувај линкове",
+          "title": "Додатни материјали",
+          "up": "Помери нагоре",
+          "url": "Адреса"
         },
         "offHint": "Страница је искључена. И даље можете припремити њену везу и QR код.",
         "open": "Отвори страницу",
@@ -1317,25 +1317,26 @@
       },
       "title": "Моја организација",
       "verifiedPages": {
-        "add": "Registruj stranicu",
-        "addTitle": "Registrujte stranicu",
+        "add": "Региструј страницу",
+        "addTitle": "Региструјте страницу",
         "approved": "Одобрено",
-        "callbackShown": "Povratni poziv: {{url}}",
-        "callbackUrl": "Adresa povratnog poziva",
+        "callbackShown": "Повратни позив: {{url}}",
+        "callbackUrl": "Адреса повратног позива",
         "callbackUrlHint": "Овде {{siteName}} поставља питање пре сваког покретања. Страница мора да одговори у року од неколико секунди.",
-        "copied": "Kopirano",
-        "copy": "Kopiraj ID stranice",
+        "copied": "Копирано",
+        "copy": "Копирај ID странице",
         "edit": "Измени страницу",
         "editReapproval": "Ова адреса је на другој веб-локацији, па поново чека одобрење администратора; до тада игре не могу да се покрећу на њој. Други порт или путања на истој веб-локацији остају одобрени.",
         "editTitle": "Измени страницу",
-        "empty": "Još nema verifikovanih stranica.",
+        "empty": "Још нема верификованих страница.",
         "intro": "Верификована страница је страница на веб-сајту ваше организације на којој могу да се приказују ваше уграђене игре. Пре него што се игра тамо покрене, {{siteName}} пита повратни позив странице да ли да је покрене, шаљући ИД странице наведен испод, као и ИД-ове посетиоца и захтева које ваша страница прослеђује. Игру покреће само одговор {\"ok\": true}.",
-        "pageId": "ID stranice",
-        "pageUrl": "Adresa stranice",
-        "pageUrlHint": "Stranica u koju su vaše igre ugrađene. Samo njen veb-sajt sme da ih prikazuje.",
-        "remove": "Ukloni stranicu",
-        "removeTitle": "Ukloniti ovu stranicu?",
-        "removeWarning": "Igre ugrađene za {{page}} više se tamo neće pokretati dok ne dobiju drugu stranicu.",
+        "pageId": "ID странице",
+        "pageIdStays": "ID странице остаје исти када промените адресе, па код ваше странице не треба мењати.",
+        "pageUrl": "Адреса странице",
+        "pageUrlHint": "Страница у коју су ваше игре уграђене. Само њен веб-сајт сме да их приказује.",
+        "remove": "Уклони страницу",
+        "removeTitle": "Уклонити ову страницу?",
+        "removeWarning": "Игре уграђене за {{page}} више се тамо неће покретати док не добију другу страницу.",
         "save": "Сачувај страницу",
         "waiting": "Чека одобрење администратора"
       },
@@ -1344,11 +1345,11 @@
         "active": "Активна",
         "activeDescription": "Активне радионице омогућавају учесницима да се придруже и креирају игре.",
         "activeLabel": "Активно",
-        "addIndividualError": "Dodavanje člana u radionicu nije uspelo.",
-        "addToWorkshop": "Dodaj u radionicu",
+        "addIndividualError": "Додавање члана у радионицу није успело.",
+        "addToWorkshop": "Додај у радионицу",
         "aiQualityTierHint": "Ниво квалитета АИ одговора. Виши нивои коштају више али могу имати бољи квалитет. Празно користи серверски подразумевани.",
-        "allowGameSharing": "Dozvoli deljenje igara",
-        "allowGameSharingHint": "Kada je omogućeno, učesnici mogu kreirati linkove za deljenje svojih igara koristeći API ključ radionice",
+        "allowGameSharing": "Дозволи дељење игара",
+        "allowGameSharingHint": "Када је омогућено, учесници могу креирати линкове за дељење својих игара користећи API кључ радионице",
         "create": "Креирај радионицу",
         "createInviteLink": "Креирај линк за позив",
         "createTitle": "Креирај радионицу",
@@ -1366,11 +1367,11 @@
         "guestLinkTitleNamed": "Веза за поновну пријаву за {{name}}",
         "hideInactive": "Сакриј неактивне",
         "inactive": "Неактивна",
-        "inviteByEmail": "Pozovi putem email-a",
-        "inviteByEmailDescription": "Unesite email registrovanog korisnika da biste ga pozvali u ovu radionicu. Poziv će videti na svojoj kontrolnoj tabli.",
-        "inviteByEmailSuccess": "Poziv poslat",
-        "inviteByEmailSuccessMessage": "Poziv je kreiran. Korisnik će ga videti u svojim pending pozivima.",
-        "inviteByEmailTitle": "Pozovi korisnika u radionicu",
+        "inviteByEmail": "Позови путем емаил-а",
+        "inviteByEmailDescription": "Унесите емаил регистрованог корисника да бисте га позвали у ову радионицу. Позив ће видети на својој контролној табли.",
+        "inviteByEmailSuccess": "Позив послат",
+        "inviteByEmailSuccessMessage": "Позив је креиран. Корисник ће га видети у својим позивима на чекању.",
+        "inviteByEmailTitle": "Позови корисника у радионицу",
         "inviteCreatedAt": "Креирано",
         "inviteExpiresAt": "Истиче",
         "inviteLink": "Позивни линк",
@@ -1388,7 +1389,7 @@
         "noDefaultApiKey": "Нема подразумеваног API кључа",
         "noDefaultModel": "Користи подразумевани модел платформе",
         "noGuestToken": "Овај члан нема везу за поновну пријаву. Само гости је имају.",
-        "noIndividuals": "Nema pojedinačnih korisnika u ovoj organizaciji.",
+        "noIndividuals": "Нема појединачних корисника у овој организацији.",
         "noParticipants": "Још нема учесника",
         "noResults": "Ниједна радионица не одговара вашој претрази или филтеру.",
         "notAuthorized": "Немате дозволу да управљате радионицама. Само руководиоци и наставници имају приступ.",
@@ -1398,15 +1399,15 @@
         "participants": "Учесници",
         "promptConstraintsFallbackOrg": "Као подразумевано се користи правило заштите деце и младих организације: {{constraint}}",
         "promptConstraintsFallbackSite": "Као подразумевано се користи правило заштите деце и младих веб-сајта",
-        "promptConstraintsHint": "Dodatna AI uputstva za sve sesije u ovoj radionici.",
+        "promptConstraintsHint": "Додатна AI упутства за све сесије у овој радионици.",
         "promptConstraintsLabel": "Правило заштите деце и младих",
         "promptConstraintsPlaceholder": "нпр. Нека прича буде прилагођена узрасту и избегавај насилан садржај.",
         "removeParticipant": "Уклони учесника",
         "removeParticipantConfirm": "Да ли сте сигурни да желите да уклоните „{{name}}“ из ове радионице?",
-        "removeParticipantMessage": "Da li zaista želite da uklonite osobu „{{name}}“ iz ove radionice?",
+        "removeParticipantMessage": "Да ли заиста желите да уклоните особу „{{name}}“ из ове радионице?",
         "removeParticipantTitle": "Уклони учесника",
-        "removeParticipantWarningPermanent": "Ovim se trajno brišu nalog ove osobe i sve igre koje je napravila, zajedno sa svim sesijama igranja i svim deljenim linkovima ka njima. Ovo se ne može poništiti. Ako igre treba sačuvati, prvo ih preuzmite kao YAML.",
-        "removeParticipantWarningVisiting": "Ova osoba zadržava svoj nalog i igre. Završava se samo njen pristup ovoj radionici.",
+        "removeParticipantWarningPermanent": "Овим се трајно бришу налог ове особе и све игре које је направила, заједно са свим сесијама играња и свим дељеним линковима ка њима. Ово се не може поништити. Ако игре треба сачувати, прво их преузмите као YAML.",
+        "removeParticipantWarningVisiting": "Ова особа задржава свој налог и игре. Завршава се само њен приступ овој радионици.",
         "resetAccess": "Ресетуј приступ",
         "resetAccessDone": "Креиран је нови приступ. Стара веза више не ради.",
         "resetAccessError": "Приступ није могао да се ресетује. Покушајте поново.",
@@ -1418,7 +1419,7 @@
         "settings": "Подешавања",
         "shareGuestLink": "Прикажи везу за поновну пријаву",
         "showOtherParticipantsGames": "Прикажи игре других учесника",
-        "showOtherParticipantsGamesHint": "Rukovodioci i osoblje uvek mogu videti sve igre učesnika radi moderacije",
+        "showOtherParticipantsGamesHint": "Руководиоци и особље увек могу видети све игре учесника ради модерације",
         "showPublicGames": "Прикажи јавне игре учесницима",
         "sort": {
           "createdAtAsc": "Најстарије прво",
@@ -1464,8 +1465,8 @@
         "pagesWaiting_one": "Проверена страница чека одобрење",
         "pagesWaiting_other": "{{count}} проверених страница чека одобрење"
       },
-      "workshopInvite": "Poziv u radionicu",
-      "workshopInviteDescription": "Pozvani ste da se pridružite ovoj radionici."
+      "workshopInvite": "Позив у радионицу",
+      "workshopInviteDescription": "Позвани сте да се придружите овој радионици."
     },
     "organisationSuspended": {
       "byAdmin": "Оператер је суспендовао приступ ваше организације сајту {{siteName}}. Ваши подаци ће бити сачувани.",
@@ -1543,23 +1544,23 @@
     "promoteWarning": "Овај корисник ће моћи да управља члановима организације и позива наставнике.",
     "publicWorkshop": {
       "about": {
-        "details": "Njihovi autori opisuju svet, likove i pravila svojim rečima. Dok igrate, AI odatle uživo nastavlja da pripoveda priču: reaguje na sve što unesete i izmišlja odgovarajuće slike — zato se nijedna dva igranja ne odvijaju na isti način. Kada sami napravite jednu, brzo ćete videti koliko vaše instrukcije oblikuju rezultat i gde AI nailazi na svoja ograničenja. U tome i jeste poenta: ne slušati objašnjenje o AI-ju, već ga isprobati.",
-        "less": "Manje",
+        "details": "Њихови аутори описују свет, ликове и правила својим речима. Док играте, AI одатле уживо наставља да приповеда причу: реагује на све што унесете и измишља одговарајуће слике — зато се ниједна два играња не одвијају на исти начин. Када сами направите једну, брзо ћете видети колико ваше инструкције обликују резултат и где AI наилази на своја ограничења. У томе и јесте поента: не слушати објашњење о AI-ју, већ га испробати.",
+        "less": "Мање",
         "link": "Више о {{siteName}}",
-        "more": "Saznajte više",
+        "more": "Сазнајте више",
         "oneLiner": "Ове текстуалне авантуре направљене су уз {{siteName}}: дело њихових аутора, без програмирања, а уживо их приповеда вештачка интелигенција."
       },
       "copy": "Копирај",
       "copyLogin": "Пријавите се да бисте копирали",
       "cta": {
-        "button": "Počnite besplatno",
-        "text": "Pravljenje sopstvene tekstualne avanture je besplatno i traje samo nekoliko minuta.",
+        "button": "Почните бесплатно",
+        "text": "Прављење сопствене текстуалне авантуре је бесплатно и траје само неколико минута.",
         "title": "Направи сопствену игру уз {{siteName}}"
       },
       "download": "Преузми",
       "gamesTitle": "Игре из ове радионице",
       "links": {
-        "title": "Više o ovoj radionici"
+        "title": "Више о овој радионици"
       },
       "noGames": "Овде још нема објављених игара.",
       "play": "Играј",
@@ -1627,7 +1628,7 @@
         "u13Label": "Правило заштите деце и младих за кориснике узраста 13–17 година, без сагласности родитеља (U13)",
         "u13pHint": "Убацује се у сваки AI упит за пријављене кориснике узраста 13–17 година са забележеном родитељском сагласношћу.",
         "u13pLabel": "Правило заштите деце и младих за кориснике узраста 13–17 година, уз сагласност родитеља (U13p)",
-        "u18Hint": "Ubacuje se u svaki AI prompt za prijavljene korisnike od 18 godina naviše.",
+        "u18Hint": "Убацује се у сваки AI промпт за пријављене кориснике од 18 година навише.",
         "u18Label": "Правило заштите деце и младих за кориснике узраста 18 и више година (U18)"
       },
       "defaultTier": {
@@ -1827,7 +1828,7 @@
     "share": {
       "copied": "Копирано",
       "copyLink": "Копирај везу",
-      "visitLink": "Poseti link"
+      "visitLink": "Посети линк"
     },
     "showing": "{{count}} чланова",
     "sort": {
@@ -1841,11 +1842,11 @@
     "viewGame": "Погледај игру",
     "workshop": {
       "inactive": {
-        "description": "Ova radionica trenutno nije aktivna. Sačekajte da je voditelj radionice ponovo uključi.",
-        "noCode": "Na ovom uređaju nije sačuvan nijedan kôd. Voditelj radionice može da vam kaže vaš kôd.",
-        "photoFirst": "Ako se odjavite, vaš kôd će nestati sa ovog uređaja. Pre toga ga fotografišite.",
-        "showCode": "Prikaži moj pristupni kôd",
-        "title": "Radionica nije aktivna"
+        "description": "Ова радионица тренутно није активна. Сачекајте да је водитељ радионице поново укључи.",
+        "noCode": "На овом уређају није сачуван ниједан ко̂д. Водитељ радионице може да вам каже ваш ко̂д.",
+        "photoFirst": "Ако се одјавите, ваш ко̂д ће нестати са овог уређаја. Пре тога га фотографишите.",
+        "showCode": "Прикажи мој приступни ко̂д",
+        "title": "Радионица није активна"
       }
     }
   },
@@ -1908,6 +1909,9 @@
     "aiError": "АИ сервис је наишао на грешку. Покушајте поново.",
     "backendUserFetch": "Учитавање корисничких података са сервера није успело. Покушајте поново.",
     "billingNotActive": "Ваш OpenAI налог није активан. Проверите детаље наплате на https://platform.openai.com/settings/organization/billing.",
+    "callbackOffSite": "Повратни позив мора да буде на веб-локацији странице: иста шема и исти хост, нпр. https://example.org за обоје.",
+    "callbackUrlInvalid": "Унесите пуну адресу повратног позива, нпр. https://example.org/chatgamelab-callback.",
+    "callbackUrlNotHttps": "Адреса повратног позива мора да почиње са https://. Обичан http ради само на развојном серверу.",
     "checkRunning": "Провера нових верзија је већ у току.",
     "checkTooSoon": "Последња провера је обављена пре мање од једног минута. Покушајте поново ускоро.",
     "conflict": "Ова радња је у сукобу са постојећим подацима. Покушајте поново.",
@@ -1929,6 +1933,8 @@
     "notFound": "Тражени ресурс није пронађен.",
     "orgVerificationRequired": "Ваш OpenAI налог мора бити верификован да користи функцију генерисања слика. Верификујте на https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "Ваша организација је суспендована. Подаци остају сачувани.",
+    "pageUrlInvalid": "Унесите пуну адресу странице, нпр. https://example.org/play.",
+    "pageUrlNotHttps": "Адреса странице мора да почиње са https://. Обичан http ради само на развојном серверу.",
     "previousResponseNotFound": "АИ је изгубио ток разговора. То се дешава ако је сесија дуже неактивна. Покрените нову сесију да наставите.",
     "publicDescriptionTooLong": "Опис може имати највише 2000 знакова.",
     "publicSlugInvalid": "Користите a–z, 0–9 и појединачне цртице, од 3 до 60 знакова.",
@@ -1995,12 +2001,12 @@
       "public": "Јавне игре"
     },
     "infoModal": {
-      "body": "Ušli ste u režim radionice. Dok ste u ovom režimu, sve što radite povezano je sa ovom radionicom – igre koje kreirate, sesije igranja i linkovi za deljenje.\n\nMožete otići u bilo kom trenutku. Odlazak neće prekinuti radionicu niti ukloniti ono što ste kreirali.",
-      "dontShowAgain": "Ne prikazuj ponovo",
-      "gotIt": "Razumem",
-      "headStaffNote": "Možete se ponovo pridružiti ovoj radionici u bilo kom trenutku sa liste radionica vaše organizacije.",
-      "individualNote": "Da biste se ponovo pridružili nakon odlaska, biće vam potreban novi poziv od organizatora radionice.",
-      "title": "Dobrodošli u {{name}}"
+      "body": "Ушли сте у режим радионице. Док сте у овом режиму, све што радите повезано је са овом радионицом – игре које креирате, сесије играња и линкови за дељење.\n\nМожете отићи у било ком тренутку. Одлазак неће прекинути радионицу нити уклонити оно што сте креирали.",
+      "dontShowAgain": "Не приказуј поново",
+      "gotIt": "Разумем",
+      "headStaffNote": "Можете се поново придружити овој радионици у било ком тренутку са листе радионица ваше организације.",
+      "individualNote": "Да бисте се поново придружили након одласка, биће вам потребан нови позив од организатора радионице.",
+      "title": "Добродошли у {{name}}"
     },
     "members": {
       "empty": "Још нема чланова",
@@ -2038,7 +2044,7 @@
     "orgApiKeys": "API кључеви",
     "orgConstraints": "Правило заштите деце и младих",
     "orgMembers": "Чланови",
-    "orgVerifiedPages": "Veb-sajtovi",
+    "orgVerifiedPages": "Веб-сајтови",
     "orgWorkshops": "Радионице",
     "play": "Играј игру",
     "rooms": "Собе",
@@ -2089,7 +2095,7 @@
       "dropped": "одбачено",
       "droppedValue": "{{n}} (превише узастопно)",
       "empty": "још ништа",
-      "entryAbsent": "igrač je odsutan",
+      "entryAbsent": "играч је одсутан",
       "entryBackground": "позадина послата",
       "entryConversation": "разговор",
       "entryDirection": "упутство послато",
@@ -2097,7 +2103,7 @@
       "entryError": "грешка",
       "entryInjection": "убачено",
       "entryLine": "рекао/рекла",
-      "entryRules": "pravila poslata",
+      "entryRules": "правила послата",
       "entrySilence": "тишина",
       "entryThought": "мисли",
       "failed": "{{n}} неуспешно",
@@ -2121,26 +2127,26 @@
       "poolValue": "{{n}} фрагмената · ритам {{ms}} ms",
       "quietFor": "тихо већ",
       "quietReplies": "нема шта да се ради",
-      "reminders": "igrač podsećen na pravila",
+      "reminders": "играч подсећен на правила",
       "sent": "послато",
       "sentValue": "{{d}} упутстава · {{b}} позадина",
       "setBeat": "подеси ритам (ms)",
-      "standingDown": "povlači se · igrač ništa nije rekao {{s}}",
+      "standingDown": "повлачи се · играч ништа није рекао {{s}}",
       "thinking": "размишља · {{s}}",
       "waiting": "чека на то"
     },
     "errors": {
-      "connectionLost": "Veza sa igrom je prekinuta. Ponovo učitaj stranicu da pokušaš opet.",
-      "imageFailed": "Slika za ovu scenu nije mogla da bude napravljena. Priča se nastavlja.",
-      "noMicrophone": "Nema mikrofona. Proveri dozvolu pregledača za ovu stranicu.",
+      "connectionLost": "Веза са игром је прекинута. Поново учитај страницу да покушаш опет.",
+      "imageFailed": "Слика за ову сцену није могла да буде направљена. Прича се наставља.",
+      "noMicrophone": "Нема микрофона. Провери дозволу прегледача за ову страницу.",
       "notHeard": "Ваше речи нису допрле. Говорите поново или откуцајте.",
-      "openingFailed": "Priča nije mogla da počne. Napiši šta želiš da uradiš i odatle će početi.",
-      "pauseFailed": "Razgovor nije mogao da bude pauziran.",
-      "serverUnreachable": "Nije moguće povezati se sa serverom igre.",
-      "startFailed": "Igra nije mogla da bude pokrenuta.",
-      "switchFailed": "Ovu funkciju nije bilo moguće prebaciti.",
-      "turnFailed": "Priča nije mogla da se nastavi od toga. Pošalji ponovo ili pokušaj nešto drugo.",
-      "voiceFailed": "Tvoj glas nije mogao da se poveže."
+      "openingFailed": "Прича није могла да почне. Напиши шта желиш да урадиш и одатле ће почети.",
+      "pauseFailed": "Разговор није могао да буде паузиран.",
+      "serverUnreachable": "Није могуће повезати се са сервером игре.",
+      "startFailed": "Игра није могла да буде покренута.",
+      "switchFailed": "Ову функцију није било могуће пребацити.",
+      "turnFailed": "Прича није могла да се настави од тога. Пошаљи поново или покушај нешто друго.",
+      "voiceFailed": "Твој глас није могао да се повеже."
     },
     "guardrail": {
       "edit": "Промени правило заштите",
@@ -2187,13 +2193,13 @@
     "launch": {
       "chooseMode": "Како желиш да играш?",
       "live": "Разговарај уживо",
-      "noGame": "Ovoj stranici je potrebna igra: otvori je sa stranice igre.",
+      "noGame": "Овој страници је потребна игра: отвори је са странице игре.",
       "rounds": "Играј наизменично, куцањем или говором",
-      "starting": "Pokretanje igre…"
+      "starting": "Покретање игре…"
     },
     "over": {
-      "contentPolicy": "Ovu igru je zaustavio AI provajder: razgovor je otišao u smeru koji njegova bezbednosna pravila ne dozvoljavaju. I dalje možete da pročitate sve što je rečeno i da započnete novu igru kad god želite.",
-      "unknown": "Ova igra je završena. I dalje možete da pročitate sve što je rečeno i da započnete novu igru kad god želite."
+      "contentPolicy": "Ову игру је зауставио AI провајдер: разговор је отишао у смеру који његова безбедносна правила не дозвољавају. И даље можете да прочитате све што је речено и да започнете нову игру кад год желите.",
+      "unknown": "Ова игра је завршена. И даље можете да прочитате све што је речено и да започнете нову игру кад год желите."
     },
     "pipeline": {
       "compact": "Сажми нит",
@@ -2216,19 +2222,19 @@
     },
     "problems": {
       "chooseMode": "Ова игра може да се игра уживо или наизменично: изабери једну опцију.",
-      "denied": "Nije ti dozvoljeno da igraš ovu igru.",
-      "failed": "Nešto je pošlo naopako i igra ne može da se nastavi.",
-      "genre": "Dostupni AI ključ ne može da pokrene ovu vrstu igre.",
-      "hostRefused": "Veb-sajt u koji je ova igra ugrađena nije dozvolio njeno pokretanje.",
-      "keyRejected": "AI provajder je odbio ključ ove igre, pa igra ne može da se nastavi. Osoba koja je podesila igru treba da proveri ključ.",
+      "denied": "Није ти дозвољено да играш ову игру.",
+      "failed": "Нешто је пошло наопако и игра не може да се настави.",
+      "genre": "Доступни AI кључ не може да покрене ову врсту игре.",
+      "hostRefused": "Веб-сајт у који је ова игра уграђена није дозволио њено покретање.",
+      "keyRejected": "AI провајдер је одбио кључ ове игре, па игра не може да се настави. Особа која је подесила игру треба да провери кључ.",
       "noCredit": "Жао нам је, AI кредит је потрошен, па игра тренутно не може да се настави.",
-      "noKey": "Nijedan AI ključ nije dostupan za igranje ove igre.",
-      "noPlays": "Ova deljena igra više nema preostalih igranja.",
-      "over": "Ova igra je završena i ne može da se nastavi.",
+      "noKey": "Ниједан AI кључ није доступан за играње ове игре.",
+      "noPlays": "Ова дељена игра више нема преосталих играња.",
+      "over": "Ова игра је завршена и не може да се настави.",
       "paused": "Радионица је паузирана. Игра се наставља када се радионица настави.",
-      "stale": "Ova igra više ne može da se nastavi.",
-      "unknown": "Ova sesija igre ne postoji.",
-      "unreachable": "AI provajder trenutno ne odgovara, pa igra ne može da se nastavi. Pokušaj ponovo za nekoliko minuta."
+      "stale": "Ова игра више не може да се настави.",
+      "unknown": "Ова сесија игре не постоји.",
+      "unreachable": "AI провајдер тренутно не одговара, па игра не може да се настави. Покушај поново за неколико минута."
     },
     "promptNames": {
       "character": "Лик (системска порука)",
@@ -2274,13 +2280,13 @@
       "voiceStyle": "Стил гласа"
     },
     "status": {
-      "choose": "Izaberi način igranja da bi počeo.",
-      "connecting": "Povezivanje…",
-      "ended": "Igra je završena.",
-      "over": "Igra je završena.",
-      "reconnecting": "Ponovno povezivanje…",
-      "settingScene": "Postavljanje scene…",
-      "wakingCharacter": "Buđenje lika…"
+      "choose": "Изабери начин играња да би почео.",
+      "connecting": "Повезивање…",
+      "ended": "Игра је завршена.",
+      "over": "Игра је завршена.",
+      "reconnecting": "Поновно повезивање…",
+      "settingScene": "Постављање сцене…",
+      "wakingCharacter": "Буђење лика…"
     },
     "talk": {
       "hearing": "Чујем шта сте рекли…",
