@@ -281,11 +281,10 @@ func (s *EmbedTestSuite) TestAGameEmbedsOnlyForItsOrganisationsPages() {
 	s.Invalid(err)
 }
 
-// In development a verified page may be plain http on any host; the admin
-// approves its site, scheme and host, as for https. Outside development both
-// addresses are https, which the core's own tests pin down: a test instance
-// always runs in development.
-func (s *EmbedTestSuite) TestAVerifiedPageInDevelopmentMayBePlainHTTP() {
+// A verified page may be plain http, on any host and in either mode; the
+// admin approves its site, scheme and host, as for https. (A test instance
+// runs in development; the core's own tests pin production down.)
+func (s *EmbedTestSuite) TestAVerifiedPageMayBePlainHTTP() {
 	w := s.world()
 	page := Must(w.head.CreateVerifiedPage(w.org, "http://example.org/play", "http://example.org/callback"))
 	s.Equal("http://example.org", page.Site)

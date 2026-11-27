@@ -1671,6 +1671,11 @@
         "title": "Poštovní server",
         "user": "Uživatelské jméno"
       },
+      "mode": {
+        "development": "Vývoj",
+        "label": "Režim",
+        "production": "Produkce"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. Přiřadit jiný model",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "Váš účet OpenAI není aktivní. Zkontrolujte fakturační údaje na https://platform.openai.com/settings/organization/billing.",
     "callbackOffSite": "Callback musí být na webu stránky: stejné schéma a stejný host, například u obou https://example.org.",
     "callbackUrlInvalid": "Zadejte úplnou adresu callbacku, například https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "Adresa callbacku musí začínat https://. Obyčejné http funguje jen na vývojovém serveru.",
     "checkRunning": "Kontrola nových verzí již probíhá.",
     "checkTooSoon": "Od poslední kontroly ještě neuplynula minuta. Zkuste to znovu za chvíli.",
     "conflict": "Tato akce koliduje s existujícími daty. Zkuste to prosím znovu.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "Vaše organizace OpenAI musí být ověřena pro použití funkce generování obrázků. Ověřte ji na https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "Vaše organizace je pozastavena. Vaše data zůstanou zachována.",
     "pageUrlInvalid": "Zadejte úplnou adresu stránky, například https://example.org/play.",
-    "pageUrlNotHttps": "Adresa stránky musí začínat https://. Obyčejné http funguje jen na vývojovém serveru.",
     "previousResponseNotFound": "AI ztratila přehled o této konverzaci. Může se to stát, když bylo sezení delší dobu neaktivní. Začněte nové sezení, abyste mohli pokračovat ve hře.",
     "publicDescriptionTooLong": "Popis může mít nejvýše 2000 znaků.",
     "publicSlugInvalid": "Použijte a–z, 0–9 a jednotlivé pomlčky, 3 až 60 znaků.",

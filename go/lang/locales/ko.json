@@ -1671,6 +1671,11 @@
         "title": "메일 서버",
         "user": "사용자 이름"
       },
+      "mode": {
+        "development": "개발",
+        "label": "모드",
+        "production": "프로덕션"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. 다른 모델 할당",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "OpenAI 계정이 활성화되어 있지 않습니다. https://platform.openai.com/settings/organization/billing 에서 결제 정보를 확인하세요.",
     "callbackOffSite": "콜백은 페이지와 같은 사이트에 있어야 합니다. 스킴과 호스트가 같아야 합니다(예: 둘 다 https://example.org).",
     "callbackUrlInvalid": "콜백의 전체 주소를 입력하세요. 예: https://example.org/chatgamelab-callback",
-    "callbackUrlNotHttps": "콜백 주소는 https://로 시작해야 합니다. 일반 http는 개발 서버에서만 작동합니다.",
     "checkRunning": "새 버전을 이미 확인하고 있습니다.",
     "checkTooSoon": "마지막 확인 후 1분이 지나지 않았습니다. 잠시 후 다시 시도하세요.",
     "conflict": "이 동작이 기존 데이터와 충돌합니다. 다시 시도해 주세요.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "이미지 생성 기능을 사용하려면 OpenAI 기관 인증이 필요합니다. https://platform.openai.com/settings/organization/general 에서 인증하세요.",
     "organisationSuspended": "조직이 정지되었습니다. 데이터는 보존됩니다.",
     "pageUrlInvalid": "페이지의 전체 주소를 입력하세요. 예: https://example.org/play",
-    "pageUrlNotHttps": "페이지 주소는 https://로 시작해야 합니다. 일반 http는 개발 서버에서만 작동합니다.",
     "previousResponseNotFound": "AI가 이 대화의 이전 응답을 찾지 못했습니다. 세션을 오래 비활성화하면 발생할 수 있습니다. 계속하려면 새 세션을 시작하세요.",
     "publicDescriptionTooLong": "설명은 최대 2000자까지 입력할 수 있습니다.",
     "publicSlugInvalid": "a–z, 0–9 및 단일 하이픈을 사용하여 3~60자로 입력하세요.",

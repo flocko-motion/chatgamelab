@@ -1671,6 +1671,11 @@
         "title": "E-postserver",
         "user": "Brukernavn"
       },
+      "mode": {
+        "development": "Utvikling",
+        "label": "Modus",
+        "production": "Produksjon"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. Tildel en annen modell",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "OpenAI-kontoen din er ikke aktiv. Sjekk faktureringsdetaljene på https://platform.openai.com/settings/organization/billing.",
     "callbackOffSite": "Tilbakekallet må ligge på sidens nettsted: samme skjema og samme vert, for eksempel https://example.org for begge.",
     "callbackUrlInvalid": "Skriv inn den fullstendige adressen for tilbakekall, for eksempel https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "Adressen for tilbakekall må begynne med https://. Vanlig http fungerer bare på en utviklingsserver.",
     "checkRunning": "Et søk etter nye versjoner pågår allerede.",
     "checkTooSoon": "Det forrige søket ble utført for mindre enn ett minutt siden. Prøv igjen om litt.",
     "conflict": "Denne handlingen kommer i konflikt med eksisterende data. Prøv igjen.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "OpenAI-organisasjonen din må verifiseres for å bruke funksjonen for bildegenerering. Verifiser på https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "Organisasjonen din er suspendert. Dataene dine beholdes.",
     "pageUrlInvalid": "Skriv inn den fullstendige adressen til siden, for eksempel https://example.org/play.",
-    "pageUrlNotHttps": "Adressen til siden må begynne med https://. Vanlig http fungerer bare på en utviklingsserver.",
     "previousResponseNotFound": "AI-en mistet oversikten over denne samtalen. Dette kan skje når en sesjon har vært inaktiv en stund. Start en ny sesjon for å fortsette å spille.",
     "publicDescriptionTooLong": "Beskrivelsen kan være på maksimalt 2000 tegn.",
     "publicSlugInvalid": "Bruk a–z, 0–9 og enkle bindestreker, 3 til 60 tegn.",

@@ -1671,6 +1671,11 @@
         "title": "E-postserver",
         "user": "Användarnamn"
       },
+      "mode": {
+        "development": "Utveckling",
+        "label": "Läge",
+        "production": "Produktion"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. Tilldela en annan modell",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "Ditt OpenAI-konto är inte aktivt. Kontrollera dina faktureringsuppgifter på https://platform.openai.com/settings/organization/billing.",
     "callbackOffSite": "Callbacken måste ligga på sidans webbplats: samma schema och samma värd, till exempel https://example.org för båda.",
     "callbackUrlInvalid": "Ange den fullständiga callback-adressen, till exempel https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "Callback-adressen måste börja med https://. Vanlig http fungerar bara på en utvecklingsserver.",
     "checkRunning": "En sökning efter nya versioner pågår redan.",
     "checkTooSoon": "Den senaste sökningen gjordes för mindre än en minut sedan. Försök igen om en liten stund.",
     "conflict": "Denna åtgärd står i konflikt med befintlig data. Försök igen.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "Din OpenAI-organisation behöver verifieras för att använda bildgenerering. Verifiera på https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "Din organisation är avstängd. Dina data sparas.",
     "pageUrlInvalid": "Ange sidans fullständiga adress, till exempel https://example.org/play.",
-    "pageUrlNotHttps": "Sidans adress måste börja med https://. Vanlig http fungerar bara på en utvecklingsserver.",
     "previousResponseNotFound": "AI:n tappade bort denna konversation. Det kan hända om sessionen varit inaktiv ett tag. Starta en ny session för att fortsätta spela.",
     "publicDescriptionTooLong": "Beskrivningen får vara högst 2000 tecken lång.",
     "publicSlugInvalid": "Använd a–z, 0–9 och enkla bindestreck, 3 till 60 tecken.",

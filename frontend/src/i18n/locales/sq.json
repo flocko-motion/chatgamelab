@@ -1671,6 +1671,11 @@
         "title": "Serveri i postës",
         "user": "Emri i përdoruesit"
       },
+      "mode": {
+        "development": "Zhvillim",
+        "label": "Modaliteti",
+        "production": "Prodhim"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. Cakto një model tjetër",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "Llogaria juaj OpenAI nuk është aktive. Ju lutemi kontrolloni detajet e faturimit në https://platform.openai.com/settings/organization/billing.",
     "callbackOffSite": "Callback-u duhet të jetë në sajtin e faqes: e njëjta skemë dhe i njëjti host, p.sh. https://example.org për të dyja.",
     "callbackUrlInvalid": "Fut adresën e plotë të callback-ut, p.sh. https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "Adresa e callback-ut duhet të fillojë me https://. http i thjeshtë funksionon vetëm në një server zhvillimi.",
     "checkRunning": "Një kontroll për versione të reja po kryhet tashmë.",
     "checkTooSoon": "Kontrolli i fundit u krye më pak se një minutë më parë. Provo përsëri pas pak.",
     "conflict": "Ky veprim bie ndesh me të dhënat ekzistuese. Ju lutemi provoni përsëri.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "Organizata juaj OpenAI ka nevojë për verifikim për të përdorur funksionin e gjenerimit të imazheve. Ju lutemi verifikoni në https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "Organizata juaj është pezulluar. Të dhënat tuaja ruhen.",
     "pageUrlInvalid": "Fut adresën e plotë të faqes, p.sh. https://example.org/play.",
-    "pageUrlNotHttps": "Adresa e faqes duhet të fillojë me https://. http i thjeshtë funksionon vetëm në një server zhvillimi.",
     "previousResponseNotFound": "AI humbi gjurmët e kësaj bisede. Kjo mund të ndodhë kur një sesion ka qenë joaktiv për një kohë. Ju lutemi nisni një sesion të ri për të vazhduar lojën.",
     "publicDescriptionTooLong": "Përshkrimi mund të ketë maksimumi 2000 karaktere.",
     "publicSlugInvalid": "Përdor a–z, 0–9 dhe viza të vetme, nga 3 deri në 60 karaktere.",

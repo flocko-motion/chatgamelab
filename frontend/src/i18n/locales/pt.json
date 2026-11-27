@@ -1671,6 +1671,11 @@
         "title": "Servidor de e-mail",
         "user": "Login"
       },
+      "mode": {
+        "development": "Desenvolvimento",
+        "label": "Modo",
+        "production": "Produção"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. Atribuir outro modelo",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "Sua conta OpenAI não está ativa. Verifique seus detalhes de cobrança em https://platform.openai.com/settings/organization/billing.",
     "callbackOffSite": "O callback tem de estar no site da página: o mesmo esquema e o mesmo host, por exemplo https://example.org para ambos.",
     "callbackUrlInvalid": "Introduz o endereço completo do callback, por exemplo https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "O endereço do callback tem de começar por https://. O http simples só funciona num servidor de desenvolvimento.",
     "checkRunning": "Já há uma verificação de novas versões em andamento.",
     "checkTooSoon": "A última verificação ocorreu há menos de um minuto. Tente novamente em instantes.",
     "conflict": "Esta ação conflita com dados existentes. Tente novamente.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "Sua organização OpenAI precisa de verificação para usar o recurso de geração de imagens. Verifique em https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "Sua organização está suspensa. Seus dados serão mantidos.",
     "pageUrlInvalid": "Introduz o endereço completo da página, por exemplo https://example.org/play.",
-    "pageUrlNotHttps": "O endereço da página tem de começar por https://. O http simples só funciona num servidor de desenvolvimento.",
     "previousResponseNotFound": "A IA perdeu o contexto desta conversa. Isso pode acontecer quando uma sessão fica inativa por um tempo. Inicie uma nova sessão para continuar jogando.",
     "publicDescriptionTooLong": "A descrição pode ter, no máximo, 2000 caracteres.",
     "publicSlugInvalid": "Use a–z, 0–9 e hifens simples, entre 3 e 60 caracteres.",

@@ -99,6 +99,7 @@ export const queryKeys = {
 
   // System
   version: ["version"] as const,
+  serverStatus: ["serverStatus"] as const,
   systemSettings: ["systemSettings"] as const,
   site: ["site"] as const,
   engineModels: ["engineModels"] as const,

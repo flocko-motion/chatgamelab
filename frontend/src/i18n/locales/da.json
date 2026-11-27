@@ -1671,6 +1671,11 @@
         "title": "Mailserver",
         "user": "Brugernavn"
       },
+      "mode": {
+        "development": "Udvikling",
+        "label": "Tilstand",
+        "production": "Produktion"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. Tildel en anden model",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "Din OpenAI-konto er ikke aktiv. Kontrollér dine faktureringsoplysninger på https://platform.openai.com/settings/organization/billing.",
     "callbackOffSite": "Callbacken skal ligge på sidens website: samme skema og samme host, fx https://example.org for begge.",
     "callbackUrlInvalid": "Indtast den fulde callback-adresse, fx https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "Callback-adressen skal begynde med https://. Almindelig http virker kun på en udviklingsserver.",
     "checkRunning": "Der kører allerede en søgning efter nye versioner.",
     "checkTooSoon": "Den seneste søgning var for mindre end et minut siden. Prøv igen om lidt.",
     "conflict": "Denne handling er i konflikt med eksisterende data. Prøv igen.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "Din OpenAI-organisation skal verificeres for at bruge billedgenereringsfunktionen. Verificer på https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "Din organisation er suspenderet. Dine data bevares.",
     "pageUrlInvalid": "Indtast sidens fulde adresse, fx https://example.org/play.",
-    "pageUrlNotHttps": "Sidens adresse skal begynde med https://. Almindelig http virker kun på en udviklingsserver.",
     "previousResponseNotFound": "AI'en mistede overblikket over denne samtale. Det kan ske, når en session har været inaktiv i et stykke tid. Start en ny session for at fortsætte.",
     "publicDescriptionTooLong": "Beskrivelsen må højst være 2000 tegn lang.",
     "publicSlugInvalid": "Brug a–z, 0–9 og enkelte bindestreger, 3 til 60 tegn.",

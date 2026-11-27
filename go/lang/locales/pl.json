@@ -1671,6 +1671,11 @@
         "title": "Serwer poczty",
         "user": "Nazwa użytkownika"
       },
+      "mode": {
+        "development": "Rozwój",
+        "label": "Tryb",
+        "production": "Produkcja"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. Przypisz inny model",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "Twoje konto OpenAI nie jest aktywne. Sprawdź dane rozliczeniowe pod adresem https://platform.openai.com/settings/organization/billing.",
     "callbackOffSite": "Callback musi być w witrynie strony: ten sam schemat i ten sam host, np. https://example.org dla obu.",
     "callbackUrlInvalid": "Wpisz pełny adres callbacku, np. https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "Adres callbacku musi zaczynać się od https://. Zwykły http działa tylko na serwerze deweloperskim.",
     "checkRunning": "Sprawdzanie dostępności nowych wersji już trwa.",
     "checkTooSoon": "Od ostatniego sprawdzania minęła mniej niż minuta. Spróbuj ponownie za chwilę.",
     "conflict": "Ta operacja koliduje z istniejącymi danymi. Spróbuj ponownie.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "Twoja organizacja OpenAI wymaga weryfikacji, aby używać funkcji generowania obrazów. Zweryfikuj ją na https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "Twoja organizacja jest zawieszona. Twoje dane zostaną zachowane.",
     "pageUrlInvalid": "Wpisz pełny adres strony, np. https://example.org/play.",
-    "pageUrlNotHttps": "Adres strony musi zaczynać się od https://. Zwykły http działa tylko na serwerze deweloperskim.",
     "previousResponseNotFound": "AI straciła kontekst rozmowy. Może się tak zdarzyć po dłuższej bezczynności sesji. Rozpocznij nową sesję, aby kontynuować.",
     "publicDescriptionTooLong": "Opis może mieć maksymalnie 2000 znaków.",
     "publicSlugInvalid": "Użyj znaków a–z, cyfr 0–9 i pojedynczych łączników; od 3 do 60 znaków.",

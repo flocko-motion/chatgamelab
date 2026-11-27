@@ -17,8 +17,8 @@ func codeOf(err error) string {
 	return ""
 }
 
-// A page's addresses are https, in development plain http as well, on any
-// host; anything else is refused with the field's own code. A test instance
+// A page's addresses are https or plain http, on any host and in either
+// mode; anything else is refused with the field's own code. A test instance
 // runs in development, so production is pinned down here.
 func TestPageURLBySchemeHostAndMode(t *testing.T) {
 	cases := []struct {
@@ -29,8 +29,8 @@ func TestPageURLBySchemeHostAndMode(t *testing.T) {
 	}{
 		{"https in production", false, "https://example.org/play", ""},
 		{"https in development", true, "https://example.org/play", ""},
-		{"http in production", false, "http://example.org/play", obj.ErrCodePageURLNotHTTPS},
-		{"http on loopback in production", false, "http://localhost:8080/play", obj.ErrCodePageURLNotHTTPS},
+		{"http in production", false, "http://example.org/play", ""},
+		{"http on loopback in production", false, "http://localhost:8080/play", ""},
 		{"http in development, a public host", true, "http://example.org/play", ""},
 		{"http in development, a LAN address", true, "http://192.168.1.20:8080/play", ""},
 		{"http in development, a local name", true, "http://my-machine.local/play", ""},
@@ -67,8 +67,7 @@ func TestCheckPageURLsCodes(t *testing.T) {
 		want           string
 	}{
 		{"both https on one site", "https://example.org/play", "https://example.org:8443/cb", ""},
-		{"page not https", "http://example.org/play", "https://example.org/cb", obj.ErrCodePageURLNotHTTPS},
-		{"callback not https", "https://example.org/play", "http://example.org/cb", obj.ErrCodeCallbackURLNotHTTPS},
+		{"callback on http, page on https: another site", "https://example.org/play", "http://example.org/cb", obj.ErrCodeCallbackOffSite},
 		{"page invalid", "example.org/play", "https://example.org/cb", obj.ErrCodePageURLInvalid},
 		{"callback invalid", "https://example.org/play", "not an address", obj.ErrCodeCallbackURLInvalid},
 		{"callback on another host", "https://example.org/play", "https://other.example/cb", obj.ErrCodeCallbackOffSite},
@@ -87,10 +86,10 @@ func TestCheckPageURLsCodes(t *testing.T) {
 	}
 }
 
-// In development, the site of a plain http page keeps its scheme: the admin
+// A plain http page's site keeps its scheme, in production too: the admin
 // approves http://example.org apart from https://example.org.
 func TestAPlainHTTPPagesSiteKeepsItsScheme(t *testing.T) {
-	t.Setenv("SCHEMAF_DEV", "1")
+	t.Setenv("SCHEMAF_DEV", "")
 	site, err := checkPageURLs(VerifiedPageDraft{PageURL: "http://Example.org:8080/play", CallbackURL: "http://example.org/cb"})
 	if err != nil {
 		t.Fatal(err)

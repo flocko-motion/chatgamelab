@@ -1584,6 +1584,11 @@
       },
       "notAuthorized": "You don't have permission to access server settings. Admin access required.",
       "title": "Server Settings",
+      "mode": {
+        "label": "Mode",
+        "production": "Production",
+        "development": "Development"
+      },
       "updates": {
         "title": "Updates",
         "running": "Running version:",
@@ -1963,9 +1968,7 @@
     "checkRunning": "A check for new versions is already running.",
     "checkTooSoon": "The last check was less than a minute ago. Try again shortly.",
     "pageUrlInvalid": "Enter the page's full address, such as https://example.org/play.",
-    "pageUrlNotHttps": "The page's address must start with https://. Plain http works only on a development server.",
     "callbackUrlInvalid": "Enter the callback's full address, such as https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "The callback address must start with https://. Plain http works only on a development server.",
     "callbackOffSite": "The callback must be on the page's site: the same scheme and host, such as https://example.org for both."
   },
   "myWorkshop": {

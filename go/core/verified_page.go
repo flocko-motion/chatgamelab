@@ -19,7 +19,6 @@ import (
 	"cgl/log"
 	"cgl/obj"
 
-	schemafapi "github.com/flocko-motion/schemaf/api"
 	"github.com/google/uuid"
 )
 
@@ -223,11 +222,11 @@ func DeleteVerifiedPage(ctx context.Context, id uuid.UUID) error {
 }
 
 // checkPageURLs checks a page's address and callback and answers the
-// page's site. Both are https: TLS proves who answers the callback. In
-// development, plain http as well, on any host. Either way the admin
-// approves the site, scheme and host. The callback is on the page's site,
-// which the admin approves for both. Each refusal has a code of its own,
-// naming the field.
+// page's site. Both are https or plain http, in every mode: the admin
+// approves the site, scheme and host, and so decides whether plain http is
+// acceptable on their server. The callback is on the page's site, which the
+// admin approves for both. Each refusal has a code of its own, naming the
+// field.
 func checkPageURLs(d VerifiedPageDraft) (string, error) {
 	page, err := pageURL(d.PageURL, pageField)
 	if err != nil {
@@ -244,16 +243,15 @@ func checkPageURLs(d VerifiedPageDraft) (string, error) {
 	return site, nil
 }
 
-// urlField is one of a page's addresses, with the codes of its refusals.
+// urlField is one of a page's addresses, with the code of its refusal.
 type urlField struct {
-	name     string // as the request names it
-	invalid  string // no full web address
-	notHTTPS string // plain http outside development
+	name    string // as the request names it
+	invalid string // no full web address
 }
 
 var (
-	pageField     = urlField{"pageUrl", obj.ErrCodePageURLInvalid, obj.ErrCodePageURLNotHTTPS}
-	callbackField = urlField{"callbackUrl", obj.ErrCodeCallbackURLInvalid, obj.ErrCodeCallbackURLNotHTTPS}
+	pageField     = urlField{"pageUrl", obj.ErrCodePageURLInvalid}
+	callbackField = urlField{"callbackUrl", obj.ErrCodeCallbackURLInvalid}
 )
 
 // siteOf is an address's site: its scheme and host, without port or path,
@@ -269,8 +267,8 @@ func siteOf(u *url.URL) string {
 // maxPageURL caps the length of a page's address and callback.
 const maxPageURL = 2000
 
-// pageURL reads one of a page's addresses: a full web address, https, or in
-// development plain http as well.
+// pageURL reads one of a page's addresses: a full web address, https or
+// http.
 func pageURL(raw string, f urlField) (*url.URL, error) {
 	if raw == "" || len(raw) > maxPageURL {
 		return nil, badRequest(f.invalid, "%s must be an address of at most %d characters", f.name, maxPageURL)
@@ -278,9 +276,6 @@ func pageURL(raw string, f urlField) (*url.URL, error) {
 	u, err := url.Parse(raw)
 	if err != nil || u.Host == "" || u.User != nil || u.Fragment != "" || (u.Scheme != "https" && u.Scheme != "http") {
 		return nil, badRequest(f.invalid, "%s must be a full address, such as https://example.org/play", f.name)
-	}
-	if u.Scheme == "http" && !schemafapi.DevMode() {
-		return nil, badRequest(f.notHTTPS, "%s must start with https://", f.name)
 	}
 	return u, nil
 }

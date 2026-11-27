@@ -1671,6 +1671,11 @@
         "title": "Servidor de correo",
         "user": "Usuario"
       },
+      "mode": {
+        "development": "Desarrollo",
+        "label": "Modo",
+        "production": "Producción"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. Asignar otro modelo",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "Tu cuenta de OpenAI no está activa. Revisa tus datos de facturación en https://platform.openai.com/settings/organization/billing.",
     "callbackOffSite": "El callback debe estar en el sitio de la página: mismo esquema y mismo host, por ejemplo https://example.org para ambos.",
     "callbackUrlInvalid": "Introduce la dirección completa del callback, por ejemplo https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "La dirección del callback debe empezar por https://. El http simple solo funciona en un servidor de desarrollo.",
     "checkRunning": "Ya hay una búsqueda de nuevas versiones en curso.",
     "checkTooSoon": "La última búsqueda se realizó hace menos de un minuto. Inténtalo de nuevo en breve.",
     "conflict": "Esta acción entra en conflicto con datos existentes. Inténtalo de nuevo.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "Tu organización de OpenAI necesita verificación para usar la función de generación de imágenes. Verifica en https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "Tu organización está suspendida. Tus datos se conservarán.",
     "pageUrlInvalid": "Introduce la dirección completa de la página, por ejemplo https://example.org/play.",
-    "pageUrlNotHttps": "La dirección de la página debe empezar por https://. El http simple solo funciona en un servidor de desarrollo.",
     "previousResponseNotFound": "La IA perdió el hilo de esta conversación. Esto puede suceder cuando la sesión estuvo inactiva un tiempo. Inicia una sesión nueva para seguir jugando.",
     "publicDescriptionTooLong": "La descripción puede tener como máximo 2000 caracteres.",
     "publicSlugInvalid": "Usa a–z, 0–9 y guiones simples, entre 3 y 60 caracteres.",

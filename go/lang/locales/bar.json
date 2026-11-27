@@ -1671,6 +1671,11 @@
         "title": "Mailserver",
         "user": "Benutzername"
       },
+      "mode": {
+        "development": "Entwicklung",
+        "label": "Betriebsart",
+        "production": "Produktion"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. A anders Modell z'weisen",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "Dei OpenAI-Konto is ned aktiv. Schau dei Rechnungsinfos auf https://platform.openai.com/settings/organization/billing.",
     "callbackOffSite": "Da Callback muass auf da Website von da Seitn liegn: gleichs Schema und gleicher Host, zum Beispiel beide auf https://example.org.",
     "callbackUrlInvalid": "Gib de vollständige Callback-Adresse ei, zum Beispiel https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "De Callback-Adresse muass mit https:// ofanga. Eifachs http geht nur auf an Entwicklungsserver.",
     "checkRunning": "Es lafft scho a Suach nach neia Versionen.",
     "checkTooSoon": "De letzte Suach is no koa Minut her. Probier's glei no amoi.",
     "conflict": "Die Aktion beißt si mit bestehende Daten. Probier's no amoi.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "Dei OpenAI-Organisation braucht a Verifizierung fia d'Bildfunktion. Mach des auf https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "Deine Organisation is ausgsetzt. Dei Daten bleiben erhalten.",
     "pageUrlInvalid": "Gib de vollständige Adresse von da Seitn ei, zum Beispiel https://example.org/play.",
-    "pageUrlNotHttps": "De Adresse von da Seitn muass mit https:// ofanga. Eifachs http geht nur auf an Entwicklungsserver.",
     "previousResponseNotFound": "D'KI hod den Gesprächsverlauf valorn. Passiert bei längerer Pause. Fang a neie Session o.",
     "publicDescriptionTooLong": "De Beschreibung derf höchstens 2000 Zeichen lang sei.",
     "publicSlugInvalid": "Nimm a–z, 0–9 und einzelne Bindestriche, 3 bis 60 Zeichen.",
