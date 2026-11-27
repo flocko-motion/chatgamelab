@@ -1671,6 +1671,11 @@
         "title": "Server email",
         "user": "Nama pengguna"
       },
+      "mode": {
+        "development": "Pengembangan",
+        "label": "Mode",
+        "production": "Produksi"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. Tetapkan model lain",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "Akun OpenAI Anda tidak aktif. Silakan periksa detail penagihan Anda di https://platform.openai.com/settings/organization/billing.",
     "callbackOffSite": "Callback harus berada di situs halaman: skema dan host yang sama, misalnya https://example.org untuk keduanya.",
     "callbackUrlInvalid": "Masukkan alamat callback lengkap, misalnya https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "Alamat callback harus diawali https://. http biasa hanya berfungsi di server pengembangan.",
     "checkRunning": "Pemeriksaan untuk versi baru sedang berlangsung.",
     "checkTooSoon": "Pemeriksaan terakhir dilakukan kurang dari satu menit yang lalu. Coba lagi sebentar.",
     "conflict": "Tindakan ini bertentangan dengan data yang ada. Silakan coba lagi.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "Organisasi OpenAI Anda memerlukan verifikasi untuk menggunakan fitur pembuatan gambar. Silakan verifikasi di https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "Organisasi Anda ditangguhkan. Data Anda tetap disimpan.",
     "pageUrlInvalid": "Masukkan alamat lengkap halaman, misalnya https://example.org/play.",
-    "pageUrlNotHttps": "Alamat halaman harus diawali https://. http biasa hanya berfungsi di server pengembangan.",
     "previousResponseNotFound": "AI kehilangan jejak percakapan ini. Ini dapat terjadi saat sesi tidak aktif cukup lama. Silakan mulai sesi baru untuk melanjutkan bermain.",
     "publicDescriptionTooLong": "Deskripsi maksimal 2000 karakter.",
     "publicSlugInvalid": "Gunakan a–z, 0–9, dan tanda hubung tunggal, 3 hingga 60 karakter.",

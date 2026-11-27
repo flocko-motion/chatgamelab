@@ -1671,6 +1671,11 @@
         "title": "Server di posta",
         "user": "Nome utente"
       },
+      "mode": {
+        "development": "Sviluppo",
+        "label": "Modalità",
+        "production": "Produzione"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. Assegna un altro modello",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "Il tuo account OpenAI non è attivo. Controlla i dettagli di fatturazione su https://platform.openai.com/settings/organization/billing.",
     "callbackOffSite": "Il callback deve trovarsi sul sito della pagina: stesso schema e stesso host, ad esempio https://example.org per entrambi.",
     "callbackUrlInvalid": "Inserisci l'indirizzo completo del callback, ad esempio https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "L'indirizzo del callback deve iniziare con https://. L'http semplice funziona solo su un server di sviluppo.",
     "checkRunning": "È già in corso una ricerca di nuove versioni.",
     "checkTooSoon": "L'ultima ricerca è stata eseguita meno di un minuto fa. Riprova tra poco.",
     "conflict": "Questa azione è in conflitto con dati esistenti. Riprova.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "La tua organizzazione OpenAI deve essere verificata per usare la generazione di immagini. Verifica su https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "La tua organizzazione è sospesa. I tuoi dati vengono conservati.",
     "pageUrlInvalid": "Inserisci l'indirizzo completo della pagina, ad esempio https://example.org/play.",
-    "pageUrlNotHttps": "L'indirizzo della pagina deve iniziare con https://. L'http semplice funziona solo su un server di sviluppo.",
     "previousResponseNotFound": "L'IA ha perso il filo della conversazione. Può succedere quando una sessione resta inattiva per un po'. Avvia una nuova sessione per continuare a giocare.",
     "publicDescriptionTooLong": "La descrizione può contenere al massimo 2000 caratteri.",
     "publicSlugInvalid": "Usa a–z, 0–9 e singoli trattini, da 3 a 60 caratteri.",

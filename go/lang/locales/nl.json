@@ -1671,6 +1671,11 @@
         "title": "Mailserver",
         "user": "Gebruikersnaam"
       },
+      "mode": {
+        "development": "Ontwikkeling",
+        "label": "Modus",
+        "production": "Productie"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. Ander model toewijzen",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "Je OpenAI-account is niet actief. Controleer je facturatiegegevens op https://platform.openai.com/settings/organization/billing.",
     "callbackOffSite": "De callback moet op de website van de pagina staan: hetzelfde schema en dezelfde host, bijvoorbeeld voor beide https://example.org.",
     "callbackUrlInvalid": "Vul het volledige callbackadres in, bijvoorbeeld https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "Het callbackadres moet beginnen met https://. Gewoon http werkt alleen op een ontwikkelserver.",
     "checkRunning": "Er wordt al gecontroleerd op nieuwe versies.",
     "checkTooSoon": "De vorige controle vond minder dan een minuut geleden plaats. Probeer het zo opnieuw.",
     "conflict": "Deze actie botst met bestaande gegevens. Probeer het opnieuw.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "Je OpenAI-organisatie moet worden geverifieerd om de beeldgeneratiefunctie te gebruiken. Verifieer via https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "Je organisatie is opgeschort. Je gegevens blijven bewaard.",
     "pageUrlInvalid": "Vul het volledige adres van de pagina in, bijvoorbeeld https://example.org/play.",
-    "pageUrlNotHttps": "Het pagina-adres moet beginnen met https://. Gewoon http werkt alleen op een ontwikkelserver.",
     "previousResponseNotFound": "De AI is de draad van dit gesprek kwijt. Dit kan gebeuren na langere inactiviteit. Start een nieuwe sessie om verder te spelen.",
     "publicDescriptionTooLong": "De beschrijving mag maximaal 2000 tekens lang zijn.",
     "publicSlugInvalid": "Gebruik a–z, 0–9 en enkele streepjes, 3 tot 60 tekens.",

@@ -1671,6 +1671,11 @@
         "title": "Levelezőszerver",
         "user": "Felhasználónév"
       },
+      "mode": {
+        "development": "Fejlesztői",
+        "label": "Mód",
+        "production": "Éles"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. Másik modell hozzárendelése",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "Az OpenAI-fiókod nem aktív. Ellenőrizd a számlázási adataidat: https://platform.openai.com/settings/organization/billing.",
     "callbackOffSite": "A callbacknek az oldal webhelyén kell lennie: azonos séma és azonos host, például mindkettőnél https://example.org.",
     "callbackUrlInvalid": "Add meg a teljes callback-címet, például https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "A callback-címnek https://-sel kell kezdődnie. Az egyszerű http csak fejlesztői szerveren működik.",
     "checkRunning": "Már folyamatban van egy új verziók keresése.",
     "checkTooSoon": "Az előző keresés kevesebb mint egy perce történt. Próbáld meg újra egy kis idő múlva.",
     "conflict": "Ez a művelet ütközik a meglévő adatokkal. Próbáld újra.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "Az OpenAI szervezetednek hitelesítésre van szüksége a képgeneráló funkció használatához. Hitelesíts itt: https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "A szervezeted fel van függesztve. Az adataid megmaradnak.",
     "pageUrlInvalid": "Add meg az oldal teljes címét, például https://example.org/play.",
-    "pageUrlNotHttps": "Az oldal címének https://-sel kell kezdődnie. Az egyszerű http csak fejlesztői szerveren működik.",
     "previousResponseNotFound": "Az MI elvesztette a beszélgetés fonalát. Ez előfordulhat, ha a munkamenet hosszabb ideje inaktív. Kezdj új munkamenetet a folytatáshoz.",
     "publicDescriptionTooLong": "A leírás legfeljebb 2000 karakter hosszú lehet.",
     "publicSlugInvalid": "Használj a–z betűket, 0–9 számokat és önálló kötőjeleket, 3–60 karakterben.",

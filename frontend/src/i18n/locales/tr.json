@@ -1671,6 +1671,11 @@
         "title": "E-posta sunucusu",
         "user": "Kullanıcı adı"
       },
+      "mode": {
+        "development": "Geliştirme",
+        "label": "Mod",
+        "production": "Canlı"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. Başka bir model ata",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "OpenAI hesabınız aktif değil. Lütfen https://platform.openai.com/settings/organization/billing adresinden fatura bilgilerinizi kontrol edin.",
     "callbackOffSite": "Geri çağrı, sayfanın sitesinde olmalıdır: aynı şema ve aynı ana bilgisayar, örneğin ikisi için de https://example.org.",
     "callbackUrlInvalid": "Tam geri çağrı adresini girin, örneğin https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "Geri çağrı adresi https:// ile başlamalıdır. Düz http yalnızca bir geliştirme sunucusunda çalışır.",
     "checkRunning": "Yeni sürümler için bir kontrol zaten devam ediyor.",
     "checkTooSoon": "Son kontrolün üzerinden bir dakika geçmedi. Kısa süre sonra tekrar deneyin.",
     "conflict": "Bu işlem mevcut verilerle çakışıyor. Lütfen tekrar deneyin.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "OpenAI organizasyonunuzun görsel üretimi kullanabilmesi için doğrulanması gerekiyor. Lütfen https://platform.openai.com/settings/organization/general adresinden doğrulayın.",
     "organisationSuspended": "Kuruluşunuz askıya alındı. Verileriniz korunur.",
     "pageUrlInvalid": "Sayfanın tam adresini girin, örneğin https://example.org/play.",
-    "pageUrlNotHttps": "Sayfa adresi https:// ile başlamalıdır. Düz http yalnızca bir geliştirme sunucusunda çalışır.",
     "previousResponseNotFound": "Yapay zekâ bu konuşmanın geçmişini kaybetti. Bu, oturum uzun süre aktif olmadığında olabilir. Devam etmek için lütfen yeni bir oturum başlatın.",
     "publicDescriptionTooLong": "Açıklama en fazla 2000 karakter uzunluğunda olabilir.",
     "publicSlugInvalid": "a–z, 0–9 ve tekli tireler kullanın; 3 ila 60 karakter olmalıdır.",

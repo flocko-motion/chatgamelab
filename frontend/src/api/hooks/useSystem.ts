@@ -63,6 +63,21 @@ export function useVersion() {
   });
 }
 
+/** The mode the server runs in, as schemaf reports it: development or production. */
+export type ServerMode = "development" | "production";
+
+/** The server's mode, from its status (schemaf's /api/status); undefined while unknown. */
+export function useServerMode() {
+  return useQuery<ServerMode | undefined, ApiError>({
+    queryKey: queryKeys.serverStatus,
+    queryFn: () =>
+      api.getApiStatus().then((response) => {
+        const mode = response.data.mode;
+        return mode === "development" || mode === "production" ? mode : undefined;
+      }),
+  });
+}
+
 // Update System Settings mutation (admin only)
 export function useUpdateSystemSettings() {
   const queryClient = useQueryClient();

@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { ActionButton, GenericButtonWithText } from "@components/buttons";
 import { BodyText, CardTitle, HelperText, Label } from "@components/typography";
 import { useSiteUpdates } from "../hooks/useSiteUpdates";
+import { useServerMode } from "@/api/hooks";
 
 const INSTALL_COLOR: Record<string, string> = {
   installing: "blue",
@@ -18,6 +19,7 @@ const INSTALL_COLOR: Record<string, string> = {
 export function SiteUpdates() {
   const { t } = useTranslation("common");
   const updates = useSiteUpdates();
+  const { data: mode } = useServerMode();
 
   const confirmUpgrade = (version: string) =>
     modals.openConfirmModal({
@@ -44,6 +46,14 @@ export function SiteUpdates() {
               <BodyText size="sm">{updates.running || t("serverSettings.updates.noVersion")}</BodyText>
               {updates.busy && <Loader size="xs" />}
             </Group>
+            {mode && (
+              <Group gap="xs">
+                <Label>{t("serverSettings.mode.label")}</Label>
+                <Badge color={mode === "production" ? "green" : "orange"} variant="light">
+                  {t(`serverSettings.mode.${mode}`)}
+                </Badge>
+              </Group>
+            )}
 
             {!updates.updaterEnabled && (
               <HelperText>{t("serverSettings.updates.notEnabled")}</HelperText>

@@ -30,8 +30,9 @@ approved it.
      as `https://example.org/cgl/callback`. Your server answers there; part 3
      says what it receives and answers.
 
-   Both are `https` and on the same site (scheme and host); on a development
-   server, plain `http` as well. An organisation has one verified page.
+   Both are on the same site (scheme and host), `https` or plain `http`;
+   which sites may show the game is the admin's decision. An organisation
+   has one verified page.
    Registering gives the page its **page ID**, 16 hex characters, which
    ChatGameLab sends with every callback. The page ID stays when the
    addresses change, so the page's code keeps working.

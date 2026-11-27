@@ -1671,6 +1671,11 @@
         "title": "Serveur de messagerie",
         "user": "Identifiant"
       },
+      "mode": {
+        "development": "Développement",
+        "label": "Mode",
+        "production": "Production"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}} : {{model}}. Attribuer un autre modèle",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "Votre compte OpenAI n’est pas actif. Veuillez vérifier vos informations de facturation sur https://platform.openai.com/settings/organization/billing.",
     "callbackOffSite": "Le callback doit se trouver sur le site de la page : même schéma et même hôte, par exemple https://example.org pour les deux.",
     "callbackUrlInvalid": "Saisis l’adresse complète du callback, par exemple https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "L’adresse du callback doit commencer par https://. Le http simple ne fonctionne que sur un serveur de développement.",
     "checkRunning": "Une recherche de nouvelles versions est déjà en cours.",
     "checkTooSoon": "La dernière recherche date de moins d’une minute. Réessayez dans quelques instants.",
     "conflict": "Cette action est en conflit avec des données existantes. Veuillez réessayer.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "Votre organisation OpenAI doit être vérifiée pour utiliser la génération d’images. Veuillez vérifier sur https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "Votre organisation est suspendue. Vos données sont conservées.",
     "pageUrlInvalid": "Saisis l’adresse complète de la page, par exemple https://example.org/play.",
-    "pageUrlNotHttps": "L’adresse de la page doit commencer par https://. Le http simple ne fonctionne que sur un serveur de développement.",
     "previousResponseNotFound": "L’IA a perdu le fil de cette conversation. Cela peut arriver après une longue inactivité. Veuillez démarrer une nouvelle session pour continuer à jouer.",
     "publicDescriptionTooLong": "La description doit comporter au maximum 2 000 caractères.",
     "publicSlugInvalid": "Utilisez a–z, 0–9 et des traits d’union simples, de 3 à 60 caractères.",

@@ -178,17 +178,9 @@ const ERROR_CODE_I18N_MAP: Record<
     titleKey: "errors:titles.validation",
     messageKey: "errors:pageUrlInvalid",
   },
-  [ErrorCodes.PAGE_URL_NOT_HTTPS]: {
-    titleKey: "errors:titles.validation",
-    messageKey: "errors:pageUrlNotHttps",
-  },
   [ErrorCodes.CALLBACK_URL_INVALID]: {
     titleKey: "errors:titles.validation",
     messageKey: "errors:callbackUrlInvalid",
-  },
-  [ErrorCodes.CALLBACK_URL_NOT_HTTPS]: {
-    titleKey: "errors:titles.validation",
-    messageKey: "errors:callbackUrlNotHttps",
   },
   [ErrorCodes.CALLBACK_OFF_SITE]: {
     titleKey: "errors:titles.validation",
@@ -224,9 +216,7 @@ function getErrorColor(errorCode: string | null): "red" | "orange" {
     case ErrorCodes.NO_API_KEY:
     case ErrorCodes.INVALID_JSON_SCHEMA:
     case ErrorCodes.PAGE_URL_INVALID:
-    case ErrorCodes.PAGE_URL_NOT_HTTPS:
     case ErrorCodes.CALLBACK_URL_INVALID:
-    case ErrorCodes.CALLBACK_URL_NOT_HTTPS:
     case ErrorCodes.CALLBACK_OFF_SITE:
       return "orange";
     default:

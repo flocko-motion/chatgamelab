@@ -1671,6 +1671,11 @@
         "title": "邮件服务器",
         "user": "登录名"
       },
+      "mode": {
+        "development": "开发",
+        "label": "模式",
+        "production": "生产"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}，{{tier}}：{{model}}。分配其他模型",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "你的 OpenAI 账户未激活。请在 https://platform.openai.com/settings/organization/billing 查看账单信息。",
     "callbackOffSite": "回调必须位于页面所在的网站：相同的协议和主机，例如两者都是 https://example.org。",
     "callbackUrlInvalid": "请输入完整的回调地址，例如 https://example.org/chatgamelab-callback。",
-    "callbackUrlNotHttps": "回调地址必须以 https:// 开头。普通 http 仅在开发服务器上可用。",
     "checkRunning": "检查新版本的操作已在进行中。",
     "checkTooSoon": "距离上次检查还不到一分钟，请稍后再试。",
     "conflict": "该操作与现有数据冲突，请重试。",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "你的 OpenAI 组织需要验证才能使用图像生成功能。请前往 https://platform.openai.com/settings/organization/general 验证。",
     "organisationSuspended": "你的组织已暂停。你的数据会保留。",
     "pageUrlInvalid": "请输入页面的完整地址，例如 https://example.org/play。",
-    "pageUrlNotHttps": "页面地址必须以 https:// 开头。普通 http 仅在开发服务器上可用。",
     "previousResponseNotFound": "AI 丢失了对话上下文。会话长时间未活动时可能发生此情况，请重新开始会话。",
     "publicDescriptionTooLong": "描述最多只能包含 2000 个字符。",
     "publicSlugInvalid": "请使用 a–z、0–9 和单个连字符，长度为 3 至 60 个字符。",

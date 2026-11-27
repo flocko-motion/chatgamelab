@@ -20,9 +20,7 @@ export type VerifiedPageField = "pageUrl" | "callbackUrl";
 /** The field each refusal of a page's addresses is about; the form shows it there. */
 const FIELD_OF_CODE: Record<string, VerifiedPageField> = {
   [ErrorCodes.PAGE_URL_INVALID]: "pageUrl",
-  [ErrorCodes.PAGE_URL_NOT_HTTPS]: "pageUrl",
   [ErrorCodes.CALLBACK_URL_INVALID]: "callbackUrl",
-  [ErrorCodes.CALLBACK_URL_NOT_HTTPS]: "callbackUrl",
   [ErrorCodes.CALLBACK_OFF_SITE]: "callbackUrl",
 };
 

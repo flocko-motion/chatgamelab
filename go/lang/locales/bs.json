@@ -1671,6 +1671,11 @@
         "title": "Server e-pošte",
         "user": "Korisničko ime"
       },
+      "mode": {
+        "development": "Razvoj",
+        "label": "Način rada",
+        "production": "Produkcija"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. Dodijeli drugi model",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "Vaš OpenAI nalog nije aktivan. Provjerite podatke o naplati na https://platform.openai.com/settings/organization/billing.",
     "callbackOffSite": "Povratni poziv mora biti na web-stranici stranice: ista shema i isti host, npr. https://example.org za oboje.",
     "callbackUrlInvalid": "Unesite punu adresu povratnog poziva, npr. https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "Adresa povratnog poziva mora počinjati s https://. Obični http radi samo na razvojnom serveru.",
     "checkRunning": "Provjera novih verzija je već u toku.",
     "checkTooSoon": "Posljednja provjera je obavljena prije manje od minute. Pokušajte ponovo uskoro.",
     "conflict": "Ova radnja je u sukobu s postojećim podacima. Pokušajte ponovo.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "Vaša OpenAI organizacija mora biti verifikovana za korištenje funkcije generisanja slika. Verifikujte na https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "Vaša organizacija je suspendovana. Vaši podaci ostaju sačuvani.",
     "pageUrlInvalid": "Unesite punu adresu stranice, npr. https://example.org/play.",
-    "pageUrlNotHttps": "Adresa stranice mora počinjati s https://. Obični http radi samo na razvojnom serveru.",
     "previousResponseNotFound": "AI je izgubio tok ove konverzacije. Ovo se može desiti kada sesija dugo miruje. Pokrenite novu sesiju da nastavite igrati.",
     "publicDescriptionTooLong": "Opis može sadržavati najviše 2000 znakova.",
     "publicSlugInvalid": "Koristite a–z, 0–9 i pojedinačne crtice, od 3 do 60 znakova.",

@@ -96,6 +96,8 @@ export {
   useUpdateSystemSettings,
   useSetSystemFreeUseKey,
   useVersion,
+  useServerMode,
+  type ServerMode,
   useSystemConstraints,
   useUpdates,
   useRequestUpgrade,

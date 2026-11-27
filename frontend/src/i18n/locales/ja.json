@@ -1671,6 +1671,11 @@
         "title": "メールサーバー",
         "user": "ユーザー名"
       },
+      "mode": {
+        "development": "開発",
+        "label": "モード",
+        "production": "本番"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}、{{tier}}：{{model}}。別のモデルを割り当てる",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "OpenAIアカウントが有効ではありません。https://platform.openai.com/settings/organization/billing で請求情報を確認してください。",
     "callbackOffSite": "コールバックはページと同じサイト上にある必要があります。スキームとホストが同じであること（例: どちらも https://example.org）。",
     "callbackUrlInvalid": "コールバックの完全なアドレスを入力してください（例: https://example.org/chatgamelab-callback）。",
-    "callbackUrlNotHttps": "コールバックアドレスは https:// で始まる必要があります。通常の http は開発サーバーでのみ使えます。",
     "checkRunning": "新しいバージョンの確認はすでに実行中です。",
     "checkTooSoon": "前回の確認から1分未満しか経過していません。しばらくしてからもう一度お試しください。",
     "conflict": "この操作は既存のデータと競合しています。もう一度お試しください。",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "画像生成機能を使用するにはOpenAI組織の認証が必要です。https://platform.openai.com/settings/organization/general で認証してください。",
     "organisationSuspended": "組織は停止されています。データは保持されます。",
     "pageUrlInvalid": "ページの完全なアドレスを入力してください（例: https://example.org/play）。",
-    "pageUrlNotHttps": "ページアドレスは https:// で始まる必要があります。通常の http は開発サーバーでのみ使えます。",
     "previousResponseNotFound": "AIが会話を追跡できなくなりました。しばらくセッションが空いた場合に発生します。新しいセッションを開始してください。",
     "publicDescriptionTooLong": "説明は最大2000文字までです。",
     "publicSlugInvalid": "a～z、0～9、単独のハイフンを使用し、3～60文字で入力してください。",

@@ -1671,6 +1671,11 @@
         "title": "Server-ka boostada",
         "user": "Magaca isticmaalaha"
       },
+      "mode": {
+        "development": "Horumarin",
+        "label": "Habka",
+        "production": "Wax-soo-saar"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. U qoondee nooc kale",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "Akoonkaaga OpenAI ma firfircoon. Fadlan hubi faahfaahinta lacag-bixintaada: https://platform.openai.com/settings/organization/billing.",
     "callbackOffSite": "Callback-ku waa inuu ku yaal degelka bogga: isla nidaamka iyo isla host-ka, tusaale ahaan https://example.org labadaba.",
     "callbackUrlInvalid": "Geli cinwaanka buuxa ee callback-ka, tusaale ahaan https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "Cinwaanka callback-ka waa inuu ku bilaabmaa https://. http caadi ah wuxuu ka shaqeeyaa oo keliya server horumarin.",
     "checkRunning": "Hubinta noocyo cusub ayaa horey u socota.",
     "checkTooSoon": "Hubintii ugu dambaysay waxay dhacday wax ka yar hal daqiiqo ka hor. Wax yar kadib isku day mar kale.",
     "conflict": "Ficilkan wuxuu khilaafsan yahay xog horay u jirtay. Fadlan isku day mar kale.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "Ururkaaga OpenAI wuxuu u baahan yahay xaqiijin si loo isticmaalo sifooyinka abuurista sawirka. Fadlan xaqiiji: https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "Ururkaaga waa la hakiyay. Xogtaadu way sii jiraysaa.",
     "pageUrlInvalid": "Geli cinwaanka buuxa ee bogga, tusaale ahaan https://example.org/play.",
-    "pageUrlNotHttps": "Cinwaanka bogga waa inuu ku bilaabmaa https://. http caadi ah wuxuu ka shaqeeyaa oo keliya server horumarin.",
     "previousResponseNotFound": "AI-du wuxuu lumiyay raadka wada-hadalkan. Tani waxay dhici kartaa marka fadhi muddo la waayo. Fadlan bilow fadhi cusub si aad ugu sii ciyaarto.",
     "publicDescriptionTooLong": "Sharraxaaddu waxay noqon kartaa ugu badnaan 2000 xaraf.",
     "publicSlugInvalid": "Isticmaal a–z, 0–9 iyo xarriiqooyin hal ah, 3 ilaa 60 xaraf.",

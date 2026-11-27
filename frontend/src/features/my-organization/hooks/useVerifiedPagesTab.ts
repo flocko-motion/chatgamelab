@@ -10,10 +10,7 @@ import {
 import type { VerifiedPageView } from "@/api/types";
 import { translateErrorCode } from "@/common/lib/errorHelpers";
 
-/**
- * A full web address. Which ones it takes is the server's: https, and on a
- * development server plain http as well.
- */
+/** A full web address, https or http; the admin approves the page's site. */
 function isWebURL(value: string): boolean {
   try {
     const { protocol } = new URL(value);

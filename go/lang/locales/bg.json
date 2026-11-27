@@ -1671,6 +1671,11 @@
         "title": "Пощенски сървър",
         "user": "Потребителско име"
       },
+      "mode": {
+        "development": "Разработка",
+        "label": "Режим",
+        "production": "Продукция"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. Задаване на друг модел",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "Вашият OpenAI акаунт не е активен. Проверете данните за плащане на https://platform.openai.com/settings/organization/billing.",
     "callbackOffSite": "Callback-ът трябва да е на сайта на страницата: същата схема и същият хост, например https://example.org и за двата.",
     "callbackUrlInvalid": "Въведете пълния адрес на callback-а, например https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "Адресът на callback-а трябва да започва с https://. Обикновен http работи само на сървър за разработка.",
     "checkRunning": "Вече се изпълнява проверка за нови версии.",
     "checkTooSoon": "Последната проверка беше преди по-малко от минута. Опитайте отново след малко.",
     "conflict": "Това действие е в конфликт със съществуващи данни. Моля, опитайте отново.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "Вашата OpenAI организация трябва да бъде верифицирана, за да използва функцията за генериране на изображения. Верифицирайте на https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "Организацията ви е спряна. Данните ви се запазват.",
     "pageUrlInvalid": "Въведете пълния адрес на страницата, например https://example.org/play.",
-    "pageUrlNotHttps": "Адресът на страницата трябва да започва с https://. Обикновен http работи само на сървър за разработка.",
     "previousResponseNotFound": "AI загуби нишката на този разговор. Това може да се случи при дълга неактивност. Моля, започнете нова сесия.",
     "publicDescriptionTooLong": "Описанието може да бъде дълго най-много 2000 знака.",
     "publicSlugInvalid": "Използвайте a–z, 0–9 и единични тирета, от 3 до 60 знака.",

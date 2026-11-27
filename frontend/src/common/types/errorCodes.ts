@@ -42,9 +42,7 @@ export const ErrorCodes = {
   CHECK_TOO_SOON: "check_too_soon",
   // A verified page's addresses (server: core.checkPageURLs)
   PAGE_URL_INVALID: "page_url_invalid",
-  PAGE_URL_NOT_HTTPS: "page_url_not_https",
   CALLBACK_URL_INVALID: "callback_url_invalid",
-  CALLBACK_URL_NOT_HTTPS: "callback_url_not_https",
   CALLBACK_OFF_SITE: "callback_off_site",
   // AI-related error codes
   INVALID_API_KEY: "invalid_api_key",

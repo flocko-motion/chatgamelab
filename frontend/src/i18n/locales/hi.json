@@ -1671,6 +1671,11 @@
         "title": "मेल सर्वर",
         "user": "लॉगिन"
       },
+      "mode": {
+        "development": "डेवलपमेंट",
+        "label": "मोड",
+        "production": "प्रोडक्शन"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}। कोई दूसरा मॉडल असाइन करें",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "आपका OpenAI खाता सक्रिय नहीं है। कृपया https://platform.openai.com/settings/organization/billing पर अपने बिलिंग विवरण जाँचें।",
     "callbackOffSite": "कॉलबैक पेज की ही वेबसाइट पर होना चाहिए: वही स्कीम और वही होस्ट, जैसे दोनों के लिए https://example.org।",
     "callbackUrlInvalid": "पूरा कॉलबैक पता डालें, जैसे https://example.org/chatgamelab-callback।",
-    "callbackUrlNotHttps": "कॉलबैक पता https:// से शुरू होना चाहिए। सादा http सिर्फ़ डेवलपमेंट सर्वर पर चलता है।",
     "checkRunning": "नए संस्करणों की जाँच पहले से चल रही है।",
     "checkTooSoon": "पिछली जाँच को एक मिनट से कम समय हुआ है। थोड़ी देर बाद फिर प्रयास करें।",
     "conflict": "यह क्रिया मौजूदा डेटा से टकराती है। कृपया पुनः प्रयास करें।",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "छवि निर्माण सुविधा उपयोग करने के लिए आपके OpenAI संगठन को सत्यापन की आवश्यकता है। कृपया https://platform.openai.com/settings/organization/general पर सत्यापित करें।",
     "organisationSuspended": "आपका संगठन निलंबित है। आपका डेटा सुरक्षित है।",
     "pageUrlInvalid": "पेज का पूरा पता डालें, जैसे https://example.org/play।",
-    "pageUrlNotHttps": "पेज का पता https:// से शुरू होना चाहिए। सादा http सिर्फ़ डेवलपमेंट सर्वर पर चलता है।",
     "previousResponseNotFound": "एआई इस वार्तालाप का ट्रैक खो बैठा। ऐसा तब हो सकता है जब सत्र कुछ समय तक निष्क्रिय रहा हो। कृपया नया सत्र शुरू करें।",
     "publicDescriptionTooLong": "विवरण अधिकतम 2000 वर्णों का हो सकता है।",
     "publicSlugInvalid": "a–z, 0–9 और केवल एकल हाइफ़न का उपयोग करें; 3 से 60 वर्ण।",

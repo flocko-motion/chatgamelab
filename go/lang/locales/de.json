@@ -1584,6 +1584,11 @@
       },
       "notAuthorized": "Sie haben keine Berechtigung, auf die Servereinstellungen zuzugreifen. Administratorzugang erforderlich.",
       "title": "Servereinstellungen",
+      "mode": {
+        "label": "Betriebsart",
+        "production": "Produktion",
+        "development": "Entwicklung"
+      },
       "updates": {
         "title": "Updates",
         "running": "Laufende Version:",
@@ -1963,9 +1968,7 @@
     "checkRunning": "Es läuft bereits eine Suche nach neuen Versionen.",
     "checkTooSoon": "Die letzte Suche ist keine Minute her. Versuch es gleich noch einmal.",
     "pageUrlInvalid": "Gib die vollständige Adresse der Seite ein, zum Beispiel https://example.org/play.",
-    "pageUrlNotHttps": "Die Adresse der Seite muss mit https:// beginnen. Einfaches http geht nur auf einem Entwicklungsserver.",
     "callbackUrlInvalid": "Gib die vollständige Callback-Adresse ein, zum Beispiel https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "Die Callback-Adresse muss mit https:// beginnen. Einfaches http geht nur auf einem Entwicklungsserver.",
     "callbackOffSite": "Der Callback muss auf der Website der Seite liegen: gleiches Schema und gleicher Host, zum Beispiel beide auf https://example.org."
   },
   "myWorkshop": {

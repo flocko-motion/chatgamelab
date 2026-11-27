@@ -1671,6 +1671,11 @@
         "title": "Поштовий сервер",
         "user": "Ім’я користувача"
       },
+      "mode": {
+        "development": "Розробка",
+        "label": "Режим",
+        "production": "Робочий"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. Призначити іншу модель",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "Ваш обліковий запис OpenAI не активний. Перевірте платіжні дані на https://platform.openai.com/settings/organization/billing.",
     "callbackOffSite": "Зворотний виклик має бути на сайті сторінки: та сама схема й той самий хост, наприклад https://example.org для обох.",
     "callbackUrlInvalid": "Введіть повну адресу зворотного виклику, наприклад https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "Адреса зворотного виклику має починатися з https://. Звичайний http працює лише на сервері розробки.",
     "checkRunning": "Перевірка наявності нових версій уже виконується.",
     "checkTooSoon": "Попередня перевірка була менш ніж хвилину тому. Спробуйте ще раз за мить.",
     "conflict": "Ця дія конфліктує з наявними даними. Спробуйте ще раз.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "Вашій організації OpenAI потрібно підтвердження для використання генерації зображень. Пройдіть верифікацію на https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "Вашу організацію призупинено. Ваші дані збережено.",
     "pageUrlInvalid": "Введіть повну адресу сторінки, наприклад https://example.org/play.",
-    "pageUrlNotHttps": "Адреса сторінки має починатися з https://. Звичайний http працює лише на сервері розробки.",
     "previousResponseNotFound": "ШІ втратив контекст розмови. Таке трапляється після тривалої неактивності. Почніть нову сесію.",
     "publicDescriptionTooLong": "Опис може містити не більше 2000 символів.",
     "publicSlugInvalid": "Використовуйте a–z, 0–9 і поодинокі дефіси; від 3 до 60 символів.",

@@ -1671,6 +1671,11 @@
         "title": "Server de e-mail",
         "user": "Utilizator"
       },
+      "mode": {
+        "development": "Dezvoltare",
+        "label": "Mod",
+        "production": "Producție"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. Atribuie alt model",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "Contul tău OpenAI nu este activ. Verifică detaliile de facturare la https://platform.openai.com/settings/organization/billing.",
     "callbackOffSite": "Callback-ul trebuie să fie pe site-ul paginii: aceeași schemă și aceeași gazdă, de exemplu https://example.org pentru ambele.",
     "callbackUrlInvalid": "Introdu adresa completă a callback-ului, de exemplu https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "Adresa callback-ului trebuie să înceapă cu https://. http simplu funcționează doar pe un server de dezvoltare.",
     "checkRunning": "O verificare pentru versiuni noi rulează deja.",
     "checkTooSoon": "Ultima verificare a avut loc acum mai puțin de un minut. Încearcă din nou în scurt timp.",
     "conflict": "Această acțiune intră în conflict cu date existente. Te rugăm să încerci din nou.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "Organizația ta OpenAI trebuie verificată pentru a folosi funcția de generare a imaginilor. Verifică la https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "Organizația ta este suspendată. Datele tale sunt păstrate.",
     "pageUrlInvalid": "Introdu adresa completă a paginii, de exemplu https://example.org/play.",
-    "pageUrlNotHttps": "Adresa paginii trebuie să înceapă cu https://. http simplu funcționează doar pe un server de dezvoltare.",
     "previousResponseNotFound": "IA a pierdut firul conversației. Se poate întâmpla după o pauză lungă. Începe o sesiune nouă pentru a continua.",
     "publicDescriptionTooLong": "Descrierea poate avea cel mult 2000 de caractere.",
     "publicSlugInvalid": "Folosește a–z, 0–9 și cratime simple, între 3 și 60 de caractere.",

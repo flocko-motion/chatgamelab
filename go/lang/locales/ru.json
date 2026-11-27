@@ -1671,6 +1671,11 @@
         "title": "Почтовый сервер",
         "user": "Логин"
       },
+      "mode": {
+        "development": "Разработка",
+        "label": "Режим",
+        "production": "Рабочий"
+      },
       "models": {
         "assign": {
           "cellLabel": "{{task}}, {{tier}}: {{model}}. Назначить другую модель",
@@ -1911,7 +1916,6 @@
     "billingNotActive": "Ваш аккаунт OpenAI не активен. Проверьте платежные данные на https://platform.openai.com/settings/organization/billing.",
     "callbackOffSite": "Callback должен находиться на сайте страницы: та же схема и тот же хост, например https://example.org для обоих.",
     "callbackUrlInvalid": "Введите полный адрес callback, например https://example.org/chatgamelab-callback.",
-    "callbackUrlNotHttps": "Адрес callback должен начинаться с https://. Обычный http работает только на сервере разработки.",
     "checkRunning": "Проверка наличия новых версий уже выполняется.",
     "checkTooSoon": "Последняя проверка была менее минуты назад. Повторите попытку чуть позже.",
     "conflict": "Это действие конфликтует с существующими данными. Попробуйте снова.",
@@ -1934,7 +1938,6 @@
     "orgVerificationRequired": "Организации OpenAI требуется подтверждение для использования генерации изображений. Подтвердите на https://platform.openai.com/settings/organization/general.",
     "organisationSuspended": "Ваша организация приостановлена. Ваши данные сохранятся.",
     "pageUrlInvalid": "Введите полный адрес страницы, например https://example.org/play.",
-    "pageUrlNotHttps": "Адрес страницы должен начинаться с https://. Обычный http работает только на сервере разработки.",
     "previousResponseNotFound": "ИИ потерял контекст этой беседы. Такое бывает после долгого простоя. Начните новую сессию.",
     "publicDescriptionTooLong": "Описание должно содержать не более 2000 символов.",
     "publicSlugInvalid": "Используйте символы a–z, цифры 0–9 и одиночные дефисы; длина — от 3 до 60 символов.",
